@@ -55,8 +55,8 @@ resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
 
     QSettings settings;
 
-    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
-    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
@@ -148,9 +148,10 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
 void proformbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
-    bool nordictrack_gx_2_7 = settings.value(QStringLiteral("nordictrack_gx_2_7"), false).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
@@ -400,9 +401,13 @@ void proformbike::update() {
         update_metrics(true, watts());
 
         QSettings settings;
-        bool proform_tour_de_france_clc = settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool();
-        bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-        bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+        bool proform_tour_de_france_clc =
+            settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc)
+                .toBool();
+        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+        bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+        bool nordictrack_gx_2_7 =
+            settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -435,14 +440,29 @@ void proformbike::update() {
         uint8_t noOpData6_proform_studio[] = {0xff, 0x02, 0x08, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        // nordictrack gx 2.7
+        uint8_t noOpData2_nordictrack_gx_2_7[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00,
+                                                  0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
+        uint8_t noOpData3_nordictrack_gx_2_7[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x85, 0xb9, 0x00, 0x00, 0x00,
+                                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData5_nordictrack_gx_2_7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x00,
+                                                  0x03, 0x80, 0x00, 0x40, 0xd5, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         switch (counterPoll) {
         case 0:
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+            if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+            } else {
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+            }
             break;
         case 1:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData2_proform_studio, sizeof(noOpData2_proform_studio), QStringLiteral("noOp"));
-            else if (proform_tour_de_france_clc)
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData2_nordictrack_gx_2_7, sizeof(noOpData2_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+            } else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
             else
@@ -454,19 +474,28 @@ void proformbike::update() {
             else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData3_proform_tour_de_france_clc, sizeof(noOpData3_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData3_nordictrack_gx_2_7, sizeof(noOpData3_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+            } else
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData4_proform_studio, sizeof(noOpData4_proform_studio), QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+            } else
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData5_proform_studio, sizeof(noOpData5_proform_studio), QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData5_nordictrack_gx_2_7, sizeof(noOpData5_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+                innerWriteResistance();
+            } else
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
@@ -505,6 +534,8 @@ void proformbike::update() {
         } else if (counterPoll == 6 && proform_tour_de_france_clc && requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
+        } else if (counterPoll == 5 && nordictrack_gx_2_7) {
+            counterPoll = 0;
         }
 
         // updating the treadmill console every second
@@ -531,8 +562,8 @@ void proformbike::update() {
 
 bool proformbike::inclinationAvailableByHardware() {
     QSettings settings;
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
     if (proform_studio || proform_tdf_10)
         return true;
@@ -601,11 +632,13 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
-    bool proform_tdf_jonseed_watt = settings.value(QStringLiteral("proform_tdf_jonseed_watt"), false).toBool();
-    bool nordictrack_gx_2_7 = settings.value(QStringLiteral("nordictrack_gx_2_7"), false).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    bool proform_tdf_jonseed_watt =
+        settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt).toBool();
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -622,7 +655,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (newValue.at(0) == 0x00) {
             m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
                          100.0);
             } else {
@@ -644,7 +677,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             m_pelotonResistance = (100 / 32) * Resistance.value();
             emit resistanceRead(Resistance.value());
 
-            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(2));
@@ -833,14 +866,15 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_watts = 0;
             }
 
-            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(18));
             }
 
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-                Speed = (settings.value(QStringLiteral("proform_wheel_ratio"), 0.33).toDouble()) *
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio)
+                             .toDouble()) *
                         ((double)Cadence.value());
             } else {
                 Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
@@ -848,12 +882,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
     }
     if (watts())
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+        KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -866,7 +900,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -887,8 +921,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -913,9 +948,10 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void proformbike::btinit() {
 
     QSettings settings;
-    bool nordictrack_gx_2_7 = settings.value(QStringLiteral("nordictrack_gx_2_7"), false).toBool();
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
-    if (settings.value(QStringLiteral("proform_studio"), false).toBool()) {
+    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
         max_resistance = 32;
 
@@ -975,7 +1011,7 @@ void proformbike::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-    } else if (settings.value(QStringLiteral("proform_tdf_10"), false).toBool()) {
+    } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool()) {
         max_resistance = 26;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -1036,9 +1072,6 @@ void proformbike::btinit() {
         QThread::msleep(400);
     } else {
 
-        if (nordictrack_gx_2_7)
-            max_resistance = 20;
-
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1082,7 +1115,8 @@ void proformbike::btinit() {
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
 
-        if (settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool()) {
+        if (settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc)
+                .toBool()) {
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
                                     0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
@@ -1097,7 +1131,22 @@ void proformbike::btinit() {
             QThread::msleep(400);
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
+        } else if (nordictrack_gx_2_7) {
+            max_resistance = 20;
 
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
+                                    0x00, 0x9e, 0x84, 0x60, 0x4a, 0x32, 0x28, 0x04, 0xf6, 0xe6};
+            uint8_t initData11[] = {0x01, 0x12, 0xec, 0xd8, 0xc2, 0xca, 0xd0, 0xac, 0xae, 0xae,
+                                    0xd4, 0xd0, 0xda, 0xc2, 0xf8, 0xf4, 0xe6, 0x16, 0x3c, 0x28};
+            uint8_t initData12[] = {0xff, 0x08, 0x52, 0x7a, 0xa0, 0x80, 0x02, 0x00, 0x00, 0x6b,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
         } else {
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
@@ -1154,11 +1203,14 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();

@@ -12,14 +12,14 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     treadMill = t;
 
     this->noHeartService = noHeartService;
-    if (settings.value("dircon_yes", false).toBool()) {
+    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, 0, 0, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
-    if (!settings.value("virtual_device_bluetooth", true).toBool())
+    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
     notif2AD9 = new CharacteristicNotifier2AD9(t, this);
     notif2AD2 = new CharacteristicNotifier2AD2(t, this);
@@ -32,7 +32,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround) {
 
         qDebug() << "ios_zwift_workaround activated!";
@@ -237,7 +237,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QObject::connect(serviceFTMS, &QLowEnergyService::characteristicChanged, this,
                              &virtualtreadmill::characteristicChanged);
 
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
             pars.setInterval(100, 100);
@@ -295,8 +295,8 @@ void virtualtreadmill::slopeChanged() {
 
 void virtualtreadmill::reconnect() {
     QSettings settings;
-    bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
 
     if (bluetooth_relaxed) {
         return;
@@ -329,7 +329,7 @@ void virtualtreadmill::treadmillProvider() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+    bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
     double cadence_multiplier = 2.0;
     if (double_cadence)
         cadence_multiplier = 1.0;
@@ -355,7 +355,7 @@ void virtualtreadmill::treadmillProvider() {
         return;
     } else {
         QSettings settings;
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         if (bluetooth_relaxed) {
             leController->stopAdvertising();
         }
@@ -485,7 +485,7 @@ bool virtualtreadmill::connected() {
 
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
     if (noHeartService == false)
@@ -495,7 +495,7 @@ bool virtualtreadmill::ftmsServiceEnable() {
 
 bool virtualtreadmill::ftmsTreadmillEnable() {
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
     return false;
@@ -503,7 +503,7 @@ bool virtualtreadmill::ftmsTreadmillEnable() {
 
 bool virtualtreadmill::RSCEnable() {
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (cadence)
         return true;
     return false;
