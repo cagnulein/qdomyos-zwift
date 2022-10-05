@@ -123,8 +123,8 @@ void nautiluselliptical::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -218,9 +218,9 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -229,7 +229,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (newValue.length() == 20) {
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -250,7 +250,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     }
 
     double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
+        GetSpeedFromPacket(newValue) * settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -258,10 +258,10 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(5));

@@ -17,6 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+#include "qzsettings.h"
+
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
@@ -250,8 +252,8 @@ class bluetooth : public QObject, public SignalHandler {
 #endif
 
     /**
-     * @brief Stores the name and address or UUID in the settings.
-     * @param b The Bluetooth device info.
+     * @brief Store the name and other info in the settings.
+     * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
 signals:

@@ -95,9 +95,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
+    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -141,7 +141,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
 
         if (watts())
-            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                        3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
@@ -153,7 +153,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
-        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
         double cadence_multiplier = 1.0;
         if (double_cadence)
             cadence_multiplier = 2.0;
@@ -229,7 +229,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
         if (power_as_treadmill) {
-            Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
 
             emit speedChanged(Speed.value());
             Distance += ((Speed.value() / 3600000.0) *
@@ -252,7 +252,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool()) {
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
             debug("Current Heart: " + QString::number(Heart.value()));
         }
@@ -274,8 +274,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -371,7 +371,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
