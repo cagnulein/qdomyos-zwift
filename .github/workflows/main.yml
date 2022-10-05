@@ -37,6 +37,14 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
+          
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "tags/release-1.12.1"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -70,14 +78,15 @@ jobs:
 
       - name: Build
         run: |         
-            cd src
             qmake
+            cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            cd ..
             make -j8
-            cd debug
+            cd src/debug
             mkdir output
             mkdir appx
             cp qdomyos-zwift.exe output/
