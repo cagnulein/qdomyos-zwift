@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "metric.h"
+#include "qzsettings.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>

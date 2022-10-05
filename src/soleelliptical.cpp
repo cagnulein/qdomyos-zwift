@@ -124,8 +124,8 @@ void soleelliptical::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -233,11 +233,11 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     // the elliptical send the speed in miles always
     double miles = 1;
-    if (settings.value(QStringLiteral("sole_treadmill_miles"), true).toBool())
+    if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
         miles = 1.60934;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -256,13 +256,13 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     double speed = GetSpeedFromPacket(newValue) *
-                   settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble() * miles;
+                   settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble() * miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
@@ -277,7 +277,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -346,8 +346,8 @@ void soleelliptical::btinit(bool startTape) {
     uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    initData3[4] = settings.value(QStringLiteral("age"), 35).toUInt();
-    initData3[6] = settings.value(QStringLiteral("weight"), 75.0).toFloat() * 2.20462;
+    initData3[4] = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+    initData3[6] = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 2.20462;
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
@@ -497,7 +497,7 @@ uint16_t soleelliptical::watts() {
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts = 0;
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     if (currentSpeed().value() > 0) {
 
         double pace = 60 / currentSpeed().value();

@@ -39,12 +39,12 @@ void bike::changePower(int32_t power) {
     RequestedPower = power;
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
-    bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
-    // bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool(); //Not used anywhere in code
-    double erg_filter_upper = settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble();
-    double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0).toDouble();
-    double zwift_erg_resistance_up = settings.value(QStringLiteral("zwift_erg_resistance_up"), 999.0).toDouble();
-    double zwift_erg_resistance_down = settings.value(QStringLiteral("zwift_erg_resistance_down"), 0.0).toDouble();
+    bool force_resistance = settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance).toBool();
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used anywhere in code
+    double erg_filter_upper = settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower = settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double zwift_erg_resistance_up = settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
+    double zwift_erg_resistance_down = settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
 
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
@@ -162,7 +162,7 @@ uint8_t bike::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {

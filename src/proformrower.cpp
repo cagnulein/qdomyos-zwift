@@ -326,8 +326,8 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -365,7 +365,7 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -522,10 +522,10 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
+        bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
         if (!firstStateChanged && !virtualTreadmill && !virtualBike && !virtualRower) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
