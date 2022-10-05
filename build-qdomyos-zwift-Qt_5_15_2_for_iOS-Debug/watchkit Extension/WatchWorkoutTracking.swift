@@ -176,6 +176,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             if let error = error {
                 print(error)
             }
+
+            if self.sport > 0 {
+                self.workoutBuilder.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
+            }
         }
     }
     

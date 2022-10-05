@@ -17,8 +17,8 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
         bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
         if (dt == bluetoothdevice::BIKE) {
             QSettings settings;
-            bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
-            bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
+            bool force_resistance = settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance).toBool();
+            bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
@@ -134,12 +134,12 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::BIKE) {
       QSettings settings;
-      bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
-      bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
+      bool force_resistance = settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance).toBool();
+      bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
       bool zwift_negative_inclination_x2 =
-          settings.value(QStringLiteral("zwift_negative_inclination_x2"), false).toBool();
-      double offset = settings.value(QStringLiteral("zwift_inclination_offset"), 0.0).toDouble();
-      double gain = settings.value(QStringLiteral("zwift_inclination_gain"), 1.0).toDouble();
+          settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2).toBool();
+      double offset = settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+      double gain = settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
 
       qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance) +
                       QStringLiteral(" enabled ") + force_resistance;
@@ -165,8 +165,8 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance) {
       }
     } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
       QSettings settings;
-      double offset = settings.value(QStringLiteral("zwift_inclination_offset"), 0.0).toDouble();
-      double gain = settings.value(QStringLiteral("zwift_inclination_gain"), 1.0).toDouble();
+      double offset = settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+      double gain = settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
 
       qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance);
       double resistance = ((double)iresistance * 1.5) / 100.0;

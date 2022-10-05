@@ -181,6 +181,7 @@ SOURCES += \
    proformelliptical.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
+    qzsettings.cpp \
    renphobike.cpp \
    rower.cpp \
 	schwinnic4bike.cpp \
@@ -577,6 +578,7 @@ HEADERS += \
     qdebugfixup.h \
 	qfit.h \
     qmdnsengine_export.h \
+    qzsettings.h \
    renphobike.h \
    rower.h \
 	schwinnic4bike.h \
@@ -716,4 +718,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.52
+VERSION = 2.11.66

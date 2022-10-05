@@ -87,8 +87,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
-    sessionMesg.SetMinAltitude(min_alt - 500);
-    sessionMesg.SetMaxAltitude(max_alt - 500);
+    sessionMesg.SetMinAltitude(min_alt);
+    sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -221,7 +221,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
 
         if (sl.coordinate.isValid()) {
-            newRecord.SetAltitude(sl.coordinate.altitude() - 500);
+            newRecord.SetAltitude(sl.coordinate.altitude());
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
@@ -502,7 +502,7 @@ public:
            s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
            s.verticalOscillationMM = record.GetVerticalOscillation();
            s.groundContactMS = record.GetStanceTime();
-           s.coordinate.setAltitude(record.GetAltitude() + 500);
+           s.coordinate.setAltitude(record.GetAltitude());
            s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2,31));
            s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2,31));
            if(!s.coordinate.isValid()) {

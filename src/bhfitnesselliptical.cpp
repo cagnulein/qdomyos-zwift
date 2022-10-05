@@ -29,6 +29,9 @@ bhfitnesselliptical::bhfitnesselliptical(bool noWriteResistance, bool noHeartSer
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &bhfitnesselliptical::update);
     refresh->start(200ms);
+
+    // this bike doesn't send resistance, so I have to use the default value
+    Resistance = default_resistance;
 }
 
 void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -55,11 +58,15 @@ void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, c
 
 void bhfitnesselliptical::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x21, 0x22};
 
-    write[1] = ((uint16_t)requestResistance) & 0xFF;
+    write[3] = ((int16_t)(requestResistance - default_resistance) * 33) & 0xFF;
+    write[4] = ((int16_t)(requestResistance - default_resistance) * 33) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+
+    // this bike doesn't send resistance, so I have to use the value forced
+    Resistance = requestResistance;
 }
 
 void bhfitnesselliptical::update() {
@@ -69,6 +76,7 @@ void bhfitnesselliptical::update() {
     }
 
     if (initRequest) {
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -85,16 +93,15 @@ void bhfitnesselliptical::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
-            } // TODO, use the bluetooth value
-            else if (requestResistance == 0) {
-                requestResistance = 1;
+            if (requestResistance > max_resistance) {
+                requestResistance = max_resistance;
             }
 
             if (requestResistance != currentResistance().value()) {
-                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                forceResistance(requestResistance);
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
+                    emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                    forceResistance(requestResistance);
+                }
             }
             requestResistance = -1;
         }
@@ -124,8 +131,8 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -168,7 +175,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     index += 2;
 
     if (!Flags.moreData) {
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             // this elliptical doesn't send speed so i have to calculate this based on cadence
             /*
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -191,7 +198,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     }
 
     if (Flags.instantCadence) {
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -199,7 +206,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
                       2.0;
 
             // this elliptical doesn't send speed so i have to calculate this based on cadence
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = Cadence.value() / 10.0;
             }
         }
@@ -238,7 +245,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     }
 
     if (Flags.instantPower) {
-        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -267,7 +274,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     } else {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                    3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -278,7 +285,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -328,8 +335,8 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
 /*
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -427,7 +434,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill
+    if (!firstStateChanged
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -435,25 +442,50 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
-        if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual treadmill interface..."));
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
-            // connect(virtualTreadmill,&virtualTreadmill::debug ,this,&bhfitnesselliptical::debug);
-            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-                    &bhfitnesselliptical::changeInclination);
+        if (!virtualTreadmill && !virtualBike) {
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            if (virtual_device_enabled) {
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &bhfitnesselliptical::debug);
+                    connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                            &bhfitnesselliptical::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &bhfitnesselliptical::changeInclinationRequested);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &bhfitnesselliptical::changeInclination);
+                    connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                            &bhfitnesselliptical::ftmsCharacteristicChanged);
+                }
+            }
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
 }
 
+void bhfitnesselliptical::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
+
 void bhfitnesselliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                     const QByteArray &newValue) {
     QByteArray b = newValue;
     if (gattWriteCharControlPointId.isValid()) {
-        qDebug() << "routing FTMS packet to the bike from virtualTreadmill" << characteristic.uuid()
-                 << newValue.toHex(' ');
+        qDebug() << "routing FTMS packet to the bike from virtualBike" << characteristic.uuid() << newValue.toHex(' ');
+
+        // handling reading current resistance
+        if (b.at(0) == 0x11) {
+            int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            Resistance = (slope / 33) + default_resistance;
+        }
 
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
     }

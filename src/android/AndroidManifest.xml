@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.11.50" android:versionCode="387" android:installLocation="auto">
-    <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
-	      Remove the comment if you do not require these default permissions. -->
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.11.66" android:versionCode="399" android:installLocation="auto">
+<!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
+          Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
 
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.

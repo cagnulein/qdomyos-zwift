@@ -85,8 +85,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
-        if (!qstrcmp(argv[i], "-no-gui"))
+        if (!qstrcmp(argv[i], "-no-gui")) {
             nogui = true;
+            forceQml = false;
+        }
         if (!qstrcmp(argv[i], "-qml"))
             forceQml = true;
         if (!qstrcmp(argv[i], "-noqml"))
@@ -219,7 +221,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
-    static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
+    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -310,33 +312,33 @@ int main(int argc, char *argv[]) {
 
         // Android 10 doesn't support multiple services for peripheral mode
         if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
-            settings.setValue(QStringLiteral("bike_heartrate_service"), true);
+            settings.setValue(QZSettings::bike_heartrate_service, true);
         }
 
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
-            !settings.value(QStringLiteral("android_wakelock")).isValid()) {
-            settings.setValue(QStringLiteral("android_wakelock"), false);
+            !settings.value(QZSettings::android_wakelock).isValid()) {
+            settings.setValue(QZSettings::android_wakelock, false);
         }
 
-        noHeartService = settings.value(QStringLiteral("bike_heartrate_service"), defaultNoHeartService).toBool();
-        bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), bikeResistanceOffset).toInt();
-        bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), bikeResistanceGain).toDouble();
-        deviceName = settings.value(QStringLiteral("filter_device"), QStringLiteral("Disabled")).toString();
+        noHeartService = settings.value(QZSettings::bike_heartrate_service, defaultNoHeartService).toBool();
+        bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
+        bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
+        deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
-        settings.setValue(QStringLiteral("miles_unit"), miles);
-        settings.setValue(QStringLiteral("bluetooth_no_reconnection"), bluetooth_no_reconnection);
-        settings.setValue(QStringLiteral("bluetooth_relaxed"), bluetooth_relaxed);
-        settings.setValue(QStringLiteral("bike_cadence_sensor"), bike_cadence_sensor);
-        settings.setValue(QStringLiteral("bike_power_sensor"), bike_power_sensor);
-        settings.setValue(QStringLiteral("battery_service"), battery_service);
-        settings.setValue(QStringLiteral("service_changed"), service_changed);
-        settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
-        settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
-        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
-        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
+        settings.setValue(QZSettings::miles_unit, miles);
+        settings.setValue(QZSettings::bluetooth_no_reconnection, bluetooth_no_reconnection);
+        settings.setValue(QZSettings::bluetooth_relaxed, bluetooth_relaxed);
+        settings.setValue(QZSettings::bike_cadence_sensor, bike_cadence_sensor);
+        settings.setValue(QZSettings::bike_power_sensor, bike_power_sensor);
+        settings.setValue(QZSettings::battery_service, battery_service);
+        settings.setValue(QZSettings::service_changed, service_changed);
+        settings.setValue(QZSettings::bike_wheel_revs, bike_wheel_revs);
+        settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
+        settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
+        settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
     }
 #endif
 
@@ -348,6 +350,13 @@ int main(int argc, char *argv[]) {
             qDebug() << s << settings.value(s);
         }
     }
+
+#if 0
+    qDebug() << "-";
+    qDebug() << "Settings from QZSettings";
+    QZSettings::qDebugAllSettings();
+    qDebug() << "-";
+#endif
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
@@ -376,8 +385,8 @@ int main(int argc, char *argv[]) {
             Q_UNUSED(V)
             return app->exec();
         } else if (testPeloton) {
-            settings.setValue("peloton_username", peloton_username);
-            settings.setValue("peloton_password", peloton_password);
+            settings.setValue(QZSettings::peloton_username, peloton_username);
+            settings.setValue(QZSettings::peloton_password, peloton_password);
             peloton *p = new peloton(0, 0);
             p->setTestMode(true);
             QObject::connect(p, &peloton::loginState, [&](bool ok) {
@@ -425,7 +434,8 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
+    settings.setValue(QZSettings::app_opening,
+                      settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
     auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
@@ -486,7 +496,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     /* test virtual echelon
-     * settings.setValue("virtual_device_echelon", true);
+     * settings.setValue(QZSettings::virtual_device_echelon, true);
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
     Q_UNUSED(V)
     return app->exec();*/
@@ -517,8 +527,10 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
-#else
+#elif defined(Q_OS_IOS)
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
+#else
+        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
 #endif
 #ifdef CHARTJS
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));

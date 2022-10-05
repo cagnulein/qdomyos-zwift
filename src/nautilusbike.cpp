@@ -92,7 +92,7 @@ void nautilusbike::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this);
@@ -134,9 +134,9 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -145,7 +145,7 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (newValue.length() == 20) {
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -174,10 +174,10 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = speed * 2.6; // this device doesn't send cadence so I'm calculating it from the speed

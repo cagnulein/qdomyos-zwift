@@ -251,12 +251,12 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t *f, qint64 now) {
 
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
-    antHeart = settings.value(QStringLiteral("ant_heart"), false).toBool();
+    antHeart = settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool();
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     qt_search =
-        (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value("m3i_bike_qt_search", false).toBool();
+        (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value(QZSettings::m3i_bike_qt_search, QZSettings::default_m3i_bike_qt_search).toBool();
 #endif
-    heartRateBeltDisabled = settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled"))
+    heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
     m_watt.setType(metric::METRIC_WATT);
@@ -590,7 +590,7 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         QSettings settings;
         keiser_m3i_out_t k3;
-        int id = settings.value(QStringLiteral("m3i_bike_id"), 256).toInt();
+        int id = settings.value(QZSettings::m3i_bike_id, QZSettings::default_m3i_bike_id).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
@@ -621,11 +621,11 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 && !h
 #endif
                 ) {
-                bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+                bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
-                bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-                bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+                bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+                bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
                 if (ios_peloton_workaround && cadence) {
                     qDebug() << "ios_peloton_workaround activated!";
                     h->virtualbike_ios();
@@ -637,7 +637,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
                 }
-                int buffSize = settings.value(QStringLiteral("m3i_bike_speed_buffsize"), 90).toInt();
+                int buffSize = settings.value(QZSettings::m3i_bike_speed_buffsize, QZSettings::default_m3i_bike_speed_buffsize).toInt();
                 k3s.inner_reset(buffSize,
 #if defined(Q_OS_ANDROID)
                                 qt_search ? 2500 : 5000
@@ -666,27 +666,27 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
         emit resistanceRead(Resistance.value());
 
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = k3.rpm;
         }
-        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = k3.watt;
         watts(); // to update avg and max
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = k3.speed;
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
-        if (settings.value(QStringLiteral("m3i_bike_kcal"), true).toBool()) {
+        if (settings.value(QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal).toBool()) {
             KCal = k3.calorie;
         } else {
             if (watts())
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         }
@@ -704,7 +704,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
         m_jouls += (m_watt.value() * (k3.time - oldtime));
         WeightLoss = metric::calculateWeightLoss(KCal.value());
-        WattKg = m_watt.value() / settings.value("weight", 75.0).toFloat();
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         if (Cadence.value() > 0) {
             CrankRevs++;
@@ -736,8 +736,8 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
 
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());

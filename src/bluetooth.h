@@ -17,6 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+#include "qzsettings.h"
+
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
@@ -249,7 +251,12 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer discoveryTimeout;
 #endif
 
-  signals:
+    /**
+     * @brief Store the name and other info in the settings.
+     * @param b The bluetooth device info.
+     */
+    void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
+signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
