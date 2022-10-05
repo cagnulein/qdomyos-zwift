@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "metric.h"
+#include "qzsettings.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -173,7 +174,6 @@ class bluetoothdevice : public QObject {
      */
     virtual QGeoCoordinate currentCordinate();
 
-
     /**
      * @brief nextInclination300Meters The next 300m of track sections: length and inclination
      * @return A list of MetersByInclination objects
@@ -302,12 +302,14 @@ class bluetoothdevice : public QObject {
     metric currentMETS() { return METS; }
 
     /**
-     * @brief currentHeartZone Gets a metric object to get or set the current heart zone. Units: depends on implementation.
+     * @brief currentHeartZone Gets a metric object to get or set the current heart zone. Units: depends on
+     * implementation.
      */
     metric currentHeartZone() { return HeartZone; }
 
     /**
-     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on implementation.
+     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
+     * implementation.
      * @return
      */
     metric currentPowerZone() { return PowerZone; }
@@ -366,7 +368,7 @@ class bluetoothdevice : public QObject {
 
   public Q_SLOTS:
     virtual void start();
-    virtual void stop();
+    virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
@@ -420,7 +422,7 @@ class bluetoothdevice : public QObject {
      * e.g. the product of bike flywheel speed and simulated wheel size, or
      * the belt speed of a treadmill.
      */
-    metric Speed;        
+    metric Speed;
 
     /**
      * @brief Distance The simulated distance travelled. Units: km
@@ -430,19 +432,19 @@ class bluetoothdevice : public QObject {
      */
     metric Distance;
 
-
     /**
      * @brief FanSpeed The currently requested fan speed. Units: revolutions per second
      */
     uint8_t FanSpeed = 0;
 
     /**
-     * @brief Heart rate. Unit: beats per minute 
+     * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
+    int8_t requestPause = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;

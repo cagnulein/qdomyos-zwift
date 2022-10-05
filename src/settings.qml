@@ -467,6 +467,16 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.43
             property int video_playback_window_s: 12
+
+            // from version 2.11.62
+            property string horizon_treadmill_profile_user1: "user1"
+            property string horizon_treadmill_profile_user2: "user2"
+            property string horizon_treadmill_profile_user3: "user3"
+            property string horizon_treadmill_profile_user4: "user4"
+            property string horizon_treadmill_profile_user5: "user5"
+
+            // from version 2.11.63
+            property bool nordictrack_gx_2_7: false
         }
 
         function paddingZeros(text, limit) {
@@ -802,18 +812,19 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.kcal_ignore_builtin = checked
                     }
+                    Label {
+                        id: labelHeartRateBelt
+                        text: qsTr("Heart Belt Name:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelHeartRateBelt
-                            text: qsTr("Heart Belt Name:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.heart_rate_belt_name
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
@@ -1880,6 +1891,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_10 = checked
+                    }
+                    SwitchDelegate {
+                        id: nordictrackGX27odelegate
+                        text: qsTr("NordicTrack GX 2.7")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_gx_2_7
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.nordictrack_gx_2_7 = checked
                     }
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
@@ -4916,6 +4941,122 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.horizon_treadmill_7_8 = checked
                         }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile1
+                                text: qsTr("User 1:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile1TextField
+                                text: settings.horizon_treadmill_profile_user1
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user1 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile1Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile2
+                                text: qsTr("User 2:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile2TextField
+                                text: settings.horizon_treadmill_profile_user2
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user2 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile2Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile3
+                                text: qsTr("User 3:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile3TextField
+                                text: settings.horizon_treadmill_profile_user3
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user3 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile3Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile4
+                                text: qsTr("User 4:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile4TextField
+                                text: settings.horizon_treadmill_profile_user4
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user4 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile4Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile5
+                                text: qsTr("User 5:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile5TextField
+                                text: settings.horizon_treadmill_profile_user5
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user5 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile5Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text
+                            }
+                        }
                     }
                 }
 
@@ -5164,18 +5305,19 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    Label {
+                        id: labelFilterDevice
+                        text: qsTr("Manual Device:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelFilterDevice
-                            text: qsTr("Manual Device:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.filter_device
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
@@ -5521,18 +5663,19 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.cadence_sensor_as_bike = checked
                             }
+                            Label {
+                                id: labelCadenceSensorName
+                                text: qsTr("Cadence Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelCadenceSensorName
-                                    text: qsTr("Cadence Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.cadence_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
@@ -5632,18 +5775,19 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.powr_sensor_running_cadence_double = checked
                             }
 
+                            Label {
+                                id: labelPowerSensorName
+                                text: qsTr("Power Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelPowerSensorName
-                                    text: qsTr("Power Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.power_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
@@ -5684,18 +5828,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteRizerName
+                                        text: qsTr("Elite Rizer:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteRizerName
-                                            text: qsTr("Elite Rizer:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_rizer_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
@@ -5751,18 +5896,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteSterzoSmartName
+                                        text: qsTr("Elite Sterzo Smart:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteSterzoSmartName
-                                            text: qsTr("Elite Sterzo Smart:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteSterzoSmartNameTextField.currentIndex)
@@ -5797,18 +5943,19 @@ import Qt.labs.settings 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 10
+                            Label {
+                                id: labelFTMSAccessoryName
+                                text: qsTr("SmartSpin2k device:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelFTMSAccessoryName
-                                    text: qsTr("SmartSpin2k device:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.ftms_accessory_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)

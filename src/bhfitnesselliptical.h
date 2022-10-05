@@ -57,6 +57,8 @@ class bhfitnesselliptical : public elliptical {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    const uint8_t max_resistance = 72; // 24;
+    const uint8_t default_resistance = 6;
 
     bool initDone = false;
     bool initRequest = false;
@@ -90,6 +92,7 @@ class bhfitnesselliptical : public elliptical {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+    void changeInclinationRequested(double grade, double percentage);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 

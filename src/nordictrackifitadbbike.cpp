@@ -22,7 +22,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
-    QString ip = settings.value("tdf_10_ip", "").toString();
+    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -33,7 +33,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
-        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this);
@@ -62,48 +62,55 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value("tdf_10_ip", "").toString();
+        QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
         QString heartRateBeltName =
-            settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-        double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         double speed = 0;
         double cadence = 0;
         double resistance = 0;
         double gears = 0;
         double watt = 0;
+        double grade = 0;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = aValues.last().toDouble();
+                    speed = QLocale().toDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed RPM"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    cadence = aValues.last().toDouble();
+                    cadence = QLocale().toDouble(aValues.last());
                     Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    gears = aValues.last().toDouble();
-                    //Cadence = cadence;
+                    gears = QLocale().toDouble(aValues.last());
+                    // Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    resistance = aValues.last().toDouble();
+                    resistance = QLocale().toDouble(aValues.last());
                     Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    watt = aValues.last().toDouble();
+                    watt = QLocale().toDouble(aValues.last());
                     m_watt = watt;
+                }
+            } else if (line.contains(QStringLiteral("Changed Grade"))) {
+                QStringList aValues = line.split(" ");
+                if (aValues.length()) {
+                    grade = QLocale().toDouble(aValues.last());
+                    Inclination = grade;
                 }
             }
         }
@@ -125,7 +132,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -149,12 +156,11 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Gear: ") + QString::number(gears));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
     }
 }
-
-
 
 void nordictrackifitadbbike::forceResistance(double resistance) {}
 
@@ -183,10 +189,7 @@ void nordictrackifitadbbike::update() {
     }
 }
 
-uint16_t nordictrackifitadbbike::watts() {
-    return m_watt.value();
-}
-
+uint16_t nordictrackifitadbbike::watts() { return m_watt.value(); }
 
 void nordictrackifitadbbike::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
@@ -194,6 +197,5 @@ void nordictrackifitadbbike::changeInclinationRequested(double grade, double per
     changeInclination(grade, percentage);
 }
 
-bool nordictrackifitadbbike::connected() {}
-
+bool nordictrackifitadbbike::connected() { return true; }
 

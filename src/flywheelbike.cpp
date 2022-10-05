@@ -182,12 +182,12 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
 void flywheelbike::updateStats() {
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     // calculate the acculamator every time on the current data, in order to avoid holes in peloton or strava
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -217,8 +217,8 @@ void flywheelbike::updateStats() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -245,7 +245,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    //    QString heartRateBeltName = settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled"))
+    //    QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
     //                                    .toString(); // NOTE: clazy-unused-non-trivial-variable
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -263,7 +263,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             // double distance = GetDistanceFromPacket(newValue); //Note: clang-analyzer-deadcode.DeadStores
 
 #ifdef Q_OS_ANDROID
-            if (settings.value("ant_heart", false).toBool())
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                 Heart = (uint8_t)KeepAwakeHelper::heart();
 #endif
 
@@ -272,7 +272,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             uint16_t speed = ((parsedData->speed >> 8) & 0xFF);
             speed += ((parsedData->speed & 0xFF) << 8);
 
-            if (zero_fix_filter < settings.value(QStringLiteral("flywheel_filter"), 2).toUInt() &&
+            if (zero_fix_filter < settings.value(QZSettings::flywheel_filter, QZSettings::default_flywheel_filter).toUInt() &&
                 (parsedData->cadence == 0 || speed == 0 || power == 0)) {
                 qDebug() << QStringLiteral("filtering crappy values");
                 zero_fix_filter++;
@@ -281,13 +281,13 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
                 Resistance = parsedData->brake_level;
                 emit resistanceRead(Resistance.value());
-                if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
                     Cadence = parsedData->cadence;
                 }
                 m_watts = power;
-                if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                     Speed = ((double)speed) / 10.0;
                 } else {
                     Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
@@ -366,11 +366,11 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
