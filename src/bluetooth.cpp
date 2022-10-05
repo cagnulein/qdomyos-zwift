@@ -906,7 +906,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 bool technogym_myrun_treadmill_experimental =
                      settings
                          .value(QZSettings::technogym_myrun_treadmill_experimental,
-                                    QZSettings::default_technogym_myrun_treadmill_experimental)
+                                QZSettings::default_technogym_myrun_treadmill_experimental)
                          .toBool();
 #ifndef Q_OS_IOS
                 if (!technogym_myrun_treadmill_experimental)
