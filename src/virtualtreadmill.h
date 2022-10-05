@@ -47,7 +47,7 @@ class virtualtreadmill : public QObject {
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
-    
+
     uint64_t lastSlopeChanged = 0;
 
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
@@ -65,7 +65,7 @@ class virtualtreadmill : public QObject {
     bool ftmsServiceEnable();
     bool ftmsTreadmillEnable();
     bool RSCEnable();
-    
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -73,6 +73,7 @@ class virtualtreadmill : public QObject {
   signals:
     void debug(QString string);
     void changeInclination(double grade, double percentage);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
