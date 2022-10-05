@@ -321,7 +321,7 @@ int main(int argc, char *argv[]) {
             settings.setValue(QZSettings::android_wakelock, false);
         }
 
-        noHeartService = settings.value(QZSettings::bike_heartrate_service,  defaultNoHeartService ).toBool();
+        noHeartService = settings.value(QZSettings::bike_heartrate_service, defaultNoHeartService).toBool();
         bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
         bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
         deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
@@ -351,10 +351,12 @@ int main(int argc, char *argv[]) {
         }
     }
 
+#if 0
     qDebug() << "-";
     qDebug() << "Settings from QZSettings";
     QZSettings::qDebugAllSettings();
     qDebug() << "-";
+#endif
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
@@ -432,7 +434,8 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue(QZSettings::app_opening, settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
+    settings.setValue(QZSettings::app_opening,
+                      settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
     auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
