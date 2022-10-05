@@ -616,14 +616,17 @@ void trainprogram::scheduler() {
 
                     double distanceRow = rows.at(currentStep).distance;
                     double ratioDistance = currentStepDistance / distanceRow;
-                    QTime r = QTime(0,0,0);
-                    if(currentStep > 0) {
+                    QTime r = QTime(0, 0, 0);
+                    if (currentStep > 0) {
                         r = rows.at(currentStep - 1).gpxElapsed;
-                    }                    
-                    if (currentStep + 1 < rows.length()) {
-                        ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
+                    }
+                    if (currentStep < rows.length()) {
+                        ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
                         r = r.addMSecs(ratioDistance * 1000);
                     }
+
+                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
+                             << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
                     emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
@@ -670,15 +673,15 @@ void trainprogram::scheduler() {
 
                 double distanceRow = rows.at(currentStep).distance;
                 double ratioDistance = currentStepDistance / distanceRow;
-                QTime r = QTime(0,0,0);
-                if(currentStep > 0) {
+                QTime r = QTime(0, 0, 0);
+                if (currentStep > 0) {
                     r = rows.at(currentStep - 1).gpxElapsed;
                 }
                 if (currentStep < rows.length()) {
                     ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
                     r = r.addMSecs(ratioDistance * 1000);
                 }
-                
+
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
                          << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
                 emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
