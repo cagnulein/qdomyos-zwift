@@ -514,7 +514,7 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
-
+                double savedCurrentStepDistance = currentStepDistance;
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
@@ -615,7 +615,7 @@ void trainprogram::scheduler() {
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
 
                     double distanceRow = rows.at(currentStep).distance;
-                    double ratioDistance = currentStepDistance / distanceRow;
+                    double ratioDistance = savedCurrentStepDistance / distanceRow;
                     QTime r = QTime(0, 0, 0);
                     if (currentStep > 0) {
                         r = rows.at(currentStep - 1).gpxElapsed;
