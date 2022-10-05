@@ -1,4 +1,4 @@
-GOOGLETEST_DIR = $$PWD/../google_test
+GOOGLETEST_DIR = $$PWD/googletest
 
 include(../defaults.pri)
 include(gtest_dependency.pri)
