@@ -931,17 +931,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        !this->device<technogymmyruntreadmill>() && filter) {
                 this->stopDiscovery();
                 bool technogym_myrun_treadmill_experimental =
-<<<<<<< HEAD
                      settings
-                         .value(QZSettings::technogym_myrun_treadmill_experimental,
-                                QZSettings::default_technogym_myrun_treadmill_experimental)
-                         .toBool();
-=======
-                    settings
                         .value(QZSettings::technogym_myrun_treadmill_experimental,
                                QZSettings::default_technogym_myrun_treadmill_experimental)
                         .toBool();
->>>>>>> remotes/origin/master
+
 #ifndef Q_OS_IOS
                 if (!technogym_myrun_treadmill_experimental)
 #endif
