@@ -40,8 +40,8 @@ void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
     QSettings settings;
     if (speed > 102)
         speed = 102;
-    double max = settings.value(QStringLiteral("fitmetria_fanfit_max"), 100).toDouble();
-    double min = settings.value(QStringLiteral("fitmetria_fanfit_min"), 0).toDouble();
+    double max = settings.value(QZSettings::fitmetria_fanfit_max, QZSettings::default_fitmetria_fanfit_max).toDouble();
+    double min = settings.value(QZSettings::fitmetria_fanfit_min, QZSettings::default_fitmetria_fanfit_min).toDouble();
 
     uint16_t speed16 = (uint16_t)((double)speed * ((max * 10.0) - (min * 10.0)) / 100.0 + (min * 10.0));
     const uint8_t brightness = 5;
@@ -91,7 +91,7 @@ void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
     QString s = QString::number((speed16)) +
                 "~" + QString::number(brightness);
 
-    if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+    if(!settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
             .toString()
             .compare(QStringLiteral("Power")) && parentDevice) {
         double ftp = parentDevice->currentPowerZone().value();
@@ -109,7 +109,7 @@ void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
         else if(ftp < 6.6) memset(&leds[12], 0, leds_max - 12);
         else if(ftp < 7) memset(&leds[13], 0, leds_max - 13);
         else if(ftp < 7.1) memset(&leds[14], 0, leds_max - 14);
-    } else if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+    } else if(!settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
               .toString()
               .compare(QStringLiteral("Heart")) && parentDevice) {
         double ftp = parentDevice->currentHeartZone().value();

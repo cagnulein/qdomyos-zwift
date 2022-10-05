@@ -19,7 +19,7 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     retry.setInterval(10s);
     connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
-    if (!settings.value(QStringLiteral("peloton_username"), QStringLiteral("username"))
+    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
              .toString()
              .compare(QStringLiteral("username"))) {
         qDebug() << QStringLiteral("invalid peloton credentials");
@@ -192,7 +192,7 @@ void homefitnessbuddy::search_workout_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
     // NOTE: clazy-unused-non-trivial-variable
-    // QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+    // QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
 
     trainrows.clear();
     trainrows = zwiftworkout::load(payload);

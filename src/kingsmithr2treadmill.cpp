@@ -57,9 +57,9 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
-        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
@@ -118,8 +118,8 @@ void kingsmithr2treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -138,7 +138,7 @@ void kingsmithr2treadmill::update() {
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ >= (1000 / refresh->interval())) {
@@ -229,7 +229,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -248,9 +248,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
-        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);
         else
             idx = ENCRYPT_TABLE.indexOf(ch);
@@ -296,7 +296,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - spm (int) : steps per minute
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -323,10 +323,10 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in

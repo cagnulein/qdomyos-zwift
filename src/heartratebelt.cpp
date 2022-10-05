@@ -50,7 +50,10 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattNotifyCharacteristic =
             gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
-        Q_ASSERT(gattNotifyCharacteristic.isValid());
+        if(!gattNotifyCharacteristic.isValid()) {
+            qDebug() << "gattNotifyCharacteristic not valid for HR";
+            return;
+        }
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
@@ -111,7 +114,7 @@ void heartratebelt::error(QLowEnergyController::Error err) {
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
-    // QString heartRateBeltName = settings.value(QStringLiteral("heart_rate_belt_name"),
+    // QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name),
     // QStringLiteral("Disabled")).toString();//NOTE: clazy-unsed-non-trivial-variable
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');

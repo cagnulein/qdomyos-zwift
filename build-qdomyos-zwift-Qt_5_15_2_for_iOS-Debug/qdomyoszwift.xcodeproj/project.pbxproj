@@ -316,6 +316,10 @@
 		87900DC8268B673C000CB351 /* moc_renphobike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87900DC7268B673C000CB351 /* moc_renphobike.cpp */; };
 		8790FDDF277B0ABA00247550 /* nautilustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8790FDDD277B0ABA00247550 /* nautilustreadmill.cpp */; };
 		8790FDE1277B0AC600247550 /* moc_nautilustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8790FDE0277B0AC600247550 /* moc_nautilustreadmill.cpp */; };
+		87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A6E28E768D200F8D9AC /* Browser.swift */; };
+		87917A7528E768D200F8D9AC /* Connection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7028E768D200F8D9AC /* Connection.swift */; };
+		87917A7628E768D200F8D9AC /* Server.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7128E768D200F8D9AC /* Server.swift */; };
+		87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7228E768D200F8D9AC /* Client.swift */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
 		87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1827628D4500124B24 /* elitesterzosmart.cpp */; };
@@ -1064,6 +1068,10 @@
 		8790FDDD277B0ABA00247550 /* nautilustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nautilustreadmill.cpp; path = ../src/nautilustreadmill.cpp; sourceTree = "<group>"; };
 		8790FDDE277B0ABA00247550 /* nautilustreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nautilustreadmill.h; path = ../src/nautilustreadmill.h; sourceTree = "<group>"; };
 		8790FDE0277B0AC600247550 /* moc_nautilustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nautilustreadmill.cpp; sourceTree = "<group>"; };
+		87917A6E28E768D200F8D9AC /* Browser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Browser.swift; path = ../src/ios/AppleWatchToIpad/Browser.swift; sourceTree = "<group>"; };
+		87917A7028E768D200F8D9AC /* Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Connection.swift; path = ../src/ios/AppleWatchToIpad/Connection.swift; sourceTree = "<group>"; };
+		87917A7128E768D200F8D9AC /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Server.swift; path = ../src/ios/AppleWatchToIpad/Server.swift; sourceTree = "<group>"; };
+		87917A7228E768D200F8D9AC /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Client.swift; path = ../src/ios/AppleWatchToIpad/Client.swift; sourceTree = "<group>"; };
 		8791A8A725C8602A003B50B2 /* inspirebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inspirebike.h; path = ../src/inspirebike.h; sourceTree = "<group>"; };
 		8791A8A825C8602A003B50B2 /* inspirebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = inspirebike.cpp; path = ../src/inspirebike.cpp; sourceTree = "<group>"; };
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
@@ -1598,6 +1606,7 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				87917A6D28E768B000F8D9AC /* AppleWatchToIpad */,
 				8754D24B27F786F0003D7054 /* virtualrower.swift */,
 				2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */,
 				871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */,
@@ -2160,6 +2169,17 @@
 				876E4E2C2594748100BD5714 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		87917A6D28E768B000F8D9AC /* AppleWatchToIpad */ = {
+			isa = PBXGroup;
+			children = (
+				87917A6E28E768D200F8D9AC /* Browser.swift */,
+				87917A7228E768D200F8D9AC /* Client.swift */,
+				87917A7028E768D200F8D9AC /* Connection.swift */,
+				87917A7128E768D200F8D9AC /* Server.swift */,
+			);
+			name = AppleWatchToIpad;
 			sourceTree = "<group>";
 		};
 		87DF60DE337FB58864343E39 /* Resources */ = {
@@ -2822,6 +2842,7 @@
 				C6B3CD471768392E18F85819 /* fit_accumulated_field.cpp in Compile Sources */,
 				3D7395B0A17915A06361C7F3 /* fit_accumulator.cpp in Compile Sources */,
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
+				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
 				876F45FF279350D9003CDA5A /* moc_concept2skierg.cpp in Compile Sources */,
@@ -2848,6 +2869,7 @@
 				87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */,
 				87900DC6268B672E000CB351 /* renphobike.cpp in Compile Sources */,
 				879F16462847E55C00CE4945 /* proformellipticaltrainer.cpp in Compile Sources */,
+				87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */,
 				873824B927E64707004F1B46 /* moc_provider.cpp in Compile Sources */,
 				8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */,
 				DF1FD9718B75FA591A7E3D80 /* fit_decode.cpp in Compile Sources */,
@@ -3009,6 +3031,7 @@
 				873CD20927EF8D8A000131BC /* inapppurchasebackend.cpp in Compile Sources */,
 				87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */,
 				87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */,
+				87917A7628E768D200F8D9AC /* Server.swift in Compile Sources */,
 				2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */,
 				873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */,
 				8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */,
@@ -3029,6 +3052,7 @@
 				87C5F0D626285E7E0067A1B5 /* moc_emailaddress.cpp in Compile Sources */,
 				39FAA19B9285AB16AE3A39BA /* qrc_icons.cpp in Compile Sources */,
 				87D2699F25F535200076AA48 /* m3ibike.cpp in Compile Sources */,
+				87917A7528E768D200F8D9AC /* Connection.swift in Compile Sources */,
 				87FFA13727BBE3FF00924E4E /* solebike.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				873824E727E647A8004F1B46 /* record.cpp in Compile Sources */,
@@ -3462,7 +3486,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3491,6 +3515,7 @@
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
 					../../Qt/5.15.2/ios/include/QtTextToSpeech,
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3629,7 +3654,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -3660,6 +3685,7 @@
 					../src/purchasing/qmltypes,
 					../src/purchasing/ios,
 					../../Qt/5.15.2/ios/include/QtTextToSpeech,
+					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3832,7 +3858,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3924,7 +3950,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4011,7 +4037,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4030,6 +4056,26 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					.,
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"../src/fit-sdk",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
+					.,
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtMultimedia,
+				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.11;
@@ -4101,7 +4147,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.49;
+				CURRENT_PROJECT_VERSION = 2.11.62;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -4116,6 +4162,26 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../src,
+					.,
+					../../Qt/5.15.2/ios/mkspecs/common/uikit,
+					"../src/fit-sdk",
+					../../Qt/5.15.2/ios/include,
+					../../Qt/5.15.2/ios/include/QtWidgets,
+					../../Qt/5.15.2/ios/include/QtQuick,
+					../../Qt/5.15.2/ios/include/QtGui,
+					../../Qt/5.15.2/ios/include/QtBluetooth,
+					../../Qt/5.15.2/ios/include/QtXml,
+					../../Qt/5.15.2/ios/include/QtPositioning,
+					../../Qt/5.15.2/ios/include/QtQmlModels,
+					../../Qt/5.15.2/ios/include/QtQml,
+					../../Qt/5.15.2/ios/include/QtNetwork,
+					../../Qt/5.15.2/ios/include/QtCore,
+					.,
+					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					../../Qt/5.15.2/ios/include/QtMultimedia,
+				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.11;

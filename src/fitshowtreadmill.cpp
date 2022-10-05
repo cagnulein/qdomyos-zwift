@@ -33,8 +33,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh = new QTimer(this);
     initDone = false;
     QSettings settings;
-    anyrun = settings.value(QStringLiteral("fitshow_anyrun"), false).toBool();
-    truetimer = settings.value(QStringLiteral("fitshow_truetimer"), false).toBool();
+    anyrun = settings.value(QZSettings::fitshow_anyrun, QZSettings::default_fitshow_anyrun).toBool();
+    truetimer = settings.value(QZSettings::fitshow_truetimer, QZSettings::default_fitshow_truetimer).toBool();
     connect(refresh, &QTimer::timeout, this, &fitshowtreadmill::update);
     refresh->start(pollDeviceTime);
 }
@@ -156,7 +156,7 @@ void fitshowtreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -171,7 +171,7 @@ void fitshowtreadmill::update() {
 
         emit debug(QStringLiteral("fitshow Treadmill RSSI ") + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
@@ -295,7 +295,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -464,7 +464,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     elapsed = seconds_elapsed;
                 Distance = distance;
 #ifdef Q_OS_ANDROID
-                if (settings.value("ant_heart", false).toBool())
+                if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                     Heart = (uint8_t)KeepAwakeHelper::heart();
                 else
 #endif
@@ -601,8 +601,8 @@ void fitshowtreadmill::btinit(bool startTape) {
         0x00 // mode-dependent value (u16le)
     };       // to verify
     QSettings settings;
-    int user_id = settings.value(QStringLiteral("fitshow_user_id"), 0x13AA).toInt();
-    uint8_t weight = (uint8_t)(settings.value(QStringLiteral("weight"), 75.0).toFloat() + 0.5);
+    int user_id = settings.value(QZSettings::fitshow_user_id, QZSettings::default_fitshow_user_id).toInt();
+    uint8_t weight = (uint8_t)(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() + 0.5);
     uint8_t initUserData[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_USER, 0, 0, 0, 0, 0, 0};
     initUserData[2] = (user_id >> 0) & 0xFF;
     initUserData[3] = (user_id >> 8) & 0xFF;

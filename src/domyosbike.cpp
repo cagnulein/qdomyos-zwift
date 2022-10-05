@@ -74,8 +74,8 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
 
     QSettings settings;
-    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
-    bool domyos_bike_display_calories = settings.value(QStringLiteral("domyos_bike_display_calories"), true).toBool();
+    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display).toBool();
+    bool domyos_bike_display_calories = settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories).toBool();
 
     if (domyos_bike_display_calories) {
         multiplier = 10;
@@ -190,11 +190,11 @@ void domyosbike::update() {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -278,7 +278,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QByteArray value = newValue;
 
     qDebug() << QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' ');
@@ -347,8 +347,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
-    double cadenceFilter = settings.value(QStringLiteral("domyos_bike_cadence_filter"), 0).toDouble();
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    double cadenceFilter = settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter).toDouble();
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         if (cadenceFilter == 0 || cadenceFilter > ucadence) {
@@ -367,10 +367,10 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     emit resistanceRead(Resistance.value());
     m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
 
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -401,8 +401,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -424,7 +424,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
     }
 
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
         Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());

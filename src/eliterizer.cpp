@@ -34,7 +34,7 @@ void eliterizer::changeInclinationRequested(double grade, double percentage) {
     Q_UNUSED(grade);
     uint8_t incline[] = {0x0a, 0x00, 0x00};
     QSettings settings;
-    double gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+    double gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
     percentage = percentage * gain;
 
     incline[1] = ((int16_t)(percentage * 10.0)) & 0xff;

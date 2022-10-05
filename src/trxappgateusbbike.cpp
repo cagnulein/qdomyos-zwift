@@ -113,7 +113,7 @@ void trxappgateusbbike::update() {
         }
 
         QSettings settings;
-        bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
+        bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
         if (toorx30 == false &&
             (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE || bike_type == TYPE::ICONSOLE_2 ||
              bike_type == TYPE::HERTZ_XR_770 || bike_type == TYPE::HERTZ_XR_770_2)) {
@@ -128,7 +128,7 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x3b, 0x01, 0xce};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::TUNTURI) {
+        } else if (bike_type == TYPE::TUNTURI || bike_type == TYPE::TUNTURI_2) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -186,15 +186,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != TUNTURI)) ||
+    if ((newValue.length() != 21 &&
+         (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != TUNTURI && bike_type != TUNTURI_2)) ||
         (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08)) ||
-        (newValue.length() != 20 && newValue.length() != 21 && (bike_type == TUNTURI))) {
+        (newValue.length() != 20 && newValue.length() != 21 && (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
         return;
     }
 
@@ -208,37 +209,38 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         watt = GetWattFromPacketFytter(newValue);
         if (watt)
             kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                     settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                     200.0) /
                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
                                                   QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
                                                                             // body weight in kg * 3.5) / 200 ) / 60
         else
             kcal = KCal.value();
-    } else if (bike_type == TUNTURI) {
-            speed = cadence * 0.37407407407407407407407407407407;
-            watt = GetWattFromPacket(newValue);
-            if (watt)
-                kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                         settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                                        200.0) /
-                                       (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                      QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
-                                                                                // body weight in kg * 3.5) / 200 ) / 60
-            else
-                kcal = KCal.value();
+    } else if (bike_type == TUNTURI || bike_type == TUNTURI_2) {
+        speed = cadence * 0.37407407407407407407407407407407;
+        resistance = GetResistanceFromPacket(newValue);
+        watt = GetWattFromPacket(newValue);
+        if (watt)
+            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                     settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                    200.0) /
+                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                                            // body weight in kg * 3.5) / 200 ) / 60
+        else
+            kcal = KCal.value();
     } else if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
-        if (!settings.value(QStringLiteral("kcal_ignore_builtin"), false).toBool())
+        if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
             kcal = GetKcalFromPacket(newValue);
         else {
             if (watt)
                 kcal =
                     KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                      settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                      settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                      200.0) /
                                     (60000.0 / ((double)lastTimeCharChanged.msecsTo(
                                                    QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body
@@ -250,16 +252,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
         speed = cadence * 0.37407407407407407407407407407407;
         if (Heart.value() > 0) {
-            int avgP = ((settings.value(QStringLiteral("power_hr_pwr1"), 200).toDouble() *
-                         settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble()) -
-                        (settings.value(QStringLiteral("power_hr_pwr2"), 230).toDouble() *
-                         settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble())) /
-                           (settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble() -
-                            settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble()) +
-                       (Heart.value() * ((settings.value(QStringLiteral("power_hr_pwr1"), 200).toDouble() -
-                                          settings.value(QStringLiteral("power_hr_pwr2"), 230).toDouble()) /
-                                         (settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble() -
-                                          settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble())));
+            int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                         settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                        (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                         settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                           (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                       (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                                          settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                                         (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                                          settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
             if (Speed.value() > 0) {
                 watt = avgP;
             } else {
@@ -268,7 +270,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
             if (watt)
                 kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                         settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                         settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                         200.0) /
                                        (60000.0 / ((double)lastTimeCharChanged.msecsTo(
                                                       QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
@@ -279,7 +281,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QStringLiteral("ant_heart"), false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
     } else
 #endif
@@ -291,7 +293,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             } else {
                 heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
             }
-            if (heart == 0.0 || settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool()) {
+            if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -312,8 +314,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cad = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cad = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cad && h && firstVirtualBike) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -341,18 +343,18 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
         Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
     }
     KCal = kcal;
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
     }
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled")))
         m_watt = watt;
@@ -371,8 +373,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                     (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
            br) /
           (2.0 * ar)) *
-         settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
-        settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     if (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08) {
         resistance = m_pelotonResistance.value();
     }
@@ -417,21 +419,15 @@ double trxappgateusbbike::GetWattFromPacketFytter(const QByteArray &packet) {
 
 double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
-    if(bike_type == TUNTURI) {
-        uint16_t convertedData = ((packet.at(8) - 1) * 100) + (packet.at(9) - 1);
-        double data = ((double)(convertedData));
-        return data;
-    } else {
-        uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
-        double data = ((double)(convertedData)) / 10.0f;
-        return data;
-    }
+    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+    double data = ((double)(convertedData)) / 10.0f;
+    return data;
 }
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (bike_type == TUNTURI) {
+    if (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2) {
         convertedData = (packet.at(7) - 1) + ((packet.at(8) - 1) * 100);
     } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
@@ -459,7 +455,7 @@ void trxappgateusbbike::btinit(bool startTape) {
 
     Q_UNUSED(startTape);
     QSettings settings;
-    bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
+    bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
 
     if (toorx30 == false &&
         (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE || bike_type == TYPE::ICONSOLE_2)) {
@@ -634,7 +630,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-    } else if (bike_type == TYPE::TUNTURI) {
+    } else if (bike_type == TYPE::TUNTURI || bike_type == TYPE::TUNTURI_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x03, 0x01, 0x94};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x03, 0x01, 0x95};
@@ -642,6 +638,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         const uint8_t initData5[] = {0xf0, 0xa5, 0x03, 0x01, 0x02, 0x9b};
         const uint8_t initData6[] = {0xf0, 0xa6, 0x03, 0x01, 0x06, 0xa0};
         const uint8_t initData7[] = {0xf0, 0xa6, 0x03, 0x01, 0x09, 0xa3};
+        const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
 
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
@@ -649,21 +646,19 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
@@ -789,7 +784,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
         if (!firstVirtualBike && !virtualBike) {
 
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
 
@@ -894,6 +889,20 @@ void trxappgateusbbike::serviceScanDone(void) {
             bike_type = ICONSOLE_2;
             uuid = uuid3;
         }
+    } else if (bike_type == TUNTURI) {
+
+        bool found = false;
+        foreach (QBluetoothUuid s, m_control->services()) {
+
+            if (s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            bike_type = TUNTURI_2;
+            uuid = uuid3;
+        }
     }
 
     QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
@@ -926,10 +935,10 @@ void trxappgateusbbike::error(QLowEnergyController::Error err) {
 void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
-    bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
-    bool FYTTER_ri08_bike = settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool();
-    bool ASVIVA_bike = settings.value(QStringLiteral("asviva_bike"), false).toBool();
-    bool hertz_xr_770 = settings.value(QStringLiteral("hertz_xr_770"), false).toBool();
+    bool JLL_IC400_bike = settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool();
+    bool FYTTER_ri08_bike = settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool();
+    bool ASVIVA_bike = settings.value(QZSettings::asviva_bike, QZSettings::default_asviva_bike).toBool();
+    bool hertz_xr_770 = settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")

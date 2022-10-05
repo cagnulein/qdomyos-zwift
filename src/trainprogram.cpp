@@ -213,7 +213,7 @@ void trainprogram::scheduler() {
     QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value(QStringLiteral("continuous_moving"), false).toBool()) ||
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
 
         return;
@@ -265,8 +265,8 @@ void trainprogram::scheduler() {
 
             if (rows.at(0).inclination != -200 && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 // this should be converted in a signal as all the other signals...
-                double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
-                double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+                double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
 
                 double inc;
                 if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
@@ -388,9 +388,9 @@ void trainprogram::scheduler() {
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                         // this should be converted in a signal as all the other signals...
                         double bikeResistanceOffset =
-                            settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
                         double bikeResistanceGain =
-                            settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
 
                         double inc;
                         if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
@@ -452,7 +452,7 @@ void trainprogram::scheduler() {
                     restart();
                 } else {
                     started = false;
-                    emit stop();
+                    emit stop(false);
                     distanceEvaluation = false;
                 }
             }
@@ -470,8 +470,8 @@ void trainprogram::scheduler() {
             if (rows.at(currentStep).inclination != -200 &&
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
                 double inc = avgInclinationNext100Meters();
-                double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
-                double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+                double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
 
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
@@ -482,6 +482,7 @@ void trainprogram::scheduler() {
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
+                emit changeTimestamp(rows.at(currentStep).gpxElapsed, QTime(0, 0, 0).addSecs(ticks));
             }
         }
         sameIteration++;

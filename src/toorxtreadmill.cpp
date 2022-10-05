@@ -75,13 +75,13 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
 void toorxtreadmill::update() {
     static int8_t start_phase = -1;
     QSettings settings;
-    bool toorx_65s_evo = settings.value(QStringLiteral("toorx_65s_evo"), false).toBool();
+    bool toorx_65s_evo = settings.value(QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo).toBool();
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
         if (!virtualTreadMill) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, true);
@@ -258,7 +258,7 @@ void toorxtreadmill::update() {
             emit debug(QStringLiteral("write poll"));
         }
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
     }
 }
 

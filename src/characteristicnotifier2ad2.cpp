@@ -34,7 +34,7 @@ int CharacteristicNotifier2AD2::notify(QByteArray &value) {
         return CN_OK;
     } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         QSettings settings;
-        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
         double cadence_multiplier = 2.0;
         if (double_cadence)
             cadence_multiplier = 1.0;
