@@ -621,11 +621,6 @@ void trainprogram::scheduler() {
                         // since comparing to the previous step also use the previous distance
                         distanceRow = rows.at(currentStep -1).distance;
                     }
-                    else if (currentStep > 0) {
-                        r = rows.at(currentStep - 1).gpxElapsed;
-                        // since comparing to the previous step also use the previous distance
-                        distanceRow = rows.at(currentStep -1).distance;
-                    }                    
                     double ratioDistance = savedCurrentStepDistance / distanceRow;
                     if (currentStep < rows.length()) {
                         ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
