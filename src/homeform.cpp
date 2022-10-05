@@ -4128,10 +4128,10 @@ void homeform::sendMail() {
     textMessage += QStringLiteral("Distance: ") +
                    QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) +
                    QStringLiteral("\n");
-    textMessage +=
-        QStringLiteral("Elevation Gain (") + meter_feet_unit + "): " +
-        QString::number(bluetoothManager->device()->elevationGain().value() * unit_conversion, 'f', (miles ? 0 : 1)) +
-        QStringLiteral("\n");
+    textMessage += QStringLiteral("Elevation Gain (") + meter_feet_unit + "): " +
+                   QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion, 'f',
+                                   (miles ? 0 : 1)) +
+                   QStringLiteral("\n");
     textMessage += QStringLiteral("Average Watt: ") +
                    QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + QStringLiteral("\n");
     textMessage += QStringLiteral("Max Watt: ") +
