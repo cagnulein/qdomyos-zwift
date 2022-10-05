@@ -107,7 +107,7 @@ void spirittreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1update++ == (1000 / refresh->interval())) {
@@ -208,7 +208,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -222,10 +222,10 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -243,7 +243,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current Watt: ") +
-               QString::number(watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())));
+               QString::number(watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -417,7 +417,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtualTreadmill && !virtualTreadMill) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, false);

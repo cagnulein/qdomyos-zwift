@@ -10,7 +10,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving,  true).toBool()) {
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
@@ -20,7 +20,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
             }
             m_jouls += (m_watt.value() * deltaTime);
             WeightLoss = metric::calculateWeightLoss(KCal.value());
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
             m_watt = 0;
             WattKg = 0;
@@ -40,7 +40,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
 uint16_t elliptical::watts() {
 
     QSettings settings;
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts = 0;

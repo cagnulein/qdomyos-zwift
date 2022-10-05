@@ -48,11 +48,11 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -75,7 +75,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 void proformwifibike::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    websocket.open(QUrl("ws://" + settings.value(QStringLiteral("proformtdf4ip"), "").toString() + "/control"));
+    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString() + "/control"));
 }
 
 /*
@@ -107,8 +107,8 @@ resistance_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
 
     QSettings settings;
 
-    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
-    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
@@ -269,8 +269,8 @@ void proformwifibike::update() {
 
 bool proformwifibike::inclinationAvailableByHardware() {
     QSettings settings;
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
     if (proform_studio || proform_tdf_10)
         return true;
@@ -340,8 +340,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue);
 
@@ -404,7 +404,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -423,7 +423,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -444,8 +444,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());

@@ -20,6 +20,16 @@ var pedometer = CMPedometer()
         
     @objc public func request()
     {
+        if #available(iOS 13.0, *) {
+            Client.client.start()
+        } else {
+            // Fallback on earlier versions
+        }
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
+        }
+        Server.server?.start()
+	
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
         
@@ -38,7 +48,7 @@ var pedometer = CMPedometer()
     {
         return WatchKitConnection.currentHeartRate;
     }
-
+    
     @objc public func stepCadence() -> Int
     {
         return WatchKitConnection.stepCadence;
@@ -46,12 +56,37 @@ var pedometer = CMPedometer()
     
     @objc public func setDistance(distance: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)#")
         WatchKitConnection.distance = distance;
     }
     
     @objc public func setKcal(kcal: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)#")
         WatchKitConnection.kcal = kcal;
+    }
+    
+    @objc func updateHeartRate() {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#")
+
     }
 }
 /*

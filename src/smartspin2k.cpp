@@ -169,7 +169,7 @@ void smartspin2k::calibrateShiftStep() {
 
     if (nSamples == 0) {
         slope = 0;
-        intercept = settings.value("ss2k_shift_step", 900).toUInt();
+        intercept = settings.value(QZSettings::ss2k_shift_step, QZSettings::default_ss2k_shift_step).toUInt();
         return;
     } else if (nSamples == 1) {
         slope = 0;
@@ -196,8 +196,8 @@ void smartspin2k::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
 
-    double ss2k_min_resistance = settings.value(QStringLiteral("ss2k_min_resistance"), 0).toDouble();
-    double ss2k_max_resistance = settings.value(QStringLiteral("ss2k_max_resistance"), 100).toDouble();
+    double ss2k_min_resistance = settings.value(QZSettings::ss2k_min_resistance, QZSettings::default_ss2k_min_resistance).toDouble();
+    double ss2k_max_resistance = settings.value(QZSettings::ss2k_max_resistance, QZSettings::default_ss2k_max_resistance).toDouble();
 
     if(requestResistance > ss2k_max_resistance) requestResistance = ss2k_max_resistance;
     if(requestResistance < ss2k_min_resistance) requestResistance = ss2k_min_resistance;

@@ -55,8 +55,8 @@ resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
 
     QSettings settings;
 
-    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
-    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
@@ -148,8 +148,10 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
 void proformbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
@@ -166,7 +168,113 @@ void proformbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
         writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
         writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+    } else if (nordictrack_gx_2_7) {
+        const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xc2, 0x01, 0x00, 0xda, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xb6, 0x03, 0x00, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xaa, 0x05, 0x00, 0xc6, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x9e, 0x07, 0x00, 0xbc, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x92, 0x09, 0x00, 0xb2, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x86, 0x0b, 0x00, 0xa8, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x7a, 0x0d, 0x00, 0x9e, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x6e, 0x0f, 0x00, 0x94, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x62, 0x11, 0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x56, 0x13, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x4a, 0x15, 0x00, 0x76, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x3e, 0x17, 0x00, 0x6c, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x32, 0x19, 0x00, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x26, 0x1b, 0x00, 0x58, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x1a, 0x1d, 0x00, 0x4e, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x0e, 0x1f, 0x00, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res17[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x02, 0x21, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res18[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0xf6, 0x22, 0x00, 0x2f, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res19[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0xea, 0x24, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res20[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0xde, 0x26, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+        writeCharacteristic((uint8_t *)noOpData7, sizeof(noOpData7), QStringLiteral("resrequest"), false, false);
+
+        switch (requestResistance) {
+        case 1:
+            writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
+            break;
+        case 2:
+            writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
+            break;
+        case 3:
+            writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+            break;
+        case 4:
+            writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
+            break;
+        case 5:
+            writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
+            break;
+        case 6:
+            writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
+            break;
+        case 7:
+            writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
+            break;
+        case 8:
+            writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
+            break;
+        case 9:
+            writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
+            break;
+        case 10:
+            writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
+            break;
+        case 11:
+            writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
+            break;
+        case 12:
+            writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
+            break;
+        case 13:
+            writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
+            break;
+        case 14:
+            writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
+            break;
+        case 15:
+            writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
+            break;
+        case 16:
+            writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
+            break;
+        case 17:
+            writeCharacteristic((uint8_t *)res17, sizeof(res17), QStringLiteral("resistance17"), false, true);
+            break;
+        case 18:
+            writeCharacteristic((uint8_t *)res18, sizeof(res18), QStringLiteral("resistance18"), false, true);
+            break;
+        case 19:
+            writeCharacteristic((uint8_t *)res19, sizeof(res19), QStringLiteral("resistance19"), false, true);
+            break;
+        case 20:
+            writeCharacteristic((uint8_t *)res20, sizeof(res20), QStringLiteral("resistance20"), false, true);
+            break;
+        }
     } else {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
                                 0x04, 0x32, 0x02, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -297,9 +405,13 @@ void proformbike::update() {
         update_metrics(true, watts());
 
         QSettings settings;
-        bool proform_tour_de_france_clc = settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool();
-        bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-        bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+        bool proform_tour_de_france_clc =
+            settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc)
+                .toBool();
+        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+        bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+        bool nordictrack_gx_2_7 =
+            settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -332,14 +444,29 @@ void proformbike::update() {
         uint8_t noOpData6_proform_studio[] = {0xff, 0x02, 0x08, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        // nordictrack gx 2.7
+        uint8_t noOpData2_nordictrack_gx_2_7[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00,
+                                                  0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
+        uint8_t noOpData3_nordictrack_gx_2_7[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x85, 0xb9, 0x00, 0x00, 0x00,
+                                                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData5_nordictrack_gx_2_7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x00,
+                                                  0x03, 0x80, 0x00, 0x40, 0xd5, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         switch (counterPoll) {
         case 0:
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+            if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+            } else {
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+            }
             break;
         case 1:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData2_proform_studio, sizeof(noOpData2_proform_studio), QStringLiteral("noOp"));
-            else if (proform_tour_de_france_clc)
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData2_nordictrack_gx_2_7, sizeof(noOpData2_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+            } else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
             else
@@ -351,19 +478,28 @@ void proformbike::update() {
             else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData3_proform_tour_de_france_clc, sizeof(noOpData3_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData3_nordictrack_gx_2_7, sizeof(noOpData3_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+            } else
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData4_proform_studio, sizeof(noOpData4_proform_studio), QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                innerWriteResistance();
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+            } else
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData5_proform_studio, sizeof(noOpData5_proform_studio), QStringLiteral("noOp"));
-            else
+            else if (nordictrack_gx_2_7) {
+                writeCharacteristic(noOpData5_nordictrack_gx_2_7, sizeof(noOpData5_nordictrack_gx_2_7),
+                                    QStringLiteral("noOp"));
+            } else
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
@@ -402,6 +538,8 @@ void proformbike::update() {
         } else if (counterPoll == 6 && proform_tour_de_france_clc && requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
+        } else if (counterPoll == 5 && nordictrack_gx_2_7) {
+            counterPoll = 0;
         }
 
         // updating the treadmill console every second
@@ -428,10 +566,10 @@ void proformbike::update() {
 
 bool proformbike::inclinationAvailableByHardware() {
     QSettings settings;
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
-    if(proform_studio || proform_tdf_10)
+    if (proform_studio || proform_tdf_10)
         return true;
     else
         return false;
@@ -498,10 +636,13 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
-    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
-    bool proform_tdf_jonseed_watt = settings.value(QStringLiteral("proform_tdf_jonseed_watt"), false).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    bool proform_tdf_jonseed_watt =
+        settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt).toBool();
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -518,11 +659,11 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (newValue.at(0) == 0x00) {
             m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
                          100.0);
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
             }
 
             double incline =
@@ -540,7 +681,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             m_pelotonResistance = (100 / 32) * Resistance.value();
             emit resistanceRead(Resistance.value());
 
-            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(2));
@@ -565,74 +706,161 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            switch ((uint8_t)newValue.at(11)) {
-            case 0x02:
-                Resistance = 1;
-                m_pelotonResistance = 10;
-                break;
-            case 0x04:
-                Resistance = 2;
-                m_pelotonResistance = 20;
-                break;
-            case 0x07:
-                Resistance = 3;
-                m_pelotonResistance = 25;
-                break;
-            case 0x09:
-                Resistance = 4;
-                m_pelotonResistance = 30;
-                break;
-            case 0x0b:
-                Resistance = 5;
-                m_pelotonResistance = 35;
-                break;
-            case 0x0e:
-                Resistance = 6;
-                m_pelotonResistance = 40;
-                break;
-            case 0x10:
-                Resistance = 7;
-                m_pelotonResistance = 45;
-                break;
-            case 0x13:
-                Resistance = 8;
-                m_pelotonResistance = 50;
-                break;
-            case 0x15:
-                Resistance = 9;
-                m_pelotonResistance = 55;
-                break;
-            case 0x18:
-                Resistance = 10;
-                m_pelotonResistance = 60;
-                break;
-            case 0x1a:
-                Resistance = 11;
-                m_pelotonResistance = 65;
-                break;
-            case 0x1d:
-                Resistance = 12;
-                m_pelotonResistance = 70;
-                break;
-            case 0x1f:
-                Resistance = 13;
-                m_pelotonResistance = 75;
-                break;
-            case 0x21:
-                Resistance = 14;
-                m_pelotonResistance = 80;
-                break;
-            case 0x24:
-                Resistance = 15;
-                m_pelotonResistance = 85;
-                break;
-            case 0x26:
-                Resistance = 16;
-                m_pelotonResistance = 100;
-                break;
-                /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping
-                the last good one default: Resistance = 0; m_pelotonResistance = 0; break;
-                */
+            if (!nordictrack_gx_2_7) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0x02:
+                    Resistance = 1;
+                    m_pelotonResistance = 10;
+                    break;
+                case 0x04:
+                    Resistance = 2;
+                    m_pelotonResistance = 20;
+                    break;
+                case 0x07:
+                    Resistance = 3;
+                    m_pelotonResistance = 25;
+                    break;
+                case 0x09:
+                    Resistance = 4;
+                    m_pelotonResistance = 30;
+                    break;
+                case 0x0b:
+                    Resistance = 5;
+                    m_pelotonResistance = 35;
+                    break;
+                case 0x0e:
+                    Resistance = 6;
+                    m_pelotonResistance = 40;
+                    break;
+                case 0x10:
+                    Resistance = 7;
+                    m_pelotonResistance = 45;
+                    break;
+                case 0x13:
+                    Resistance = 8;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x15:
+                    Resistance = 9;
+                    m_pelotonResistance = 55;
+                    break;
+                case 0x18:
+                    Resistance = 10;
+                    m_pelotonResistance = 60;
+                    break;
+                case 0x1a:
+                    Resistance = 11;
+                    m_pelotonResistance = 65;
+                    break;
+                case 0x1d:
+                    Resistance = 12;
+                    m_pelotonResistance = 70;
+                    break;
+                case 0x1f:
+                    Resistance = 13;
+                    m_pelotonResistance = 75;
+                    break;
+                case 0x21:
+                    Resistance = 14;
+                    m_pelotonResistance = 80;
+                    break;
+                case 0x24:
+                    Resistance = 15;
+                    m_pelotonResistance = 85;
+                    break;
+                case 0x26:
+                    Resistance = 16;
+                    m_pelotonResistance = 100;
+                    break;
+                    /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping
+                    the last good one default: Resistance = 0; m_pelotonResistance = 0; break;
+                    */
+                }
+            } else {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0x00:
+                case 0x01:
+                    Resistance = 1;
+                    m_pelotonResistance = 10;
+                    break;
+                case 0x03:
+                    Resistance = 2;
+                    m_pelotonResistance = 20;
+                    break;
+                case 0x05:
+                    Resistance = 3;
+                    m_pelotonResistance = 25;
+                    break;
+                case 0x07:
+                    Resistance = 4;
+                    m_pelotonResistance = 30;
+                    break;
+                case 0x09:
+                    Resistance = 5;
+                    m_pelotonResistance = 33;
+                    break;
+                case 0x0b:
+                    Resistance = 6;
+                    m_pelotonResistance = 35;
+                    break;
+                case 0x0d:
+                    Resistance = 7;
+                    m_pelotonResistance = 38;
+                    break;
+                case 0x0f:
+                    Resistance = 8;
+                    m_pelotonResistance = 40;
+                    break;
+                case 0x11:
+                    Resistance = 9;
+                    m_pelotonResistance = 45;
+                    break;
+                case 0x13:
+                    Resistance = 10;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x15:
+                    Resistance = 11;
+                    m_pelotonResistance = 55;
+                    break;
+                case 0x17:
+                    Resistance = 12;
+                    m_pelotonResistance = 60;
+                    break;
+                case 0x19:
+                    Resistance = 13;
+                    m_pelotonResistance = 63;
+                    break;
+                case 0x1b:
+                    Resistance = 14;
+                    m_pelotonResistance = 65;
+                    break;
+                case 0x1d:
+                    Resistance = 15;
+                    m_pelotonResistance = 68;
+                case 0x1f:
+                    Resistance = 16;
+                    m_pelotonResistance = 70;
+                    break;
+                case 0x21:
+                    Resistance = 17;
+                    m_pelotonResistance = 75;
+                    break;
+                case 0x22:
+                case 0x23:
+                    Resistance = 18;
+                    m_pelotonResistance = 80;
+                    break;
+                case 0x24:
+                    Resistance = 19;
+                    m_pelotonResistance = 85;
+                    break;
+                case 0x26:
+                case 0x27:
+                    Resistance = 20;
+                    m_pelotonResistance = 100;
+                    break;
+                }
             }
             emit resistanceRead(Resistance.value());
 
@@ -642,27 +870,28 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_watts = 0;
             }
 
-            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(18));
             }
 
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-                Speed = (settings.value(QStringLiteral("proform_wheel_ratio"), 0.33).toDouble()) *
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio)
+                             .toDouble()) *
                         ((double)Cadence.value());
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
             }
         }
     }
     if (watts())
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+        KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -675,7 +904,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -696,8 +925,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -722,8 +952,10 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void proformbike::btinit() {
 
     QSettings settings;
+    bool nordictrack_gx_2_7 =
+        settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
 
-    if (settings.value(QStringLiteral("proform_studio"), false).toBool()) {
+    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
         max_resistance = 32;
 
@@ -783,7 +1015,7 @@ void proformbike::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-    } else if (settings.value(QStringLiteral("proform_tdf_10"), false).toBool()) {
+    } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool()) {
         max_resistance = 26;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -887,7 +1119,8 @@ void proformbike::btinit() {
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
 
-        if (settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool()) {
+        if (settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc)
+                .toBool()) {
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
                                     0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
@@ -902,7 +1135,22 @@ void proformbike::btinit() {
             QThread::msleep(400);
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
+        } else if (nordictrack_gx_2_7) {
+            max_resistance = 20;
 
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
+                                    0x00, 0x9e, 0x84, 0x60, 0x4a, 0x32, 0x28, 0x04, 0xf6, 0xe6};
+            uint8_t initData11[] = {0x01, 0x12, 0xec, 0xd8, 0xc2, 0xca, 0xd0, 0xac, 0xae, 0xae,
+                                    0xd4, 0xd0, 0xda, 0xc2, 0xf8, 0xf4, 0xe6, 0x16, 0x3c, 0x28};
+            uint8_t initData12[] = {0xff, 0x08, 0x52, 0x7a, 0xa0, 0x80, 0x02, 0x00, 0x00, 0x6b,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
         } else {
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
@@ -959,11 +1207,14 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
