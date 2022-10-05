@@ -615,16 +615,13 @@ void trainprogram::scheduler() {
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
 
                     double distanceRow = rows.at(currentStep).distance;
-                    double ratioDistance = savedCurrentStepDistance / distanceRow;
                     QTime r = QTime(0, 0, 0);
-                    // use 2 steps before, currentStep is already incremented
-                    if (currentStep > 1) {
-                        r = rows.at(currentStep - 2).gpxElapsed;
-                    }
-                    // get a value for first step, even if it is not 100% correct
-                    else if (currentStep > 0) {
+                    if (currentStep > 0) {
                         r = rows.at(currentStep - 1).gpxElapsed;
-                    }                    
+                        // since comparing to the previous step als use the previous distance
+                        distanceRow = rows.at(currentStep -1).distance;
+                    }
+                    double ratioDistance = savedCurrentStepDistance / distanceRow;
                     if (currentStep < rows.length()) {
                         ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
                         r = r.addMSecs(ratioDistance * 1000);
