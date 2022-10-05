@@ -44,7 +44,7 @@ jobs:
         with:
           repository: google/googletest
           path: "tst/googletest/"
-          ref: "tags/release-1.12.1"
+          ref: "release-1.12.1"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
