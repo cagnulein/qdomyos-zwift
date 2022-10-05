@@ -150,6 +150,14 @@ jobs:
           path: "src/qmdnsengine/"
           ref: "zwift"
 
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qt5-default qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       
@@ -161,7 +169,7 @@ jobs:
           modules: 'qtnetworkauth qtcharts'
       
       - name: Compile Linux Desktop
-        run: cd src; qmake; make -j8
+        run: qmake; make -j8
         
       - name: Archive linux-desktop binary
         uses: actions/upload-artifact@v2
