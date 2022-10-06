@@ -670,7 +670,7 @@ void trainprogram::scheduler() {
                     lastStepTimestampChanged = currentStep;
                 }
                 double ratioDistance = (currentStepDistance - lastCurrentStepDistance) / distanceRow;
-                if ( (currentStep > 0) && (currentStep < rows.length())) {
+                if (currentStep < rows.length()) {
                     int steptime = (QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed));
                     ratioDistance = ((double)(steptime)) * ratioDistance;
                     lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
@@ -679,7 +679,7 @@ void trainprogram::scheduler() {
 
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
                          << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
-                emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
+                emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
         sameIteration++;
