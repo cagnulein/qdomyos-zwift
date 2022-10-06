@@ -425,6 +425,14 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 if (!firstCharacteristicChanged) {
+                    if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+                        KCal +=
+                            ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                               settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                              200.0) /
+                             (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                              // kg * 3.5) / 200 ) / 60
                     DistanceCalculated +=
                         ((speed / 3600.0) /
                          (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
@@ -436,7 +444,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
-                emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current KCal from the Machine: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
 
                 if (m_control->error() != QLowEnergyController::NoError) {
@@ -459,10 +468,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     emit inclinationChanged(0, incline);
                 }
 
-                KCal = kcal;
                 if (truetimer)
                     elapsed = seconds_elapsed;
-                Distance = distance;
+                Distance = DistanceCalculated;
 #ifdef Q_OS_ANDROID
                 if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                     Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -563,12 +571,12 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
-                emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-                emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
-                KCal = kcal;
+                emit debug(QStringLiteral("Current KCal from the machine: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current Distance from the machine: ") + QString::number(distance));
+                //KCal = kcal;
                 if (truetimer)
                     elapsed = seconds_elapsed;
-                Distance = distance;
+                //Distance = distance;
             }
         }
     }
