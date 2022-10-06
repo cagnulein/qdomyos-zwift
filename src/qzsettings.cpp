@@ -1,3 +1,4 @@
+#include <QSettings>
 #include <QDebug>
 #include "qzsettings.h"
 const QString QZSettings:: cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
@@ -803,14 +804,12 @@ QVariant allSettings[allSettingsCount][2] =  {
 void QZSettings::qDebugAllSettings(bool showDefaults) {
     QSettings settings;
     // make a copy of the settings for sorting
-    std::vector<QVariant *> sorted;
-    for (uint32_t i = 0; i < allSettingsCount; i++) {
+    std::vector<QVariant*> sorted;
+    for(uint32_t i=0; i<allSettingsCount; i++) {
         sorted.push_back(allSettings[i]);
     }
     // sort the settings alphabetically
-    struct {
-        bool operator()(QVariant *a, QVariant *b) { return a[0].toString() < b[0].toString(); }
-    } comparer;
+    struct { bool operator()(QVariant * a, QVariant * b) { return a[0].toString() < b[0].toString(); }} comparer;
     std::sort(sorted.begin(), sorted.end(), comparer);
     for(uint32_t i=0; i<sorted.size(); i++) {
         QVariant * item = sorted[i];
@@ -819,7 +818,12 @@ void QZSettings::qDebugAllSettings(bool showDefaults) {
         if(!showDefaults) {
             qDebug() << key << settings.value(key, defaultValue);
         } else {
-            qDebug() << "(" << key << ", " << defaultValue << ") = " << settings.value(key, defaultValue);
+            qDebug() << "("
+                     << key
+                     <<", "
+                     << defaultValue
+                     << ") = "
+                     << settings.value(key, defaultValue);
         }
     }
 }

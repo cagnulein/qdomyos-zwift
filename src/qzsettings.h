@@ -9,8 +9,9 @@ private:
 
 public:
 
-static const QString ant_heart = QStringLiteral("ant_heart");
-static constexpr bool default_ant_heart = false;
+    //--------------------------------------------------------------------------------------------
+    // These are not in settings.qml
+    //--------------------------------------------------------------------------------------------
 
     static const QString cryptoKeySettingsProfiles;
     static constexpr int default_cryptoKeySettingsProfiles = 0;
@@ -292,8 +293,6 @@ static constexpr bool default_ant_heart = false;
 	static const QString peloton_difficulty;
 	static const QString default_peloton_difficulty;
 
-static const QString tile_odometer_enabled = QStringLiteral("tile_odometer_enabled");
-static constexpr bool default_tile_odometer_enabled = true;
 
 	static const QString peloton_cadence_metric;
 	static const QString default_peloton_cadence_metric;
@@ -328,8 +327,6 @@ static constexpr bool default_tile_odometer_enabled = true;
 	static const QString tile_cadence_enabled;
 	static constexpr bool default_tile_cadence_enabled = true;
 
-static const QString tile_ftp_enabled = QStringLiteral("tile_ftp_enabled");
-static constexpr bool default_tile_ftp_enabled = true;
 
 	static const QString tile_cadence_order;
 	static constexpr int default_tile_cadence_order = 2;
@@ -683,8 +680,6 @@ static constexpr bool default_tile_ftp_enabled = true;
 	static const QString toorx_3_0;
 	static constexpr bool default_toorx_3_0 = false;
 
-static const QString virtufit_etappe = QStringLiteral("virtufit_etappe");
-static constexpr bool default_virtufit_etappe = false;
 
 	static const QString toorx_65s_evo;
 	static constexpr bool default_toorx_65s_evo = false;
@@ -809,8 +804,6 @@ static constexpr bool default_virtufit_etappe = false;
 	static const QString watt_gain;
 	static constexpr float default_watt_gain = 1;
 
-static const QString tile_peloton_resistance_color_enabled = QStringLiteral("tile_peloton_resistance_color_enabled");
-static constexpr bool default_tile_peloton_resistance_color_enabled = false;
 
 	static const QString power_avg_5s;
 	static constexpr bool default_power_avg_5s = false;
@@ -818,8 +811,6 @@ static constexpr bool default_tile_peloton_resistance_color_enabled = false;
 	static const QString instant_power_on_pause;
 	static constexpr bool default_instant_power_on_pause = false;
 
-static const QString ios_cache_heart_device = QStringLiteral("ios_cache_heart_device");
-static constexpr bool default_ios_cache_heart_device = true;
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -827,8 +818,6 @@ static constexpr bool default_ios_cache_heart_device = true;
 	static const QString speed_offset;
 	static constexpr float default_speed_offset = 0;
 
-static const QString proformtdf4ip = QStringLiteral("proformtdf4ip");
-static const QString default_proformtdf4ip = QStringLiteral("");
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -1051,8 +1040,6 @@ static const QString default_proformtdf4ip = QStringLiteral("");
     static const QString tile_ext_incline_order;
     static constexpr int default_tile_ext_incline_order = 32;
 
-static const QString tts_act_elevation = QStringLiteral("tts_act_elevation");
-static constexpr bool default_tts_act_elevation = true;
 
 	static const QString reebok_fr30_treadmill;
 	static constexpr bool default_reebok_fr30_treadmill = false;
@@ -1060,8 +1047,6 @@ static constexpr bool default_tts_act_elevation = true;
 	static const QString horizon_treadmill_7_8;
 	static constexpr bool default_horizon_treadmill_7_8 = false;
 
-static const QString tts_act_pace = QStringLiteral("tts_act_pace");
-static constexpr bool default_tts_act_pace = false;
 
 	/**
      *@brief The name of the profile for this settings file.
@@ -1099,8 +1084,6 @@ static constexpr bool default_tts_act_pace = false;
 	static const QString app_opening;
 	static constexpr int default_app_opening = 0;
 
-static const QString tts_avg_ftp = QStringLiteral("tts_avg_ftp");
-static constexpr bool default_tts_avg_ftp = true;
 
 	static const QString proformtdf4ip;
 	static const QString default_proformtdf4ip;
