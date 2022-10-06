@@ -1337,6 +1337,9 @@ public:
     static const QString nordictrack_gx_2_7;
     static const bool default_nordictrack_gx_2_7 = false;
 
+    static const QString rolling_resistance;
+    static constexpr double default_rolling_resistance = 0.005;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
