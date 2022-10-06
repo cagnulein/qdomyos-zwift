@@ -209,6 +209,10 @@ void proformbike::forceResistance(resistance_t requestResistance) {
                                  0x04, 0xea, 0x24, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res20[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
                                  0x04, 0xde, 0x26, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+        writeCharacteristic((uint8_t *)noOpData7, sizeof(noOpData7), QStringLiteral("resrequest"), false, false);
+
         switch (requestResistance) {
         case 1:
             writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
@@ -484,6 +488,7 @@ void proformbike::update() {
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData4_proform_studio, sizeof(noOpData4_proform_studio), QStringLiteral("noOp"));
             else if (nordictrack_gx_2_7) {
+                innerWriteResistance();
                 writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
             } else
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
@@ -494,7 +499,6 @@ void proformbike::update() {
             else if (nordictrack_gx_2_7) {
                 writeCharacteristic(noOpData5_nordictrack_gx_2_7, sizeof(noOpData5_nordictrack_gx_2_7),
                                     QStringLiteral("noOp"));
-                innerWriteResistance();
             } else
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
