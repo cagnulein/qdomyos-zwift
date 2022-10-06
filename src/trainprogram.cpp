@@ -666,17 +666,19 @@ void trainprogram::scheduler() {
                     lastStepTimestampChanged = currentStep;
                 }
                 double distanceRow = rows.at(currentStep).distance;
+                int steptime = 0;
+                double ratioDistance = 0.0;
                 if ( (currentStep > 1) && (distanceRow != 0.0) ) {
-                    int steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
+                    steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
                     if (steptime == 0) steptime=1;
                     distanceRow = (distanceRow / ((double)(steptime)));
-                    double ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
+                    ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
                     lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
                 }
                 lastCurrentStepDistance = currentStepDistance;
 
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                         << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
+                         << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
