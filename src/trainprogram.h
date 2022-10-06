@@ -127,6 +127,7 @@ class trainprogram : public QObject {
     double lastGpxSpeedSet = 0.0;
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance =0.0;
+    double lastRatioDistance = 0.0;
 };
 
 #endif // TRAINPROGRAM_H

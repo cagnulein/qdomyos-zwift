@@ -663,18 +663,20 @@ void trainprogram::scheduler() {
                 }
                 if (lastStepTimestampChanged != currentStep) {
                     lastCurrentStepDistance = 0.0;
+                    lastRatioDistance = 0.0;
                     lastStepTimestampChanged = currentStep;
                 }
                 double ratioDistance = (currentStepDistance - lastCurrentStepDistance) / distanceRow;
-                lastCurrentStepDistance = currentStepDistance;
                 QTime r = QTime(0, 0, 0);
                 if (currentStep > 0) {
                     r = rows.at(currentStep - 1).gpxElapsed;
                 }
                 if (currentStep < rows.length()) {
                     ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
-                    r = r.addMSecs(ratioDistance * 1000);
+                    r = r.addMSecs((ratioDistance + lastRatioDistance) * 1000);
                 }
+                lastCurrentStepDistance = currentStepDistance;
+                lastRatioDistance = (lastRatioDistance + ratioDistance);
 
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
                          << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
