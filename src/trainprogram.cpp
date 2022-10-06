@@ -658,16 +658,13 @@ void trainprogram::scheduler() {
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
                 double distanceRow = rows.at(currentStep).distance;
+                if (currentStep > 0) {
+                    distanceRow = distanceRow / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
+                }
                 double ratioDistance = currentStepDistance / distanceRow;
                 QTime r = QTime(0, 0, 0);
                 if (currentStep > 0) {
                     r = rows.at(currentStep - 1).gpxElapsed;
-                    if (lastStepTimestampChanged != currentStep )
-                    {
-                        // Take care of possible not 1 second differences
-                        ratioDistance = ratioDistance / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
-                        lastStepTimestampChanged = currentStep;
-                    }
                 }
                 if (currentStep < rows.length()) {
                     ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
