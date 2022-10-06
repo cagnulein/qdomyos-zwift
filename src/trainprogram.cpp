@@ -661,7 +661,12 @@ void trainprogram::scheduler() {
                 if (currentStep > 0) {
                     distanceRow = distanceRow / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
                 }
-                double ratioDistance = currentStepDistance / distanceRow;
+                if (lastStepTimestampChanged != currentStep) {
+                    lastCurrentStepDistance = 0.0;
+                    lastStepTimestampChanged = currentStep;
+                }
+                double ratioDistance = (currentStepDistance - lastCurrentStepDistance) / distanceRow;
+                lastCurrentStepDistance = currentStepDistance;
                 QTime r = QTime(0, 0, 0);
                 if (currentStep > 0) {
                     r = rows.at(currentStep - 1).gpxElapsed;
