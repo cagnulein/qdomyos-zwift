@@ -673,7 +673,7 @@ void trainprogram::scheduler() {
                 if ( (currentStep > 0) && (currentStep < rows.length())) {
                     int steptime = (QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed));
                     ratioDistance = ((double)(steptime)) * ratioDistance;
-                    lastCurrentStepTime = lastCurrentStepTime.AddMSecs(ratioDistance*1000.0);
+                    lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
                 }
                 lastCurrentStepDistance = currentStepDistance;
 
