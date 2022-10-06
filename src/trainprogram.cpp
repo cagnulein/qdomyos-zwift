@@ -671,7 +671,6 @@ void trainprogram::scheduler() {
                     if (steptime == 0) steptime=1;
                     distanceRow = (distanceRow / ((double)(steptime)));
                     double ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
-                    ratioDistance = ((double)(steptime)) * ratioDistance;
                     lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
                 }
                 lastCurrentStepDistance = currentStepDistance;
