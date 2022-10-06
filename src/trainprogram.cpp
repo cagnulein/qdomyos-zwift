@@ -663,23 +663,22 @@ void trainprogram::scheduler() {
                 }
                 if (lastStepTimestampChanged != currentStep) {
                     lastCurrentStepDistance = 0.0;
-                    lastRatioDistance = 0.0;
+                    lastCurrentStepTime = QTime(0, 0, 0);
+                    if (currentStep > 0) {
+                        lastCurrentStepTime = rows.at(currentStep - 1).gpxElapsed;
+                    }
                     lastStepTimestampChanged = currentStep;
                 }
                 double ratioDistance = (currentStepDistance - lastCurrentStepDistance) / distanceRow;
-                QTime r = QTime(0, 0, 0);
-                if (currentStep > 0) {
-                    r = rows.at(currentStep - 1).gpxElapsed;
-                }
-                if (currentStep < rows.length()) {
-                    ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
-                    r = r.addMSecs((ratioDistance + lastRatioDistance) * 1000);
+                if ( (currentStep > 0) && (currentStep < rows.length())) {
+                    int steptime = (QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed));
+                    ratioDistance = ((double)(steptime)) * ratioDistance;
+                    lastCurrentStepTime = lastCurrentStepTime.AddMSecs(ratioDistance*1000.0);
                 }
                 lastCurrentStepDistance = currentStepDistance;
-                lastRatioDistance = (lastRatioDistance + ratioDistance);
 
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                         << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
+                         << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                 emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
             }
         }
