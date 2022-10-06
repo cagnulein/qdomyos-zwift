@@ -2,6 +2,7 @@
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "material.h"
+#include "qzsettings.h"'
 #include "qfit.h"
 #include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
