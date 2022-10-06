@@ -398,11 +398,13 @@ void trainprogram::scheduler() {
     }
 
     ticks++;
+    
+    double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
     // entry point
     if (ticks == 1 && currentStep == 0) {
         currentStepDistance = 0;
-        lastOdometer = bluetoothManager->device()->odometer();
+        lastOdometer = odometerFromTheDevice;
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
@@ -496,8 +498,8 @@ void trainprogram::scheduler() {
 
     do {
 
-        currentStepDistance += (bluetoothManager->device()->odometer() - lastOdometer);
-        lastOdometer = bluetoothManager->device()->odometer();
+        currentStepDistance += (odometerFromTheDevice - lastOdometer);
+        lastOdometer = odometerFromTheDevice;
         bool distanceStep = (rows.at(currentStep).distance > 0);
         distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
         qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
@@ -514,7 +516,6 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
-                double savedCurrentStepDistance = currentStepDistance;
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
@@ -607,27 +608,12 @@ void trainprogram::scheduler() {
                     qDebug()  << qSetRealNumberPrecision(10)<< "distance" << p.distanceTo(c) <<
                     rows.at(currentStep).distance;*/
 
-                    if (bluetoothManager->device()->odometer() - lastOdometer > 0)
-                        p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
+                    if (odometerFromTheDevice - lastOdometer > 0)
+                        p = p.atDistanceAndAzimuth((odometerFromTheDevice - lastOdometer),
                                                    rows.at(currentStep).azimuth);
                     qDebug() << qSetRealNumberPrecision(10) << "positionOffset"
-                             << (bluetoothManager->device()->odometer() - lastOdometer);
+                             << (odometerFromTheDevice - lastOdometer);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
-
-                    double distanceRow = rows.at(currentStep).distance;
-                    QTime r = QTime(0, 0, 0);
-                    if (currentStep > 1) {
-                        r = rows.at(currentStep - 2).gpxElapsed;
-                    }
-                    double ratioDistance = savedCurrentStepDistance / distanceRow;
-                    if ( (currentStep < rows.length()) && (currentStep > 1) ) {
-                        ratioDistance *= r.secsTo(rows.at(currentStep - 1).gpxElapsed);
-                        r = r.addMSecs(ratioDistance * 1000);
-                    }
-
-                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                             << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
-                    emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
