@@ -74,7 +74,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifdef Q_OS_IOS
         // Schwinn bikes on iOS allows to be connected to several instances, so in this way
         // QZ will remember the address and will try to connect to it
-        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
+        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name)
+                        .toString();
         qDebug() << "last device name (IC BIKE workaround)" << b;
         if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
             (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
@@ -83,7 +84,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
             // stateFileRead();
             QBluetoothDeviceInfo bt;
-            bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address).toString()));
+            bt.setDeviceUuid(QBluetoothUuid(
+                settings
+                    .value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
+                    .toString()));
             // set name method doesn't exist
             emit(deviceConnected(bt));
             connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
@@ -126,13 +130,18 @@ void bluetooth::finished() {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
-    bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
-    QString cscName = settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool csc_as_bike =
+        settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    QString cscName =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
     QString powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
-    QString eliteRizerName = settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
+    QString eliteRizerName =
+        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
     QString eliteSterzoSmartName =
         settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) && !csc_as_bike;
@@ -145,7 +154,8 @@ void bluetooth::finished() {
 
     // since i can have multiple fanfit i can't wait more because i don't have the full list of the fanfit
     // devices connected to QZ
-    // bool fitmetriaFanfitEnabled = settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
+    // bool fitmetriaFanfitEnabled = settings.value(QZSettings::fitmetria_fanfit_enable,
+    // QZSettings::default_fitmetria_fanfit_enable).toBool();
 
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
@@ -162,8 +172,10 @@ void bluetooth::startDiscovery() {
 
 #ifndef Q_OS_IOS
     QSettings settings;
-    bool technogym_myrun_treadmill_experimental =
-        settings.value(QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental).toBool();
+    bool technogym_myrun_treadmill_experimental = settings
+                                                      .value(QZSettings::technogym_myrun_treadmill_experimental,
+                                                             QZSettings::default_technogym_myrun_treadmill_experimental)
+                                                      .toBool();
     bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
     bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
 
@@ -201,8 +213,10 @@ void bluetooth::debug(const QString &text) {
 bool bluetooth::cscSensorAvaiable() {
 
     QSettings settings;
-    bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-    QString cscName = settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool csc_as_bike =
+        settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+    QString cscName =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
 
     if (csc_as_bike) {
         return false;
@@ -235,8 +249,10 @@ bool bluetooth::ftmsAccessoryAvaiable() {
 bool bluetooth::powerSensorAvaiable() {
 
     QSettings settings;
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
 
@@ -256,7 +272,8 @@ bool bluetooth::powerSensorAvaiable() {
 bool bluetooth::eliteRizerAvaiable() {
 
     QSettings settings;
-    QString eliteRizerName = settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
+    QString eliteRizerName =
+        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
 
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
         if (!eliteRizerName.compare(b.name())) {
@@ -307,7 +324,6 @@ void bluetooth::setLastBluetoothDevice(const QBluetoothDeviceInfo &b) {
 #endif
 }
 
-
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
@@ -327,29 +343,40 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     bool fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool() ||
                         settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
-    bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
-    QString cscName = settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool csc_as_bike =
+        settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    QString cscName =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) || csc_as_bike;
     bool hammerRacerS = settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool();
-    bool flywheel_life_fitness_ic8 = settings.value(QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8).toBool();
+    bool flywheel_life_fitness_ic8 =
+        settings.value(QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8).toBool();
     QString powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
-    QString eliteRizerName = settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
+    QString eliteRizerName =
+        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
     QString eliteSterzoSmartName =
         settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
     bool powerSensorFound =
         powerSensorName.startsWith(QStringLiteral("Disabled")) || power_as_bike || power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
-    bool fake_bike = settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
-    bool fakedevice_elliptical = settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
-    bool fakedevice_treadmill = settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+    bool fake_bike =
+        settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
+    bool fakedevice_elliptical =
+        settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+    bool fakedevice_treadmill =
+        settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
     QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
-    QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
-    QString nordictrack_2950_ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString proformtreadmillip =
+        settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
+    QString nordictrack_2950_ip =
+        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     bool manufacturerDeviceFound = false;
 
@@ -996,7 +1023,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        !technogymmyrunTreadmill && filter) {
                 this->stopDiscovery();
                 bool technogym_myrun_treadmill_experimental =
-                    settings.value(QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental).toBool();
+                    settings
+                        .value(QZSettings::technogym_myrun_treadmill_experimental,
+                               QZSettings::default_technogym_myrun_treadmill_experimental)
+                        .toBool();
 #ifndef Q_OS_IOS
                 if (!technogym_myrun_treadmill_experimental)
 #endif
@@ -1088,7 +1118,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
                         (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
-                        (b.name().toUpper().startsWith("DS25-")) || // Bodytone DS25
+                        (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
+                        (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
                         (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
                         (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
@@ -1706,16 +1737,22 @@ void bluetooth::connectedAndDiscovered() {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
-    bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
-    QString cscName = settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    bool csc_as_bike =
+        settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+    QString cscName =
+        settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
-    QString eliteRizerName = settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
+    QString eliteRizerName =
+        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
     QString eliteSterzoSmartName =
         settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
-    bool fitmetriaFanfitEnabled = settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
+    bool fitmetriaFanfitEnabled =
+        settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
 
     // only at the first very connection, setting the user default resistance
     if (device() && firstConnected && device()->deviceType() == bluetoothdevice::BIKE &&
@@ -1723,16 +1760,21 @@ void bluetooth::connectedAndDiscovered() {
         qobject_cast<bike *>(device())->changeResistance(
             settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt());
     } else if (device() && firstConnected && device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
-               settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() != 1) {
+               settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() !=
+                   1) {
         qobject_cast<elliptical *>(device())->changeResistance(
             settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt());
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (!settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name).toString().isEmpty()) {
+        if (!settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name)
+                 .toString()
+                 .isEmpty()) {
             settings.setValue(QZSettings::hrm_lastdevice_name, "");
         }
-        if (!settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address).toString().isEmpty()) {
+        if (!settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
+                 .toString()
+                 .isEmpty()) {
             settings.setValue(QZSettings::hrm_lastdevice_address, "");
         }
     }
@@ -1741,8 +1783,10 @@ void bluetooth::connectedAndDiscovered() {
 
 #ifdef Q_OS_IOS
         if (settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()) {
-            QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-            QString b = settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name).toString();
+            QString heartRateBeltName =
+                settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+            QString b =
+                settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name).toString();
             qDebug() << "last hrm name" << b;
             if (!b.compare(heartRateBeltName) && b.length()) {
 
@@ -1752,7 +1796,9 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 QBluetoothDeviceInfo bt;
-                bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address).toString()));
+                bt.setDeviceUuid(QBluetoothUuid(
+                    settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address)
+                        .toString()));
                 qDebug() << "UUID" << bt.deviceUuid();
                 heartRateBelt->deviceDiscovered(bt);
             }
@@ -1949,8 +1995,11 @@ void bluetooth::connectedAndDiscovered() {
     // in order to allow to populate the tiles with the IC BIKE auto connect feature
     if (firstConnected) {
         QBluetoothDeviceInfo bt;
-        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
-        bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address).toString()));
+        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name)
+                        .toString();
+        bt.setDeviceUuid(QBluetoothUuid(
+            settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
+                .toString()));
         // set name method doesn't exist
         emit(deviceConnected(bt));
     }
