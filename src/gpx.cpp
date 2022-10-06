@@ -87,6 +87,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
                                                this->points.constLast().p.longitude())) < 300) {
             // to create the circuit
             this->points.append(this->points.constFirst());
+            this->points.last().time = this->points.at(this->points.count() - 2).time;
         }
 
         for (int32_t i = 1; i < this->points.count(); i++) {
@@ -107,8 +108,8 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
             g.latitude = pP.p.latitude();
             g.longitude = pP.p.longitude();
             g.seconds = this->points.constFirst().time.secsTo(pP.time);
-            // qDebug() << qSetRealNumberPrecision(10) << i << g.distance << g.inclination << g.elevation << g.latitude
-            // << g.longitude << totDistance;
+            /*qDebug() << qSetRealNumberPrecision(10) << i << g.distance << g.inclination << g.elevation << g.latitude
+             << g.longitude << totDistance << pP.time;*/
             inclinationList.append(g);
         }
     }
