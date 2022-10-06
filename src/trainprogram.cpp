@@ -662,6 +662,8 @@ void trainprogram::scheduler() {
                 QTime r = QTime(0, 0, 0);
                 if (currentStep > 0) {
                     r = rows.at(currentStep - 1).gpxElapsed;
+                    // Take care of possible not 1 second differences
+                    ratioDistance = ratioDistance / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
                 }
                 if (currentStep < rows.length()) {
                     ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
