@@ -657,10 +657,6 @@ void trainprogram::scheduler() {
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
-                double distanceRow = rows.at(currentStep).distance;
-                if (currentStep > 1) {
-                    distanceRow = distanceRow / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
-                }
                 if (lastStepTimestampChanged != currentStep) {
                     lastCurrentStepDistance = 0.0;
                     lastCurrentStepTime = QTime(0, 0, 0);
@@ -669,9 +665,12 @@ void trainprogram::scheduler() {
                     }
                     lastStepTimestampChanged = currentStep;
                 }
-                double ratioDistance = (currentStepDistance - lastCurrentStepDistance) / distanceRow;
-                if (currentStep < rows.length()) {
-                    int steptime = (QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed));
+                double distanceRow = rows.at(currentStep).distance;
+                if ( (currentStep > 1) && (distanceRow != 0.0) ) {
+                    int steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
+                    if (steptime == 0) steptime=1;
+                    distanceRow = (distanceRow / ((double)(steptime)));
+                    double ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
                     ratioDistance = ((double)(steptime)) * ratioDistance;
                     lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
                 }
