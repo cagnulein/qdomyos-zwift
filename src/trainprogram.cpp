@@ -658,7 +658,7 @@ void trainprogram::scheduler() {
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
                 double distanceRow = rows.at(currentStep).distance;
-                if (currentStep > 0) {
+                if (currentStep > 1) {
                     distanceRow = distanceRow / (((double)QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - ((double)QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
                 }
                 if (lastStepTimestampChanged != currentStep) {
