@@ -699,10 +699,14 @@ void trainprogram::scheduler() {
                     }
                     lastCurrentStepDistance = currentStepDistance;
 
-                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                            << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
-                    emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
                 }
+                else {
+                    lastCurrentStepTime = QTime(0, 0, 0).addMSecs(ticks * lastCurrentStepTimeToTickRatio); 
+                }
+                lastCurrentStepTimeToTickRatio = ( ((double)(QTime(0, 0, 0).msecsTo(lastCurrentStepTime))) / ((double)(ticks * 1000)) );
+                qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
+                        << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
+                emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
         sameIteration++;
