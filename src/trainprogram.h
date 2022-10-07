@@ -128,7 +128,7 @@ class trainprogram : public QObject {
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance =0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
-    double lastRatioDistance = 1.0;
+    double lastCurrentStepTimeToTickRatio = 0.0;
 };
 
 #endif // TRAINPROGRAM_H
