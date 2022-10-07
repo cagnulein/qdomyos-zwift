@@ -675,6 +675,9 @@ void trainprogram::scheduler() {
                     steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
                     avgvariance=((distanceRow / ((double)steptime))-avgdist);
                 }
+                qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampVariance") << currentStep
+                        << avgvariance << avgdist << avgtime << distanceRow << avgFirstPoint << avgLastPoint << steptime << ticks;                    
+
                 if (avgvariance <= 8) {
                     if (lastStepTimestampChanged != currentStep) {
                         lastCurrentStepDistance = 0.0;
