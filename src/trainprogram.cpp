@@ -657,29 +657,51 @@ void trainprogram::scheduler() {
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
-                if (lastStepTimestampChanged != currentStep) {
-                    lastCurrentStepDistance = 0.0;
-                    lastCurrentStepTime = QTime(0, 0, 0);
-                    if (currentStep > 0) {
-                        lastCurrentStepTime = rows.at(currentStep - 1).gpxElapsed;
-                    }
-                    lastStepTimestampChanged = currentStep;
+                int avgFirstPoint = currentStep-5;
+                if (avgFirstPoint < 1) avgFirstPoint=1;
+                int avgLastPoint = avgFirstPoint+10;
+                if (avgLastPoint > rows.length()) avgLastPoint=rows.length()-1;
+                double avgTotalDist = 0.0;
+                int avgc = 0;
+                for (avgc = avgFirstPoint; avgc <= avgLastPoint; avgc++) {
+                    avgTotalDist += rows.at(avgc).distance;
                 }
+                int avgtime = ((QTime(0, 0, 0).secsTo(rows.at(avgLastPoint).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(avgFirstPoint-1).gpxElapsed)));
+                double avgdist = (avgTotalDist / ((double)avgtime));
                 double distanceRow = rows.at(currentStep).distance;
+                double avgvariance = 0.0;
                 int steptime = 0;
-                double ratioDistance = 0.0;
-                if ( (currentStep > 1) && (distanceRow != 0.0) ) {
+                if (currentStep > 1) {
                     steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
-                    if (steptime == 0) steptime=1;
-                    distanceRow = (distanceRow / ((double)(steptime)));
-                    ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
-                    lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
+                    avgvariance=((distanceRow / ((double)steptime))-avgdist);
                 }
-                lastCurrentStepDistance = currentStepDistance;
+                if (avgvariance <= 8) {
+                    if (lastStepTimestampChanged != currentStep) {
+                        lastCurrentStepDistance = 0.0;
+                        lastCurrentStepTime = QTime(0, 0, 0);
+                        if (currentStep > 0) {
+                            lastCurrentStepTime = rows.at(currentStep - 1).gpxElapsed;
+                        }
+                        lastStepTimestampChanged = currentStep;
+                    }
+                    double ratioDistance = 0.0;
+                    if ( (currentStep > 1) && (distanceRow != 0.0) ) {
+                        steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
+                        if (steptime == 0) steptime=1;
+                        distanceRow = (distanceRow / ((double)(steptime)));
+                        ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
+                        lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
+                    }
+                    lastCurrentStepDistance = currentStepDistance;
 
-                qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                         << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
-                emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
+                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
+                            << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
+                    emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
+                }
+                else {
+                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampFilter") << currentStep
+                            << avgvariance << avgdist << avgtime << distanceRow << steptime << ticks;                    
+                }
             }
         }
         sameIteration++;
