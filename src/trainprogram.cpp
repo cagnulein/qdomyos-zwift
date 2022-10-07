@@ -667,16 +667,18 @@ void trainprogram::scheduler() {
                     avgTotalDist += rows.at(avgc).distance;
                 }
                 int avgtime = ((QTime(0, 0, 0).secsTo(rows.at(avgLastPoint).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(avgFirstPoint-1).gpxElapsed)));
-                double avgdist = (avgTotalDist / ((double)avgtime));
+                double avgkmh = (avgTotalDist / ((double)(avgtime)) * 3600.0 );
                 double distanceRow = rows.at(currentStep).distance;
-                double avgvariance = 0.0;
+                double rowkmh = 0.0;
+                double kmhVariance = 0.0;
                 int steptime = 0;
                 if (currentStep > 1) {
                     steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
-                    avgvariance=((distanceRow / ((double)steptime))-avgdist);
+                    rowkmh = (distanceRow / ((double)(steptime)) * 3600.0) ;
+                    kmhVariance = (fabs(rowkmh-avgkmh));
                 }
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampVariance") << currentStep
-                        << avgvariance << avgdist << avgtime << distanceRow << avgFirstPoint << avgLastPoint << steptime << ticks;                    
+                        << kmhVariance << avgTotalDist << avgtime << avgkmh << distanceRow << steptime << rowkmh << avgFirstPoint << avgLastPoint << steptime << ticks;                    
 
                 if (avgvariance <= 8) {
                     if (lastStepTimestampChanged != currentStep) {
@@ -700,10 +702,6 @@ void trainprogram::scheduler() {
                     qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
                             << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                     emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
-                }
-                else {
-                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampFilter") << currentStep
-                            << avgvariance << avgdist << avgtime << distanceRow << steptime << ticks;                    
                 }
             }
         }
