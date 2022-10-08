@@ -96,7 +96,7 @@ void trainprogram::applySpeedFilter() {
             else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currow-1).gpxElapsed)));
             wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);  
         }
-        if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)
+        if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed);
         else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r-1).gpxElapsed)));
 
         qDebug()  << qSetRealNumberPrecision(10)<< "TrainprogramapplySpeedFilter"
@@ -109,7 +109,7 @@ void trainprogram::applySpeedFilter() {
                  << (wma * ((double)(rowduration)))
                  << rows.at(r).inclination;
 
-        rows.at(r).distance = (wma * ((double)(rowduration)));        
+        rows[r].distance = (wma * ((double)(rowduration)));        
         r++;
     }
 }
