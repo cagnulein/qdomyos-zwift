@@ -90,7 +90,7 @@ void trainprogram::applySpeedFilter() {
         int wc = 0;
         double wma = 0;
         int rowduration=0;
-        for (wc = 0; wc<(we-ws) wc++;){
+        for (wc = 0; wc<(we-ws); wc++){
             int currow = (ws+wc);
             if (currow <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed);
             else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currow-1).gpxElapsed)));
