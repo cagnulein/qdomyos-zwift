@@ -231,8 +231,8 @@ double metric::calculateSpeedFromPower(double power, double inclination, double 
     if (inclination < -5)
         inclination = -5;
 
-    double fullWeight = (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
-                         settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double fullWeight = (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
+                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double maxSpeed = calculateMaxSpeedFromPower(power, inclination);
     double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
     double acceleration = (power - maxPowerFromSpeed) / fullWeight;
