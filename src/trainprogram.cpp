@@ -181,6 +181,7 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 // speed in Km/h
 double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
     int start = gpxStep;
+    if (gpxStep >= rows.length()) return 0.0;
     double km = (rows.at(gpxStep).distance);
     int timesum = 0;
     if (gpxStep > 0)
