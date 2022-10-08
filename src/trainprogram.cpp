@@ -80,7 +80,7 @@ QString trainrow::toString() const {
 void trainprogram::applySpeedFilter() {
     if (rows.length()==0) return;
     int r = 0;
-    double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.05, 0.1, 0.15, 0.15};
+    double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
 
     while (r < rows.length()) {
         int ws = (r - 4);
@@ -719,7 +719,7 @@ void trainprogram::scheduler() {
                         << kmhVariance << avgTotalDist << avgtime << avgkmh << distanceRow << steptime << rowkmh << avgFirstPoint << avgLastPoint << steptime << ticks;                    
 
                 double ratioDistance = 0.0;
-                if ( (kmhVariance < 0.75) || (kmhVariance > 1.25) ) {
+                if (((kmhVariance < 0.75) || (kmhVariance > 1.25)) && (lastCurrentStepTimeToTickRatio != 0.0)) {
                     if (lastStepTimestampChanged != currentStep) {
                         lastCurrentStepDistance = 0.0;
                         lastCurrentStepTime = QTime(0, 0, 0);
