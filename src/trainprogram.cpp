@@ -32,6 +32,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
                  << rows.at(c).inclination;
     }
     */
+    applySpeedFilter();
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
     timer.start();
@@ -74,6 +75,43 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" altitude = %1").arg(altitude);
     rv += QStringLiteral(" azimuth = %1").arg(azimuth);
     return rv;
+}
+
+void trainprogram::applySpeedFilter() {
+    if (rows.length()==0) return;
+    int r = 0;
+    double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.05, 0.1, 0.15, 0.15};
+
+    while (r < rows.length()) {
+        int ws = (r - 4);
+        int we = (r + 4);
+        if (ws < 0) ws = 0;
+        if (we >= rows.length()) we = (rows.length()-1);
+        int wc = 0;
+        double wma = 0;
+        int rowduration=0;
+        for (wc = 0; wc<(we-ws) wc++;){
+            int currow = (ws+wc);
+            if (currow <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed);
+            else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currow-1).gpxElapsed)));
+            wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight(wc));  
+        }
+        if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)
+        else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r-1).gpxElapsed)));
+
+        qDebug()  << qSetRealNumberPrecision(10)<< "TrainprogramapplySpeedFilter"
+                 << r
+                 << rows.at(r).latitude
+                 << rows.at(r).longitude
+                 << rows.at(r).altitude
+                 << QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)
+                 << rows.at(r).distance
+                 << (wma * ((double)(rowduration)))
+                 << rows.at(r).inclination;
+
+        rows.at(r).distance = (wma * ((double)(rowduration)));        
+        r++;
+    }
 }
 
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
