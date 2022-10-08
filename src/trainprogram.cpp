@@ -708,6 +708,7 @@ void trainprogram::scheduler() {
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
+                /*
                 int avgFirstPoint = currentStep-5;
                 if (avgFirstPoint < 1) avgFirstPoint=1;
                 int avgLastPoint = avgFirstPoint+10;
@@ -719,10 +720,9 @@ void trainprogram::scheduler() {
                 }
                 int avgtime = ((QTime(0, 0, 0).secsTo(rows.at(avgLastPoint).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(avgFirstPoint-1).gpxElapsed)));
                 double avgkmh = (avgTotalDist / ((double)(avgtime)) * 3600.0 );
-                double distanceRow = rows.at(currentStep).distance;
+                
                 double rowkmh = 0.0;
                 double kmhVariance = 0.0;
-                int steptime = 0;
                 if (currentStep > 1) {
                     steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
                     rowkmh = (distanceRow / ((double)(steptime)) * 3600.0) ;
@@ -730,10 +730,11 @@ void trainprogram::scheduler() {
                 }
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampVariance") << currentStep
                         << kmhVariance << avgTotalDist << avgtime << avgkmh << distanceRow << steptime << rowkmh << avgFirstPoint << avgLastPoint << steptime << ticks;                    
-
+                */
                 double ratioDistance = 0.0;
+                double distanceRow = rows.at(currentStep).distance;
+                int steptime = 0;
                 //if ((kmhVariance < 0.75) || (kmhVariance > 1.25) || (lastCurrentStepTimeToTickRatio == 0.0)) {
-                if (1==1) {
                     if (lastStepTimestampChanged != currentStep) {
                         lastCurrentStepDistance = 0.0;
                         lastCurrentStepTime = QTime(0, 0, 0);
@@ -751,13 +752,14 @@ void trainprogram::scheduler() {
                         lastCurrentStepTimeToTickRatio = ( ((double)(QTime(0, 0, 0).msecsTo(lastCurrentStepTime))) / ((double)(ticks * 1000)) );
                     }
                     lastCurrentStepDistance = currentStepDistance;
-
+                /*
                 }
                 else {
                     lastCurrentStepTime = QTime(0, 0, 0).addMSecs(ticks * lastCurrentStepTimeToTickRatio * 1000); 
                 }
+                */
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                        << distanceRow << currentStepDistance << lastCurrentStepDistance << steptime << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << lastCurrentStepTimeToTickRatio << ticks;
+                        << distanceRow << currentStepDistance << lastCurrentStepDistance << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }
