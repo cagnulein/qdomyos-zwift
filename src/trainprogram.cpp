@@ -123,7 +123,7 @@ void trainprogram::applySpeedFilter() {
         r++;
     }
     for (r = 0; r < rows.length(); r++){
-        row[r].distance=newdistance[r];
+        rows[r].distance=newdistance[r];
     }
 }
 
