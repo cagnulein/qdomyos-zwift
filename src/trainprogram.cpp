@@ -708,56 +708,25 @@ void trainprogram::scheduler() {
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
 
-                /*
-                int avgFirstPoint = currentStep-5;
-                if (avgFirstPoint < 1) avgFirstPoint=1;
-                int avgLastPoint = avgFirstPoint+10;
-                if (avgLastPoint > rows.length()) avgLastPoint=rows.length()-1;
-                double avgTotalDist = 0.0;
-                int avgc = 0;
-                for (avgc = avgFirstPoint; avgc <= avgLastPoint; avgc++) {
-                    avgTotalDist += rows.at(avgc).distance;
-                }
-                int avgtime = ((QTime(0, 0, 0).secsTo(rows.at(avgLastPoint).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(avgFirstPoint-1).gpxElapsed)));
-                double avgkmh = (avgTotalDist / ((double)(avgtime)) * 3600.0 );
-                
-                double rowkmh = 0.0;
-                double kmhVariance = 0.0;
-                if (currentStep > 1) {
-                    steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
-                    rowkmh = (distanceRow / ((double)(steptime)) * 3600.0) ;
-                    kmhVariance = rowkmh/avgkmh;
-                }
-                qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestampVariance") << currentStep
-                        << kmhVariance << avgTotalDist << avgtime << avgkmh << distanceRow << steptime << rowkmh << avgFirstPoint << avgLastPoint << steptime << ticks;                    
-                */
                 double ratioDistance = 0.0;
                 double distanceRow = rows.at(currentStep).distance;
                 int steptime = 0;
-                //if ((kmhVariance < 0.75) || (kmhVariance > 1.25) || (lastCurrentStepTimeToTickRatio == 0.0)) {
-                    if (lastStepTimestampChanged != currentStep) {
-                        lastCurrentStepDistance = 0.0;
-                        lastCurrentStepTime = QTime(0, 0, 0);
-                        if (currentStep > 0) {
-                            lastCurrentStepTime = rows.at(currentStep - 1).gpxElapsed;
-                        }
-                        lastStepTimestampChanged = currentStep;
+                if (lastStepTimestampChanged != currentStep) {
+                    lastCurrentStepDistance = 0.0;
+                    lastCurrentStepTime = QTime(0, 0, 0);
+                    if (currentStep > 0) {
+                        lastCurrentStepTime = rows.at(currentStep - 1).gpxElapsed;
                     }
-                    if ( (currentStep > 1) && (distanceRow != 0.0) ) {
-                        steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
-                        if (steptime == 0) steptime=1;
-                        distanceRow = (distanceRow / ((double)(steptime)));
-                        ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
-                        lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
-                        lastCurrentStepTimeToTickRatio = ( ((double)(QTime(0, 0, 0).msecsTo(lastCurrentStepTime))) / ((double)(ticks * 1000)) );
-                    }
-                    lastCurrentStepDistance = currentStepDistance;
-                /*
+                    lastStepTimestampChanged = currentStep;
                 }
-                else {
-                    lastCurrentStepTime = QTime(0, 0, 0).addMSecs(ticks * lastCurrentStepTimeToTickRatio * 1000); 
+                if ( (currentStep > 1) && (distanceRow != 0.0) ) {
+                    steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
+                    if (steptime == 0) steptime=1;
+                    distanceRow = (distanceRow / ((double)(steptime)));
+                    ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
+                    lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
                 }
-                */
+                lastCurrentStepDistance = currentStepDistance;
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
                         << distanceRow << currentStepDistance << lastCurrentStepDistance << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
