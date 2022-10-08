@@ -81,6 +81,7 @@ void trainprogram::applySpeedFilter() {
     if (rows.length()==0) return;
     int r = 0;
     double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
+    double newdistance [rows.length()] = {};
 
     while (r < rows.length()) {   // 7
         int ws = (r - 4);           // 3
@@ -118,9 +119,11 @@ void trainprogram::applySpeedFilter() {
                  << wma
                  << rowduration
                  << rows.at(r).inclination;
-
-        rows[r].distance = (wma * ((double)(rowduration)));        
+        newdistance[r] = (wma * ((double)(rowduration)));
         r++;
+    }
+    for (r = 0; r < rows.length(); r++){
+        row[r].distance=newdistance[r];
     }
 }
 
