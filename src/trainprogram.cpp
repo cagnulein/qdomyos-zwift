@@ -732,7 +732,8 @@ void trainprogram::scheduler() {
                         << kmhVariance << avgTotalDist << avgtime << avgkmh << distanceRow << steptime << rowkmh << avgFirstPoint << avgLastPoint << steptime << ticks;                    
 
                 double ratioDistance = 0.0;
-                if ((kmhVariance < 0.75) || (kmhVariance > 1.25) || (lastCurrentStepTimeToTickRatio == 0.0)) {
+                //if ((kmhVariance < 0.75) || (kmhVariance > 1.25) || (lastCurrentStepTimeToTickRatio == 0.0)) {
+                if (1==1) {
                     if (lastStepTimestampChanged != currentStep) {
                         lastCurrentStepDistance = 0.0;
                         lastCurrentStepTime = QTime(0, 0, 0);
