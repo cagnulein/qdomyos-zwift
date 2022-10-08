@@ -86,6 +86,8 @@ class trainprogram : public QObject {
     bool isStarted() { return started; }
     void scheduler(int tick);
 
+    void applySpeedFilter();
+
   public slots:
     void onTapeStarted();
     void scheduler();
