@@ -8,6 +8,8 @@
 using namespace std::chrono_literals;
 
 trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags) {
+    QSettings settings;
+    bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
     this->bluetoothManager = b;
     this->rows = rows;
     this->loadedRows = rows;
@@ -34,7 +36,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     */
 
     // speed filter only to GPX workouts
-    if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude))
+    if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude && !treadmill_force_speed))
         applySpeedFilter();
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
@@ -105,6 +107,8 @@ void trainprogram::applySpeedFilter() {
         if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed);
         else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r-1).gpxElapsed)));
 
+        /* it takes a lot of time during the opening of the file*/
+        /*
         qDebug()  << qSetRealNumberPrecision(10)<< "TrainprogramapplySpeedFilter"
                  << r
                  << rows.at(r).latitude
@@ -115,7 +119,7 @@ void trainprogram::applySpeedFilter() {
                  << (wma * ((double)(rowduration)))
                  << wma
                  << rowduration
-                 << rows.at(r).inclination;
+                 << rows.at(r).inclination;*/
 
         newdistance.append(wma * ((double)(rowduration)));
         r++;
