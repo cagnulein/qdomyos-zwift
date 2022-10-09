@@ -84,31 +84,23 @@ QString trainrow::toString() const {
 void trainprogram::applySpeedFilter() {
     if (rows.length()==0) return;
     int r = 0;
-    double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
+    double weight[] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
     QList<double> newdistance;
     newdistance.reserve(rows.length() + 1);
 
-    while (r < rows.length()) {   // 7
-        int ws = (r - 4);           // 3
-        int we = (r + 4);           // 11
+    while (r < rows.length()) {
+        int ws = (r - 4);
+        int we = (r + 4);
         if (ws < 0) ws = 0;
         if (we >= rows.length()) we = (rows.length()-1);
         int wc = 0;
         double wma = 0;
         int rowduration=0;
-        for (wc = 0; wc<=(we-ws); wc++){     // 0-8
-            int currow = (ws+wc);           // 3-11
+        for (wc = 0; wc<=(we-ws); wc++) {
+            int currow = (ws+wc);
             if (currow <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed);
             else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currow-1).gpxElapsed)));
             wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
-            if (r==7) {
-                qDebug()  << qSetRealNumberPrecision(10)<< "TrainprogramapplySpeedFilterLine"
-                        << ws
-                        << wc
-                        << currow
-                        << rowduration
-                        << wma;
-            }
         }
         if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed);
         else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r-1).gpxElapsed)));
@@ -124,11 +116,12 @@ void trainprogram::applySpeedFilter() {
                  << wma
                  << rowduration
                  << rows.at(r).inclination;
-        newdistance[r] = (wma * ((double)(rowduration)));
+
+        newdistance.append(wma * ((double)(rowduration)));
         r++;
     }
-    for (r = 0; r < rows.length(); r++){
-        rows[r].distance=newdistance[r];
+    for (r = 0; r < rows.length(); r++) {
+        rows[r].distance=newdistance.at(r);
     }
 }
 
