@@ -249,6 +249,13 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Gpxpos=lastPos" << lastGpxRateSet;
         return lastGpxRateSet;
     }
+
+    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        bike * dev = (bike *)bluetoothManager->device();
+        dev->setSpeedLimit(avgNextSpeed * 2.0);
+        if (currentspeed > (avgNextSpeed * 2))
+            currentspeed=(avgNextSpeed * 2.0);
+    }
     // Calculate the Factor between current Players Speed and the next average GPX Speed
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
