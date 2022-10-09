@@ -4563,6 +4563,12 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // calculate and set the new Video Rate
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
         setVideoRate(rate);
+    } else {
+        // restoring the speed limit to max
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+             bike * dev = (bike *)bluetoothManager->device();
+             dev->setSpeedLimit(0);
+        }
     }
 }
 

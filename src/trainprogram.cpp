@@ -250,11 +250,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         return lastGpxRateSet;
     }
 
+    // set the maximum Speed that the player can reached based on the Video speed.
+    // if Rate get's too high the Video jumps
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-        bike * dev = (bike *)bluetoothManager->device();
-        dev->setSpeedLimit(avgNextSpeed * 2.0);
-        if (currentspeed > (avgNextSpeed * 2))
-            currentspeed=(avgNextSpeed * 2.0);
+         bike * dev = (bike *)bluetoothManager->device();
+         dev->setSpeedLimit(avgNextSpeed * 1.7);
     }
     // Calculate the Factor between current Players Speed and the next average GPX Speed
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
