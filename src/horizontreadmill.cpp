@@ -80,16 +80,22 @@ void horizontreadmill::btinit() {
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
     horizon_treadmill_profile_users.append(
-        settings.value(QZSettings::horizon_treadmill_profile_user1, QZSettings::default_horizon_treadmill_profile_user1).toString());
+        settings.value(QZSettings::horizon_treadmill_profile_user1, QZSettings::default_horizon_treadmill_profile_user1)
+            .toString());
     horizon_treadmill_profile_users.append(
-        settings.value(QZSettings::horizon_treadmill_profile_user2, QZSettings::default_horizon_treadmill_profile_user2).toString());
+        settings.value(QZSettings::horizon_treadmill_profile_user2, QZSettings::default_horizon_treadmill_profile_user2)
+            .toString());
     horizon_treadmill_profile_users.append(
-        settings.value(QZSettings::horizon_treadmill_profile_user3, QZSettings::default_horizon_treadmill_profile_user3).toString());
+        settings.value(QZSettings::horizon_treadmill_profile_user3, QZSettings::default_horizon_treadmill_profile_user3)
+            .toString());
     horizon_treadmill_profile_users.append(
-        settings.value(QZSettings::horizon_treadmill_profile_user4, QZSettings::default_horizon_treadmill_profile_user4).toString());
+        settings.value(QZSettings::horizon_treadmill_profile_user4, QZSettings::default_horizon_treadmill_profile_user4)
+            .toString());
     horizon_treadmill_profile_users.append(
-        settings.value(QZSettings::horizon_treadmill_profile_user5, QZSettings::default_horizon_treadmill_profile_user5).toString());
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        settings.value(QZSettings::horizon_treadmill_profile_user5, QZSettings::default_horizon_treadmill_profile_user5)
+            .toString());
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -746,8 +752,10 @@ void horizontreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
-        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
-        bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+        bool horizon_treadmill_7_8 =
+            settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+        bool horizon_paragon_x =
+            settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
@@ -758,7 +766,9 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+            if (requestSpeed != currentSpeed().value() &&
+                fabs(requestSpeed - currentSpeed().value()) > minStepSpeed() && requestSpeed >= 0 &&
+                requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
@@ -767,6 +777,8 @@ void horizontreadmill::update() {
         if (requestInclination != -100) {
             if (requestInclination < 0)
                 requestInclination = 0;
+            // the treadmill accepts only .5 steps
+            requestInclination = floor(requestInclination) + 0.5;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -900,7 +912,8 @@ void horizontreadmill::update() {
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -968,7 +981,8 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
 // example frame: 55aa3800030603005d0b0a0000
 void horizontreadmill::forceIncline(double requestIncline) {
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1037,7 +1051,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     bool distanceEval = false;
     QSettings settings;
-    // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+    // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x,
+    // QZSettings::default_horizon_paragon_x).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -1074,7 +1089,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -1100,7 +1116,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -1123,7 +1140,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         // emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -1242,14 +1260,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             // energy per minute
             index += 1;
         } else {
-            if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
+            if (firstDistanceCalculated &&
+                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
             distanceEval = true;
         }
 
@@ -1291,7 +1313,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+        if (heart == 0.0 ||
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -1420,8 +1443,11 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     ) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -1608,8 +1634,10 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     QSettings settings;
-    bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+    bool horizon_treadmill_7_8 =
+        settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
+    bool horizon_paragon_x =
+        settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this
     // is to understand why it's starting with this strange speed)
@@ -2213,3 +2241,6 @@ void horizontreadmill::testProfileCRC() {
     assert(initData7_6[8] == (confirm & 0xff));
     assert(initData7_6[9] == (confirm >> 8));
 }
+
+double horizontreadmill::minStepInclination() { return 0.5; }
+double horizontreadmill::minStepSpeed() { return 0.1; }

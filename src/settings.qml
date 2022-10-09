@@ -477,9 +477,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.63
             property bool nordictrack_gx_2_7: false
-            
-            // from version 2.11.??
-            property real rolling_resistance: 0.005            
+
+            // from version 2.11.65
+            property real rolling_resistance: 0.005
         }
 
         function paddingZeros(text, limit) {

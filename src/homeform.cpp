@@ -3514,13 +3514,13 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
-                        setMapsVisible(true);
                     }
                 }
 
                 last = p;
                 i++;
             }
+            setMapsVisible(true);
             trainProgram = new trainprogram(list, bluetoothManager);
 
             if (g.getVideoURL().isEmpty() == false) {

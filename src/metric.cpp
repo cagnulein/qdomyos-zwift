@@ -214,14 +214,14 @@ double metric::calculateMaxSpeedFromPower(double power, double inclination) {
 
 double metric::calculatePowerFromSpeed(double speed, double inclination) {
     QSettings settings;
-    double rolling_resistance = settings.value("rolling_resistance", 0.005).toFloat();
+    double rolling_resistance = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
     double v = speed / 3.6; // converted to m/s;
     double tv = v + 0;
     double tran = 0.95;
     const double aero = 0.22691607640851885;
     double A2Eff = (tv > 0.0) ? aero : -aero; // wind in face, must reverse effect
-    double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
-                        settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
+                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double tr = twt * ((inclination / 100.0) + rolling_resistance);
     return (v * tr + v * tv * tv * A2Eff) / tran;
 }
@@ -231,15 +231,13 @@ double metric::calculateSpeedFromPower(double power, double inclination, double 
     if (inclination < -5)
         inclination = -5;
 
-    double fullWeight = (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
-                         settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double fullWeight = (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
+                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double maxSpeed = calculateMaxSpeedFromPower(power, inclination);
     double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
     double acceleration = (power - maxPowerFromSpeed) / fullWeight;
     double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
-    qDebug() << QStringLiteral("calcuateSpeedFromPower ") << power << inclination << speed << deltaTimeSeconds
-             << fullWeight << maxSpeed << maxPowerFromSpeed << acceleration << newSpeed;
-    if (newSpeed < 0)
+    if(newSpeed < 0)
         newSpeed = 0;
     if (maxSpeed > newSpeed)
         return newSpeed;
