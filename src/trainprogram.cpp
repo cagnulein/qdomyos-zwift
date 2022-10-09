@@ -32,7 +32,11 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
                  << rows.at(c).inclination;
     }
     */
-    applySpeedFilter();
+
+    // speed filter only to GPX workouts
+    if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude))
+        applySpeedFilter();
+
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
     timer.start();
@@ -81,7 +85,8 @@ void trainprogram::applySpeedFilter() {
     if (rows.length()==0) return;
     int r = 0;
     double weight [] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
-    double newdistance [rows.length()] = {};
+    QList<double> newdistance;
+    newdistance.reserve(rows.length() + 1);
 
     while (r < rows.length()) {   // 7
         int ws = (r - 4);           // 3
@@ -395,7 +400,7 @@ double trainprogram::avgAzimuthNext300Meters() {
     double sinTotal = 0;
     double cosTotal = 0;
 
-    if (rows.at(c).latitude != 0 || rows.at(c).longitude != 0) {
+    if (!isnan(rows.at(c).latitude) && !isnan(rows.at(c).longitude)) {
         while (1) {
             if (c < rows.length()) {
                 if (km > 0.3) {
