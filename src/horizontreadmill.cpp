@@ -766,6 +766,7 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
+            qDebug() << "requestSpeed=" << requestSpeed;
             if (requestSpeed != currentSpeed().value() &&
                 fabs(requestSpeed - currentSpeed().value()) > minStepSpeed() && requestSpeed >= 0 &&
                 requestSpeed <= 22) {
@@ -775,6 +776,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
             // the treadmill accepts only .5 steps
