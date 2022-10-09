@@ -43,7 +43,7 @@ void fakebike::update() {
     else if (updcou > 6000)
         w = 150;
 
-    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));    
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
 
     update_metrics(true, watts());
 
