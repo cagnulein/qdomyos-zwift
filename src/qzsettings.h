@@ -626,6 +626,8 @@ public:
 
 	static const QString eslinker_cadenza;
 	static constexpr bool default_eslinker_cadenza = true;
+	static const QString eslinker_ypoo;
+	static constexpr bool default_eslinker_ypoo = false;
 	/**
      *@brief Choose between the standard and MGARCEA watt table.
 	*/
