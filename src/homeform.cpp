@@ -3526,11 +3526,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             if (g.getVideoURL().isEmpty() == false) {
                 movieFileName = QUrl(g.getVideoURL());
                 emit videoPathChanged(movieFileName);
-                setVideoVisible(true);
+                setVideoIconVisible(true);
             } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
                 movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
                 emit videoPathChanged(movieFileName);
-                setVideoVisible(true);
+                setVideoIconVisible(true);
             }
         }
 
@@ -4002,12 +4002,12 @@ void homeform::setMapsVisible(bool value) {
     emit mapsVisibleChanged(m_MapsVisible);
 }
 
-bool homeform::videoVisible() { return m_VideoVisible; }
+bool homeform::videoIconVisible() { return m_VideoIconVisible; }
 
-void homeform::setVideoVisible(bool value) {
+void homeform::setVideoIconVisible(bool value) {
 
-    m_VideoVisible = value;
-    emit videoVisibleChanged(m_VideoVisible);
+    m_VideoIconVisible = value;
+    emit videoIconVisibleChanged(m_VideoIconVisible);
 }
 
 int homeform::videoPosition() { return m_VideoPosition; }
@@ -4499,12 +4499,11 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
-    const double filterRate = 0.1;
     QSettings settings;
     //source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QZSettings::video_playback_window_s, QZSettings::default_video_playback_window_s).toInt();
     // only needed if a gpx is loaded and the video is visible, otherwise do nothing.
-    if ( (trainProgram) && (videoVisible() == true) ) {
+    if ( (trainProgram) && (videoIconVisible() == true) ) {
         QObject *rootObject = engine->rootObjects().constFirst();
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
@@ -4563,6 +4562,15 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // calculate and set the new Video Rate
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
         setVideoRate(rate);
+    }
+    
+    if(!videoVisible()) {
+        // set the maximum Speed that the player can reached based on the Video speed.
+        // if Rate get's too high the Video jumps
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+             bike * dev = (bike *)bluetoothManager->device();
+             dev->setSpeedLimit(0);
+        }
     }
 }
 

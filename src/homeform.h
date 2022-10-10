@@ -117,6 +117,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
                    setLicensePopupVisible)
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
+    Q_PROPERTY(bool videoIconVisible READ videoIconVisible NOTIFY videoIconVisibleChanged WRITE setVideoIconVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
@@ -339,7 +340,8 @@ class homeform : public QObject {
     bool generalPopupVisible();
     bool licensePopupVisible();
     bool mapsVisible();
-    bool videoVisible();
+    bool videoIconVisible();
+    bool videoVisible() { return m_VideoVisible;}
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -362,7 +364,8 @@ class homeform : public QObject {
         }
     }
     void setLicensePopupVisible(bool value);
-    void setVideoVisible(bool value);
+    void setVideoIconVisible(bool value);
+    void setVideoVisible(bool value) {m_VideoVisible = value; emit videoVisibleChanged(m_VideoVisible);}
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
@@ -489,6 +492,7 @@ class homeform : public QObject {
     bool m_generalPopupVisible = false;
     bool m_LicensePopupVisible = false;
     bool m_MapsVisible = false;
+    bool m_VideoIconVisible = false;
     bool m_VideoVisible = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
@@ -679,6 +683,7 @@ class homeform : public QObject {
     void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
+    void videoIconVisibleChanged(bool value);
     void videoVisibleChanged(bool value);
     void videoPositionChanged(int value);
     void videoPathChanged(QUrl value);
