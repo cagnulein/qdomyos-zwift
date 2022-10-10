@@ -138,6 +138,7 @@ double trainprogram::avgInclinationNext100Meters() {
     double km = 0;
     double avg = 0;
     int sum = 0;
+    double startingAltitude = rows.at(currentStep).altitude;
 
     while (1) {
         if (c < rows.length()) {
@@ -148,7 +149,7 @@ double trainprogram::avgInclinationNext100Meters() {
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
-            avg += rows.at(c).inclination;
+            avg += (rows.at(c).altitude - startingAltitude);
             sum++;
 
         } else {

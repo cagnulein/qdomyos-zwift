@@ -779,8 +779,10 @@ void horizontreadmill::update() {
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
-            // the treadmill accepts only .5 steps
-            requestInclination = floor(requestInclination) + 0.5;
+            } else {
+                // the treadmill accepts only .5 steps
+                requestInclination = floor(requestInclination) + 0.5;
+            }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
