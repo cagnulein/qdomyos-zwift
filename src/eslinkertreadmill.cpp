@@ -60,7 +60,7 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
-    if (treadmill_type == RHYTHM_FUN) {
+    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         // trying to force a fixed value to keep the connection on
         uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x23, 0x00, 0x2b};
 
@@ -129,7 +129,7 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        if (treadmill_type == TYPE::RHYTHM_FUN) {
+        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) { // 
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -202,7 +202,7 @@ void eslinkertreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            if (treadmill_type == TYPE::RHYTHM_FUN)
+            if (treadmill_type == TYPE::RHYTHM_FUN  || treadmill_type == TYPE::YPOO_MINI_CHANGE)
                 btinit(true);
             requestSpeed = 1.0;
             requestStart = -1;
@@ -311,10 +311,10 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN))
+    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
         return;
 
-    if (treadmill_type == RHYTHM_FUN) {
+    if (treadmill_type == RHYTHM_FUN  || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
         double incline = GetInclinationFromPacket(value);
         double kcal = GetKcalFromPacket(value);
@@ -379,12 +379,23 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 double eslinkertreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint8_t convertedData = (uint8_t)packet.at(14);
     double data = (double)convertedData / 10.0f;
+    if (treadmill_type == YPOO_MINI_CHANGE && data < 1.0d) {
+        data = 0.0d;
+    }
     return data;
 }
 
 double eslinkertreadmill::GetKcalFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    return (double)convertedData;
+    double data;
+    if (treadmill_type == YPOO_MINI_CHANGE) {
+        uint16_t convertedData = (((uint8_t)packet.at(5)) << 8) | (uint8_t)packet.at(6);;
+        data = (double)convertedData / 100.0f;
+    }
+    else {
+        uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+        data = (double)convertedData;
+    }
+    return data;
 }
 
 double eslinkertreadmill::GetDistanceFromPacket(const QByteArray &packet) {
@@ -394,9 +405,11 @@ double eslinkertreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double eslinkertreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(11);
-    double data = convertedData;
-
+    double data = 0.0d;
+    if (treadmill_type != YPOO_MINI_CHANGE) {
+        uint16_t convertedData = packet.at(11);
+        data = convertedData;
+    }   
     return data;
 }
 
@@ -418,7 +431,7 @@ void eslinkertreadmill::btinit(bool startTape) {
 
     uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
 
-    if (treadmill_type == RHYTHM_FUN) {
+    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
@@ -543,8 +556,11 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         QSettings settings;
         bool eslinker_cadenza = settings.value(QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza).toBool();
+        bool eslinker_ypoo = settings.value(QZSettings::eslinker_ypoo, QZSettings::default_eslinker_ypoo).toBool();
         if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
+        } else if (eslinker_ypoo) {
+            treadmill_type = YPOO_MINI_CHANGE;
         } else
             treadmill_type = RHYTHM_FUN;
 
