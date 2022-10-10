@@ -379,8 +379,8 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 double eslinkertreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint8_t convertedData = (uint8_t)packet.at(14);
     double data = (double)convertedData / 10.0f;
-    if (treadmill_type == YPOO_MINI_CHANGE && data < 1.0d) {
-        data = 0.0d;
+    if (treadmill_type == YPOO_MINI_CHANGE && data < 1.0) {
+        data = 0.0;
     }
     return data;
 }
@@ -405,7 +405,7 @@ double eslinkertreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double eslinkertreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    double data = 0.0d;
+    double data = 0.0;
     if (treadmill_type != YPOO_MINI_CHANGE) {
         uint16_t convertedData = packet.at(11);
         data = convertedData;
