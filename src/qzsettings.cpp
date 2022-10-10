@@ -199,6 +199,7 @@ const QString QZSettings:: domyos_bike_cadence_filter = QStringLiteral("domyos_b
 const QString QZSettings:: domyos_bike_display_calories = QStringLiteral("domyos_bike_display_calories");
 const QString QZSettings:: domyos_elliptical_speed_ratio = QStringLiteral("domyos_elliptical_speed_ratio");
 const QString QZSettings:: eslinker_cadenza = QStringLiteral("eslinker_cadenza");
+const QString QZSettings:: eslinker_ypoo = QStringLiteral("eslinker_ypoo");
 const QString QZSettings:: echelon_watttable = QStringLiteral("echelon_watttable");
 const QString QZSettings:: default_echelon_watttable = QStringLiteral("Echelon");
 const QString QZSettings:: proform_wheel_ratio = QStringLiteral("proform_wheel_ratio");
@@ -432,7 +433,7 @@ const QString QZSettings:: default_horizon_treadmill_profile_user5 = QStringLite
 const QString QZSettings:: nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_7");
 const QString QZSettings:: rolling_resistance = QStringLiteral("rolling_resistance");
 
-const uint32_t allSettingsCount = 367;
+const uint32_t allSettingsCount = 368;
 QVariant allSettings[allSettingsCount][2] =  {
     { QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles },
     { QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection },
@@ -598,6 +599,7 @@ QVariant allSettings[allSettingsCount][2] =  {
     { QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories },
     { QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio },
     { QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza },
+    { QZSettings::eslinker_ypoo, QZSettings::default_eslinker_ypoo },
     { QZSettings::echelon_watttable, QZSettings::default_echelon_watttable },
     { QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio },
     { QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc },
