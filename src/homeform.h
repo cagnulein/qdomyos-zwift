@@ -604,6 +604,7 @@ class homeform : public QObject {
 
     QGeoPath gpx_preview;
     PathController pathController;
+    bool videoMustBeReset = true;
 
   public slots:
     void aboutToQuit();
