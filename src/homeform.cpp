@@ -4500,8 +4500,6 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
     QSettings settings;
-    //source = source.addSecs(20); // for testing
-    int filterSeconds = settings.value(QZSettings::video_playback_window_s, QZSettings::default_video_playback_window_s).toInt();
     // only needed if a gpx is loaded and the video is visible, otherwise do nothing.
     if ( (trainProgram) && (videoVisible() == true) ) {
         QObject *rootObject = engine->rootObjects().constFirst();
@@ -4535,7 +4533,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             // Video is started now, calculate and set the Rate
             if (!videoMustBeReset) {
                 // calculate and set the new Video Rate
-                double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
+                double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0, videoTimeStampSeconds, bluetoothManager->device()->currentSpeed().average5s());
                 setVideoRate(rate);
             }
         }

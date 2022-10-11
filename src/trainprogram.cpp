@@ -211,7 +211,7 @@ int trainprogram::TotalGPXSecs() {
     return QTime(0, 0, 0).secsTo(rows.at(rows.length() - 1).gpxElapsed);
 }
 
-double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed) {
+double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed) {
     // no rows available, return 1
     if (rows.length() <= 0) {
         qDebug() << "TimeRateFromGPX no Rows";
