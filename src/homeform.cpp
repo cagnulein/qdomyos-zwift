@@ -652,51 +652,49 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
-                             &treadmill::changeSpeed);
+                    &treadmill::changeSpeed);
             connect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
-                             &treadmill::changeFanSpeed);
+                    &treadmill::changeFanSpeed);
             connect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
-                             &treadmill::changeInclination);
-            connect(trainProgram, &trainprogram::changeSpeedAndInclination,
-                             ((treadmill *)bluetoothManager->device()), &treadmill::changeSpeedAndInclination);
+                    &treadmill::changeInclination);
+            connect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::changeSpeedAndInclination);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
-                             &trainprogram::onTapeStarted);
+                    &trainprogram::onTapeStarted);
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
-                             &bike::changeCadence);
-            connect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()),
-                             &bike::changePower);
+                    &bike::changeCadence);
+            connect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()), &bike::changePower);
             connect(trainProgram, &trainprogram::changeInclination, ((bike *)bluetoothManager->device()),
-                             &bike::changeInclination);
+                    &bike::changeInclination);
             connect(trainProgram, &trainprogram::changeResistance, ((bike *)bluetoothManager->device()),
-                             &bike::changeResistance);
-            connect(trainProgram, &trainprogram::changeRequestedPelotonResistance,
-                             ((bike *)bluetoothManager->device()), &bike::changeRequestedPelotonResistance);
+                    &bike::changeResistance);
+            connect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
+                    &bike::changeRequestedPelotonResistance);
             connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
-                             &trainprogram::onTapeStarted);
+                    &trainprogram::onTapeStarted);
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
             connect(trainProgram, &trainprogram::changeCadence, ((elliptical *)bluetoothManager->device()),
-                             &elliptical::changeCadence);
+                    &elliptical::changeCadence);
             connect(trainProgram, &trainprogram::changePower, ((elliptical *)bluetoothManager->device()),
-                             &elliptical::changePower);
+                    &elliptical::changePower);
             connect(trainProgram, &trainprogram::changeInclination, ((elliptical *)bluetoothManager->device()),
-                             &elliptical::changeInclination);
+                    &elliptical::changeInclination);
             connect(trainProgram, &trainprogram::changeResistance, ((elliptical *)bluetoothManager->device()),
-                             &elliptical::changeResistance);
+                    &elliptical::changeResistance);
             connect(trainProgram, &trainprogram::changeRequestedPelotonResistance,
-                             ((elliptical *)bluetoothManager->device()),
-                             &elliptical::changeRequestedPelotonResistance);
+                    ((elliptical *)bluetoothManager->device()), &elliptical::changeRequestedPelotonResistance);
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
-                             &rower::changePower);
+                    &rower::changePower);
         }
         connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
-                         &bluetoothdevice::changeNextInclination300Meters);
+                &bluetoothdevice::changeNextInclination300Meters);
         connect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
-                         &bluetoothdevice::changeGeoPosition);
+                &bluetoothdevice::changeGeoPosition);
         connect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
-                         &bluetoothdevice::workoutEventStateChanged);
+                &bluetoothdevice::workoutEventStateChanged);
 
         qDebug() << QStringLiteral("trainProgram associated to a device");
     } else {
@@ -734,7 +732,8 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
 void homeform::sortTiles() {
 
     QSettings settings;
-    bool pelotoncadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool pelotoncadence =
+        settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
     if (!bluetoothManager || !bluetoothManager->device())
         return;
@@ -1627,7 +1626,8 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (settings.value(QZSettings::pause_on_start, QZSettings::default_pause_on_start).toBool() &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         Start();
-    } else if (settings.value(QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill).toBool() &&
+    } else if (settings.value(QZSettings::pause_on_start_treadmill, QZSettings::default_pause_on_start_treadmill)
+                   .toBool() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         Start_inner(false); // because if you sent the start command to a treadmill it could start the tape
     }
@@ -1679,7 +1679,8 @@ void homeform::Plus(const QString &name) {
             if (requestedspeed != -1)
                 speed = requestedspeed;
             double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
-            double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
+            double step =
+                settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
             if (!miles)
                 step = ((double)qRound(step * 10.0)) / 10.0;
             if (step > minStepSpeed)
@@ -1695,13 +1696,16 @@ void homeform::Plus(const QString &name) {
             ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
         }
     } else if (name.contains(QStringLiteral("external_inclination"))) {
-        double elite_rizer_gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
+        double elite_rizer_gain =
+            settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
         elite_rizer_gain = elite_rizer_gain + 0.1;
         settings.setValue(QZSettings::elite_rizer_gain, elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
                 if (step < ((treadmill *)bluetoothManager->device())->minStepInclination())
                     step = ((treadmill *)bluetoothManager->device())->minStepInclination();
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + step;
@@ -1719,10 +1723,12 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             QSettings settings;
             QString zoneS =
-                settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone).toString();
-            uint8_t zone = settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
-                               .toString()
-                               .toUInt();
+                settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                    .toString();
+            uint8_t zone =
+                settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                    .toString()
+                    .toUInt();
 
             if (!zoneS.compare(QStringLiteral("Disabled")))
                 zone = 0;
@@ -1778,12 +1784,14 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("fan"))) {
         QSettings settings;
         if (bluetoothManager->device()) {
-            if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool() &&
+            if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable)
+                    .toBool() &&
                 settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
                     .toString()
                     .compare(QStringLiteral("Manual"))) {
                 fanOverride += 10;
-            } else if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool()) {
+            } else if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable)
+                           .toBool()) {
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 10);
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
@@ -1821,7 +1829,8 @@ void homeform::Minus(const QString &name) {
                 if (requestedspeed != -1)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
-                double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed).toDouble();
+                double step = settings.value(QZSettings::treadmill_step_speed, QZSettings::default_treadmill_step_speed)
+                                  .toDouble();
                 if (!miles)
                     step = ((double)qRound(step * 10.0)) / 10.0;
                 if (step > minStepSpeed)
@@ -1837,14 +1846,17 @@ void homeform::Minus(const QString &name) {
             }
         }
     } else if (name.contains(QStringLiteral("external_inclination"))) {
-        double elite_rizer_gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
+        double elite_rizer_gain =
+            settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
         if (elite_rizer_gain)
             elite_rizer_gain = elite_rizer_gain - 0.1;
         settings.setValue(QZSettings::elite_rizer_gain, elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                double step = settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline).toDouble();
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
                 if (step < ((treadmill *)bluetoothManager->device())->minStepInclination())
                     step = ((treadmill *)bluetoothManager->device())->minStepInclination();
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - step;
@@ -1861,9 +1873,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
-            uint8_t zone = settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
-                               .toString()
-                               .toUInt();
+            uint8_t zone =
+                settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                    .toString()
+                    .toUInt();
             if (zone > 1) {
                 zone--;
                 settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
@@ -1918,12 +1931,14 @@ void homeform::Minus(const QString &name) {
 
         if (bluetoothManager->device()) {
             QSettings settings;
-            if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool() &&
+            if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable)
+                    .toBool() &&
                 settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
                     .toString()
                     .compare(QStringLiteral("Manual"))) {
                 fanOverride -= 10;
-            } else if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool()) {
+            } else if (settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable)
+                           .toBool()) {
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 10);
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
@@ -2141,7 +2156,8 @@ void homeform::update() {
         qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
     }
 
-    if ((paused || stopped) && settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+    if ((paused || stopped) &&
+        settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
 
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -2173,9 +2189,12 @@ void homeform::update() {
         double meter_feet_conversion = 1.0;
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         uint8_t treadmill_pid_heart_zone =
-            settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone).toString().toUInt();
+            settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                .toString()
+                .toUInt();
         QString treadmill_pid_heart_zone_string =
-            settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone).toString();
+            settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                .toString();
         if (!treadmill_pid_heart_zone_string.compare(QStringLiteral("Disabled")))
             treadmill_pid_heart_zone = 0;
 
@@ -2439,7 +2458,8 @@ void homeform::update() {
 
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
-            bool pelotoncadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool pelotoncadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
 
             if (!pelotoncadence) {
                 inclination = ((bike *)bluetoothManager->device())->currentInclination().value();
@@ -2453,7 +2473,8 @@ void homeform::update() {
             if (bluetoothManager->externalInclination())
                 extIncline->setValue(
                     QString::number(bluetoothManager->externalInclination()->currentInclination().value(), 'f', 1));
-            double elite_rizer_gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
+            double elite_rizer_gain =
+                settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -2482,10 +2503,13 @@ void homeform::update() {
                 QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult() *
-                                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble() *
-                                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toDouble(),
-                                'f', 0));
+                QString::number(
+                    bluetoothManager->device()->difficult() *
+                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                            .toDouble() *
+                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                            .toDouble(),
+                    'f', 0));
 
             elevation->setValue(
                 QString::number(((bike *)bluetoothManager->device())->elevationGain().value() * meter_feet_conversion,
@@ -2550,10 +2574,13 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult() *
-                                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble() *
-                                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toDouble(),
-                                'f', 0));
+                QString::number(
+                    bluetoothManager->device()->difficult() *
+                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                            .toDouble() *
+                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                            .toDouble(),
+                    'f', 0));
             this->strokesLength->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) +
@@ -2599,10 +2626,13 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult() *
-                                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble() *
-                                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toDouble(),
-                                'f', 0));
+                QString::number(
+                    bluetoothManager->device()->difficult() *
+                        settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                            .toDouble() *
+                        settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                            .toDouble(),
+                    'f', 0));
             inclination = ((elliptical *)bluetoothManager->device())->currentInclination().value();
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
@@ -2639,7 +2669,10 @@ void homeform::update() {
                 this->target_peloton_resistance->setSecondLine(QLatin1String(""));
             }
 
-            if (settings.value(QZSettings::tile_peloton_resistance_color_enabled, QZSettings::default_tile_peloton_resistance_color_enabled).toBool()) {
+            if (settings
+                    .value(QZSettings::tile_peloton_resistance_color_enabled,
+                           QZSettings::default_tile_peloton_resistance_color_enabled)
+                    .toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
                 } else if (((int8_t)peloton_resistance) < lower_requested_peloton_resistance) {
@@ -2660,7 +2693,8 @@ void homeform::update() {
                 this->target_cadence->setSecondLine(QLatin1String(""));
             }
 
-            if (settings.value(QZSettings::tile_cadence_color_enabled, QZSettings::default_tile_cadence_color_enabled).toBool()) {
+            if (settings.value(QZSettings::tile_cadence_color_enabled, QZSettings::default_tile_cadence_color_enabled)
+                    .toBool()) {
                 if (lower_cadence == -1) {
                     this->cadence->setValueFontColor(QStringLiteral("white"));
                 } else if (cadence < lower_cadence) {
@@ -2849,36 +2883,48 @@ void homeform::update() {
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
-        if (percHeartRate < settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()) {
+        if (percHeartRate <
+            settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()) {
             currentHRZone = 1;
-            currentHRZone += (percHeartRate / settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble());
+            currentHRZone +=
+                (percHeartRate /
+                 settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble());
             if (currentHRZone >= 2) { // double precision could cause unwanted approximation
                 currentHRZone = 1.9999;
             }
             heart->setValueFontColor(QStringLiteral("lightsteelblue"));
-        } else if (percHeartRate < settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()) {
+        } else if (percHeartRate <
+                   settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()) {
             currentHRZone = 2;
-            currentHRZone += ((percHeartRate - settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()) /
-                              (settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() -
-                               settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()));
+            currentHRZone +=
+                ((percHeartRate -
+                  settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()) /
+                 (settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() -
+                  settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()));
             if (currentHRZone >= 3) { // double precision could cause unwanted approximation
                 currentHRZone = 2.9999;
             }
             heart->setValueFontColor(QStringLiteral("green"));
-        } else if (percHeartRate < settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()) {
+        } else if (percHeartRate <
+                   settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()) {
             currentHRZone = 3;
-            currentHRZone += ((percHeartRate - settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()) /
-                              (settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() -
-                               settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()));
+            currentHRZone +=
+                ((percHeartRate -
+                  settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()) /
+                 (settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() -
+                  settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()));
             if (currentHRZone >= 4) { // double precision could cause unwanted approximation
                 currentHRZone = 3.9999;
             }
             heart->setValueFontColor(QStringLiteral("yellow"));
-        } else if (percHeartRate < settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble()) {
+        } else if (percHeartRate <
+                   settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble()) {
             currentHRZone = 4;
-            currentHRZone += ((percHeartRate - settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()) /
-                              (settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() -
-                               settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()));
+            currentHRZone +=
+                ((percHeartRate -
+                  settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()) /
+                 (settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() -
+                  settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()));
             if (currentHRZone >= 5) { // double precision could cause unwanted approximation
                 currentHRZone = 4.9999;
             }
@@ -2912,7 +2958,8 @@ void homeform::update() {
         */
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() && KeepAwakeHelper::antObject(false)) {
+        if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() &&
+            KeepAwakeHelper::antObject(false)) {
             KeepAwakeHelper::antObject(false)->callMethod<void>(
                 "setCadenceSpeedPower", "(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts,
                 (int)cadence);
@@ -2927,61 +2974,118 @@ void homeform::update() {
                 uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                    (bluetoothManager->device()->elapsedTime().hour() * 3600);
-                if ((seconds / 60) < settings.value(QZSettings::trainprogram_total, QZSettings::default_trainprogram_total).toUInt()) {
+                if ((seconds / 60) <
+                    settings.value(QZSettings::trainprogram_total, QZSettings::default_trainprogram_total).toUInt()) {
                     qDebug() << QStringLiteral("trainprogram random seconds ") + QString::number(seconds) +
                                     QStringLiteral(" last_change ") + last_seconds + QStringLiteral(" period ") +
-                                    settings.value(QZSettings::trainprogram_period_seconds, QZSettings::default_trainprogram_period_seconds).toUInt();
+                                    settings
+                                        .value(QZSettings::trainprogram_period_seconds,
+                                               QZSettings::default_trainprogram_period_seconds)
+                                        .toUInt();
                     if (last_seconds == 0 ||
-                        ((seconds - last_seconds) >=
-                         settings.value(QZSettings::trainprogram_period_seconds, QZSettings::default_trainprogram_period_seconds).toUInt())) {
+                        ((seconds - last_seconds) >= settings
+                                                         .value(QZSettings::trainprogram_period_seconds,
+                                                                QZSettings::default_trainprogram_period_seconds)
+                                                         .toUInt())) {
                         bool done = false;
 
                         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
                             ((treadmill *)bluetoothManager->device())->currentSpeed().value() > 0.0f) {
-                            double speed = settings.value(QZSettings::trainprogram_speed_min, QZSettings::default_trainprogram_speed_min).toUInt();
-                            double incline = settings.value(QZSettings::trainprogram_incline_min, QZSettings::default_trainprogram_incline_min).toUInt();
+                            double speed = settings
+                                               .value(QZSettings::trainprogram_speed_min,
+                                                      QZSettings::default_trainprogram_speed_min)
+                                               .toUInt();
+                            double incline = settings
+                                                 .value(QZSettings::trainprogram_incline_min,
+                                                        QZSettings::default_trainprogram_incline_min)
+                                                 .toUInt();
                             if (!speed) {
                                 speed = 1.0;
                             }
-                            if (settings.value(QZSettings::trainprogram_speed_min, QZSettings::default_trainprogram_speed_min).toUInt() != 0 &&
-                                settings.value(QZSettings::trainprogram_speed_min, QZSettings::default_trainprogram_speed_min).toUInt() <
-                                    settings.value(QZSettings::trainprogram_speed_max, QZSettings::default_trainprogram_speed_max).toUInt()) {
-                                speed =
-                                    (double)r.bounded(
-                                        settings.value(QZSettings::trainprogram_speed_min, QZSettings::default_trainprogram_speed_min).toUInt() * 10,
-                                        settings.value(QZSettings::trainprogram_speed_max, QZSettings::default_trainprogram_speed_max).toUInt() * 10) /
-                                    10.0;
+                            if (settings.value(QZSettings::trainprogram_speed_min,
+                                               QZSettings::default_trainprogram_speed_min)
+                                        .toUInt() != 0 &&
+                                settings.value(QZSettings::trainprogram_speed_min,
+                                               QZSettings::default_trainprogram_speed_min)
+                                        .toUInt() < settings
+                                                        .value(QZSettings::trainprogram_speed_max,
+                                                               QZSettings::default_trainprogram_speed_max)
+                                                        .toUInt()) {
+                                speed = (double)r.bounded(settings.value(QZSettings::trainprogram_speed_min,
+                                                                         QZSettings::default_trainprogram_speed_min)
+                                                                  .toUInt() *
+                                                              10,
+                                                          settings.value(QZSettings::trainprogram_speed_max,
+                                                                         QZSettings::default_trainprogram_speed_max)
+                                                                  .toUInt() *
+                                                              10) /
+                                        10.0;
                             }
-                            if (settings.value(QZSettings::trainprogram_incline_min, QZSettings::default_trainprogram_incline_min).toUInt() <
-                                settings.value(QZSettings::trainprogram_incline_max, QZSettings::default_trainprogram_incline_max).toUInt()) {
-                                incline =
-                                    (double)r.bounded(
-                                        settings.value(QZSettings::trainprogram_incline_min, QZSettings::default_trainprogram_incline_min).toUInt() * 10,
-                                        settings.value(QZSettings::trainprogram_incline_max, QZSettings::default_trainprogram_incline_max).toUInt() * 10) /
-                                    10.0;
+                            if (settings
+                                    .value(QZSettings::trainprogram_incline_min,
+                                           QZSettings::default_trainprogram_incline_min)
+                                    .toUInt() < settings
+                                                    .value(QZSettings::trainprogram_incline_max,
+                                                           QZSettings::default_trainprogram_incline_max)
+                                                    .toUInt()) {
+                                incline = (double)r.bounded(settings.value(QZSettings::trainprogram_incline_min,
+                                                                           QZSettings::default_trainprogram_incline_min)
+                                                                    .toUInt() *
+                                                                10,
+                                                            settings.value(QZSettings::trainprogram_incline_max,
+                                                                           QZSettings::default_trainprogram_incline_max)
+                                                                    .toUInt() *
+                                                                10) /
+                                          10.0;
                             }
                             ((treadmill *)bluetoothManager->device())->changeSpeedAndInclination(speed, incline);
                             done = true;
                         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                            double resistance =
-                                settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt();
-                            if (settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt() <
-                                settings.value(QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max).toUInt()) {
-                                resistance = (double)r.bounded(
-                                    settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt(),
-                                    settings.value(QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max).toUInt());
+                            double resistance = settings
+                                                    .value(QZSettings::trainprogram_resistance_min,
+                                                           QZSettings::default_trainprogram_resistance_min)
+                                                    .toUInt();
+                            if (settings
+                                    .value(QZSettings::trainprogram_resistance_min,
+                                           QZSettings::default_trainprogram_resistance_min)
+                                    .toUInt() < settings
+                                                    .value(QZSettings::trainprogram_resistance_max,
+                                                           QZSettings::default_trainprogram_resistance_max)
+                                                    .toUInt()) {
+                                resistance =
+                                    (double)r.bounded(settings
+                                                          .value(QZSettings::trainprogram_resistance_min,
+                                                                 QZSettings::default_trainprogram_resistance_min)
+                                                          .toUInt(),
+                                                      settings
+                                                          .value(QZSettings::trainprogram_resistance_max,
+                                                                 QZSettings::default_trainprogram_resistance_max)
+                                                          .toUInt());
                             }
                             ((bike *)bluetoothManager->device())->changeResistance(resistance);
 
                             done = true;
                         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                            double resistance =
-                                settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt();
-                            if (settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt() <
-                                settings.value(QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max).toUInt()) {
-                                resistance = (double)r.bounded(
-                                    settings.value(QZSettings::trainprogram_resistance_min, QZSettings::default_trainprogram_resistance_min).toUInt(),
-                                    settings.value(QZSettings::trainprogram_resistance_max, QZSettings::default_trainprogram_resistance_max).toUInt());
+                            double resistance = settings
+                                                    .value(QZSettings::trainprogram_resistance_min,
+                                                           QZSettings::default_trainprogram_resistance_min)
+                                                    .toUInt();
+                            if (settings
+                                    .value(QZSettings::trainprogram_resistance_min,
+                                           QZSettings::default_trainprogram_resistance_min)
+                                    .toUInt() < settings
+                                                    .value(QZSettings::trainprogram_resistance_max,
+                                                           QZSettings::default_trainprogram_resistance_max)
+                                                    .toUInt()) {
+                                resistance =
+                                    (double)r.bounded(settings
+                                                          .value(QZSettings::trainprogram_resistance_min,
+                                                                 QZSettings::default_trainprogram_resistance_min)
+                                                          .toUInt(),
+                                                      settings
+                                                          .value(QZSettings::trainprogram_resistance_max,
+                                                                 QZSettings::default_trainprogram_resistance_max)
+                                                          .toUInt());
                             }
                             ((rower *)bluetoothManager->device())->changeResistance(resistance);
 
@@ -3033,9 +3137,10 @@ void homeform::update() {
 
                 last_seconds_pid_heart_zone = seconds;
 
-                uint8_t zone = settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
-                                   .toString()
-                                   .toUInt();
+                uint8_t zone =
+                    settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
+                        .toString()
+                        .toUInt();
                 if (fromTrainProgram) {
                     zone = trainProgram->currentRow().zoneHR;
                     if (trainProgram->currentRow().maxSpeed > 0) {
@@ -3148,7 +3253,8 @@ void homeform::update() {
 
         if (!stopped && !paused) {
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
-                if (++tts_summary_count >= settings.value(QZSettings::tts_summary_sec, QZSettings::default_tts_summary_sec).toInt() &&
+                if (++tts_summary_count >=
+                        settings.value(QZSettings::tts_summary_sec, QZSettings::default_tts_summary_sec).toInt() &&
                     m_speech.state() == QTextToSpeech::Ready) {
                     tts_summary_count = 0;
 
@@ -3178,7 +3284,8 @@ void homeform::update() {
                                     : QString::number(
                                           bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1)) +
                             tr(" miles per hour"));
-                    if (settings.value(QZSettings::tts_act_inclination, QZSettings::default_tts_act_inclination).toBool())
+                    if (settings.value(QZSettings::tts_act_inclination, QZSettings::default_tts_act_inclination)
+                            .toBool())
                         s.append(tr(", inclination ") +
                                  QString::number(bluetoothManager->device()->currentInclination().value(), 'f', 1));
                     if (settings.value(QZSettings::tts_act_cadence, QZSettings::default_tts_act_cadence).toBool())
@@ -3187,7 +3294,8 @@ void homeform::update() {
                     if (settings.value(QZSettings::tts_avg_cadence, QZSettings::default_tts_avg_cadence).toBool())
                         s.append(tr(", Average cadence ") +
                                  QString::number(bluetoothManager->device()->currentCadence().average(), 'f', 0));
-                    if (settings.value(QZSettings::tts_max_cadence, QZSettings::default_tts_max_cadence /* true */).toBool())
+                    if (settings.value(QZSettings::tts_max_cadence, QZSettings::default_tts_max_cadence /* true */)
+                            .toBool())
                         s.append(tr(", Max cadence ") +
                                  QString::number(bluetoothManager->device()->currentCadence().max()));
                     if (settings.value(QZSettings::tts_act_elevation, QZSettings::default_tts_act_elevation).toBool())
@@ -3253,41 +3361,57 @@ void homeform::update() {
                         s.append(tr(", elapsed ") +
                                  QString::number(bluetoothManager->device()->elapsedTime().minute()) + tr(" minutes ") +
                                  QString::number(bluetoothManager->device()->elapsedTime().second()) + tr(" seconds"));
-                    if (settings.value(QZSettings::tts_act_peloton_resistance, QZSettings::default_tts_act_peloton_resistance).toBool() &&
+                    if (settings
+                            .value(QZSettings::tts_act_peloton_resistance,
+                                   QZSettings::default_tts_act_peloton_resistance)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(
                             tr(", peloton resistance ") +
                             QString::number(((bike *)bluetoothManager->device())->pelotonResistance().value(), 'f', 0));
-                    if (settings.value(QZSettings::tts_avg_peloton_resistance, QZSettings::default_tts_avg_peloton_resistance).toBool() &&
+                    if (settings
+                            .value(QZSettings::tts_avg_peloton_resistance,
+                                   QZSettings::default_tts_avg_peloton_resistance)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(tr(", average peloton resistance ") +
                                  QString::number(((bike *)bluetoothManager->device())->pelotonResistance().average(),
                                                  'f', 0));
-                    if (settings.value(QZSettings::tts_max_peloton_resistance, QZSettings::default_tts_max_peloton_resistance).toBool() &&
+                    if (settings
+                            .value(QZSettings::tts_max_peloton_resistance,
+                                   QZSettings::default_tts_max_peloton_resistance)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(
                             tr(", max peloton resistance ") +
                             QString::number(((bike *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-                    if (settings.value(QZSettings::tts_act_target_peloton_resistance, QZSettings::default_tts_act_target_peloton_resistance).toBool() &&
+                    if (settings
+                            .value(QZSettings::tts_act_target_peloton_resistance,
+                                   QZSettings::default_tts_act_target_peloton_resistance)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(tr(", target peloton resistance ") +
                                  QString::number(
                                      ((bike *)bluetoothManager->device())->lastRequestedPelotonResistance().value(),
                                      'f', 0));
-                    if (settings.value(QZSettings::tts_act_target_cadence, QZSettings::default_tts_act_target_cadence).toBool() &&
+                    if (settings.value(QZSettings::tts_act_target_cadence, QZSettings::default_tts_act_target_cadence)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(tr(", target cadence ") +
                                  QString::number(((bike *)bluetoothManager->device())->lastRequestedCadence().value(),
                                                  'f', 0));
-                    if (settings.value(QZSettings::tts_act_target_power, QZSettings::default_tts_act_target_power).toBool() &&
+                    if (settings.value(QZSettings::tts_act_target_power, QZSettings::default_tts_act_target_power)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(tr(", target power ") +
                                  QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(),
                                                  'f', 0));
-                    if (settings.value(QZSettings::tts_act_target_zone, QZSettings::default_tts_act_target_zone).toBool() &&
+                    if (settings.value(QZSettings::tts_act_target_zone, QZSettings::default_tts_act_target_zone)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                         s.append(tr(", target zone ") + QString::number(requestedZone, 'f', 1));
-                    if (settings.value(QZSettings::tts_act_target_speed, QZSettings::default_tts_act_target_speed).toBool() &&
+                    if (settings.value(QZSettings::tts_act_target_speed, QZSettings::default_tts_act_target_speed)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                         s.append(tr(", target speed ") +
                                  (!miles ? QString::number(
@@ -3299,7 +3423,8 @@ void homeform::update() {
                                                    unit_conversion,
                                                'f', 1)) +
                                  tr(" miles per hour"));
-                    if (settings.value(QZSettings::tts_act_target_incline, QZSettings::default_tts_act_target_incline).toBool() &&
+                    if (settings.value(QZSettings::tts_act_target_incline, QZSettings::default_tts_act_target_incline)
+                            .toBool() &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                         s.append(
                             tr(", target incline ") +
@@ -3453,7 +3578,9 @@ void homeform::fit_save_clicked() {
         lastFitFileSaved = filename;
 
         QSettings settings;
-        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken).toString().isEmpty()) {
+        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken)
+                 .toString()
+                 .isEmpty()) {
 
             QFile f(filename);
             f.open(QFile::OpenModeFlag::ReadOnly);
@@ -3489,7 +3616,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             for (const auto &p : g_list) {
                 trainrow r;
                 if (p.speed > 0) {
+                    QGeoCoordinate p1(last.latitude, last.longitude);
+                    QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
+                    r.azimuth = p1.azimuthTo(p2);
                     r.speed = p.speed;
+                    r.distance = p.distance;
                     r.duration = QTime(0, 0, 0, 0);
                     r.duration = r.duration.addSecs(p.seconds);
                     r.forcespeed = true;
@@ -3498,6 +3629,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                     r.inclination = p.inclination;
                     r.latitude = p.latitude;
                     r.longitude = p.longitude;
+                    r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                     list.append(r);
 
@@ -3723,7 +3855,8 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
         QStringLiteral(" ") + settings.value(QZSettings::strava_suffix, QZSettings::default_strava_suffix).toString();
     if (!stravaPelotonActivityName.isEmpty()) {
         activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName + activityName;
-        if (pelotonHandler && settings.value(QZSettings::peloton_description_link, QZSettings::default_peloton_description_link).toBool())
+        if (pelotonHandler &&
+            settings.value(QZSettings::peloton_description_link, QZSettings::default_peloton_description_link).toBool())
             activityDescription =
                 QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
                 pelotonHandler->current_ride_id;
@@ -4040,7 +4173,8 @@ void homeform::sendMail() {
     double WeightLoss = 0;
 
     // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
-    if (settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().length() == 0 || !bluetoothManager->device()) {
+    if (settings.value(QZSettings::user_email, QZSettings::default_user_email).toString().length() == 0 ||
+        !bluetoothManager->device()) {
         return;
     }
 
@@ -4353,7 +4487,8 @@ QString homeform::getAndroidDataAppDir() {
 
 quint64 homeform::cryptoKeySettingsProfiles() {
     QSettings settings;
-    quint64 v = settings.value(QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles).toULongLong();
+    quint64 v = settings.value(QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles)
+                    .toULongLong();
     if (!v) {
         QRandomGenerator r = QRandomGenerator();
         r.seed(QDateTime::currentMSecsSinceEpoch());
@@ -4369,9 +4504,9 @@ void homeform::saveSettings(const QUrl &filename) {
 
     QDir().mkdir(path + QStringLiteral("settings/"));
     QSettings settings;
-    QSettings settings2Save(path + QStringLiteral("settings/settings_") + settings.value(QZSettings::profile_name).toString() +
-                                QStringLiteral("_") + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
-                                QStringLiteral(".qzs"),
+    QSettings settings2Save(path + QStringLiteral("settings/settings_") +
+                                settings.value(QZSettings::profile_name).toString() + QStringLiteral("_") +
+                                QDateTime::currentDateTime().toString("yyyyMMddhhmmss") + QStringLiteral(".qzs"),
                             QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
@@ -4445,7 +4580,9 @@ double homeform::heartRateMax() {
     double maxHeartRate = 220.0 - settings.value(QZSettings::age, QZSettings::default_age).toDouble();
 
     if (settings.value(QZSettings::heart_max_override_enable, QZSettings::default_heart_max_override_enable).toBool())
-        maxHeartRate = settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value).toDouble();
+        maxHeartRate =
+            settings.value(QZSettings::heart_max_override_value, QZSettings::default_heart_max_override_value)
+                .toDouble();
     if (maxHeartRate == 0) {
         maxHeartRate = 190.0;
     }
@@ -4492,7 +4629,7 @@ void homeform::licenseRequest() {
     QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
              settings.value(QZSettings::user_email, "").toString());
     QNetworkRequest request(url);
-    mgr->get(request);
+    // mgr->get(request);
 }
 
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
@@ -4501,7 +4638,8 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 void homeform::changeTimestamp(QTime source, QTime actual) {
     const double filterRate = 0.1;
     QSettings settings;
-    int filterSeconds = settings.value(QZSettings::video_playback_window_s, QZSettings::default_video_playback_window_s).toInt();
+    int filterSeconds =
+        settings.value(QZSettings::video_playback_window_s, QZSettings::default_video_playback_window_s).toInt();
 
     QObject *rootObject = engine->rootObjects().constFirst();
     auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
@@ -4514,7 +4652,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
 
         // calculating the avg speed of the video for the next 5 seconds
-        double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedNextSecondsGPX(5);
+        double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedFromGpxStep(0, 5); // to remove using the #945
 
         // adding filterSeconds to the actual video timestamp
         double timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds));
