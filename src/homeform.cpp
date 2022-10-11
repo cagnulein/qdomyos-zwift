@@ -4629,7 +4629,7 @@ void homeform::licenseRequest() {
     QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
              settings.value(QZSettings::user_email, "").toString());
     QNetworkRequest request(url);
-    // mgr->get(request);
+    mgr->get(request);
 }
 
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
