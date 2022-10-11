@@ -4621,15 +4621,17 @@ void homeform::licenseReply(QNetworkReply *reply) {
 }
 
 void homeform::licenseRequest() {
-    QSettings settings;
-    if (!mgr) {
-        mgr = new QNetworkAccessManager(this);
-        connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
-    }
-    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
-             settings.value(QZSettings::user_email, "").toString());
-    QNetworkRequest request(url);
-    mgr->get(request);
+    QTimer::singleShot(30000, this, [this]() {
+        QSettings settings;
+        if (!mgr) {
+            mgr = new QNetworkAccessManager(this);
+            connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
+        }
+        QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
+                 settings.value(QZSettings::user_email, "").toString());
+        QNetworkRequest request(url);
+        mgr->get(request);
+    });
 }
 
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
