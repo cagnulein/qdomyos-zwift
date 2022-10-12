@@ -172,7 +172,6 @@ import Qt.labs.settings 1.0
             property real domyos_elliptical_speed_ratio: 1.0
 
             property bool eslinker_cadenza: true
-            property bool eslinker_ypoo: false
 
             property string echelon_watttable: "Echelon"
 
@@ -481,6 +480,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.65
             property real rolling_resistance: 0.005
+            
+            // from version 2.11.67
+            property bool eslinker_ypoo: false
         }
 
         function paddingZeros(text, limit) {
