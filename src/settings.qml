@@ -172,6 +172,7 @@ import Qt.labs.settings 1.0
             property real domyos_elliptical_speed_ratio: 1.0
 
             property bool eslinker_cadenza: true
+            property bool eslinker_ypoo: false
 
             property string echelon_watttable: "Echelon"
 
@@ -4922,7 +4923,6 @@ import Qt.labs.settings 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0
                         SwitchDelegate {
                             id: eslinkerTreadmillCadenzaDelegate
                             text: qsTr("Cadenza Treadmill (Bodytone)")
@@ -4936,6 +4936,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.eslinker_cadenza = checked
+                        }
+                        SwitchDelegate {
+                            id: eslinkerTreadmillYpooDelegate
+                            text: qsTr("YPOO Mini Change")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.eslinker_ypoo
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.eslinker_ypoo = checked
                         }
                     }
                 }

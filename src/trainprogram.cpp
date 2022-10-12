@@ -183,7 +183,8 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 // speed in Km/h
 double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
     int start = gpxStep;
-    if (gpxStep >= rows.length()) return 0.0;
+    if (gpxStep >= rows.length())
+        return 0.0;
     double km = (rows.at(gpxStep).distance);
     int timesum = 0;
     if (gpxStep > 0)
@@ -380,6 +381,7 @@ double trainprogram::avgInclinationNext100Meters() {
     double km = 0;
     double avg = 0;
     int sum = 0;
+    double startingAltitude = rows.at(currentStep).altitude;
 
     while (1) {
         if (c < rows.length()) {
@@ -390,7 +392,7 @@ double trainprogram::avgInclinationNext100Meters() {
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
-            avg += rows.at(c).inclination;
+            avg += (rows.at(c).altitude - startingAltitude);
             sum++;
 
         } else {
@@ -462,7 +464,7 @@ void trainprogram::scheduler() {
     }
 
     ticks++;
-    
+
     double odometerFromTheDevice = bluetoothManager->device()->odometer();
 
     // entry point
@@ -509,8 +511,12 @@ void trainprogram::scheduler() {
 
             if (rows.at(0).inclination != -200 && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 // this should be converted in a signal as all the other signals...
-                double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
-                double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+                double bikeResistanceOffset =
+                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                        .toInt();
+                double bikeResistanceGain =
+                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                        .toDouble();
 
                 double inc = rows.at(0).inclination;
                 bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
@@ -585,7 +591,13 @@ void trainprogram::scheduler() {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                         qDebug() << QStringLiteral("trainprogram change speed ") +
                                         QString::number(rows.at(currentStep).speed);
-                        emit changeSpeed(rows.at(currentStep).speed);
+                        double speed;
+                        if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
+                            speed = avgSpeedFromGpxStep(currentStep, 60);
+                        } else {
+                            speed = rows.at(currentStep).speed;
+                        }
+                        emit changeSpeed(speed);
                     }
                     if (rows.at(currentStep).inclination != -200) {
                         double inc;
@@ -627,9 +639,13 @@ void trainprogram::scheduler() {
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                         // this should be converted in a signal as all the other signals...
                         double bikeResistanceOffset =
-                            settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+                            settings
+                                .value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                                .toInt();
                         double bikeResistanceGain =
-                            settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+                            settings
+                                .value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                                .toDouble();
 
                         double inc = rows.at(currentStep).inclination;
                         bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
@@ -708,8 +724,12 @@ void trainprogram::scheduler() {
             if (rows.at(currentStep).inclination != -200 &&
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
                 double inc = avgInclinationNext100Meters();
-                double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
-                double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+                double bikeResistanceOffset =
+                    settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
+                        .toInt();
+                double bikeResistanceGain =
+                    settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                        .toDouble();
 
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                     bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
