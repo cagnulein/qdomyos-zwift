@@ -463,12 +463,12 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastStop = 0;
                 }
 
+                Speed = speed;
                 if (Speed.value() != speed) {
-                    Speed = speed;
                     emit speedChanged(speed);
                 }
+                Inclination = incline;
                 if (Inclination.value() != incline) {
-                    Inclination = incline;
                     emit inclinationChanged(0, incline);
                 }
 
