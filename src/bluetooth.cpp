@@ -1738,8 +1738,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 snodeBike->deviceDiscovered(b);
                 userTemplateManager->start(snodeBike);
                 innerTemplateManager->start(snodeBike);
-            } else if ((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) && !fitPlusBike && !ftmsBike &&
-                       !snodeBike && filter) {
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
+                        b.name().startsWith(QStringLiteral("MRK-"))) &&
+                       !fitPlusBike && !ftmsBike && !snodeBike && filter) {
                 this->stopDiscovery();
                 fitPlusBike =
                     new fitplusbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
