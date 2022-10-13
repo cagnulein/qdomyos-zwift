@@ -226,7 +226,7 @@ double metric::calculatePowerFromSpeed(double speed, double inclination) {
     return (v * tr + v * tv * tv * A2Eff) / tran;
 }
 
-double metric::calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds) {
+double metric::calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds, double speedLimit) {
     QSettings settings;
     if (inclination < -5)
         inclination = -5;
@@ -237,6 +237,10 @@ double metric::calculateSpeedFromPower(double power, double inclination, double 
     double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
     double acceleration = (power - maxPowerFromSpeed) / fullWeight;
     double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
+    if(speedLimit > 0 && newSpeed > speedLimit)
+        newSpeed = speedLimit;
+    if(speedLimit > 0 && maxSpeed > speedLimit)
+        maxSpeed = speedLimit;
     if(newSpeed < 0)
         newSpeed = 0;
     if (maxSpeed > newSpeed)
