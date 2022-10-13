@@ -205,7 +205,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        /*if (client->char_notify.indexOf(uuid) >= 0)*/ {
+        if (client->char_notify.indexOf(uuid) >= 0) {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)
