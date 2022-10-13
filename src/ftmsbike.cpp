@@ -164,7 +164,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    qDebug() << characteristic.uuid() << QStringLiteral(" << ") << newValue.toHex(' ');
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
         return;
