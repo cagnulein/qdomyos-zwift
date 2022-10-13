@@ -466,7 +466,7 @@ import Qt.labs.settings 1.0
             property bool fakedevice_treadmill: false
 
             // from version 2.11.43
-            property int video_playback_window_s: 12
+            property int video_playback_window_s: 12 // not used
 
             // from version 2.11.62
             property string horizon_treadmill_profile_user1: "user1"
@@ -6455,6 +6455,7 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            /*
             AccordionElement {
                 id: videoAccordion
                 title: qsTr("Video 🎥")
@@ -6491,7 +6492,7 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
-            }
+            }*/
 
             AccordionElement {
                 id: experimentalFeatureAccordion
