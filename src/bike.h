@@ -32,6 +32,8 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate();
     void setGears(int8_t d);
     int8_t gears();
+    void setSpeedLimit(double speed) {m_speedLimit = speed;}
+    double speedLimit() {return m_speedLimit;}
 
 
     /**
@@ -80,6 +82,8 @@ class bike : public bluetoothdevice {
     metric m_pelotonResistance;
 
     metric m_steeringAngle;
+
+    double m_speedLimit = 0;
 };
 
 #endif // BIKE_H

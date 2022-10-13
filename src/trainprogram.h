@@ -72,7 +72,9 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
-    double avgSpeedNextSecondsGPX(int seconds);
+    double avgSpeedFromGpxStep(int gpxStep, int seconds);
+    double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed);
+    int TotalGPXSecs();
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -83,6 +85,8 @@ class trainprogram : public QObject {
     void restart();
     bool isStarted() { return started; }
     void scheduler(int tick);
+
+    void applySpeedFilter();
 
   public slots:
     void onTapeStarted();
@@ -120,6 +124,12 @@ class trainprogram : public QObject {
     double lastOdometer = 0;
     double currentStepDistance = 0;
     QTimer timer;
+    double lastGpxRateSetAt = 0.0;
+    double lastGpxRateSet = 0.0;
+    double lastGpxSpeedSet = 0.0;
+    int lastStepTimestampChanged = 0;
+    double lastCurrentStepDistance =0.0;
+    QTime lastCurrentStepTime = QTime(0, 0, 0);
 };
 
 #endif // TRAINPROGRAM_H

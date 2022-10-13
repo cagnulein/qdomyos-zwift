@@ -33,6 +33,19 @@ void fakebike::update() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
+    /*
+    static int updcou = 0;
+    updcou++;
+    double w = 250.0;
+    if (updcou > 20000 )
+        updcou = 0;
+    else if (updcou > 12000)
+        w = 300;
+    else if (updcou > 6000)
+        w = 150;
+
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());*/
+
     update_metrics(true, watts());
 
     Distance += ((Speed.value() / (double)3600.0) /

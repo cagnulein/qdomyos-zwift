@@ -250,7 +250,7 @@ HomeForm{
         footer:
             Rectangle {
                 objectName: "footerrectangle"
-                visible: showVideo
+                visible: rootItem.videoVisible
                 anchors.top: gridView.bottom
                 width: parent.width
                 height: parent.height / 2

@@ -466,7 +466,7 @@ import Qt.labs.settings 1.0
             property bool fakedevice_treadmill: false
 
             // from version 2.11.43
-            property int video_playback_window_s: 12
+            property int video_playback_window_s: 12 // not used
 
             // from version 2.11.62
             property string horizon_treadmill_profile_user1: "user1"
@@ -477,6 +477,15 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.63
             property bool nordictrack_gx_2_7: false
+
+            // from version 2.11.65
+            property real rolling_resistance: 0.005
+
+            // from version 2.11.67
+            property bool eslinker_ypoo: false
+
+            // from version 2.11.69
+            property bool wahoo_rgt_dircon: false
         }
 
         function paddingZeros(text, limit) {
@@ -1155,6 +1164,38 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.speed_power_based = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelRollingResistance
+                            text: qsTr("Rolling Resistance Factor")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: rollingreistanceTextField
+                            text: settings.rolling_resistance
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.rolling_resistance = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okRollingResistanceButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.rolling_resistance = rollingreistanceTextField.text
+                        }
+                    }
+                    Label {
+                        id: labelRollingResistanceInfo
+                        text: qsTr("0.005 = Clinchers\n0.004 = Tubulars\n0.012 = MTB")
+                        font.italic: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        font.pixelSize: 9
+                        color: "steelblue"
                     }
                     RowLayout {
                         spacing: 10
@@ -4887,7 +4928,6 @@ import Qt.labs.settings 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0
                         SwitchDelegate {
                             id: eslinkerTreadmillCadenzaDelegate
                             text: qsTr("Cadenza Treadmill (Bodytone)")
@@ -4901,6 +4941,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.eslinker_cadenza = checked
+                        }
+                        SwitchDelegate {
+                            id: eslinkerTreadmillYpooDelegate
+                            text: qsTr("YPOO Mini Change")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.eslinker_ypoo
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.eslinker_ypoo = checked
                         }
                     }
                 }
@@ -6404,6 +6458,7 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            /*
             AccordionElement {
                 id: videoAccordion
                 title: qsTr("Video 🎥")
@@ -6440,7 +6495,7 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
-            }
+            }*/
 
             AccordionElement {
                 id: experimentalFeatureAccordion
@@ -6620,6 +6675,32 @@ import Qt.labs.settings 1.0
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    SwitchDelegate {
+                                        id: wahooRGTDirconDelegate
+                                        text: qsTr("Wahoo RGT Compatibility")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.wahoo_rgt_dircon
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.wahoo_rgt_dircon = checked
+                                    }
+                                    Label {
+                                        Layout.preferredWidth: parent.width
+                                        id: wahooRGTDirconLabel
+                                        text: qsTr("Leave the RGT compatibility disabled in order to use Zwift")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        color: Material.color(Material.Red)
+                                    }
                                     RowLayout {
                                         spacing: 10
                                         Label {

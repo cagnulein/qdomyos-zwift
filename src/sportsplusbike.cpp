@@ -143,7 +143,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = speed;
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
             }
             lastTimeCharChanged = QDateTime::currentDateTime();
         } else if (newValue.at(1) == 0x30) {
@@ -181,7 +181,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
         }
         lastTimeCharChanged = QDateTime::currentDateTime();
         kcal = GetKcalFromPacket(newValue);
