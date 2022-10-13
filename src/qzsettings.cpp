@@ -432,8 +432,9 @@ const QString QZSettings:: horizon_treadmill_profile_user5 = QStringLiteral("hor
 const QString QZSettings:: default_horizon_treadmill_profile_user5 = QStringLiteral("user5");
 const QString QZSettings:: nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_7");
 const QString QZSettings:: rolling_resistance = QStringLiteral("rolling_resistance");
+const QString QZSettings:: wahoo_rgt_dircon = QStringLiteral("wahoo_rgt_dircon");
 
-const uint32_t allSettingsCount = 368;
+const uint32_t allSettingsCount = 369;
 QVariant allSettings[allSettingsCount][2] =  {
     { QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles },
     { QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection },
@@ -802,7 +803,8 @@ QVariant allSettings[allSettingsCount][2] =  {
     { QZSettings::horizon_treadmill_profile_user4, QZSettings::default_horizon_treadmill_profile_user4},
     { QZSettings::horizon_treadmill_profile_user5, QZSettings::default_horizon_treadmill_profile_user5},
     { QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7},
-    { QZSettings::rolling_resistance, QZSettings::default_rolling_resistance}
+    { QZSettings::rolling_resistance, QZSettings::default_rolling_resistance},
+    { QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon}
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

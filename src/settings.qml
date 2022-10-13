@@ -480,9 +480,12 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.65
             property real rolling_resistance: 0.005
-            
+
             // from version 2.11.67
             property bool eslinker_ypoo: false
+
+            // from version 2.11.69
+            property bool wahoo_rgt_dircon: false
             
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -6841,6 +6844,32 @@ import Qt.labs.settings 1.0
                                 settings: settings
                                 accordionContent: ColumnLayout {
                                     spacing: 0
+                                    SwitchDelegate {
+                                        id: wahooRGTDirconDelegate
+                                        text: qsTr("Wahoo RGT Compatibility")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.wahoo_rgt_dircon
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.wahoo_rgt_dircon = checked
+                                    }
+                                    Label {
+                                        Layout.preferredWidth: parent.width
+                                        id: wahooRGTDirconLabel
+                                        text: qsTr("Leave the RGT compatibility disabled in order to use Zwift")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        color: Material.color(Material.Red)
+                                    }
                                     RowLayout {
                                         spacing: 10
                                         Label {
