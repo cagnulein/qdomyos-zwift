@@ -339,7 +339,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         Speed = speed;
     } else {
         Speed =
-            metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),
+            metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),
                                             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (!firstCharChanged) {
