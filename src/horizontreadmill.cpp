@@ -769,7 +769,7 @@ void horizontreadmill::update() {
             qDebug() << "requestSpeed=" << requestSpeed;
             if (requestSpeed != currentSpeed().value() &&
                 fabs(requestSpeed - currentSpeed().value()) > minStepSpeed() && requestSpeed >= 0 &&
-                requestSpeed <= 22 && checkIfForceSpeedNeeding(requestSpeed, currentSpeed().value())) {
+                requestSpeed <= 22 && checkIfForceSpeedNeeding(requestSpeed)) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
@@ -913,17 +913,18 @@ void horizontreadmill::update() {
     }
 }
 
-bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed, double currentSpeed) {
+bool horizontreadmill::checkIfForceSpeedNeeding(double requestSpeed) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     const double miles_conversion = 0.621371;
 
     if (gattCustomService && miles) {
         requestSpeed *= miles_conversion;
-        currentSpeed *= miles_conversion;
 
         uint8_t uReqSpeed = (uint8_t)(requestSpeed * 10);
-        uint8_t uCurSpeed = (uint8_t)(currentSpeed * 10);
+        uint8_t uCurSpeed = (uint8_t)(lastHorizonForceSpeed * 10);
+
+        lastHorizonForceSpeed = requestSpeed;
 
         return uReqSpeed != uCurSpeed;
     }
