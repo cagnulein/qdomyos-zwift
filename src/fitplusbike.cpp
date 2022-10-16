@@ -263,7 +263,28 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (newValue.length() == 15) {
             Resistance = newValue.at(5);
-            m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+            if(merach_MRK) {
+                // if we change this, also change the wattsFromResistance function. We can create a standard function in order to
+                // have all the costants in one place (I WANT MORE TIME!!!)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                double ar = 0.1469553975;
+                double br = -5.841344538;
+                double cr = 97.62165482;
+
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) -
+                            4.0 * ar *
+                                (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+            } else {
+                m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+            }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
