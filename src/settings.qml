@@ -486,6 +486,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.69
             property bool wahoo_rgt_dircon: false
+
+            // from version 2.11.73
+            property bool tts_description_enabled: true
         }
 
         function paddingZeros(text, limit) {
