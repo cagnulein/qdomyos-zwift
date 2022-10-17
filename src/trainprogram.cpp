@@ -35,9 +35,13 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     }
     */
 
-    // speed filter only to GPX workouts
-    if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude && !treadmill_force_speed))
+    // speed filter only to GPX workouts with timestamp
+    
+    if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) &&
+                                                               QTime(0, 0, 0).secsTo(rows.at(0).gpxElapsed) != 0 && !treadmill_force_speed) {
         applySpeedFilter();
+    }
+        
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
