@@ -4,11 +4,10 @@
 #include <QString>
 
 class QZSettings {
-private:
+  private:
     QZSettings() {}
 
-public:
-
+  public:
     //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
     //--------------------------------------------------------------------------------------------
@@ -17,14 +16,14 @@ public:
     static constexpr int default_cryptoKeySettingsProfiles = 0;
     /**
      *@brief Disable (true) reconnection when the device disconnects from Bluetooth.
-    */
+     */
     static const QString bluetooth_no_reconnection;
     static constexpr bool default_bluetooth_no_reconnection = false;
 
     /**
      *@brief Choose between wheel revolutions (true) and wheel and crank revolutions (false)
      *when configuring the CSC feature BLE characteristic.
-    */
+     */
     static const QString bike_wheel_revs;
     static constexpr bool default_bike_wheel_revs = false;
 
@@ -89,27 +88,27 @@ public:
 
     /**
      *@brief Zoom percentage for the user interface.
-    */
+     */
     static const QString ui_zoom;
     static constexpr float default_ui_zoom = 100.0;
 
     /**
      *@brief Disable (true) or use (false) the device's heart rate service.
-    */
+     */
     static const QString bike_heartrate_service;
     static constexpr bool default_bike_heartrate_service = false;
 
     /**
      *@brief An offset that can be applied to the resistance from the device.
      * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
-    */
+     */
     static const QString bike_resistance_offset;
     static constexpr int default_bike_resistance_offset = 4;
 
     /**
      *@brief A gain that can be applied to the resistance from the device.
      * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
-    */
+     */
     static const QString bike_resistance_gain_f;
     static constexpr float default_bike_resistance_gain_f = 1.0;
 
@@ -120,51 +119,53 @@ public:
      * watts based on the cadence (RPM). In ERG Mode, the changes in inclination should not affect target resistance,
      * as is the case in Simulation Mode. Default is false.
      *
-    */
+     */
     static const QString zwift_erg;
     static constexpr bool default_zwift_erg = false;
 
     /**
-     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current output
-     *(calculated using cadence and resistance level), the target resistance should change to help the user get closer
-     *to the target output. If the filter is set to higher values, there should be less adjustment of the target resistance
-     *and cadence would need to be increased to match the target output.
-     * The zwift_erg_filter and zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance
-     *  is communicated. Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100 watts,
-     *  a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110 Watts.
-    */
+     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current
+     *output (calculated using cadence and resistance level), the target resistance should change to help the user get
+     *closer to the target output. If the filter is set to higher values, there should be less adjustment of the target
+     *resistance and cadence would need to be increased to match the target output. The zwift_erg_filter and
+     *zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance is communicated.
+     *Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100
+     *watts, a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110
+     *Watts.
+     */
     static const QString zwift_erg_filter;
     static constexpr float default_zwift_erg_filter = 10.0;
 
     /**
-     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current output
-     *(calculated using cadence and resistance level), the target resistance should change to help the user get closer
-     *to the target output. If the filter is set to higher values, there should be less adjustment of the target resistance
-     *and cadence would need to be increased to match the target output.
-     *The zwift_erg_filter and zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance
-     *is communicated. Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100 watts,
-     *a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110 Watts.
-    */
+     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current
+     *output (calculated using cadence and resistance level), the target resistance should change to help the user get
+     *closer to the target output. If the filter is set to higher values, there should be less adjustment of the target
+     *resistance and cadence would need to be increased to match the target output. The zwift_erg_filter and
+     *zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance is communicated.
+     *Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100
+     *watts, a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110
+     *Watts.
+     */
     static const QString zwift_erg_filter_down;
     static constexpr float default_zwift_erg_filter_down = 10.0;
 
     /**
      *@brief Used to invoke a workaround whereby negative inclination is multiplied by 2.
-    */
+     */
     static const QString zwift_negative_inclination_x2;
     static constexpr bool default_zwift_negative_inclination_x2 = false;
 
     /**
      *@brief An offset that will be applied to the inclination received from the client application.
      * calculated_inclination = raw_inclination * zwift_inclination_gain + zwift_inclination_offset
-    */
+     */
     static const QString zwift_inclination_offset;
     static constexpr float default_zwift_inclination_offset = 0;
 
     /**
      *@brief A gain that will be applied to the inclination received from the client application.
      * calculated_inclination = raw_inclination * zwift_inclination_gain + zwift_inclination_offset
-    */
+     */
     static const QString zwift_inclination_gain;
     static constexpr float default_zwift_inclination_gain = 1.0;
 
@@ -176,38 +177,38 @@ public:
 
     /**
      *@brief Used for some devices to specify that speed should be calculated from power.
-    */
+     */
     static const QString speed_power_based;
     static constexpr bool default_speed_power_based = false;
 
     /**
      *@brief The resistance to be set when a bike or elliptical trainer first connects.
-    */
+     */
     static const QString bike_resistance_start;
     static constexpr int default_bike_resistance_start = 1;
 
     /**
      *@brief The age of the user in years.
-    */
+     */
     static const QString age;
     static constexpr int default_age = 35.0;
 
     /**
      *@brief The mass of the user in kilograms. Used for power calculations.
-    */
+     */
     static const QString weight;
     static constexpr float default_weight = 75.0;
 
     /**
-     *@brief The user's Functional Threshold Power in watts per kilogram. This is a measure of the best average power output the user
-     * could sustain for 1 hour in a time-trial scenario.
-    */
+     *@brief The user's Functional Threshold Power in watts per kilogram. This is a measure of the best average power
+     *output the user could sustain for 1 hour in a time-trial scenario.
+     */
     static const QString ftp;
     static constexpr float default_ftp = 200.0;
 
     /**
      *@brief Email address of the user.
-    */
+     */
     static const QString user_email;
 
     /**
@@ -221,7 +222,7 @@ public:
 
     /**
      *@brief Specifies whether or not to use miles (false) or kilometers (true) as the unit of distance.
-    */
+     */
     static const QString miles_unit;
     static constexpr bool default_miles_unit = false;
 
@@ -230,7 +231,7 @@ public:
 
     /**
      *@brief value for peloton trainrow.forcespeed.
-    */
+     */
     static const QString treadmill_force_speed;
     static constexpr bool default_treadmill_force_speed = false;
 
@@ -239,7 +240,7 @@ public:
 
     /**
      *@brief Flag to indicate if it should be ignored (true) that the user has stopped doing work.
-    */
+     */
     static const QString continuous_moving;
     static constexpr bool default_continuous_moving = false;
 
@@ -257,7 +258,7 @@ public:
 
     /**
      *@brief Used to ignore the heart rate from some devices.
-    */
+     */
     static const QString heart_ignore_builtin;
     static constexpr bool default_heart_ignore_builtin = false;
 
@@ -280,19 +281,18 @@ public:
     static constexpr bool default_top_bar_enabled = true;
     /**
      *@brief The username for logging in to Peloton.
-    */
+     */
     static const QString peloton_username;
     static const QString default_peloton_username;
 
     /**
      *@brief The password for logging in to Peloton.
-    */
+     */
     static const QString peloton_password;
     static const QString default_peloton_password;
 
     static const QString peloton_difficulty;
     static const QString default_peloton_difficulty;
-
 
     static const QString peloton_cadence_metric;
     static const QString default_peloton_cadence_metric;
@@ -326,7 +326,6 @@ public:
 
     static const QString tile_cadence_enabled;
     static constexpr bool default_tile_cadence_enabled = true;
-
 
     static const QString tile_cadence_order;
     static constexpr int default_tile_cadence_order = 2;
@@ -575,34 +574,34 @@ public:
     static const QString default_treadmill_pid_heart_zone;
     /**
      *@brief 1 mile time goal, for a training program with the speed control.
-    */
+     */
     static const QString pacef_1mile;
     static constexpr float default_pacef_1mile = 250;
     /**
      *@brief 5 km time goal, for a training program with the speed control.
-    */
+     */
     static const QString pacef_5km;
     static constexpr float default_pacef_5km = 300;
     /**
      *@brief 10 km time goal, for a training program with the speed control.
-    */
+     */
     static const QString pacef_10km;
     static constexpr float default_pacef_10km = 320;
     /**
      *@brief  pacef_1mile, but for half-marathon distance, for a training program with the speed control.
-    */
+     */
     static const QString pacef_halfmarathon;
     static constexpr float default_pacef_halfmarathon = 340;
     /**
      *@brief  pacef_1mile, but for marathon distance, for a training program with the speed control.
-    */
+     */
     static const QString pacef_marathon;
     static constexpr float default_pacef_marathon = 360;
 
     /**
      *@brief default pace to be used when the ZWO file does not indicate a precise pace.
      *Text values, i.e. "1 mile", "5 km", "10 km", "Half Marathon"
-    */
+     */
     static const QString pace_default;
     static const QString default_pace_default;
 
@@ -630,7 +629,7 @@ public:
     static constexpr bool default_eslinker_ypoo = false;
     /**
      *@brief Choose between the standard and MGARCEA watt table.
-    */
+     */
     static const QString echelon_watttable;
     static const QString default_echelon_watttable;
 
@@ -676,12 +675,11 @@ public:
     static const QString nordictrack_t65s_treadmill;
     static constexpr bool default_nordictrack_t65s_treadmill = false;
 
-    //static const QString proform_treadmill_995i;
-    //static constexpr bool default_proform_treadmill_995i = false;
+    // static const QString proform_treadmill_995i;
+    // static constexpr bool default_proform_treadmill_995i = false;
 
     static const QString toorx_3_0;
     static constexpr bool default_toorx_3_0 = false;
-
 
     static const QString toorx_65s_evo;
     static constexpr bool default_toorx_65s_evo = false;
@@ -806,20 +804,17 @@ public:
     static const QString watt_gain;
     static constexpr float default_watt_gain = 1;
 
-
     static const QString power_avg_5s;
     static constexpr bool default_power_avg_5s = false;
 
     static const QString instant_power_on_pause;
     static constexpr bool default_instant_power_on_pause = false;
 
-
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
      */
     static const QString speed_offset;
     static constexpr float default_speed_offset = 0;
-
 
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED.
@@ -891,17 +886,17 @@ public:
     static constexpr float default_fitmetria_fanfit_max = 100;
     /**
      *@brief Indicates if the virtual device should send resistance requests to the bike.
-    */
+     */
     static const QString virtualbike_forceresistance;
     static constexpr bool default_virtualbike_forceresistance = true;
     /**
      *@brief Troubleshooting setting. Should be false unless advised by QZ tech support.
-    */
+     */
     static const QString bluetooth_relaxed;
     static constexpr bool default_bluetooth_relaxed = false;
     /**
      *@brief Troubleshooting setting. Should be false unless advised by QZ tech support.
-    */
+     */
     static const QString bluetooth_30m_hangs;
     static constexpr bool default_bluetooth_30m_hangs = false;
 
@@ -910,18 +905,18 @@ public:
 
     /**
      *@brief Experimental feature. Not recommended to use.
-    */
+     */
     static const QString service_changed;
     static constexpr bool default_service_changed = false;
 
     /**
      *@brief Enable/disable the virtual device that connects QZ to the client app.
-    */
+     */
     static const QString virtual_device_enabled;
     static constexpr bool default_virtual_device_enabled = true;
     /**
      *@brief Enable/disable the Bluetooth connectivity of the virtual device that connects QZ to the client app.
-    */
+     */
     static const QString virtual_device_bluetooth;
     static constexpr bool default_virtual_device_bluetooth = true;
 
@@ -932,34 +927,34 @@ public:
     static constexpr bool default_android_wakelock = true;
     /**
      *@brief Specifies if the debug log file will be written.
-    */
+     */
     static const QString log_debug;
     static constexpr bool default_log_debug = false;
     /**
      *@brief Force QZ to communicate ONLY the Heart Rate metric to third-party apps.
-    */
+     */
     static const QString virtual_device_onlyheart;
     static constexpr bool default_virtual_device_onlyheart = false;
     /**
      *@brief Enables QZ to communicate with the Echelon app.
      *This setting can only be used with iOS running QZ and iOS running the Echelon app.
-    */
+     */
     static const QString virtual_device_echelon;
     static constexpr bool default_virtual_device_echelon = false;
     /**
      *@brief Enables a virtual bluetooth bridge to the iFit App.
-    */
+     */
     static const QString virtual_device_ifit;
     static constexpr bool default_virtual_device_ifit = false;
     /**
-     *@brief Instructs QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing
-     *(examples: Kinomap and BitGym). This should be off for Zwift.
-    */
+     *@brief Instructs QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support
+     *rowing (examples: Kinomap and BitGym). This should be off for Zwift.
+     */
     static const QString virtual_device_rower;
     static constexpr bool default_virtual_device_rower = false;
     /**
      *@brief Used to force a non-bike device to be presented to client apps as a bike.
-    */
+     */
     static const QString virtual_device_force_bike;
     static constexpr bool default_virtual_device_force_bike = false;
 
@@ -971,13 +966,13 @@ public:
 
     /**
      *@brief Minimum target resistance for ERG mode.
-    */
+     */
     static const QString zwift_erg_resistance_down;
     static constexpr float default_zwift_erg_resistance_down = 0.0;
 
     /**
      *@brief Maximum targe resistance for ERG mode.
-    */
+     */
     static const QString zwift_erg_resistance_up;
     static constexpr float default_zwift_erg_resistance_up = 999.0;
 
@@ -996,12 +991,11 @@ public:
     static const QString nordictrack_s30_treadmill;
     static constexpr bool default_nordictrack_s30_treadmill = false;
 
-
     // from version 2.10.23
     // not used anymore because it's an elliptical not a treadmill. Don't remove this
     // it will cause corruption in the settings
-    //static const QString nordictrack_fs5i_treadmill;
-    //static constexpr bool default_nordictrack_fs5i_treadmill = false;
+    // static const QString nordictrack_fs5i_treadmill;
+    // static constexpr bool default_nordictrack_fs5i_treadmill = false;
 
     static const QString renpho_peloton_conversion_v2;
     static constexpr bool default_renpho_peloton_conversion_v2 = false;
@@ -1042,17 +1036,15 @@ public:
     static const QString tile_ext_incline_order;
     static constexpr int default_tile_ext_incline_order = 32;
 
-
     static const QString reebok_fr30_treadmill;
     static constexpr bool default_reebok_fr30_treadmill = false;
 
     static const QString horizon_treadmill_7_8;
     static constexpr bool default_horizon_treadmill_7_8 = false;
 
-
     /**
      *@brief The name of the profile for this settings file.
-    */
+     */
     static const QString profile_name;
     static const QString default_profile_name;
 
@@ -1070,7 +1062,7 @@ public:
 
     /**
      *@brief Enable the Wahoo Dircon device.
-    */
+     */
     static const QString dircon_yes;
     static constexpr bool default_dircon_yes = true;
 
@@ -1082,10 +1074,9 @@ public:
 
     /**
      *@brief Count of the number of times the app has been opened.
-    */
+     */
     static const QString app_opening;
     static constexpr int default_app_opening = 0;
-
 
     static const QString proformtdf4ip;
     static const QString default_proformtdf4ip;
@@ -1095,7 +1086,7 @@ public:
 
     /**
      *@brief The mass of the bike in kilograms.
-    */
+     */
     static const QString bike_weight;
     static constexpr float default_bike_weight = 0;
 
@@ -1245,10 +1236,9 @@ public:
 
     /**
      *@brief Enable the fake device, emulating an elliptical trainer.
-    */
+     */
     static const QString fakedevice_elliptical;
     static constexpr bool default_fakedevice_elliptical = false;
-
 
     static const QString nordictrack_2950_ip;
     static const QString default_nordictrack_2950_ip;
@@ -1273,10 +1263,9 @@ public:
 
     /**
      *@brief The gender of the user.
-    */
+     */
     static const QString sex;
     static const QString default_sex;
-
 
     static const QString maps_type;
     static const QString default_maps_type;
@@ -1292,31 +1281,31 @@ public:
 
     /**
      *@brief The IP address for the Proform Treadmill.
-    */
+     */
     static const QString proformtreadmillip;
     static const QString default_proformtreadmillip;
     // from version 2.11.22
     /**
      *@brief
-    */
+     */
     static const QString kingsmith_encrypt_v3;
     static constexpr bool default_kingsmith_encrypt_v3 = false;
 
     /**
      *@brief IP address for the TDF 10.
-    */
+     */
     static const QString tdf_10_ip;
     static const QString default_tdf_10_ip;
 
     /**
      *@brief
-    */
+     */
     static const QString fakedevice_treadmill;
     static constexpr bool default_fakedevice_treadmill = false;
 
     /**
      *@brief The number of seconds to add to the video timestamp.
-    */
+     */
     static const QString video_playback_window_s;
     static constexpr int default_video_playback_window_s = 12;
 
@@ -1332,7 +1321,6 @@ public:
     static const QString horizon_treadmill_profile_user4;
     static const QString default_horizon_treadmill_profile_user4;
 
-
     static const QString horizon_treadmill_profile_user5;
     static const QString default_horizon_treadmill_profile_user5;
 
@@ -1345,11 +1333,14 @@ public:
     static const QString wahoo_rgt_dircon;
     static constexpr bool default_wahoo_rgt_dircon = false;
 
+    static const QString tts_description_enabled;
+    static constexpr bool default_tts_description_enabled = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
-    void qDebugAllSettings(bool showDefaults=false);
+    void qDebugAllSettings(bool showDefaults = false);
 };
 
 #endif
