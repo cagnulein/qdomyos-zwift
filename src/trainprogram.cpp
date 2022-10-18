@@ -286,98 +286,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
         lastGpxRateSet = rate;
     }
     return rate;
-
-    /*
-
-    bool loopFinished = false;
-    double gpxdistance = 0.0;
-    double videodistance = 0.0;
-    double gpxframedistance = 0.0;
-    double videoframedistance = 0.0;
-    int c = 0;
-    int framestartsecs = -1;
-    int frameendsecs = 0;
-    double lastsec = 0.0;
-
-    // Identify last needed Time
-    if (videosecs > gpxsecs) {
-        lastsec = videosecs;
-    }
-    else {
-        lastsec = gpxsecs;
-    }
-    // Add the Timeframe to last needed Time
-    lastsec += ((double)timeFrame);
-    // Loop through gpx Rows to collect needed Data
-    while (!loopFinished) {
-        double cursecs = ((double)QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed));
-        // Row is greater then needed Data, jump out
-        if (cursecs > lastsec) {
-            loopFinished = true;
-        }
-        // Collect Distance Data for elapsed Time and Timeframe in the future
-        else {
-            if (cursecs <= gpxsecs) gpxdistance += (rows.at(c).distance);
-            if (cursecs <= videosecs) videodistance += (rows.at(c).distance);
-            if ((cursecs > gpxsecs) && (cursecs <= (gpxsecs + ((double)timeFrame)))) {
-                gpxframedistance += (rows.at(c).distance);
-                // Get the exact Start and End Times of Frame for correctly calculating average Speed
-                if (framestartsecs == -1) framestartsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-                frameendsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-            }
-            if ((cursecs > videosecs) && (cursecs <= (videosecs + ((double)timeFrame)))) {
-                videoframedistance += (rows.at(c).distance);
-            }
-        }
-        c++;
-        // End of Rows reached
-        if (c >= rows.length()) loopFinished = true;
-    }
-    // If no videoframeend found something is totally wrong. Return 1
-    if (frameendsecs == 0) {
-        qDebug()  << qSetRealNumberPrecision(10)<< "TimeRateFromGPX no Videoframe End"
-                 << gpxsecs
-                 << videosecs
-                 << timeFrame
-                 << currentspeed
-                 << gpxdistance
-                 << gpxframedistance
-                 << videodistance
-                 << videoframedistance
-                 << framestartsecs
-                 << frameendsecs ;
-
-        return 1.0;
-    }
-    // Calculate the average Speed of the gpx Frame
-    double avgVideoSpeed = (gpxframedistance / (((double)(frameendsecs-framestartsecs+1)) / 3600.0));
-    // Calculate the Videospeed to Playerspeed Rate
-    double speedRate = (currentspeed / avgVideoSpeed);
-    // Calculate what the played gpx Distance will be assuming player speed doesn't change
-    double playedgpxdistance = gpxframedistance * speedRate;
-    // add the current video/player difference to the playedgpxdistance
-    playedgpxdistance = playedgpxdistance + gpxdistance - videodistance;
-    // Calculate rate beween Videoframedistance and played distance
-    double rate = (playedgpxdistance / videoframedistance);
-
-    qDebug()  << qSetRealNumberPrecision(10)<< "TimeRateFromGPX"
-             << gpxsecs
-             << videosecs
-             << (gpxsecs-videosecs)
-             << fullRate
-             << timeFrame
-             << currentspeed
-             << avgVideoSpeed
-             << gpxdistance
-             << gpxframedistance
-             << videodistance
-             << videoframedistance
-             << framestartsecs
-             << frameendsecs
-             << playedgpxdistance
-             << rate;
-    return rate;
-    */
 }
 
 double trainprogram::avgInclinationNext100Meters() {
@@ -540,9 +448,9 @@ void trainprogram::scheduler() {
 
         if (!isnan(rows.at(0).latitude) || !isnan(rows.at(0).longitude) || !isnan(rows.at(0).altitude)) {
             qDebug() << qSetRealNumberPrecision(10)
-                     << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
-                            " " + QString::number(rows.at(0).longitude) + " " + QString::number(rows.at(0).altitude) +
-                            " " + QString::number(rows.at(0).azimuth);
+                     << QStringLiteral("trainprogram change GEO position") << rows.at(0).latitude
+                            << rows.at(0).longitude << rows.at(0).altitude
+                            << rows.at(0).azimuth;
             QGeoCoordinate p;
             p.setAltitude(rows.at(0).altitude);
             p.setLatitude(rows.at(0).latitude);
@@ -672,12 +580,12 @@ void trainprogram::scheduler() {
                 if (!isnan(rows.at(currentStep).latitude) || !isnan(rows.at(currentStep).longitude) ||
                     !isnan(rows.at(currentStep).altitude)) {
                     qDebug() << qSetRealNumberPrecision(10)
-                             << QStringLiteral("trainprogram change GEO position") +
-                                    QString::number(rows.at(currentStep).latitude) + " " +
-                                    QString::number(rows.at(currentStep).longitude) + " " +
-                                    QString::number(rows.at(currentStep).altitude) + " " +
-                                    QString::number(rows.at(currentStep).distance) + " " +
-                                    QString::number(rows.at(currentStep).azimuth);
+                             << QStringLiteral("trainprogram change GEO position") <<
+                                    rows.at(currentStep).latitude <<
+                                    rows.at(currentStep).longitude <<
+                                    rows.at(currentStep).altitude <<
+                                    rows.at(currentStep).distance <<
+                                    rows.at(currentStep).azimuth;
 
                     QGeoCoordinate p;
                     p.setLatitude(rows.at(currentStep).latitude);
