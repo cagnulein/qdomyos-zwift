@@ -7,9 +7,11 @@
 
 using namespace std::chrono_literals;
 
-trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags) {
+trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags,
+                           bool videoAvailable) {
     QSettings settings;
-    bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
+    bool treadmill_force_speed =
+        settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
     this->bluetoothManager = b;
     this->rows = rows;
     this->loadedRows = rows;
@@ -36,12 +38,11 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     */
 
     // speed filter only to GPX workouts with timestamp
-    
+
     if (rows.length() && !isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) &&
-                                                               QTime(0, 0, 0).secsTo(rows.at(0).gpxElapsed) != 0 && !treadmill_force_speed) {
+        QTime(0, 0, 0).secsTo(rows.at(0).gpxElapsed) != 0 && !treadmill_force_speed && videoAvailable) {
         applySpeedFilter();
     }
-        
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
@@ -88,7 +89,8 @@ QString trainrow::toString() const {
 }
 
 void trainprogram::applySpeedFilter() {
-    if (rows.length()==0) return;
+    if (rows.length() == 0)
+        return;
     int r = 0;
     double weight[] = {0.15, 0.15, 0.1, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15};
     QList<double> newdistance;
@@ -97,19 +99,34 @@ void trainprogram::applySpeedFilter() {
     while (r < rows.length()) {
         int ws = (r - 4);
         int we = (r + 4);
-        if (ws < 0) ws = 0;
-        if (we >= rows.length()) we = (rows.length()-1);
+
+        // filtering starting point
+        if (ws < 1)
+            ws = 1;
+
+        if (we >= rows.length())
+            we = (rows.length() - 1);
         int wc = 0;
         double wma = 0;
-        int rowduration=0;
-        for (wc = 0; wc<=(we-ws); wc++) {
-            int currow = (ws+wc);
-            if (currow <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed);
-            else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currow-1).gpxElapsed)));
+        int rowduration = 0;
+        for (wc = 0; wc <= (we - ws); wc++) {
+            int currow = (ws + wc);
+
+            // filtering starting point
+            if (currow <= 1)
+                rowduration = QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed);
+            else
+                rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) -
+                               (QTime(0, 0, 0).secsTo(rows.at(currow - 1).gpxElapsed)));
             wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
         }
-        if (r <= 0) rowduration=QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed);
-        else rowduration = ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r-1).gpxElapsed)));
+
+        // filtering starting point
+        if (r <= 1)
+            rowduration = QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed);
+        else
+            rowduration =
+                ((QTime(0, 0, 0).secsTo(rows.at(r).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(r - 1).gpxElapsed)));
 
         /* it takes a lot of time during the opening of the file*/
         /*
@@ -129,7 +146,7 @@ void trainprogram::applySpeedFilter() {
         r++;
     }
     for (r = 0; r < rows.length(); r++) {
-        rows[r].distance=newdistance.at(r);
+        rows[r].distance = newdistance.at(r);
     }
 }
 
@@ -256,7 +273,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         double avgSpeedForLimit = avgSpeedFromGpxStep(currentStep + 1, 5);
         if (avgSpeedForLimit > 0.0) {
-            bike * dev = (bike *)bluetoothManager->device();
+            bike *dev = (bike *)bluetoothManager->device();
             dev->setSpeedLimit(avgSpeedForLimit * 1.7);
         }
     }
@@ -447,10 +464,8 @@ void trainprogram::scheduler() {
         }
 
         if (!isnan(rows.at(0).latitude) || !isnan(rows.at(0).longitude) || !isnan(rows.at(0).altitude)) {
-            qDebug() << qSetRealNumberPrecision(10)
-                     << QStringLiteral("trainprogram change GEO position") << rows.at(0).latitude
-                            << rows.at(0).longitude << rows.at(0).altitude
-                            << rows.at(0).azimuth;
+            qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("trainprogram change GEO position")
+                     << rows.at(0).latitude << rows.at(0).longitude << rows.at(0).altitude << rows.at(0).azimuth;
             QGeoCoordinate p;
             p.setAltitude(rows.at(0).altitude);
             p.setLatitude(rows.at(0).latitude);
@@ -579,13 +594,10 @@ void trainprogram::scheduler() {
 
                 if (!isnan(rows.at(currentStep).latitude) || !isnan(rows.at(currentStep).longitude) ||
                     !isnan(rows.at(currentStep).altitude)) {
-                    qDebug() << qSetRealNumberPrecision(10)
-                             << QStringLiteral("trainprogram change GEO position") <<
-                                    rows.at(currentStep).latitude <<
-                                    rows.at(currentStep).longitude <<
-                                    rows.at(currentStep).altitude <<
-                                    rows.at(currentStep).distance <<
-                                    rows.at(currentStep).azimuth;
+                    qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("trainprogram change GEO position")
+                             << rows.at(currentStep).latitude << rows.at(currentStep).longitude
+                             << rows.at(currentStep).altitude << rows.at(currentStep).distance
+                             << rows.at(currentStep).azimuth;
 
                     QGeoCoordinate p;
                     p.setLatitude(rows.at(currentStep).latitude);
@@ -664,16 +676,19 @@ void trainprogram::scheduler() {
                     }
                     lastStepTimestampChanged = currentStep;
                 }
-                if ( (currentStep > 1) && (distanceRow != 0.0) ) {
-                    steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) - (QTime(0, 0, 0).secsTo(rows.at(currentStep-1).gpxElapsed)));
-                    if (steptime == 0) steptime=1;
+                if ((currentStep > 1) && (distanceRow != 0.0)) {
+                    steptime = ((QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed)) -
+                                (QTime(0, 0, 0).secsTo(rows.at(currentStep - 1).gpxElapsed)));
+                    if (steptime == 0)
+                        steptime = 1;
                     distanceRow = (distanceRow / ((double)(steptime)));
                     ratioDistance = ((currentStepDistance - lastCurrentStepDistance) / distanceRow);
-                    lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance*1000.0);
+                    lastCurrentStepTime = lastCurrentStepTime.addMSecs(ratioDistance * 1000.0);
                 }
                 lastCurrentStepDistance = currentStepDistance;
                 qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
-                        << distanceRow << currentStepDistance << lastCurrentStepDistance << ratioDistance << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
+                         << distanceRow << currentStepDistance << lastCurrentStepDistance << ratioDistance
+                         << rows.at(currentStep).gpxElapsed << lastCurrentStepTime << ticks;
                 emit changeTimestamp(lastCurrentStepTime, QTime(0, 0, 0).addSecs(ticks));
             }
         }

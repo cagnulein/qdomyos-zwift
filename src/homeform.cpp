@@ -3621,7 +3621,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             list.reserve(g_list.size() + 1);
             for (const auto &p : g_list) {
                 trainrow r;
-                if (p.speed > 0) {
+                if (p.speed > 0 && i > 0) {
                     QGeoCoordinate p1(last.latitude, last.longitude);
                     QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
                     r.azimuth = p1.azimuthTo(p2);
@@ -3631,10 +3631,10 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                     r.duration = r.duration.addSecs(p.seconds);
                     r.forcespeed = true;
 
-                    r.altitude = p.elevation;
+                    r.altitude = last.elevation;
                     r.inclination = p.inclination;
-                    r.latitude = p.latitude;
-                    r.longitude = p.longitude;
+                    r.latitude = last.latitude;
+                    r.longitude = last.longitude;
                     r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                     list.append(r);
@@ -3645,7 +3645,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
                         r.azimuth = p1.azimuthTo(p2);
                         r.distance = p.distance;
-                        r.altitude = p.elevation;
+                        r.altitude = last.elevation;
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
@@ -3659,8 +3659,6 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 i++;
             }
             setMapsVisible(true);
-            trainProgram = new trainprogram(list, bluetoothManager);
-
             if (g.getVideoURL().isEmpty() == false) {
                 movieFileName = QUrl(g.getVideoURL());
                 emit videoPathChanged(movieFileName);
@@ -3670,6 +3668,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 emit videoPathChanged(movieFileName);
                 setVideoIconVisible(true);
             }
+            trainProgram = new trainprogram(list, bluetoothManager, nullptr, nullptr, videoIconVisible());
         }
 
         trainProgramSignals();
