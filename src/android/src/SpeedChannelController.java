@@ -42,16 +42,12 @@ public class SpeedChannelController {
     private static final String TAG = SpeedChannelController.class.getSimpleName();
     public static final int SPEED_SENSOR_ID = 0x9e3d4b65;
 
-    private static Random randGen = new Random();
-
     private AntChannel mAntChannel;
 
     private ChannelEventCallback mChannelEventCallback = new ChannelEventCallback();
 
-
     private boolean mIsOpen;
     double speed = 0.0;
-	 double cadence = 0.0;
 
     public SpeedChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -111,7 +107,7 @@ public class SpeedChannelController {
         String logString = "Remote service communication failed.";
 
         Log.e(TAG, logString);
-        }
+    }
 
     void channelError(String error, AntCommandFailedException e) {
         StringBuilder logString;
@@ -174,7 +170,6 @@ public class SpeedChannelController {
         int rev;
         double remWay;
         double wheel = 0.1;
-		  long unixTime = 0;
 
         @Override
         public void onChannelDeath() {
@@ -207,11 +202,15 @@ public class SpeedChannelController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
-								    if(speed > 0)
-									 {
-										 revCounts++;
-										 unixTime += (long)(1024.0 / (((double)(speed)) / 60.0));
-									 }
+                            long unixTime = System.currentTimeMillis() / 1000L;
+
+                            if (lastTime != 0) {
+                                way = speed * (unixTime - lastTime) / 3.6 + remWay;
+                                rev = (int) (way / wheel + 0.5);
+                                remWay = way - rev * wheel;
+                                revCounts += rev;
+                            }
+                            lastTime = unixTime;
 
                             ucPageChange += 0x20;
                             ucPageChange &= 0xF0;
@@ -228,14 +227,12 @@ public class SpeedChannelController {
                                     payload[1] = (byte) (halfunixTime & 0xFF);
                                     payload[2] = (byte) ((halfunixTime >> 8) & 0xFF);
                                     payload[3] = (byte) ((halfunixTime >> 16) & 0xFF);
-                                }
-                                else if (ucExtMesgType == 2) {
+                                } else if (ucExtMesgType == 2) {
                                     payload[0] = (byte) ((byte) 0x02 | (byte) (ucPageChange & (byte) 0x80));
                                     payload[1] = (byte) 0xFF;
                                     payload[2] = (byte) ((SPEED_SENSOR_ID >> 16) & 0xFF);
                                     payload[3] = (byte) ((SPEED_SENSOR_ID >> 24) & 0xFF);
-                                }
-                                else if (ucExtMesgType == 3) {
+                                } else if (ucExtMesgType == 3) {
                                     payload[0] = (byte) ((byte) 0x03 | (byte) (ucPageChange & (byte) 0x80));
                                     payload[1] = (byte) 0x01;
                                     payload[2] = (byte) 0x01;
