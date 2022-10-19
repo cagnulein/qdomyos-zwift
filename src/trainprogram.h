@@ -54,7 +54,8 @@ class trainprogram : public QObject {
     Q_OBJECT
 
   public:
-    trainprogram(const QList<trainrow> &, bluetooth *b, QString *description = nullptr, QString *tags = nullptr);
+    trainprogram(const QList<trainrow> &, bluetooth *b, QString *description = nullptr, QString *tags = nullptr,
+                 bool videoAvailable = false);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b);
     static QList<trainrow> loadXML(const QString &filename);
@@ -128,7 +129,7 @@ class trainprogram : public QObject {
     double lastGpxRateSet = 0.0;
     double lastGpxSpeedSet = 0.0;
     int lastStepTimestampChanged = 0;
-    double lastCurrentStepDistance =0.0;
+    double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
 };
 
