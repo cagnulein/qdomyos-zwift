@@ -2119,6 +2119,19 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent:  ColumnLayout {
                     spacing: 0
+
+                    Label {
+                        id: antSpeedLabel
+                        text: qsTr("Set 100mm as wheel circumference in settings of ant+ speed sensor")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        color: Material.color(Material.Red)
+                    }
+
                     SwitchDelegate {
                         id: antCadenceDelegate
                         text: qsTr("Ant+ Cadence")
