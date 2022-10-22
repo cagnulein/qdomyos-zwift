@@ -260,7 +260,7 @@ class bluetooth : public QObject, public SignalHandler {
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
     discoveredDevice discoverDevice(const bluetoothdevicediscoveryinfo &info, const QBluetoothDeviceInfo &b);
-    void createDevice(const discoveredDevice &d);
+    bluetoothdevice * createDevice(const discoveredDevice &d);
 signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
