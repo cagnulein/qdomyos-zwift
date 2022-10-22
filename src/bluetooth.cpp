@@ -1601,6 +1601,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 // connect(spiritTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(spiritTreadmill, &spirittreadmill::debug, this, &bluetooth::debug);
+                connect(spiritTreadmill, &spirittreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 spiritTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(spiritTreadmill);
                 innerTemplateManager->start(spiritTreadmill);
