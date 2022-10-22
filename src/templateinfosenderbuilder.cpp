@@ -13,6 +13,9 @@
 #include "webserverinfosender.h"
 #endif
 #include "homeform.h"
+#include "elliptical.h"
+#include "rower.h"
+#include "treadmill.h"
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
 #include <chrono>

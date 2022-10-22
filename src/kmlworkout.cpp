@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QXmlStreamReader>
 #include <cstdarg>
 

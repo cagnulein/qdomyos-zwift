@@ -1,8 +1,10 @@
 #include "homeform.h"
-#include "ios/lockscreen.h"
-#include "keepawakehelper.h"
-#include "material.h"
+#include "elliptical.h"
+#include "qdiriterator.h"
+#include "rower.h"
+#include "bike.h"
 #include "qfit.h"
+#include "m3ibike.h"
 #include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
 #include "zwiftworkout.h"
@@ -11,6 +13,8 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
@@ -19,6 +23,7 @@
 #include <QNetworkAccessManager>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
+#include <QProcess>
 #include <QQmlContext>
 #include <QQmlFile>
 

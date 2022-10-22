@@ -1,4 +1,5 @@
 #include "peloton.h"
+#include "elliptical.h"
 #include <chrono>
 
 using namespace std::chrono_literals;

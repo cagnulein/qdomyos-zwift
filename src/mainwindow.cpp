@@ -1,7 +1,10 @@
 #include "mainwindow.h"
 #include "charts.h"
 #include "gpx.h"
+#include "elliptical.h"
+#include "rower.h"
 #include "ui_mainwindow.h"
+#include "virtualtreadmill.h"
 #include <QFileDialog>
 #include <chrono>
 

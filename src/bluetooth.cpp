@@ -11,6 +11,97 @@
 #include <QAndroidJniObject>
 #endif
 
+#include "qzsettings.h"
+
+#include "activiotreadmill.h"
+#include "bhfitnesselliptical.h"
+
+#include "bowflext216treadmill.h"
+#include "bowflextreadmill.h"
+#include "chronobike.h"
+#include "concept2skierg.h"
+
+#include "domyosbike.h"
+#include "domyoselliptical.h"
+#include "domyosrower.h"
+#include "domyostreadmill.h"
+
+#include "echelonconnectsport.h"
+#include "echelonrower.h"
+
+#include "eslinkertreadmill.h"
+#include "fakebike.h"
+#include "fakeelliptical.h"
+#include "faketreadmill.h"
+
+#include "fitplusbike.h"
+
+#include "fitshowtreadmill.h"
+#include "flywheelbike.h"
+#include "ftmsbike.h"
+#include "ftmsrower.h"
+
+#include "horizongr7bike.h"
+#include "horizontreadmill.h"
+#include "iconceptbike.h"
+#include "inspirebike.h"
+#include "keepbike.h"
+#include "kingsmithr1protreadmill.h"
+#include "kingsmithr2treadmill.h"
+#include "m3ibike.h"
+#include "mcfbike.h"
+#include "nautilusbike.h"
+#include "nautiluselliptical.h"
+#include "nautilustreadmill.h"
+#include "nordictrackelliptical.h"
+#include "nordictrackifitadbtreadmill.h"
+#include "nordictrackifitadbbike.h"
+#include "npecablebike.h"
+#include "octanetreadmill.h"
+#include "pafersbike.h"
+#include "paferstreadmill.h"
+#include "proformbike.h"
+#include "proformelliptical.h"
+#include "proformellipticaltrainer.h"
+#include "proformrower.h"
+#include "proformtreadmill.h"
+#include "proformwifibike.h"
+#include "proformwifitreadmill.h"
+#include "schwinnic4bike.h"
+
+#include "skandikawiribike.h"
+#include "smartrowrower.h"
+
+#include "snodebike.h"
+
+
+#include "shuaa5treadmill.h"
+#include "solebike.h"
+#include "soleelliptical.h"
+#include "solef80treadmill.h"
+
+#include "spirittreadmill.h"
+#include "sportsplusbike.h"
+#include "sportstechbike.h"
+
+#include "renphobike.h"
+#include "tacxneo2.h"
+#include "technogymmyruntreadmill.h"
+#include "technogymmyruntreadmillrfcomm.h"
+
+#include "echelonstride.h"
+
+#include "toorxtreadmill.h"
+#include "treadmill.h"
+#include "truetreadmill.h"
+#include "trxappgateusbbike.h"
+#include "trxappgateusbtreadmill.h"
+#include "ultrasportbike.h"
+#include "wahookickrsnapbike.h"
+#include "yesoulbike.h"
+
+
+
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
                      double bikeResistanceGain) {
