@@ -43,6 +43,96 @@ public :
 
 };
 
+class bluetooth::discoveredDevice {
+  public:
+    enum deviceType {
+        None,
+        M3IBike,
+        FakeBike,
+        FakeElliptical,
+        FakeTreadmill,
+        ProformWifiBike,
+        ProformWifiTreadmill,
+        NordicTrackIFitADBTreadmill,
+        NordicTrackIFitADBBike,
+        CSCBike,
+        PowerBike_Stages,
+        PowerTreadmill_StrydrunPowerSensor,
+        DomyosRower,
+        DomyosBike,
+        DomyosElliptical,
+        NautilusElliptical,
+        NautilusBike,
+        ProformElliptical,
+        NordicTrackElliptical,
+        ProformEllipticalTrainer,
+        ProformRower,
+        BHFitnessElliptical,
+        SoleElliptical,
+        DomyosTreadmill,
+        KingsmithR2Treadmill,
+        KingsmithR1ProTreadmill,
+        Shuaa5Treadmill,
+        TrueTreadmill,
+        SoleF80Treadmill,
+        HorizonTreadmill,
+        TechnoGymMyRunTreadmill,
+        TechnoGymMyRunTreadmillRfComm,
+        TacxNeo2,
+        NPECableBike,
+        FTMSBike,
+        WahooKickrSnapBike,
+        HorizonGr7Bike,
+        StagesBike,
+        SmartRowRower,
+        Concept2SkiErg,
+        FTMSRower,
+        EchelonStride,
+        OctaneTreadmill,
+        EchelonRower,
+        EchelonConnectSport,
+        SchwinnIC4Bike,
+        SportsTechBike,
+        SportsPlusBike,
+        YesoulBike,
+        ProformBike,
+        ProformTreadmill,
+        ESLinkerTreadmill,
+        PafersTreadmill,
+        BowflexT216Treadmill,
+        NautilusTreadmill,
+        FlywheelBike,
+        MCFBike,
+        ToorxTreadmill,
+        IConceptBike,
+        SpiritTreadmill,
+        ActivioTreadmill,
+        TrxAppGateUSBTreadmill,
+        TrxAppGateUSBBike,
+        UltraSportBike,
+        KeepBike,
+        SoleBike,
+        SkandikawiriBike,
+        RenphoBike,
+        PafersBike,
+        SnodeBike,
+        FitPlusBike,
+        FitshowTreadmill,
+        InspireBike,
+        ChronoBike,
+
+    };
+
+    deviceType type;
+    QBluetoothDeviceInfo deviceInfo;
+
+    discoveredDevice(deviceType type, const QBluetoothDeviceInfo& b) {
+        this->type = type;
+        this->deviceInfo = b;
+    }
+
+};
+
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
                      double bikeResistanceGain) {
@@ -508,36 +598,363 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
          eliteSterzoSmartFound) ||
         forceHeartBeltOffForTimeout) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-            discoverDevice(info, b);
+            auto discoveredDevice = discoverDevice(info, b);
+            if(discoveredDevice.type!=discoveredDevice::deviceType::None) {
+                createDevice(discoveredDevice);
+            }
+
         }
     }
 }
 
-
-void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const QBluetoothDeviceInfo& b) {
+bluetooth::discoveredDevice bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const QBluetoothDeviceInfo& b) {
+    discoveredDevice::deviceType result = discoveredDevice::deviceType::None;
     bool filter = true;
     if (!filterDevice.isEmpty() && !filterDevice.startsWith(QStringLiteral("Disabled"))) {
 
         filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
     }
     if (b.name().startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
-
         if (m3ibike::isCorrectUnit(b)) {
-            this->stopDiscovery();
-            m3iBike = new m3ibike(noWriteResistance, noHeartService);
-            emit deviceConnected(b);
-            connect(m3iBike, &bluetoothdevice::connectedAndDiscovered, this,
-                    &bluetooth::connectedAndDiscovered);
-            // connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
-            connect(m3iBike, &m3ibike::debug, this, &bluetooth::debug);
-            m3iBike->deviceDiscovered(b);
-            connect(this, &bluetooth::searchingStop, m3iBike, &m3ibike::searchingStop);
-            if (!discoveryAgent->isActive())
-                emit searchingStop();
-            userTemplateManager->start(m3iBike);
-            innerTemplateManager->start(m3iBike);
+            result = discoveredDevice::deviceType::M3IBike;
         }
     } else if (info.fake_bike && !fakeBike) {
+        result = discoveredDevice::deviceType::FakeBike;
+    } else if (info.fakedevice_elliptical && !fakeElliptical) {
+        result = discoveredDevice::deviceType::FakeElliptical;
+    } else if (info.fakedevice_treadmill && !fakeTreadmill) {
+        result = discoveredDevice::deviceType::FakeTreadmill;
+    } else if (!info.proformtdf4ip.isEmpty() && !info.proformWifiBike) {
+        result = discoveredDevice::deviceType::ProformWifiBike;
+    } else if (!info.proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
+        result = discoveredDevice::deviceType::ProformWifiTreadmill;
+    } else if (!info.nordictrack_2950_ip.isEmpty() && !nordictrackifitadbTreadmill) {
+        result = discoveredDevice::deviceType::NordicTrackIFitADBTreadmill;
+    } else if (!info.tdf_10_ip.isEmpty() && !nordictrackifitadbBike) {
+        result = discoveredDevice::deviceType::NordicTrackIFitADBBike;
+    } else if (info.csc_as_bike && b.name().startsWith(info.cscName) && !cscBike && filter) {
+        result = discoveredDevice::deviceType::CSCBike;
+    } else if (info.power_as_bike && b.name().startsWith(info.powerSensorName) && !powerBike && filter) {
+        result = discoveredDevice::deviceType::PowerBike_Stages;
+    } else if (info.power_as_treadmill && b.name().startsWith(info.powerSensorName) && !powerTreadmill && filter) {
+        result = discoveredDevice::deviceType::PowerTreadmill_StrydrunPowerSensor;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW")) &&
+               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosRower && filter) {
+        result = discoveredDevice::deviceType::DomyosRower;
+    } else if (b.name().startsWith(QStringLiteral("Domyos-Bike")) &&
+               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
+        result = discoveredDevice::deviceType::DomyosBike;
+    } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) &&
+               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosElliptical && filter) {
+        result = discoveredDevice::deviceType::DomyosElliptical;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
+               !nautilusElliptical && // NAUTILUS E616
+               filter) {
+        result = discoveredDevice::deviceType::NautilusElliptical;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS B"))) && !nautilusBike &&
+               filter) { // NAUTILUS B628
+        result = discoveredDevice::deviceType::NautilusBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
+        result = discoveredDevice::deviceType::ProformElliptical;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_EL"))) && !nordictrackElliptical && filter) {
+        result = discoveredDevice::deviceType::NordicTrackElliptical;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_VE"))) && !proformEllipticalTrainer && filter) {
+        result = discoveredDevice::deviceType::ProformEllipticalTrainer;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_RW"))) && !proformRower && filter) {
+        result = discoveredDevice::deviceType::ProformRower;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
+        result = discoveredDevice::deviceType::BHFitnessElliptical;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E25")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E35")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E55")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E95")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E98")) ||
+                b.name().toUpper().startsWith(QStringLiteral("XG400")) ||
+                b.name().toUpper().startsWith(QStringLiteral("E98S"))) &&
+               !soleElliptical && filter) {
+        result = discoveredDevice::deviceType::SoleElliptical;
+
+    } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
+               !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
+               !domyosBike && !domyosRower && filter) {
+        result = discoveredDevice::deviceType::DomyosTreadmill;
+    } else if ((
+                   // Xiaomi k12 pro treadmill KS-ST-K12PRO
+                   b.name().toUpper().startsWith(QStringLiteral("KS-ST-K12PRO")) ||
+                   // KingSmith Walking Pad R2
+                   b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
+                   b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
+                   b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC")) ||
+                   // KingSmith Walking Pad X21
+                   b.name().toUpper().startsWith(QStringLiteral("KS-X21")) ||
+                   b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
+                   b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
+                   b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
+               !kingsmithR2Treadmill && filter) {
+
+        result = discoveredDevice::deviceType::KingsmithR2Treadmill;
+
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
+                b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
+                !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
+                b.name().toUpper().startsWith(
+                    QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+               !kingsmithR1ProTreadmill &&
+               !kingsmithR2Treadmill && filter) {
+
+        result = discoveredDevice::deviceType::KingsmithR1ProTreadmill;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
+
+        result = discoveredDevice::deviceType::Shuaa5Treadmill;
+
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
+                b.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) &&
+               !trueTreadmill && filter) {
+
+        result = discoveredDevice::deviceType::TrueTreadmill;
+
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) ||
+                b.name().toUpper().startsWith(QStringLiteral("F65")) ||
+                b.name().toUpper().startsWith(QStringLiteral("TT8")) ||
+                b.name().toUpper().startsWith(QStringLiteral("F63")) ||
+                b.name().toUpper().startsWith(QStringLiteral("F85"))) &&
+               !soleF80 && filter) {
+        result = discoveredDevice::deviceType::SoleF80Treadmill;
+
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
+                b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
+                b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
+                b.name().toUpper().startsWith(QStringLiteral("S77")) ||
+                b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
+                b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
+                b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
+               !horizonTreadmill && filter) {
+        result = discoveredDevice::deviceType::HorizonTreadmill;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
+                b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
+                ) &&
+               !technogymmyrunTreadmill && filter) {
+
+        QSettings settings;
+        bool technogym_myrun_treadmill_experimental =
+                settings
+                .value(QZSettings::technogym_myrun_treadmill_experimental,
+                       QZSettings::default_technogym_myrun_treadmill_experimental)
+                .toBool();
+#ifndef Q_OS_IOS
+        if (!technogym_myrun_treadmill_experimental)
+#endif
+        {
+            result = discoveredDevice::deviceType::TechnoGymMyRunTreadmill;
+        }
+#ifndef Q_OS_IOS
+        else {
+            result = discoveredDevice::deviceType::TechnoGymMyRunTreadmillRfComm;
+        }
+#endif
+    } else if ((b.name().toUpper().startsWith("TACX NEO") ||
+                (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
+               !tacxneo2Bike && filter) {
+        result = discoveredDevice::deviceType::TacxNeo2;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
+                (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
+                // BIKE 1, BIKE 2, BIKE 3...
+                (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && info.flywheel_life_fitness_ic8 == false &&
+                 b.name().length() == 6)) &&
+               !npeCableBike && filter) {
+        result = discoveredDevice::deviceType::NPECableBike;
+
+    } else if (((b.name().startsWith("FS-") && info.hammerRacerS) ||
+                (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
+                (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
+                (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
+                (b.name().toUpper().startsWith("SCHWINN 510T")) ||
+                (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
+                (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
+                (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
+                (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
+                (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
+               !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
+        result = discoveredDevice::deviceType::FTMSBike;
+    } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
+                b.name().toUpper().startsWith("KICKR ROLLR")) &&
+               !wahooKickrSnapBike && filter) {
+        result = discoveredDevice::deviceType::WahooKickrSnapBike;
+    } else if (((b.name().toUpper().startsWith("JFIC")) // HORIZON GR7
+                ) &&
+               !horizonGr7Bike && filter) {
+        result = discoveredDevice::deviceType::HorizonGr7Bike;
+
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+                (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
+                 info.powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
+               !stagesBike && !ftmsBike && filter) {
+        result = discoveredDevice::deviceType::StagesBike;
+    } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
+        result = discoveredDevice::deviceType::SmartRowRower;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
+                b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
+               !concept2Skierg && filter) {
+        result = discoveredDevice::deviceType::Concept2SkiErg;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
+                b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
+                b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
+                b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
+                (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
+                 b.name().toUpper().contains(QStringLiteral("ROW")))) &&
+               !ftmsRower && filter) {
+        result = discoveredDevice::deviceType::FTMSRower;
+    } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
+                b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) &&
+               !echelonStride && filter) {
+        result = discoveredDevice::deviceType::EchelonStride;
+
+    } else if ((b.name().toUpper().startsWith(QLatin1String("ZR7"))) && !octaneTreadmill && filter) {
+        result = discoveredDevice::deviceType::OctaneTreadmill;
+
+    } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
+                b.name().startsWith(QStringLiteral("ROW-S"))) &&
+               !echelonRower && filter) {
+        result = discoveredDevice::deviceType::EchelonRower;
+
+    } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride &&
+               !echelonConnectSport && filter) {
+        result = discoveredDevice::deviceType::EchelonConnectSport;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
+                (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
+                b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
+               !schwinnIC4Bike && filter) {
+        result = discoveredDevice::deviceType::SchwinnIC4Bike;
+
+    } else if (b.name().toUpper().startsWith(QStringLiteral("EW-BK")) && !sportsTechBike && filter) {
+        result = discoveredDevice::deviceType::SportsTechBike;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
+        result = discoveredDevice::deviceType::SportsPlusBike;
+    } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
+        result = discoveredDevice::deviceType::YesoulBike;
+    } else if ((b.name().startsWith(QStringLiteral("I_EB")) || b.name().startsWith(QStringLiteral("I_SB"))) &&
+               !proformBike && filter) {
+        result = discoveredDevice::deviceType::ProformBike;
+    } else if ((b.name().startsWith(QStringLiteral("I_TL"))) && !proformTreadmill && filter) {
+        result = discoveredDevice::deviceType::ProformTreadmill;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("ESLINKER")) && !eslinkerTreadmill && filter) {
+        result = discoveredDevice::deviceType::ESLinkerTreadmill;
+
+    } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
+               info.pafers_treadmill && filter) {
+        result = discoveredDevice::deviceType::PafersTreadmill;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexT216Treadmill &&
+               filter) {
+        result = discoveredDevice::deviceType::BowflexT216Treadmill;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
+        result = discoveredDevice::deviceType::NautilusTreadmill;
+    } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
+                // BIKE 1, BIKE 2, BIKE 3...
+                (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && info.flywheel_life_fitness_ic8 == true &&
+                 b.name().length() == 6)) &&
+               !flywheelBike && filter) {
+        result = discoveredDevice::deviceType::FlywheelBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("MCF-"))) && !mcfBike && filter) {
+        result = discoveredDevice::deviceType::MCFBike;
+    } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY"))) && !toorx && filter) {
+        result = discoveredDevice::deviceType::ToorxTreadmill;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptBike && filter) {
+        result = discoveredDevice::deviceType::IConceptBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("XT385")) ||
+                b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
+                b.name().toUpper().startsWith(QStringLiteral("XT900"))) &&
+               !spiritTreadmill && filter) {
+        result = discoveredDevice::deviceType::SpiritTreadmill;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("RUNNERT")) && !activioTreadmill && filter) {
+        result = discoveredDevice::deviceType::ActivioTreadmill;
+    } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
+                (b.name().startsWith(QStringLiteral("V-RUN"))) ||
+                (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
+                (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
+                (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
+                (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
+                (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
+               !trxappgateusb && !trxappgateusbBike && !info.toorx_bike && filter) {
+        result = discoveredDevice::deviceType::TrxAppGateUSBTreadmill;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
+                ((b.name().startsWith(QStringLiteral("TOORX")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
+                  b.name().toUpper().contains(QStringLiteral("CR011R")) ||
+                  b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
+                 (info.toorx_bike))) &&
+               !trxappgateusb && !trxappgateusbBike && filter) {
+        result = discoveredDevice::deviceType::TrxAppGateUSBBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("X-BIKE"))) && !ultraSportBike && filter) {
+        result = discoveredDevice::deviceType::UltraSportBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("KEEP_BIKE_"))) && !keepBike && filter) {
+        result = discoveredDevice::deviceType::KeepBike;
+    } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
+                b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
+               !soleBike && filter) {
+        result = discoveredDevice::deviceType::SoleBike;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+        result = discoveredDevice::deviceType::SkandikawiriBike;
+    } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
+                (b.name().toUpper().startsWith("SCH130")) || // not a renpho bike an FTMS one
+                ((b.name().startsWith(QStringLiteral("TOORX"))) && info.toorx_ftms)) &&
+               !renphoBike && !snodeBike && !fitPlusBike && filter) {
+        result = discoveredDevice::deviceType::RenphoBike;
+    } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !info.pafers_treadmill && filter) {
+        result = discoveredDevice::deviceType::PafersBike;
+    } else if (((b.name().startsWith(QStringLiteral("FS-")) && info.snode_bike) ||
+                b.name().startsWith(QStringLiteral("TF-"))) && // TF-769DF2
+               !snodeBike &&
+               !ftmsBike && !fitPlusBike && filter) {
+        result = discoveredDevice::deviceType::SnodeBike;
+    } else if (((b.name().startsWith(QStringLiteral("FS-")) && info.fitplus_bike) ||
+                b.name().startsWith(QStringLiteral("MRK-"))) &&
+               !fitPlusBike && !ftmsBike && !snodeBike && filter) {
+        result = discoveredDevice::deviceType::FitPlusBike;
+
+    } else if (((b.name().startsWith(QStringLiteral("FS-")) && !info.snode_bike && !info.fitplus_bike && !ftmsBike) ||
+                (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
+                (b.name().startsWith(QStringLiteral("BF70")))) &&
+               !fitshowTreadmill && filter) {
+        result = discoveredDevice::deviceType::FitshowTreadmill;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("IC")) && b.name().length() == 8 && !inspireBike &&
+               filter) {
+        result = discoveredDevice::deviceType::InspireBike;
+    } else if (b.name().toUpper().startsWith(QStringLiteral("CHRONO ")) && !chronoBike && filter) {
+        result = discoveredDevice::deviceType::ChronoBike;
+    }
+
+    return discoveredDevice(result,b);
+}
+
+void bluetooth::createDevice(const discoveredDevice& d) {
+    auto type = d.type;
+    auto b = d.deviceInfo;
+    if (type==discoveredDevice::deviceType::M3IBike) {
+        this->stopDiscovery();
+        m3iBike = new m3ibike(noWriteResistance, noHeartService);
+        emit deviceConnected(b);
+        connect(m3iBike, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        // connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(m3iBike, &m3ibike::debug, this, &bluetooth::debug);
+        m3iBike->deviceDiscovered(b);
+        connect(this, &bluetooth::searchingStop, m3iBike, &m3ibike::searchingStop);
+        if (!discoveryAgent->isActive())
+            emit searchingStop();
+        userTemplateManager->start(m3iBike);
+        innerTemplateManager->start(m3iBike);
+
+    } else if (type==discoveredDevice::deviceType::FakeBike) {
         this->stopDiscovery();
         fakeBike = new fakebike(noWriteResistance, noHeartService, false);
         emit deviceConnected(b);
@@ -551,7 +968,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(fakeBike);
         innerTemplateManager->start(fakeBike);
-    } else if (info.fakedevice_elliptical && !fakeElliptical) {
+    } else if (type==discoveredDevice::deviceType::FakeElliptical) {
         this->stopDiscovery();
         fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
         emit deviceConnected(b);
@@ -566,7 +983,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(fakeElliptical);
         innerTemplateManager->start(fakeElliptical);
-    } else if (info.fakedevice_treadmill && !fakeTreadmill) {
+    } else if (type==discoveredDevice::deviceType::FakeTreadmill) {
         this->stopDiscovery();
         fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
         emit deviceConnected(b);
@@ -582,7 +999,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         userTemplateManager->start(fakeTreadmill);
         innerTemplateManager->start(fakeTreadmill);
 
-    } else if (!info.proformtdf4ip.isEmpty() && !info.proformWifiBike) {
+    } else if (type==discoveredDevice::deviceType::ProformWifiBike) {
         this->stopDiscovery();
         proformWifiBike =
                 new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -598,7 +1015,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(proformWifiBike);
         innerTemplateManager->start(proformWifiBike);
-    } else if (!info.proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
+    } else if (type==discoveredDevice::deviceType::ProformWifiTreadmill) {
         this->stopDiscovery();
         proformWifiTreadmill = new proformwifitreadmill(noWriteResistance, noHeartService, bikeResistanceOffset,
                                                         bikeResistanceGain);
@@ -614,7 +1031,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(proformWifiTreadmill);
         innerTemplateManager->start(proformWifiTreadmill);
-    } else if (!info.nordictrack_2950_ip.isEmpty() && !nordictrackifitadbTreadmill) {
+    } else if (type==discoveredDevice::deviceType::NordicTrackIFitADBTreadmill) {
         this->stopDiscovery();
         nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
         emit deviceConnected(b);
@@ -628,7 +1045,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(nordictrackifitadbTreadmill);
         innerTemplateManager->start(nordictrackifitadbTreadmill);
-    } else if (!info.tdf_10_ip.isEmpty() && !nordictrackifitadbBike) {
+    } else if (type==discoveredDevice::deviceType::NordicTrackIFitADBBike) {
         this->stopDiscovery();
         nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
         emit deviceConnected(b);
@@ -642,7 +1059,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(nordictrackifitadbBike);
         innerTemplateManager->start(nordictrackifitadbBike);
-    } else if (info.csc_as_bike && b.name().startsWith(info.cscName) && !cscBike && filter) {
+    } else if (type==discoveredDevice::deviceType::CSCBike) {
 
         this->stopDiscovery();
         cscBike = new cscbike(noWriteResistance, noHeartService, false);
@@ -657,8 +1074,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(cscBike);
         innerTemplateManager->start(cscBike);
-    } else if (info.power_as_bike && b.name().startsWith(info.powerSensorName) && !powerBike && filter) {
-
+    } else if (type==discoveredDevice::deviceType::PowerBike_Stages) {
         this->stopDiscovery();
         powerBike = new stagesbike(noWriteResistance, noHeartService, false);
         emit deviceConnected(b);
@@ -672,8 +1088,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(powerBike);
         innerTemplateManager->start(powerBike);
-    } else if (info.power_as_treadmill && b.name().startsWith(info.powerSensorName) && !powerTreadmill && filter) {
-
+    } else if (type==discoveredDevice::deviceType::PowerTreadmill_StrydrunPowerSensor) {
         this->stopDiscovery();
         powerTreadmill = new strydrunpowersensor(noWriteResistance, noHeartService, false);
         emit deviceConnected(b);
@@ -688,8 +1103,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(powerTreadmill);
         innerTemplateManager->start(powerTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW")) &&
-               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosRower && filter) {
+    } else if (type==discoveredDevice::deviceType::DomyosRower) {
         this->stopDiscovery();
         domyosRower = new domyosrower(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
                                       bikeResistanceGain);
@@ -705,8 +1119,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(domyosRower);
         innerTemplateManager->start(domyosRower);
-    } else if (b.name().startsWith(QStringLiteral("Domyos-Bike")) &&
-               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
+    } else if (type==discoveredDevice::deviceType::DomyosBike) {
         this->stopDiscovery();
         domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
                                     bikeResistanceGain);
@@ -721,8 +1134,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(domyosBike);
         innerTemplateManager->start(domyosBike);
-    } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) &&
-               !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosElliptical && filter) {
+    } else if (type==discoveredDevice::deviceType::DomyosElliptical) {
         this->stopDiscovery();
         domyosElliptical = new domyoselliptical(noWriteResistance, noHeartService, testResistance,
                                                 bikeResistanceOffset, bikeResistanceGain);
@@ -738,9 +1150,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(domyosElliptical);
         innerTemplateManager->start(domyosElliptical);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
-               !nautilusElliptical && // NAUTILUS E616
-               filter) {
+    } else if (type==discoveredDevice::deviceType::NautilusElliptical) {
         this->stopDiscovery();
         nautilusElliptical = new nautiluselliptical(noWriteResistance, noHeartService, testResistance,
                                                     bikeResistanceOffset, bikeResistanceGain);
@@ -755,8 +1165,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(nautilusElliptical);
         innerTemplateManager->start(nautilusElliptical);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS B"))) && !nautilusBike &&
-               filter) { // NAUTILUS B628
+    } else if (type==discoveredDevice::deviceType::NautilusBike) { // NAUTILUS B628
         this->stopDiscovery();
         nautilusBike = new nautilusbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
                                         bikeResistanceGain);
@@ -771,7 +1180,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(nautilusBike);
         innerTemplateManager->start(nautilusBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
+    } else if (type==discoveredDevice::deviceType::ProformElliptical) {
         this->stopDiscovery();
         proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
         emit deviceConnected(b);
@@ -785,7 +1194,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(proformElliptical);
         innerTemplateManager->start(proformElliptical);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_EL"))) && !nordictrackElliptical && filter) {
+    } else if (type==discoveredDevice::deviceType::NordicTrackElliptical) {
         this->stopDiscovery();
         nordictrackElliptical = new nordictrackelliptical(noWriteResistance, noHeartService,
                                                           bikeResistanceOffset, bikeResistanceGain);
@@ -801,7 +1210,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         userTemplateManager->start(nordictrackElliptical);
         innerTemplateManager->start(nordictrackElliptical);
 
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_VE"))) && !proformEllipticalTrainer && filter) {
+    } else if (type==discoveredDevice::deviceType::ProformEllipticalTrainer) {
         this->stopDiscovery();
         proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService,
                                                                 bikeResistanceOffset, bikeResistanceGain);
@@ -817,7 +1226,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(proformEllipticalTrainer);
         innerTemplateManager->start(proformEllipticalTrainer);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("I_RW"))) && !proformRower && filter) {
+    } else if (type==discoveredDevice::deviceType::ProformRower) {
         this->stopDiscovery();
         proformRower = new proformrower(noWriteResistance, noHeartService);
         emit deviceConnected(b);
@@ -831,7 +1240,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(proformRower);
         innerTemplateManager->start(proformRower);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
+    } else if (type==discoveredDevice::deviceType::BHFitnessElliptical) {
         this->stopDiscovery();
         bhFitnessElliptical = new bhfitnesselliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
                                                       bikeResistanceGain);
@@ -846,15 +1255,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(bhFitnessElliptical);
         innerTemplateManager->start(bhFitnessElliptical);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E25")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E35")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E55")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E95")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E98")) ||
-                b.name().toUpper().startsWith(QStringLiteral("XG400")) ||
-                b.name().toUpper().startsWith(QStringLiteral("E98S"))) &&
-               !soleElliptical && filter) {
+    } else if (type==discoveredDevice::deviceType::SoleElliptical) {
         this->stopDiscovery();
         soleElliptical = new soleelliptical(noWriteResistance, noHeartService, testResistance,
                                             bikeResistanceOffset, bikeResistanceGain);
@@ -869,9 +1270,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(soleElliptical);
         innerTemplateManager->start(soleElliptical);
-    } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
-               !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
-               !domyosBike && !domyosRower && filter) {
+    } else if (type==discoveredDevice::deviceType::DomyosTreadmill) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -890,19 +1289,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(domyos);
         innerTemplateManager->start(domyos);
-    } else if ((
-                   // Xiaomi k12 pro treadmill KS-ST-K12PRO
-                   b.name().toUpper().startsWith(QStringLiteral("KS-ST-K12PRO")) ||
-                   // KingSmith Walking Pad R2
-                   b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
-                   b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
-                   b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC")) ||
-                   // KingSmith Walking Pad X21
-                   b.name().toUpper().startsWith(QStringLiteral("KS-X21")) ||
-                   b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
-                   b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
-                   b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
-               !kingsmithR2Treadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::KingsmithR2Treadmill) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         kingsmithR2Treadmill = new kingsmithr2treadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -923,13 +1310,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(kingsmithR2Treadmill);
         innerTemplateManager->start(kingsmithR2Treadmill);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
-                b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
-                !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
-                b.name().toUpper().startsWith(
-                    QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
-               !kingsmithR1ProTreadmill &&
-               !kingsmithR2Treadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::KingsmithR1ProTreadmill) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         kingsmithR1ProTreadmill = new kingsmithr1protreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -952,7 +1333,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(kingsmithR1ProTreadmill);
         innerTemplateManager->start(kingsmithR1ProTreadmill);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::Shuaa5Treadmill) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         shuaA5Treadmill = new shuaa5treadmill(noWriteResistance, noHeartService);
@@ -971,9 +1352,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(shuaA5Treadmill);
         innerTemplateManager->start(shuaA5Treadmill);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
-                b.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) &&
-               !trueTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::TrueTreadmill) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         trueTreadmill = new truetreadmill(noWriteResistance, noHeartService);
@@ -992,12 +1371,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(trueTreadmill);
         innerTemplateManager->start(trueTreadmill);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) ||
-                b.name().toUpper().startsWith(QStringLiteral("F65")) ||
-                b.name().toUpper().startsWith(QStringLiteral("TT8")) ||
-                b.name().toUpper().startsWith(QStringLiteral("F63")) ||
-                b.name().toUpper().startsWith(QStringLiteral("F85"))) &&
-               !soleF80 && filter) {
+    } else if (type==discoveredDevice::deviceType::SoleF80Treadmill) {
         this->stopDiscovery();
         soleF80 = new solef80treadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -1020,19 +1394,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(soleF80);
         innerTemplateManager->start(soleF80);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
-                b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
-                b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
-                b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
-                b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
-                b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
-               !horizonTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::HorizonTreadmill) {
         this->stopDiscovery();
         horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -1056,73 +1418,55 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(horizonTreadmill);
         innerTemplateManager->start(horizonTreadmill);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
-                b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
-                ) &&
-               !technogymmyrunTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::TechnoGymMyRunTreadmill) {
         this->stopDiscovery();
-        QSettings settings;
-        bool technogym_myrun_treadmill_experimental =
-                settings
-                .value(QZSettings::technogym_myrun_treadmill_experimental,
-                       QZSettings::default_technogym_myrun_treadmill_experimental)
-                .toBool();
-#ifndef Q_OS_IOS
-        if (!technogym_myrun_treadmill_experimental)
-#endif
-        {
-            technogymmyrunTreadmill = new technogymmyruntreadmill(noWriteResistance, noHeartService);
+
+        technogymmyrunTreadmill = new technogymmyruntreadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-            stateFileRead();
+        stateFileRead();
 #endif
-            emit deviceConnected(b);
-            connect(technogymmyrunTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                    &bluetooth::connectedAndDiscovered);
-            // connect(technogymmyrunTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-            connect(technogymmyrunTreadmill, &technogymmyruntreadmill::debug, this, &bluetooth::debug);
-            // NOTE: Commented due to #358
-            // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-            // NOTE: Commented due to #358
-            // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
-            // SLOT(inclinationChanged(double)));
-            technogymmyrunTreadmill->deviceDiscovered(b);
-            // NOTE: Commented due to #358
-            // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-            if (!discoveryAgent->isActive()) {
-                emit searchingStop();
-            }
-            userTemplateManager->start(technogymmyrunTreadmill);
-            innerTemplateManager->start(technogymmyrunTreadmill);
+        emit deviceConnected(b);
+        connect(technogymmyrunTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        // connect(technogymmyrunTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(technogymmyrunTreadmill, &technogymmyruntreadmill::debug, this, &bluetooth::debug);
+        // NOTE: Commented due to #358
+        // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+        // NOTE: Commented due to #358
+        // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
+        // SLOT(inclinationChanged(double)));
+        technogymmyrunTreadmill->deviceDiscovered(b);
+        // NOTE: Commented due to #358
+        // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+        if (!discoveryAgent->isActive()) {
+            emit searchingStop();
         }
-#ifndef Q_OS_IOS
-        else {
-            technogymmyrunrfcommTreadmill = new technogymmyruntreadmillrfcomm();
+        userTemplateManager->start(technogymmyrunTreadmill);
+        innerTemplateManager->start(technogymmyrunTreadmill);
+    } else if (type==discoveredDevice::deviceType::TechnoGymMyRunTreadmillRfComm) {
+        technogymmyrunrfcommTreadmill = new technogymmyruntreadmillrfcomm();
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-            stateFileRead();
+        stateFileRead();
 #endif
-            emit deviceConnected(b);
-            connect(technogymmyrunrfcommTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                    &bluetooth::connectedAndDiscovered);
-            // connect(technogymmyrunrfcommTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-            connect(technogymmyrunrfcommTreadmill, &technogymmyruntreadmillrfcomm::debug, this,
-                    &bluetooth::debug);
-            // NOTE: Commented due to #358
-            // connect(technogymmyrunrfcommTreadmill, SIGNAL(speedChanged(double)), this,
-            // SLOT(speedChanged(double))); NOTE: Commented due to #358 connect(technogymmyrunrfcommTreadmill,
-            // SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-            technogymmyrunrfcommTreadmill->deviceDiscovered(b);
-            // NOTE: Commented due to #358
-            // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-            if (!discoveryAgent->isActive()) {
-                emit searchingStop();
-            }
-            userTemplateManager->start(technogymmyrunrfcommTreadmill);
-            innerTemplateManager->start(technogymmyrunrfcommTreadmill);
+        emit deviceConnected(b);
+        connect(technogymmyrunrfcommTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        // connect(technogymmyrunrfcommTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(technogymmyrunrfcommTreadmill, &technogymmyruntreadmillrfcomm::debug, this,
+                &bluetooth::debug);
+        // NOTE: Commented due to #358
+        // connect(technogymmyrunrfcommTreadmill, SIGNAL(speedChanged(double)), this,
+        // SLOT(speedChanged(double))); NOTE: Commented due to #358 connect(technogymmyrunrfcommTreadmill,
+        // SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+        technogymmyrunrfcommTreadmill->deviceDiscovered(b);
+        // NOTE: Commented due to #358
+        // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+        if (!discoveryAgent->isActive()) {
+            emit searchingStop();
         }
-#endif
-    } else if ((b.name().toUpper().startsWith("TACX NEO") ||
-                (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
-               !tacxneo2Bike && filter) {
+        userTemplateManager->start(technogymmyrunrfcommTreadmill);
+        innerTemplateManager->start(technogymmyrunrfcommTreadmill);
+    } else if (type==discoveredDevice::deviceType::TacxNeo2) {
         this->stopDiscovery();
         tacxneo2Bike = new tacxneo2(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1135,12 +1479,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         tacxneo2Bike->deviceDiscovered(b);
         userTemplateManager->start(tacxneo2Bike);
         innerTemplateManager->start(tacxneo2Bike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
-                (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
-                // BIKE 1, BIKE 2, BIKE 3...
-                (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && info.flywheel_life_fitness_ic8 == false &&
-                 b.name().length() == 6)) &&
-               !npeCableBike && filter) {
+    } else if (type==discoveredDevice::deviceType::NPECableBike) {
         this->stopDiscovery();
         npeCableBike = new npecablebike(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1155,17 +1494,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         npeCableBike->deviceDiscovered(b);
         userTemplateManager->start(npeCableBike);
         innerTemplateManager->start(npeCableBike);
-    } else if (((b.name().startsWith("FS-") && info.hammerRacerS) ||
-                (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
-                (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
-                (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
-                (b.name().toUpper().startsWith("SCHWINN 510T")) ||
-                (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
-                (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
-                (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
-                (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
-                (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
-               !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
+    } else if (type==discoveredDevice::deviceType::FTMSBike) {
         this->stopDiscovery();
         ftmsBike = new ftmsbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
         emit deviceConnected(b);
@@ -1175,9 +1504,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         ftmsBike->deviceDiscovered(b);
         userTemplateManager->start(ftmsBike);
         innerTemplateManager->start(ftmsBike);
-    } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
-                b.name().toUpper().startsWith("KICKR ROLLR")) &&
-               !wahooKickrSnapBike && filter) {
+    } else if (type==discoveredDevice::deviceType::WahooKickrSnapBike) {
         this->stopDiscovery();
         wahooKickrSnapBike =
                 new wahookickrsnapbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1189,9 +1516,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         wahooKickrSnapBike->deviceDiscovered(b);
         userTemplateManager->start(wahooKickrSnapBike);
         innerTemplateManager->start(wahooKickrSnapBike);
-    } else if (((b.name().toUpper().startsWith("JFIC")) // HORIZON GR7
-                ) &&
-               !horizonGr7Bike && filter) {
+    } else if (type==discoveredDevice::deviceType::HorizonGr7Bike) {
         this->stopDiscovery();
         horizonGr7Bike =
                 new horizongr7bike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1203,10 +1528,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         horizonGr7Bike->deviceDiscovered(b);
         userTemplateManager->start(horizonGr7Bike);
         innerTemplateManager->start(horizonGr7Bike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
-                (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
-                 info.powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
-               !stagesBike && !ftmsBike && filter) {
+    } else if (type==discoveredDevice::deviceType::StagesBike) {
         this->stopDiscovery();
         stagesBike = new stagesbike(noWriteResistance, noHeartService, false);
         // stateFileRead();
@@ -1219,7 +1541,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         stagesBike->deviceDiscovered(b);
         userTemplateManager->start(stagesBike);
         innerTemplateManager->start(stagesBike);
-    } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
+    } else if (type==discoveredDevice::deviceType::SmartRowRower) {
         this->stopDiscovery();
         smartrowRower =
                 new smartrowrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1234,9 +1556,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         smartrowRower->deviceDiscovered(b);
         userTemplateManager->start(smartrowRower);
         innerTemplateManager->start(smartrowRower);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
-               !concept2Skierg && filter) {
+    } else if (type==discoveredDevice::deviceType::Concept2SkiErg) {
         this->stopDiscovery();
         concept2Skierg = new concept2skierg(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1250,13 +1570,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         concept2Skierg->deviceDiscovered(b);
         userTemplateManager->start(concept2Skierg);
         innerTemplateManager->start(concept2Skierg);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
-                b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
-                b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
-                b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
-                (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                 b.name().toUpper().contains(QStringLiteral("ROW")))) &&
-               !ftmsRower && filter) {
+    } else if (type==discoveredDevice::deviceType::FTMSRower) {
         this->stopDiscovery();
         ftmsRower = new ftmsrower(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1269,9 +1583,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         ftmsRower->deviceDiscovered(b);
         userTemplateManager->start(ftmsRower);
         innerTemplateManager->start(ftmsRower);
-    } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
-                b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) &&
-               !echelonStride && filter) {
+    } else if (type==discoveredDevice::deviceType::EchelonStride) {
         this->stopDiscovery();
         echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1285,7 +1597,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         echelonStride->deviceDiscovered(b);
         userTemplateManager->start(echelonStride);
         innerTemplateManager->start(echelonStride);
-    } else if ((b.name().toUpper().startsWith(QLatin1String("ZR7"))) && !octaneTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::OctaneTreadmill) {
         this->stopDiscovery();
         octaneTreadmill = new octanetreadmill(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1299,9 +1611,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         octaneTreadmill->deviceDiscovered(b);
         userTemplateManager->start(octaneTreadmill);
         innerTemplateManager->start(octaneTreadmill);
-    } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
-                b.name().startsWith(QStringLiteral("ROW-S"))) &&
-               !echelonRower && filter) {
+    } else if (type==discoveredDevice::deviceType::EchelonRower) {
         this->stopDiscovery();
         echelonRower =
                 new echelonrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1316,8 +1626,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         echelonRower->deviceDiscovered(b);
         userTemplateManager->start(echelonRower);
         innerTemplateManager->start(echelonRower);
-    } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride &&
-               !echelonConnectSport && filter) {
+    } else if (type==discoveredDevice::deviceType::EchelonConnectSport) {
         this->stopDiscovery();
         echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService, bikeResistanceOffset,
                                                       bikeResistanceGain);
@@ -1333,10 +1642,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         echelonConnectSport->deviceDiscovered(b);
         userTemplateManager->start(echelonConnectSport);
         innerTemplateManager->start(echelonConnectSport);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
-                (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
-                b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
-               !schwinnIC4Bike && filter) {
+    } else if (type==discoveredDevice::deviceType::SchwinnIC4Bike) {
         this->setLastBluetoothDevice(b);
         this->stopDiscovery();
         schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
@@ -1352,7 +1658,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         schwinnIC4Bike->deviceDiscovered(b);
         userTemplateManager->start(schwinnIC4Bike);
         innerTemplateManager->start(schwinnIC4Bike);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("EW-BK")) && !sportsTechBike && filter) {
+    } else if (type==discoveredDevice::deviceType::SportsTechBike) {
         this->stopDiscovery();
         sportsTechBike = new sportstechbike(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1367,7 +1673,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         sportsTechBike->deviceDiscovered(b);
         userTemplateManager->start(sportsTechBike);
         innerTemplateManager->start(sportsTechBike);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
+    } else if (type==discoveredDevice::deviceType::SportsPlusBike) {
         this->stopDiscovery();
         sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1382,7 +1688,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         sportsPlusBike->deviceDiscovered(b);
         userTemplateManager->start(sportsPlusBike);
         innerTemplateManager->start(sportsPlusBike);
-    } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
+    } else if (type==discoveredDevice::deviceType::YesoulBike) {
         this->stopDiscovery();
         yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1396,8 +1702,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         yesoulBike->deviceDiscovered(b);
         userTemplateManager->start(yesoulBike);
         innerTemplateManager->start(yesoulBike);
-    } else if ((b.name().startsWith(QStringLiteral("I_EB")) || b.name().startsWith(QStringLiteral("I_SB"))) &&
-               !proformBike && filter) {
+    } else if (type==discoveredDevice::deviceType::ProformBike) {
         this->stopDiscovery();
         proformBike =
                 new proformbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1412,7 +1717,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         proformBike->deviceDiscovered(b);
         userTemplateManager->start(proformBike);
         innerTemplateManager->start(proformBike);
-    } else if ((b.name().startsWith(QStringLiteral("I_TL"))) && !proformTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::ProformTreadmill) {
         this->stopDiscovery();
         proformTreadmill = new proformtreadmill(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1427,7 +1732,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         proformTreadmill->deviceDiscovered(b);
         userTemplateManager->start(proformTreadmill);
         innerTemplateManager->start(proformTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("ESLINKER")) && !eslinkerTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::ESLinkerTreadmill) {
         this->stopDiscovery();
         eslinkerTreadmill = new eslinkertreadmill(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1442,8 +1747,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         eslinkerTreadmill->deviceDiscovered(b);
         userTemplateManager->start(eslinkerTreadmill);
         innerTemplateManager->start(eslinkerTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
-               info.pafers_treadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::PafersTreadmill) {
         this->stopDiscovery();
         pafersTreadmill = new paferstreadmill(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1458,8 +1762,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         pafersTreadmill->deviceDiscovered(b);
         userTemplateManager->start(pafersTreadmill);
         innerTemplateManager->start(pafersTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexT216Treadmill &&
-               filter) {
+    } else if (type==discoveredDevice::deviceType::BowflexT216Treadmill) {
         this->stopDiscovery();
         bowflexT216Treadmill = new bowflext216treadmill(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1474,7 +1777,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         bowflexT216Treadmill->deviceDiscovered(b);
         userTemplateManager->start(bowflexT216Treadmill);
         innerTemplateManager->start(bowflexT216Treadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::NautilusTreadmill) {
         this->stopDiscovery();
         nautilusTreadmill = new nautilustreadmill(this->pollDeviceTime, noConsole, noHeartService);
         // stateFileRead();
@@ -1489,11 +1792,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         nautilusTreadmill->deviceDiscovered(b);
         userTemplateManager->start(nautilusTreadmill);
         innerTemplateManager->start(nautilusTreadmill);
-    } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
-                // BIKE 1, BIKE 2, BIKE 3...
-                (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && info.flywheel_life_fitness_ic8 == true &&
-                 b.name().length() == 6)) &&
-               !flywheelBike && filter) {
+    } else if (type==discoveredDevice::deviceType::FlywheelBike) {
         this->stopDiscovery();
         flywheelBike = new flywheelbike(noWriteResistance, noHeartService);
         // stateFileRead();
@@ -1508,7 +1807,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         flywheelBike->deviceDiscovered(b);
         userTemplateManager->start(flywheelBike);
         innerTemplateManager->start(flywheelBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("MCF-"))) && !mcfBike && filter) {
+    } else if (type==discoveredDevice::deviceType::MCFBike) {
         this->stopDiscovery();
         mcfBike = new mcfbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
         // stateFileRead();
@@ -1522,7 +1821,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         mcfBike->deviceDiscovered(b);
         userTemplateManager->start(mcfBike);
         innerTemplateManager->start(mcfBike);
-    } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY"))) && !toorx && filter) {
+    } else if (type==discoveredDevice::deviceType::ToorxTreadmill) {
         this->stopDiscovery();
         toorx = new toorxtreadmill();
         emit deviceConnected(b);
@@ -1532,7 +1831,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         toorx->deviceDiscovered(b);
         userTemplateManager->start(toorx);
         innerTemplateManager->start(toorx);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptBike && filter) {
+    } else if (type==discoveredDevice::deviceType::IConceptBike) {
         this->stopDiscovery();
         iConceptBike = new iconceptbike();
         emit deviceConnected(b);
@@ -1543,10 +1842,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         iConceptBike->deviceDiscovered(b);
         userTemplateManager->start(iConceptBike);
         innerTemplateManager->start(iConceptBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("XT385")) ||
-                b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
-                b.name().toUpper().startsWith(QStringLiteral("XT900"))) &&
-               !spiritTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::SpiritTreadmill) {
         this->stopDiscovery();
         spiritTreadmill = new spirittreadmill();
         emit deviceConnected(b);
@@ -1558,7 +1854,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         spiritTreadmill->deviceDiscovered(b);
         userTemplateManager->start(spiritTreadmill);
         innerTemplateManager->start(spiritTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("RUNNERT")) && !activioTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::ActivioTreadmill) {
         this->stopDiscovery();
         activioTreadmill = new activiotreadmill();
         emit deviceConnected(b);
@@ -1569,14 +1865,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         activioTreadmill->deviceDiscovered(b);
         userTemplateManager->start(activioTreadmill);
         innerTemplateManager->start(activioTreadmill);
-    } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
-                (b.name().startsWith(QStringLiteral("V-RUN"))) ||
-                (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
-                (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
-                (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
-                (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
-                (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
-               !trxappgateusb && !trxappgateusbBike && !info.toorx_bike && filter) {
+    } else if (type==discoveredDevice::deviceType::TrxAppGateUSBTreadmill) {
         this->stopDiscovery();
         trxappgateusb = new trxappgateusbtreadmill();
         emit deviceConnected(b);
@@ -1587,17 +1876,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         trxappgateusb->deviceDiscovered(b);
         userTemplateManager->start(trxappgateusb);
         innerTemplateManager->start(trxappgateusb);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
-                ((b.name().startsWith(QStringLiteral("TOORX")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
-                  b.name().toUpper().contains(QStringLiteral("CR011R")) ||
-                  b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
-                 (info.toorx_bike))) &&
-               !trxappgateusb && !trxappgateusbBike && filter) {
+    } else if (type==discoveredDevice::deviceType::TrxAppGateUSBBike) {
         this->stopDiscovery();
         trxappgateusbBike =
                 new trxappgateusbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1609,7 +1888,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         trxappgateusbBike->deviceDiscovered(b);
         userTemplateManager->start(trxappgateusbBike);
         innerTemplateManager->start(trxappgateusbBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("X-BIKE"))) && !ultraSportBike && filter) {
+    } else if (type==discoveredDevice::deviceType::UltraSportBike) {
         this->stopDiscovery();
         ultraSportBike =
                 new ultrasportbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1621,7 +1900,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         ultraSportBike->deviceDiscovered(b);
         userTemplateManager->start(ultraSportBike);
         innerTemplateManager->start(ultraSportBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("KEEP_BIKE_"))) && !keepBike && filter) {
+    } else if (type==discoveredDevice::deviceType::KeepBike) {
         this->stopDiscovery();
         keepBike = new keepbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
         emit deviceConnected(b);
@@ -1631,9 +1910,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         keepBike->deviceDiscovered(b);
         userTemplateManager->start(keepBike);
         innerTemplateManager->start(keepBike);
-    } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
-                b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
-               !soleBike && filter) {
+    } else if (type==discoveredDevice::deviceType::SoleBike) {
         this->stopDiscovery();
         soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
         emit deviceConnected(b);
@@ -1643,7 +1920,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         soleBike->deviceDiscovered(b);
         userTemplateManager->start(soleBike);
         innerTemplateManager->start(soleBike);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+    } else if (type==discoveredDevice::deviceType::SkandikawiriBike) {
         this->stopDiscovery();
         skandikaWiriBike =
                 new skandikawiribike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1655,10 +1932,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         skandikaWiriBike->deviceDiscovered(b);
         userTemplateManager->start(skandikaWiriBike);
         innerTemplateManager->start(skandikaWiriBike);
-    } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
-                (b.name().toUpper().startsWith("SCH130")) || // not a renpho bike an FTMS one
-                ((b.name().startsWith(QStringLiteral("TOORX"))) && info.toorx_ftms)) &&
-               !renphoBike && !snodeBike && !fitPlusBike && filter) {
+    } else if (type==discoveredDevice::deviceType::RenphoBike) {
         this->stopDiscovery();
         renphoBike = new renphobike(noWriteResistance, noHeartService);
         emit(deviceConnected(b));
@@ -1668,7 +1942,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         renphoBike->deviceDiscovered(b);
         userTemplateManager->start(renphoBike);
         innerTemplateManager->start(renphoBike);
-    } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && !info.pafers_treadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::PafersBike) {
         this->stopDiscovery();
         pafersBike =
                 new pafersbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1679,10 +1953,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         pafersBike->deviceDiscovered(b);
         userTemplateManager->start(pafersBike);
         innerTemplateManager->start(pafersBike);
-    } else if (((b.name().startsWith(QStringLiteral("FS-")) && info.snode_bike) ||
-                b.name().startsWith(QStringLiteral("TF-"))) && // TF-769DF2
-               !snodeBike &&
-               !ftmsBike && !fitPlusBike && filter) {
+    } else if (type==discoveredDevice::deviceType::SnodeBike) {
         this->stopDiscovery();
         snodeBike = new snodebike(noWriteResistance, noHeartService);
         emit deviceConnected(b);
@@ -1692,9 +1963,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         snodeBike->deviceDiscovered(b);
         userTemplateManager->start(snodeBike);
         innerTemplateManager->start(snodeBike);
-    } else if (((b.name().startsWith(QStringLiteral("FS-")) && info.fitplus_bike) ||
-                b.name().startsWith(QStringLiteral("MRK-"))) &&
-               !fitPlusBike && !ftmsBike && !snodeBike && filter) {
+    } else if (type==discoveredDevice::deviceType::FitPlusBike) {
         this->stopDiscovery();
         fitPlusBike =
                 new fitplusbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1707,10 +1976,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         fitPlusBike->deviceDiscovered(b);
         userTemplateManager->start(fitPlusBike);
         innerTemplateManager->start(fitPlusBike);
-    } else if (((b.name().startsWith(QStringLiteral("FS-")) && !info.snode_bike && !info.fitplus_bike && !ftmsBike) ||
-                (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
-                (b.name().startsWith(QStringLiteral("BF70")))) &&
-               !fitshowTreadmill && filter) {
+    } else if (type==discoveredDevice::deviceType::FitshowTreadmill) {
         this->stopDiscovery();
         fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
         emit deviceConnected(b);
@@ -1723,8 +1989,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
             emit searchingStop();
         userTemplateManager->start(fitshowTreadmill);
         innerTemplateManager->start(fitshowTreadmill);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("IC")) && b.name().length() == 8 && !inspireBike &&
-               filter) {
+    } else if (type==discoveredDevice::deviceType::InspireBike) {
         this->stopDiscovery();
         inspireBike = new inspirebike(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -1746,7 +2011,7 @@ void bluetooth::discoverDevice(const bluetoothdevicediscoveryinfo& info, const Q
         }
         userTemplateManager->start(inspireBike);
         innerTemplateManager->start(inspireBike);
-    } else if (b.name().toUpper().startsWith(QStringLiteral("CHRONO ")) && !chronoBike && filter) {
+    } else if (type==discoveredDevice::deviceType::ChronoBike) {
         this->stopDiscovery();
         chronoBike = new chronobike(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
