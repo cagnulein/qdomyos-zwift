@@ -27,6 +27,8 @@
 #include <QString>
 
 #include "elliptical.h"
+#include "virtualbike.h"
+#include "virtualtreadmill.h"
 
 class nautiluselliptical : public elliptical {
     Q_OBJECT
@@ -35,6 +37,9 @@ class nautiluselliptical : public elliptical {
                        uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautiluselliptical();
     bool connected();
+
+    void *VirtualTreadmill();
+    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -47,6 +52,8 @@ class nautiluselliptical : public elliptical {
     void startDiscover();
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = 0;
     uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 

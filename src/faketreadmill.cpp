@@ -40,22 +40,20 @@ void faketreadmill::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()) {
-		bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &faketreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &faketreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadmill, false);
             } else {
                 debug("creating virtual bike interface...");
-                auto virtualBike = new virtualbike(this);
+                virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, true);
             }            
         }
         if (!firstStateChanged)
@@ -114,3 +112,9 @@ void faketreadmill::changeInclinationRequested(double grade, double percentage) 
 }
 
 bool faketreadmill::connected() { return true; }
+
+void *faketreadmill::VirtualBike() { return virtualBike; }
+
+void *faketreadmill::VirtualTreadmill() { return virtualTreadmill; }
+
+void *faketreadmill::VirtualDevice() { return VirtualTreadmill(); }

@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -41,7 +42,10 @@ class yesoulbike : public bike {
     static constexpr const char* bluetoothName = "YESOUL";
 
     yesoulbike(bool noWriteResistance, bool noHeartService);
-    bool connected() override;
+    bool connected();
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     double GetDistanceFromPacket(const QByteArray &packet);
@@ -51,9 +55,10 @@ class yesoulbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

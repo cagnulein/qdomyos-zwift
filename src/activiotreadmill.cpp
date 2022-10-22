@@ -1,5 +1,4 @@
 #include "activiotreadmill.h"
-#include "virtualbike.h"
 
 #include "activiotreadmill.h"
 #include "ios/lockscreen.h"
@@ -169,25 +168,21 @@ void activiotreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !this->hasVirtualDevice()) {
+        if (!firstInit && !virtualTreadMill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();           
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &activiotreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill, false);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-
-                    // DO NOT show the virtual device in this case (Zwift Auto-Inclination Workaround)
-                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstInit = 1;
             }
@@ -680,5 +675,9 @@ bool activiotreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *activiotreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *activiotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void activiotreadmill::searchingStop() { searchStopped = true; }

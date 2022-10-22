@@ -26,17 +26,21 @@
 #include <QObject>
 
 #include "treadmill.h"
+#include "virtualtreadmill.h"
 
 class octanetreadmill : public treadmill {
     Q_OBJECT
   public:
     octanetreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
-    double minStepInclination() override;
-    double minStepSpeed() override;
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool connected();
+    double minStepInclination();
+    double minStepSpeed();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);
@@ -63,6 +67,7 @@ class octanetreadmill : public treadmill {
     QByteArray actualPace2Sign;
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

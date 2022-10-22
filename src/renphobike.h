@@ -38,10 +38,13 @@ class renphobike : public bike {
     Q_OBJECT
   public:
     renphobike(bool noWriteResistance, bool noHeartService);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     // uint8_t resistanceFromPowerRequest(uint16_t power);
-    bool connected() override;
-    resistance_t maxResistance() override { return max_resistance; }
+    bool connected();
+    resistance_t maxResistance() { return max_resistance; }
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     const resistance_t max_resistance = 40;
@@ -50,12 +53,13 @@ class renphobike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t ergModificator(uint16_t powerRequested);
-    uint16_t watts() override;
+    uint16_t watts();
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
 
     QTimer *refresh;
-    
+    virtualbike *virtualBike = 0;
+
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;

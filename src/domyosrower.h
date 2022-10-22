@@ -27,6 +27,8 @@
 #include <QString>
 
 #include "rower.h"
+#include "virtualbike.h"
+#include "virtualtreadmill.h"
 
 class domyosrower : public rower {
     Q_OBJECT
@@ -34,7 +36,10 @@ class domyosrower : public rower {
     domyosrower(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyosrower();
-    bool connected() override;
+    bool connected();
+
+    void *VirtualTreadmill();
+    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -49,9 +54,11 @@ class domyosrower : public rower {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
     uint8_t firstVirtual = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

@@ -529,16 +529,15 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 &trxappgateusbtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
+        if (!firstVirtualTreadmill && !virtualTreadMill) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                auto virtualTreadMill = new virtualtreadmill(this, false);
+                virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &trxappgateusbtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         firstVirtualTreadmill = 1;
@@ -677,6 +676,10 @@ bool trxappgateusbtreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *trxappgateusbtreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *trxappgateusbtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

@@ -72,7 +72,7 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
 void horizongr7bike::forceResistance(resistance_t requestResistance) {
 
     // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a FTMS bike
-    if (this->VirtualDevice()->connected())
+    if (virtualBike->connected())
         return;
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -509,7 +509,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
     btinit();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -531,13 +531,12 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike =
+            virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&horizongr7bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                     &horizongr7bike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;
@@ -652,6 +651,10 @@ bool horizongr7bike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *horizongr7bike::VirtualBike() { return virtualBike; }
+
+void *horizongr7bike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t horizongr7bike::watts() {
     if (currentCadence().value() == 0) {

@@ -40,7 +40,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     initRequest = true;    
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -62,10 +62,10 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,& proformwifibike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &proformwifibike::changeInclination);
-            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;
@@ -217,7 +217,6 @@ void proformwifibike::innerWriteResistance() {
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-            auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                 (requestPower == 0 || requestPower == -1)) {
                 forceResistance(requestResistance);
@@ -468,6 +467,10 @@ void proformwifibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool proformwifibike::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
+
+void *proformwifibike::VirtualBike() { return virtualBike; }
+
+void *proformwifibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformwifibike::watts() {
     if (currentCadence().value() == 0) {

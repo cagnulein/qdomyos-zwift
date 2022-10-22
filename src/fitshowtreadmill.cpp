@@ -44,6 +44,9 @@ fitshowtreadmill::~fitshowtreadmill() {
         refresh->stop();
         delete refresh;
     }
+    if (virtualTreadMill) {
+        delete virtualTreadMill;
+    }
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
         delete h;
@@ -152,16 +155,16 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
+        if (!firstInit && searchStopped && !virtualTreadMill) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+
                 firstInit = 1;
             }
         }
@@ -778,6 +781,10 @@ bool fitshowtreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *fitshowtreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *fitshowtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void fitshowtreadmill::searchingStop() { searchStopped = true; }
 

@@ -29,6 +29,8 @@
 #include <QObject>
 
 #include "treadmill.h"
+#include "virtualbike.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -40,7 +42,10 @@ class kingsmithr2treadmill : public treadmill {
   public:
     kingsmithr2treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
+    bool connected();
+
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   private:
     const QByteArray PLAINTEXT_TABLE =
@@ -75,6 +80,8 @@ class kingsmithr2treadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadMill = nullptr;
+    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

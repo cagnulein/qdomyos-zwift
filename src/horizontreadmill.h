@@ -29,6 +29,8 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "virtualbike.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,15 +40,17 @@ class horizontreadmill : public treadmill {
     Q_OBJECT
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected() override;
+    bool connected();
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     double minStepInclination();
     double minStepSpeed();
 
+    void *VirtualTreadmill();
+    void *VirtualDevice();
 
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
@@ -56,6 +60,8 @@ class horizontreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

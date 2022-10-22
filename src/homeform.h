@@ -10,7 +10,6 @@
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
 #include "trainprogram.h"
-#include "virtualtreadmill.h"
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>

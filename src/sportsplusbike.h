@@ -32,8 +32,11 @@ class sportsplusbike : public bike {
     Q_OBJECT
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    bool connected();
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -46,10 +49,11 @@ class sportsplusbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    uint16_t watts() override;
+    uint16_t watts();
     double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

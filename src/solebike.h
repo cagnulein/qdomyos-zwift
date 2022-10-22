@@ -37,9 +37,12 @@ class solebike : public bike {
     Q_OBJECT
   public:
     solebike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
-    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t maxResistance() { return max_resistance; }
+    bool connected();
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     bool r92 = false;
@@ -55,9 +58,10 @@ class solebike : public bike {
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

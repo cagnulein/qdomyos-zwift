@@ -1,4 +1,5 @@
 #include "fakeelliptical.h"
+#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -10,6 +11,7 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
+#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -43,7 +45,7 @@ void fakeelliptical::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
+    if (!firstStateChanged && !virtualBike && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -65,10 +67,10 @@ void fakeelliptical::update() {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakeelliptical::changeInclinationRequested);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakeelliptical::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                    &fakeelliptical::ftmsCharacteristicChanged);
         }
     }
     if (!firstStateChanged)
@@ -117,7 +119,8 @@ void fakeelliptical::update() {
     }
 }
 
-void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                               const QByteArray &newValue) {
     QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 }
@@ -130,4 +133,6 @@ void fakeelliptical::changeInclinationRequested(double grade, double percentage)
 
 bool fakeelliptical::connected() { return true; }
 
+void *fakeelliptical::VirtualBike() { return virtualBike; }
 
+void *fakeelliptical::VirtualDevice() { return VirtualBike(); }

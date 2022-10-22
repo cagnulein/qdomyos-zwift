@@ -378,7 +378,7 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -400,11 +400,10 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&snodebike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &snodebike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &snodebike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;
@@ -514,6 +513,10 @@ bool snodebike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *snodebike::VirtualBike() { return virtualBike; }
+
+void *snodebike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t snodebike::watts() {
     if (currentCadence().value() == 0) {

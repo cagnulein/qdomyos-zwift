@@ -42,8 +42,10 @@ class smartspin2k : public bike {
     Q_OBJECT
   public:
     smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice);
-    bool connected() override;
+    bool connected();
 
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     #define max_calibration_samples  4
@@ -52,12 +54,13 @@ class smartspin2k : public bike {
     void writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                                  bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts() override;
+    uint16_t watts();
     void forceResistance(resistance_t requestResistance);
     void setShiftStep(uint16_t);
     void lowInit(resistance_t resistance);
 
     QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
     QUdpSocket *udpSocket = new QUdpSocket();
 

@@ -415,14 +415,13 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
+        if (!firstVirtualTreadmill && !virtualTreadMill) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                auto virtualTreadMill = new virtualtreadmill(this, false);
+                virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
-                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         firstVirtualTreadmill = 1;
@@ -528,6 +527,10 @@ bool spirittreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *spirittreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *spirittreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void spirittreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

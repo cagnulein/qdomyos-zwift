@@ -29,6 +29,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,10 +39,13 @@ class shuaa5treadmill : public treadmill {
     Q_OBJECT
   public:
     shuaa5treadmill(bool noWriteResistance, bool noHeartService);
-    bool connected() override;
+    bool connected();
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination() override;
+    double minStepInclination();
+
+    void *VirtualTreadmill();
+    void *VirtualDevice();
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -51,6 +55,7 @@ class shuaa5treadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadmill = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

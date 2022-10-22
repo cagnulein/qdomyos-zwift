@@ -1,7 +1,6 @@
 #include "domyosrower.h"
 
 #include "keepawakehelper.h"
-#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -31,7 +30,10 @@ domyosrower::domyosrower(bool noWriteResistance, bool noHeartService, bool testR
 }
 
 domyosrower::~domyosrower() {
-    qDebug() << QStringLiteral("~domyosrower()") ;
+    qDebug() << QStringLiteral("~domyosrower()") << virtualTreadmill;
+
+    if (virtualTreadmill)
+        delete virtualTreadmill;
 }
 
 void domyosrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -168,24 +170,22 @@ void domyosrower::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
+        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
-                    this->setVirtualDevice(virtualBike, false);
                 }
                 firstVirtual = 1;
             }
@@ -567,6 +567,10 @@ bool domyosrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *domyosrower::VirtualTreadmill() { return virtualTreadmill; }
+
+void *domyosrower::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t domyosrower::watts() {
 

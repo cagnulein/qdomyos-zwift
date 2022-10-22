@@ -759,7 +759,7 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !virtualTreadmill
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -772,11 +772,10 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 
-            auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+            virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &solef80treadmill::changeInclinationRequested);
-            this->setVirtualDevice(virtualTreadmill, false);
         }
     }
     firstStateChanged = 1;
@@ -888,6 +887,10 @@ bool solef80treadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *solef80treadmill::VirtualTreadmill() { return virtualTreadmill; }
+
+void *solef80treadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void solef80treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

@@ -1,4 +1,6 @@
 #include "inspirebike.h"
+#include "ios/lockscreen.h"
+#include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -254,7 +256,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
                 &inspirebike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->hasVirtualDevice()
+        if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -276,10 +278,9 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&inspirebike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &inspirebike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;
@@ -375,6 +376,10 @@ bool inspirebike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *inspirebike::VirtualBike() { return virtualBike; }
+
+void *inspirebike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t inspirebike::watts() {
     QSettings settings;

@@ -1,7 +1,6 @@
 #include "echelonstride.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -132,23 +131,21 @@ void echelonstride::update() {
                gattNotify2Characteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !this->hasVirtualDevice()) {
+        if (!firstInit && !virtualTreadMill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill, false);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstInit = 1;
             }
@@ -463,6 +460,10 @@ bool echelonstride::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
+
+void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
 
 bool echelonstride::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

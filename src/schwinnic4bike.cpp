@@ -394,7 +394,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualBike()
+    if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -422,11 +422,10 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
 
             uint8_t bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
             double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
-            auto virtualBike =
+            virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
-            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;
@@ -522,6 +521,10 @@ bool schwinnic4bike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *schwinnic4bike::VirtualBike() { return virtualBike; }
+
+void *schwinnic4bike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t schwinnic4bike::watts() {
     if (currentCadence().value() == 0) {

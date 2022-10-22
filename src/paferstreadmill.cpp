@@ -112,15 +112,14 @@ void paferstreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !this->hasVirtualDevice()) {
+        if (!firstInit && !virtualTreadMill) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &paferstreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &paferstreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
                 firstInit = 1;
             }
         }
@@ -416,6 +415,10 @@ bool paferstreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *paferstreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *paferstreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool paferstreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

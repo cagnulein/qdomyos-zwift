@@ -1,6 +1,7 @@
 #ifndef ROWER_H
 #define ROWER_H
 
+#include "bike.h"
 #include "bluetoothdevice.h"
 #include <QObject>
 

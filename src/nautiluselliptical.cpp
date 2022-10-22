@@ -1,7 +1,6 @@
 #include "nautiluselliptical.h"
 
 #include "keepawakehelper.h"
-#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -31,7 +30,11 @@ nautiluselliptical::nautiluselliptical(bool noWriteResistance, bool noHeartServi
 }
 
 nautiluselliptical::~nautiluselliptical() {
-    qDebug() << QStringLiteral("~nautiluselliptical()");
+    qDebug() << QStringLiteral("~nautiluselliptical()") << virtualTreadmill;
+    if (virtualTreadmill) {
+
+        delete virtualTreadmill;
+    }
 }
 
 void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -119,23 +122,21 @@ void nautiluselliptical::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
+        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &nautiluselliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &nautiluselliptical::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &nautiluselliptical::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstVirtual = 1;
             }
@@ -481,6 +482,10 @@ bool nautiluselliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *nautiluselliptical::VirtualTreadmill() { return virtualTreadmill; }
+
+void *nautiluselliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 void nautiluselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

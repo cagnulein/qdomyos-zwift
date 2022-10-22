@@ -1979,6 +1979,16 @@ void bluetooth::restart() {
     userTemplateManager->stop();
     innerTemplateManager->stop();
 
+    if (device() && device()->VirtualDevice()) {
+        if (device()->deviceType() == bluetoothdevice::TREADMILL) {
+            delete static_cast<virtualtreadmill *>(device()->VirtualDevice());
+        } else if (device()->deviceType() == bluetoothdevice::BIKE) {
+            delete static_cast<virtualbike *>(device()->VirtualDevice());
+        } else if (device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            delete static_cast<virtualtreadmill *>(device()->VirtualDevice());
+        }
+    }
+
     if(this->bluetoothDevice) {
         delete this->bluetoothDevice;
         this->bluetoothDevice = nullptr;

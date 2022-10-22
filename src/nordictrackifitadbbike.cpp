@@ -32,14 +32,13 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()) {
+    if (!firstStateChanged && !virtualBike) {
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
-                connect(virtualBike, &virtualbike::changeInclination, this,
-                        &nordictrackifitadbbike::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, false);
+            debug("creating virtual bike interface...");
+            virtualBike = new virtualbike(this);
+            connect(virtualBike, &virtualbike::changeInclination, this,
+                    &nordictrackifitadbbike::changeInclinationRequested);
             firstStateChanged = 1;
         }
     }
@@ -199,3 +198,4 @@ void nordictrackifitadbbike::changeInclinationRequested(double grade, double per
 
 bool nordictrackifitadbbike::connected() { return true; }
 
+void *nordictrackifitadbbike::VirtualDevice() { return virtualBike; }

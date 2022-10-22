@@ -2,7 +2,6 @@
 #define BIKE_H
 
 #include "bluetoothdevice.h"
-#include "virtualbike.h"
 #include <QObject>
 
 class bike : public bluetoothdevice {
@@ -11,9 +10,6 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
-
-    virtualbike * VirtualBike();
-
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
@@ -38,6 +34,7 @@ class bike : public bluetoothdevice {
     int8_t gears();
     void setSpeedLimit(double speed) {m_speedLimit = speed;}
     double speedLimit() {return m_speedLimit;}
+
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle

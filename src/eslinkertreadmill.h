@@ -26,16 +26,20 @@
 #include <QObject>
 
 #include "treadmill.h"
+#include "virtualtreadmill.h"
 
 class eslinkertreadmill : public treadmill {
     Q_OBJECT
   public:
     eslinkertreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
-    double minStepInclination() override;
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool connected();
+    double minStepInclination();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -72,6 +76,8 @@ class eslinkertreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadMill = nullptr;
+
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;

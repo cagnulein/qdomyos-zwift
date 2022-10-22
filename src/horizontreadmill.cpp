@@ -2,7 +2,6 @@
 
 #include "ftmsbike.h"
 #include "ios/lockscreen.h"
-#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -1457,7 +1456,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice()
+    if (!firstStateChanged && !virtualTreadmill && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -1474,17 +1473,15 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadmill, false);
             } else {
                 debug("creating virtual bike interface...");
-                auto virtualBike = new virtualbike(this);
+                virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, true);
             }
         }
         firstStateChanged = 1;
@@ -1603,6 +1600,10 @@ bool horizontreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *horizontreadmill::VirtualTreadmill() { return virtualTreadmill; }
+
+void *horizontreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

@@ -25,15 +25,14 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
-#include "bluetoothdevice.h"
-#include "virtualdevice.h"
+#include "bike.h"
 
-class virtualrower : public virtualdevice {
+class virtualrower : public QObject {
 
     Q_OBJECT
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
-    bool connected() override;
+    bool connected();
 
   private:
     QLowEnergyController *leController = nullptr;

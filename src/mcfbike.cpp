@@ -335,7 +335,7 @@ void mcfbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &mcfbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->hasVirtualDevice()
+        if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -357,11 +357,10 @@ void mcfbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
+                virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&mcfbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &mcfbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;
@@ -453,6 +452,10 @@ bool mcfbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *mcfbike::VirtualBike() { return virtualBike; }
+
+void *mcfbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t mcfbike::watts() {
     if (currentCadence().value() == 0) {

@@ -32,6 +32,9 @@ class nordictrackifitadbbike : public bike {
     bool connected();
     bool inclinationAvailableByHardware();
 
+    void *VirtualTreadmill();
+    void *VirtualDevice();
+
   private:
     void forceResistance(double resistance);
     uint16_t watts();

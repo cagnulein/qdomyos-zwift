@@ -377,7 +377,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonconnectsport::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->hasVirtualDevice()
+        if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -402,11 +402,10 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
+                virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;
@@ -503,6 +502,10 @@ bool echelonconnectsport::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
+
+void *echelonconnectsport::VirtualBike() { return virtualBike; }
+
+void *echelonconnectsport::VirtualDevice() { return VirtualBike(); }
 
 uint16_t echelonconnectsport::watts() {
     if (currentCadence().value() == 0) {

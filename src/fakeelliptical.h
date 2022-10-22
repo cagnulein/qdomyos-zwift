@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "elliptical.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -36,10 +37,14 @@ class fakeelliptical : public elliptical {
     Q_OBJECT
   public:
     fakeelliptical(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected() override;
+    bool connected();
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
     QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
