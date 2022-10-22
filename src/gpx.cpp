@@ -9,7 +9,8 @@ gpx::gpx(QObject *parent) : QObject(parent) {}
 
 QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     QSettings settings;
-    bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
+    bool treadmill_force_speed =
+        settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
     QFile input(gpx);
     input.open(QIODevice::ReadOnly);
     QDomDocument doc;
@@ -46,7 +47,6 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
         this->points.append(g);
     }
 
-    const uint8_t secondsInclination = 60;
     QList<gpx_altitude_point_for_treadmill> inclinationList;
 
     if (this->points.isEmpty()) {
@@ -56,19 +56,31 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     gpx_point pP = this->points.constFirst();
 
     if (treadmill_force_speed) {
+
+        // starting point
+        gpx_altitude_point_for_treadmill g;
+        g.distance = 0;
+        g.inclination = 0;
+        g.elevation = pP.p.altitude();
+        g.latitude = pP.p.latitude();
+        g.longitude = pP.p.longitude();
+        g.seconds = 0;
+        inclinationList.append(g);
+
         for (int32_t i = 1; i < this->points.count(); i++) {
             qint64 dT = qAbs(pP.time.secsTo(this->points.at(i).time));
-            if (dT < secondsInclination) {
-                continue;
-            }
 
             double distance = this->points.at(i).p.distanceTo(pP.p);
             double elevation = this->points.at(i).p.altitude() - pP.p.altitude();
 
+            if (distance == 0 || dT == 0) {
+                continue;
+            }
+
             pP = this->points[i];
 
             gpx_altitude_point_for_treadmill g;
-            g.seconds = dT;
+            g.seconds = this->points.constFirst().time.secsTo(pP.time);
             g.distance = distance / 1000.0;
             g.speed = (distance / 1000.0) * (3600 / dT);
             g.inclination = (elevation / distance) * 100;
@@ -87,7 +99,20 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
                                                this->points.constLast().p.longitude())) < 300) {
             // to create the circuit
             this->points.append(this->points.constFirst());
+            this->points.last().time = this->points.at(this->points.count() - 2).time;
         }
+
+        // starting point
+        gpx_altitude_point_for_treadmill g;
+        g.distance = 0;
+        g.inclination = 0;
+        g.elevation = pP.p.altitude();
+        g.latitude = pP.p.latitude();
+        g.longitude = pP.p.longitude();
+        g.seconds = 0;
+        /*qDebug() << qSetRealNumberPrecision(10) << i << g.distance << g.inclination << g.elevation << g.latitude
+             << g.longitude << totDistance << pP.time;*/
+        inclinationList.append(g);
 
         for (int32_t i = 1; i < this->points.count(); i++) {
             double distance = this->points.at(i).p.distanceTo(pP.p);
@@ -107,8 +132,8 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
             g.latitude = pP.p.latitude();
             g.longitude = pP.p.longitude();
             g.seconds = this->points.constFirst().time.secsTo(pP.time);
-            // qDebug() << qSetRealNumberPrecision(10) << i << g.distance << g.inclination << g.elevation << g.latitude
-            // << g.longitude << totDistance;
+            /*qDebug() << qSetRealNumberPrecision(10) << i << g.distance << g.inclination << g.elevation << g.latitude
+             << g.longitude << totDistance << pP.time;*/
             inclinationList.append(g);
         }
     }

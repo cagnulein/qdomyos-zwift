@@ -71,6 +71,8 @@ class fitplusbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool merach_MRK = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

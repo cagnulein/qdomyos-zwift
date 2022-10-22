@@ -86,6 +86,10 @@ class Connection {
                         let hr : String = message.slice(from: "HR=", to: "#") ?? ""
                         WatchKitConnection.currentHeartRate = (Int(hr) ?? 0)
 					}
+                    if sender?.contains("PHONE") ?? false && message.contains("CAD=") {
+                        let cad : String = message.slice(from: "CAD=", to: "#") ?? ""
+                        WatchKitConnection.stepCadence = (Int(cad) ?? 0)
+                    }
                     if sender?.contains("PAD") ?? false && message.contains("KCAL=") {
                         let kcal : String = message.slice(from: "KCAL=", to: "#") ?? ""
                         WatchKitConnection.kcal = (Double(kcal) ?? 0)

@@ -1017,6 +1017,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
+                        (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
                         (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
                         (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
                         (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
@@ -1385,6 +1386,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 // connect(spiritTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(spiritTreadmill, &spirittreadmill::debug, this, &bluetooth::debug);
+                connect(spiritTreadmill, &spirittreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 spiritTreadmill->deviceDiscovered(b);
             } else if (b.name().toUpper().startsWith(QStringLiteral("RUNNERT")) && !this->device<activiotreadmill>() && filter) {
                 this->stopDiscovery();
@@ -1508,8 +1510,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(snodeBike, &snodebike::debug, this, &bluetooth::debug);
                 snodeBike->deviceDiscovered(b);
-            } else if ((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) && !this->device<fitplusbike>() && !this->device<ftmsbike>() &&
-                       !this->device<snodebike>() && filter) {
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && fitplus_bike) ||
+            			b.name().startsWith(QStringLiteral("MRK-"))) && 
+                       !this->device<fitplusbike>() && !this->device<ftmsbike>() && !this->device<snodebike>() && filter) {
                 this->stopDiscovery();
                 auto fitPlusBike = new fitplusbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 newDevice = fitPlusBike;
