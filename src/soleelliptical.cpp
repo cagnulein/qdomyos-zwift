@@ -1,6 +1,8 @@
 #include "soleelliptical.h"
 
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>

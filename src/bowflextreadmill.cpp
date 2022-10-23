@@ -1,7 +1,9 @@
 // THIS MODULE IS UNUSED RIGHT NOW
 
 #include "bowflextreadmill.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>

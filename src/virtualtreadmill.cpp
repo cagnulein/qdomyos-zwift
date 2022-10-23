@@ -1,9 +1,11 @@
 #include "virtualtreadmill.h"
-#include "elliptical.h"
-#include "ftmsbike.h"
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
+
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 using namespace std::chrono_literals;
 

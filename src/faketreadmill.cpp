@@ -1,5 +1,7 @@
 #include "faketreadmill.h"
+#ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;

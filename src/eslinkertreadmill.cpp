@@ -1,5 +1,7 @@
 #include "eslinkertreadmill.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
