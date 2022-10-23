@@ -1,7 +1,5 @@
 #include "smartspin2k.h"
-#include "ftmsbike.h"
 #include "ios/lockscreen.h"
-#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -12,9 +10,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;

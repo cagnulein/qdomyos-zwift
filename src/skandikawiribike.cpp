@@ -318,7 +318,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
                 &skandikawiribike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h

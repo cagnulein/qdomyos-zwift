@@ -11,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -394,7 +395,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualBike()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
