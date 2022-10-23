@@ -357,12 +357,12 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
-        #ifdef Q_OS_IOS
-        #ifndef IO_UNDER_QT
-            && !h
-        #endif
-        #endif
-            ) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        && !h
+#endif
+#endif
+        ) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
