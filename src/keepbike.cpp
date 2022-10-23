@@ -8,6 +8,10 @@
 #include <chrono>
 #include <math.h>
 
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#endif
+
 using namespace std::chrono_literals;
 
 #ifdef Q_OS_IOS

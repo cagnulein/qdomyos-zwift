@@ -8,6 +8,10 @@
 #include <chrono>
 #include <math.h>
 
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#endif
+
 using namespace std::chrono_literals;
 //#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
 //#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
