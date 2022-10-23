@@ -1,9 +1,6 @@
 #include "horizontreadmill.h"
 
 #include "ftmsbike.h"
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -16,8 +13,6 @@
 #include <math.h>
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
-#endif
-#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
 #include <chrono>

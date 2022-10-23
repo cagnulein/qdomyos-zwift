@@ -4,7 +4,6 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualbike.h"
-#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>

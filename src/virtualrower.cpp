@@ -1,5 +1,5 @@
 #include "virtualrower.h"
-#include "ftmsrower.h"
+#include "rower.h"
 #include "qsettings.h"
 
 #include <QDataStream>

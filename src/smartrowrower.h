@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "rower.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"

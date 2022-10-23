@@ -3,9 +3,6 @@
 #include <QtMath>
 #include <chrono>
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 
 using namespace std::chrono_literals;
 

@@ -1,8 +1,5 @@
 #include "strydrunpowersensor.h"
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-#include "virtualbike.h"
+
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>

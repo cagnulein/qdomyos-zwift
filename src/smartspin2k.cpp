@@ -1,7 +1,5 @@
 #include "smartspin2k.h"
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
+#include "ftmsbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>

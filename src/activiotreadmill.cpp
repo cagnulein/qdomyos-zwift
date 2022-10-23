@@ -2,9 +2,6 @@
 #include "virtualbike.h"
 
 #include "activiotreadmill.h"
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif

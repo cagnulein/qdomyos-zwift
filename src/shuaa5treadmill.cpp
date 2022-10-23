@@ -1,8 +1,5 @@
 #include "shuaa5treadmill.h"
 #include "ftmsbike.h"
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>

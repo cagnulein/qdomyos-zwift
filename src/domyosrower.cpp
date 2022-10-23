@@ -1,7 +1,5 @@
 #include "domyosrower.h"
 
-
-
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
