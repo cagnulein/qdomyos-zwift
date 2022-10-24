@@ -436,7 +436,6 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &spirittreadmill::changeInclinationRequested);
                 }
-                firstVirtualTreadmill = 1;
             }
         }
         firstVirtualTreadmill = 1;
