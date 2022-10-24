@@ -26,6 +26,7 @@
 #include <QTime>
 
 #include "treadmill.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 class spirittreadmill : public treadmill {
@@ -53,6 +54,7 @@ class spirittreadmill : public treadmill {
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
+    virtualbike *virtualBike = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -87,6 +89,7 @@ class spirittreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
