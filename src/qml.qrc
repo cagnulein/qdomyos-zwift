@@ -85,5 +85,6 @@
         <file>gpx/St Andrews to Pittenweem.gpx</file>
         <file>GPXList.qml</file>
         <file>videoPlayback.qml</file>
+        <file>settings-tiles.qml</file>
     </qresource>
 </RCC>

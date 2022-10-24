@@ -1336,6 +1336,186 @@ class QZSettings {
     static const QString tts_description_enabled;
     static constexpr bool default_tts_description_enabled = true;
 
+    static const QString tile_preset_resistance_1_enabled;
+    static constexpr bool default_tile_preset_resistance_1_enabled = false;
+
+    static const QString tile_preset_resistance_1_order;
+    static constexpr int default_tile_preset_resistance_1_order = 33;
+
+    static const QString tile_preset_resistance_1_value;
+    static constexpr double default_tile_preset_resistance_1_value = 1;
+
+    static const QString tile_preset_resistance_1_label;
+    static const QString default_tile_preset_resistance_1_label;
+
+    static const QString tile_preset_resistance_2_enabled;
+    static constexpr bool default_tile_preset_resistance_2_enabled = false;
+
+    static const QString tile_preset_resistance_2_order;
+    static constexpr int default_tile_preset_resistance_2_order = 34;
+
+    static const QString tile_preset_resistance_2_value;
+    static constexpr double default_tile_preset_resistance_2_value = 10;
+
+    static const QString tile_preset_resistance_2_label;
+    static const QString default_tile_preset_resistance_2_label;
+
+    static const QString tile_preset_resistance_3_enabled;
+    static constexpr bool default_tile_preset_resistance_3_enabled = false;
+
+    static const QString tile_preset_resistance_3_order;
+    static constexpr int default_tile_preset_resistance_3_order = 35;
+
+    static const QString tile_preset_resistance_3_value;
+    static constexpr double default_tile_preset_resistance_3_value = 20;
+
+    static const QString tile_preset_resistance_3_label;
+    static const QString default_tile_preset_resistance_3_label;
+
+    static const QString tile_preset_resistance_4_enabled;
+    static constexpr bool default_tile_preset_resistance_4_enabled = false;
+
+    static const QString tile_preset_resistance_4_order;
+    static constexpr int default_tile_preset_resistance_4_order = 36;
+
+    static const QString tile_preset_resistance_4_value;
+    static constexpr double default_tile_preset_resistance_4_value = 25;
+
+    static const QString tile_preset_resistance_4_label;
+    static const QString default_tile_preset_resistance_4_label;
+
+    static const QString tile_preset_resistance_5_enabled;
+    static constexpr bool default_tile_preset_resistance_5_enabled = false;
+
+    static const QString tile_preset_resistance_5_order;
+    static constexpr int default_tile_preset_resistance_5_order = 37;
+
+    static const QString tile_preset_resistance_5_value;
+    static constexpr double default_tile_preset_resistance_5_value = 30;
+
+    static const QString tile_preset_resistance_5_label;
+    static const QString default_tile_preset_resistance_5_label;
+
+    static const QString tile_preset_speed_1_enabled;
+    static constexpr bool default_tile_preset_speed_1_enabled = false;
+
+    static const QString tile_preset_speed_1_order;
+    static constexpr int default_tile_preset_speed_1_order = 38;
+
+    static const QString tile_preset_speed_1_value;
+    static constexpr double default_tile_preset_speed_1_value = 5;
+
+    static const QString tile_preset_speed_1_label;
+    static const QString default_tile_preset_speed_1_label;
+
+    static const QString tile_preset_speed_2_enabled;
+    static constexpr bool default_tile_preset_speed_2_enabled = false;
+
+    static const QString tile_preset_speed_2_order;
+    static constexpr int default_tile_preset_speed_2_order = 39;
+
+    static const QString tile_preset_speed_2_value;
+    static constexpr double default_tile_preset_speed_2_value = 7;
+
+    static const QString tile_preset_speed_2_label;
+    static const QString default_tile_preset_speed_2_label;
+
+    static const QString tile_preset_speed_3_enabled;
+    static constexpr bool default_tile_preset_speed_3_enabled = false;
+
+    static const QString tile_preset_speed_3_order;
+    static constexpr int default_tile_preset_speed_3_order = 40;
+
+    static const QString tile_preset_speed_3_value;
+    static constexpr double default_tile_preset_speed_3_value = 10;
+
+    static const QString tile_preset_speed_3_label;
+    static const QString default_tile_preset_speed_3_label;
+
+    static const QString tile_preset_speed_4_enabled;
+    static constexpr bool default_tile_preset_speed_4_enabled = false;
+
+    static const QString tile_preset_speed_4_order;
+    static constexpr int default_tile_preset_speed_4_order = 41;
+
+    static const QString tile_preset_speed_4_value;
+    static constexpr double default_tile_preset_speed_4_value = 11;
+
+    static const QString tile_preset_speed_4_label;
+    static const QString default_tile_preset_speed_4_label;
+
+    static const QString tile_preset_speed_5_enabled;
+    static constexpr bool default_tile_preset_speed_5_enabled = false;
+
+    static const QString tile_preset_speed_5_order;
+    static constexpr int default_tile_preset_speed_5_order = 42;
+
+    static const QString tile_preset_speed_5_value;
+    static constexpr double default_tile_preset_speed_5_value = 12;
+
+    static const QString tile_preset_speed_5_label;
+    static const QString default_tile_preset_speed_5_label;
+
+    static const QString tile_preset_inclination_1_enabled;
+    static constexpr bool default_tile_preset_inclination_1_enabled = false;
+
+    static const QString tile_preset_inclination_1_order;
+    static constexpr int default_tile_preset_inclination_1_order = 43;
+
+    static const QString tile_preset_inclination_1_value;
+    static constexpr double default_tile_preset_inclination_1_value = 0;
+
+    static const QString tile_preset_inclination_1_label;
+    static const QString default_tile_preset_inclination_1_label;
+
+    static const QString tile_preset_inclination_2_enabled;
+    static constexpr bool default_tile_preset_inclination_2_enabled = false;
+
+    static const QString tile_preset_inclination_2_order;
+    static constexpr int default_tile_preset_inclination_2_order = 44;
+
+    static const QString tile_preset_inclination_2_value;
+    static constexpr double default_tile_preset_inclination_2_value = 1;
+
+    static const QString tile_preset_inclination_2_label;
+    static const QString default_tile_preset_inclination_2_label;
+
+    static const QString tile_preset_inclination_3_enabled;
+    static constexpr bool default_tile_preset_inclination_3_enabled = false;
+
+    static const QString tile_preset_inclination_3_order;
+    static constexpr int default_tile_preset_inclination_3_order = 45;
+
+    static const QString tile_preset_inclination_3_value;
+    static constexpr double default_tile_preset_inclination_3_value = 2;
+
+    static const QString tile_preset_inclination_3_label;
+    static const QString default_tile_preset_inclination_3_label;
+
+    static const QString tile_preset_inclination_4_enabled;
+    static constexpr bool default_tile_preset_inclination_4_enabled = false;
+
+    static const QString tile_preset_inclination_4_order;
+    static constexpr int default_tile_preset_inclination_4_order = 46;
+
+    static const QString tile_preset_inclination_4_value;
+    static constexpr double default_tile_preset_inclination_4_value = 3;
+
+    static const QString tile_preset_inclination_4_label;
+    static const QString default_tile_preset_inclination_4_label;
+
+    static const QString tile_preset_inclination_5_enabled;
+    static constexpr bool default_tile_preset_inclination_5_enabled = false;
+
+    static const QString tile_preset_inclination_5_order;
+    static constexpr int default_tile_preset_inclination_5_order = 47;
+
+    static const QString tile_preset_inclination_5_value;
+    static constexpr double default_tile_preset_inclination_5_value = 4;
+
+    static const QString tile_preset_inclination_5_label;
+    static const QString default_tile_preset_inclination_5_label;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
