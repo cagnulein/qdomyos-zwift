@@ -35,14 +35,17 @@ class DataObject : public QObject {
     Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
+    Q_PROPERTY(bool largeButton READ largeButton NOTIFY largeButtonChanged)
+    Q_PROPERTY(QString largeButtonLabel READ largeButtonLabel NOTIFY largeButtonLabelChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
-    Q_PROPERTY(QString identificator READ identificator)
+    Q_PROPERTY(QString identificator READ identificator NOTIFY identificatorChanged)
 
   public:
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                int valueFontSize, int labelFontSize, const QString &valueFontColor = QStringLiteral("white"),
-               const QString &secondLine = QLatin1String(""), const int gridId = 0);
+               const QString &secondLine = QLatin1String(""), const int gridId = 0, const bool largeButton = false,
+               const QString largeButtonLabel = QLatin1String(""));
     void setName(const QString &value);
     void setValue(const QString &value);
     void setSecondLine(const QString &value);
@@ -64,6 +67,8 @@ class DataObject : public QObject {
     QString plusName() { return m_id + QStringLiteral("_plus"); }
     QString minusName() { return m_id + QStringLiteral("_minus"); }
     QString identificator() { return m_id; }
+    bool largeButton() { return m_largeButton; }
+    QString largeButtonLabel() { return m_largeButtonLabel; }
 
     QString m_id;
     QString m_name;
@@ -76,6 +81,8 @@ class DataObject : public QObject {
     int m_labelFontSize;
     bool m_writable;
     bool m_visible = true;
+    bool m_largeButton = false;
+    QString m_largeButtonLabel = QLatin1String("");
 
   signals:
     void valueChanged(QString value);
@@ -90,6 +97,9 @@ class DataObject : public QObject {
     void visibleChanged(bool value);
     void plusNameChanged(QString value);
     void minusNameChanged(QString value);
+    void identificatorChanged(QString value);
+    void largeButtonChanged(bool value);
+    void largeButtonLabelChanged(QString value);
 };
 
 class homeform : public QObject {
@@ -230,14 +240,14 @@ class homeform : public QObject {
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() / 100)) / 220, QColor("lightsteelblue"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() / 100)) / 220, QColor("green"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() / 100)) / 220, QColor("yellow"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value(QZSettings::heart_rate_zone4,
-					QZSettings::default_heart_rate_zone4).toDouble() / 100)) / 220, QColor("orange"));
-                    backgroundGradient.setColorAt(0.0, QColor("red")); */
+                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() /
+                    100)) / 220, QColor("lightsteelblue")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() /
+                    100)) / 220, QColor("green")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() /
+                    100)) / 220, QColor("yellow")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() /
+                    100)) / 220, QColor("orange")); backgroundGradient.setColorAt(0.0, QColor("red")); */
 
                     // backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
                     // chart->setBackgroundBrush(backgroundGradient);
@@ -246,23 +256,31 @@ class homeform : public QObject {
                     plotAreaGradient.setStart(QPointF(0, 0));
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
@@ -289,7 +307,9 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
-        bool virtual_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         return bluetoothManager && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
@@ -341,7 +361,7 @@ class homeform : public QObject {
     bool licensePopupVisible();
     bool mapsVisible();
     bool videoIconVisible();
-    bool videoVisible() { return m_VideoVisible;}
+    bool videoVisible() { return m_VideoVisible; }
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -365,7 +385,10 @@ class homeform : public QObject {
     }
     void setLicensePopupVisible(bool value);
     void setVideoIconVisible(bool value);
-    void setVideoVisible(bool value) {m_VideoVisible = value; emit videoVisibleChanged(m_VideoVisible);}
+    void setVideoVisible(bool value) {
+        m_VideoVisible = value;
+        emit videoVisibleChanged(m_VideoVisible);
+    }
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
@@ -569,6 +592,21 @@ class homeform : public QObject {
     DataObject *instantaneousStrideLengthCM;
     DataObject *groundContactMS;
     DataObject *verticalOscillationMM;
+    DataObject *preset_resistance_1;
+    DataObject *preset_resistance_2;
+    DataObject *preset_resistance_3;
+    DataObject *preset_resistance_4;
+    DataObject *preset_resistance_5;
+    DataObject *preset_speed_1;
+    DataObject *preset_speed_2;
+    DataObject *preset_speed_3;
+    DataObject *preset_speed_4;
+    DataObject *preset_speed_5;
+    DataObject *preset_inclination_1;
+    DataObject *preset_inclination_2;
+    DataObject *preset_inclination_3;
+    DataObject *preset_inclination_4;
+    DataObject *preset_inclination_5;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -580,7 +618,6 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
-
 
     quint64 cryptoKeySettingsProfiles();
 
@@ -595,7 +632,7 @@ class homeform : public QObject {
 
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
-    
+
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
@@ -620,6 +657,7 @@ class homeform : public QObject {
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
+    void LargeButton(const QString &);
     void volumeDown();
     void volumeUp();
     void keyMediaPrevious();

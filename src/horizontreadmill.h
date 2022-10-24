@@ -81,6 +81,7 @@ class horizontreadmill : public treadmill {
     int64_t lastStart = 0;
     int64_t lastStop = 0;
     bool horizonPaused = false;
+    double lastHorizonForceSpeed = 0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -94,6 +95,7 @@ class horizontreadmill : public treadmill {
     void testProfileCRC();
     void updateProfileCRC();
     int GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crcStart = 65535);
+    bool checkIfForceSpeedNeeding(double requestSpeed);
 
     // profiles
     uint8_t initData7[20] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,
