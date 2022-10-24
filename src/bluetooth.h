@@ -126,6 +126,9 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 
   private:
+    class bluetoothdevicediscoveryinfo;
+    class discoveredDevice;
+
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
@@ -256,6 +259,8 @@ class bluetooth : public QObject, public SignalHandler {
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
+    discoveredDevice discoverDevice(const bluetoothdevicediscoveryinfo &info, const QBluetoothDeviceInfo &b);
+    bluetoothdevice * createDevice(const discoveredDevice &d);
 signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
