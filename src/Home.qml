@@ -16,6 +16,7 @@ HomeForm{
     signal peloton_abort_workout;
     signal plus_clicked(string name)
     signal minus_clicked(string name)
+    signal largeButton_clicked(string name)
 
     Settings {
         id: settings
@@ -174,6 +175,7 @@ HomeForm{
                     width: 48 * settings.ui_zoom / 100
                     height: 48 * settings.ui_zoom / 100
                     source: icon
+                    visible: !largeButton
                 }
                 Text {
                     objectName: "value"
@@ -187,6 +189,7 @@ HomeForm{
                     horizontalAlignment: Text.AlignHCenter
                     font.pointSize: valueFontSize * settings.ui_zoom / 100
                     font.bold: true
+                    visible: !largeButton
                 }
                 Text {
                     objectName: "secondLine"
@@ -201,6 +204,7 @@ HomeForm{
                     horizontalAlignment: Text.AlignHCenter
                     font.pointSize: 12 * settings.ui_zoom / 100
                     font.bold: false
+                    visible: !largeButton
                 }
                 Text {
                     id: myText
@@ -214,13 +218,14 @@ HomeForm{
                     anchors.left: parent.left
                     anchors.leftMargin: 55 * settings.ui_zoom / 100
                     anchors.topMargin: 20 * settings.ui_zoom / 100
+                    visible: !largeButton
                 }
                 RoundButton {
                     objectName: minusName
                     autoRepeat: true
                     text: "-"
                     onClicked: minus_clicked(objectName)
-                    visible: writable
+                    visible: writable && !largeButton
                     anchors.top: myValue.top
                     anchors.left: parent.left
                     anchors.leftMargin: 2
@@ -232,12 +237,23 @@ HomeForm{
                     objectName: plusName
                     text: "+"
                     onClicked: plus_clicked(objectName)
-                    visible: writable
+                    visible: writable && !largeButton
                     anchors.top: myValue.top
                     anchors.right: parent.right
                     anchors.rightMargin: 2
                     width: 48 * settings.ui_zoom / 100
                     height: 48 * settings.ui_zoom / 100
+                }
+                RoundButton {
+                    autoRepeat: true
+                    objectName: identificator
+                    text: largeButtonLabel
+                    onClicked: largeButton_clicked(objectName)
+                    visible: largeButton
+                    anchors.fill: rect
+                    font.pointSize: 16 * settings.ui_zoom / 100
+                    //width: 48 * settings.ui_zoom / 100
+                    //height: 48 * settings.ui_zoom / 100
                 }
 
                 /*MouseArea {

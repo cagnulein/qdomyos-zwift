@@ -1,4 +1,5 @@
 #include "spirittreadmill.h"
+#include "virtualbike.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -224,7 +225,8 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -419,12 +421,28 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                auto virtualTreadMill = new virtualtreadmill(this, false);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
-                this->setVirtualDevice(virtualTreadMill, false);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    auto virtualTreadMill = new virtualtreadmill(this, false);
+                    connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
+                    connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                            &spirittreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, false);
+                } else {
+                    debug("creating virtual bike interface...");
+                    auto virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &spirittreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, true);
+
+                }
+                firstVirtualTreadmill = 1;
             }
         }
         firstVirtualTreadmill = 1;
@@ -436,6 +454,14 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+}
+
+void spirittreadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    if (grade < 0)
+        grade = 0;
+    changeInclination(grade, percentage);
 }
 
 void spirittreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
