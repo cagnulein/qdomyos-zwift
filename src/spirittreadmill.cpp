@@ -76,13 +76,32 @@ void spirittreadmill::forceIncline(double requestIncline) {
     if (XT385) {
         uint8_t increase[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
         if (requestIncline > Inclination.value()) {
+            if (requestInclinationState == IDLE)
+                requestInclinationState = UP;
+            else if (requestInclinationState == DOWN) {
+                requestInclinationState = IDLE;
+                this->requestInclination = -100;
+                return;
+            }
             uint8_t increaseSpeed[] = {0x5b, 0x02, 0xF1, 0x04, 0x5d};
             writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseIncline"), false, true);
             writeCharacteristic(increase, sizeof(increase), QStringLiteral("increaseIncline"), false, true);
-        } else {
+
+        } else if (requestIncline < Inclination.value()) {
+            if (requestInclinationState == IDLE)
+                requestInclinationState = DOWN;
+            else if (requestInclinationState == UP) {
+                requestInclinationState = IDLE;
+                this->requestInclination = -100;
+                return;
+            }
             uint8_t decreaseSpeed[] = {0x5b, 0x02, 0xF1, 0x05, 0x5d};
             writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseIncline"), false, true);
             writeCharacteristic(increase, sizeof(increase), QStringLiteral("decreaseIncline"), false, true);
+
+        } else {
+            this->requestInclination = -100;
+            requestInclinationState = IDLE;
         }
     }
 }
@@ -153,11 +172,19 @@ void spirittreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (requestInclination != currentInclination().value()) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
+            if (requestInclination < 0)
+                requestInclination = 0;
+            double inc = qRound(requestInclination / 0.5) * 0.5;
+            // this treadmill has 0.5% step inclination
+            if (inc != currentInclination().value() && inc >= 0 && inc <= 15) {
+                emit debug(QStringLiteral("writing incline ") + QString::number(inc));
+                forceIncline(inc);
+            } else if (inc == currentInclination().value()) {
+                qDebug() << "int inclination match the current one" << inc << currentInclination().value();
+                requestInclination = -100;
             }
-            requestInclination = -100;
+            // i have to do the reset on when the inclination is equal to the current
+            // requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));

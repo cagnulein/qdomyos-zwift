@@ -74,6 +74,9 @@ class spirittreadmill : public treadmill {
     bool XT385 = false;
     bool XT485 = false;
 
+    enum _REQUEST_STATE { IDLE = 0, UP = 1, DOWN = 2 };
+    _REQUEST_STATE requestInclinationState = IDLE;
+
   signals:
     void disconnected();
     void debug(QString string);
