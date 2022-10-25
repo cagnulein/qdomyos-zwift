@@ -1344,7 +1344,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(sportsPlusBike);
             } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
                 this->stopDiscovery();
-                yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
+                yesoulBike = new yesoulbike(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                            bikeResistanceGain);
                 // stateFileRead();
                 emit deviceConnected(b);
                 connect(yesoulBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
