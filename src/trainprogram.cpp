@@ -105,7 +105,7 @@ void trainprogram::applySpeedFilter() {
             ws = 1;
 
         if (we >= rows.length())
-            we = (rows.length() - 1);
+            we = (rows.length() - 2);   // Subtract 2 Points because duration is calculated with row+1! Fixes inf calculation in #973
         int wc = 0;
         double wma = 0;
         int rowduration = 0;
@@ -118,7 +118,8 @@ void trainprogram::applySpeedFilter() {
             else
                 rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) -
                                (QTime(0, 0, 0).secsTo(rows.at(currow - 1).gpxElapsed)));
-            wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
+            // generally avoid a devision by 0 or negative (who knows what's coming from gpx)
+            if (rowduration > 0) wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
         }
 
         // filtering starting point
