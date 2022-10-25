@@ -315,6 +315,9 @@ double trainprogram::avgInclinationNext100Meters() {
     while (1) {
         if (c < rows.length()) {
             if (km > 0.1) {
+                if (sum == 1) {
+                    return rows.at(currentStep).inclination;
+                }
                 return avg / (double)sum;
             }
             if (c == currentStep)
@@ -325,9 +328,15 @@ double trainprogram::avgInclinationNext100Meters() {
             sum++;
 
         } else {
+            if (sum == 1) {
+                return rows.at(currentStep).inclination;
+            }
             return avg / (double)sum;
         }
         c++;
+    }
+    if (sum == 1) {
+        return rows.at(currentStep).inclination;
     }
     return avg / (double)sum;
 }
