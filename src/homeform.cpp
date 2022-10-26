@@ -5262,10 +5262,11 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
         double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
-        // Check for time differences between V1ideo and gpx Data
+        // Check for time differences between Video and gpx Data
         if (videoTimeStampSeconds != 0.0) {
             double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
+            double playerTimeStampSeconds = videoTimeStampSeconds;
             // check if there is a difference >= 1 second
             if ((fabs(videoLengthSeconds - trainProgramLengthSeconds)) >= 1.0) {
                 // correct Video TimeStamp by difference
@@ -5276,6 +5277,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             if (videoTimeStampSeconds == 0.0) {
                 videoTimeStampSeconds = ((double)(QTime(0, 0, 0).secsTo(source)));
             }
+            qDebug() << playerTimeStampSeconds << videoTimeStampSeconds;
             // Video was just displayed, set the start Position
             if (videoMustBeReset) {
                 int videoStartPos = ((QTime(0, 0, 0).secsTo(source) + ((int)(videoLengthSeconds)) -
@@ -5283,6 +5285,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                 // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
                 if (videoStartPos >= 0) {
+                    qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000);
                     videoPlaybackHalfPlayer->setPosition(videoStartPos * 1000);
                     videoTimeStampSeconds =
                         (((double)(videoStartPos)) - videoLengthSeconds + trainProgramLengthSeconds);
@@ -5297,6 +5300,14 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                                                             bluetoothManager->device()->currentSpeed().average5s());
                 setVideoRate(rate);
             }
+            else
+            {
+                qDebug() << "videoMustBeReset = True";
+            }
+        }
+        else
+        {
+            qDebug() << "videoTimeStampSeconds = 0";
         }
     }
 
