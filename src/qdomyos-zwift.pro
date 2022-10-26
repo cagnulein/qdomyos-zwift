@@ -75,6 +75,7 @@ SOURCES += \
     fakeelliptical.cpp \
    faketreadmill.cpp \
    kmlworkout.cpp \
+   mepanelbike.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
     nordictrackifitadbbike.cpp \
@@ -264,6 +265,7 @@ HEADERS += \
     fakeelliptical.h \
    faketreadmill.h \
    kmlworkout.h \
+   mepanelbike.h \
    nautilusbike.h \
     nordictrackelliptical.h \
     nordictrackifitadbbike.h \

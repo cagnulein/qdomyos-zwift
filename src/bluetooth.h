@@ -57,6 +57,7 @@
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
+#include "mepanelbike.h"
 #include "nautilusbike.h"
 #include "nautiluselliptical.h"
 #include "nautilustreadmill.h"
@@ -192,6 +193,7 @@ protected:
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
     m3ibike *m3iBike = nullptr;
+    mepanelbike *mepanelBike = nullptr;
     skandikawiribike *skandikaWiriBike = nullptr;
     cscbike *cscBike = nullptr;
     mcfbike *mcfBike = nullptr;
@@ -280,7 +282,7 @@ protected:
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
-signals:
+  signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
