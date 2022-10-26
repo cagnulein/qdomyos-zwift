@@ -1293,6 +1293,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 echelonConnectSport->deviceDiscovered(b);
                 userTemplateManager->start(echelonConnectSport);
                 innerTemplateManager->start(echelonConnectSport);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
+                this->stopDiscovery();
+                mepanelBike =
+                    new mepanelbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(mepanelBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                mepanelBike->deviceDiscovered(b);
+                userTemplateManager->start(mepanelBike);
+                innerTemplateManager->start(mepanelBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
                         b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
@@ -1344,8 +1355,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(sportsPlusBike);
             } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
                 this->stopDiscovery();
-                yesoulBike = new yesoulbike(noWriteResistance, noHeartService, bikeResistanceOffset,
-                                            bikeResistanceGain);
+                yesoulBike =
+                    new yesoulbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // stateFileRead();
                 emit deviceConnected(b);
                 connect(yesoulBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
@@ -2247,6 +2258,11 @@ void bluetooth::restart() {
         delete ultraSportBike;
         ultraSportBike = nullptr;
     }
+    if (mepanelBike) {
+
+        delete mepanelBike;
+        mepanelBike = nullptr;
+    }
     if (echelonConnectSport) {
 
         delete echelonConnectSport;
@@ -2552,6 +2568,8 @@ bluetoothdevice *bluetooth::device() {
         return shuaA5Treadmill;
     } else if (trueTreadmill) {
         return trueTreadmill;
+    } else if (mepanelBike) {
+        return mepanelBike;
     } else if (echelonConnectSport) {
         return echelonConnectSport;
     } else if (echelonRower) {
