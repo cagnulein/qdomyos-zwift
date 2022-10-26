@@ -222,18 +222,6 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         break;
     }
 
-    // resistance value is in another frame
-    if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Resistance = newValue.at(3);
-        emit resistanceRead(Resistance.value());
-        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
-
-        qDebug() << QStringLiteral("Current resistance: ") + QString::number(Resistance.value());
-        return;
-    }
-
-    double distance = GetDistanceFromPacket(newValue);
-
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
@@ -289,11 +277,9 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Resistance = Resistance.value();
     m_pelotonResistance = m_pelotonResistance.value();
 
-    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
-    qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
