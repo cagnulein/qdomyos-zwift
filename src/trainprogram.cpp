@@ -105,7 +105,8 @@ void trainprogram::applySpeedFilter() {
             ws = 1;
 
         if (we >= rows.length())
-            we = (rows.length() - 2);   // Subtract 2 Points because duration is calculated with row+1! Fixes inf calculation in #973
+            we = (rows.length() -
+                  2); // Subtract 2 Points because duration is calculated with row+1! Fixes inf calculation in #973
         int wc = 0;
         double wma = 0;
         int rowduration = 0;
@@ -119,7 +120,8 @@ void trainprogram::applySpeedFilter() {
                 rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) -
                                (QTime(0, 0, 0).secsTo(rows.at(currow - 1).gpxElapsed)));
             // generally avoid a devision by 0 or negative (who knows what's coming from gpx)
-            if (rowduration > 0) wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
+            if (rowduration > 0)
+                wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
         }
 
         // filtering starting point
@@ -311,7 +313,6 @@ double trainprogram::avgInclinationNext100Meters() {
     double km = 0;
     double avg = 0;
     int sum = 0;
-    double startingAltitude = rows.at(currentStep).altitude;
 
     while (1) {
         if (c < rows.length()) {
@@ -325,7 +326,7 @@ double trainprogram::avgInclinationNext100Meters() {
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
-            avg += (rows.at(c).altitude - startingAltitude);
+            avg += rows.at(c).inclination;
             sum++;
 
         } else {
