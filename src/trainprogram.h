@@ -113,7 +113,8 @@ class trainprogram : public QObject {
     mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();
-    double avgInclinationNext100Meters();
+    QList<MetersByInclination> avgInclinationNext300Meters();
+    double avgInclinationNext100Meters(int step);
     uint32_t calculateTimeForRow(int32_t row);
     uint32_t calculateTimeForRowMergingRamps(int32_t row);
     double calculateDistanceForRow(int32_t row);

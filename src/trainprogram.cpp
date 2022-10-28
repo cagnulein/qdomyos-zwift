@@ -204,6 +204,36 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
     return next300;
 }
 
+// meters, inclination
+QList<MetersByInclination> trainprogram::avgInclinationNext300Meters() {
+    int c = currentStep;
+    double km = 0;
+    QList<MetersByInclination> next300;
+
+    while (1) {
+        if (c < rows.length()) {
+            if (km > 0.3) {
+                return next300;
+            }
+            MetersByInclination p;
+            if (c == currentStep) {
+                p.meters = (rows.at(c).distance - currentStepDistance) * 1000.0;
+                km += (rows.at(c).distance - currentStepDistance);
+            } else {
+                p.meters = (rows.at(c).distance) * 1000.0;
+                km += (rows.at(c).distance);
+            }
+            p.inclination = avgInclinationNext100Meters(c);
+            next300.append(p);
+
+        } else {
+            return next300;
+        }
+        c++;
+    }
+    return next300;
+}
+
 // speed in Km/h
 double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
     int start = gpxStep;
@@ -308,8 +338,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
     return rate;
 }
 
-double trainprogram::avgInclinationNext100Meters() {
-    int c = currentStep;
+double trainprogram::avgInclinationNext100Meters(int step) {
+    int c = step;
     double km = 0;
     double avg = 0;
     int sum = 0;
@@ -419,13 +449,13 @@ void trainprogram::scheduler() {
             if (rows.at(0).inclination != -200) {
                 double inc;
                 if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
-                    inc = avgInclinationNext100Meters();
+                    inc = avgInclinationNext100Meters(currentStep);
                 } else {
                     inc = rows.at(0).inclination;
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 emit changeInclination(inc, inc);
-                emit changeNextInclination300Meters(inclinationNext300Meters());
+                emit changeNextInclination300Meters(avgInclinationNext300Meters());
             }
         } else {
             if (rows.at(0).resistance != -1) {
@@ -540,13 +570,13 @@ void trainprogram::scheduler() {
                     if (rows.at(currentStep).inclination != -200) {
                         double inc;
                         if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
-                            inc = avgInclinationNext100Meters();
+                            inc = avgInclinationNext100Meters(currentStep);
                         } else {
                             inc = rows.at(currentStep).inclination;
                         }
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                         emit changeInclination(inc, inc);
-                        emit changeNextInclination300Meters(inclinationNext300Meters());
+                        emit changeNextInclination300Meters(avgInclinationNext300Meters());
                     }
                 } else {
                     if (rows.at(currentStep).resistance != -1) {
@@ -658,7 +688,7 @@ void trainprogram::scheduler() {
 
             if (rows.at(currentStep).inclination != -200 &&
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
-                double inc = avgInclinationNext100Meters();
+                double inc = avgInclinationNext100Meters(currentStep);
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                         .toInt();
@@ -674,7 +704,10 @@ void trainprogram::scheduler() {
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
-                emit changeNextInclination300Meters(inclinationNext300Meters());
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+                    emit changeNextInclination300Meters(avgInclinationNext300Meters());
+                else
+                    emit changeNextInclination300Meters(inclinationNext300Meters());
 
                 double ratioDistance = 0.0;
                 double distanceRow = rows.at(currentStep).distance;
