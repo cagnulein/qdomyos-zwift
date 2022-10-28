@@ -207,7 +207,8 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
 
 void proformwifibike::forceResistance(resistance_t requestResistance) {
 
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestResistance) + "\"}}";
+    double inc = qRound(requestResistance / 0.5) * 0.5;
+    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
     qDebug() << "forceResistance" << send;
     websocket.sendTextMessage(send);
 }
