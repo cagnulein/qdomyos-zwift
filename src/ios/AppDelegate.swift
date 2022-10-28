@@ -17,6 +17,7 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
+    var dirconServer: [Dircon] = []
         
     @objc public func request()
     {
@@ -28,6 +29,7 @@ var pedometer = CMPedometer()
         if UIDevice.current.userInterfaceIdiom == .phone {
             Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         }
+        
         Server.server?.start()
 	
         LocalNotificationHelper.requestPermission()
@@ -42,6 +44,16 @@ var pedometer = CMPedometer()
 
         
         //w.startWatchApp()
+    }
+    
+    @objc public func dircon(name: String, port: UInt16, macAddress: String, serialNumber: String, bleServiceUuids: String) -> Bool {
+        do {
+            dirconServer.append(try Dircon(name: name, port: port, macAddress: macAddress, serialNumber: serialNumber, bleServiceUuids: bleServiceUuids))
+            return dirconServer.last!.start()
+        } catch {
+            
+        }
+        return false
     }
     
     @objc public func heartRate() -> Int

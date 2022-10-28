@@ -39,6 +39,15 @@ long lockscreen::stepCadence()
     return [h stepCadence];
 }
 
+bool lockscreen::dircon(const unsigned char* name, int nameLen, int port, const unsigned char* macAddress, int macAddressLen, const unsigned char* serialNumber, int serialNumberLen, const unsigned char* bleServiceUuids, int bleServiceUuidsLen)
+{
+    NSString* Name = [[NSString alloc] initWithBytes:name length:nameLen encoding:NSUTF8StringEncoding];
+    NSString* MacAddress = [[NSString alloc] initWithBytes:macAddress length:macAddressLen encoding:NSUTF8StringEncoding];
+    NSString* SerialNumber = [[NSString alloc] initWithBytes:serialNumber length:serialNumberLen encoding:NSUTF8StringEncoding];
+    NSString* BleServiceUuids = [[NSString alloc] initWithBytes:bleServiceUuids length:bleServiceUuidsLen encoding:NSUTF8StringEncoding];
+    return [h dirconWithName:Name port:port macAddress:MacAddress serialNumber:SerialNumber bleServiceUuids:BleServiceUuids];
+}
+
 void lockscreen::setKcal(double kcal)
 {
     [h setKcalWithKcal:kcal];

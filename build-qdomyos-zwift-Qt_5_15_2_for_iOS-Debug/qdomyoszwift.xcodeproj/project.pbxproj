@@ -228,6 +228,7 @@
 		873824EE27E647A9004F1B46 /* service.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873824D827E647A6004F1B46 /* service.cpp */; };
 		873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873824DA27E647A7004F1B46 /* query.cpp */; };
 		873824F027E647A9004F1B46 /* server.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873824DF27E647A8004F1B46 /* server.cpp */; };
+		873A1692290C3FAA00300DFA /* Dircon.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873A1691290C3FAA00300DFA /* Dircon.swift */; };
 		873CD20727EF8D8A000131BC /* inappproduct.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD20227EF8D89000131BC /* inappproduct.cpp */; };
 		873CD20827EF8D8A000131BC /* inappstore.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD20327EF8D89000131BC /* inappstore.cpp */; };
 		873CD20927EF8D8A000131BC /* inapppurchasebackend.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD20427EF8D8A000131BC /* inapppurchasebackend.cpp */; };
@@ -934,6 +935,7 @@
 		873824DF27E647A8004F1B46 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = server.cpp; path = ../src/qmdnsengine/src/src/server.cpp; sourceTree = "<group>"; };
 		873824E027E647A8004F1B46 /* hostname_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hostname_p.h; path = ../src/qmdnsengine/src/src/hostname_p.h; sourceTree = "<group>"; };
 		873824E127E647A8004F1B46 /* browser_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = browser_p.h; path = ../src/qmdnsengine/src/src/browser_p.h; sourceTree = "<group>"; };
+		873A1691290C3FAA00300DFA /* Dircon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Dircon.swift; path = ../src/ios/Dircon.swift; sourceTree = "<group>"; };
 		873CD20227EF8D89000131BC /* inappproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = inappproduct.cpp; path = ../src/purchasing/inapp/inappproduct.cpp; sourceTree = "<group>"; };
 		873CD20327EF8D89000131BC /* inappstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = inappstore.cpp; path = ../src/purchasing/inapp/inappstore.cpp; sourceTree = "<group>"; };
 		873CD20427EF8D8A000131BC /* inapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = inapppurchasebackend.cpp; path = ../src/purchasing/inapp/inapppurchasebackend.cpp; sourceTree = "<group>"; };
@@ -2115,6 +2117,7 @@
 				68418A2D51B69FC30BF5A41C /* virtualbike.h */,
 				35E903698E72424585D33829 /* virtualtreadmill.h */,
 				C8CE72E7B224D8B886614E3F /* domyosbike.h */,
+				873A1691290C3FAA00300DFA /* Dircon.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -3086,6 +3089,7 @@
 				7DEEAF0C3D671FBFD84ACFCE /* moc_homeform.cpp in Compile Sources */,
 				934A3E33459C9220F257B271 /* moc_qfit.cpp in Compile Sources */,
 				873F0231274BE47D002D0349 /* moc_mcfbike.cpp in Compile Sources */,
+				873A1692290C3FAA00300DFA /* Dircon.swift in Compile Sources */,
 				8718CBAE263063CE004BF4EE /* moc_soleelliptical.cpp in Compile Sources */,
 				8738248227E646C4004F1B46 /* dirconprocessor.cpp in Compile Sources */,
 				87EFE45927A518F5006EA1C3 /* nautiluselliptical.cpp in Compile Sources */,

@@ -1,6 +1,7 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
 #include "qzsettings.h"
+#include "lockscreen.h"
 #include <QSettings>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
@@ -42,6 +43,7 @@ void DirconProcessor::initAdvertising() {
             connect(zeroConf, SIGNAL(servicePublished()), this, SLOT(advOK()));
             connect(zeroConf, SIGNAL(error(QZeroConf::error_t)), this, SLOT(advError(QZeroConf::error_t)));
         }*/
+
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
@@ -60,8 +62,18 @@ void DirconProcessor::initAdvertising() {
                          ((i++ < services.size() - 1) ? QStringLiteral(",") : QStringLiteral(""));
         mdnsService.addAttribute(QByteArrayLiteral("ble-service-uuids"), ble_uuids.toUtf8());
         mdnsService.setPort(serverPort);
-        mdnsProvider->update(mdnsService);
         qDebug() << "Dircon Adv init for" << serverName << " end";
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        lockscreen h;
+        if(h.dircon(reinterpret_cast<const unsigned char*>(serverName.toUtf8().constData()), serverName.toUtf8().length(), serverPort, reinterpret_cast<const unsigned char*>(mac.toUtf8().constData()), mac.toUtf8().length(), reinterpret_cast<const unsigned char*>(serialN.toUtf8().constData()), serialN.toUtf8().length(), reinterpret_cast<const unsigned char*>(ble_uuids.toUtf8().constData()), ble_uuids.toUtf8().length())) {
+            mdnsServer = (QMdnsEngine::Server*)1; // fake
+        } else
+#endif
+#endif
+        {
+            mdnsProvider->update(mdnsService);
+        }
     }
 }
 

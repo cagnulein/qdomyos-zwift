@@ -7,6 +7,7 @@ class lockscreen {
     void request();
     long heartRate();
     long stepCadence();
+    bool dircon(const unsigned char* name, int nameLen, int port, const unsigned char* macAddress, int macAddressLen, const unsigned char* serialNumber, int serialNumberLen, const unsigned char* bleServiceUuids, int bleServiceUuidsLen);
     void setKcal(double kcal);
     void setDistance(double distance);
 
