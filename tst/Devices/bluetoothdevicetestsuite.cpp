@@ -25,14 +25,13 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
 
     EXPECT_GT(names.length(), 0);
 
-    bluetooth bt(false, "", false, false, 200, false, false, 4,1.0, false);
     devicediscoveryinfo discoveryInfo = bluetooth::getDiscoveryInfo();
     for(QString deviceName : names)
     {
 
         QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
 
-        auto discovered = bt.discoverDevice(discoveryInfo, deviceInfo);
+        auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
 
         EXPECT_EQ(discovered.type, testData.get_expectedDeviceType());
         //EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
