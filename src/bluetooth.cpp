@@ -13,7 +13,7 @@
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
-                     double bikeResistanceGain) {
+                     double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -43,6 +43,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     connectedAndDiscovered();
     return;
 #endif
+
+    if(!startDiscovery)
+        return;
+
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
         debug(QStringLiteral("no bluetooth dongle found!"));
@@ -50,26 +54,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
 #endif
     {
-        // Create a discovery agent and connect to its signals
-        discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &bluetooth::deviceDiscovered);
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, &bluetooth::deviceUpdated);
-
-#endif
-        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
-#ifndef Q_OS_WIN
-        connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
-#else
-        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
-        discoveryTimeout.start(10000);
-#endif
-
-        // Start a discovery
-#ifndef Q_OS_WIN
-        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-#endif
+        this->createDiscoveryAgent();
 
 #ifdef Q_OS_IOS
         // Schwinn bikes on iOS allows to be connected to several instances, so in this way
@@ -105,6 +90,29 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
         this->startDiscovery();
     }
+}
+
+void bluetooth::createDiscoveryAgent() {
+    // Create a discovery agent and connect to its signals
+    discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &bluetooth::deviceDiscovered);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, &bluetooth::deviceUpdated);
+
+#endif
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
+#ifndef Q_OS_WIN
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
+#else
+    connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
+    discoveryTimeout.start(10000);
+#endif
+
+    // Start a discovery
+#ifndef Q_OS_WIN
+    discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+#endif
 }
 
 bluetooth::~bluetooth() {
@@ -169,6 +177,11 @@ void bluetooth::finished() {
 }
 
 void bluetooth::startDiscovery() {
+
+    if(!this->discoveryAgent) {
+        qDebug() << "startDiscovery called with no discovery agent. Creating discovery agent.";
+        this->createDiscoveryAgent();
+    }
 
 #ifndef Q_OS_IOS
     QSettings settings;
@@ -324,16 +337,11 @@ void bluetooth::setLastBluetoothDevice(const QBluetoothDeviceInfo &b) {
 #endif
 }
 
-void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+devicediscoveryinfo bluetooth::getDiscoveryInfo() {
+    QSettings settings;
 
     devicediscoveryinfo info;
-    QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    QString ftmsAccessoryName =
-        settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
-    bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
-    bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+
     info.toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
     info.toorx_bike = (settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool() ||
                        settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool() ||
@@ -352,20 +360,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     info.cscName =
         settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString();
-    bool cscFound = info.cscName.startsWith(QStringLiteral("Disabled")) || info.csc_as_bike;
     info.hammerRacerS = settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool();
     info.flywheel_life_fitness_ic8 =
         settings.value(QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8).toBool();
     info.powerSensorName =
         settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name).toString();
-    QString eliteRizerName =
-        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
-    QString eliteSterzoSmartName =
-        settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
-    bool powerSensorFound =
-        info.powerSensorName.startsWith(QStringLiteral("Disabled")) || info.power_as_bike || info.power_as_treadmill;
-    bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
-    bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     info.fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     info.fakedevice_elliptical =
@@ -379,6 +378,32 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     info.nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     info.tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+
+    return info;
+}
+
+void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+
+    devicediscoveryinfo info = getDiscoveryInfo();
+
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    QString ftmsAccessoryName =
+        settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
+    bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
+    bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+
+    bool cscFound = info.cscName.startsWith(QStringLiteral("Disabled")) || info.csc_as_bike;
+    QString eliteRizerName =
+        settings.value(QZSettings::elite_rizer_name, QZSettings::default_elite_rizer_name).toString();
+    QString eliteSterzoSmartName =
+        settings.value(QZSettings::elite_sterzo_smart_name, QZSettings::default_elite_sterzo_smart_name).toString();
+    bool powerSensorFound =
+        info.powerSensorName.startsWith(QStringLiteral("Disabled")) || info.power_as_bike || info.power_as_treadmill;
+    bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
+    bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
+
     bool manufacturerDeviceFound = false;
 
     if (!heartRateBeltFound) {

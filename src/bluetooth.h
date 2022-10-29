@@ -118,7 +118,7 @@ class bluetooth : public QObject, public SignalHandler {
   public:
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
-                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0, bool startDiscovery=true);
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
@@ -140,7 +140,12 @@ class bluetooth : public QObject, public SignalHandler {
      * @param d The discovered device.
      */
     bluetoothdevice * createDevice(const discovereddevice &d);
-  private:
+
+    /**
+     * @brief getDiscoveryInfo Extracts the discovery info from the QSettings.
+     */
+    static devicediscoveryinfo getDiscoveryInfo();
+private:
 
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
@@ -273,6 +278,7 @@ class bluetooth : public QObject, public SignalHandler {
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
 
+    void createDiscoveryAgent();
 signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);

@@ -1,5 +1,5 @@
 #include <memory>
-
+#include "bluetooth.h"
 #include "bluetoothdevicetestsuite.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
 #include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
@@ -25,25 +25,20 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
 
     EXPECT_GT(names.length(), 0);
 
-    /* This is a rough sketch, can't really do this...the bluetooth object automatically starts bluetooth discovery
-     all that's needed here is testing name detection and device object creation. */
-
-    /*
-    bluetooth bt( false);
-
+    bluetooth bt(false, "", false, false, 200, false, false, 4,1.0, false);
+    devicediscoveryinfo discoveryInfo = bluetooth::getDiscoveryInfo();
     for(QString deviceName : names)
     {
+
         QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
 
-        bt.deviceConnected(deviceInfo);
+        auto discovered = bt.discoverDevice(discoveryInfo, deviceInfo);
 
-        bluetoothdevice * detectedDevice = bt.device();
-
-        EXPECT_NE(detectedDevice, nullptr);
-        EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
+        EXPECT_EQ(discovered.type, testData.get_expectedDeviceType());
+        //EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
     }
 
-*/
+
 }
 
 

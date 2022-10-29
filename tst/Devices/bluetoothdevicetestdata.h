@@ -2,6 +2,7 @@
 
 #include <bluetoothdevice.h>
 #include <QStringList>
+#include "discovereddevice.h"
 
 class BluetoothDeviceTestData  {
 
@@ -11,8 +12,10 @@ public:
     }
     virtual ~BluetoothDeviceTestData() {}
 
+
     virtual QStringList get_deviceNames() const =0;
 
+    virtual deviceType get_expectedDeviceType() const =0;
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
 
 };
