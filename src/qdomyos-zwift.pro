@@ -69,6 +69,7 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+    devicediscoveryinfo.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
    kmlworkout.cpp \
@@ -254,6 +255,8 @@ HEADERS += \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
     definitions.h \
+    devicediscoveryinfo.h \
+    discovereddevice.h \
     fakeelliptical.h \
    faketreadmill.h \
    kmlworkout.h \
