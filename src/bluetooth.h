@@ -128,7 +128,17 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 
+    /**
+     * @brief Attempt to identify the device from the QBluetoothDeviceInfo object, or from the QSettings.
+     * @param info Information from settings and devices to be excluded (e.g. already found).
+     * @param b A discovered bluetooth device.
+     */
     static discovereddevice discoverDevice(const devicediscoveryinfo &info, const QBluetoothDeviceInfo &b);
+
+    /**
+     * @brief Creates a bluetoothdevice object for the specified discovered device.
+     * @param d The discovered device.
+     */
     bluetoothdevice * createDevice(const discovereddevice &d);
   private:
 
