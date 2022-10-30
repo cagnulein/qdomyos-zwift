@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::TechnogymMyRunTreadmillRFComm; }
+    deviceType get_expectedDeviceType() const override { return deviceType::TechnoGymMyRunTreadmillRfComm; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<technogymmyruntreadmillrfcomm*>(detectedDevice)!=nullptr;

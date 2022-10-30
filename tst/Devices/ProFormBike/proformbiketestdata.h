@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProFormBike; }
+    deviceType get_expectedDeviceType() const override { return deviceType::ProformBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<proformbike*>(detectedDevice)!=nullptr;

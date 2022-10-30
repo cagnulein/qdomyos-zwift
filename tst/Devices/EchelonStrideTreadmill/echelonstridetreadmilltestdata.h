@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "echelonstridetreadmill.h"
+#include "echelonstride.h"
 
 class EchelonStrideTreadmillTestData : public BluetoothDeviceTestData {
 
@@ -14,10 +14,10 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::EchelonStrideTreadmill; }
+    deviceType get_expectedDeviceType() const override { return deviceType::EchelonStride; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<echelonstridetreadmill*>(detectedDevice)!=nullptr;
+        return dynamic_cast<echelonstride*>(detectedDevice)!=nullptr;
     }
 };
 

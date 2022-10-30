@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "skandikawirybike.h"
+#include "skandikawiribike.h"
 
 class SkandikaWiryBikeTestData : public BluetoothDeviceTestData {
 
@@ -14,10 +14,10 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::SkandikaWiryBike; }
+    deviceType get_expectedDeviceType() const override { return deviceType::SkandikawiriBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<skandikawirybike*>(detectedDevice)!=nullptr;
+        return dynamic_cast<skandikawiribike*>(detectedDevice)!=nullptr;
     }
 };
 

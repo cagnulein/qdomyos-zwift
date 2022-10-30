@@ -2390,11 +2390,6 @@ void bluetooth::restart() {
         delete eslinkerTreadmill;
         eslinkerTreadmill = nullptr;
     }
-    if (bowflexTreadmill) {
-
-        delete bowflexTreadmill;
-        bowflexTreadmill = nullptr;
-    }
     if (bowflexT216Treadmill) {
 
         delete bowflexT216Treadmill;
@@ -2650,8 +2645,6 @@ bluetoothdevice *bluetooth::device() {
         return proformRower;
     } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
-    } else if (bowflexTreadmill) {
-        return bowflexTreadmill;
     } else if (bowflexT216Treadmill) {
         return bowflexT216Treadmill;
     } else if (pafersTreadmill) {

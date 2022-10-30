@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::HorizonGR7Bike; }
+    deviceType get_expectedDeviceType() const override { return deviceType::HorizonGr7Bike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<horizongr7bike*>(detectedDevice)!=nullptr;

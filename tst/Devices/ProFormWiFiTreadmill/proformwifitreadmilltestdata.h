@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProFormWiFiTreadmill; }
+    deviceType get_expectedDeviceType() const override { return deviceType::ProformWifiTreadmill; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<proformwifitreadmill*>(detectedDevice)!=nullptr;

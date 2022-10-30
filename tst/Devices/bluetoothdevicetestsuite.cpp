@@ -16,19 +16,15 @@
 #include "EchelonConnectSportBike/echelonconnectsportbiketestdata.h"
 #include "EchelonRower/echelonrowertestdata.h"
 #include "EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
-#include "EliteRizer/eliterizertestdata.h"
-#include "EliteSterzoSmart/elitesterzosmarttestdata.h"
 #include "Elliptical/ellipticaltestdata.h"
 #include "ESLinkerTreadmill/eslinkertreadmilltestdata.h"
 #include "FakeBike/fakebiketestdata.h"
 #include "FakeElliptical/fakeellipticaltestdata.h"
-#include "FitmetriaFanFit/fitmetriafanfittestdata.h"
 #include "FitPlusBike/fitplusbiketestdata.h"
 #include "FitshowTreadmill/fitshowtreadmilltestdata.h"
 #include "FlywheelBike/flywheelbiketestdata.h"
 #include "FTMSBike/ftmsbiketestdata.h"
 #include "FTMSRower/ftmsrowertestdata.h"
-#include "HeartRateBelt/heartratebelttestdata.h"
 #include "HorizonGR7Bike/horizongr7biketestdata.h"
 #include "HorizonTreadmill/horizontreadmilltestdata.h"
 #include "iConceptBike/iconceptbiketestdata.h"
@@ -60,7 +56,6 @@
 #include "Shuaa5Treadmill/shuaa5treadmilltestdata.h"
 #include "SkandikaWiryBike/skandikawirybiketestdata.h"
 #include "SmartRowRower/smartrowrowertestdata.h"
-#include "SmartSpin2k/smartspin2ktestdata.h"
 #include "SnodeBike/snodebiketestdata.h"
 #include "SoleBike/solebiketestdata.h"
 #include "SoleElliptical/soleellipticaltestdata.h"
@@ -183,16 +178,6 @@ TEST_F(BluetoothDeviceTestSuite, EchelonStrideTreadmillDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, EliteRizerDetected) {
-    EliteRizerTestData testData;
-    this->test_deviceDetection(testData);
-}
-
-TEST_F(BluetoothDeviceTestSuite, EliteSterzoSmartDetected) {
-    EliteSterzoSmartTestData testData;
-    this->test_deviceDetection(testData);
-}
-
 TEST_F(BluetoothDeviceTestSuite, EllipticalDetected) {
     EllipticalTestData testData;
     this->test_deviceDetection(testData);
@@ -210,11 +195,6 @@ TEST_F(BluetoothDeviceTestSuite, FakeBikeDetected) {
 
 TEST_F(BluetoothDeviceTestSuite, FakeEllipticalDetected) {
     FakeEllipticalTestData testData;
-    this->test_deviceDetection(testData);
-}
-
-TEST_F(BluetoothDeviceTestSuite, FitmetriaFanFitDetected) {
-    FitmetriaFanFitTestData testData;
     this->test_deviceDetection(testData);
 }
 
@@ -240,11 +220,6 @@ TEST_F(BluetoothDeviceTestSuite, FTMSBikeDetected) {
 
 TEST_F(BluetoothDeviceTestSuite, FTMSRowerDetected) {
     FTMSRowerTestData testData;
-    this->test_deviceDetection(testData);
-}
-
-TEST_F(BluetoothDeviceTestSuite, HeartRateBeltDetected) {
-    HeartRateBeltTestData testData;
     this->test_deviceDetection(testData);
 }
 
@@ -400,11 +375,6 @@ TEST_F(BluetoothDeviceTestSuite, SkandikaWiryBikeDetected) {
 
 TEST_F(BluetoothDeviceTestSuite, SmartRowRowerDetected) {
     SmartRowRowerTestData testData;
-    this->test_deviceDetection(testData);
-}
-
-TEST_F(BluetoothDeviceTestSuite, SmartSpin2kDetected) {
-    SmartSpin2kTestData testData;
     this->test_deviceDetection(testData);
 }
 

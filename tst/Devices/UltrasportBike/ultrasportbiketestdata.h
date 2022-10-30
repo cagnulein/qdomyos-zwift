@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::UltrasportBike; }
+    deviceType get_expectedDeviceType() const override { return deviceType::UltraSportBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<ultrasportbike*>(detectedDevice)!=nullptr;

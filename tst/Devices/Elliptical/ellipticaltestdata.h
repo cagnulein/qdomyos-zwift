@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::Elliptical; }
+    deviceType get_expectedDeviceType() const override { return deviceType::None; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<elliptical*>(detectedDevice)!=nullptr;

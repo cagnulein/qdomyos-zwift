@@ -47,7 +47,6 @@ HEADERS += \
     Devices/EchelonConnectSportBike/echelonconnectsportbiketestdata.h \
     Devices/EchelonRower/echelonrowertestdata.h \
     Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h \
-    Devices/EliteRizer/eliterizertestdata.h \
     Devices/EliteSterzoSmart/elitesterzosmarttestdata.h \
     Devices/Elliptical/ellipticaltestdata.h \
     Devices/FTMSBike/ftmsbiketestdata.h \
@@ -55,10 +54,8 @@ HEADERS += \
     Devices/FakeBike/fakebiketestdata.h \
     Devices/FakeElliptical/fakeellipticaltestdata.h \
     Devices/FitPlusBike/fitplusbiketestdata.h \
-    Devices/FitmetriaFanFit/fitmetriafanfittestdata.h \
     Devices/FitshowTreadmill/fitshowtreadmilltestdata.h \
     Devices/FlywheelBike/flywheelbiketestdata.h \
-    Devices/HeartRateBelt/heartratebelttestdata.h \
     Devices/HorizonGR7Bike/horizongr7biketestdata.h \
     Devices/HorizonTreadmill/horizontreadmilltestdata.h \
     Devices/InspireBike/inspirebiketestdata.h \
@@ -89,7 +86,6 @@ HEADERS += \
     Devices/Shuaa5Treadmill/shuaa5treadmilltestdata.h \
     Devices/SkandikaWiryBike/skandikawirybiketestdata.h \
     Devices/SmartRowRower/smartrowrowertestdata.h \
-    Devices/SmartSpin2k/smartspin2ktestdata.h \
     Devices/SnodeBike/snodebiketestdata.h \
     Devices/SoleBike/solebiketestdata.h \
     Devices/SoleElliptical/soleellipticaltestdata.h \

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "stryderunpowersensor.h"
+#include "strydrunpowersensor.h"
 
 class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
 
@@ -14,10 +14,10 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::StrydeRunPowerSensor; }
+    deviceType get_expectedDeviceType() const override { return deviceType::PowerTreadmill_StrydrunPowerSensor; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<stryderunpowersensor*>(detectedDevice)!=nullptr;
+        return dynamic_cast<strydrunpowersensor*>(detectedDevice)!=nullptr;
     }
 };
 

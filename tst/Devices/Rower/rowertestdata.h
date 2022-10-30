@@ -14,7 +14,9 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::Rower; }
+    deviceType get_expectedDeviceType() const override {
+        return deviceType::None; // abstract
+    }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<rower*>(detectedDevice)!=nullptr;

@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProFormEllipticalTrainer; }
+    deviceType get_expectedDeviceType() const override { return deviceType::ProformEllipticalTrainer; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<proformellipticaltrainer*>(detectedDevice)!=nullptr;

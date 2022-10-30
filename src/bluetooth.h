@@ -152,7 +152,6 @@ private:
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
-    bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     concept2skierg *concept2Skierg = nullptr;

@@ -14,7 +14,7 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::Chronobike; }
+    deviceType get_expectedDeviceType() const override { return deviceType::ChronoBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<chronobike*>(detectedDevice)!=nullptr;

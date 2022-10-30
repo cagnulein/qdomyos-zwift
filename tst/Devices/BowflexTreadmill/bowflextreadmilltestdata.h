@@ -14,7 +14,10 @@ public:
         return result;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::BowflexTreadmill; }
+    deviceType get_expectedDeviceType() const override {
+        // device not supported
+        return deviceType::None;
+    }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
         return dynamic_cast<bowflextreadmill*>(detectedDevice)!=nullptr;
