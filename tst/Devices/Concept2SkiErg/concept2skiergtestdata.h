@@ -6,12 +6,8 @@
 class Concept2SkiErgTestData : public BluetoothDeviceTestData {
 
 public:
-    Concept2SkiErgTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    Concept2SkiErgTestData() {
+        this->addDeviceName("PM5", "SKI", true);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::Concept2SkiErg; }

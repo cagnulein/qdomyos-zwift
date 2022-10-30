@@ -6,12 +6,8 @@
 class ChronobikeTestData : public BluetoothDeviceTestData {
 
 public:
-    ChronobikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ChronobikeTestData() {
+        this->addDeviceName("CHRONO ", true, true);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ChronoBike; }

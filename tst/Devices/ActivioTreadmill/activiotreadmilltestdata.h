@@ -6,17 +6,8 @@
 class ActivioTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ActivioTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        result.append("RUNNERT");
-        result.append("runnert");
-        result.append("ruNnerT");
-        result.append("runnERt12314");
-
-        return result;
+    ActivioTreadmillTestData() {
+        this->addDeviceName("RUNNERT", true, true);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ActivioTreadmill; }

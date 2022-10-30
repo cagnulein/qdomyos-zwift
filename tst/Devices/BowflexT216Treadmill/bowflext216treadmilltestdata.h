@@ -6,12 +6,8 @@
 class BowflexT216TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    BowflexT216TreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    BowflexT216TreadmillTestData() {
+        this->addDeviceName("BOWFLEX T216", true, true);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::BowflexT216Treadmill; }

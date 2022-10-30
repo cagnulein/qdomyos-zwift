@@ -77,6 +77,8 @@
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
 
+
+
 void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestData& testData)
 {
     const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
@@ -84,20 +86,41 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
 
     QStringList names = testData.get_deviceNames();
 
-    EXPECT_GT(names.length(), 0);
+    EXPECT_GT(names.length(), 0) << "No bluetooth names configured for test";
 
     devicediscoveryinfo discoveryInfo = bluetooth::getDiscoveryInfo();
     for(QString deviceName : names)
     {
 
         QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
-
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
-
-        EXPECT_EQ(discovered.type, testData.get_expectedDeviceType());
+        EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected";
         //EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
     }
 
+    // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
+    auto exclusions = testData.get_exclusions();
+    for(auto exclusion : exclusions) {
+        discoveryInfo = bluetooth::getDiscoveryInfo();
+        discoveryInfo.exclude(exclusion->get_expectedDeviceType());
+
+        for(QString deviceName : names)
+        {
+            QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+            auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
+            EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device in spite of exclusion";
+        }
+    }
+
+    // Test that it doesn't detect this device for the "wrong" names
+    discoveryInfo = bluetooth::getDiscoveryInfo();
+    names = testData.get_failingDeviceNames();
+    for(QString deviceName : names)
+    {
+        QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+        auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
+        EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device from wrong name";
+    }
 
 }
 
@@ -124,6 +147,8 @@ TEST_F(BluetoothDeviceTestSuite, BowflexT216TreadmillDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, BowflexTreadmillDetected) {
+    GTEST_SKIP() << "Device not supported";
+
     BowflexTreadmillTestData testData;
     this->test_deviceDetection(testData);
 }
@@ -139,6 +164,8 @@ TEST_F(BluetoothDeviceTestSuite, Concept2SkiErgDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, CSCBikeDetected) {
+    GTEST_SKIP() << "Not actually a bluetooth device";
+
     CSCBikeTestData testData;
     this->test_deviceDetection(testData);
 }

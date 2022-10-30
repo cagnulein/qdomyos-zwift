@@ -1,17 +1,23 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/DomyosElliptical/domyosellipticaltestdata.h"
+#include "Devices/DomyosRower/domyosrowertestdata.h"
+#include "Devices/DomyosBike/domyosbiketestdata.h"
 #include "domyostreadmill.h"
 
 class DomyosTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosTreadmillTestData() {}
+    DomyosTreadmillTestData() {
+        this->exclude(new DomyosEllipticalTestData());
+        this->exclude(new DomyosBikeTestData());
+        this->exclude(new DomyosRowerTestData());
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+        this->addDeviceName("Domyos", false, true);
 
-        return result;
+        this->addInvalidDeviceName("DomyosBr");
+        this->addInvalidDeviceName("DomyosBrX");
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::DomyosTreadmill; }
