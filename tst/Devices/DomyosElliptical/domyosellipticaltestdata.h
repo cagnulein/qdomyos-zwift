@@ -6,13 +6,11 @@
 class DomyosEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosEllipticalTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    DomyosEllipticalTestData() {
+        this->addDeviceName("Domyos-EL", comparison::StartsWith);
+        this->addInvalidDeviceName("DomyosBridge",comparison::StartsWith);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::DomyosElliptical; }
 

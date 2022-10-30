@@ -6,12 +6,8 @@
 class SmartRowRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    SmartRowRowerTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SmartRowRowerTestData() {
+        this->addDeviceName("SMARTROW", comparison::StartsWith);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SmartRowRower; }

@@ -6,12 +6,15 @@
 class SoleEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleEllipticalTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SoleEllipticalTestData() {
+        this->addDeviceName("E95S", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E25", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E35", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E55", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E95", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E98", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("XG400", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("E98S", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SoleElliptical; }

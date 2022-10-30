@@ -6,13 +6,16 @@
 class SchwinnIC4BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SchwinnIC4BikeTestData() {}
+    SchwinnIC4BikeTestData() {
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+        this->addDeviceName("IC BIKE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("C7-", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("C9/C10", comparison::StartsWithIgnoreCase);
 
-        return result;
+        // 17 characters, beginning with C7-
+        this->addInvalidDeviceName("C7-456789ABCDEFG", comparison::IgnoreCase);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::SchwinnIC4Bike; }
 

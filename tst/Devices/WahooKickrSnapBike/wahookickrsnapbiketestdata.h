@@ -6,12 +6,10 @@
 class WahooKickrSnapBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    WahooKickrSnapBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    WahooKickrSnapBikeTestData() {
+        this->addDeviceName("KICKR SNAP", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KICKR BIKE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KICKR ROLLR", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::WahooKickrSnapBike; }

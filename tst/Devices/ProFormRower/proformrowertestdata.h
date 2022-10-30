@@ -6,12 +6,8 @@
 class ProFormRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormRowerTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ProFormRowerTestData() {
+        this->addDeviceName("I_RW", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformRower; }

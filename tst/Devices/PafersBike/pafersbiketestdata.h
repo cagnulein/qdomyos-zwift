@@ -6,12 +6,13 @@
 class PafersBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    PafersBikeTestData() {}
+    PafersBikeTestData() {
+        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
+    }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        // the treadmill is given priority
+        info.pafers_treadmill = !enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::PafersBike; }

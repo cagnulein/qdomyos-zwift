@@ -6,12 +6,8 @@
 class SportsTechBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SportsTechBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SportsTechBikeTestData() {
+        this->addDeviceName("EW-BK", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SportsTechBike; }

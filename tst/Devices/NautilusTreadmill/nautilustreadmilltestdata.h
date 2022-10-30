@@ -6,13 +6,10 @@
 class NautilusTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    NautilusTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    NautilusTreadmillTestData() {
+        this->addDeviceName("NAUTILUS T", comparison::StartsWithIgnoreCase);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::NautilusTreadmill; }
 

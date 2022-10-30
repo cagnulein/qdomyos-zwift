@@ -6,12 +6,8 @@
 class NautilusBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    NautilusBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    NautilusBikeTestData() {
+        this->addDeviceName("NAUTILUS B", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::NautilusBike; }

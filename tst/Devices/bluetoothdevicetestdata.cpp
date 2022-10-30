@@ -5,30 +5,63 @@ void BluetoothDeviceTestData::exclude(BluetoothDeviceTestData *testData) {
     this->exclusions.push_back(std::shared_ptr<BluetoothDeviceTestData>(testData));
 }
 
-void BluetoothDeviceTestData::addDeviceName(const QString& deviceName, bool multiCase, bool isStartsWith) {
-    this->deviceNames.append(deviceName);
+void BluetoothDeviceTestData::addDeviceName(const QString& deviceName, comparison cmp, uint8_t length) {
 
-    if(isStartsWith) {
-        this->deviceNames.append(deviceName+"X");
+    int expectedLength = length < 0 ? 0:length;
+
+    QStringList newNames;
+
+    if(expectedLength==0 || expectedLength==deviceName.length())
+        newNames.append(deviceName);
+
+    if(cmp & comparison::StartsWith && (expectedLength==0 || expectedLength>deviceName.length())) {
+        QString pad = expectedLength==0 ? "X" : QString(expectedLength-deviceName.length(), 'X');
+        newNames.append(deviceName+pad);
     }
 
-    if(multiCase) {
-        QString upper = deviceName.toUpper();
-        QString lower = deviceName.toLower();
+    this->deviceNames.append(newNames);
 
-        if(deviceName!=upper) this->deviceNames.append(upper);
-        if(deviceName!=lower) this->deviceNames.append(lower);
+    if(cmp & comparison::IgnoreCase) {
+        addDifferentCasings(newNames, this->deviceNames);
+    } else {
+        addDifferentCasings(newNames, this->invalidDeviceNames);
     }
 }
 
-void BluetoothDeviceTestData::addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, bool multiCase) {
+void BluetoothDeviceTestData::addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, comparison cmp) {
 
-    this->addDeviceName(deviceNameStartsWith+deviceNameEndsWith, multiCase, false);
-    this->addDeviceName(deviceNameStartsWith+"XXX"+deviceNameEndsWith, multiCase, false);
+    comparison modifiedComparison = (comparison)(cmp & !comparison::StartsWith);
+    this->addDeviceName(deviceNameStartsWith+deviceNameEndsWith, modifiedComparison);
+    this->addDeviceName(deviceNameStartsWith+"XXX"+deviceNameEndsWith, modifiedComparison);
 
 }
 
-void BluetoothDeviceTestData::addInvalidDeviceName(const QString& deviceName) { this->invalidDeviceNames.append(deviceName); }
+void BluetoothDeviceTestData::addDifferentCasings(const QStringList& names, QStringList& target) {
+    for(auto name : names) {
+        QString newName = name.toUpper();
+        if(newName!=name)
+            target.append(newName);
+
+        newName = name.toLower();
+        if(newName!=name)
+            target.append(newName);
+    }
+}
+
+void BluetoothDeviceTestData::addInvalidDeviceName(const QString& deviceName, comparison cmp){
+    QStringList newNames;
+
+    newNames.append(deviceName);
+
+    if(cmp & comparison::StartsWith)
+        newNames.append(deviceName+"X");
+
+    this->invalidDeviceNames.append(newNames);
+
+    if(cmp & comparison::IgnoreCase) {
+        addDifferentCasings(newNames, this->invalidDeviceNames);
+    }
+}
 
 QStringList BluetoothDeviceTestData::get_deviceNames() const { return this->deviceNames;}
 

@@ -6,12 +6,8 @@
 class MCFBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    MCFBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    MCFBikeTestData() {
+        this->addDeviceName("MCF-", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::MCFBike; }

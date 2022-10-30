@@ -1,17 +1,20 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h"
 #include "kingsmithr1protreadmill.h"
 
 class KingsmithR1ProTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    KingsmithR1ProTreadmillTestData() {}
+    KingsmithR1ProTreadmillTestData() {
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+        this->addDeviceName("R1 PRO", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("RE", comparison::IgnoreCase);
+        this->addDeviceName("KINGSMITH", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-", comparison::StartsWithIgnoreCase);
 
-        return result;
+        this->exclude(new KingsmithR2TreadmillTestData());
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::KingsmithR1ProTreadmill; }

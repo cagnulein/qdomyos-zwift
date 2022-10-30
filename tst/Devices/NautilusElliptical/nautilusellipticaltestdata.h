@@ -6,12 +6,8 @@
 class NautilusEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    NautilusEllipticalTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    NautilusEllipticalTestData() {
+        this->addDeviceName("NAUTILUS E", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::NautilusElliptical; }

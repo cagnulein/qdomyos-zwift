@@ -6,13 +6,10 @@
 class ProFormEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormEllipticalTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ProFormEllipticalTestData() {
+        this->addDeviceName("I_FS", comparison::StartsWithIgnoreCase);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformElliptical; }
 

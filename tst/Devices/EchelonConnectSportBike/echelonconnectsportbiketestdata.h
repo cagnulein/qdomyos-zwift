@@ -1,17 +1,18 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/EchelonRower/echelonrowertestdata.h"
+#include "Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
 #include "echelonconnectsport.h"
 
 class EchelonConnectSportBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonConnectSportBikeTestData() {}
+    EchelonConnectSportBikeTestData() {
+        this->addDeviceName("ECH", comparison::StartsWith);
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+        this->exclude(new EchelonRowerTestData());
+        this->exclude(new EchelonStrideTreadmillTestData());
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::EchelonConnectSport; }

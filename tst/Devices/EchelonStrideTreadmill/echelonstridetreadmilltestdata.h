@@ -6,12 +6,9 @@
 class EchelonStrideTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonStrideTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    EchelonStrideTreadmillTestData() {
+        this->addDeviceName("ECH-STRIDE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ECH-SD-SPT", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::EchelonStride; }

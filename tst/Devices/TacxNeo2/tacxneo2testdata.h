@@ -6,12 +6,9 @@
 class TacxNeo2TestData : public BluetoothDeviceTestData {
 
 public:
-    TacxNeo2TestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    TacxNeo2TestData() {
+        this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TACX SMART BIKE", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TacxNeo2; }

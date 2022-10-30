@@ -21,6 +21,9 @@ public:
         // before the destructor).
     }
 
+
+    template<class T>
+    void test_deviceDetection();
     void test_deviceDetection(const BluetoothDeviceTestData& testData);
 
 };

@@ -7,7 +7,7 @@ class BHFitnessEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
     BHFitnessEllipticalTestData() {
-        this->addDeviceName("B01_", true, true);
+        this->addDeviceName("B01_", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::BHFitnessElliptical; }

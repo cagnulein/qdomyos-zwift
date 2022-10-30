@@ -6,12 +6,8 @@
 class NordicTrackEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    NordicTrackEllipticalTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    NordicTrackEllipticalTestData() {
+        this->addDeviceName("I_EL", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::NordicTrackElliptical; }

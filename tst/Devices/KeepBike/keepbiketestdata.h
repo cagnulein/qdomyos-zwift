@@ -6,12 +6,8 @@
 class KeepBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    KeepBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    KeepBikeTestData() {
+        this->addDeviceName("KEEP_BIKE_", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::KeepBike; }

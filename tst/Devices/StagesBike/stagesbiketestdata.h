@@ -1,18 +1,16 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/FTMSBike/ftmsbiketestdata.h"
+
 #include "stagesbike.h"
 
 class StagesBikeTestData : public BluetoothDeviceTestData {
-
-public:
-    StagesBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+protected:
+    StagesBikeTestData() {
+        this->exclude(new FTMSBikeTestData());
     }
+public:
 
     deviceType get_expectedDeviceType() const override { return deviceType::StagesBike; }
 
@@ -21,3 +19,25 @@ public:
     }
 };
 
+class StagesBike1TestData : public StagesBikeTestData {
+
+public:
+    StagesBike1TestData() {
+        this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
+    }
+
+};
+
+
+class StagesBike2TestData : public StagesBikeTestData {
+
+public:
+    StagesBike2TestData() {
+        this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
+    }
+
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.powerSensorName = enable ? "Disabled":"Roberto";
+    }
+
+};

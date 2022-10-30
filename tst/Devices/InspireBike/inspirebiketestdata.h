@@ -6,12 +6,8 @@
 class InspireBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    InspireBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    InspireBikeTestData() {
+        this->addDeviceName("IC", comparison::StartsWithIgnoreCase, 8);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::InspireBike; }

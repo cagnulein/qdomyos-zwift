@@ -5,39 +5,54 @@
 #include <vector>
 #include <memory>
 #include "discovereddevice.h"
+#include "devicediscoveryinfo.h"
+
 
 class BluetoothDeviceTestData  {
     std::vector<std::shared_ptr<BluetoothDeviceTestData>> exclusions;
     QStringList deviceNames;
     QStringList invalidDeviceNames;
 protected:
-
+    enum comparison : int {
+        Exact = 0,
+        IgnoreCase = 1,
+        StartsWith = 2,
+        StartsWithIgnoreCase = IgnoreCase+StartsWith
+    };
 
     void exclude(BluetoothDeviceTestData* testData);
 
     /**
      * @brief Add a device name that should be identified as this device.
      * @param deviceName
+     * @param length The expected length. Use 0 for unrestricted.
      */
-    void addDeviceName(const QString& deviceName, bool multiCase, bool isStartsWith);
+    void addDeviceName(const QString& deviceName, comparison cmp, uint8_t length=0);
 
     /**
      * @brief Add a device name as a prefix and suffix that should be identified as this device.
      * @param deviceName
      */
-    void addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, bool multiCase);
+    void addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, comparison cmp);
 
     /**
      * @brief Add a device name that should NOT be identified as this device.
      * @param deviceName
      */
-    void addInvalidDeviceName(const QString& deviceName);
+    void addInvalidDeviceName(const QString& deviceName, comparison cmp);
 
+    /**
+     * @brief Add the specified device names with different casings.
+     * @param names
+     * @param target
+     */
+    static void addDifferentCasings(const QStringList &names, QStringList &target);
 public:
     BluetoothDeviceTestData() {
         // You can do set-up work for each test here.
     }
     virtual ~BluetoothDeviceTestData() {}
+
 
     /**
      * @brief A list of bluetooth device names that should be recognised as this device.
@@ -57,8 +72,10 @@ public:
      */
     virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions() const;
 
+    virtual void configureSettings(devicediscoveryinfo& info, bool enable) const {}
     virtual deviceType get_expectedDeviceType() const =0;
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
+    virtual QString get_testIP() const { return "1.2.3.4"; }
 
 };
 

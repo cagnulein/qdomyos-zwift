@@ -6,13 +6,10 @@
 class iConceptBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    iConceptBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    iConceptBikeTestData() {
+        this->addDeviceName("BH DUALKIT", comparison::StartsWithIgnoreCase);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::IConceptBike; }
 

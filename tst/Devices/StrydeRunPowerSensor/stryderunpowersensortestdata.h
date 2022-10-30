@@ -4,14 +4,16 @@
 #include "strydrunpowersensor.h"
 
 class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
-
+    QString powerSensorName;
 public:
-    StrydeRunPowerSensorTestData() {}
+    StrydeRunPowerSensorTestData() {
+        this->powerSensorName = "WattsItCalled-";
+        this->addDeviceName(this->powerSensorName, comparison::StartsWith);
+    }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.power_as_treadmill = enable;
+        info.powerSensorName = enable ? this->powerSensorName:"Disabled";
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::PowerTreadmill_StrydrunPowerSensor; }

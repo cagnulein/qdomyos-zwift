@@ -78,12 +78,16 @@
 #include "YesoulBike/yesoulbiketestdata.h"
 
 
+template <class T>
+void BluetoothDeviceTestSuite::test_deviceDetection() {
+    T testData;
+    test_deviceDetection(testData);
+}
 
 void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestData& testData)
 {
     const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
     QBluetoothUuid uuid{testUUID};
-
     QStringList names = testData.get_deviceNames();
 
     EXPECT_GT(names.length(), 0) << "No bluetooth names configured for test";
@@ -97,6 +101,8 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
         EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected";
         //EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
     }
+
+    // TODO: deal with settings
 
     // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
     auto exclusions = testData.get_exclusions();
@@ -125,10 +131,8 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
 }
 
 TEST_F(BluetoothDeviceTestSuite, ActivioTreadmillDetected) {
-    ActivioTreadmillTestData testData;
-    this->test_deviceDetection(testData);
+    this->test_deviceDetection<ActivioTreadmillTestData>();
 }
-
 
 TEST_F(BluetoothDeviceTestSuite, BHFitnessEllipticalDetected) {
     BHFitnessEllipticalTestData testData;
@@ -225,18 +229,38 @@ TEST_F(BluetoothDeviceTestSuite, FakeEllipticalDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, FitPlusBikeDetected) {
-    FitPlusBikeTestData testData;
+TEST_F(BluetoothDeviceTestSuite, FitPlusBikeFSDetected) {
+    FitPlusBikeFSTestData testData;
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, FitshowTreadmillDetected) {
-    FitshowTreadmillTestData testData;
+TEST_F(BluetoothDeviceTestSuite, FitPlusBikeMRKDetected) {
+    FitPlusBikeMRKTestData testData;
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, FlywheelBikeDetected) {
-    FlywheelBikeTestData testData;
+TEST_F(BluetoothDeviceTestSuite, FitshowTreadmillFSDetected) {
+    FitshowTreadmillFSTestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, FitshowTreadmillSWDetected) {
+    FitshowTreadmillSWTestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, FitshowTreadmillBFDetected) {
+    FitshowTreadmillBFTestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, FlywheelBike1Detected) {
+    FlywheelBike1TestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, FlywheelBike2Detected) {
+    FlywheelBike2TestData testData;
     this->test_deviceDetection(testData);
 }
 
@@ -320,24 +344,25 @@ TEST_F(BluetoothDeviceTestSuite, NordicTrackIFitADBTreadmillDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, NPECableBikeDetected) {
-    NPECableBikeTestData testData;
-    this->test_deviceDetection(testData);
+TEST_F(BluetoothDeviceTestSuite, NPECableBike1Detected) {
+    this->test_deviceDetection<NPECableBike1TestData>();
+}
+
+TEST_F(BluetoothDeviceTestSuite, NPECableBike2Detected) {
+
+    this->test_deviceDetection<NPECableBike2TestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, OctaneTreadmillDetected) {
-    OctaneTreadmillTestData testData;
-    this->test_deviceDetection(testData);
+    this->test_deviceDetection<OctaneTreadmillTestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, PafersBikeDetected) {
-    PafersBikeTestData testData;
-    this->test_deviceDetection(testData);
+    this->test_deviceDetection<PafersBikeTestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, PafersTreadmillDetected) {
-    PafersTreadmillTestData testData;
-    this->test_deviceDetection(testData);
+    this->test_deviceDetection<PafersTreadmillTestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, ProFormBikeDetected) {
@@ -375,9 +400,12 @@ TEST_F(BluetoothDeviceTestSuite, ProFormWiFiTreadmillDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, RenphoBikeDetected) {
-    RenphoBikeTestData testData;
-    this->test_deviceDetection(testData);
+TEST_F(BluetoothDeviceTestSuite, RenphoBike1Detected) {
+    this->test_deviceDetection<RenphoBike1TestData>();
+}
+
+TEST_F(BluetoothDeviceTestSuite, RenphoBike2Detected) {
+    this->test_deviceDetection<RenphoBike2TestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, RowerDetected) {
@@ -405,8 +433,13 @@ TEST_F(BluetoothDeviceTestSuite, SmartRowRowerDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, SnodeBikeDetected) {
-    SnodeBikeTestData testData;
+TEST_F(BluetoothDeviceTestSuite, SnodeBike1Detected) {
+    SnodeBike1TestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, SnodeBike2Detected) {
+    SnodeBike2TestData testData;
     this->test_deviceDetection(testData);
 }
 
@@ -440,8 +473,13 @@ TEST_F(BluetoothDeviceTestSuite, SportsTechBikeDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, StagesBikeDetected) {
-    StagesBikeTestData testData;
+TEST_F(BluetoothDeviceTestSuite, StagesBike1Detected) {
+    StagesBike1TestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, StagesBike2Detected) {
+    StagesBike2TestData testData;
     this->test_deviceDetection(testData);
 }
 
@@ -480,8 +518,13 @@ TEST_F(BluetoothDeviceTestSuite, TrueTreadmillDetected) {
     this->test_deviceDetection(testData);
 }
 
-TEST_F(BluetoothDeviceTestSuite, TrxAppGateUSBBikeDetected) {
-    TrxAppGateUSBBikeTestData testData;
+TEST_F(BluetoothDeviceTestSuite, TrxAppGateUSBBike1Detected) {
+    TrxAppGateUSBBike1TestData testData;
+    this->test_deviceDetection(testData);
+}
+
+TEST_F(BluetoothDeviceTestSuite, TrxAppGateUSBBike2Detected) {
+    TrxAppGateUSBBike2TestData testData;
     this->test_deviceDetection(testData);
 }
 

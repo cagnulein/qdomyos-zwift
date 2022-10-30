@@ -1,19 +1,15 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
 #include "trxappgateusbbike.h"
 
 class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
-
-public:
-    TrxAppGateUSBBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+protected:
+    TrxAppGateUSBBikeTestData() {
+        this->exclude(new TrxAppGateUSBTreadmillTestData);
     }
-
+public:
     deviceType get_expectedDeviceType() const override { return deviceType::TrxAppGateUSBBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
@@ -21,3 +17,32 @@ public:
     }
 };
 
+class TrxAppGateUSBBike1TestData : public TrxAppGateUSBBikeTestData {
+
+public:
+    TrxAppGateUSBBike1TestData()  {
+        this->addDeviceName("TUN ", comparison::StartsWithIgnoreCase);
+
+    }
+
+};
+
+class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
+
+public:
+    TrxAppGateUSBBike2TestData() {
+        this->addDeviceName("TOORX", comparison::StartsWith);
+        this->addDeviceName("I-CONSOIE+", comparison::StartsWithIgnoreCase) ;
+        this->addDeviceName("I-CONSOLE+", comparison::StartsWithIgnoreCase) ;
+        this->addDeviceName("IBIKING+", comparison::StartsWithIgnoreCase) ;
+        this->addDeviceName("ICONSOLE+", comparison::StartsWithIgnoreCase) ;
+        this->addDeviceName("VIFHTR2.1", comparison::StartsWithIgnoreCase) ;
+        this->addDeviceName("DKN MOTION", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("CR011R", comparison::IgnoreCase);
+    }
+
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.toorx_bike = enable;
+    }
+
+};

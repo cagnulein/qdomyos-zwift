@@ -6,12 +6,8 @@
 class HorizonGR7BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    HorizonGR7BikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    HorizonGR7BikeTestData() {
+        this->addDeviceName("JFIC", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonGr7Bike; }

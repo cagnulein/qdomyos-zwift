@@ -6,12 +6,16 @@
 class FTMSRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    FTMSRowerTestData() {}
+    FTMSRowerTestData() {
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+        this->addDeviceName("CR 00", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KAYAKPRO", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("WHIPR", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("I-ROWER", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("PM5ROW", comparison::IgnoreCase);
+        this->addDeviceName("PM5XROW", comparison::IgnoreCase);
+        this->addDeviceName("PM5XROWX", comparison::IgnoreCase);
+        this->addDeviceName("PM5ROWX", comparison::IgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::FTMSRower; }

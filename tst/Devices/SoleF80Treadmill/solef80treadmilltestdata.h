@@ -6,12 +6,12 @@
 class SoleF80TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleF80TreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SoleF80TreadmillTestData() {
+        this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("F63", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SoleF80Treadmill; }

@@ -7,7 +7,7 @@ class BowflexT216TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     BowflexT216TreadmillTestData() {
-        this->addDeviceName("BOWFLEX T216", true, true);
+        this->addDeviceName("BOWFLEX T216", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::BowflexT216Treadmill; }

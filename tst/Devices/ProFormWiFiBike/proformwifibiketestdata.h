@@ -6,12 +6,13 @@
 class ProFormWiFiBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormWiFiBikeTestData() {}
+    ProFormWiFiBikeTestData() {
+        // any name
+        this->addDeviceName("", comparison::StartsWithIgnoreCase);
+    }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.proformtdf4ip = enable ? this->get_testIP():QString();
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformWifiBike; }

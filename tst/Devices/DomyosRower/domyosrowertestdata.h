@@ -6,12 +6,9 @@
 class DomyosRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosRowerTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    DomyosRowerTestData() {
+        this->addDeviceName("DOMYOS-ROW", comparison::StartsWith);
+        this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::DomyosRower; }

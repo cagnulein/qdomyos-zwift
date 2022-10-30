@@ -6,12 +6,11 @@
 class M3IBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    M3IBikeTestData() {}
+    M3IBikeTestData() {
+        this->addDeviceName("M3", comparison::StartsWithIgnoreCase);
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+        //m3ibike::isCorrectUnit(b)
+        // TODO: test for the other criteria, i.e.
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::M3IBike; }

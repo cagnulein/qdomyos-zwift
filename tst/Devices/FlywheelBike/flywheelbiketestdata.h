@@ -5,15 +5,10 @@
 
 class FlywheelBikeTestData : public BluetoothDeviceTestData {
 
-public:
-    FlywheelBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+protected:
+    FlywheelBikeTestData() {
     }
-
+public:
     deviceType get_expectedDeviceType() const override { return deviceType::FlywheelBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
@@ -21,3 +16,25 @@ public:
     }
 };
 
+
+class FlywheelBike1TestData : public FlywheelBikeTestData {
+
+public:
+    FlywheelBike1TestData() {
+        this->addDeviceName("Flywheel", comparison::StartsWith);
+    }
+
+};
+
+class FlywheelBike2TestData : public FlywheelBikeTestData {
+
+public:
+    FlywheelBike2TestData() {
+        // BIKE 1, BIKE 2, BIKE 3...
+        this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
+    }
+
+    virtual void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.flywheel_life_fitness_ic8 = enable;
+    }
+};

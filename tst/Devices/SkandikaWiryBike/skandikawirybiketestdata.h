@@ -6,12 +6,8 @@
 class SkandikaWiryBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SkandikaWiryBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SkandikaWiryBikeTestData() {
+        this->addDeviceName("BFCP", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SkandikawiriBike; }

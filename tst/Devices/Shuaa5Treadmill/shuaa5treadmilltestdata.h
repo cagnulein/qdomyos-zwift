@@ -6,12 +6,8 @@
 class Shuaa5TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    Shuaa5TreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    Shuaa5TreadmillTestData() {
+        this->addDeviceName("ZW-", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::Shuaa5Treadmill; }

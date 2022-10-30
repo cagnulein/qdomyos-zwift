@@ -6,12 +6,9 @@
 class SoleBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    SoleBikeTestData() {
+        this->addDeviceName("LCB", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("R92", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SoleBike; }

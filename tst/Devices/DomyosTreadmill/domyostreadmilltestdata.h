@@ -14,10 +14,9 @@ public:
         this->exclude(new DomyosBikeTestData());
         this->exclude(new DomyosRowerTestData());
 
-        this->addDeviceName("Domyos", false, true);
+        this->addDeviceName("Domyos", comparison::StartsWith);
 
-        this->addInvalidDeviceName("DomyosBr");
-        this->addInvalidDeviceName("DomyosBrX");
+        this->addInvalidDeviceName("DomyosBr", comparison::StartsWith);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::DomyosTreadmill; }

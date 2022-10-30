@@ -6,13 +6,10 @@
 class ToorxTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ToorxTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ToorxTreadmillTestData() {
+        this->addDeviceName("TRX ROUTE KEY", comparison::StartsWith);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::ToorxTreadmill; }
 

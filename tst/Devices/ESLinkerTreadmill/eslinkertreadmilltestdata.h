@@ -6,12 +6,8 @@
 class ESLinkerTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ESLinkerTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ESLinkerTreadmillTestData() {
+        this->addDeviceName("ESLINKER", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ESLinkerTreadmill; }

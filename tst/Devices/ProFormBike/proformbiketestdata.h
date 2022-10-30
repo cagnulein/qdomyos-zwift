@@ -6,12 +6,9 @@
 class ProFormBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ProFormBikeTestData() {
+        this->addDeviceName("I_EB", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("I_SB", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformBike; }

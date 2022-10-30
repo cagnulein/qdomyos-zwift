@@ -7,18 +7,18 @@ class KingsmithR2TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     KingsmithR2TreadmillTestData() {
-        this->addDeviceName("KS-ST-K12PRO", true, true);
+        this->addDeviceName("KS-ST-K12PRO", comparison::StartsWithIgnoreCase);
 
         // KingSmith Walking Pad R2
-        this->addDeviceName("KS-R1AC", true, true);
-        this->addDeviceName("KS-HC-R1AA", true, true);
-        this->addDeviceName("KS-HC-R1AC", true, true);
+        this->addDeviceName("KS-R1AC", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-HC-R1AA", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-HC-R1AC", comparison::StartsWithIgnoreCase);
 
         // KingSmith Walking Pad X21
-        this->addDeviceName("KS-X21", true, true);
-        this->addDeviceName("KS-HDSC-X21C", true, true);
-        this->addDeviceName("KS-HDSY-X21C", true, true);
-        this->addDeviceName("KS-NGCH-X21C", true, true);
+        this->addDeviceName("KS-X21", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-HDSC-X21C", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-HDSY-X21C", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-NGCH-X21C", comparison::StartsWithIgnoreCase);
 
     }
 

@@ -6,12 +6,8 @@
 class ProFormTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    ProFormTreadmillTestData() {
+        this->addDeviceName("I_TL", comparison::StartsWith);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformTreadmill; }

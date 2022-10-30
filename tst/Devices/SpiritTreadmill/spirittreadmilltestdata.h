@@ -6,12 +6,11 @@
 class SpiritTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    SpiritTreadmillTestData() {}
+    SpiritTreadmillTestData() {
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+        this->addDeviceName("XT385", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("XT485", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("XT900", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SpiritTreadmill; }

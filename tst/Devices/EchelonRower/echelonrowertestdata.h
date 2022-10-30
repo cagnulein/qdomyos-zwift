@@ -6,13 +6,11 @@
 class EchelonRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonRowerTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    EchelonRowerTestData() {
+        this->addDeviceName("ECH-ROW", comparison::StartsWith);
+        this->addDeviceName("ROW-S", comparison::StartsWith);
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::EchelonRower; }
 

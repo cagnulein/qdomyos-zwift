@@ -6,12 +6,8 @@
 class OctaneTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    OctaneTreadmillTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    OctaneTreadmillTestData() {
+        this->addDeviceName("ZR7", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::OctaneTreadmill; }

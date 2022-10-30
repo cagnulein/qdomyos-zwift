@@ -7,7 +7,7 @@ class ChronobikeTestData : public BluetoothDeviceTestData {
 
 public:
     ChronobikeTestData() {
-        this->addDeviceName("CHRONO ", true, true);
+        this->addDeviceName("CHRONO ", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ChronoBike; }

@@ -7,7 +7,7 @@ class ActivioTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     ActivioTreadmillTestData() {
-        this->addDeviceName("RUNNERT", true, true);
+        this->addDeviceName("RUNNERT", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ActivioTreadmill; }

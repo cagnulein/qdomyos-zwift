@@ -7,7 +7,7 @@ class Concept2SkiErgTestData : public BluetoothDeviceTestData {
 
 public:
     Concept2SkiErgTestData() {
-        this->addDeviceName("PM5", "SKI", true);
+        this->addDeviceName("PM5", "SKI", comparison::IgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::Concept2SkiErg; }

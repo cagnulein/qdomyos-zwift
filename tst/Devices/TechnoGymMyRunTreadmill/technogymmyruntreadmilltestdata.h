@@ -6,13 +6,10 @@
 class TechnoGymMyRunTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    TechnoGymMyRunTreadmillTestData() {}
+    TechnoGymMyRunTreadmillTestData() {
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
     }
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::TechnoGymMyRunTreadmill; }
 

@@ -6,12 +6,8 @@
 class YesoulBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    YesoulBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    YesoulBikeTestData() {
+        this->addDeviceName(yesoulbike::bluetoothName, comparison::StartsWith);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::YesoulBike; }

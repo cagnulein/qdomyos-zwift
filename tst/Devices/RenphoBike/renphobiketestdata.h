@@ -1,19 +1,21 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/FitPlusBike/fitplusbiketestdata.h"
+#include "Devices/SnodeBike/snodebiketestdata.h"
+
 #include "renphobike.h"
 
 class RenphoBikeTestData : public BluetoothDeviceTestData {
-
-public:
-    RenphoBikeTestData() {}
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+protected:
+    RenphoBikeTestData() {
+        this->exclude(new FitPlusBikeFSTestData());
+        this->exclude(new FitPlusBikeMRKTestData());
+        this->exclude(new SnodeBike1TestData());
+        this->exclude(new SnodeBike2TestData());
     }
 
+public:   
     deviceType get_expectedDeviceType() const override { return deviceType::RenphoBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
@@ -21,3 +23,21 @@ public:
     }
 };
 
+class RenphoBike1TestData : public RenphoBikeTestData {
+public:
+    RenphoBike1TestData(){
+        this->addDeviceName("RQ", comparison::StartsWithIgnoreCase, 5);
+        this->addDeviceName("SCH130", comparison::StartsWithIgnoreCase);
+    }
+};
+
+class RenphoBike2TestData : public RenphoBikeTestData {
+public:
+    RenphoBike2TestData(){
+        this->addDeviceName("TOORX", comparison::StartsWith);
+    }
+
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.toorx_ftms = enable;
+    }
+};

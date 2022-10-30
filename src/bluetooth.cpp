@@ -607,12 +607,10 @@ discovereddevice bluetooth::discoverDevice(const devicediscoveryinfo& info, cons
                    b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
                    filter) {
         result = deviceType::KingsmithR2Treadmill;
-
     } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
                 b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
                 !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
-                b.name().toUpper().startsWith(
-                    QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                b.name().toUpper().startsWith(QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                !info.excludes(deviceType::KingsmithR2Treadmill) && filter) {
         result = deviceType::KingsmithR1ProTreadmill;
     } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && filter) {
@@ -803,7 +801,7 @@ discovereddevice bluetooth::discoverDevice(const devicediscoveryinfo& info, cons
                   b.name().toUpper().contains(QStringLiteral("CR011R")) ||
                   b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
                  (info.toorx_bike))) &&
-               !!info.excludes(deviceType::TrxAppGateUSBTreadmill) && filter) {
+               !info.excludes(deviceType::TrxAppGateUSBTreadmill) && filter) {
         result = deviceType::TrxAppGateUSBBike;
     } else if ((b.name().toUpper().startsWith(QStringLiteral("X-BIKE"))) && filter) {
         result = deviceType::UltraSportBike;
@@ -833,8 +831,7 @@ discovereddevice bluetooth::discoverDevice(const devicediscoveryinfo& info, cons
 
     } else if (((b.name().startsWith(QStringLiteral("FS-")) && !info.snode_bike && !info.fitplus_bike && !info.excludes(deviceType::FTMSBike)) ||
                 (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
-                (b.name().startsWith(QStringLiteral("BF70")))) &&
-               !info.excludes(deviceType::FitshowTreadmill) && filter) {
+                (b.name().startsWith(QStringLiteral("BF70")))) && filter) {
         result = deviceType::FitshowTreadmill;
     } else if (b.name().toUpper().startsWith(QStringLiteral("IC")) && b.name().length() == 8 &&
                filter) {
