@@ -3,7 +3,14 @@
 #include "Devices/TrxAppGateUSBBike/trxappgateusbbiketestdata.h"
 
 
+void TrxAppGateUSBTreadmillTestData::configureExclusions() {
+
+    this->exclude(new TrxAppGateUSBBike1TestData());
+    this->exclude(new TrxAppGateUSBBike2TestData());
+}
+
 TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() {
+    this->hasSettings = true;
 
     this->addDeviceName("TOORX", comparison::StartsWith);
     this->addDeviceName("V-RUN", comparison::StartsWith);
@@ -14,7 +21,4 @@ TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() {
     this->addDeviceName("DKN RUN", comparison::StartsWithIgnoreCase);
     this->addDeviceName("REEBOK", comparison::StartsWithIgnoreCase);
 
-
-    this->exclude(new TrxAppGateUSBBike1TestData());
-    this->exclude(new TrxAppGateUSBBike2TestData());
 }

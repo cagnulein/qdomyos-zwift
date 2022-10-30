@@ -25,9 +25,13 @@ public:
 class FitshowTreadmillFSTestData : public FitshowTreadmillTestData {
 public:
     FitshowTreadmillFSTestData() {
-
+        this->hasSettings = true;
         this->addDeviceName("FS-", comparison::StartsWith);
-        this->exclude(new FTMSBikeTestData());
+    }
+
+    void configureExclusions() override {
+        this->exclude(new FTMSBike1TestData());
+        this->exclude(new FTMSBike2TestData());
     }
 
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {
@@ -41,12 +45,13 @@ public:
 class FitshowTreadmillSWTestData : public FitshowTreadmillTestData {
 public:
     FitshowTreadmillSWTestData() {
-        // SW + 12 characters
-        this->addDeviceName("SW0123456789ABCD", comparison::Exact);
-        this->addDeviceName("SWFOURTEENCHARS.", comparison::Exact);
+        // SW, 14 characters total
+        this->addDeviceName("SW345678901234", comparison::Exact);
+        this->addDeviceName("SWFOURTEENCHAR", comparison::Exact);
 
-        this->addInvalidDeviceName("SW0123456789ABC", comparison::Exact);
-        this->addInvalidDeviceName("SW0123456789ABCDE", comparison::Exact);
+        // too long and too short
+        this->addInvalidDeviceName("SW3456789012345", comparison::Exact);
+        this->addInvalidDeviceName("SW34567890123", comparison::Exact);
 
     }
 };

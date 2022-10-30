@@ -2,6 +2,9 @@
 
 
 void BluetoothDeviceTestData::exclude(BluetoothDeviceTestData *testData) {
+    if(!this->configuringExclusions)
+        throw "Exclusions can only be specified from the configureExclusions method.";
+
     this->exclusions.push_back(std::shared_ptr<BluetoothDeviceTestData>(testData));
 }
 
@@ -21,6 +24,7 @@ void BluetoothDeviceTestData::addDeviceName(const QString& deviceName, compariso
 
     this->deviceNames.append(newNames);
 
+
     if(cmp & comparison::IgnoreCase) {
         addDifferentCasings(newNames, this->deviceNames);
     } else {
@@ -30,7 +34,7 @@ void BluetoothDeviceTestData::addDeviceName(const QString& deviceName, compariso
 
 void BluetoothDeviceTestData::addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, comparison cmp) {
 
-    comparison modifiedComparison = (comparison)(cmp & !comparison::StartsWith);
+    comparison modifiedComparison = (comparison)(cmp & ~comparison::StartsWith);
     this->addDeviceName(deviceNameStartsWith+deviceNameEndsWith, modifiedComparison);
     this->addDeviceName(deviceNameStartsWith+"XXX"+deviceNameEndsWith, modifiedComparison);
 
@@ -67,6 +71,13 @@ QStringList BluetoothDeviceTestData::get_deviceNames() const { return this->devi
 
 QStringList BluetoothDeviceTestData::get_failingDeviceNames() const { return this->invalidDeviceNames; }
 
-std::vector<std::shared_ptr<BluetoothDeviceTestData> > BluetoothDeviceTestData::get_exclusions() const {
+std::vector<std::shared_ptr<BluetoothDeviceTestData> > BluetoothDeviceTestData::get_exclusions() {
+    if(!this->exclusionsConfigured) {
+        this->configuringExclusions = true;
+        this->configureExclusions();
+        this->exclusionsConfigured = true;
+        this->configuringExclusions = false;
+
+    }
     return this->exclusions;
 }

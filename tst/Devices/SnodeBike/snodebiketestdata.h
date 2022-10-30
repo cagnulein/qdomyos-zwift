@@ -6,7 +6,9 @@
 
 class SnodeBikeTestData : public BluetoothDeviceTestData {
 protected:
-    SnodeBikeTestData();
+    SnodeBikeTestData() { }
+
+    void configureExclusions() override;
 public:
 
     deviceType get_expectedDeviceType() const override { return deviceType::SnodeBike; }
@@ -20,7 +22,8 @@ class SnodeBike1TestData : public SnodeBikeTestData {
 
 public:
     SnodeBike1TestData() {
-        this->addDeviceName("FS-", comparison::StartsWithIgnoreCase);
+        this->hasSettings = true;
+        this->addDeviceName("FS-", comparison::StartsWith);
     }
 
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {

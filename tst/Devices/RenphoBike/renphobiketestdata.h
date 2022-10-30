@@ -9,12 +9,9 @@
 class RenphoBikeTestData : public BluetoothDeviceTestData {
 protected:
     RenphoBikeTestData() {
-        this->exclude(new FitPlusBikeFSTestData());
-        this->exclude(new FitPlusBikeMRKTestData());
-        this->exclude(new SnodeBike1TestData());
-        this->exclude(new SnodeBike2TestData());
     }
 
+    void configureExclusions() override;
 public:   
     deviceType get_expectedDeviceType() const override { return deviceType::RenphoBike; }
 
@@ -34,6 +31,7 @@ public:
 class RenphoBike2TestData : public RenphoBikeTestData {
 public:
     RenphoBike2TestData(){
+        this->hasSettings = true;
         this->addDeviceName("TOORX", comparison::StartsWith);
     }
 

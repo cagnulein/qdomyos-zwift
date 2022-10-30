@@ -7,7 +7,7 @@ class DomyosRowerTestData : public BluetoothDeviceTestData {
 
 public:
     DomyosRowerTestData() {
-        this->addDeviceName("DOMYOS-ROW", comparison::StartsWith);
+        this->addDeviceName("DOMYOS-ROW", comparison::StartsWithIgnoreCase);
         this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);
     }
 

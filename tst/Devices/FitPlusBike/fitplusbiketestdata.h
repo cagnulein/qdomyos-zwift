@@ -7,6 +7,7 @@ class FitPlusBikeFSTestData : public BluetoothDeviceTestData {
 
 public:
     FitPlusBikeFSTestData() {
+        this->hasSettings = true;
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -24,7 +25,12 @@ public:
 class FitPlusBikeMRKTestData : public BluetoothDeviceTestData {
 
 public:
-    FitPlusBikeMRKTestData();
+    FitPlusBikeMRKTestData() {
+
+        this->addDeviceName("MRK-", comparison::StartsWith);
+    }
+
+    void configureExclusions() override;
 
     deviceType get_expectedDeviceType() const override { return deviceType::FitPlusBike; }
 

@@ -12,8 +12,11 @@ CONFIG += thread
 SOURCES += \
         Devices/ActivioTreadmill/activiotreadmilltestdata.cpp \
         Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
+        Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
+        Devices/RenphoBike/renphobiketestdata.cpp \
         Devices/SnodeBike/snodebiketestdata.cpp \
+        Devices/StagesBike/stagesbiketestdata.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
@@ -56,6 +59,7 @@ HEADERS += \
     Devices/FTMSRower/ftmsrowertestdata.h \
     Devices/FakeBike/fakebiketestdata.h \
     Devices/FakeElliptical/fakeellipticaltestdata.h \
+    Devices/FakeTreadmill/faketreadmilltestdata.h \
     Devices/FitPlusBike/fitplusbiketestdata.h \
     Devices/FitshowTreadmill/fitshowtreadmilltestdata.h \
     Devices/FlywheelBike/flywheelbiketestdata.h \

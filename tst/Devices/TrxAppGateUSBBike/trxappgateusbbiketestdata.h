@@ -7,6 +7,10 @@
 class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
 protected:
     TrxAppGateUSBBikeTestData() {
+
+    }
+
+    void configureExclusions() override {
         this->exclude(new TrxAppGateUSBTreadmillTestData);
     }
 public:
@@ -31,6 +35,8 @@ class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
 
 public:
     TrxAppGateUSBBike2TestData() {
+        this->hasSettings = true;
+
         this->addDeviceName("TOORX", comparison::StartsWith);
         this->addDeviceName("I-CONSOIE+", comparison::StartsWithIgnoreCase) ;
         this->addDeviceName("I-CONSOLE+", comparison::StartsWithIgnoreCase) ;

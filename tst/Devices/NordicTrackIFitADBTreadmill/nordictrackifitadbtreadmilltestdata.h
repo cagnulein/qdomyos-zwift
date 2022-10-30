@@ -7,15 +7,10 @@ class NordicTrackIFitADBTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     NordicTrackIFitADBTreadmillTestData() {
+        this->hasSettings = true;
 
         // Allow any name because it's not a bluetooth device
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
     }
 
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {

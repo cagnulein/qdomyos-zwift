@@ -1,24 +1,24 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "fakeelliptical.h"
+#include "faketreadmill.h"
 
-class FakeEllipticalTestData : public BluetoothDeviceTestData {
+class FakeTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    FakeEllipticalTestData() {
+    FakeTreadmillTestData() {
         this->hasSettings = true;
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.fakedevice_elliptical = enable;
+        info.fakedevice_treadmill = enable;
     }
 
-    deviceType get_expectedDeviceType() const override { return deviceType::FakeElliptical; }
+    deviceType get_expectedDeviceType() const override { return deviceType::FakeTreadmill; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<fakeelliptical*>(detectedDevice)!=nullptr;
+        return dynamic_cast<faketreadmill*>(detectedDevice)!=nullptr;
     }
 };
 

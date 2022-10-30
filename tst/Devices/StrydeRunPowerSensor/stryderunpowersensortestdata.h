@@ -7,6 +7,7 @@ class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
     QString powerSensorName;
 public:
     StrydeRunPowerSensorTestData() {
+        this->hasSettings = true;
         this->powerSensorName = "WattsItCalled-";
         this->addDeviceName(this->powerSensorName, comparison::StartsWith);
     }

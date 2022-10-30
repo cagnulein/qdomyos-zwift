@@ -20,6 +20,7 @@
 #include "ESLinkerTreadmill/eslinkertreadmilltestdata.h"
 #include "FakeBike/fakebiketestdata.h"
 #include "FakeElliptical/fakeellipticaltestdata.h"
+#include "FakeTreadmill/faketreadmilltestdata.h"
 #include "FitPlusBike/fitplusbiketestdata.h"
 #include "FitshowTreadmill/fitshowtreadmilltestdata.h"
 #include "FlywheelBike/flywheelbiketestdata.h"
@@ -84,7 +85,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection() {
     test_deviceDetection(testData);
 }
 
-void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestData& testData)
+void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& testData)
 {
     const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
     QBluetoothUuid uuid{testUUID};
@@ -92,22 +93,36 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
 
     EXPECT_GT(names.length(), 0) << "No bluetooth names configured for test";
 
-    devicediscoveryinfo discoveryInfo = bluetooth::getDiscoveryInfo();
+    devicediscoveryinfo discoveryInfo;
+
+    // Test that the device is identified when enabled in the settings
+    if(testData.get_hasSettings())
+        testData.configureSettings(discoveryInfo, true);
+
     for(QString deviceName : names)
     {
-
         QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
-        EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected";
-        //EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice));
+        EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected for name: " << deviceName.toStdString();
     }
 
-    // TODO: deal with settings
+    if(testData.get_hasSettings()) {
+        // Test that the device is not identified when disabled in the settings
+        testData.configureSettings(discoveryInfo, false);
+
+        for(QString deviceName : names)
+        {
+            QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+            auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
+            EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Expected device type detected when disabled";
+        }
+    }
 
     // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
     auto exclusions = testData.get_exclusions();
     for(auto exclusion : exclusions) {
-        discoveryInfo = bluetooth::getDiscoveryInfo();
+        devicediscoveryinfo discoveryInfo;
+        testData.configureSettings(discoveryInfo, true);
         discoveryInfo.exclude(exclusion->get_expectedDeviceType());
 
         for(QString deviceName : names)
@@ -119,15 +134,15 @@ void BluetoothDeviceTestSuite::test_deviceDetection(const BluetoothDeviceTestDat
     }
 
     // Test that it doesn't detect this device for the "wrong" names
-    discoveryInfo = bluetooth::getDiscoveryInfo();
+    discoveryInfo = devicediscoveryinfo();
+    testData.configureSettings(discoveryInfo, true);
     names = testData.get_failingDeviceNames();
     for(QString deviceName : names)
     {
         QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
-        EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device from wrong name";
+        EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device from invalid name: " << deviceName.toStdString();
     }
-
 }
 
 TEST_F(BluetoothDeviceTestSuite, ActivioTreadmillDetected) {
@@ -138,8 +153,8 @@ TEST_F(BluetoothDeviceTestSuite, BHFitnessEllipticalDetected) {
     this->test_deviceDetection<BHFitnessEllipticalTestData>();
 }
 
-
 TEST_F(BluetoothDeviceTestSuite, BikeDetected) {
+    GTEST_SKIP() << "Not a real device.";
     this->test_deviceDetection<BikeTestData>();
 }
 
@@ -162,8 +177,6 @@ TEST_F(BluetoothDeviceTestSuite, Concept2SkiErgDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, CSCBikeDetected) {
-    GTEST_SKIP() << "Not actually a bluetooth device";
-
     this->test_deviceDetection<CSCBikeTestData>();
 }
 
@@ -196,6 +209,7 @@ TEST_F(BluetoothDeviceTestSuite, EchelonStrideTreadmillDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, EllipticalDetected) {
+    GTEST_SKIP() << "Not a real device.";
     this->test_deviceDetection<EllipticalTestData>();
 }
 
@@ -209,6 +223,10 @@ TEST_F(BluetoothDeviceTestSuite, FakeBikeDetected) {
 
 TEST_F(BluetoothDeviceTestSuite, FakeEllipticalDetected) {
     this->test_deviceDetection<FakeEllipticalTestData>();
+}
+
+TEST_F(BluetoothDeviceTestSuite, FakeTreadmillDetected) {
+    this->test_deviceDetection<FakeTreadmillTestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, FitPlusBikeFSDetected) {
@@ -239,8 +257,12 @@ TEST_F(BluetoothDeviceTestSuite, FlywheelBike2Detected) {
     this->test_deviceDetection<FlywheelBike2TestData>();
 }
 
-TEST_F(BluetoothDeviceTestSuite, FTMSBikeDetected) {
-    this->test_deviceDetection<FTMSBikeTestData>();
+TEST_F(BluetoothDeviceTestSuite, FTMSBike1Detected) {
+    this->test_deviceDetection<FTMSBike1TestData>();
+}
+
+TEST_F(BluetoothDeviceTestSuite, FTMSBike2Detected) {
+    this->test_deviceDetection<FTMSBike2TestData>();
 }
 
 TEST_F(BluetoothDeviceTestSuite, FTMSRowerDetected) {
@@ -361,6 +383,7 @@ TEST_F(BluetoothDeviceTestSuite, RenphoBike2Detected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, RowerDetected) {
+    GTEST_SKIP() << "Not a real device.";
     this->test_deviceDetection<RowerTestData>();
 }
 
@@ -441,6 +464,7 @@ TEST_F(BluetoothDeviceTestSuite, ToorxTreadmillDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, TreadmillDetected) {
+    GTEST_SKIP() << "Not a real device.";
     this->test_deviceDetection<TreadmillTestData>();
 }
 

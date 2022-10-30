@@ -4,14 +4,21 @@
 #include "cscbike.h"
 
 class CSCBikeTestData : public BluetoothDeviceTestData {
-
+private:
+    QString cscBikeName;
 public:
-    CSCBikeTestData() {}
+    CSCBikeTestData() {
+        this->cscBikeName = "CyclingSpeedCadenceBike-";
+        this->hasSettings = true;
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+        this->addDeviceName(this->cscBikeName, comparison::StartsWith);
+        this->addInvalidDeviceName("X"+this->cscBikeName, comparison::Exact);
 
-        return result;
+    }
+
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+       info.cscName = enable ? this->cscBikeName : "Disabled";
+       info.csc_as_bike = enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::CSCBike; }

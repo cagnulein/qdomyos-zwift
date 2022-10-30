@@ -30,6 +30,8 @@ class FlywheelBike2TestData : public FlywheelBikeTestData {
 
 public:
     FlywheelBike2TestData() {
+        this->hasSettings = true;
+
         // BIKE 1, BIKE 2, BIKE 3...
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
     }

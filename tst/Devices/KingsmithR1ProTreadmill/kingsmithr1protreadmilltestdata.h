@@ -5,16 +5,17 @@
 #include "kingsmithr1protreadmill.h"
 
 class KingsmithR1ProTreadmillTestData : public BluetoothDeviceTestData {
-
+protected:
+    void configureExclusions() override {
+        this->exclude(new KingsmithR2TreadmillTestData());
+    }
 public:
     KingsmithR1ProTreadmillTestData() {
 
         this->addDeviceName("R1 PRO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("RE", comparison::IgnoreCase);
         this->addDeviceName("KINGSMITH", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("KS-", comparison::StartsWithIgnoreCase);
-
-        this->exclude(new KingsmithR2TreadmillTestData());
+        this->addDeviceName("KS-", comparison::StartsWithIgnoreCase);        
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::KingsmithR1ProTreadmill; }

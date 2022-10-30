@@ -13,7 +13,7 @@ public:
         this->addDeviceName("C9/C10", comparison::StartsWithIgnoreCase);
 
         // 17 characters, beginning with C7-
-        this->addInvalidDeviceName("C7-456789ABCDEFG", comparison::IgnoreCase);
+        this->addInvalidDeviceName("C7-45678901234567", comparison::IgnoreCase);
     }
 
 

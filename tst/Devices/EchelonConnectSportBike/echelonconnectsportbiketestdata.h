@@ -10,7 +10,9 @@ class EchelonConnectSportBikeTestData : public BluetoothDeviceTestData {
 public:
     EchelonConnectSportBikeTestData() {
         this->addDeviceName("ECH", comparison::StartsWith);
+    }
 
+    void configureExclusions() override {
         this->exclude(new EchelonRowerTestData());
         this->exclude(new EchelonStrideTreadmillTestData());
     }

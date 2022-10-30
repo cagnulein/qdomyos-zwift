@@ -10,13 +10,15 @@ class DomyosTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     DomyosTreadmillTestData() {
-        this->exclude(new DomyosEllipticalTestData());
-        this->exclude(new DomyosBikeTestData());
-        this->exclude(new DomyosRowerTestData());
-
         this->addDeviceName("Domyos", comparison::StartsWith);
 
         this->addInvalidDeviceName("DomyosBr", comparison::StartsWith);
+    }
+
+    void configureExclusions() override {
+        this->exclude(new DomyosEllipticalTestData());
+        this->exclude(new DomyosBikeTestData());
+        this->exclude(new DomyosRowerTestData());
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::DomyosTreadmill; }

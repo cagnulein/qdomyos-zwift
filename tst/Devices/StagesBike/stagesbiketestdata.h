@@ -7,10 +7,12 @@
 
 class StagesBikeTestData : public BluetoothDeviceTestData {
 protected:
-    StagesBikeTestData() {
-        this->exclude(new FTMSBikeTestData());
+    StagesBikeTestData() {        
     }
+
+    void configureExclusions() override;
 public:
+
 
     deviceType get_expectedDeviceType() const override { return deviceType::StagesBike; }
 
@@ -33,6 +35,8 @@ class StagesBike2TestData : public StagesBikeTestData {
 
 public:
     StagesBike2TestData() {
+        this->hasSettings = true;
+
         this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
     }
 

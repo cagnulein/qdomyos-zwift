@@ -12,6 +12,8 @@ class BluetoothDeviceTestData  {
     std::vector<std::shared_ptr<BluetoothDeviceTestData>> exclusions;
     QStringList deviceNames;
     QStringList invalidDeviceNames;
+    bool exclusionsConfigured = false;
+    bool configuringExclusions = false;
 protected:
     enum comparison : int {
         Exact = 0,
@@ -19,6 +21,14 @@ protected:
         StartsWith = 2,
         StartsWithIgnoreCase = IgnoreCase+StartsWith
     };
+
+    bool hasSettings=false;
+
+    /**
+     * @brief Call exclude(...) to populate the exclusions vector. This vector is populated on demand
+     * to avoid circularities in the constructors.
+     */
+    virtual void configureExclusions() {}
 
     void exclude(BluetoothDeviceTestData* testData);
 
@@ -70,11 +80,35 @@ public:
      * prior detection should prevent the detection of this device when an expected device name is found.
      * @return
      */
-    virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions() const;
+    virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions();
 
+    /**
+     * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
+     * @param info
+     * @param enable
+     */
     virtual void configureSettings(devicediscoveryinfo& info, bool enable) const {}
+
+    /**
+     * @brief Gets the expected device type enumeration value to be detected for this device.
+     */
     virtual deviceType get_expectedDeviceType() const =0;
+
+    /**
+     * @brief Determines if the specified bluetoothdevice* object is of the expected type for this device.
+     * @param detectedDevice
+     * @return
+     */
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
+
+    /**
+     * @brief Indicates if the device has settings that should be considered in the testing.
+     */
+    bool get_hasSettings() const { return this->hasSettings; }
+
+    /**
+     * @brief Specifies a test IP address for wifi devices.
+     */
     virtual QString get_testIP() const { return "1.2.3.4"; }
 
 };

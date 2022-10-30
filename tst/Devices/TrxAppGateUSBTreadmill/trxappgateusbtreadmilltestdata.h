@@ -5,6 +5,8 @@
 
 class TrxAppGateUSBTreadmillTestData : public BluetoothDeviceTestData {
 
+protected:
+    void configureExclusions() override;
 public:
     TrxAppGateUSBTreadmillTestData();
 

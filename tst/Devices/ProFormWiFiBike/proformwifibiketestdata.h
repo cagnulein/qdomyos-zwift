@@ -7,6 +7,8 @@ class ProFormWiFiBikeTestData : public BluetoothDeviceTestData {
 
 public:
     ProFormWiFiBikeTestData() {
+        this->hasSettings= true;
+
         // any name
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }

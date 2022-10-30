@@ -24,7 +24,7 @@ public:
 
     template<class T>
     void test_deviceDetection();
-    void test_deviceDetection(const BluetoothDeviceTestData& testData);
+    void test_deviceDetection(BluetoothDeviceTestData& testData);
 
 };
 

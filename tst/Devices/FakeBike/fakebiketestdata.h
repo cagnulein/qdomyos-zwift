@@ -6,12 +6,13 @@
 class FakeBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    FakeBikeTestData() {}
+    FakeBikeTestData() {
+        this->hasSettings = true;
+        this->addDeviceName("", comparison::StartsWithIgnoreCase);
+    }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.fake_bike = enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::FakeBike; }

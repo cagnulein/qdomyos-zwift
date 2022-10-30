@@ -7,11 +7,8 @@ class TrueTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     TrueTreadmillTestData() {
-        this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("F63", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TRUE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TREADMILL", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TrueTreadmill; }

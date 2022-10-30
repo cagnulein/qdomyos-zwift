@@ -7,6 +7,7 @@ class PafersTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     PafersTreadmillTestData() {
+        this->hasSettings = true;
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 
