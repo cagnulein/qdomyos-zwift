@@ -44,5 +44,4 @@ public:
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {
         info.toorx_bike = enable;
     }
-
 };

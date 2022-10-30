@@ -1,17 +1,12 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "Devices/FitPlusBike/fitplusbiketestdata.h"
-#include "Devices/FTMSBike/ftmsbiketestdata.h"
+
 #include "snodebike.h"
 
 class SnodeBikeTestData : public BluetoothDeviceTestData {
 protected:
-    SnodeBikeTestData() {
-        this->exclude(new FitPlusBikeFSTestData());
-        this->exclude(new FitPlusBikeMRKTestData());
-        this->exclude(new FTMSBikeTestData());
-    }
+    SnodeBikeTestData();
 public:
 
     deviceType get_expectedDeviceType() const override { return deviceType::SnodeBike; }

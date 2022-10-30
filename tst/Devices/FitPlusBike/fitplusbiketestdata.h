@@ -2,8 +2,6 @@
 
 #include "Devices/bluetoothdevicetestdata.h"
 #include "fitplusbike.h"
-#include "Devices/FTMSBike/ftmsbiketestdata.h"
-#include "Devices/SnodeBike/snodebiketestdata.h"
 
 class FitPlusBikeFSTestData : public BluetoothDeviceTestData {
 
@@ -26,14 +24,7 @@ public:
 class FitPlusBikeMRKTestData : public BluetoothDeviceTestData {
 
 public:
-    FitPlusBikeMRKTestData() {
-
-        this->addDeviceName("MRK-", comparison::StartsWith);
-
-        this->exclude(new FTMSBikeTestData());
-        this->exclude(new SnodeBike1TestData());
-        this->exclude(new SnodeBike2TestData());
-    }
+    FitPlusBikeMRKTestData();
 
     deviceType get_expectedDeviceType() const override { return deviceType::FitPlusBike; }
 

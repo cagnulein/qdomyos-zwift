@@ -12,6 +12,9 @@ CONFIG += thread
 SOURCES += \
         Devices/ActivioTreadmill/activiotreadmilltestdata.cpp \
         Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
+        Devices/FitPlusBike/fitplusbiketestdata.cpp \
+        Devices/SnodeBike/snodebiketestdata.cpp \
+        Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
         main.cpp
