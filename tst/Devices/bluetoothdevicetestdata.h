@@ -22,7 +22,16 @@ protected:
         StartsWithIgnoreCase = IgnoreCase+StartsWith
     };
 
+    /**
+     * @brief Indicates if there are settings to test. I.e. if a device can be switched off in the settings,
+     * test that the device isn't detected if it's disabled.
+     */
     bool hasSettings=false;
+
+    /**
+     * @brief Indicates if invalid bluetooth device info should be tested for.
+     */
+    bool testInvalidBluetoothDeviceInfo = false;
 
     /**
      * @brief Call exclude(...) to populate the exclusions vector. This vector is populated on demand
@@ -107,9 +116,29 @@ public:
     bool get_hasSettings() const { return this->hasSettings; }
 
     /**
+     * @brief Indicates if invliad bluetooth device info should be tested for.
+     * @return
+     */
+    bool get_testInvalidBluetoothDeviceInfo() const { return this->testInvalidBluetoothDeviceInfo; }
+
+    /**
      * @brief Specifies a test IP address for wifi devices.
      */
     virtual QString get_testIP() const { return "1.2.3.4"; }
+
+
+    /**
+     * @brief Gets a QBluetoothDeviceInfo object for the specified name and UUID. Can be used to
+     * generate invalid objects where device identification relies on more than just the name.
+     * @param uuid
+     * @param name
+     * @param valid
+     */
+    virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true) {
+        if(!valid)
+            throw "Invalid bluetooth device info is not implemented in this class.";
+        return QBluetoothDeviceInfo(uuid, name, 0);
+    }
 
 };
 

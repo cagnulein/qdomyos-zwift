@@ -378,7 +378,11 @@ devicediscoveryinfo bluetooth::getDiscoveryInfo() {
     info.nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     info.tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
-
+    info.technogym_myrun_treadmill_experimental =
+        settings
+        .value(QZSettings::technogym_myrun_treadmill_experimental,
+               QZSettings::default_technogym_myrun_treadmill_experimental)
+        .toBool();
     return info;
 }
 
@@ -648,13 +652,9 @@ discovereddevice bluetooth::discoverDevice(const devicediscoveryinfo& info, cons
                !info.excludes(deviceType::TechnoGymMyRunTreadmill) && filter) {
 
         QSettings settings;
-        bool technogym_myrun_treadmill_experimental =
-                settings
-                .value(QZSettings::technogym_myrun_treadmill_experimental,
-                       QZSettings::default_technogym_myrun_treadmill_experimental)
-                .toBool();
+
 #ifndef Q_OS_IOS
-        if (!technogym_myrun_treadmill_experimental)
+        if (!info.technogym_myrun_treadmill_experimental)
 #endif
         {
             result = deviceType::TechnoGymMyRunTreadmill;

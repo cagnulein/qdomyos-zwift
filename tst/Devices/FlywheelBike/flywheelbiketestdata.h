@@ -36,7 +36,7 @@ public:
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
     }
 
-    virtual void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
         info.flywheel_life_fitness_ic8 = enable;
     }
 };

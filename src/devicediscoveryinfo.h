@@ -46,6 +46,8 @@ public :
     bool snode_bike = false;
     bool fitplus_bike = false;
 
+    bool technogym_myrun_treadmill_experimental = false;
+
     /**
      * @brief Exclude a device type. Can be used to indicate a device of this type is already discovered.
      * @param type the device type to exclude.

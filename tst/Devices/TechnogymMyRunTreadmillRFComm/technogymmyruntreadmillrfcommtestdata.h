@@ -6,12 +6,14 @@
 class TechnogymMyRunTreadmillRFCommTestData : public BluetoothDeviceTestData {
 
 public:
-    TechnogymMyRunTreadmillRFCommTestData() {}
+    TechnogymMyRunTreadmillRFCommTestData() {
+        this->hasSettings = true;
+        this->addDeviceName("MYRUN ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MERACH-U3", comparison::StartsWithIgnoreCase);
+    }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
+    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.technogym_myrun_treadmill_experimental = enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TechnoGymMyRunTreadmillRfComm; }

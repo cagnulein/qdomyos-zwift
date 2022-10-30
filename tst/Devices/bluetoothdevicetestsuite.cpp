@@ -101,7 +101,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
 
     for(QString deviceName : names)
     {
-        QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+        QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
         EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected for name: " << deviceName.toStdString();
     }
@@ -112,9 +112,21 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
 
         for(QString deviceName : names)
         {
-            QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
             auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
             EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Expected device type detected when disabled";
+        }
+    }
+
+    if(testData.get_testInvalidBluetoothDeviceInfo()) {
+        // Test that the device is not identified when disabled in the settings
+        testData.configureSettings(discoveryInfo, false);
+
+        for(QString deviceName : names)
+        {
+            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
+            auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
+            EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Expected device type detected from invalid bluetooth device info";
         }
     }
 
@@ -127,7 +139,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
 
         for(QString deviceName : names)
         {
-            QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
             auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
             EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device in spite of exclusion";
         }
@@ -139,7 +151,7 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
     names = testData.get_failingDeviceNames();
     for(QString deviceName : names)
     {
-        QBluetoothDeviceInfo deviceInfo{uuid, deviceName, 0};
+        QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
         EXPECT_NE(discovered.type, testData.get_expectedDeviceType()) << "Detected device from invalid name: " << deviceName.toStdString();
     }
@@ -456,7 +468,12 @@ TEST_F(BluetoothDeviceTestSuite, TechnoGymMyRunTreadmillDetected) {
 }
 
 TEST_F(BluetoothDeviceTestSuite, TechnogymMyRunTreadmillRFCommDetected) {
-    this->test_deviceDetection<TechnogymMyRunTreadmillRFCommTestData>();
+    #ifndef Q_OS_IOS
+        this->test_deviceDetection<TechnogymMyRunTreadmillRFCommTestData>();
+    #else
+        GTEST_SKIP() << "Not relevant to iOS";
+    #endif
+
 }
 
 TEST_F(BluetoothDeviceTestSuite, ToorxTreadmillDetected) {
