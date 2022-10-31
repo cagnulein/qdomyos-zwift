@@ -1,3 +1,5 @@
+#include <QApplication>
+
 #include <memory>
 #include "bluetooth.h"
 #include "bluetoothdevicetestsuite.h"
@@ -99,11 +101,17 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
     if(testData.get_hasSettings())
         testData.configureSettings(discoveryInfo, true);
 
+    // bluetooth bt(false, "", false, false, 200, false, false, 4, 1.0,false);
+
     for(QString deviceName : names)
     {
         QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
         auto discovered = bluetooth::discoverDevice(discoveryInfo, deviceInfo);
         EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected for name: " << deviceName.toStdString();
+
+        // try to create the device
+        // auto device = std::shared_ptr<bluetoothdevice>(bt.createDevice(discovered));
+        // EXPECT_TRUE(testData.get_isExpectedDevice(device.get()));
     }
 
     if(testData.get_hasSettings()) {
