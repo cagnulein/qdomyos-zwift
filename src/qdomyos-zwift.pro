@@ -74,7 +74,6 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
-   kmlworkout.cpp \
    mepanelbike.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
@@ -264,7 +263,6 @@ HEADERS += \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
-   kmlworkout.h \
    mepanelbike.h \
    nautilusbike.h \
     nordictrackelliptical.h \
