@@ -37,5 +37,6 @@ public:
 
     void configureSettings(devicediscoveryinfo& info, bool enable) const override {
         info.toorx_ftms = enable;
+        info.toorx_bike = true;
     }
 };

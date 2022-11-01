@@ -14,6 +14,7 @@ SOURCES += \
         Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
+        Devices/M3IBike/m3ibiketestdata.cpp \
         Devices/RenphoBike/renphobiketestdata.cpp \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
