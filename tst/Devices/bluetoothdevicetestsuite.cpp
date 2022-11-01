@@ -101,7 +101,12 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
     if(testData.get_hasSettings())
         testData.configureSettings(discoveryInfo, true);
 
-    // bluetooth bt(false, "", false, false, 200, false, false, 4, 1.0,false);
+    // set up options suitable for testing device creation
+    discoveryoptions options;
+    options.startDiscovery = false;
+    options.createTemplateManagers = false;
+
+    bluetooth bt(options);
 
     for(QString deviceName : names)
     {
@@ -110,8 +115,11 @@ void BluetoothDeviceTestSuite::test_deviceDetection(BluetoothDeviceTestData& tes
         EXPECT_EQ(discovered.type, testData.get_expectedDeviceType()) << "Expected device type not detected for name: " << deviceName.toStdString();
 
         // try to create the device
-        // auto device = std::shared_ptr<bluetoothdevice>(bt.createDevice(discovered));
-        // EXPECT_TRUE(testData.get_isExpectedDevice(device.get()));
+        std::shared_ptr<bluetoothdevice> device;
+
+        EXPECT_NO_THROW(device = std::shared_ptr<bluetoothdevice>(bt.createDevice(discovered))) << "Failed to create device object";
+
+        EXPECT_TRUE(testData.get_isExpectedDevice(device.get()));
     }
 
     if(testData.get_hasSettings()) {

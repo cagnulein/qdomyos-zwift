@@ -64,6 +64,7 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/templatemanagers.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
@@ -249,6 +250,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/discoveryoptions.h \
+    $$PWD/templatemanagers.h \
    PathController.h \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \

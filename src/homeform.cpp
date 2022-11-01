@@ -352,34 +352,27 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     this->bluetoothManager = bl;
     this->engine = engine;
+
+    const auto userTemplateManager = bluetoothManager->getTemplateManagers()->getUserTemplateManager();
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
-    connect(this, &homeform::workoutNameChanged, bluetoothManager->getUserTemplateManager(),
-            &TemplateInfoSenderBuilder::onWorkoutNameChanged);
-    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getUserTemplateManager(),
-            &TemplateInfoSenderBuilder::onWorkoutStartDate);
-    connect(this, &homeform::instructorNameChanged, bluetoothManager->getUserTemplateManager(),
-            &TemplateInfoSenderBuilder::onInstructorName);
-    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getUserTemplateManager(),
-            &TemplateInfoSenderBuilder::workoutEventStateChanged);
-    connect(bluetoothManager->getUserTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
-            &homeform::setActivityDescription);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
-            &homeform::chartSaved);
-    connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
-            &TemplateInfoSenderBuilder::onWorkoutNameChanged);
-    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
-            &TemplateInfoSenderBuilder::onWorkoutStartDate);
-    connect(this, &homeform::instructorNameChanged, bluetoothManager->getInnerTemplateManager(),
-            &TemplateInfoSenderBuilder::onInstructorName);
-    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getInnerTemplateManager(),
-            &TemplateInfoSenderBuilder::workoutEventStateChanged);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
-            &homeform::setActivityDescription);
-    engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
+    connect(this, &homeform::workoutNameChanged, userTemplateManager, &TemplateInfoSenderBuilder::onWorkoutNameChanged);
+    connect(this, &homeform::workoutStartDateChanged, userTemplateManager, &TemplateInfoSenderBuilder::onWorkoutStartDate);
+    connect(this, &homeform::instructorNameChanged, userTemplateManager, &TemplateInfoSenderBuilder::onInstructorName);
+    connect(this, &homeform::workoutEventStateChanged, userTemplateManager,&TemplateInfoSenderBuilder::workoutEventStateChanged);
+    connect(userTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,&homeform::setActivityDescription);
 
+    const auto innerTemplateManager = bluetoothManager->getTemplateManagers()->getInnerTemplateManager();
+    connect(innerTemplateManager, &TemplateInfoSenderBuilder::chartSaved, this,&homeform::chartSaved);
+    connect(this, &homeform::workoutNameChanged, innerTemplateManager,&TemplateInfoSenderBuilder::onWorkoutNameChanged);
+    connect(this, &homeform::workoutStartDateChanged, innerTemplateManager, &TemplateInfoSenderBuilder::onWorkoutStartDate);
+    connect(this, &homeform::instructorNameChanged, innerTemplateManager,&TemplateInfoSenderBuilder::onInstructorName);
+    connect(this, &homeform::workoutEventStateChanged, innerTemplateManager, &TemplateInfoSenderBuilder::workoutEventStateChanged);
+    connect(innerTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this, &homeform::setActivityDescription);
+
+    engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
     timer = new QTimer(this);
