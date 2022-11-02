@@ -5,3 +5,5 @@ virtualdevice::virtualdevice(QObject *parent)
 {
 
 }
+
+virtualdevice::~virtualdevice() {}
