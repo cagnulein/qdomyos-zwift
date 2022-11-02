@@ -568,6 +568,9 @@ import Qt.labs.settings 1.0
 				property string tile_preset_inclination_3_color: "grey"
 				property string tile_preset_inclination_4_color: "grey"
 				property string tile_preset_inclination_5_color: "grey"
+
+            property bool tile_avg_watt_lap_enabled: false
+				property int tile_avg_watt_lap_order: 48
         }
 
         function paddingZeros(text, limit) {

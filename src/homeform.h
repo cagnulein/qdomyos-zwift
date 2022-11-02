@@ -565,6 +565,7 @@ class homeform : public QObject {
     DataObject *resistance;
     DataObject *watt;
     DataObject *avgWatt;
+    DataObject *avgWattLap;
     DataObject *heart;
     DataObject *fan;
     DataObject *jouls;
