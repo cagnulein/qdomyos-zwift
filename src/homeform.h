@@ -36,6 +36,7 @@ class DataObject : public QObject {
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(bool largeButton READ largeButton NOTIFY largeButtonChanged)
+    Q_PROPERTY(QString largeButtonColor READ largeButtonColor NOTIFY largeButtonColorChanged)
     Q_PROPERTY(QString largeButtonLabel READ largeButtonLabel NOTIFY largeButtonLabelChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
@@ -45,7 +46,8 @@ class DataObject : public QObject {
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                int valueFontSize, int labelFontSize, const QString &valueFontColor = QStringLiteral("white"),
                const QString &secondLine = QLatin1String(""), const int gridId = 0, const bool largeButton = false,
-               const QString largeButtonLabel = QLatin1String(""));
+               const QString largeButtonLabel = QLatin1String(""),
+               const QString largeButtonColor = QZSettings::default_tile_preset_resistance_1_color);
     void setName(const QString &value);
     void setValue(const QString &value);
     void setSecondLine(const QString &value);
@@ -69,6 +71,7 @@ class DataObject : public QObject {
     QString identificator() { return m_id; }
     bool largeButton() { return m_largeButton; }
     QString largeButtonLabel() { return m_largeButtonLabel; }
+    QString largeButtonColor() { return m_largeButtonColor; }
 
     QString m_id;
     QString m_name;
@@ -83,6 +86,7 @@ class DataObject : public QObject {
     bool m_visible = true;
     bool m_largeButton = false;
     QString m_largeButtonLabel = QLatin1String("");
+    QString m_largeButtonColor = QZSettings::default_tile_preset_resistance_1_color;
 
   signals:
     void valueChanged(QString value);
@@ -100,6 +104,7 @@ class DataObject : public QObject {
     void identificatorChanged(QString value);
     void largeButtonChanged(bool value);
     void largeButtonLabelChanged(QString value);
+    void largeButtonColorChanged(QString value);
 };
 
 class homeform : public QObject {
