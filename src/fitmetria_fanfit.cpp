@@ -207,7 +207,8 @@ void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
                         QStringLiteral(" // ") + info;
     }
 
-    loop.exec();
+    // not necessary, since the communication is one way only. also it could lead to crashes
+    // loop.exec();
 }
 
 void fitmetria_fanfit::stateChanged(QLowEnergyService::ServiceState state) {

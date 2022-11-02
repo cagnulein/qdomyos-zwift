@@ -247,6 +247,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
+    bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
