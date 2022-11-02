@@ -10,8 +10,6 @@ void TrxAppGateUSBTreadmillTestData::configureExclusions() {
 }
 
 TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() {
-    this->hasSettings = true;
-
     this->addDeviceName("TOORX", comparison::StartsWith);
     this->addDeviceName("V-RUN", comparison::StartsWith);
 

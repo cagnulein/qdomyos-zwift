@@ -27,16 +27,14 @@ public:
 };
 
 class FlywheelBike2TestData : public FlywheelBikeTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.flywheel_life_fitness_ic8 = enable;
+        return true;
+    }
 public:
     FlywheelBike2TestData() {
-        this->hasSettings = true;
-
         // BIKE 1, BIKE 2, BIKE 3...
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.flywheel_life_fitness_ic8 = enable;
     }
 };

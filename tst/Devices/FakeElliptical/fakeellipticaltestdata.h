@@ -4,15 +4,14 @@
 #include "fakeelliptical.h"
 
 class FakeEllipticalTestData : public BluetoothDeviceTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.fakedevice_elliptical = enable;
+        return true;
+    }
 public:
     FakeEllipticalTestData() {
-        this->hasSettings = true;
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.fakedevice_elliptical = enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::FakeElliptical; }

@@ -4,16 +4,16 @@
 #include "fitplusbike.h"
 
 class FitPlusBikeFSTestData : public BluetoothDeviceTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.fitplus_bike = enable;
+        return true;
+    }
 public:
     FitPlusBikeFSTestData() {
-        this->hasSettings = true;
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.fitplus_bike = enable;
-    }
 
     deviceType get_expectedDeviceType() const override { return deviceType::FitPlusBike; }
 

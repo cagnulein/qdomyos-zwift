@@ -15,18 +15,16 @@ class BluetoothDeviceTestData  {
     bool exclusionsConfigured = false;
     bool configuringExclusions = false;
 protected:
+
+    /**
+     * @brief Indicates how bluetooth device names should be compared.
+     */
     enum comparison : int {
         Exact = 0,
         IgnoreCase = 1,
         StartsWith = 2,
         StartsWithIgnoreCase = IgnoreCase+StartsWith
     };
-
-    /**
-     * @brief Indicates if there are settings to test. I.e. if a device can be switched off in the settings,
-     * test that the device isn't detected if it's disabled.
-     */
-    bool hasSettings=false;
 
     /**
      * @brief Indicates if invalid bluetooth device info should be tested for.
@@ -37,7 +35,7 @@ protected:
      * @brief Call exclude(...) to populate the exclusions vector. This vector is populated on demand
      * to avoid circularities in the constructors.
      */
-    virtual void configureExclusions() {}
+    virtual void configureExclusions();
 
     void exclude(BluetoothDeviceTestData* testData);
 
@@ -66,11 +64,28 @@ protected:
      * @param target
      */
     static void addDifferentCasings(const QStringList &names, QStringList &target);
+
+
+    /**
+     * @brief Configure multiple devicediscoveryinfo objects to either enable or disable the device in multiple ways.
+     * @param info
+     * @param enable
+     * @param configurations The variations of the provided object to test.
+     */
+    virtual void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const;
+
+    /**
+     * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
+     * Used for where there is only 1 scenario.
+     * @param info
+     * @param enable
+     */
+    virtual bool configureSettings(devicediscoveryinfo& info, bool enable) const;
+
+
 public:
-    BluetoothDeviceTestData() {
-        // You can do set-up work for each test here.
-    }
-    virtual ~BluetoothDeviceTestData() {}
+    BluetoothDeviceTestData();
+    virtual ~BluetoothDeviceTestData();
 
 
     /**
@@ -92,11 +107,10 @@ public:
     virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions();
 
     /**
-     * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
+     * @brief get_configurations Gets combinations of configurations beginning with the specified object.
      * @param info
-     * @param enable
      */
-    virtual void configureSettings(devicediscoveryinfo& info, bool enable) const {}
+    virtual std::vector<devicediscoveryinfo> get_configurations(const devicediscoveryinfo& info, bool enable);
 
     /**
      * @brief Gets the expected device type enumeration value to be detected for this device.
@@ -111,20 +125,15 @@ public:
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
 
     /**
-     * @brief Indicates if the device has settings that should be considered in the testing.
-     */
-    bool get_hasSettings() const { return this->hasSettings; }
-
-    /**
-     * @brief Indicates if invliad bluetooth device info should be tested for.
+     * @brief Indicates if invalid bluetooth device info should be tested for.
      * @return
      */
-    bool get_testInvalidBluetoothDeviceInfo() const { return this->testInvalidBluetoothDeviceInfo; }
+    bool get_testInvalidBluetoothDeviceInfo() const;
 
     /**
      * @brief Specifies a test IP address for wifi devices.
      */
-    virtual QString get_testIP() const { return "1.2.3.4"; }
+    virtual QString get_testIP() const;
 
 
     /**
@@ -134,11 +143,7 @@ public:
      * @param name
      * @param valid
      */
-    virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true) {
-        if(!valid)
-            throw "Invalid bluetooth device info is not implemented in this class.";
-        return QBluetoothDeviceInfo(uuid, name, 0);
-    }
+    virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
 
 };
 

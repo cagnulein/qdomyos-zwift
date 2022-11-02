@@ -24,16 +24,18 @@ public:
 };
 
 class FTMSBike1TestData : public FTMSBikeTestData {
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.hammerRacerS = enable;
+        return true;
+    }
 public:
 
     FTMSBike1TestData() {
-        this->hasSettings = true;
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.hammerRacerS = enable;
-    }
+
 };
 
 class FTMSBike2TestData : public FTMSBikeTestData {

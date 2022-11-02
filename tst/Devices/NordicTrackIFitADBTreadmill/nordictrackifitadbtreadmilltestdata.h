@@ -4,20 +4,19 @@
 #include "nordictrackifitadbtreadmill.h"
 
 class NordicTrackIFitADBTreadmillTestData : public BluetoothDeviceTestData {
-
-public:
-    NordicTrackIFitADBTreadmillTestData() {
-        this->hasSettings = true;
-
-        // Allow any name because it's not a bluetooth device
-        this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
         if(enable)
             info.nordictrack_2950_ip = this->get_testIP();
         else
             info.nordictrack_2950_ip = QString();
+
+        return true;
+    }
+public:
+    NordicTrackIFitADBTreadmillTestData() {
+        // Allow any name because it's not a bluetooth device
+        this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::NordicTrackIFitADBTreadmill; }

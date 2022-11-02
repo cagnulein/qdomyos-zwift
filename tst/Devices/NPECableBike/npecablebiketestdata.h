@@ -25,20 +25,18 @@ public:
 };
 
 class NPECableBike2TestData : public NPECableBikeTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        // don't allow this device if the Flywheel bike is enabled.
+        info.flywheel_life_fitness_ic8 = !enable;
+        return true;
+    }
 public:
     NPECableBike2TestData() {
-        this->hasSettings = true;
-
         // BIKE 1, BIKE 2, BIKE 3...
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
 
         // put in a name that's too long.
         this->addInvalidDeviceName("BIKE567", comparison::IgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        // don't allow this device if the Flywheel bike is enabled.
-        info.flywheel_life_fitness_ic8 = !enable;
     }
 };

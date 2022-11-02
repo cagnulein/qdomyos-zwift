@@ -4,17 +4,15 @@
 #include "proformwifibike.h"
 
 class ProFormWiFiBikeTestData : public BluetoothDeviceTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.proformtdf4ip = enable ? this->get_testIP():QString();
+        return true;
+    }
 public:
     ProFormWiFiBikeTestData() {
-        this->hasSettings= true;
-
         // any name
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.proformtdf4ip = enable ? this->get_testIP():QString();
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ProformWifiBike; }

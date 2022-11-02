@@ -4,15 +4,15 @@
 #include "paferstreadmill.h"
 
 class PafersTreadmillTestData : public BluetoothDeviceTestData {
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.pafers_treadmill = enable;
+        return true;
+    }
 
 public:
     PafersTreadmillTestData() {
-        this->hasSettings = true;
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.pafers_treadmill = enable;
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::PafersTreadmill; }

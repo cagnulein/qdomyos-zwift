@@ -4,16 +4,15 @@
 #include "faketreadmill.h"
 
 class FakeTreadmillTestData : public BluetoothDeviceTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.fakedevice_treadmill = enable;
+        return true;
+    }
 public:
     FakeTreadmillTestData() {
-        this->hasSettings = true;
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.fakedevice_treadmill = enable;
-    }
+    }   
 
     deviceType get_expectedDeviceType() const override { return deviceType::FakeTreadmill; }
 

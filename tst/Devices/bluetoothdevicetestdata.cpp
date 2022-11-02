@@ -1,6 +1,8 @@
 #include "bluetoothdevicetestdata.h"
 
 
+void BluetoothDeviceTestData::configureExclusions() {}
+
 void BluetoothDeviceTestData::exclude(BluetoothDeviceTestData *testData) {
     if(!this->configuringExclusions)
         throw "Exclusions can only be specified from the configureExclusions method.";
@@ -52,6 +54,16 @@ void BluetoothDeviceTestData::addDifferentCasings(const QStringList& names, QStr
     }
 }
 
+void BluetoothDeviceTestData::configureSettings(const devicediscoveryinfo &info, bool enable, std::vector<devicediscoveryinfo> configurations) const { }
+
+bool BluetoothDeviceTestData::configureSettings(devicediscoveryinfo &info, bool enable) const { return false;}
+
+BluetoothDeviceTestData::BluetoothDeviceTestData() {
+    // You can do set-up work for each test here.
+}
+
+BluetoothDeviceTestData::~BluetoothDeviceTestData() {}
+
 void BluetoothDeviceTestData::addInvalidDeviceName(const QString& deviceName, comparison cmp){
     QStringList newNames;
 
@@ -80,4 +92,26 @@ std::vector<std::shared_ptr<BluetoothDeviceTestData> > BluetoothDeviceTestData::
 
     }
     return this->exclusions;
+}
+
+std::vector<devicediscoveryinfo> BluetoothDeviceTestData::get_configurations(const devicediscoveryinfo &info, bool enable) {
+    std::vector<devicediscoveryinfo> result;
+
+    devicediscoveryinfo newInfo(info);
+    if(this->configureSettings(newInfo, enable))
+        result.push_back(newInfo);
+
+    this->configureSettings(info, enable, result);
+
+    return result;
+}
+
+bool BluetoothDeviceTestData::get_testInvalidBluetoothDeviceInfo() const { return this->testInvalidBluetoothDeviceInfo; }
+
+QString BluetoothDeviceTestData::get_testIP() const { return "1.2.3.4"; }
+
+QBluetoothDeviceInfo BluetoothDeviceTestData::get_bluetoothDeviceInfo(const QBluetoothUuid &uuid, const QString &name, bool valid) {
+    if(!valid)
+        throw "Invalid bluetooth device info is not implemented in this class.";
+    return QBluetoothDeviceInfo(uuid, name, 0);
 }

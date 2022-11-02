@@ -4,17 +4,15 @@
 #include "pafersbike.h"
 
 class PafersBikeTestData : public BluetoothDeviceTestData {
-
-public:
-    PafersBikeTestData() {
-        this->hasSettings = true;
-
-        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
         // the treadmill is given priority
         info.pafers_treadmill = !enable;
+        return true;
+    }
+public:
+    PafersBikeTestData() {
+        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::PafersBike; }

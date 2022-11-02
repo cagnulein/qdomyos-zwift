@@ -4,17 +4,40 @@
 #include "strydrunpowersensor.h"
 
 class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
+private:
     QString powerSensorName;
+protected:
+    void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const override {
+        if(enable) {
+            // enabled and pwoerSensorName in settings matches device name
+            devicediscoveryinfo info1(info);
+            info1.power_as_treadmill = true;
+            info1.powerSensorName = this->powerSensorName;
+            configurations.push_back(info1);
+        } else {
+            // enabled but powerSensorName in settings does not match device name
+            devicediscoveryinfo info1(info);
+            info1.power_as_treadmill = true;
+            info1.powerSensorName = "NOT " +this->powerSensorName;
+            configurations.push_back(info1);
+
+            // disabled with non-matching name
+            devicediscoveryinfo info2(info);
+            info1.power_as_treadmill = false;
+            info1.powerSensorName = "NOT " +this->powerSensorName;
+            configurations.push_back(info2);
+
+            // disabled with matching name
+            devicediscoveryinfo info3(info);
+            info1.power_as_treadmill = false;
+            info1.powerSensorName = this->powerSensorName;
+            configurations.push_back(info3);
+        }
+    }
 public:
     StrydeRunPowerSensorTestData() {
-        this->hasSettings = true;
         this->powerSensorName = "WattsItCalled-";
         this->addDeviceName(this->powerSensorName, comparison::StartsWith);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.power_as_treadmill = enable;
-        info.powerSensorName = enable ? this->powerSensorName:"Disabled";
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::PowerTreadmill_StrydrunPowerSensor; }

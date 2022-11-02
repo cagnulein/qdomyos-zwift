@@ -23,9 +23,32 @@ public:
 
 
 class FitshowTreadmillFSTestData : public FitshowTreadmillTestData {
+protected:
+    void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const override {
+        if(enable){
+            devicediscoveryinfo info1(info);
+            info1.snode_bike = false;
+            info1.fitplus_bike = false;
+            configurations.push_back(info1);
+        } else {
+            devicediscoveryinfo info1(info);
+            info1.snode_bike = true;
+            info1.fitplus_bike = true;
+            configurations.push_back(info1);
+
+            devicediscoveryinfo info2(info);
+            info1.snode_bike = true;
+            info1.fitplus_bike = false;
+            configurations.push_back(info2);
+
+            devicediscoveryinfo info3(info);
+            info1.snode_bike = false;
+            info1.fitplus_bike = true;
+            configurations.push_back(info3);
+        }
+    }
 public:
     FitshowTreadmillFSTestData() {
-        this->hasSettings = true;
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -34,11 +57,7 @@ public:
         this->exclude(new FTMSBike2TestData());
     }
 
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        // TODO test if only 1 of these is set
-        info.snode_bike = !enable;
-        info.fitplus_bike = !enable;
-    }
+
 };
 
 

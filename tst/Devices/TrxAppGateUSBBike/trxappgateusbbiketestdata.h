@@ -32,10 +32,13 @@ public:
 };
 
 class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.toorx_bike = enable;
+        return true;
+    }
 public:
     TrxAppGateUSBBike2TestData() {
-        this->hasSettings = true;
 
         this->addDeviceName("TOORX", comparison::StartsWith);
         this->addDeviceName("I-CONSOIE+", comparison::StartsWithIgnoreCase) ;
@@ -45,9 +48,5 @@ public:
         this->addDeviceName("VIFHTR2.1", comparison::StartsWithIgnoreCase) ;
         this->addDeviceName("DKN MOTION", comparison::StartsWithIgnoreCase);
         this->addDeviceName("CR011R", comparison::IgnoreCase);
-    }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.toorx_bike = enable;
     }
 };

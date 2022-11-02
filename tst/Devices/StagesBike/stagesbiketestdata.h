@@ -13,7 +13,6 @@ protected:
     void configureExclusions() override;
 public:
 
-
     deviceType get_expectedDeviceType() const override { return deviceType::StagesBike; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
@@ -32,16 +31,14 @@ public:
 
 
 class StagesBike2TestData : public StagesBikeTestData {
-
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.powerSensorName = enable ? "Disabled":"Roberto";
+        return true;
+    }
 public:
     StagesBike2TestData() {
-        this->hasSettings = true;
 
         this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
     }
-
-    void configureSettings(devicediscoveryinfo& info, bool enable) const override {
-        info.powerSensorName = enable ? "Disabled":"Roberto";
-    }
-
 };
