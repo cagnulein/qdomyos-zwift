@@ -218,13 +218,14 @@ void bluetooth::finished() {
 
 
     // since i can have multiple fanfit i can't wait more because i don't have the full list of the fanfit
-    // devices connected to QZ
-    // bool fitmetriaFanfitEnabled = settings.value(QZSettings::fitmetria_fanfit_enable,
-    // QZSettings::default_fitmetria_fanfit_enable).toBool();
+    // devices connected to QZ. edit: let's wait at the last one item
+    bool fitmetriaFanfitFound =
+        !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
 
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
-        (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable())) {
+        (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable()) ||
+        (!fitmetriaFanfitFound && !fitmetriaFanfitAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -333,6 +334,16 @@ bool bluetooth::ftmsAccessoryAvaiable() {
     return false;
 }
 
+bool bluetooth::fitmetriaFanfitAvaiable() {
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (!b.name().compare("FITFAN-", Qt::CaseInsensitive)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool bluetooth::powerSensorAvaiable() {
 
     QSettings settings;
@@ -420,6 +431,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+    bool fitmetriaFanfitFound =
+        !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
     bool toorx_bike = (settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool() ||
                        settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool() ||
@@ -470,6 +483,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!heartRateBeltFound) {
 
         heartRateBeltFound = heartRateBeltAvaiable();
+    }
+    if (!fitmetriaFanfitFound) {
+
+        fitmetriaFanfitFound = fitmetriaFanfitAvaiable();
     }
     if (!ftmsAccessoryFound) {
 
@@ -559,7 +576,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
-         eliteSterzoSmartFound) ||
+         eliteSterzoSmartFound && fitmetriaFanfitFound) ||
         forceHeartBeltOffForTimeout) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
 

@@ -264,6 +264,7 @@ protected:
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
+    bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
     /**
