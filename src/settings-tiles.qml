@@ -181,6 +181,8 @@ ScrollView {
 		  property string tile_preset_inclination_3_color: "grey"
 		  property string tile_preset_inclination_4_color: "grey"
 		  property string tile_preset_inclination_5_color: "grey"
+		  property bool tile_avg_watt_lap_enabled: false
+		  property int tile_avg_watt_lap_order: 48
     }
 
 
@@ -555,6 +557,38 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+		      id: avgwattLapEnabledAccordion
+				title: qsTr("AVG Watt Lap")
+				linkedBoolSetting: "tile_avg_watt_lap_enabled"
+				settings: settings
+				accordionContent: RowLayout {
+				    spacing: 10
+					 Label {
+					     id: labelavgwattLapOrder
+						  text: qsTr("order index:")
+						  Layout.fillWidth: true
+						  horizontalAlignment: Text.AlignRight
+						}
+					 ComboBox {
+					     id: avgwattLapOrderTextField
+						  model: rootItem.tile_order
+						  displayText: settings.tile_avg_watt_lap_order
+						  Layout.fillHeight: false
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onActivated: {
+						      displayText = avgwattLapOrderTextField.currentValue
+								}
+							}
+					 Button {
+					     id: okavgwattLapOrderButton
+						  text: "OK"
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onClicked: settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText
+						}
+					}
+				}
 
         AccordionCheckElement {
             id: ftpEnabledAccordion
@@ -2902,7 +2936,7 @@ ScrollView {
 						  horizontalAlignment: Text.AlignRight
 						  }
 						ColorDialog {
-					     id: colorPresetInclination2
+						  id: colorPresetInclination2
 						  title: "Please choose a color"
 						  onAccepted: {
 						      presetInclination2ColorTextField.text = colorPresetInclination2.color

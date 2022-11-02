@@ -1561,6 +1561,12 @@ class QZSettings {
     static const QString tile_preset_inclination_5_color;
     static const QString default_tile_preset_inclination_5_color;
 
+    static const QString tile_avg_watt_lap_enabled;
+    static constexpr bool default_tile_avg_watt_lap_enabled = false;
+
+    static const QString tile_avg_watt_lap_order;
+    static constexpr int default_tile_avg_watt_lap_order = 48;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
