@@ -37,13 +37,13 @@ protected:
             configurations.push_back(info1);
 
             devicediscoveryinfo info2(info);
-            info1.snode_bike = true;
-            info1.fitplus_bike = false;
+            info2.snode_bike = true;
+            info2.fitplus_bike = false;
             configurations.push_back(info2);
 
             devicediscoveryinfo info3(info);
-            info1.snode_bike = false;
-            info1.fitplus_bike = true;
+            info2.snode_bike = false;
+            info2.fitplus_bike = true;
             configurations.push_back(info3);
         }
     }

@@ -9,7 +9,7 @@ private:
 protected:
     void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const override {
         if(enable) {
-            // enabled and pwoerSensorName in settings matches device name
+            // enabled and powerSensorName in settings matches device name
             devicediscoveryinfo info1(info);
             info1.power_as_treadmill = true;
             info1.powerSensorName = this->powerSensorName;
@@ -23,14 +23,14 @@ protected:
 
             // disabled with non-matching name
             devicediscoveryinfo info2(info);
-            info1.power_as_treadmill = false;
-            info1.powerSensorName = "NOT " +this->powerSensorName;
+            info2.power_as_treadmill = false;
+            info2.powerSensorName = "NOT " +this->powerSensorName;
             configurations.push_back(info2);
 
             // disabled with matching name
             devicediscoveryinfo info3(info);
-            info1.power_as_treadmill = false;
-            info1.powerSensorName = this->powerSensorName;
+            info3.power_as_treadmill = false;
+            info3.powerSensorName = this->powerSensorName;
             configurations.push_back(info3);
         }
     }
