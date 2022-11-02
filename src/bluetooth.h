@@ -57,6 +57,7 @@
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
+#include "mepanelbike.h"
 #include "nautilusbike.h"
 #include "nautiluselliptical.h"
 #include "nautilustreadmill.h"
@@ -176,6 +177,7 @@ class bluetooth : public QObject, public SignalHandler {
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
     m3ibike *m3iBike = nullptr;
+    mepanelbike *mepanelBike = nullptr;
     skandikawiribike *skandikaWiriBike = nullptr;
     cscbike *cscBike = nullptr;
     mcfbike *mcfBike = nullptr;
@@ -245,6 +247,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
+    bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
@@ -256,7 +259,7 @@ class bluetooth : public QObject, public SignalHandler {
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
-signals:
+  signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();

@@ -58,7 +58,7 @@ class proformwifibike : public bike {
   private:
     QWebSocket websocket;
     resistance_t max_resistance = 100;
-    resistance_t min_resistance = -8;
+    resistance_t min_resistance = -20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
@@ -83,6 +83,7 @@ class proformwifibike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    double target_watts = 0;
 
     bool initDone = false;
     bool initRequest = false;

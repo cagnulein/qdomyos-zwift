@@ -36,7 +36,6 @@ ApplicationWindow {
     signal keyMediaNext()
 
     property bool lockTiles: false
-    property bool showVideo: false
 
     Settings {
         id: settings
@@ -467,7 +466,7 @@ ApplicationWindow {
                 if(rootItem.currentCoordinateValid) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
-                    showVideo = !showVideo
+                    rootItem.videoVisible = !rootItem.videoVisible
                 } else {
                     console.log("coordinate is NOT valid for map");
                 }
@@ -476,7 +475,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
-            visible: rootItem.videoVisible
+            visible: rootItem.videoIconVisible
         }
 
         ToolButton {
@@ -656,7 +655,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.11.67"
+                text: "version 2.11.84"
                 width: parent.width
             }
 				FileDialog {

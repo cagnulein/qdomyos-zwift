@@ -1,5 +1,5 @@
-#ifndef FITPLUSBIKE_H
-#define FITPLUSBIKE_H
+#ifndef MEPANELBIKE_H
+#define MEPANELBIKE_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -33,25 +33,24 @@
 #include "ios/lockscreen.h"
 #endif
 
-class fitplusbike : public bike {
+class mepanelbike : public bike {
     Q_OBJECT
   public:
-    fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t maxResistance() { return max_resistance; }
+    mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
-    const resistance_t max_resistance = 24;
+    const resistance_t max_resistance = 32;
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
-    void sendPoll();
     uint16_t watts();
+    uint8_t getCheckNum(uint8_t i, uint8_t i2);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -74,8 +73,6 @@ class fitplusbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-    bool merach_MRK = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -102,4 +99,4 @@ class fitplusbike : public bike {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // FITPLUSBIKE_H
+#endif // MEPANELBIKE_H

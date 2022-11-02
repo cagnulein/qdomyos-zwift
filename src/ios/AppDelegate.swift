@@ -85,7 +85,7 @@ var pedometer = CMPedometer()
         } else {
             sender = "PHONE"
         }
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#")
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#CAD=\(WatchKitConnection.stepCadence)#")
 
     }
 }
