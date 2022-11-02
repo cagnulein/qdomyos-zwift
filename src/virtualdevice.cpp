@@ -1,4 +1,5 @@
 #include "virtualdevice.h"
+#include <QDebug>
 
 virtualdevice::virtualdevice(QObject *parent)
     : QObject{parent}
@@ -6,4 +7,6 @@ virtualdevice::virtualdevice(QObject *parent)
 
 }
 
-virtualdevice::~virtualdevice() {}
+virtualdevice::~virtualdevice() {
+    qDebug() << "Deleting virtual device";
+}
