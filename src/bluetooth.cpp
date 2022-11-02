@@ -532,8 +532,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(fakeBike);
                 innerTemplateManager->start(fakeBike);
             } else if (fakedevice_elliptical && !fakeElliptical) {
-				this->setLastBluetoothDevice(b);
-				this->stopDiscovery();
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
                 connect(fakeElliptical, &bluetoothdevice::connectedAndDiscovered, this,
@@ -659,8 +659,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(powerBike);
                 innerTemplateManager->start(powerBike);
             } else if (power_as_treadmill && b.name().startsWith(powerSensorName) && !powerTreadmill && filter) {
-                this->setLastBluetoothDevice(b);        
-				this->stopDiscovery();
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
                 powerTreadmill = new strydrunpowersensor(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
                 connect(powerTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
@@ -1347,8 +1347,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(echelonConnectSport);
                 innerTemplateManager->start(echelonConnectSport);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
-				this->setLastBluetoothDevice(b);                
-				this->stopDiscovery();
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
                 mepanelBike =
                     new mepanelbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // stateFileRead();
