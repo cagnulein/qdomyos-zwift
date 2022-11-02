@@ -1,5 +1,5 @@
-#ifndef SPIRITTREADMILL_H
-#define SPIRITTREADMILL_H
+#ifndef MEPANELBIKE_H
+#define MEPANELBIKE_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -22,61 +22,64 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include <QDateTime>
 #include <QObject>
-#include <QTime>
+#include <QString>
 
-#include "treadmill.h"
+#include "bike.h"
+#include "virtualbike.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
-class spirittreadmill : public treadmill {
+class mepanelbike : public bike {
     Q_OBJECT
   public:
-    spirittreadmill();
-    bool connected() override;
+    mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    bool connected();
 
-
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceIncline(double requestIncline);
-    void forceSpeed(double requestSpeed);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
+    const resistance_t max_resistance = 32;
+    void btinit();
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
+    void forceResistance(resistance_t requestResistance);
+    uint16_t watts();
+    uint8_t getCheckNum(uint8_t i, uint8_t i2);
 
     QTimer *refresh;
-
-    uint8_t firstVirtualTreadmill = 0;
-    bool firstCharChanged = true;
-    QTime lastTimeCharChanged;
-    uint8_t sec1update = 0;
-    QByteArray lastPacket;
-    uint8_t counterPoll = 0;
+    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
+
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+    uint8_t counterPoll = 1;
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
+    resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;
-    bool readyToStart = false;
 
-    bool XT385 = false;
-    bool XT485 = false;
+    bool noWriteResistance = false;
+    bool noHeartService = false;
 
-    enum _REQUEST_STATE { IDLE = 0, UP = 1, DOWN = 2 };
-    _REQUEST_STATE requestInclinationState = IDLE;
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
-  signals:
+  Q_SIGNALS:
     void disconnected();
-    void debug(QString string);
-    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -88,7 +91,6 @@ class spirittreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -97,4 +99,4 @@ class spirittreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // SPIRITTREADMILL_H
+#endif // MEPANELBIKE_H

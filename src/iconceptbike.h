@@ -51,6 +51,7 @@ class iconceptbike : public bike {
 
     QTimer *refresh;
     bool initDone = false;
+    uint8_t firstStateChanged = 0;
 
     uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
     uint16_t GetDistanceFromPacket(const QByteArray &packet);

@@ -1516,6 +1516,57 @@ class QZSettings {
     static const QString tile_preset_inclination_5_label;
     static const QString default_tile_preset_inclination_5_label;
 
+    static const QString tile_preset_resistance_1_color;
+    static const QString default_tile_preset_resistance_1_color;
+
+    static const QString tile_preset_resistance_2_color;
+    static const QString default_tile_preset_resistance_2_color;
+
+    static const QString tile_preset_resistance_3_color;
+    static const QString default_tile_preset_resistance_3_color;
+
+    static const QString tile_preset_resistance_4_color;
+    static const QString default_tile_preset_resistance_4_color;
+
+    static const QString tile_preset_resistance_5_color;
+    static const QString default_tile_preset_resistance_5_color;
+
+    static const QString tile_preset_speed_1_color;
+    static const QString default_tile_preset_speed_1_color;
+
+    static const QString tile_preset_speed_2_color;
+    static const QString default_tile_preset_speed_2_color;
+
+    static const QString tile_preset_speed_3_color;
+    static const QString default_tile_preset_speed_3_color;
+
+    static const QString tile_preset_speed_4_color;
+    static const QString default_tile_preset_speed_4_color;
+
+    static const QString tile_preset_speed_5_color;
+    static const QString default_tile_preset_speed_5_color;
+
+    static const QString tile_preset_inclination_1_color;
+    static const QString default_tile_preset_inclination_1_color;
+
+    static const QString tile_preset_inclination_2_color;
+    static const QString default_tile_preset_inclination_2_color;
+
+    static const QString tile_preset_inclination_3_color;
+    static const QString default_tile_preset_inclination_3_color;
+
+    static const QString tile_preset_inclination_4_color;
+    static const QString default_tile_preset_inclination_4_color;
+
+    static const QString tile_preset_inclination_5_color;
+    static const QString default_tile_preset_inclination_5_color;
+
+    static const QString tile_avg_watt_lap_enabled;
+    static constexpr bool default_tile_avg_watt_lap_enabled = false;
+
+    static const QString tile_avg_watt_lap_order;
+    static constexpr int default_tile_avg_watt_lap_order = 48;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

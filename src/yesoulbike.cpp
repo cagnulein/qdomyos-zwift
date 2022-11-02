@@ -14,12 +14,15 @@
 
 using namespace std::chrono_literals;
 
-yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService) {
+yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                       double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &yesoulbike::update);
     refresh->start(200ms);

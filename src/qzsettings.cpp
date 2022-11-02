@@ -516,8 +516,40 @@ const QString QZSettings::tile_preset_inclination_5_order = QStringLiteral("tile
 const QString QZSettings::tile_preset_inclination_5_value = QStringLiteral("tile_preset_inclination_5_value");
 const QString QZSettings::tile_preset_inclination_5_label = QStringLiteral("tile_preset_inclination_5_label");
 const QString QZSettings::default_tile_preset_inclination_5_label = QStringLiteral("4%");
+const QString QZSettings::tile_preset_resistance_1_color = QStringLiteral("tile_preset_resistance_1_color");
+const QString QZSettings::default_tile_preset_resistance_1_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_resistance_2_color = QStringLiteral("tile_preset_resistance_2_color");
+const QString QZSettings::default_tile_preset_resistance_2_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_resistance_3_color = QStringLiteral("tile_preset_resistance_3_color");
+const QString QZSettings::default_tile_preset_resistance_3_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_resistance_4_color = QStringLiteral("tile_preset_resistance_4_color");
+const QString QZSettings::default_tile_preset_resistance_4_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_resistance_5_color = QStringLiteral("tile_preset_resistance_5_color");
+const QString QZSettings::default_tile_preset_resistance_5_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_speed_1_color = QStringLiteral("tile_preset_speed_1_color");
+const QString QZSettings::default_tile_preset_speed_1_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_speed_2_color = QStringLiteral("tile_preset_speed_2_color");
+const QString QZSettings::default_tile_preset_speed_2_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_speed_3_color = QStringLiteral("tile_preset_speed_3_color");
+const QString QZSettings::default_tile_preset_speed_3_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_speed_4_color = QStringLiteral("tile_preset_speed_4_color");
+const QString QZSettings::default_tile_preset_speed_4_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_speed_5_color = QStringLiteral("tile_preset_speed_5_color");
+const QString QZSettings::default_tile_preset_speed_5_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_inclination_1_color = QStringLiteral("tile_preset_inclination_1_color");
+const QString QZSettings::default_tile_preset_inclination_1_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_inclination_2_color = QStringLiteral("tile_preset_inclination_2_color");
+const QString QZSettings::default_tile_preset_inclination_2_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_inclination_3_color = QStringLiteral("tile_preset_inclination_3_color");
+const QString QZSettings::default_tile_preset_inclination_3_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_inclination_4_color = QStringLiteral("tile_preset_inclination_4_color");
+const QString QZSettings::default_tile_preset_inclination_4_color = QStringLiteral("grey");
+const QString QZSettings::tile_preset_inclination_5_color = QStringLiteral("tile_preset_inclination_5_color");
+const QString QZSettings::default_tile_preset_inclination_5_color = QStringLiteral("grey");
+const QString QZSettings::tile_avg_watt_lap_enabled = QStringLiteral("tile_avg_watt_lap_enabled");
+const QString QZSettings::tile_avg_watt_lap_order = QStringLiteral("tile_avg_watt_lap_order");
 
-const uint32_t allSettingsCount = 430;
+const uint32_t allSettingsCount = 447;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -951,6 +983,23 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_preset_inclination_5_order, QZSettings::default_tile_preset_inclination_5_order},
     {QZSettings::tile_preset_inclination_5_value, QZSettings::default_tile_preset_inclination_5_value},
     {QZSettings::tile_preset_inclination_5_label, QZSettings::default_tile_preset_inclination_5_label},
+    {QZSettings::tile_preset_resistance_1_color, QZSettings::default_tile_preset_resistance_1_color},
+    {QZSettings::tile_preset_resistance_2_color, QZSettings::default_tile_preset_resistance_2_color},
+    {QZSettings::tile_preset_resistance_3_color, QZSettings::default_tile_preset_resistance_3_color},
+    {QZSettings::tile_preset_resistance_4_color, QZSettings::default_tile_preset_resistance_4_color},
+    {QZSettings::tile_preset_resistance_5_color, QZSettings::default_tile_preset_resistance_5_color},
+    {QZSettings::tile_preset_speed_1_color, QZSettings::default_tile_preset_speed_1_color},
+    {QZSettings::tile_preset_speed_2_color, QZSettings::default_tile_preset_speed_2_color},
+    {QZSettings::tile_preset_speed_3_color, QZSettings::default_tile_preset_speed_3_color},
+    {QZSettings::tile_preset_speed_4_color, QZSettings::default_tile_preset_speed_4_color},
+    {QZSettings::tile_preset_speed_5_color, QZSettings::default_tile_preset_speed_5_color},
+    {QZSettings::tile_preset_inclination_1_color, QZSettings::default_tile_preset_inclination_1_color},
+    {QZSettings::tile_preset_inclination_2_color, QZSettings::default_tile_preset_inclination_2_color},
+    {QZSettings::tile_preset_inclination_3_color, QZSettings::default_tile_preset_inclination_3_color},
+    {QZSettings::tile_preset_inclination_4_color, QZSettings::default_tile_preset_inclination_4_color},
+    {QZSettings::tile_preset_inclination_5_color, QZSettings::default_tile_preset_inclination_5_color},
+    {QZSettings::tile_avg_watt_lap_enabled, QZSettings::default_tile_avg_watt_lap_enabled},
+    {QZSettings::tile_avg_watt_lap_order, QZSettings::default_tile_avg_watt_lap_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
