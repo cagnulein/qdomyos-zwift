@@ -17,6 +17,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
+    target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -236,9 +237,9 @@ void proformwifibike::innerWriteResistance() {
             QSettings settings;
             double erg_filter_upper =
                 settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-            if (fabs(target_watts - requestPower) > erg_filter_upper) {
+            if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
                 qDebug() << "change inclination due to request power = " << requestPower;
-                if (target_watts > requestPower) {
+                if (target_watts.value() > requestPower) {
                     requestInclination = currentInclination().value() - 1;
                 } else {
                     requestInclination = currentInclination().value() + 1;
