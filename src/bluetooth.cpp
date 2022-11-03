@@ -1002,9 +1002,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("LF")) && b.name().length() == 18) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||                           // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||                           // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||                         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
