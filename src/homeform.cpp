@@ -5320,29 +5320,41 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         if (videoTimeStampSeconds != 0.0) {
             double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
-            double playerTimeStampSeconds = videoTimeStampSeconds;
+            int recordingFactor = 1;
+
+            // if Video is > 60 secs Shorter it will be a speed adjusted one
+            if ((trainProgramLengthSeconds - videoLengthSeconds) >= 60.0) {
+                double recfac = ((trainProgramLengthSeconds / videoLengthSeconds)+0.5);
+                recordingFactor = ((int)(recfac));
+                qDebug() << "Video Recording Factor"
+                         << recordingFactor
+                         << trainProgramLengthSeconds
+                         << videoLengthSeconds
+                         << (videoLengthSeconds * ((double)(recordingFactor)) )
+                         << videoTimeStampSeconds
+                         << (videoTimeStampSeconds *((double)(recordingFactor)));
+                videoLengthSeconds = (videoLengthSeconds * ((double)(recordingFactor)) );
+                videoTimeStampSeconds = (videoTimeStampSeconds *((double)(recordingFactor)));
+            }
+
             // check if there is a difference >= 1 second
             if ((fabs(videoLengthSeconds - trainProgramLengthSeconds)) >= 1.0) {
                 // correct Video TimeStamp by difference
                 videoTimeStampSeconds = (videoTimeStampSeconds - videoLengthSeconds + trainProgramLengthSeconds);
             }
 
-            // If videoTimeStamp is 0 init with gpx Timestamp to make sure first Cycle is done correctly
-            if (videoTimeStampSeconds == 0.0) {
-                videoTimeStampSeconds = ((double)(QTime(0, 0, 0).secsTo(source)));
-            }
-            qDebug() << playerTimeStampSeconds << videoTimeStampSeconds;
+            qDebug() << videoTimeStampSeconds;
             // Video was just displayed, set the start Position
             if (videoMustBeReset) {
-                int videoStartPos = ((QTime(0, 0, 0).secsTo(source) + ((int)(videoLengthSeconds)) -
-                                      ((int)(trainProgramLengthSeconds))));
+                double videoStartPos = ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
                 // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
-                if (videoStartPos >= 0) {
-                    qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000);
-                    videoPlaybackHalfPlayer->setPosition(videoStartPos * 1000);
+                if (videoStartPos >= 0.0) {
                     videoTimeStampSeconds =
-                        (((double)(videoStartPos)) - videoLengthSeconds + trainProgramLengthSeconds);
+                        (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);
+                    videoStartPos = videoStartPos / ((double)(recordingFactor));
+                    qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000.0);
+                    videoPlaybackHalfPlayer->setPosition(videoStartPos * 1000.0);
                     videoMustBeReset = false;
                 }
             }
@@ -5352,6 +5364,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                 double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0,
                                                             videoTimeStampSeconds,
                                                             bluetoothManager->device()->currentSpeed().average5s());
+                rate = rate / ((double)(recordingFactor));
                 setVideoRate(rate);
             } else {
                 qDebug() << "videoMustBeReset = True";
