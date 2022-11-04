@@ -180,12 +180,6 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
 
-    if (forceInitSpeed > 0)
-        lastSpeed = forceInitSpeed;
-
-    if (forceInitInclination > 0)
-        lastInclination = forceInitInclination;
-
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &octaneelliptical::update);
