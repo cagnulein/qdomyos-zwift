@@ -137,7 +137,7 @@ public:
 };
 #else
 /** Helper comparator that compares function pointers and return true if they are the same.
- * If thier type are different, pointer to member functions are different
+ * If therr type are different, pointer to member functions are different
  */
 template <typename T> constexpr bool getSignalIndexHelperCompare(T f1, T f2) { return f1 == f2; }
 template <typename T1, typename T2> constexpr bool getSignalIndexHelperCompare(T1, T2) { return false; }

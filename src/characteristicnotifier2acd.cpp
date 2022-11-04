@@ -8,8 +8,8 @@ CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QO
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
-        value.append(0x08);       // Inclination avaiable
-        value.append((char)0x01); // heart rate avaiable
+        value.append(0x08);       // Inclination available
+        value.append((char)0x01); // heart rate available
 
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
         char a = (normalizeSpeed >> 8) & 0XFF;
