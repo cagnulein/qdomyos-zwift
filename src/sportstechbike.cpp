@@ -163,7 +163,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());

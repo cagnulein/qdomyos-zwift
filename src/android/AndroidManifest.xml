@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.11.67" android:versionCode="400" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.11.86" android:versionCode="418" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
@@ -81,5 +81,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 </manifest>

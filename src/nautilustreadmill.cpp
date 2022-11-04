@@ -321,6 +321,9 @@ void nautilustreadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("89e14b5e-a841-48ad-b580-935f4545fffc"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if(!gattCommunicationChannelService) {
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilustreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

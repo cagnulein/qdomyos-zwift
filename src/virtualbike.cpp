@@ -1019,12 +1019,12 @@ void virtualbike::bikeProvider() {
     Q_UNUSED(erg_mode);
 #endif
 
-    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived
-             << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
+    qDebug() << QStringLiteral("bikeProvider") << whenLastFTMSFrameReceived()
+             << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << erg_mode;
     // zwift with the last update, seems to sending power request only when it actually wants to change it
     // so i need to keep this on to the bike
-    if (lastFTMSFrameReceived > 0 &&
-        (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
+    if (whenLastFTMSFrameReceived() > 0 &&
+        (QDateTime::currentMSecsSinceEpoch() > (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000))) && erg_mode) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
     }
