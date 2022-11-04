@@ -2297,7 +2297,7 @@ typedef FIT_ENUM FIT_EXD_DATA_UNITS;
 #define FIT_EXD_DATA_UNITS_FEET_PER_HOUR                                         ((FIT_EXD_DATA_UNITS)4)
 #define FIT_EXD_DATA_UNITS_METERS_PER_HOUR                                       ((FIT_EXD_DATA_UNITS)5)
 #define FIT_EXD_DATA_UNITS_DEGREES_CELSIUS                                       ((FIT_EXD_DATA_UNITS)6)
-#define FIT_EXD_DATA_UNITS_DEGREES_FARENHEIT                                     ((FIT_EXD_DATA_UNITS)7)
+#define FIT_EXD_DATA_UNITS_DEGREES_FAHRENHEIT                                    ((FIT_EXD_DATA_UNITS)7)
 #define FIT_EXD_DATA_UNITS_ZONE                                                  ((FIT_EXD_DATA_UNITS)8)
 #define FIT_EXD_DATA_UNITS_GEAR                                                  ((FIT_EXD_DATA_UNITS)9)
 #define FIT_EXD_DATA_UNITS_RPM                                                   ((FIT_EXD_DATA_UNITS)10)
