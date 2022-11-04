@@ -508,9 +508,9 @@ constexpr auto generateDataArray(const ObjI &objectInfo) {
     auto notify = generate<NotifySignalGenerator<T, hasNotify>, 0>(properties, objectInfo.properties);
     auto enums = generate<EnumGenerator, enumValueOffset>(notify, objectInfo.enums);
     auto constructors = generate<MethodGenerator<T>, constructorParamIndex>(enums, objectInfo.constructors);
-    auto parametters = generate<MethodParametersGenerator, 0>(constructors, objectInfo.methods);
-    auto parametters2 = generate<ConstructorParametersGenerator, 0>(parametters, objectInfo.constructors);
-    auto enumValues = generate<EnumValuesGenerator, 0>(parametters2, objectInfo.enums);
+    auto parameters = generate<MethodParametersGenerator, 0>(constructors, objectInfo.methods);
+    auto parameters2 = generate<ConstructorParametersGenerator, 0>(parameters, objectInfo.constructors);
+    auto enumValues = generate<EnumValuesGenerator, 0>(parameters2, objectInfo.enums);
     return std::make_pair(enumValues.strings, enumValues.sequence);
 }
 
