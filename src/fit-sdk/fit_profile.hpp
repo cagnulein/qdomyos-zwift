@@ -2394,7 +2394,7 @@ typedef FIT_ENUM FIT_EXD_DESCRIPTORS;
 #define FIT_EXD_DESCRIPTORS_INVALID                                              FIT_ENUM_INVALID
 #define FIT_EXD_DESCRIPTORS_BIKE_LIGHT_BATTERY_STATUS                            ((FIT_EXD_DESCRIPTORS)0)
 #define FIT_EXD_DESCRIPTORS_BEAM_ANGLE_STATUS                                    ((FIT_EXD_DESCRIPTORS)1)
-#define FIT_EXD_DESCRIPTORS_BATERY_LEVEL                                         ((FIT_EXD_DESCRIPTORS)2)
+#define FIT_EXD_DESCRIPTORS_BATTERY_LEVEL                                        ((FIT_EXD_DESCRIPTORS)2)
 #define FIT_EXD_DESCRIPTORS_LIGHT_NETWORK_MODE                                   ((FIT_EXD_DESCRIPTORS)3)
 #define FIT_EXD_DESCRIPTORS_NUMBER_LIGHTS_CONNECTED                              ((FIT_EXD_DESCRIPTORS)4)
 #define FIT_EXD_DESCRIPTORS_CADENCE                                              ((FIT_EXD_DESCRIPTORS)5)
