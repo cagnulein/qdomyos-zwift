@@ -53,7 +53,7 @@ class activiotreadmill : public treadmill {
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void btinit(bool startTape);
-    void writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data, uint8_t data_len,
+    void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
                              const QString &info, bool disable_log = false, bool wait_for_response = false);
     void startDiscover();
     bool noConsole = false;
