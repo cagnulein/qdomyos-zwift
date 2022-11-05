@@ -2,7 +2,7 @@
 <workout_file>
     <author>Jonathan Colledge</author>
     <name>HIIT Anaerobic Sprint</name>
-    <description>30 and 40 second maximum effort intervals with long recovery - pure anaerobic efforts to simulate repeated short slalom runs. This will hit the Sprint category on Garmin's Primary Benefit catergory of training impact with very little aerobic training effect.</description>
+    <description>30 and 40 second maximum effort intervals with long recovery - pure anaerobic efforts to simulate repeated short slalom runs. This will hit the Sprint category on Garmin's Primary Benefit category of training impact with very little aerobic training effect.</description>
     <sportType>bike</sportType>
     <tags>
         <tag name="INTERVALS"/>

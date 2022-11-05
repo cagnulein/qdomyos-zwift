@@ -582,7 +582,7 @@ ApplicationWindow {
             }
             /*
             ItemDelegate {
-                text: qsTr("Whats On Zwift™")
+                text: qsTr("What's On Zwift™")
                 width: parent.width
                 onClicked: {
                     popupWhatsOnZwiftHelper.open()

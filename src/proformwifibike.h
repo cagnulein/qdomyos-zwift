@@ -31,7 +31,6 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #include "bike.h"

@@ -469,7 +469,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
-    // copying bundles zwo files in the right path if necessesary
+    // copying bundles zwo files in the right path if necessary
     QDirIterator itZwo(":/zwo/");
     QDir().mkdir(getWritableAppDir() + "training/");
     while (itZwo.hasNext()) {
@@ -4580,7 +4580,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     filePart.setBody(data);
     multiPart->append(filePart);
 
-    // this must be performed asyncronously and call made
+    // this must be performed asynchronously and call made
     // to notifyWriteCompleted(QString remotename, QString message) when done
     if (manager) {
 
@@ -4869,7 +4869,7 @@ void homeform::sendMail() {
 #endif
 
 // We need to set the username (your email address) and the password
-// for smtp authentification.
+// for smtp authentication.
 #ifdef SMTP_PASSWORD
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
@@ -5336,7 +5336,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             if (videoMustBeReset) {
                 int videoStartPos = ((QTime(0, 0, 0).secsTo(source) + ((int)(videoLengthSeconds)) -
                                       ((int)(trainProgramLengthSeconds))));
-                // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
+                // if videoStartPos is negative the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
                 if (videoStartPos >= 0) {
                     qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000);
