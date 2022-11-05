@@ -13,7 +13,7 @@ let getClass = function(workout, field) {
         return 'min';
     }
 };
-function workout_queue_element_buid() {
+function workout_queue_element_build() {
     return new MainWSQueueElement(null, function(msg) {
         return msg.msg === 'workout'?msg.content:null;
     }, 5000, 1);
@@ -58,7 +58,7 @@ function workout_msg_process(workout) {
 }
 
 function workout_manager_init() {
-    let el = workout_queue_element_buid();
+    let el = workout_queue_element_build();
     el.enqueue().then(function(content) {
         workout_msg_process(content);
         workout_manager_init();

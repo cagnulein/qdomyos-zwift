@@ -100,14 +100,14 @@ class QZSettings {
 
     /**
      *@brief An offset that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_offset;
     static constexpr int default_bike_resistance_offset = 4;
 
     /**
      *@brief A gain that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_gain_f;
     static constexpr float default_bike_resistance_gain_f = 1.0;

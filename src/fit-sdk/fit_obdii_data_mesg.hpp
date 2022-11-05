@@ -145,7 +145,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Returns time_offset field
     // Units: ms
-    // Comment: Offset of PID reading [i] from start_timestamp+start_timestamp_ms. Readings may span accross seconds.
+    // Comment: Offset of PID reading [i] from start_timestamp+start_timestamp_ms. Readings may span across seconds.
     ///////////////////////////////////////////////////////////////////////
     FIT_UINT16 GetTimeOffset(FIT_UINT8 index) const
     {
@@ -155,7 +155,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Set time_offset field
     // Units: ms
-    // Comment: Offset of PID reading [i] from start_timestamp+start_timestamp_ms. Readings may span accross seconds.
+    // Comment: Offset of PID reading [i] from start_timestamp+start_timestamp_ms. Readings may span across seconds.
     ///////////////////////////////////////////////////////////////////////
     void SetTimeOffset(FIT_UINT8 index, FIT_UINT16 timeOffset)
     {
