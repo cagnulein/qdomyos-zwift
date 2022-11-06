@@ -390,7 +390,7 @@ class bluetoothdevice : public QObject {
     metric elapsed;
 
     /**
-     * @brief moving The time spent moving int he current session. Units: seconds
+     * @brief moving The time spent moving in the current session. Units: seconds
      */
     metric moving; // moving time
 

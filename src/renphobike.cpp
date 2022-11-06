@@ -113,13 +113,13 @@ void renphobike::update() {
                                          .startsWith(QStringLiteral("Disabled"));
                 // if zwift is connected, QZ routes the ftms packets directly to the bike.
                 // but if zwift is connected and there is also a power sensor attached, we need to change the erg mode
-                // dinamically if peloton is connected, the power request is handled by QZ
+                // dynamically if peloton is connected, the power request is handled by QZ
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || power_sensor) && requestPower != 0)
                     forcePower(ergModificator(requestPower));
                 requestPower = -1;
                 requestResistance = -1;
             }
-            // if zwift is connected we have to avoud to send resistance to the bike
+            // if zwift is connected we have to avoid to send resistance to the bike
             if ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) {
                 if (requestResistance != -1) {
                     if (requestResistance > max_resistance)

@@ -184,7 +184,7 @@ void flywheelbike::updateStats() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    // calculate the acculamator every time on the current data, in order to avoid holes in peloton or strava
+    // calculate the accumulator every time on the current data, in order to avoid holes in peloton or strava
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /

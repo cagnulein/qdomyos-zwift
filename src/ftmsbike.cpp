@@ -162,7 +162,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     bool heart = false;
 
     qDebug() << characteristic.uuid() << QStringLiteral(" << ") << newValue.toHex(' ');
@@ -203,7 +204,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -211,9 +214,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.avgSpeed) {
             double avgSpeed;
-            avgSpeed =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                100.0;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
         }
@@ -232,9 +235,9 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.avgCadence) {
             double avgCadence;
-            avgCadence =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                2.0;
+            avgCadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index)))) /
+                         2.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
         }
@@ -253,8 +256,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.resistanceLvl) {
-            Resistance =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
             emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -293,14 +296,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (Flags.avgPower) {
             double avgPower;
-            avgPower =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
         }
 
         if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
 
             // energy per hour
@@ -310,22 +314,22 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 1;
         } else {
             if (watts())
-                KCal +=
-                    ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                       3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                      // kg * 3.5) / 200 ) / 60
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-    #ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
-    #endif
+#endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
                 Heart = ((double)((newValue.at(index))));
@@ -348,193 +352,196 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         if (Flags.remainingTime) {
             // todo
         }
-    } else if(characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
         union flags {
-                struct {
-                    uint32_t moreData : 1;
-                    uint32_t avgSpeed : 1;
-                    uint32_t totDistance : 1;
-                    uint32_t stepCount: 1;
-                    uint32_t strideCount : 1;
-                    uint32_t elevationGain : 1;
-                    uint32_t rampAngle : 1;
-                    uint32_t resistanceLvl : 1;
-                    uint32_t instantPower : 1;
-                    uint32_t avgPower : 1;
-                    uint32_t expEnergy : 1;
-                    uint32_t heartRate : 1;
-                    uint32_t metabolicEq : 1;
-                    uint32_t elapsedTime : 1;
-                    uint32_t remainingTime : 1;
-                    uint32_t movementDirection : 1;
-                    uint32_t spare : 8;
-                };
-
-                uint32_t word_flags;
+            struct {
+                uint32_t moreData : 1;
+                uint32_t avgSpeed : 1;
+                uint32_t totDistance : 1;
+                uint32_t stepCount : 1;
+                uint32_t strideCount : 1;
+                uint32_t elevationGain : 1;
+                uint32_t rampAngle : 1;
+                uint32_t resistanceLvl : 1;
+                uint32_t instantPower : 1;
+                uint32_t avgPower : 1;
+                uint32_t expEnergy : 1;
+                uint32_t heartRate : 1;
+                uint32_t metabolicEq : 1;
+                uint32_t elapsedTime : 1;
+                uint32_t remainingTime : 1;
+                uint32_t movementDirection : 1;
+                uint32_t spare : 8;
             };
 
-            flags Flags;
-            int index = 0;
-            Flags.word_flags = (newValue.at(2) << 16) | (newValue.at(1) << 8) | newValue.at(0);
+            uint32_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(2) << 16) | (newValue.at(1) << 8) | newValue.at(0);
+        index += 3;
+
+        if (!Flags.moreData) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            index += 2;
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.totDistance) {
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;
             index += 3;
+        } else {
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        }
 
-            if (!Flags.moreData) {
-                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                      (uint16_t)((uint8_t)newValue.at(index)))) /
-                            100.0;
-                } else {
-                    Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
-                }
-                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-                index += 2;
-            }
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-            if (Flags.avgSpeed) {
-                double avgSpeed;
-                avgSpeed =
-                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
-                index += 2;
-                emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
-            }
-
-            if (Flags.totDistance) {
-                Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                      (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                     (uint32_t)((uint8_t)newValue.at(index)))) /
-                           1000.0;
-                index += 3;
-            } else {
-                Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-            }
-
-            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-            if (Flags.stepCount) {
-                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled"))) {
-                    Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+        if (Flags.stepCount) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index))));
-                }
-                emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-
-                index += 2;
-                index += 2;
             }
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
-            if (Flags.strideCount) {
-                index += 2;
-            }
+            index += 2;
+            index += 2;
+        }
 
-            if (Flags.elevationGain) {
-                index += 2;
-                index += 2;
-            }
+        if (Flags.strideCount) {
+            index += 2;
+        }
 
-            if (Flags.rampAngle) {
-                index += 2;
-                index += 2;
-            }
+        if (Flags.elevationGain) {
+            index += 2;
+            index += 2;
+        }
 
-            if (Flags.resistanceLvl) {
-                Resistance =
-                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (Flags.rampAngle) {
+            index += 2;
+            index += 2;
+        }
+
+        if (Flags.resistanceLvl) {
+            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            emit resistanceRead(Resistance.value());
+            index += 2;
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        } else {
+            double ac = 0.01243107769;
+            double bc = 1.145964912;
+            double cc = -23.50977444;
+
+            double ar = 0.1469553975;
+            double br = -5.841344538;
+            double cr = 97.62165482;
+
+            if (Cadence.value() && m_watt.value()) {
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                               (cr - (m_watt.value() * 132.0 /
+                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                Resistance = m_pelotonResistance;
                 emit resistanceRead(Resistance.value());
-                index += 2;
-                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-            } else {
-                double ac = 0.01243107769;
-                double bc = 1.145964912;
-                double cc = -23.50977444;
-
-                double ar = 0.1469553975;
-                double br = -5.841344538;
-                double cr = 97.62165482;
-
-                if (Cadence.value() && m_watt.value()) {
-                    m_pelotonResistance =
-                        (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                                   (cr - (m_watt.value() * 132.0 /
-                                                          (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-                           br) /
-                          (2.0 * ar)) *
-                         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-                        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                    Resistance = m_pelotonResistance;
-                    emit resistanceRead(Resistance.value());
-                }
             }
+        }
 
-            if (Flags.instantPower) {
-                if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                        .toString()
-                        .startsWith(QStringLiteral("Disabled")))
-                    m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                       (uint16_t)((uint8_t)newValue.at(index))));
-                emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-                index += 2;
-            }
+        if (Flags.instantPower) {
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+            index += 2;
+        }
 
-            if (Flags.avgPower) {
-                double avgPower;
-                avgPower =
-                    ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-                emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
-                index += 2;
-            }
+        if (Flags.avgPower) {
+            double avgPower;
+            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
+            emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+            index += 2;
+        }
 
-            if (Flags.expEnergy && newValue.length() > index + 1) {
-                KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-                index += 2;
+        if (Flags.expEnergy && newValue.length() > index + 1) {
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
 
-                // energy per hour
-                index += 2;
+            // energy per hour
+            index += 2;
 
-                // energy per minute
-                index += 1;
-            } else {
-                if (watts())
-                    KCal +=
-                        ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                           3.5) /
+            // energy per minute
+            index += 1;
+        } else {
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
-                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                        QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                          // kg * 3.5) / 200 ) / 60
-            }
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
+        }
 
-            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
 #ifdef Q_OS_ANDROID
-            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-                Heart = (uint8_t)KeepAwakeHelper::heart();
-            else
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-            {
-                if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                    Heart = ((double)((newValue.at(index))));
-                    // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
-                    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-                } else {
-                    Flags.heartRate = false;
-                }
-                heart = Flags.heartRate;
+        {
+            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+                Heart = ((double)((newValue.at(index))));
+                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else {
+                Flags.heartRate = false;
             }
+            heart = Flags.heartRate;
+        }
 
-            if (Flags.metabolicEq) {
-                // todo
-            }
+        if (Flags.metabolicEq) {
+            // todo
+        }
 
-            if (Flags.elapsedTime) {
-                // todo
-            }
+        if (Flags.elapsedTime) {
+            // todo
+        }
 
-            if (Flags.remainingTime) {
-                // todo
-            }
+        if (Flags.remainingTime) {
+            // todo
+        }
     } else {
         return;
     }
@@ -563,7 +570,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -580,6 +588,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 }
 
 void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
+    QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -611,6 +620,16 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsbike::descriptorRead);
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
+
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+                QBluetoothUuid ftmsService((quint16)0x1826);
+                if (s->serviceUuid() != ftmsService) {
+                    qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
+                                               "to send metrics")
+                             << s->serviceUuid();
+                    continue;
+                }
+            }
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
@@ -664,6 +683,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if (gattFTMSService && gattWriteCharControlPointId.isValid() &&
+        settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+        init();
+    }
+
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
@@ -673,11 +697,14 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -771,14 +798,16 @@ void ftmsbike::error(QLowEnergyController::Error err) {
                m_control->errorString());
 }
 
-resistance_t ftmsbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+resistance_t ftmsbike::pelotonToBikeResistance(int pelotonResistance) {
+    return (pelotonResistance * max_resistance) / 100;
+}
 
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-        if(bluetoothDevice.name().toUpper().startsWith("SUITO")) {
+        if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
         }

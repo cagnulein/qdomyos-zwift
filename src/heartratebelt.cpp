@@ -115,7 +115,7 @@ void heartratebelt::error(QLowEnergyController::Error err) {
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
     // QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name),
-    // QStringLiteral("Disabled")).toString();//NOTE: clazy-unsed-non-trivial-variable
+    // QStringLiteral("Disabled")).toString();//NOTE: clazy-unused-non-trivial-variable
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith(heartRateBeltName))

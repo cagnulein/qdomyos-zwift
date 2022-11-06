@@ -582,7 +582,7 @@ ApplicationWindow {
             }
             /*
             ItemDelegate {
-                text: qsTr("Whats On Zwift™")
+                text: qsTr("What's On Zwift™")
                 width: parent.width
                 onClicked: {
                     popupWhatsOnZwiftHelper.open()
@@ -655,7 +655,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.11.84"
+                text: "version 2.11.86"
                 width: parent.width
             }
 				FileDialog {
