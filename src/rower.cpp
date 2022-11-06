@@ -117,7 +117,7 @@ QTime rower::currentPace() {
     QSettings settings;
     // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     const double unit_conversion = 1.0;
-    // rowers are alwasy in meters!
+    // rowers are always in meters!
     /*if (miles) {
         unit_conversion = 0.621371;
     }*/

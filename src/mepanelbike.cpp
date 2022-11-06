@@ -147,7 +147,7 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     case 30: {
         double intValue = (double)((double)(newValue.at(1) * 256) + (double)newValue.at(2));
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = intValue;
+            Speed = intValue / 100.0;
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),

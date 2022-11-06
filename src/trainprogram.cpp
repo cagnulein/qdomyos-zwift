@@ -119,7 +119,7 @@ void trainprogram::applySpeedFilter() {
             else
                 rowduration = ((QTime(0, 0, 0).secsTo(rows.at(currow).gpxElapsed)) -
                                (QTime(0, 0, 0).secsTo(rows.at(currow - 1).gpxElapsed)));
-            // generally avoid a devision by 0 or negative (who knows what's coming from gpx)
+            // generally avoid a division by 0 or negative (who knows what's coming from gpx)
             if (rowduration > 0)
                 wma += ((rows.at(currow).distance) / ((double)(rowduration)) * weight[wc]);
         }
@@ -302,7 +302,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
     }
 
     // set the maximum Speed that the player can reached based on the Video speed.
-    // if Rate get's too high the Video jumps
+    // if Rate get too high the Video jumps
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         double avgSpeedForLimit = avgSpeedFromGpxStep(currentStep + 1, 5);
         if (avgSpeedForLimit > 0.0) {

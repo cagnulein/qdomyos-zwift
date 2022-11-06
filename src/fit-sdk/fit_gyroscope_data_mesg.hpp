@@ -145,7 +145,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Returns sample_time_offset field
     // Units: ms
-    // Comment: Each time in the array describes the time at which the gyro sample with the corrosponding index was taken. Limited to 30 samples in each message. The samples may span across seconds. Array size must match the number of samples in gyro_x and gyro_y and gyro_z
+    // Comment: Each time in the array describes the time at which the gyro sample with the corresponding index was taken. Limited to 30 samples in each message. The samples may span across seconds. Array size must match the number of samples in gyro_x and gyro_y and gyro_z
     ///////////////////////////////////////////////////////////////////////
     FIT_UINT16 GetSampleTimeOffset(FIT_UINT8 index) const
     {
@@ -155,7 +155,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Set sample_time_offset field
     // Units: ms
-    // Comment: Each time in the array describes the time at which the gyro sample with the corrosponding index was taken. Limited to 30 samples in each message. The samples may span across seconds. Array size must match the number of samples in gyro_x and gyro_y and gyro_z
+    // Comment: Each time in the array describes the time at which the gyro sample with the corresponding index was taken. Limited to 30 samples in each message. The samples may span across seconds. Array size must match the number of samples in gyro_x and gyro_y and gyro_z
     ///////////////////////////////////////////////////////////////////////
     void SetSampleTimeOffset(FIT_UINT8 index, FIT_UINT16 sampleTimeOffset)
     {

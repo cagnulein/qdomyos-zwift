@@ -132,7 +132,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
-            "peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
+            "peloton::workoutlist_onfinish Peloton API doesn't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
     }
@@ -159,7 +159,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
             current_workout_status = status;
         } else {
             timer->start(10s); // check for a status changed
-            // i don't need to set current_workout_status because, the bike was missing and than i didn't set the
+            // I don't need to set current_workout_status because the bike was missing and then I didn't set the
             // workout
         }
     } else {

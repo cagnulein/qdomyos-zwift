@@ -65,6 +65,7 @@
 #include "nordictrackifitadbbike.h"
 #include "nordictrackifitadbtreadmill.h"
 #include "npecablebike.h"
+#include "octaneelliptical.h"
 #include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
@@ -155,6 +156,7 @@ class bluetooth : public QObject, public SignalHandler {
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+    octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
@@ -247,6 +249,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
+    bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

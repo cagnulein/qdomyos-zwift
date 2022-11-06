@@ -114,11 +114,11 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
     if (elapsed > 5999) // 99:59
     {
         display[3] = ((elapsed / 60) / 60) & 0xFF; // high byte for elapsed time (in seconds)
-        display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elasped time (in seconds)
+        display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elapsed time (in seconds)
     } else {
 
         display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-        display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+        display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
     }
 
     if (distance) {
@@ -302,7 +302,7 @@ void domyostreadmill::update() {
                     double inc = Inclination.value();
                     if (requestInclination != -100) {
 
-                        // only 0.5 steps ara avaiable
+                        // only 0.5 steps ara available
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
                         requestInclination = -100;
@@ -314,7 +314,7 @@ void domyostreadmill::update() {
             if (requestInclination != -100) {
                 if(requestInclination < 0)
                     requestInclination = 0;
-                // only 0.5 steps ara avaiable
+                // only 0.5 steps ara available
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
@@ -383,10 +383,10 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
-    // for the init packets, the lenght is always less than 20
-    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
-    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
-    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of
+    // for the init packets, the length is always less than 20
+    // for the display and status packets, the length is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the length will be always != 20
+    // - t900: it splits packets with length grater than 20 in two distinct packets, so the first one it has length of
     // 20,
     //         and the second one with the remained byte
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
@@ -404,7 +404,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     startBytes2.append(0xf0);
     startBytes2.append(0xdb);
 
-    // on some treadmills, the 26bytes has splitted in 2 packets
+    // on some treadmills, the 26bytes has split in 2 packets
     if ((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7)) {
 

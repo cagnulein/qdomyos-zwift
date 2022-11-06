@@ -100,14 +100,14 @@ class QZSettings {
 
     /**
      *@brief An offset that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_offset;
     static constexpr int default_bike_resistance_offset = 4;
 
     /**
      *@brief A gain that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_gain_f;
     static constexpr float default_bike_resistance_gain_f = 1.0;
@@ -1515,6 +1515,57 @@ class QZSettings {
 
     static const QString tile_preset_inclination_5_label;
     static const QString default_tile_preset_inclination_5_label;
+
+    static const QString tile_preset_resistance_1_color;
+    static const QString default_tile_preset_resistance_1_color;
+
+    static const QString tile_preset_resistance_2_color;
+    static const QString default_tile_preset_resistance_2_color;
+
+    static const QString tile_preset_resistance_3_color;
+    static const QString default_tile_preset_resistance_3_color;
+
+    static const QString tile_preset_resistance_4_color;
+    static const QString default_tile_preset_resistance_4_color;
+
+    static const QString tile_preset_resistance_5_color;
+    static const QString default_tile_preset_resistance_5_color;
+
+    static const QString tile_preset_speed_1_color;
+    static const QString default_tile_preset_speed_1_color;
+
+    static const QString tile_preset_speed_2_color;
+    static const QString default_tile_preset_speed_2_color;
+
+    static const QString tile_preset_speed_3_color;
+    static const QString default_tile_preset_speed_3_color;
+
+    static const QString tile_preset_speed_4_color;
+    static const QString default_tile_preset_speed_4_color;
+
+    static const QString tile_preset_speed_5_color;
+    static const QString default_tile_preset_speed_5_color;
+
+    static const QString tile_preset_inclination_1_color;
+    static const QString default_tile_preset_inclination_1_color;
+
+    static const QString tile_preset_inclination_2_color;
+    static const QString default_tile_preset_inclination_2_color;
+
+    static const QString tile_preset_inclination_3_color;
+    static const QString default_tile_preset_inclination_3_color;
+
+    static const QString tile_preset_inclination_4_color;
+    static const QString default_tile_preset_inclination_4_color;
+
+    static const QString tile_preset_inclination_5_color;
+    static const QString default_tile_preset_inclination_5_color;
+
+    static const QString tile_avg_watt_lap_enabled;
+    static constexpr bool default_tile_avg_watt_lap_enabled = false;
+
+    static const QString tile_avg_watt_lap_order;
+    static constexpr int default_tile_avg_watt_lap_order = 48;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

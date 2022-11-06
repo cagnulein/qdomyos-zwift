@@ -440,6 +440,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     DistanceCalculated +=
                         ((speed / 3600.0) /
                          (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
@@ -499,7 +500,6 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastInclination = incline;
                 }
 
-                lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 firstCharacteristicChanged = false;
                 if (par != FITSHOW_STATUS_RUNNING) {
                     sendSportData();
