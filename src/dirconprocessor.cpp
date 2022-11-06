@@ -1,7 +1,7 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
 #include "qzsettings.h"
-#include "lockscreen.h"
+#include "ios/lockscreen.h"
 #include <QSettings>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
