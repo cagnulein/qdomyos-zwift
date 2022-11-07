@@ -6,7 +6,7 @@
 class SmartRowRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    SmartRowRowerTestData() {
+    SmartRowRowerTestData() : BluetoothDeviceTestData("Smart Row Rower") {
         this->addDeviceName("SMARTROW", comparison::StartsWith);
     }
 

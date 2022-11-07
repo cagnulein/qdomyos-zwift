@@ -8,7 +8,7 @@
 
 class RenphoBikeTestData : public BluetoothDeviceTestData {
 protected:
-    RenphoBikeTestData() {
+    RenphoBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
     }
 
     void configureExclusions() override;
@@ -22,7 +22,7 @@ public:
 
 class RenphoBike1TestData : public RenphoBikeTestData {
 public:
-    RenphoBike1TestData(){
+    RenphoBike1TestData() : RenphoBikeTestData("Renpho Bike") {
         this->addDeviceName("RQ", comparison::StartsWithIgnoreCase, 5);
         this->addDeviceName("SCH130", comparison::StartsWithIgnoreCase);
     }
@@ -42,7 +42,7 @@ protected:
         configurations.push_back(info2);
     }
 public:
-    RenphoBike2TestData(){
+    RenphoBike2TestData() : RenphoBikeTestData("Renpho Bike (Toorx FTMS)"){
         this->addDeviceName("TOORX", comparison::StartsWith);
     }
 

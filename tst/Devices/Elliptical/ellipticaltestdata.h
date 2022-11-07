@@ -6,7 +6,7 @@
 class EllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    EllipticalTestData() {}
+    EllipticalTestData() : BluetoothDeviceTestData("Elliptical (Abstract)") {}
 
     QStringList get_deviceNames() const override {
         QStringList result;

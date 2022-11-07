@@ -6,7 +6,7 @@
 class DomyosBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosBikeTestData() {
+    DomyosBikeTestData() : BluetoothDeviceTestData("Domyos Bike") {
 
         this->addDeviceName("Domyos-Bike", comparison::StartsWith);
         this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);

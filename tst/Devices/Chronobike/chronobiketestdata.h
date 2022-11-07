@@ -6,7 +6,7 @@
 class ChronobikeTestData : public BluetoothDeviceTestData {
 
 public:
-    ChronobikeTestData() {
+    ChronobikeTestData() : BluetoothDeviceTestData("Chronobike") {
         this->addDeviceName("CHRONO ", comparison::StartsWithIgnoreCase);
     }
 

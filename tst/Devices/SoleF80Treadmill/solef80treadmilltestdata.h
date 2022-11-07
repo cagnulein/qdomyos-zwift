@@ -6,7 +6,7 @@
 class SoleF80TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleF80TreadmillTestData() {
+    SoleF80TreadmillTestData() : BluetoothDeviceTestData("Sole F80") {
         this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);

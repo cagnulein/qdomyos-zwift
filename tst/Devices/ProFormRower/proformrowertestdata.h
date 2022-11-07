@@ -6,7 +6,7 @@
 class ProFormRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormRowerTestData() {
+    ProFormRowerTestData() : BluetoothDeviceTestData("ProForm Rower") {
         this->addDeviceName("I_RW", comparison::StartsWithIgnoreCase);
     }
 

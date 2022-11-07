@@ -7,7 +7,7 @@
 
 class StagesBikeTestData : public BluetoothDeviceTestData {
 protected:
-    StagesBikeTestData() {        
+    StagesBikeTestData(std::string testName): BluetoothDeviceTestData(testName) {
     }
 
     void configureExclusions() override;
@@ -23,7 +23,7 @@ public:
 class StagesBike1TestData : public StagesBikeTestData {
 
 public:
-    StagesBike1TestData() {
+    StagesBike1TestData() : StagesBikeTestData("Stages Bike") {
         this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
     }
 
@@ -37,7 +37,7 @@ protected:
         return true;
     }
 public:
-    StagesBike2TestData() {
+    StagesBike2TestData() : StagesBikeTestData("Stages Bike (Assioma / Power Sensor disabled") {
 
         this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
     }

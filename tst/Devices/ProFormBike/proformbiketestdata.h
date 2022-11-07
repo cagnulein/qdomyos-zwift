@@ -6,7 +6,7 @@
 class ProFormBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormBikeTestData() {
+    ProFormBikeTestData() : BluetoothDeviceTestData("ProForm Bike") {
         this->addDeviceName("I_EB", comparison::StartsWith);
         this->addDeviceName("I_SB", comparison::StartsWith);
     }

@@ -6,7 +6,7 @@
 class BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    BikeTestData() {}
+    BikeTestData() : BluetoothDeviceTestData("Bike (Abstract)") {}
 
     QStringList get_deviceNames() const override {
         QStringList result;

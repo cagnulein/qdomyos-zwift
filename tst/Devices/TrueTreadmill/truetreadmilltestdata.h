@@ -6,7 +6,7 @@
 class TrueTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    TrueTreadmillTestData() {
+    TrueTreadmillTestData() : BluetoothDeviceTestData("True Treadmill") {
         this->addDeviceName("TRUE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TREADMILL", comparison::StartsWithIgnoreCase);
     }

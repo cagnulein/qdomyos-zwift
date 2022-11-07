@@ -6,7 +6,7 @@
 class BHFitnessEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    BHFitnessEllipticalTestData() {
+    BHFitnessEllipticalTestData() : BluetoothDeviceTestData("BH Fitness Elliptical") {
         this->addDeviceName("B01_", comparison::StartsWithIgnoreCase);
     }
 

@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    FakeEllipticalTestData() {
+    FakeEllipticalTestData() : BluetoothDeviceTestData("Fake Elliptical") {
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 

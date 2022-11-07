@@ -6,7 +6,7 @@
 class Shuaa5TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    Shuaa5TreadmillTestData() {
+    Shuaa5TreadmillTestData() : BluetoothDeviceTestData("Shuaa5 Treadmill") {
         this->addDeviceName("ZW-", comparison::StartsWithIgnoreCase);
     }
 

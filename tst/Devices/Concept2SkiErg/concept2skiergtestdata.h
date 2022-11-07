@@ -6,7 +6,7 @@
 class Concept2SkiErgTestData : public BluetoothDeviceTestData {
 
 public:
-    Concept2SkiErgTestData() {
+    Concept2SkiErgTestData() : BluetoothDeviceTestData("Concept2 Ski Erg") {
         this->addDeviceName("PM5", "SKI", comparison::IgnoreCase);
     }
 

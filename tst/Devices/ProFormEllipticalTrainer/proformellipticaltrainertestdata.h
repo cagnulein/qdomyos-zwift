@@ -6,7 +6,7 @@
 class ProFormEllipticalTrainerTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormEllipticalTrainerTestData() {
+    ProFormEllipticalTrainerTestData(): BluetoothDeviceTestData("ProForm Elliptical Trainer") {
         this->addDeviceName("I_VE", comparison::StartsWithIgnoreCase);
     }
 

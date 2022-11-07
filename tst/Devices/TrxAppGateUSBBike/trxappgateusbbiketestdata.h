@@ -6,7 +6,7 @@
 
 class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
 protected:
-    TrxAppGateUSBBikeTestData() {
+    TrxAppGateUSBBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
 
     }
 
@@ -22,11 +22,21 @@ public:
 };
 
 class TrxAppGateUSBBike1TestData : public TrxAppGateUSBBikeTestData {
+protected:
+    void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const override {
+        // This particular case of TrxAppGateUSBBike is independant of the setting
 
+        devicediscoveryinfo info1(info);
+        info1.toorx_bike = true;
+        configurations.push_back(info1);
+
+        devicediscoveryinfo info2(info);
+        info2.toorx_bike = false;
+        configurations.push_back(info2);
+    }
 public:
-    TrxAppGateUSBBike1TestData()  {
+    TrxAppGateUSBBike1TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike")  {
         this->addDeviceName("TUN ", comparison::StartsWithIgnoreCase);
-
     }
 
 };
@@ -38,7 +48,7 @@ protected:
         return true;
     }
 public:
-    TrxAppGateUSBBike2TestData() {
+    TrxAppGateUSBBike2TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike (enabled in settings)") {
 
         this->addDeviceName("TOORX", comparison::StartsWith);
         this->addDeviceName("I-CONSOIE+", comparison::StartsWithIgnoreCase) ;

@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    FitPlusBikeFSTestData() {
+    FitPlusBikeFSTestData() : BluetoothDeviceTestData("FitPlus Bike"){
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -25,7 +25,7 @@ public:
 class FitPlusBikeMRKTestData : public BluetoothDeviceTestData {
 
 public:
-    FitPlusBikeMRKTestData() {
+    FitPlusBikeMRKTestData() : BluetoothDeviceTestData("FitPlus Bike (MRK, no settings)"){
 
         this->addDeviceName("MRK-", comparison::StartsWith);
     }

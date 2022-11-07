@@ -6,11 +6,10 @@
 class EchelonRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonRowerTestData() {
+    EchelonRowerTestData() : BluetoothDeviceTestData("Echelon Rower") {
         this->addDeviceName("ECH-ROW", comparison::StartsWith);
         this->addDeviceName("ROW-S", comparison::StartsWith);
     }
-
 
     deviceType get_expectedDeviceType() const override { return deviceType::EchelonRower; }
 

@@ -6,7 +6,7 @@
 
 class SnodeBikeTestData : public BluetoothDeviceTestData {
 protected:
-    SnodeBikeTestData() { }
+    SnodeBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) { }
 
     void configureExclusions() override;
 public:
@@ -25,7 +25,7 @@ protected:
         return true;
     }
 public:
-    SnodeBike1TestData() {
+    SnodeBike1TestData() : SnodeBikeTestData("Snode Bike") {
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 };
@@ -33,7 +33,7 @@ public:
 class SnodeBike2TestData : public SnodeBikeTestData {
 
 public:
-    SnodeBike2TestData() {
+    SnodeBike2TestData() : SnodeBikeTestData("Snode Bike TF") {
         this->addDeviceName("TF-", comparison::StartsWith);
     }
 

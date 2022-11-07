@@ -7,6 +7,9 @@
 #include "discovereddevice.h"
 #include "devicediscoveryinfo.h"
 
+class BluetoothDeviceTestData;
+typedef std::shared_ptr<BluetoothDeviceTestData> BluetoothDeviceTestData_ptr;
+typedef std::vector<BluetoothDeviceTestData_ptr> BluetoothDeviceTestDataVector;
 
 class BluetoothDeviceTestData  {
     std::vector<std::shared_ptr<BluetoothDeviceTestData>> exclusions;
@@ -14,6 +17,7 @@ class BluetoothDeviceTestData  {
     QStringList invalidDeviceNames;
     bool exclusionsConfigured = false;
     bool configuringExclusions = false;
+    std::string testName;
 protected:
 
     /**
@@ -82,11 +86,12 @@ protected:
      */
     virtual bool configureSettings(devicediscoveryinfo& info, bool enable) const;
 
-
+    BluetoothDeviceTestData(std::string testName);
 public:
-    BluetoothDeviceTestData();
+
     virtual ~BluetoothDeviceTestData();
 
+    virtual std::string get_testName() const;
 
     /**
      * @brief A list of bluetooth device names that should be recognised as this device.

@@ -11,7 +11,7 @@ protected:
     }
 
 public:
-    PafersTreadmillTestData() {
+    PafersTreadmillTestData() : BluetoothDeviceTestData("Pafers Treadmill") {
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 

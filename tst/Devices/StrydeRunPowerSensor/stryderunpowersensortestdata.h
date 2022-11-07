@@ -35,7 +35,7 @@ protected:
         }
     }
 public:
-    StrydeRunPowerSensorTestData() {
+    StrydeRunPowerSensorTestData() : BluetoothDeviceTestData("Stryderun Treadmill / Power Sensor") {
         this->powerSensorName = "WattsItCalled-";
         this->addDeviceName(this->powerSensorName, comparison::StartsWith);
     }

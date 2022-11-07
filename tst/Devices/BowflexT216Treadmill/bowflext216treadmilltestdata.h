@@ -6,7 +6,7 @@
 class BowflexT216TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    BowflexT216TreadmillTestData() {
+    BowflexT216TreadmillTestData() : BluetoothDeviceTestData("Bowflex T216 Treadmill") {
         this->addDeviceName("BOWFLEX T216", comparison::StartsWithIgnoreCase);
     }
 

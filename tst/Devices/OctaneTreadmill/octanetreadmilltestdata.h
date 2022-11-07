@@ -6,7 +6,7 @@
 class OctaneTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    OctaneTreadmillTestData() {
+    OctaneTreadmillTestData() : BluetoothDeviceTestData("Octane Treadmill") {
         this->addDeviceName("ZR7", comparison::StartsWithIgnoreCase);
     }
 

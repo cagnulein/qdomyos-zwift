@@ -6,7 +6,7 @@
 class BowflexTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    BowflexTreadmillTestData() {}
+    BowflexTreadmillTestData() : BluetoothDeviceTestData("Bowflex Treadmill"){}
 
     QStringList get_deviceNames() const override {
         QStringList result;

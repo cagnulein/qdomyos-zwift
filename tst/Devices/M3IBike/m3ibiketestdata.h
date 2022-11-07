@@ -6,7 +6,7 @@
 class M3IBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    M3IBikeTestData() {
+    M3IBikeTestData() : BluetoothDeviceTestData("M3I Bike") {
         this->testInvalidBluetoothDeviceInfo = true;
 
         this->addDeviceName("M3", comparison::StartsWith);

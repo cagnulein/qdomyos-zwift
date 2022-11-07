@@ -6,7 +6,7 @@
 class KingsmithR2TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    KingsmithR2TreadmillTestData() {
+    KingsmithR2TreadmillTestData() : BluetoothDeviceTestData("Kingsmith R2 Treadmill") {
         this->addDeviceName("KS-ST-K12PRO", comparison::StartsWithIgnoreCase);
 
         // KingSmith Walking Pad R2

@@ -6,7 +6,7 @@
 class NautilusEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    NautilusEllipticalTestData() {
+    NautilusEllipticalTestData(): BluetoothDeviceTestData("Nautilus Elliptical") {
         this->addDeviceName("NAUTILUS E", comparison::StartsWithIgnoreCase);
     }
 

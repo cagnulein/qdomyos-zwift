@@ -26,7 +26,6 @@ void BluetoothDeviceTestData::addDeviceName(const QString& deviceName, compariso
 
     this->deviceNames.append(newNames);
 
-
     if(cmp & comparison::IgnoreCase) {
         addDifferentCasings(newNames, this->deviceNames);
     } else {
@@ -58,11 +57,24 @@ void BluetoothDeviceTestData::configureSettings(const devicediscoveryinfo &info,
 
 bool BluetoothDeviceTestData::configureSettings(devicediscoveryinfo &info, bool enable) const { return false;}
 
-BluetoothDeviceTestData::BluetoothDeviceTestData() {
-    // You can do set-up work for each test here.
+BluetoothDeviceTestData::BluetoothDeviceTestData(std::string testName) {
+    std::string output;
+    output.reserve(testName.size());
+
+    // Strip the invalid characters
+    for(auto c : testName) {
+        if(isalpha(c) || (output.size()>0 && isdigit(c)))
+            output += c;
+    }
+
+    this->testName = output;
 }
 
 BluetoothDeviceTestData::~BluetoothDeviceTestData() {}
+
+std::string BluetoothDeviceTestData::get_testName() const {
+    return this->testName;
+}
 
 void BluetoothDeviceTestData::addInvalidDeviceName(const QString& deviceName, comparison cmp){
     QStringList newNames;

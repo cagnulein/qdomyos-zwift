@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    FakeBikeTestData() {
+    FakeBikeTestData() : BluetoothDeviceTestData("Fake Bike"){
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 

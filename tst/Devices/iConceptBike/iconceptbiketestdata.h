@@ -6,7 +6,7 @@
 class iConceptBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    iConceptBikeTestData() {
+    iConceptBikeTestData() : BluetoothDeviceTestData("iConcept Bike") {
         this->addDeviceName("BH DUALKIT", comparison::StartsWithIgnoreCase);
     }
 

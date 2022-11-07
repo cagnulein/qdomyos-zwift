@@ -1,0 +1,174 @@
+#include "bluetoothdevicetestdatafactory.h"
+
+#include <memory>
+#include "bluetooth.h"
+#include "bluetoothdevicetestsuite.h"
+#include "ActivioTreadmill/activiotreadmilltestdata.h"
+#include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
+#include "Bike/biketestdata.h"
+#include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
+#include "BowflexTreadmill/bowflextreadmilltestdata.h"
+#include "Chronobike/chronobiketestdata.h"
+#include "Concept2SkiErg/concept2skiergtestdata.h"
+#include "CSCBike/cscbiketestdata.h"
+#include "DomyosBike/domyosbiketestdata.h"
+#include "DomyosElliptical/domyosellipticaltestdata.h"
+#include "DomyosRower/domyosrowertestdata.h"
+#include "DomyosTreadmill/domyostreadmilltestdata.h"
+#include "EchelonConnectSportBike/echelonconnectsportbiketestdata.h"
+#include "EchelonRower/echelonrowertestdata.h"
+#include "EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
+#include "Elliptical/ellipticaltestdata.h"
+#include "ESLinkerTreadmill/eslinkertreadmilltestdata.h"
+#include "FakeBike/fakebiketestdata.h"
+#include "FakeElliptical/fakeellipticaltestdata.h"
+#include "FakeTreadmill/faketreadmilltestdata.h"
+#include "FitPlusBike/fitplusbiketestdata.h"
+#include "FitshowTreadmill/fitshowtreadmilltestdata.h"
+#include "FlywheelBike/flywheelbiketestdata.h"
+#include "FTMSBike/ftmsbiketestdata.h"
+#include "FTMSRower/ftmsrowertestdata.h"
+#include "HorizonGR7Bike/horizongr7biketestdata.h"
+#include "HorizonTreadmill/horizontreadmilltestdata.h"
+#include "iConceptBike/iconceptbiketestdata.h"
+#include "InspireBike/inspirebiketestdata.h"
+#include "KeepBike/keepbiketestdata.h"
+#include "KingsmithR1ProTreadmill/kingsmithr1protreadmilltestdata.h"
+#include "KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h"
+#include "M3IBike/m3ibiketestdata.h"
+#include "MCFBike/mcfbiketestdata.h"
+#include "NautilusBike/nautilusbiketestdata.h"
+#include "NautilusElliptical/nautilusellipticaltestdata.h"
+#include "NautilusTreadmill/nautilustreadmilltestdata.h"
+#include "NordicTrackElliptical/nordictrackellipticaltestdata.h"
+#include "NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.h"
+#include "NPECableBike/npecablebiketestdata.h"
+#include "OctaneTreadmill/octanetreadmilltestdata.h"
+#include "PafersBike/pafersbiketestdata.h"
+#include "PafersTreadmill/paferstreadmilltestdata.h"
+#include "ProFormBike/proformbiketestdata.h"
+#include "ProFormElliptical/proformellipticaltestdata.h"
+#include "ProFormEllipticalTrainer/proformellipticaltrainertestdata.h"
+#include "ProFormRower/proformrowertestdata.h"
+#include "ProFormTreadmill/proformtreadmilltestdata.h"
+#include "ProFormWiFiBike/proformwifibiketestdata.h"
+#include "ProFormWiFiTreadmill/proformwifitreadmilltestdata.h"
+#include "RenphoBike/renphobiketestdata.h"
+#include "Rower/rowertestdata.h"
+#include "SchwinnIC4Bike/schwinnic4biketestdata.h"
+#include "Shuaa5Treadmill/shuaa5treadmilltestdata.h"
+#include "SkandikaWiryBike/skandikawirybiketestdata.h"
+#include "SmartRowRower/smartrowrowertestdata.h"
+#include "SnodeBike/snodebiketestdata.h"
+#include "SoleBike/solebiketestdata.h"
+#include "SoleElliptical/soleellipticaltestdata.h"
+#include "SoleF80Treadmill/solef80treadmilltestdata.h"
+#include "SpiritTreadmill/spirittreadmilltestdata.h"
+#include "SportsPlusBike/sportsplusbiketestdata.h"
+#include "SportsTechBike/sportstechbiketestdata.h"
+#include "StagesBike/stagesbiketestdata.h"
+#include "StrydeRunPowerSensor/stryderunpowersensortestdata.h"
+#include "TacxNeo2/tacxneo2testdata.h"
+#include "TechnoGymMyRunTreadmill/technogymmyruntreadmilltestdata.h"
+#include "TechnogymMyRunTreadmillRFComm/technogymmyruntreadmillrfcommtestdata.h"
+#include "ToorxTreadmill/toorxtreadmilltestdata.h"
+#include "Treadmill/treadmilltestdata.h"
+#include "TrueTreadmill/truetreadmilltestdata.h"
+#include "TrxAppGateUSBBike/trxappgateusbbiketestdata.h"
+#include "TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
+#include "UltrasportBike/ultrasportbiketestdata.h"
+#include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
+#include "YesoulBike/yesoulbiketestdata.h"
+
+BluetoothDeviceTestDataVector BluetoothDeviceTestDataFactory::allTestData;
+
+BluetoothDeviceTestDataFactory::BluetoothDeviceTestDataFactory()
+{
+
+}
+
+
+
+void BluetoothDeviceTestDataFactory::registerTestData() {
+    registerTestData(new M3IBikeTestData());
+    registerTestData(new FakeBikeTestData());
+    registerTestData(new FakeEllipticalTestData());
+    registerTestData(new FakeTreadmillTestData());
+    registerTestData(new ProFormWiFiBikeTestData());
+    registerTestData(new ProFormWiFiTreadmillTestData());
+    registerTestData(new NordicTrackIFitADBTreadmillTestData());
+    registerTestData(new CSCBikeTestData());
+    registerTestData(new StagesBike1TestData());
+    registerTestData(new StagesBike2TestData());
+    registerTestData(new StrydeRunPowerSensorTestData());
+    registerTestData(new DomyosRowerTestData());
+    registerTestData(new DomyosBikeTestData());
+    registerTestData(new DomyosEllipticalTestData());
+    registerTestData(new NautilusEllipticalTestData());
+    registerTestData(new NautilusBikeTestData());
+    registerTestData(new ProFormEllipticalTestData());
+    registerTestData(new NordicTrackEllipticalTestData());
+    registerTestData(new ProFormEllipticalTrainerTestData());
+    registerTestData(new ProFormRowerTestData());
+    registerTestData(new BHFitnessEllipticalTestData());
+    registerTestData(new SoleEllipticalTestData());
+    registerTestData(new DomyosTreadmillTestData());
+    registerTestData(new KingsmithR2TreadmillTestData());
+    registerTestData(new KingsmithR1ProTreadmillTestData());
+    registerTestData(new Shuaa5TreadmillTestData());
+    registerTestData(new TrueTreadmillTestData());
+    registerTestData(new SoleF80TreadmillTestData());
+    registerTestData(new HorizonTreadmillTestData());
+    registerTestData(new TechnoGymMyRunTreadmillTestData());
+    registerTestData(new TechnogymMyRunTreadmillRFCommTestData());
+    registerTestData(new TacxNeo2TestData());
+    registerTestData(new NPECableBike1TestData());
+    registerTestData(new NPECableBike2TestData());
+    registerTestData(new FTMSBike1TestData());
+    registerTestData(new FTMSBike2TestData());
+    registerTestData(new WahooKickrSnapBikeTestData());
+    registerTestData(new HorizonGR7BikeTestData());
+    registerTestData(new SmartRowRowerTestData());
+    registerTestData(new Concept2SkiErgTestData());
+    registerTestData(new FTMSRowerTestData());
+    registerTestData(new EchelonStrideTreadmillTestData());
+    registerTestData(new OctaneTreadmillTestData());
+    registerTestData(new EchelonRowerTestData());
+    registerTestData(new EchelonConnectSportBikeTestData());
+    registerTestData(new SchwinnIC4BikeTestData());
+    registerTestData(new SportsTechBikeTestData());
+    registerTestData(new SportsPlusBikeTestData());
+    registerTestData(new YesoulBikeTestData());
+    registerTestData(new ProFormBikeTestData());
+    registerTestData(new ProFormTreadmillTestData());
+    registerTestData(new ESLinkerTreadmillTestData());
+    registerTestData(new PafersTreadmillTestData());
+    registerTestData(new BowflexT216TreadmillTestData());
+    registerTestData(new NautilusTreadmillTestData());
+    registerTestData(new FlywheelBike1TestData());
+    registerTestData(new FlywheelBike2TestData());
+    registerTestData(new MCFBikeTestData());
+    registerTestData(new ToorxTreadmillTestData());
+    registerTestData(new iConceptBikeTestData());
+    registerTestData(new SpiritTreadmillTestData());
+    registerTestData(new ActivioTreadmillTestData());
+    registerTestData(new TrxAppGateUSBTreadmillTestData());
+    registerTestData(new TrxAppGateUSBBike1TestData());
+    registerTestData(new TrxAppGateUSBBike2TestData());
+    registerTestData(new UltrasportBikeTestData());
+    registerTestData(new KeepBikeTestData());
+    registerTestData(new SoleBikeTestData());
+    registerTestData(new SkandikaWiryBikeTestData());
+    registerTestData(new RenphoBike1TestData());
+    registerTestData(new RenphoBike2TestData());
+    registerTestData(new PafersBikeTestData());
+    registerTestData(new SnodeBike1TestData());
+    registerTestData(new SnodeBike2TestData());
+    registerTestData(new FitPlusBikeFSTestData());
+    registerTestData(new FitPlusBikeMRKTestData());
+    registerTestData(new FitshowTreadmillBFTestData());
+    registerTestData(new FitshowTreadmillFSTestData());
+    registerTestData(new FitshowTreadmillSWTestData());
+    registerTestData(new InspireBikeTestData());
+    registerTestData(new ChronobikeTestData());
+}

@@ -6,7 +6,7 @@
 class HorizonTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    HorizonTreadmillTestData() {
+    HorizonTreadmillTestData() : BluetoothDeviceTestData("Horizon Treadmill") {
 
         this->addDeviceName("HORIZON", comparison::StartsWithIgnoreCase);
         this->addDeviceName("AFG SPORT", comparison::StartsWithIgnoreCase);

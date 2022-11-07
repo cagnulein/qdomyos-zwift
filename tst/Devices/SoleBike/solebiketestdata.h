@@ -6,7 +6,7 @@
 class SoleBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleBikeTestData() {
+    SoleBikeTestData() : BluetoothDeviceTestData("Sole Bike") {
         this->addDeviceName("LCB", comparison::StartsWithIgnoreCase);
         this->addDeviceName("R92", comparison::StartsWithIgnoreCase);
     }

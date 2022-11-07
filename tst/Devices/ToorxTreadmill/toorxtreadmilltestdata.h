@@ -6,7 +6,7 @@
 class ToorxTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ToorxTreadmillTestData() {
+    ToorxTreadmillTestData() : BluetoothDeviceTestData("Toorx Treadmill") {
         this->addDeviceName("TRX ROUTE KEY", comparison::StartsWith);
     }
 

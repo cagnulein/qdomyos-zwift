@@ -6,7 +6,7 @@
 class ActivioTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ActivioTreadmillTestData() {
+    ActivioTreadmillTestData() : BluetoothDeviceTestData("Activio Treadmill") {
         this->addDeviceName("RUNNERT", comparison::StartsWithIgnoreCase);
     }
 

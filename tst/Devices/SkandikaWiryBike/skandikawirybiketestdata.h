@@ -6,7 +6,7 @@
 class SkandikaWiryBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SkandikaWiryBikeTestData() {
+    SkandikaWiryBikeTestData() : BluetoothDeviceTestData("Skandika Wiry Bike") {
         this->addDeviceName("BFCP", comparison::StartsWithIgnoreCase);
     }
 

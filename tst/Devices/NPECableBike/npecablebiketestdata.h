@@ -5,7 +5,7 @@
 
 class NPECableBikeTestData : public BluetoothDeviceTestData {
 protected:
-    NPECableBikeTestData() {}
+    NPECableBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {}
 public:
     deviceType get_expectedDeviceType() const override { return deviceType::NPECableBike; }
 
@@ -17,7 +17,7 @@ public:
 class NPECableBike1TestData : public NPECableBikeTestData {
 
 public:
-    NPECableBike1TestData() {
+    NPECableBike1TestData() : NPECableBikeTestData("NPE Cable Bike") {
         this->addDeviceName(">CABLE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MD", comparison::StartsWithIgnoreCase, 7);
     }
@@ -32,7 +32,7 @@ protected:
         return true;
     }
 public:
-    NPECableBike2TestData() {
+    NPECableBike2TestData() : NPECableBikeTestData("NPECable (excluding Flywheel Life Fitness IC8)") {
         // BIKE 1, BIKE 2, BIKE 3...
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
 

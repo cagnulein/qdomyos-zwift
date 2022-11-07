@@ -13,7 +13,7 @@ protected:
        return true;
     }
 public:
-    CSCBikeTestData() {
+    CSCBikeTestData() : BluetoothDeviceTestData("CSC Bike") {
         this->cscBikeName = "CyclingSpeedCadenceBike-";
 
         this->addDeviceName(this->cscBikeName, comparison::StartsWith);

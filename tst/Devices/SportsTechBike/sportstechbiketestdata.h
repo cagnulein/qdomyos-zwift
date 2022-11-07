@@ -6,7 +6,7 @@
 class SportsTechBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SportsTechBikeTestData() {
+    SportsTechBikeTestData() : BluetoothDeviceTestData("Sport Tech Bike") {
         this->addDeviceName("EW-BK", comparison::StartsWithIgnoreCase);
     }
 

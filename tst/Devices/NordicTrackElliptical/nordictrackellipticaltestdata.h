@@ -6,7 +6,7 @@
 class NordicTrackEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    NordicTrackEllipticalTestData() {
+    NordicTrackEllipticalTestData() : BluetoothDeviceTestData("Nordictrack Elliptical") {
         this->addDeviceName("I_EL", comparison::StartsWithIgnoreCase);
     }
 

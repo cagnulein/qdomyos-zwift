@@ -6,7 +6,7 @@
 class InspireBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    InspireBikeTestData() {
+    InspireBikeTestData() : BluetoothDeviceTestData("Inspire Bike") {
         this->addDeviceName("IC", comparison::StartsWithIgnoreCase, 8);
     }
 

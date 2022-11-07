@@ -9,7 +9,7 @@
 class DomyosTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosTreadmillTestData() {
+    DomyosTreadmillTestData() : BluetoothDeviceTestData("Domyos Treadmill") {
         this->addDeviceName("Domyos", comparison::StartsWith);
 
         this->addInvalidDeviceName("DomyosBr", comparison::StartsWith);

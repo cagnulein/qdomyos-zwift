@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    TechnoGymMyRunTreadmillTestData() {
+    TechnoGymMyRunTreadmillTestData() : BluetoothDeviceTestData("Technogym MyRun Treadmill") {
         this->addDeviceName("MYRUN ", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MERACH-U3", comparison::StartsWithIgnoreCase);
     }

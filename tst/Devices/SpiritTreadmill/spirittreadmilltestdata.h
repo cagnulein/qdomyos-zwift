@@ -6,7 +6,7 @@
 class SpiritTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    SpiritTreadmillTestData() {
+    SpiritTreadmillTestData(): BluetoothDeviceTestData("Spirit Treadmill") {
 
         this->addDeviceName("XT385", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XT485", comparison::StartsWithIgnoreCase);

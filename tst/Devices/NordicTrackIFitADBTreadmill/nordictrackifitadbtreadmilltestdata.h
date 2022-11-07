@@ -14,7 +14,7 @@ protected:
         return true;
     }
 public:
-    NordicTrackIFitADBTreadmillTestData() {
+    NordicTrackIFitADBTreadmillTestData() : BluetoothDeviceTestData("Nordictrack IFit ADB Treadmill") {
         // Allow any name because it's not a bluetooth device
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }

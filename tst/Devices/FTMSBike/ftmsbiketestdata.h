@@ -11,7 +11,7 @@ class FTMSBikeTestData : public BluetoothDeviceTestData {
 protected:
     void configureExclusions() override;
 
-    FTMSBikeTestData()  {
+    FTMSBikeTestData(std::string testName) : BluetoothDeviceTestData(testName)  {
 
     }
 public:
@@ -31,7 +31,7 @@ protected:
     }
 public:
 
-    FTMSBike1TestData() {
+    FTMSBike1TestData() : FTMSBikeTestData("FTMS Bike Hammer Racer S") {
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -41,7 +41,7 @@ public:
 class FTMSBike2TestData : public FTMSBikeTestData {
 public:
 
-    FTMSBike2TestData()  {
+    FTMSBike2TestData() : FTMSBikeTestData("FTMS Bike")  {
         this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase);    // MKSM3600036
         this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase); // Yesoul C1H
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase);  // Bodytone DS25

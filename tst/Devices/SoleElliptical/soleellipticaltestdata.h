@@ -6,7 +6,7 @@
 class SoleEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    SoleEllipticalTestData() {
+    SoleEllipticalTestData(): BluetoothDeviceTestData("Sole Elliptical") {
         this->addDeviceName("E95S", comparison::StartsWithIgnoreCase);
         this->addDeviceName("E25", comparison::StartsWithIgnoreCase);
         this->addDeviceName("E35", comparison::StartsWithIgnoreCase);

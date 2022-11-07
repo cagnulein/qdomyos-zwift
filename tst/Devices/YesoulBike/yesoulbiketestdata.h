@@ -6,7 +6,7 @@
 class YesoulBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    YesoulBikeTestData() {
+    YesoulBikeTestData() : BluetoothDeviceTestData("Yesoul Bike") {
         this->addDeviceName(yesoulbike::bluetoothName, comparison::StartsWith);
     }
 

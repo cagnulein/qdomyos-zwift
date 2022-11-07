@@ -10,7 +10,7 @@ protected:
         this->exclude(new KingsmithR2TreadmillTestData());
     }
 public:
-    KingsmithR1ProTreadmillTestData() {
+    KingsmithR1ProTreadmillTestData() : BluetoothDeviceTestData("Kingsmith R1 Pro Treadmill") {
 
         this->addDeviceName("R1 PRO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("RE", comparison::IgnoreCase);

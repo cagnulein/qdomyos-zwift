@@ -6,7 +6,7 @@
 class FTMSRowerTestData : public BluetoothDeviceTestData {
 
 public:
-    FTMSRowerTestData() {
+    FTMSRowerTestData() : BluetoothDeviceTestData("FTMS Rower") {
 
         this->addDeviceName("CR 00", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KAYAKPRO", comparison::StartsWithIgnoreCase);

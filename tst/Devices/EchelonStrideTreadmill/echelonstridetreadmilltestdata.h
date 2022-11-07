@@ -6,7 +6,7 @@
 class EchelonStrideTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonStrideTreadmillTestData() {
+    EchelonStrideTreadmillTestData() : BluetoothDeviceTestData("Echelon Stride Treadmill") {
         this->addDeviceName("ECH-STRIDE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ECH-SD-SPT", comparison::StartsWithIgnoreCase);
     }

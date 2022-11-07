@@ -9,7 +9,7 @@ void TrxAppGateUSBTreadmillTestData::configureExclusions() {
     this->exclude(new TrxAppGateUSBBike2TestData());
 }
 
-TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() {
+TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() : BluetoothDeviceTestData("Toorx AppGate USB Treadmill") {
     this->addDeviceName("TOORX", comparison::StartsWith);
     this->addDeviceName("V-RUN", comparison::StartsWith);
 

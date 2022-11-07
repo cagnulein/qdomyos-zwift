@@ -6,7 +6,7 @@
 class ProFormTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ProFormTreadmillTestData() {
+    ProFormTreadmillTestData(): BluetoothDeviceTestData("ProForm Treadmill") {
         this->addDeviceName("I_TL", comparison::StartsWith);
     }
 

@@ -8,7 +8,7 @@
 class EchelonConnectSportBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonConnectSportBikeTestData() {
+    EchelonConnectSportBikeTestData() : BluetoothDeviceTestData("Echelon Connect Sport Bike") {
         this->addDeviceName("ECH", comparison::StartsWith);
     }
 

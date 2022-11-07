@@ -6,7 +6,7 @@
 class ESLinkerTreadmillTestData : public BluetoothDeviceTestData {
 
 public:
-    ESLinkerTreadmillTestData() {
+    ESLinkerTreadmillTestData(): BluetoothDeviceTestData("ES Linker Treadmill") {
         this->addDeviceName("ESLINKER", comparison::StartsWithIgnoreCase);
     }
 

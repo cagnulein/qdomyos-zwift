@@ -6,7 +6,7 @@
 class DomyosEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    DomyosEllipticalTestData() {
+    DomyosEllipticalTestData() : BluetoothDeviceTestData("Domyos Elliptical") {
         this->addDeviceName("Domyos-EL", comparison::StartsWith);
         this->addInvalidDeviceName("DomyosBridge",comparison::StartsWith);
     }

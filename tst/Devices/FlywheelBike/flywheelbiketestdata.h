@@ -6,7 +6,7 @@
 class FlywheelBikeTestData : public BluetoothDeviceTestData {
 
 protected:
-    FlywheelBikeTestData() {
+    FlywheelBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
     }
 public:
     deviceType get_expectedDeviceType() const override { return deviceType::FlywheelBike; }
@@ -20,7 +20,7 @@ public:
 class FlywheelBike1TestData : public FlywheelBikeTestData {
 
 public:
-    FlywheelBike1TestData() {
+    FlywheelBike1TestData() : FlywheelBikeTestData("Flywheel Bike") {
         this->addDeviceName("Flywheel", comparison::StartsWith);
     }
 
@@ -33,7 +33,7 @@ protected:
         return true;
     }
 public:
-    FlywheelBike2TestData() {
+    FlywheelBike2TestData() : FlywheelBikeTestData("Flywheel Life Fitness IC8") {
         // BIKE 1, BIKE 2, BIKE 3...
         this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
     }

@@ -6,7 +6,7 @@
 class HorizonGR7BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    HorizonGR7BikeTestData() {
+    HorizonGR7BikeTestData() : BluetoothDeviceTestData("Horizon GR7 Bike") {
         this->addDeviceName("JFIC", comparison::StartsWithIgnoreCase);
     }
 

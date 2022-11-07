@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    ProFormWiFiTreadmillTestData() {
+    ProFormWiFiTreadmillTestData() : BluetoothDeviceTestData("ProForm WiFi Treadmill") {
         // any name
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }

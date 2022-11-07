@@ -10,7 +10,7 @@ protected:
         return true;
     }
 public:
-    ProFormWiFiBikeTestData() {
+    ProFormWiFiBikeTestData(): BluetoothDeviceTestData("ProForm WiFi Bike") {
         // any name
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }

@@ -6,7 +6,7 @@
 class EliteSterzoSmartTestData : public BluetoothDeviceTestData {
 
 public:
-    EliteSterzoSmartTestData() {}
+    EliteSterzoSmartTestData() : BluetoothDeviceTestData("Elite Sterzo Smart") {}
 
     QStringList get_deviceNames() const override {
         QStringList result;

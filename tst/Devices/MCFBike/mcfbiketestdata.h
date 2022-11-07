@@ -6,7 +6,7 @@
 class MCFBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    MCFBikeTestData() {
+    MCFBikeTestData() : BluetoothDeviceTestData("MCF Bike") {
         this->addDeviceName("MCF-", comparison::StartsWithIgnoreCase);
     }
 

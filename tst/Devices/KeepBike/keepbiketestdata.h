@@ -6,7 +6,7 @@
 class KeepBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    KeepBikeTestData() {
+    KeepBikeTestData() : BluetoothDeviceTestData("Keep Bike") {
         this->addDeviceName("KEEP_BIKE_", comparison::StartsWithIgnoreCase);
     }
 

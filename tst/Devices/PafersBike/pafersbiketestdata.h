@@ -11,7 +11,7 @@ protected:
         return true;
     }
 public:
-    PafersBikeTestData() {
+    PafersBikeTestData() : BluetoothDeviceTestData("Pafers Bike") {
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 

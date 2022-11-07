@@ -6,7 +6,7 @@
 class NautilusBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    NautilusBikeTestData() {
+    NautilusBikeTestData(): BluetoothDeviceTestData("Nautilus Bike") {
         this->addDeviceName("NAUTILUS B", comparison::StartsWithIgnoreCase);
     }
 

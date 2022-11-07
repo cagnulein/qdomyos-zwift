@@ -8,7 +8,7 @@ class FitshowTreadmillTestData : public BluetoothDeviceTestData {
 
 protected:
 
-    FitshowTreadmillTestData() {
+    FitshowTreadmillTestData(std::string testName) : BluetoothDeviceTestData(testName) {
 
     }
 
@@ -48,7 +48,7 @@ protected:
         }
     }
 public:
-    FitshowTreadmillFSTestData() {
+    FitshowTreadmillFSTestData() : FitshowTreadmillTestData("FitShow FS") {
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -56,14 +56,12 @@ public:
         this->exclude(new FTMSBike1TestData());
         this->exclude(new FTMSBike2TestData());
     }
-
-
 };
 
 
 class FitshowTreadmillSWTestData : public FitshowTreadmillTestData {
 public:
-    FitshowTreadmillSWTestData() {
+    FitshowTreadmillSWTestData(): FitshowTreadmillTestData("FitShow SW") {
         // SW, 14 characters total
         this->addDeviceName("SW345678901234", comparison::Exact);
         this->addDeviceName("SWFOURTEENCHAR", comparison::Exact);
@@ -77,7 +75,7 @@ public:
 
 class FitshowTreadmillBFTestData : public FitshowTreadmillTestData {
 public:
-    FitshowTreadmillBFTestData() {
+    FitshowTreadmillBFTestData() : FitshowTreadmillTestData("FitShow BF"){
         this->addDeviceName("BF70", comparison::StartsWith);
     }
 };

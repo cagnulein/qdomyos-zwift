@@ -6,7 +6,7 @@
 class SchwinnIC4BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    SchwinnIC4BikeTestData() {
+    SchwinnIC4BikeTestData() : BluetoothDeviceTestData("Schwinn IC4 Bike") {
 
         this->addDeviceName("IC BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("C7-", comparison::StartsWithIgnoreCase);
