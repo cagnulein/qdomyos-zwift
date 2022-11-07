@@ -68,7 +68,7 @@ class proformwifibike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts();
-    void forceResistance(resistance_t requestResistance);
+    void forceResistance(double requestResistance);
     void innerWriteResistance();
 
     QTimer *refresh;
