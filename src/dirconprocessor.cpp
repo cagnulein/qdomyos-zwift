@@ -1,8 +1,10 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
 #include "qzsettings.h"
-#include "ios/lockscreen.h"
 #include <QSettings>
+#include <dns_sd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
@@ -27,6 +29,81 @@ bool DirconProcessor::initServer() {
     } else
         return true;
 }
+
+#ifdef Q_OS_IOS
+///< Callback for registration reply
+static void register_reply_callback(DNSServiceRef sdRef,
+                                    DNSServiceFlags flags,
+                                    DNSServiceErrorType errorCode,
+                                    const char *name,
+                                    const char *regtype,
+                                    const char *domain,
+                                    void *context)
+{
+    qDebug() << name << sdRef;
+};
+
+void
+TXTRegisterCallback(DNSServiceRef sdRef __attribute__((unused)),
+            DNSRecordRef RecordRef __attribute__((unused)),
+            DNSServiceFlags flags __attribute__((unused)),
+            DNSServiceErrorType errorCode __attribute__((unused)),
+            void *context __attribute__((unused)))
+{
+    qDebug() << errorCode;
+}
+
+
+const char* dns_service_strerror(DNSServiceErrorType err)
+{
+    switch(err) {
+    case kDNSServiceErr_NoError: return "kDNSServiceErr_NoError";
+    case kDNSServiceErr_Unknown: return "kDNSServiceErr_Unknown";
+    case kDNSServiceErr_NoSuchName: return "kDNSServiceErr_NoSuchName";
+    case kDNSServiceErr_NoMemory: return "kDNSServiceErr_NoMemory";
+    case kDNSServiceErr_BadParam: return "kDNSServiceErr_BadParam";
+    case kDNSServiceErr_BadReference: return "kDNSServiceErr_BadReference";
+    case kDNSServiceErr_BadState: return "kDNSServiceErr_BadState";
+    case kDNSServiceErr_BadFlags: return "kDNSServiceErr_BadFlags";
+    case kDNSServiceErr_Unsupported: return "kDNSServiceErr_Unsupported";
+    case kDNSServiceErr_NotInitialized: return "kDNSServiceErr_NotInitialized";
+    case kDNSServiceErr_AlreadyRegistered: return "kDNSServiceErr_AlreadyRegistered";
+    case kDNSServiceErr_NameConflict: return "kDNSServiceErr_NameConflict";
+    case kDNSServiceErr_Invalid: return "kDNSServiceErr_Invalid";
+    case kDNSServiceErr_Firewall: return "kDNSServiceErr_Firewall";
+    case kDNSServiceErr_Incompatible: return "kDNSServiceErr_Incompatible";
+    case kDNSServiceErr_BadInterfaceIndex: return "kDNSServiceErr_BadInterfaceIndex";
+    case kDNSServiceErr_Refused: return "kDNSServiceErr_Refused";
+    case kDNSServiceErr_NoSuchRecord: return "kDNSServiceErr_NoSuchRecord";
+    case kDNSServiceErr_NoAuth: return "kDNSServiceErr_NoAuth";
+    case kDNSServiceErr_NoSuchKey: return "kDNSServiceErr_NoSuchKey";
+    case kDNSServiceErr_NATTraversal: return "kDNSServiceErr_NATTraversal";
+    case kDNSServiceErr_DoubleNAT: return "kDNSServiceErr_DoubleNAT";
+    case kDNSServiceErr_BadTime: return "kDNSServiceErr_BadTime";
+    default:
+        static char buf[32];
+        snprintf(buf, sizeof(buf), "%d", err);
+        return buf;
+    }
+}
+
+struct in_addr *atoaddr(char *address) {
+    struct hostent *host;
+    static struct in_addr saddr;
+
+    /* First try it as aaa.bbb.ccc.ddd. */
+    saddr.s_addr = inet_addr(address);
+    if (saddr.s_addr != -1) {
+        return &saddr;
+    }
+    host = gethostbyname(address);
+    if (host != NULL) {
+        return (struct in_addr *) *host->h_addr_list;
+    }
+    return NULL;
+}
+
+#endif
 
 void DirconProcessor::initAdvertising() {
     /*    if (!zeroConf) {
@@ -63,14 +140,57 @@ void DirconProcessor::initAdvertising() {
         mdnsService.addAttribute(QByteArrayLiteral("ble-service-uuids"), ble_uuids.toUtf8());
         mdnsService.setPort(serverPort);
         qDebug() << "Dircon Adv init for" << serverName << " end";
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        if(h.dircon(reinterpret_cast<const unsigned char*>(serverName.toUtf8().constData()), serverName.toUtf8().length(), serverPort, reinterpret_cast<const unsigned char*>(mac.toUtf8().constData()), mac.toUtf8().length(), reinterpret_cast<const unsigned char*>(serialN.toUtf8().constData()), serialN.toUtf8().length(), reinterpret_cast<const unsigned char*>(ble_uuids.toUtf8().constData()), ble_uuids.toUtf8().length())) {
-            mdnsServer = (QMdnsEngine::Server*)1; // fake
+
+        if(1) {
+            DNSServiceRef ref1 = NULL;
+            DNSServiceErrorType err;
+
+            char txtMac[2048];
+            TXTRecordRef recordMac;
+            TXTRecordCreate(&recordMac, 255, &txtMac);
+            err = TXTRecordSetValue(&recordMac, "mac-address", mac.toUtf8().length(), mac.toUtf8());
+            err = TXTRecordSetValue(&recordMac, "serial-number", serialN.toUtf8().length(), serialN.toUtf8());
+            err = TXTRecordSetValue(&recordMac, "ble-service-uuids", ble_uuids.toUtf8().length(), ble_uuids.toUtf8());
+
+                DNSRecordRef recordRef;
+                const char *hostname = serverName.toUtf8().constData();
+                DNSServiceErrorType error;
+                DNSServiceRef dnsRef;
+                
+                struct in_addr *addr = atoaddr("192.168.0.46");
+                
+                error = DNSServiceCreateConnection(&dnsRef);
+                if (error){
+                    qDebug() << "error";
+                }
+                qDebug() << hostname;
+                error =  DNSServiceRegisterRecord(dnsRef,
+                                  &recordRef,
+                                  kDNSServiceFlagsUnique | kDNSServiceFlagsShareConnection, //kDNSServiceFlagsShared | kDNSServiceFlagsAllowRemoteQuery,
+                                  0,
+                                  hostname,
+                                  kDNSServiceType_A,
+                                  kDNSServiceClass_IN,
+                                                  sizeof(struct in_addr),
+                                                  addr,
+                                  240,
+                                  TXTRegisterCallback,
+                                  NULL);
+            if (error){
+                qDebug() << "error" << dns_service_strerror(error);
+            }
+            
+            err = DNSServiceRegister(&ref1, 0, 0, serverName.toUtf8().constData(), "_wahoo-fitness-tnp._tcp", "local", serverName.toUtf8().constData(), htons(serverPort), strlen(txtMac) /* txtLen */,
+                                     txtMac /* txtRecord */, register_reply_callback, NULL);
+            qDebug() << err;
+            
+            if (err != kDNSServiceErr_NoError) {
+                 qDebug() << "error in DNSServiceRegister: " << dns_service_strerror(err);
+             }
+             
+             DNSServiceProcessResult(ref1);
         } else
-#endif
-#endif
+
         {
             mdnsProvider->update(mdnsService);
         }
