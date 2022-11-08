@@ -778,11 +778,15 @@ void ftmsbike::serviceScanDone(void) {
 
     initRequest = false;
     auto services_list = m_control->services();
+    QBluetoothUuid ftmsService((quint16)0x1826);
+    bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &ftmsbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
+            gattCommunicationChannelService.append(m_control->createServiceObject(s));
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &ftmsbike::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        }
     }
 }
 
