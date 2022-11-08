@@ -26,7 +26,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformwifibike::update);
-    refresh->start(200ms);
+    refresh->start(50ms);
 
     bool ok = connect(&websocket, &QWebSocket::binaryMessageReceived, this, &proformwifibike::binaryMessageReceived);
     ok = connect(&websocket, &QWebSocket::textMessageReceived, this, &proformwifibike::characteristicChanged);

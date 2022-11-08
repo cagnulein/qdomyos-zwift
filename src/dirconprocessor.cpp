@@ -2,6 +2,7 @@
 #include "dirconpacket.h"
 #include "qzsettings.h"
 #include <QSettings>
+#include <QHostInfo>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
@@ -45,7 +46,11 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
+#ifndef Q_OS_IOS
         mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
+#else
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, QHostInfo::localHostName().toUtf8(), this);
+#endif
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
