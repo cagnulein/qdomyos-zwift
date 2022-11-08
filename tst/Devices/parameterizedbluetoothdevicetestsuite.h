@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
+#include "bluetoothdevicetestsuite.h"
 #include "Devices/bluetoothdevicetestdata.h"
 #include "bluetoothdevicetestdatafactory.h"
 
@@ -8,14 +9,10 @@ class ParameterizedBluetoothDeviceTestSuite : public testing::TestWithParam<Blue
 {
 public:
     ParameterizedBluetoothDeviceTestSuite() {}
-    void SetUp() override {}
-    void TearDown() override {}
-
-    void test_deviceDetection(BluetoothDeviceTestData_ptr testData);
 };
 
 TEST_P(ParameterizedBluetoothDeviceTestSuite, TestDeviceDetected) {
-  this->test_deviceDetection(this->GetParam());
+    BluetoothDeviceTestSuite::test_deviceDetection(*this->GetParam().get());
 }
 
 INSTANTIATE_TEST_SUITE_P(TestDeviceDetection,

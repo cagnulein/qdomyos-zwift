@@ -23,8 +23,8 @@ public:
 
 
     template<class T>
-    void test_deviceDetection();
-    void test_deviceDetection(BluetoothDeviceTestData& testData);
+    static void test_deviceDetection();
+    static void test_deviceDetection(BluetoothDeviceTestData& testData);
 
 };
 
