@@ -11,7 +11,7 @@
 		<string>_wahoo-fitness-tnp._tcp</string>
 	</array>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>application needs Documents access in order to save logs and gpx file for the trainig sessions</string>
+	<string>application needs Documents access in order to save logs and gpx file for the training sessions</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app will need access to the local network for Discovery services (Wahoo Fitness Direct Connect).</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

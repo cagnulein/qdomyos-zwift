@@ -112,7 +112,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattWeightService) {
         uint8_t writeS[] = {0x30, 0x43};
 
-        writeCharacteristic(gattWeightService, gattWriteCharWeight, writeS, sizeof(writeS), QStringLiteral("weigth"),
+        writeCharacteristic(gattWeightService, gattWriteCharWeight, writeS, sizeof(writeS), QStringLiteral("weight"),
                             false, true);
     }
 

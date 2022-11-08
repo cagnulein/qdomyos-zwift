@@ -1018,7 +1018,7 @@ public class QtBluetoothLE {
 
     /*
      * Already executed in GattCallback so executed by the HandlerThread. No need to
-     * post it to the Hander.
+     * post it to the Handler.
      */
     private void scheduleMtuExchange() {
         ReadWriteJob newJob = new ReadWriteJob();

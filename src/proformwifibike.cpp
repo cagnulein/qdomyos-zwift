@@ -206,7 +206,8 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
     }
 }
 
-void proformwifibike::forceResistance(resistance_t requestResistance) {
+// must be double because it's an inclination
+void proformwifibike::forceResistance(double requestResistance) {
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";

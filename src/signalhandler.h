@@ -11,7 +11,7 @@ class SignalHandler {
         SIG_NOOP = 1, // The application is requested to do a no-op (only a target that platform-specific signals map to
                       // when they can't be raised anyway)
         SIG_INT = 2,  // Control+C (should terminate but consider that it's a normal way to do so; can delay a bit)
-        SIG_TERM = 4, // Control+Break (should terminate now without regarding the consquences)
+        SIG_TERM = 4, // Control+Break (should terminate now without regarding the consequences)
         SIG_CLOSE = 8, // Container window closed (should perform normal termination, like Ctrl^C) [Windows only; on
                        // Linux it maps to SIG_TERM]
         SIG_RELOAD =

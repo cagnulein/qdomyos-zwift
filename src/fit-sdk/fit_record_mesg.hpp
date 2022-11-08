@@ -1361,7 +1361,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Returns cadence256 field
     // Units: rpm
-    // Comment: Log cadence and fractional cadence for backwards compatability
+    // Comment: Log cadence and fractional cadence for backwards compatibility
     ///////////////////////////////////////////////////////////////////////
     FIT_FLOAT32 GetCadence256(void) const
     {
@@ -1371,7 +1371,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Set cadence256 field
     // Units: rpm
-    // Comment: Log cadence and fractional cadence for backwards compatability
+    // Comment: Log cadence and fractional cadence for backwards compatibility
     ///////////////////////////////////////////////////////////////////////
     void SetCadence256(FIT_FLOAT32 cadence256)
     {

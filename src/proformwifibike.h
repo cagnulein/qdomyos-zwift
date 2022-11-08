@@ -31,7 +31,6 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #include "bike.h"
@@ -69,7 +68,7 @@ class proformwifibike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts();
-    void forceResistance(resistance_t requestResistance);
+    void forceResistance(double requestResistance);
     void innerWriteResistance();
 
     QTimer *refresh;

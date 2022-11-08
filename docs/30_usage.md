@@ -26,7 +26,7 @@ This is the list of settings available in the application. These settings needs 
 | -no-gui                 		| Boolean  | False       | Disable GUI                                                                  |
 | -qml                    		| Boolean  | True        | Enables the QML interface                                                    |
 | -noqml                    	| Boolean  | False       | Enables the NativeQT interface                                               |
-| -miles                  		| Boolean  | False       | Swithes to Imperial Units System                                             |
+| -miles                  		| Boolean  | False       | Switches to Imperial Units System                                             |
 | -no-console             		| Boolean  | False       | Not in use                                                                   |
 | -test-resistance        		| Boolean  | False       |                                                                              |
 | -no-log                 		| Boolean  | False       | Disable Logging                                                              |
@@ -46,7 +46,7 @@ This is the list of settings available in the application. These settings needs 
 | -nordictrack-10-treadmill  	| Boolean  | False       | Enable NordicTrack compatibility mode                                        |
 | -train                  		| String   |             | Force training program                                                       |
 | -name                   		| String   |             | Force bluetooth device name (if QZ struggles finding your fitness equipment) |
-| -poll-device-time       		| Int      | 200 (ms)    | Frequency to refresh informations from QZ to Fitness equipment               |
+| -poll-device-time       		| Int      | 200 (ms)    | Frequency to refresh information from QZ to Fitness equipment               |
 | -bike-resistance-gain   		| Int      |             | Adjust resistance from the fitness application                               |
 | -bike-resistance-offset 		| Int      |             | Set another resistance point than default                                    |
 

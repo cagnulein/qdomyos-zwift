@@ -571,6 +571,9 @@ import Qt.labs.settings 1.0
 
             property bool tile_avg_watt_lap_enabled: false
 				property int tile_avg_watt_lap_order: 48
+
+            // from version 2.11.87
+            property bool nordictrack_t70_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -3130,6 +3133,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_t65s_treadmill = checked
+                        }                        
+                        SwitchDelegate {
+                            id: nordictrackT70Delegate
+                            text: qsTr("Nordictrack T7.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t70_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t70_treadmill = checked
                         }
                         SwitchDelegate {
                             id: nordictrackS30Delegate
