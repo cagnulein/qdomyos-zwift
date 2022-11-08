@@ -414,7 +414,7 @@ struct MetaPropertyInfo {
     }
 };
 
-/** Parse a property and fill a MetaPropertyInfo (called from W_PRPERTY macro) */
+/** Parse a property and fill a MetaPropertyInfo (called from W_PROPERTY macro) */
 // base case
 template <typename PropInfo> constexpr auto parseProperty(const PropInfo &p) { return p; }
 // setter
@@ -756,7 +756,7 @@ constexpr auto simple_hash(char const *p) {
  * need to be within parentheses (even if there is 0 or 1 argument).
  *
  * The W_SLOT macro can have flags:
- * - Specifying the the access:  W_Access::Protected, W_Access::Private
+ * - Specifying the access:  W_Access::Protected, W_Access::Private
  *   or W_Access::Public. (By default, it is auto-detected from the location of this macro.)
  * - W_Compat: for deprecated methods (equivalent of Q_MOC_COMPAT)
  */
@@ -789,7 +789,7 @@ constexpr auto simple_hash(char const *p) {
  * Unlike W_SLOT, W_SIGNAL must be placed directly after the signal signature declaration.
  * There should not be a semi colon between the signal signature and the macro
  *
- * Like W_SLOT, there can be the types of the parametter as a second argument, within parentheses.
+ * Like W_SLOT, there can be the types of the parameter as a second argument, within parentheses.
  * You must then follow with the parameter names
  */
 #define W_SIGNAL(...) W_MACRO_MSVC_EXPAND(W_SIGNAL2(__VA_ARGS__ , 0))

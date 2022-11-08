@@ -22,7 +22,7 @@ class APIFetcher {
                 completion(nil)
             } else if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
-                    completion("Sucess get data from server")
+                    completion("Success get data from server")
                 } else {
                     print("\(httpResponse.statusCode)")
                     completion(nil)

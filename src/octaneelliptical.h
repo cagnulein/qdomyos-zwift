@@ -1,17 +1,15 @@
-#ifndef ACTIVIOTREADMILL_H
-#define ACTIVIOTREADMILL_H
+#ifndef OCTANEELLIPTICAL_H
+#define OCTANEELLIPTICAL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -27,53 +25,56 @@
 #include <QDateTime>
 #include <QObject>
 
-#include "treadmill.h"
+#include "elliptical.h"
+#include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class activiotreadmill : public treadmill {
-
+class octaneelliptical : public elliptical {
     Q_OBJECT
   public:
-    activiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+    octaneelliptical(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
-    double minStepInclination() override;
+    bool connected();
+    double minStepInclination();
+    double minStepSpeed();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
+    double GetSpeedFromPacket(const QByteArray &packet, int index);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
-                             const QString &info, bool disable_log = false, bool wait_for_response = false);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
+    QByteArray actualPaceSign;
+    QByteArray actualPace2Sign;
+
     QTimer *refresh;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattWrite2Characteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();
@@ -83,7 +84,6 @@ class activiotreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 
@@ -92,13 +92,14 @@ class activiotreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void changeInclinationRequested(double grade, double percentage);
 };
 
-#endif // ACTIVIOTREADMILL_H
+#endif // OCTANEELLIPTICAL_H

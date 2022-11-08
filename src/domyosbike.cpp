@@ -99,7 +99,7 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
 
     if (currentSpeed().value() < 10.0) {
 
@@ -282,10 +282,10 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     qDebug() << QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' ');
 
-    // for the init packets, the lenght is always less than 20
-    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
-    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
-    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of
+    // for the init packets, the length is always less than 20
+    // for the display and status packets, the length is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the length will be always != 20
+    // - t900: it splits packets with length grater than 20 in two distinct packets, so the first one it has length of
     // 20,
     //         and the second one with the remained byte
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
@@ -306,7 +306,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     startBytes3.append(0xf0);
     startBytes3.append(0xdd);
 
-    // on some treadmills, the 26bytes has splitted in 2 packets
+    // on some treadmills, the 26bytes has split in 2 packets
     if ((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes3) && value.length() == 7)) {

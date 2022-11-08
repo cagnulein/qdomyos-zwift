@@ -187,7 +187,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 3;
 
         /*
-         * the concept 2 sends the pace in 2 frames, so this condition will create a bugus speed
+         * the concept 2 sends the pace in 2 frames, so this condition will create a bogus speed
         if (!Flags.instantPace) {
             // eredited by echelon rower, probably we need to change this
             Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;

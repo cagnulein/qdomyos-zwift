@@ -522,7 +522,7 @@ void proformbike::update() {
                 innerWriteResistance();
             }
             if (requestInclination != -100 && (proform_studio || proform_tdf_10)) {
-                // only 0.5 steps ara avaiable
+                // only 0.5 steps ara available
                 double inc = qRound(requestInclination * 2.0) / 2.0;
                 if (inc != currentInclination().value()) {
                     emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination) +

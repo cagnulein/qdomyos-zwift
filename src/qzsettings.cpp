@@ -548,8 +548,9 @@ const QString QZSettings::tile_preset_inclination_5_color = QStringLiteral("tile
 const QString QZSettings::default_tile_preset_inclination_5_color = QStringLiteral("grey");
 const QString QZSettings::tile_avg_watt_lap_enabled = QStringLiteral("tile_avg_watt_lap_enabled");
 const QString QZSettings::tile_avg_watt_lap_order = QStringLiteral("tile_avg_watt_lap_order");
+const QString QZSettings::nordictrack_t70_treadmill = QStringLiteral("nordictrack_t70_treadmill");
 
-const uint32_t allSettingsCount = 447;
+const uint32_t allSettingsCount = 448;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1000,6 +1001,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_preset_inclination_5_color, QZSettings::default_tile_preset_inclination_5_color},
     {QZSettings::tile_avg_watt_lap_enabled, QZSettings::default_tile_avg_watt_lap_enabled},
     {QZSettings::tile_avg_watt_lap_order, QZSettings::default_tile_avg_watt_lap_order},
+    {QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

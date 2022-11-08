@@ -86,7 +86,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
 
     display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
     display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;

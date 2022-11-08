@@ -100,14 +100,14 @@ class QZSettings {
 
     /**
      *@brief An offset that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_offset;
     static constexpr int default_bike_resistance_offset = 4;
 
     /**
      *@brief A gain that can be applied to the resistance from the device.
-     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
+     * calculated_resistance = raw_resistance * bike_resistance_gain_f + bike_resistance_offset
      */
     static const QString bike_resistance_gain_f;
     static constexpr float default_bike_resistance_gain_f = 1.0;
@@ -1566,6 +1566,9 @@ class QZSettings {
 
     static const QString tile_avg_watt_lap_order;
     static constexpr int default_tile_avg_watt_lap_order = 48;
+
+    static const QString nordictrack_t70_treadmill;
+    static constexpr bool default_nordictrack_t70_treadmill = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

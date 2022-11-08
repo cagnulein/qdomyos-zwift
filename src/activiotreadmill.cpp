@@ -1,7 +1,6 @@
 #include "activiotreadmill.h"
 #include "virtualbike.h"
 
-#include "activiotreadmill.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
@@ -36,7 +35,7 @@ activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh->start(pollDeviceTime);
 }
 
-void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data,
+void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data,
                                            uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
     QEventLoop loop;
@@ -57,7 +56,7 @@ void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(characteristc, QByteArray((const char *)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +

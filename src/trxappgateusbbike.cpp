@@ -772,7 +772,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW) {
             if (!gattNotify2Characteristic.isValid()) {
                 bike_type = TYPE::ICONSOLE;
-                qDebug() << QStringLiteral("ICONSOLE bike found - overrided due to characteristics");
+                qDebug() << QStringLiteral("ICONSOLE bike found - overrode due to characteristics");
             }
         }
 

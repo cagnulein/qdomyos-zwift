@@ -99,7 +99,7 @@ void powerzonepack::search_workout_onfinish(const QString &message) {
         r.power = power_graph.at(i - 1).toObject()[QStringLiteral("power_ratio")].toDouble() *
                   settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
 
-        // in order to have compact rows in the training program to have an Reamining Time tile set correctly
+        // in order to have compact rows in the training program to have an Remaining Time tile set correctly
         if (i == 1 || (r.power != trainrows.last().power))
             trainrows.append(r);
         else

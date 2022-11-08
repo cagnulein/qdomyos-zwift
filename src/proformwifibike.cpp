@@ -18,6 +18,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
+    target_watts.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -26,7 +27,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformwifibike::update);
-    refresh->start(200ms);
+    refresh->start(50ms);
 
     bool ok = connect(&websocket, &QWebSocket::binaryMessageReceived, this, &proformwifibike::binaryMessageReceived);
     ok = connect(&websocket, &QWebSocket::textMessageReceived, this, &proformwifibike::characteristicChanged);
@@ -206,7 +207,8 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
     }
 }
 
-void proformwifibike::forceResistance(resistance_t requestResistance) {
+// must be double because it's an inclination
+void proformwifibike::forceResistance(double requestResistance) {
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
@@ -238,9 +240,9 @@ void proformwifibike::innerWriteResistance() {
             QSettings settings;
             double erg_filter_upper =
                 settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-            if (fabs(target_watts - requestPower) > erg_filter_upper) {
+            if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
                 qDebug() << "change inclination due to request power = " << requestPower;
-                if (target_watts > requestPower) {
+                if (target_watts.value() > requestPower) {
                     requestInclination = currentInclination().value() - 1;
                 } else {
                     requestInclination = currentInclination().value() + 1;

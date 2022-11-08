@@ -76,6 +76,7 @@ SOURCES += \
     nordictrackelliptical.cpp \
     nordictrackifitadbbike.cpp \
    nordictrackifitadbtreadmill.cpp \
+   octaneelliptical.cpp \
    octanetreadmill.cpp \
    proformellipticaltrainer.cpp \
    proformrower.cpp \
@@ -262,6 +263,7 @@ HEADERS += \
     nordictrackelliptical.h \
     nordictrackifitadbbike.h \
    nordictrackifitadbtreadmill.h \
+   octaneelliptical.h \
    octanetreadmill.h \
    proformellipticaltrainer.h \
    proformrower.h \
@@ -720,4 +722,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.84
+VERSION = 2.11.88

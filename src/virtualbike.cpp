@@ -663,7 +663,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply3[15] = t & 0xff;
             reply3[16] = t >> 8;
             reply4[3] = ((uint16_t)calories);  // KCal
-            reply4[10] = ((uint16_t)calories); // KCal extimated
+            reply4[10] = ((uint16_t)calories); // KCal estimated
             reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
                          (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) - (reply3[12]) -
                          (reply3[16]) - (reply2[15]) - (reply2[16]);
