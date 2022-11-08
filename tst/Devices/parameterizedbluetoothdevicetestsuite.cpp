@@ -1,4 +1,4 @@
-#include "parameterizedbluetoothdevicetestdata.h"
+#include "parameterizedbluetoothdevicetestsuite.h"
 #include "bluetooth.h"
 #include "bluetoothdevicetestsuite.h"
 

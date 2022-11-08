@@ -22,7 +22,7 @@ SOURCES += \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestdatafactory.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
-        Devices/parameterizedbluetoothdevicetestdata.cpp \
+        Devices/parameterizedbluetoothdevicetestsuite.cpp \
         main.cpp
 
 
@@ -120,4 +120,4 @@ HEADERS += \
     Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/iConceptBike/iconceptbiketestdata.h \
-    Devices/parameterizedbluetoothdevicetestdata.h
+    Devices/parameterizedbluetoothdevicetestsuite.h
