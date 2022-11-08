@@ -24,16 +24,16 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     for (c = 0; c < rows.length(); c++) {
         qDebug()  << qSetRealNumberPrecision(10)<< "Trainprogramdata"
                  << c
-                 << QTime(0, 0, 0).secsTo(rows.at(c).duration)
-                 << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
-                 << QTime(0, 0, 0).secsTo(rows.at(c).rampDuration)
-                 << QTime(0, 0, 0).secsTo(rows.at(c).rampElapsed)
                  << rows.at(c).latitude
                  << rows.at(c).longitude
                  << rows.at(c).altitude
+                 << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
                  << rows.at(c).distance
-                 << rows.at(c).speed
-                 << rows.at(c).inclination;
+                 << rows.at(c).inclination
+                 << QTime(0, 0, 0).secsTo(rows.at(c).duration)
+                 << QTime(0, 0, 0).secsTo(rows.at(c).rampDuration)
+                 << QTime(0, 0, 0).secsTo(rows.at(c).rampElapsed)
+                 << rows.at(c).speed;
     }
     */
 
@@ -307,7 +307,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
         double avgSpeedForLimit = avgSpeedFromGpxStep(currentStep + 1, 5);
         if (avgSpeedForLimit > 0.0) {
             bike *dev = (bike *)bluetoothManager->device();
-            dev->setSpeedLimit(avgSpeedForLimit * 1.7);
+            dev->setSpeedLimit(avgSpeedForLimit * 3);
         }
     }
     if (gpxsecs == lastGpxRateSetAt) {
