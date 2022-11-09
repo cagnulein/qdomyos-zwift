@@ -484,7 +484,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
         }
 
-        if (Flags.avgPower) {
+        if (Flags.avgPower && newValue.length() > index + 1) {
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
@@ -781,7 +781,7 @@ void ftmsbike::serviceScanDone(void) {
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        if((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
+        if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &ftmsbike::stateChanged);
