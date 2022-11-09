@@ -294,6 +294,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonObject resistance_range = instructor_cue[QStringLiteral("resistance_range")].toObject();
         QJsonObject cadence_range = instructor_cue[QStringLiteral("cadence_range")].toObject();
 
+        if(resistance_range.count() == 0 && cadence_range.count() == 0) {
+            qDebug() << "no resistance and cadence found!";
+            continue;
+        }
+
         trainrow r;
         int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
         if (i != 0) {
