@@ -294,7 +294,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
-        if (Flags.avgPower) {
+        if (Flags.avgPower && newValue.length() > index + 1) {
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
