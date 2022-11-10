@@ -551,6 +551,29 @@ import Qt.labs.settings 1.0
             property int tile_preset_inclination_5_order: 47
             property real tile_preset_inclination_5_value: 4.0
             property string tile_preset_inclination_5_label: "4%"
+
+            // from version 2.11.85
+				property string tile_preset_resistance_1_color: "grey"
+				property string tile_preset_resistance_2_color: "grey"
+				property string tile_preset_resistance_3_color: "grey"
+				property string tile_preset_resistance_4_color: "grey"
+				property string tile_preset_resistance_5_color: "grey"
+				property string tile_preset_speed_1_color: "grey"
+				property string tile_preset_speed_2_color: "grey"
+				property string tile_preset_speed_3_color: "grey"
+				property string tile_preset_speed_4_color: "grey"
+				property string tile_preset_speed_5_color: "grey"
+				property string tile_preset_inclination_1_color: "grey"
+				property string tile_preset_inclination_2_color: "grey"
+				property string tile_preset_inclination_3_color: "grey"
+				property string tile_preset_inclination_4_color: "grey"
+				property string tile_preset_inclination_5_color: "grey"
+
+            property bool tile_avg_watt_lap_enabled: false
+				property int tile_avg_watt_lap_order: 48
+
+            // from version 2.11.87
+            property bool nordictrack_t70_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -3110,6 +3133,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_t65s_treadmill = checked
+                        }                        
+                        SwitchDelegate {
+                            id: nordictrackT70Delegate
+                            text: qsTr("Nordictrack T7.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t70_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t70_treadmill = checked
                         }
                         SwitchDelegate {
                             id: nordictrackS30Delegate

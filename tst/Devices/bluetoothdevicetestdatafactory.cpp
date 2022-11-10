@@ -12,8 +12,6 @@ BluetoothDeviceTestDataFactory::BluetoothDeviceTestDataFactory()
 
 }
 
-
-
 void BluetoothDeviceTestDataFactory::registerTestData() {
     registerTestData(new M3IBikeTestData());
     registerTestData(new FakeBikeTestData());
@@ -96,4 +94,5 @@ void BluetoothDeviceTestDataFactory::registerTestData() {
     registerTestData(new FitshowTreadmillSWTestData());
     registerTestData(new InspireBikeTestData());
     registerTestData(new ChronobikeTestData());
+    registerTestData(new MepanelBikeTestData());
 }

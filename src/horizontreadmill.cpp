@@ -1527,11 +1527,14 @@ void horizontreadmill::serviceScanDone(void) {
     initRequest = false;
     firstStateChanged = 0;
     auto services_list = m_control->services();
-    for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &horizontreadmill::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+    QBluetoothUuid ftmsService((quint16)0x1826);
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {        
+        if((lifeFitnessTreadmill && s == ftmsService) || !lifeFitnessTreadmill) {
+            gattCommunicationChannelService.append(m_control->createServiceObject(s));
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &horizontreadmill::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        }
     }
 }
 
@@ -1559,6 +1562,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("LF")) && bluetoothDevice.name().length() == 18)
+            lifeFitnessTreadmill = true;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);

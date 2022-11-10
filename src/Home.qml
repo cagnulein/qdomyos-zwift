@@ -251,6 +251,10 @@ HomeForm{
                     onClicked: largeButton_clicked(objectName)
                     visible: largeButton
                     anchors.fill: rect
+						  background: Rectangle {
+						      color: largeButtonColor
+								radius: 20
+								}
                     font.pointSize: 16 * settings.ui_zoom / 100
                     //width: 48 * settings.ui_zoom / 100
                     //height: 48 * settings.ui_zoom / 100

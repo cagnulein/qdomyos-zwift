@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
@@ -165,6 +166,23 @@ ScrollView {
         property int tile_preset_inclination_5_order: 47
         property real tile_preset_inclination_5_value: 4.0
         property string tile_preset_inclination_5_label: "4%"
+		  property string tile_preset_resistance_1_color: "grey"
+		  property string tile_preset_resistance_2_color: "grey"
+		  property string tile_preset_resistance_3_color: "grey"
+		  property string tile_preset_resistance_4_color: "grey"
+		  property string tile_preset_resistance_5_color: "grey"
+		  property string tile_preset_speed_1_color: "grey"
+		  property string tile_preset_speed_2_color: "grey"
+		  property string tile_preset_speed_3_color: "grey"
+		  property string tile_preset_speed_4_color: "grey"
+		  property string tile_preset_speed_5_color: "grey"
+		  property string tile_preset_inclination_1_color: "grey"
+		  property string tile_preset_inclination_2_color: "grey"
+		  property string tile_preset_inclination_3_color: "grey"
+		  property string tile_preset_inclination_4_color: "grey"
+		  property string tile_preset_inclination_5_color: "grey"
+		  property bool tile_avg_watt_lap_enabled: false
+		  property int tile_avg_watt_lap_order: 48
     }
 
 
@@ -539,6 +557,38 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+		      id: avgwattLapEnabledAccordion
+				title: qsTr("AVG Watt Lap")
+				linkedBoolSetting: "tile_avg_watt_lap_enabled"
+				settings: settings
+				accordionContent: RowLayout {
+				    spacing: 10
+					 Label {
+					     id: labelavgwattLapOrder
+						  text: qsTr("order index:")
+						  Layout.fillWidth: true
+						  horizontalAlignment: Text.AlignRight
+						}
+					 ComboBox {
+					     id: avgwattLapOrderTextField
+						  model: rootItem.tile_order
+						  displayText: settings.tile_avg_watt_lap_order
+						  Layout.fillHeight: false
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onActivated: {
+						      displayText = avgwattLapOrderTextField.currentValue
+								}
+							}
+					 Button {
+					     id: okavgwattLapOrderButton
+						  text: "OK"
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onClicked: settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText
+						}
+					}
+				}
 
         AccordionCheckElement {
             id: ftpEnabledAccordion
@@ -1678,6 +1728,40 @@ ScrollView {
                         onClicked: settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetResistance1Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetResistance1
+								title: "Please choose a color"
+								onAccepted: {
+								    presetResistance1ColorTextField.text = colorPresetResistance1.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetResistance1ColorTextField
+								text: settings.tile_preset_resistance_1_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetResistance1.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetResistance1ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -1753,6 +1837,40 @@ ScrollView {
                         onClicked: settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetResistance2Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetResistance2
+								title: "Please choose a color"
+								onAccepted: {
+								    presetResistance2ColorTextField.text = colorPresetResistance2.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetResistance2ColorTextField
+								text: settings.tile_preset_resistance_2_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetResistance2.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetResistance2ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -1828,6 +1946,40 @@ ScrollView {
                         onClicked: settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetResistance3Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetResistance3
+								title: "Please choose a color"
+								onAccepted: {
+								    presetResistance3ColorTextField.text = colorPresetResistance3.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetResistance3ColorTextField
+								text: settings.tile_preset_resistance_3_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetResistance3.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetResistance3ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -1903,6 +2055,40 @@ ScrollView {
                         onClicked: settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetResistance4Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetResistance4
+								title: "Please choose a color"
+								onAccepted: {
+								    presetResistance4ColorTextField.text = colorPresetResistance4.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetResistance4ColorTextField
+								text: settings.tile_preset_resistance_4_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetResistance4.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetResistance4ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -1978,6 +2164,40 @@ ScrollView {
                         onClicked: settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetResistance5Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetResistance5
+								title: "Please choose a color"
+								onAccepted: {
+								    presetResistance5ColorTextField.text = colorPresetResistance5.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetResistance5ColorTextField
+								text: settings.tile_preset_resistance_5_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetResistance5.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetResistance5ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2053,6 +2273,40 @@ ScrollView {
                         onClicked: settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed1Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed1
+								title: "Please choose a color"
+								onAccepted: {
+								    presetSpeed1ColorTextField.text = colorPresetSpeed1.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetSpeed1ColorTextField
+								text: settings.tile_preset_speed_1_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetSpeed1.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed1ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2128,6 +2382,40 @@ ScrollView {
                         onClicked: settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed2Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed2
+								title: "Please choose a color"
+								onAccepted: {
+								    presetSpeed2ColorTextField.text = colorPresetSpeed2.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetSpeed2ColorTextField
+								text: settings.tile_preset_speed_2_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetSpeed2.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed2ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2203,6 +2491,40 @@ ScrollView {
                         onClicked: settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed3Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed3
+								title: "Please choose a color"
+								onAccepted: {
+								    presetSpeed3ColorTextField.text = colorPresetSpeed3.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetSpeed3ColorTextField
+								text: settings.tile_preset_speed_3_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetSpeed3.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed3ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2278,6 +2600,40 @@ ScrollView {
                         onClicked: settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed4Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed4
+								title: "Please choose a color"
+								onAccepted: {
+								    presetSpeed4ColorTextField.text = colorPresetSpeed4.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetSpeed4ColorTextField
+								text: settings.tile_preset_speed_4_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetSpeed4.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed4ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2353,6 +2709,40 @@ ScrollView {
                         onClicked: settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetSpeed5Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetSpeed5
+								title: "Please choose a color"
+								onAccepted: {
+								    presetSpeed5ColorTextField.text = colorPresetSpeed5.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetSpeed5ColorTextField
+								text: settings.tile_preset_speed_5_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetSpeed5.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetSpeed5ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2428,6 +2818,40 @@ ScrollView {
                         onClicked: settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetInclination1Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetInclination1
+								title: "Please choose a color"
+								onAccepted: {
+								    presetInclination1ColorTextField.text = colorPresetInclination1.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetInclination1ColorTextField
+								text: settings.tile_preset_inclination_1_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetInclination1.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetInclination1ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2504,6 +2928,40 @@ ScrollView {
                     }
                 }
             }
+				RowLayout {
+				    Label {
+					     id: labelPresetInclination2Color
+						  text: qsTr("color:")
+						  Layout.fillWidth: true
+						  horizontalAlignment: Text.AlignRight
+						  }
+						ColorDialog {
+						  id: colorPresetInclination2
+						  title: "Please choose a color"
+						  onAccepted: {
+						      presetInclination2ColorTextField.text = colorPresetInclination2.color
+							  }
+						  onRejected: {
+
+                    }
+						}
+					 TextField {
+					     id: presetInclination2ColorTextField
+						  text: settings.tile_preset_inclination_2_color
+						  Layout.fillHeight: false
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+						  onPressed: {
+						      colorPresetInclination2.visible = true
+						  }
+						}
+					 Button {
+					     id: okPresetInclination2ColorButton
+						  text: "OK"
+						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+						  onClicked: settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText
+						}
+					}
         }
         AccordionCheckElement {
             id: presetInclination3EnabledAccordion
@@ -2578,6 +3036,40 @@ ScrollView {
                         onClicked: settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetInclination3Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetInclination3
+								title: "Please choose a color"
+								onAccepted: {
+								    presetInclination3ColorTextField.text = colorPresetInclination3.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetInclination3ColorTextField
+								text: settings.tile_preset_inclination_3_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetInclination3.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetInclination3ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2652,7 +3144,41 @@ ScrollView {
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText
                     }
-                }
+						}
+					 RowLayout {
+					     Label {
+						      id: labelPresetInclination4Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetInclination4
+								title: "Please choose a color"
+								onAccepted: {
+								    presetInclination4ColorTextField.text = colorPresetInclination4.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetInclination4ColorTextField
+								text: settings.tile_preset_inclination_4_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetInclination4.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetInclination4ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText
+						  }
+					 }
             }
         }
         AccordionCheckElement {
@@ -2728,6 +3254,40 @@ ScrollView {
                         onClicked: settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText
                     }
                 }
+					 RowLayout {
+					     Label {
+						      id: labelPresetInclination5Color
+								text: qsTr("color:")
+								Layout.fillWidth: true
+								horizontalAlignment: Text.AlignRight
+								}
+						  ColorDialog {
+						      id: colorPresetInclination5
+								title: "Please choose a color"
+								onAccepted: {
+								    presetInclination5ColorTextField.text = colorPresetInclination5.color
+									}
+								onRejected: {
+
+                        }
+						  }
+						  TextField {
+						      id: presetInclination5ColorTextField
+								text: settings.tile_preset_inclination_5_color
+								Layout.fillHeight: false
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+								onPressed: {
+								    colorPresetInclination5.visible = true
+								}
+						  }
+						  Button {
+						      id: okPresetInclination5ColorButton
+								text: "OK"
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText
+						  }
+					 }
             }
         }
     }

@@ -42,9 +42,10 @@ class FTMSBike2TestData : public FTMSBikeTestData {
 public:
 
     FTMSBike2TestData() : FTMSBikeTestData("FTMS Bike")  {
-        this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase);    // MKSM3600036
-        this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase); // Yesoul C1H
-        this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase);  // Bodytone DS25
+        this->addDeviceName("DHZ-", comparison::StartsWithIgnoreCase); // JK fitness 577
+        this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase); // MKSM3600036
+        this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase);// Yesoul C1H
+        this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
         this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);

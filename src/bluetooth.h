@@ -60,6 +60,7 @@
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
+#include "mepanelbike.h"
 #include "nautilusbike.h"
 #include "nautiluselliptical.h"
 #include "nautilustreadmill.h"
@@ -67,6 +68,7 @@
 #include "nordictrackifitadbbike.h"
 #include "nordictrackifitadbtreadmill.h"
 #include "npecablebike.h"
+#include "octaneelliptical.h"
 #include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
@@ -178,6 +180,7 @@ private:
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
+    octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
@@ -200,6 +203,7 @@ private:
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
     m3ibike *m3iBike = nullptr;
+    mepanelbike *mepanelBike = nullptr;
     skandikawiribike *skandikaWiriBike = nullptr;
     cscbike *cscBike = nullptr;
     mcfbike *mcfBike = nullptr;
@@ -269,6 +273,7 @@ private:
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
+    bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN

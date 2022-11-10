@@ -75,6 +75,7 @@ HEADERS += \
     Devices/KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h \
     Devices/M3IBike/m3ibiketestdata.h \
     Devices/MCFBike/mcfbiketestdata.h \
+    Devices/MepanelBike/mepanelbiketestdata.h \
     Devices/NPECableBike/npecablebiketestdata.h \
     Devices/NautilusBike/nautilusbiketestdata.h \
     Devices/NautilusElliptical/nautilusellipticaltestdata.h \

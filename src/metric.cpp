@@ -1,7 +1,7 @@
 #include "metric.h"
 #include "qdebugfixup.h"
-#include <QSettings>
 #include "qzsettings.h"
+#include <QSettings>
 
 #ifdef TEST
 static uint32_t random_value_uint32 = 0;
@@ -27,9 +27,9 @@ void metric::setValue(double v, bool applyGainAndOffset) {
                 }
                 if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
                     if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                        qDebug() << QStringLiteral("watt value was ") << v
-                                 << QStringLiteral("but it will be transformed to")
-                                 << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        qDebug()
+                            << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
+                            << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                     }
                     v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                 }
@@ -183,7 +183,8 @@ void metric::setLap(bool accumulator) { clearLap(accumulator); }
 
 double metric::calculateMaxSpeedFromPower(double power, double inclination) {
     QSettings settings;
-    double rolling_resistance = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
+    double rolling_resistance =
+        settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
     double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
                         settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double aero = 0.22691607640851885;
@@ -214,7 +215,8 @@ double metric::calculateMaxSpeedFromPower(double power, double inclination) {
 
 double metric::calculatePowerFromSpeed(double speed, double inclination) {
     QSettings settings;
-    double rolling_resistance = settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
+    double rolling_resistance =
+        settings.value(QZSettings::rolling_resistance, QZSettings::default_rolling_resistance).toFloat();
     double v = speed / 3.6; // converted to m/s;
     double tv = v + 0;
     double tran = 0.95;
@@ -226,22 +228,29 @@ double metric::calculatePowerFromSpeed(double speed, double inclination) {
     return (v * tr + v * tv * tv * A2Eff) / tran;
 }
 
-double metric::calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds, double speedLimit) {
+double metric::calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds,
+                                       double speedLimit) {
     QSettings settings;
+    double speed_gain = settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+    double speed_offset = settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
     if (inclination < -5)
         inclination = -5;
+    if (speed_offset != QZSettings::default_speed_offset)
+        speed -= speed_offset;
+    if (speed_gain != QZSettings::default_speed_gain)
+        speed /= speed_gain;
 
     double fullWeight = (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
-                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
+                         settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double maxSpeed = calculateMaxSpeedFromPower(power, inclination);
     double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
     double acceleration = (power - maxPowerFromSpeed) / fullWeight;
     double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
-    if(speedLimit > 0 && newSpeed > speedLimit)
+    if (speedLimit > 0 && newSpeed > speedLimit)
         newSpeed = speedLimit;
-    if(speedLimit > 0 && maxSpeed > speedLimit)
+    if (speedLimit > 0 && maxSpeed > speedLimit)
         maxSpeed = speedLimit;
-    if(newSpeed < 0)
+    if (newSpeed < 0)
         newSpeed = 0;
     if (maxSpeed > newSpeed)
         return newSpeed;

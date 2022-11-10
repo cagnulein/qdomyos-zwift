@@ -39,12 +39,14 @@
 #include "KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h"
 #include "M3IBike/m3ibiketestdata.h"
 #include "MCFBike/mcfbiketestdata.h"
+#include "MepanelBike/mepanelbiketestdata.h"
 #include "NautilusBike/nautilusbiketestdata.h"
 #include "NautilusElliptical/nautilusellipticaltestdata.h"
 #include "NautilusTreadmill/nautilustreadmilltestdata.h"
 #include "NordicTrackElliptical/nordictrackellipticaltestdata.h"
 #include "NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.h"
 #include "NPECableBike/npecablebiketestdata.h"
+#include "OctaneElliptical/octaneellipticaltestdata.h"
 #include "OctaneTreadmill/octanetreadmilltestdata.h"
 #include "PafersBike/pafersbiketestdata.h"
 #include "PafersTreadmill/paferstreadmilltestdata.h"
@@ -138,6 +140,7 @@ public:
     KingsmithR2TreadmillTestData,
     M3IBikeTestData,
     MCFBikeTestData,
+    MepanelBikeTestData,
     NPECableBike1TestData,
     NPECableBike2TestData,
     NautilusBikeTestData,
@@ -145,6 +148,7 @@ public:
     NautilusTreadmillTestData,
     NordicTrackEllipticalTestData,
     NordicTrackIFitADBTreadmillTestData,
+    OctaneEllipticalTestData,
     OctaneTreadmillTestData,
     PafersBikeTestData,
     PafersTreadmillTestData,
@@ -184,7 +188,6 @@ public:
     WahooKickrSnapBikeTestData,
     YesoulBikeTestData,
     iConceptBikeTestData>;
-
 };
 
 

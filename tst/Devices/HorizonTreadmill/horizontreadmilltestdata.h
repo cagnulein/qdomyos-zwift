@@ -14,6 +14,7 @@ public:
         this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
 
         // FTMS
+        this->addDeviceName("LF", comparison::StartsWithIgnoreCase, 18);
         this->addDeviceName("T318_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("T218_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);

@@ -49,6 +49,7 @@ enum deviceType {
     Concept2SkiErg,
     FTMSRower,
     EchelonStride,
+    OctaneElliptical,
     OctaneTreadmill,
     EchelonRower,
     EchelonConnectSport,
@@ -80,7 +81,8 @@ enum deviceType {
     FitPlusBike,
     FitshowTreadmill,
     InspireBike,
-    ChronoBike
+    ChronoBike,
+    MepanelBike
 };
 
 /**

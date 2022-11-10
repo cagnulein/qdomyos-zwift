@@ -69,7 +69,7 @@ N_ = vlc.gettext.N_
 
 running = true
 
---[[ Setup default environement ]]
+--[[ Setup default environment ]]
 env = { prompt = "> ";
         width = 70;
         autocompletion = 1;
@@ -78,7 +78,7 @@ env = { prompt = "> ";
         flatplaylist = 0;
       }
 
---[[ Import custom environement variables from the command line config (if possible) ]]
+--[[ Import custom environment variables from the command line config (if possible) ]]
 for k,v in pairs(env) do
     if config[k] then
         if type(env[k]) == type(config[k]) then
@@ -689,7 +689,7 @@ end
 --[[ From now on commands_ordered is a list of the different command names
      and commands is a associative array indexed by the command name. ]]
 
--- Compute the column width used when printing a the autocompletion list
+-- Compute the column width used when printing the autocompletion list
 env.colwidth = 0
 for c,_ in pairs(commands) do
     if #c > env.colwidth then env.colwidth = #c end
