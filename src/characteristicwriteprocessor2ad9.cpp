@@ -172,8 +172,8 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t 
         */
         double fCRR = crr / 10000;
         double CRR_offset = 0;
-        CRR_offset = ((crr - 40) * 0.05) * (CRRGain * (grade + 1));
-        CRR_offset = ((crr - 40) * 0.05) * (CRRGain * (grade + 1));
+        CRR_offset = ((crr - 40) * 0.05) * CRRGain;
+        CRR_offset = ((crr - 40) * 0.05) * CRRGain;
         qDebug() << "changeSlope CRR = " << fCRR << CRR_offset;
 
         // if the bike doesn't have the inclination by hardware, i'm simulating inclination with the value received form
