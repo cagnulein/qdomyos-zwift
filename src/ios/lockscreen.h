@@ -17,17 +17,23 @@ class lockscreen {
 
     void virtualbike_zwift_ios();
     double virtualbike_getCurrentSlope();
+    double virtualbike_getCurrentCRR();
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt, unsigned short  CrankRevolutions, unsigned short  LastCrankEventTime);
-    int virtualbike_getLastFTMSMessage(unsigned char* message);
-    
+                                unsigned short currentCadence, unsigned short currentWatt,
+                                unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+    int virtualbike_getLastFTMSMessage(unsigned char *message);
+
     // virtualrower
     void virtualrower_ios();
     void virtualrower_setHeartRate(unsigned char heartRate);
-    bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, unsigned short StrokesCount, unsigned int Distance, unsigned short KCal, unsigned short Pace);
-    int virtualrower_getLastFTMSMessage(unsigned char* message);
-    
+    bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
+                                 unsigned short currentCadence, unsigned short currentWatt,
+                                 unsigned short CrankRevolutions, unsigned short LastCrankEventTime,
+                                 unsigned short StrokesCount, unsigned int Distance, unsigned short KCal,
+                                 unsigned short Pace);
+    int virtualrower_getLastFTMSMessage(unsigned char *message);
+
     // virtualtreadmill
     void virtualtreadmill_zwift_ios();
     void virtualtreadmill_setHeartRate(unsigned char heartRate);
@@ -35,8 +41,8 @@ class lockscreen {
     uint64_t virtualtreadmill_lastChangeCurrentSlope();
     double virtualtreadmill_getPowerRequested();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt);
-    
+                                     unsigned short currentCadence, unsigned short currentWatt);
+
     // volume
     double getVolume();
 };

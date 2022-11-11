@@ -65,6 +65,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var FitnessMachinestatusCharacteristic: CBMutableCharacteristic!
   private var TrainingStatusCharacteristic: CBMutableCharacteristic!
     public var CurrentSlope: Double! = 0
+	 public var CurrentCRR: Double! = 0
     public var PowerRequested: Double! = 0
     public var NormalizeSpeed: UInt16! = 0
     public var CurrentCadence: UInt16! = 0
@@ -238,6 +239,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         {
                var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                  self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
+					  self.CurrentCRR = (Double)((Int16)requests.first!.value![5]);
         }
         else if(requests.first!.value?.first == 0x05)
         {
