@@ -240,8 +240,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         {
                var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                  self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
-					  self.CurrentCRR = (Double)((Int16)requests.first!.value![5]);
-					  self.CurrentCW = (Double)((Int16)requests.first!.value![6]);
+					  self.CurrentCRR = (Double)((Int16)(requests.first!.value![5]));
+					  self.CurrentCW = (Double)((Int16)(requests.first!.value![6]));
         }
         else if(requests.first!.value?.first == 0x05)
         {
