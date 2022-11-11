@@ -576,7 +576,8 @@ import Qt.labs.settings 1.0
             property bool nordictrack_t70_treadmill: false
 
             // from version 2.11.94
-            property real CRRGain: 0
+            property real crrGain: 0
+            property real cwGain: 0
         }
 
         function paddingZeros(text, limit) {
@@ -1321,19 +1322,19 @@ import Qt.labs.settings 1.0
                         }
                         TextField {
                             id: crrGainTextField
-                            text: settings.CRRGain
+                            text: settings.crrGain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.CRRGain = text
+                            onAccepted: settings.crrGain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCRRGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.CRRGain = crrGainTextField.text
+                            onClicked: settings.crrGain = crrGainTextField.text
                         }
                     }
                     RowLayout {
@@ -1345,19 +1346,19 @@ import Qt.labs.settings 1.0
                         }
                         TextField {
                             id: cwGainTextField
-                            text: settings.CWGain
+                            text: settings.cwGain
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             //inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.CWGain = text
+                            onAccepted: settings.cwGain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCWGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.CWGain = cwGainTextField.text
+                            onClicked: settings.cwGain = cwGainTextField.text
                         }
                     }
                     SwitchDelegate {

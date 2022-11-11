@@ -549,8 +549,8 @@ const QString QZSettings::default_tile_preset_inclination_5_color = QStringLiter
 const QString QZSettings::tile_avg_watt_lap_enabled = QStringLiteral("tile_avg_watt_lap_enabled");
 const QString QZSettings::tile_avg_watt_lap_order = QStringLiteral("tile_avg_watt_lap_order");
 const QString QZSettings::nordictrack_t70_treadmill = QStringLiteral("nordictrack_t70_treadmill");
-const QString QZSettings::CRRGain = QStringLiteral("CRRGain");
-const QString QZSettings::CWGain = QStringLiteral("CWGain");
+const QString QZSettings::CRRGain = QStringLiteral("crrGain");
+const QString QZSettings::CWGain = QStringLiteral("cwGain");
 
 const uint32_t allSettingsCount = 450;
 QVariant allSettings[allSettingsCount][2] = {
