@@ -25,6 +25,16 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
     {
         return peripheralManager.CurrentSlope;
     }
+    
+    @objc public func readCurrentCRR() -> Double
+    {
+        return peripheralManager.CurrentCRR;
+    }
+    
+    @objc public func readCurrentCW() -> Double
+    {
+        return peripheralManager.CurrentCW;
+    }
 
     @objc public func readPowerRequested() -> Double
     {
