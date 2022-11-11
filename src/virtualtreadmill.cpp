@@ -349,7 +349,7 @@ void virtualtreadmill::treadmillProvider() {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
-                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0);
+                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
         return;
     }

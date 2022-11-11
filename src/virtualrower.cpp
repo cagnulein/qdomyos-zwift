@@ -336,7 +336,7 @@ void virtualrower::rowerProvider() {
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
             if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) { /*
                  if (!erg_mode)
-                     writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), 0);
+                     writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), 0, 0);
                  else {
                      qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                      writeP2AD9->changePower(h->virtualbike_getPowerRequested());

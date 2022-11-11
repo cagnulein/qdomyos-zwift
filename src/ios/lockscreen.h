@@ -18,6 +18,7 @@ class lockscreen {
     void virtualbike_zwift_ios();
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
+    double virtualbike_getCurrentCW();
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt,

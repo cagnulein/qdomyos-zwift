@@ -46,7 +46,8 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
 
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
                 uint8_t crr = data.at(5);
-                changeSlope(iresistance, crr);
+                uint8_t cw = data.at(6);
+                changeSlope(iresistance, crr, cw);
             } else if (cmd == FTMS_SET_TARGET_POWER) // erg mode
 
             {
@@ -118,7 +119,8 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 qDebug() << QStringLiteral("indoor bike simulation parameters");
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
                 uint8_t crr = data.at(5);
-                changeSlope(iresistance, crr);
+                uint8_t cw = data.at(6);
+                changeSlope(iresistance, crr, cw);
             }
             reply.append((quint8)FTMS_RESPONSE_CODE);
             reply.append((quint8)data.at(0));
@@ -134,7 +136,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
 
 void CharacteristicWriteProcessor2AD9::changePower(uint16_t power) { Bike->changePower(power); }
 
-void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t crr) {
+void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::BIKE) {
         QSettings settings;
@@ -151,6 +153,7 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t 
         double gain =
             settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
         double CRRGain = settings.value(QZSettings::CRRGain, QZSettings::default_CRRGain).toDouble();
+        double CWGain = settings.value(QZSettings::CWGain, QZSettings::default_CWGain).toDouble();
 
         qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance) +
                         QStringLiteral(" enabled ") + force_resistance;
@@ -170,16 +173,18 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t 
             Dirt	.025	.014	.016	.018
             Grass	 	.042
         */
-        double fCRR = crr / 10000;
-        double CRR_offset = 0;
-        CRR_offset = ((crr - 40) * 0.05) * CRRGain;
-        CRR_offset = ((crr - 40) * 0.05) * CRRGain;
-        qDebug() << "changeSlope CRR = " << fCRR << CRR_offset;
+        const double fCRR = crr / 10000.0;
+        const double CRR_offset = ((crr - 40) * 0.05) * CRRGain;
+
+        const double fCW = cw / 100.0;
+        const double CW_offset = ((crr - 40) * 0.05) * CWGain;
+
+        qDebug() << "changeSlope CRR = " << fCRR << CRR_offset << "CW = " << fCW;
 
         // if the bike doesn't have the inclination by hardware, i'm simulating inclination with the value received form
         // Zwift
         if (!((bike *)Bike)->inclinationAvailableByHardware())
-            Bike->setInclination(grade + CRR_offset);
+            Bike->setInclination(grade + CRR_offset + CW_offset);
 
         if (iresistance >= 0 || !zwift_negative_inclination_x2)
             emit changeInclination(grade, ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
@@ -190,7 +195,7 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance, uint8_t 
         if (force_resistance && !erg_mode) {
             // same on the training program
             Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1 +
-                                   CRR_offset); // resistance start from 1
+                                   CRR_offset + CW_offset); // resistance start from 1
         }
     } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         QSettings settings;

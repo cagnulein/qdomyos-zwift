@@ -96,6 +96,15 @@ double lockscreen::virtualbike_getCurrentCRR()
     return 0;
 }
 
+double lockscreen::virtualbike_getCurrentCW()
+{
+    if(_virtualbike_zwift != nil)
+    {
+        return [_virtualbike_zwift readCurrentCW];
+    }
+    return 0;
+}
+
 double lockscreen::virtualbike_getPowerRequested()
 {
     if(_virtualbike_zwift != nil)

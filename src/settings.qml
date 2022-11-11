@@ -1336,6 +1336,30 @@ import Qt.labs.settings 1.0
                             onClicked: settings.CRRGain = crrGainTextField.text
                         }
                     }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCWGain
+                            text: qsTr("Wind Res. Gain")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cwGainTextField
+                            text: settings.CWGain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.CWGain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCWGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.CWGain = cwGainTextField.text
+                        }
+                    }
                     SwitchDelegate {
                         id: zwiftErgDelegate
                         text: qsTr("Zwift Workout/Erg Mode")
