@@ -71,6 +71,7 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
+   lifefitnesstreadmill.cpp \
    mepanelbike.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
@@ -257,6 +258,7 @@ HEADERS += \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
+   lifefitnesstreadmill.h \
    mepanelbike.h \
    nautilusbike.h \
     nordictrackelliptical.h \
@@ -720,4 +722,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.92
+VERSION = 2.11.93

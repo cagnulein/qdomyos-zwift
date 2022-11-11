@@ -1011,14 +1011,39 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(soleF80);
                 innerTemplateManager->start(soleF80);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && b.name().length() == 18) &&
+                       !lifefitnessTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                lifefitnessTreadmill = new lifefitnesstreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(lifefitnessTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(lifefitnessTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(lifefitnessTreadmill, &lifefitnesstreadmill::debug, this, &bluetooth::debug);
+                // NOTE: Commented due to #358
+                // connect(lifefitnessTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(lifefitnessTreadmill, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                lifefitnessTreadmill->deviceDiscovered(b);
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), lifefitnessTreadmill, SLOT(searchingStop()));
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(lifefitnessTreadmill);
+                innerTemplateManager->start(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("LF")) && b.name().length() == 18) || // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||                           // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||                           // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||                         // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
@@ -2168,6 +2193,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (lifefitnessTreadmill) {
+
+        delete lifefitnessTreadmill;
+        lifefitnessTreadmill = nullptr;
+    }
     if (technogymmyrunTreadmill) {
 
         delete technogymmyrunTreadmill;
@@ -2650,6 +2680,8 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (lifefitnessTreadmill) {
+        return lifefitnessTreadmill;
     } else if (technogymmyrunTreadmill) {
         return technogymmyrunTreadmill;
 #ifndef Q_OS_IOS

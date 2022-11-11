@@ -1586,7 +1586,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     // some treadmills doesn't have the control point so i need anyway to get the FTMS Service at least
                     gattFTMSService = s;
                 } else if (c.uuid() == _gattCrossTrainerDataId && gattFTMSService == nullptr) {
-                    // some treadmills doesn't have the control point and also are Cross Trainer devices so i need anyway to get the FTMS Service at least
+                    // some treadmills doesn't have the control point and also are Cross Trainer devices so i need
+                    // anyway to get the FTMS Service at least
                     gattFTMSService = s;
                 }
 
@@ -1703,13 +1704,11 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
-    for (const QBluetoothUuid &s : qAsConst(services_list)) {        
-        if((lifeFitnessTreadmill && s == ftmsService) || !lifeFitnessTreadmill) {
-            gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &horizontreadmill::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
-        }
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        gattCommunicationChannelService.append(m_control->createServiceObject(s));
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                &horizontreadmill::stateChanged);
+        gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 
@@ -1737,9 +1736,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-
-        if (bluetoothDevice.name().toUpper().startsWith(QStringLiteral("LF")) && bluetoothDevice.name().length() == 18)
-            lifeFitnessTreadmill = true;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
