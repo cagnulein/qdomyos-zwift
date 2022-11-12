@@ -422,6 +422,8 @@
 		87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */; };
 		87E0761D277A081A00FDA0F9 /* technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */; };
 		87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */; };
+		87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */; };
+		87E2F85F291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E2F85E291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp */; };
 		87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */; };
 		87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */; };
 		87E5D2C625E69F3100BDBE6C /* horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */; };
@@ -1230,6 +1232,9 @@
 		87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmillrfcomm.cpp; path = ../src/technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
 		87E0761C277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmillrfcomm.h; path = ../src/technogymmyruntreadmillrfcomm.h; sourceTree = "<group>"; };
 		87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
+		87E2F85B291ED308002BDC65 /* lifefitnesstreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lifefitnesstreadmill.h; path = ../src/lifefitnesstreadmill.h; sourceTree = "<group>"; };
+		87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lifefitnesstreadmill.cpp; path = ../src/lifefitnesstreadmill.cpp; sourceTree = "<group>"; };
+		87E2F85E291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_lifefitnesstreadmill.cpp; sourceTree = "<group>"; };
 		87E34C292886F95300CEDE4B /* octanetreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octanetreadmill.h; path = ../src/octanetreadmill.h; sourceTree = "<group>"; };
 		87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = octanetreadmill.cpp; path = ../src/octanetreadmill.cpp; sourceTree = "<group>"; };
 		87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_octanetreadmill.cpp; sourceTree = "<group>"; };
@@ -1642,6 +1647,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87E2F85E291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp */,
 				87F02E4129178545000DB52C /* moc_octaneelliptical.cpp */,
 				87D105532909971100B3935B /* moc_mepanelbike.cpp */,
 				872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */,
@@ -1797,6 +1803,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87E2F85C291ED308002BDC65 /* lifefitnesstreadmill.cpp */,
+				87E2F85B291ED308002BDC65 /* lifefitnesstreadmill.h */,
 				87F02E3E29178523000DB52C /* octaneelliptical.cpp */,
 				87F02E3F29178524000DB52C /* octaneelliptical.h */,
 				87D10550290996EA00B3935B /* mepanelbike.cpp */,
@@ -2864,6 +2872,7 @@
 				3D7395B0A17915A06361C7F3 /* fit_accumulator.cpp in Compile Sources */,
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
+				87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
@@ -2993,6 +3002,7 @@
 				87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */,
 				C719682D8D421AF6B2DAAEA9 /* main.cpp in Compile Sources */,
 				87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */,
+				87E2F85F291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp in Compile Sources */,
 				876BFCA127BE35D8001D7645 /* moc_bowflext216treadmill.cpp in Compile Sources */,
 				25FCD41CCCAF49293B9369E8 /* qfit.cpp in Compile Sources */,
 				87ADD2BD27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp in Compile Sources */,

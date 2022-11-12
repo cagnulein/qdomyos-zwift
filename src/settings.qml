@@ -574,6 +574,10 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.87
             property bool nordictrack_t70_treadmill: false
+
+            // from version 2.11.94
+            property real crrGain: 0
+            property real cwGain: 0
         }
 
         function paddingZeros(text, limit) {
@@ -1307,6 +1311,54 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCRRGain
+                            text: qsTr("Rolling Res. Gain")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: crrGainTextField
+                            text: settings.crrGain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.crrGain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCRRGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.crrGain = crrGainTextField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCWGain
+                            text: qsTr("Wind Res. Gain")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cwGainTextField
+                            text: settings.cwGain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.cwGain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCWGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cwGain = cwGainTextField.text
                         }
                     }
                     SwitchDelegate {
