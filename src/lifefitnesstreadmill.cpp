@@ -83,11 +83,11 @@ void lifefitnesstreadmill::btinit() {
     uint8_t initData5[1] = {0x02};
     writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
                         QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService1, gattWriteChar3CustomService2, initData2a, sizeof(initData2a),
+    writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2a, sizeof(initData2a),
                         QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService1, gattWriteChar3CustomService2, initData2b, sizeof(initData2b),
+    writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2b, sizeof(initData2b),
                         QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService1, gattWriteChar4CustomService2, initData3, sizeof(initData3),
+    writeCharacteristic(gattCustomService2, gattWriteChar4CustomService2, initData3, sizeof(initData3),
                         QStringLiteral("init"), false, false);
     writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
                         QStringLiteral("init"), false, false);
@@ -754,8 +754,13 @@ void lifefitnesstreadmill::changeInclinationRequested(double grade, double perce
 void lifefitnesstreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    if (notificationSubscribed)
+        notificationSubscribed--;
+
+    if (!notificationSubscribed) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void lifefitnesstreadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
