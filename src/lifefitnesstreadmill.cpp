@@ -93,6 +93,21 @@ void lifefitnesstreadmill::btinit() {
                         QStringLiteral("init"), false, false);
     writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
                         QStringLiteral("init"), false, false);
+
+    QByteArray descriptor;
+    QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
+    QBluetoothUuid _gattTrainingStatusId((quint16)0x2AD3);
+    QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
+    QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+    gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                                     descriptor);
+    gattFTMSService->writeDescriptor(gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                                     descriptor);
+    gattFTMSService->writeDescriptor(gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                                     descriptor);
+
     initDone = true;
 }
 
@@ -676,41 +691,6 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
-    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
-            auto characteristics_list = s->characteristics();
-            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                auto descriptors_list = c.descriptors();
-                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
-                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
-                }
-
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x01);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-
-                        // this treadmill wants this write twice
-                        if (c.uuid() == _gattTreadmillDataId)
-                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
-                                               descriptor);
-
-                        notificationSubscribed++;
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
-
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                }
-            }
-        }
-    }
-
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike
 #ifdef Q_OS_IOS
@@ -743,6 +723,9 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         firstStateChanged = 1;
         // ********************************************************************************************************
     }
+
+    initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void lifefitnesstreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -753,14 +736,6 @@ void lifefitnesstreadmill::changeInclinationRequested(double grade, double perce
 
 void lifefitnesstreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
-
-    if (notificationSubscribed)
-        notificationSubscribed--;
-
-    if (!notificationSubscribed) {
-        initRequest = true;
-        emit connectedAndDiscovered();
-    }
 }
 
 void lifefitnesstreadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
