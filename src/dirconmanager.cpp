@@ -14,7 +14,7 @@
     OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
-    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                        \
+    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
     OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
@@ -101,9 +101,10 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
             DirconProcessor *processor = new DirconProcessor(                                                          \
-                P2, QString(QStringLiteral(NAME))                                                                      \
-                        .replace(QStringLiteral("$uuid_hex$"),                                                         \
-                                 QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),       \
+                P2,                                                                                                    \
+                QString(QStringLiteral(NAME))                                                                          \
+                    .replace(QStringLiteral("$uuid_hex$"),                                                             \
+                             QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),           \
                 server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
@@ -146,7 +147,8 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
-    uint16_t server_base_port = settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
+    uint16_t server_base_port =
+        settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
     bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
