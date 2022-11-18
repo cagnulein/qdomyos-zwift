@@ -1429,7 +1429,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsTechBike->deviceDiscovered(b);
                 userTemplateManager->start(sportsTechBike);
                 innerTemplateManager->start(sportsTechBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
+                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                       && !sportsPlusBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
@@ -1666,8 +1669,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(trxappgateusb);
                 innerTemplateManager->start(trxappgateusb);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
-                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
-                         b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
