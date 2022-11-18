@@ -199,44 +199,40 @@ void lifefitnesstreadmill::update() {
 // example frame: 55aa320003050400532c00150000
 void lifefitnesstreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
+    /*
+        if (gattFTMSService) {
+            // for the Tecnogym Myrun
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl",
+       false, true); write[0] = {FTMS_START_RESUME}; writeCharacteristic(gattFTMSService, gattWriteCharControlPointId,
+       write, sizeof(write), "start simulation", false, true);
 
-    if (gattFTMSService) {
-        // for the Tecnogym Myrun
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+            uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
+            writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
+            writeS[2] = ((uint16_t)requestSpeed * 100) >> 8;
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
-        writeS[2] = ((uint16_t)requestSpeed * 100) >> 8;
-
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceSpeed"), false, true);
-    }
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                QStringLiteral("forceSpeed"), false, true);
+        }*/
 }
 
 void lifefitnesstreadmill::forceIncline(double requestIncline) {
     QSettings settings;
+    /*
+        if (gattFTMSService) {
+            // for the Tecnogym Myrun
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl",
+       false, true); write[0] = {FTMS_START_RESUME}; writeCharacteristic(gattFTMSService, gattWriteCharControlPointId,
+       write, sizeof(write), "start simulation", false, true);
 
-    if (gattFTMSService) {
-        // for the Tecnogym Myrun
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+            uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
+            writeS[1] = ((int16_t)requestIncline * 10) & 0xFF;
+            writeS[2] = ((int16_t)requestIncline * 10) >> 8;
 
-        uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)requestIncline * 10) & 0xFF;
-        writeS[2] = ((int16_t)requestIncline * 10) >> 8;
-
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceIncline"), false, true);
-    }
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                QStringLiteral("forceIncline"), false, true);
+        }*/
 }
 
 void lifefitnesstreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
