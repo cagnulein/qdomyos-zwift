@@ -74,7 +74,7 @@ void lifefitnesstreadmill::waitForAPacket() {
 }
 
 void lifefitnesstreadmill::btinit() {
-    /*uint8_t initData1[1] = {0x01};
+    uint8_t initData1[1] = {0x01};
     uint8_t initData2a[20] = {0x38, 0x66, 0x65, 0x64, 0x61, 0x38, 0x38, 0x39, 0x31, 0x64,
                               0x62, 0x61, 0x34, 0x30, 0x31, 0x66, 0x38, 0x39, 0x39, 0x30};
     uint8_t initData2b[12] = {0x30, 0x32, 0x33, 0x30, 0x37, 0x39, 0x35, 0x66, 0x30, 0x38, 0x36, 0x30};
@@ -92,7 +92,7 @@ void lifefitnesstreadmill::btinit() {
     writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
                         QStringLiteral("init"), false, false);
     writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
-                        QStringLiteral("init"), false, false);*/
+                        QStringLiteral("init"), false, false);
 
     QByteArray descriptor;
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
@@ -755,7 +755,6 @@ void lifefitnesstreadmill::serviceScanDone(void) {
     initRequest = false;
     firstStateChanged = 0;
     auto services_list = m_control->services();
-    QBluetoothUuid ftmsService((quint16)0x1826);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
