@@ -1666,6 +1666,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(trxappgateusb);
                 innerTemplateManager->start(trxappgateusb);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
+                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                         b.name().length() == 11) || // CARE9040177 - Carefitness CV-351
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
