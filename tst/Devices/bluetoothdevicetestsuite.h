@@ -1,30 +1,51 @@
 #pragma once
 
 #include "gtest/gtest.h"
-#include "Devices/bluetoothdevicetestdata.h"
+#include "devices.h"
+#include "bluetooth.h"
 
-class BluetoothDeviceTestSuite : public testing::Test
-{
+template <typename T>
+class BluetoothDeviceTestSuite : public testing::Test {
+protected:
+    T typeParam;
+
+    std::vector<devicediscoveryinfo> enablingConfigurations;
+    std::vector<devicediscoveryinfo> disablingConfigurations;
+    QStringList names;
+    discoveryoptions defaultDiscoveryOptions;
 public:
-    BluetoothDeviceTestSuite()  {}
+    BluetoothDeviceTestSuite() {}
 
-    // If the constructor and destructor are not enough for setting up
-    // and cleaning up each test, you can define the following methods:
+    // Sets up the test fixture.
+    void SetUp() override;
 
-    void SetUp() override {
-        // Code here will be called immediately after the constructor (right
-        // before each test).
-    }
-
-    void TearDown() override {
-        // Code here will be called immediately after each test (right
-        // before the destructor).
-    }
+    // Tears down the test fixture.
+    // virtual void TearDown();
 
 
-    template<class T>
-    static void test_deviceDetection();
-    static void test_deviceDetection(BluetoothDeviceTestData& testData);
+    void test_deviceDetection_exclusions();
+    void test_deviceDetection_validNames_enabled();
+    void test_deviceDetection_validNames_disabled();
+    void test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled();
+    void test_deviceDetection_invalidNames_enabled();
 
 };
 
+
+TYPED_TEST_SUITE(BluetoothDeviceTestSuite, BluetoothDeviceTestDataTypes);
+
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedExclusions) {
+    this->test_deviceDetection_exclusions();
+}
+
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsEnabled) {
+    this->test_deviceDetection_validNames_enabled();
+}
+
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsDisabled) {
+    this->test_deviceDetection_validNames_disabled();
+}
+
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsDisabledInvalidBluetoothDeviceInfo) {
+    this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled();
+}

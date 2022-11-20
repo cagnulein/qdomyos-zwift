@@ -20,10 +20,7 @@ SOURCES += \
         Devices/StagesBike/stagesbiketestdata.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
-        Devices/bluetoothdevicetestdatafactory.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
-        Devices/parameterizedbluetoothdevicetestsuite.cpp \
-        Devices/typedbluetoothdevicetestsuite.cpp \
         main.cpp
 
 
@@ -118,9 +115,7 @@ HEADERS += \
     Devices/UltrasportBike/ultrasportbiketestdata.h \
     Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.h \
     Devices/YesoulBike/yesoulbiketestdata.h \
-    Devices/bluetoothdevicetestdatafactory.h \
-    Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothdevicetestdata.h \
-    Devices/iConceptBike/iconceptbiketestdata.h \
-    Devices/parameterizedbluetoothdevicetestsuite.h \
-    Devices/typedbluetoothdevicetestsuite.h
+    Devices/bluetoothdevicetestsuite.h \
+    Devices/devices.h \
+    Devices/iConceptBike/iconceptbiketestdata.h

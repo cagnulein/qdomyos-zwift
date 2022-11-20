@@ -382,7 +382,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     this->bluetoothManager = bl;
     this->engine = engine;
 
-    const auto userTemplateManager = bluetoothManager->getTemplateManagers()->getUserTemplateManager();
+    const auto userTemplateManager = bluetoothManager->getUserTemplateManager();
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
@@ -393,7 +393,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(this, &homeform::workoutEventStateChanged, userTemplateManager,&TemplateInfoSenderBuilder::workoutEventStateChanged);
     connect(userTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,&homeform::setActivityDescription);
 
-    const auto innerTemplateManager = bluetoothManager->getTemplateManagers()->getInnerTemplateManager();
+    const auto innerTemplateManager = bluetoothManager->getInnerTemplateManager();
     connect(innerTemplateManager, &TemplateInfoSenderBuilder::chartSaved, this,&homeform::chartSaved);
     connect(this, &homeform::workoutNameChanged, innerTemplateManager,&TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, innerTemplateManager, &TemplateInfoSenderBuilder::onWorkoutStartDate);

@@ -4,7 +4,6 @@
 #include <QStringList>
 #include <vector>
 #include <memory>
-#include "discovereddevice.h"
 #include "devicediscoveryinfo.h"
 
 class BluetoothDeviceTestData;

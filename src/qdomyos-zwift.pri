@@ -251,6 +251,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/discovereddevice.h \
     $$PWD/discoveryoptions.h \
     $$PWD/templatemanagers.h \
    PathController.h \
@@ -261,7 +262,6 @@ HEADERS += \
     characteristicnotifier2ad9.h \
     definitions.h \
     devicediscoveryinfo.h \
-    discovereddevice.h \
     fakeelliptical.h \
    faketreadmill.h \
    mepanelbike.h \
