@@ -74,6 +74,8 @@ class sportsplusbike : public bike {
     bool initRequest = false;
     bool readyToStart = false;
 
+    bool carefitness_bike = false;
+
     const resistance_t max_resistance = 24;
 
   signals:

@@ -1570,6 +1570,12 @@ class QZSettings {
     static const QString nordictrack_t70_treadmill;
     static constexpr bool default_nordictrack_t70_treadmill = false;
 
+    static const QString CRRGain;
+    static constexpr double default_CRRGain = 0;
+
+    static const QString CWGain;
+    static constexpr double default_CWGain = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

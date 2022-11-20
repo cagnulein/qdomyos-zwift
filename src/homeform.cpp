@@ -2693,6 +2693,11 @@ void homeform::Stop() {
     QSettings settings;
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
+#ifdef Q_OS_IOS
+    // due to #857
+    bluetoothManager->getInnerTemplateManager()->reinit();
+#endif
+    
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Stop pressed");
 

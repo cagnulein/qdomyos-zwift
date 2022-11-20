@@ -294,7 +294,10 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("0000fff3-0000-1000-8000-00805f9b34fb"));
 
-        gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        if(!carefitness_bike)
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        else
+            gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
@@ -396,6 +399,11 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
+            bluetoothDevice.name().length() == 11)) // CARE9040177 - Carefitness CV-351)
+        {
+            carefitness_bike = true;
+        }
         requestResistance = 1;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportsplusbike::serviceDiscovered);

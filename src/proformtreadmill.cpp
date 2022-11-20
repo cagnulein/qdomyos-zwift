@@ -50,11 +50,16 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 void proformtreadmill::forceIncline(double incline) {
 
     QSettings settings;
-    bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-    bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
-    bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool nordictrack_t65s_treadmill =
+        settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
+    bool nordictrack_s30_treadmill =
+        settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_9_0 =
+        settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    bool proform_treadmill_1800i =
+        settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+    bool proform_treadmill_se =
+        settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
 
     if (proform_treadmill_1800i) {
         uint8_t i = abs(incline * 10);
@@ -90,10 +95,14 @@ void proformtreadmill::forceIncline(double incline) {
 void proformtreadmill::forceSpeed(double speed) {
 
     QSettings settings;
-    bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-    bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
-    bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool nordictrack_t65s_treadmill =
+        settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
+    bool nordictrack_s30_treadmill =
+        settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_9_0 =
+        settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    bool proform_treadmill_se =
+        settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
 
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
@@ -131,14 +140,25 @@ void proformtreadmill::update() {
         QSettings settings;
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-        bool nordictrackt70 = settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill).toBool();
-        bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
-        bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-        bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-        bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
-        bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
-        bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-        // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
+        bool nordictrackt70 =
+            settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill)
+                .toBool();
+        bool nordictrack10 =
+            settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
+        bool nordictrack_s30_treadmill =
+            settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill)
+                .toBool();
+        bool nordictrack_t65s_treadmill =
+            settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill)
+                .toBool();
+        bool proform_treadmill_1800i =
+            settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+        bool proform_treadmill_9_0 =
+            settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+        bool proform_treadmill_se =
+            settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+        // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i,
+        // QZSettings::default_proform_treadmill_995i).toBool();
 
         /*if (proform_treadmill_995i) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
@@ -260,7 +280,8 @@ void proformtreadmill::update() {
             uint8_t noOpData1[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData2[] = {0xfe, 0x02, 0x17, 0x03};
-            uint8_t noOpData3[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00, 0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                                   0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData4[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x84, 0x74, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData6[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
@@ -306,7 +327,19 @@ void proformtreadmill::update() {
                 if (requestStart != -1) {
                     emit debug(QStringLiteral("starting..."));
 
-                    // btinit();
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
+                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xa0, 0x28, 0x58, 0x02, 0x01,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0xd0, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xc8, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xfa, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
 
                     requestStart = -1;
                     emit tapeStarted();
@@ -747,13 +780,20 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
-    bool nordictrackt70 = settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill).toBool();
-    bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-    bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
-    bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    bool nordictrack10 =
+        settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
+    bool nordictrackt70 =
+        settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill).toBool();
+    bool nordictrack_t65s_treadmill =
+        settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
+    bool nordictrack_s30_treadmill =
+        settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_1800i =
+        settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+    bool proform_treadmill_se =
+        settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool proform_treadmill_9_0 =
+        settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -829,14 +869,22 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void proformtreadmill::btinit() {
     QSettings settings;
-    bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
-    bool nordictrackt70 = settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill).toBool();
-    bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-    bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
-    bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
-    // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
+    bool nordictrack10 =
+        settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
+    bool nordictrackt70 =
+        settings.value(QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill).toBool();
+    bool nordictrack_t65s_treadmill =
+        settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
+    bool nordictrack_s30_treadmill =
+        settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_1800i =
+        settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+    bool proform_treadmill_se =
+        settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool proform_treadmill_9_0 =
+        settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i,
+    // QZSettings::default_proform_treadmill_995i).toBool();
 
     /*if (proform_treadmill_995i) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -1008,9 +1056,12 @@ void proformtreadmill::btinit() {
         uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
-        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x04, 0x00, 0xc5, 0x08, 0x51, 0x98, 0xed, 0x30, 0x81, 0xd0, 0x25};
-        uint8_t initData11[] = {0x01, 0x12, 0x88, 0xd1, 0x38, 0x9d, 0xe0, 0x41, 0xa0, 0x05, 0x68, 0xf1, 0x58, 0xad, 0x30, 0x81, 0x10, 0x65, 0xe8, 0x71};
-        uint8_t initData12[] = {0xff, 0x08, 0xf8, 0x7d, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x04,
+                                0x00, 0xc5, 0x08, 0x51, 0x98, 0xed, 0x30, 0x81, 0xd0, 0x25};
+        uint8_t initData11[] = {0x01, 0x12, 0x88, 0xd1, 0x38, 0x9d, 0xe0, 0x41, 0xa0, 0x05,
+                                0x68, 0xf1, 0x58, 0xad, 0x30, 0x81, 0x10, 0x65, 0xe8, 0x71};
+        uint8_t initData12[] = {0xff, 0x08, 0xf8, 0x7d, 0xc0, 0x80, 0x02, 0x00, 0x00, 0x91,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
                                0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
@@ -1561,8 +1612,11 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");

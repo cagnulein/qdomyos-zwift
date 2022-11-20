@@ -56,6 +56,7 @@
 #include "keepbike.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
+#include "lifefitnesstreadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
 #include "mepanelbike.h"
@@ -199,6 +200,7 @@ private:
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
+    lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
     keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;

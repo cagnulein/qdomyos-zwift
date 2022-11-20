@@ -74,6 +74,7 @@ SOURCES += \
     devicediscoveryinfo.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
+   lifefitnesstreadmill.cpp \
    mepanelbike.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
@@ -264,6 +265,7 @@ HEADERS += \
     devicediscoveryinfo.h \
     fakeelliptical.h \
    faketreadmill.h \
+   lifefitnesstreadmill.h \
    mepanelbike.h \
    nautilusbike.h \
     nordictrackelliptical.h \
@@ -727,4 +729,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.91
+VERSION = 2.12.0
