@@ -1623,6 +1623,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(iConceptBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("XT385")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("XT800")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT900"))) &&
                        !spiritTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
