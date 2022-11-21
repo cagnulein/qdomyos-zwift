@@ -578,6 +578,9 @@ import Qt.labs.settings 1.0
             // from version 2.11.94
             property real crrGain: 0
             property real cwGain: 0
+
+            // from version 2.12.1
+            property bool proform_treadmill_cadence_lt: false
         }
 
         function paddingZeros(text, limit) {
@@ -3241,6 +3244,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_se = checked
+                        }
+                        SwitchDelegate {
+                            id: proformCadenceLT
+                            text: qsTr("Proform Cadence LT")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_cadence_lt
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_cadence_lt = checked
                         }
                         RowLayout {
                             spacing: 10
