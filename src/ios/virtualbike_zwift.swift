@@ -366,10 +366,35 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return cadenceData
     }
     
+    
+    private var revolutions: UInt16 = 0
+    private var timestamp: UInt16 = 0
+    private var lastRevolution: UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
+    
     func calculatePower() -> Data {
+        /*
+         // convert RPM to timestamp
+         if (cadenceInstantaneous != 0 && (millis()) >= (lastRevolution + (60000 / cadenceInstantaneous)))
+         {
+           revolutions++;                                  // One crank revolution should have passed, add one revolution
+           timestamp = (unsigned short)(((millis() * 1024) / 1000) % 65536); // create timestamp and format
+           lastRevolution = millis();
+         }
+         */
+
+        let millis : UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
+        if CurrentCadence != 0 && (millis >= lastRevolution + (60000 / UInt64(CurrentCadence / 2))) {
+            revolutions = revolutions + 1
+            var newT: UInt64 = ((60000 / (UInt64(CurrentCadence / 2)) * 1024) / 1000)
+            newT = newT + UInt64(timestamp)
+            newT = newT  % 65536
+            timestamp = UInt16(newT)
+            lastRevolution = millis
+        }
+        
         let flags:UInt8 = 0x20
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
+        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(revolutions & 0xFF), (UInt8)((revolutions >> 8) & 0xFF),  (UInt8)(timestamp & 0xFF), (UInt8)((timestamp >> 8) & 0xFF)]
       let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
       return powerData
     }
@@ -392,28 +417,27 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   
   @objc func updateSubscribers() {
-    let heartRateData = self.calculateHeartRate()
-    let indoorBikeData = self.calculateIndoorBike()
-    let cadenceData = self.calculateCadence()
-    let powerData = self.calculatePower()
-
     if(self.serviceToggle == 3 || self.onlypower)
     {
+        let powerData = self.calculatePower()
         let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = 0
         }
     } else if(self.serviceToggle == 2) {
+      let cadenceData = self.calculateCadence()
       let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
       if(ok) {
           self.serviceToggle = self.serviceToggle + 1
       }
     } else if(self.serviceToggle == 1) {
+        let heartRateData = self.calculateHeartRate()
         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = self.serviceToggle + 1
         }
     } else {
+        let indoorBikeData = self.calculateIndoorBike()
         let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = self.serviceToggle + 1
