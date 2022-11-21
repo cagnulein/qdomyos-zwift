@@ -53,11 +53,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
+    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualbike_zwift_ios(power);
     } else
 
 #endif
