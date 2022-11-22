@@ -1579,6 +1579,9 @@ class QZSettings {
     static const QString proform_treadmill_cadence_lt;
     static constexpr bool default_proform_treadmill_cadence_lt = false;
 
+    static const QString trainprogram_stop_at_end;
+    static constexpr bool default_trainprogram_stop_at_end = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
