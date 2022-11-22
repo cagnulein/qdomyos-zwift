@@ -556,7 +556,8 @@ void homeform::peloton_start_workout() {
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
-            emit trainProgram->stop(false);
+            // useless, cause a treadmill to stop
+            // emit trainProgram->stop(false);
 
             delete trainProgram;
             trainProgram = nullptr;
@@ -2703,7 +2704,7 @@ void homeform::Stop() {
     // due to #857
     bluetoothManager->getInnerTemplateManager()->reinit();
 #endif
-    
+
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Stop pressed");
 
@@ -5329,17 +5330,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
 
             // if Video is > 60 secs Shorter it will be a speed adjusted one
             if ((trainProgramLengthSeconds - videoLengthSeconds) >= 60.0) {
-                double recfac = ((trainProgramLengthSeconds / videoLengthSeconds)+0.5);
+                double recfac = ((trainProgramLengthSeconds / videoLengthSeconds) + 0.5);
                 recordingFactor = ((int)(recfac));
-                qDebug() << "Video Recording Factor"
-                         << recordingFactor
-                         << trainProgramLengthSeconds
-                         << videoLengthSeconds
-                         << (videoLengthSeconds * ((double)(recordingFactor)) )
-                         << videoTimeStampSeconds
-                         << (videoTimeStampSeconds *((double)(recordingFactor)));
-                videoLengthSeconds = (videoLengthSeconds * ((double)(recordingFactor)) );
-                videoTimeStampSeconds = (videoTimeStampSeconds *((double)(recordingFactor)));
+                qDebug() << "Video Recording Factor" << recordingFactor << trainProgramLengthSeconds
+                         << videoLengthSeconds << (videoLengthSeconds * ((double)(recordingFactor)))
+                         << videoTimeStampSeconds << (videoTimeStampSeconds * ((double)(recordingFactor)));
+                videoLengthSeconds = (videoLengthSeconds * ((double)(recordingFactor)));
+                videoTimeStampSeconds = (videoTimeStampSeconds * ((double)(recordingFactor)));
             }
 
             // check if there is a difference >= 1 second
@@ -5351,12 +5348,12 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             qDebug() << videoTimeStampSeconds;
             // Video was just displayed, set the start Position
             if (videoMustBeReset) {
-                double videoStartPos = ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
+                double videoStartPos =
+                    ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
                 // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
                 if (videoStartPos >= 0.0) {
-                    videoTimeStampSeconds =
-                        (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);
+                    videoTimeStampSeconds = (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);
                     videoStartPos = videoStartPos / ((double)(recordingFactor));
                     qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000.0);
                     videoPlaybackHalfPlayer->setPosition(videoStartPos * 1000.0);
