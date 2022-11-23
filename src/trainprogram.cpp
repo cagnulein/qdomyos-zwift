@@ -671,7 +671,10 @@ void trainprogram::scheduler() {
                     restart();
                 } else {
                     started = false;
-                    emit stop(false);
+                    if (settings
+                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                            .toBool())
+                        emit stop(false);
                     distanceEvaluation = false;
                 }
             }

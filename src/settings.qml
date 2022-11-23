@@ -578,6 +578,12 @@ import Qt.labs.settings 1.0
             // from version 2.11.94
             property real crrGain: 0
             property real cwGain: 0
+
+            // from version 2.12.1
+            property bool proform_treadmill_cadence_lt: false
+
+            // from version 2.12.3
+            property bool trainprogram_stop_at_end: false
         }
 
         function paddingZeros(text, limit) {
@@ -2661,6 +2667,22 @@ import Qt.labs.settings 1.0
                 //width: 640
                 //anchors.top: acc1.bottom
                 //anchors.topMargin: 10
+
+                SwitchDelegate {
+                    id: trainprogramStopAtEndDelegate
+                    text: qsTr("Stop Treadmill at the End")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.trainprogram_stop_at_end
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.trainprogram_stop_at_end = checked
+                }
+
                 accordionContent: ColumnLayout {
                     spacing: 0
                     RowLayout {
@@ -3241,6 +3263,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_se = checked
+                        }
+                        SwitchDelegate {
+                            id: proformCadenceLT
+                            text: qsTr("Proform Cadence LT")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_cadence_lt
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_cadence_lt = checked
                         }
                         RowLayout {
                             spacing: 10

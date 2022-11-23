@@ -168,11 +168,15 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            uint8_t hexint = ((uint8_t)newValue.at(3));
-            cadence = (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+        if (newValue.at(1) == 0x30) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                uint8_t hexint = ((uint8_t)newValue.at(3));
+                cadence = (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+            }
+        } else {
+            cadence = currentCadence().value();
         }
         double speed = 0.37497622 * ((double)Cadence.value());
 

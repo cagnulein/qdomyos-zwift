@@ -551,8 +551,10 @@ const QString QZSettings::tile_avg_watt_lap_order = QStringLiteral("tile_avg_wat
 const QString QZSettings::nordictrack_t70_treadmill = QStringLiteral("nordictrack_t70_treadmill");
 const QString QZSettings::CRRGain = QStringLiteral("crrGain");
 const QString QZSettings::CWGain = QStringLiteral("cwGain");
+const QString QZSettings::proform_treadmill_cadence_lt = QStringLiteral("proform_treadmill_cadence_lt");
+const QString QZSettings::trainprogram_stop_at_end = QStringLiteral("trainprogram_stop_at_end");
 
-const uint32_t allSettingsCount = 450;
+const uint32_t allSettingsCount = 452;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1006,6 +1008,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill},
     {QZSettings::CRRGain, QZSettings::default_CRRGain},
     {QZSettings::CWGain, QZSettings::default_CWGain},
+    {QZSettings::proform_treadmill_cadence_lt, QZSettings::default_proform_treadmill_cadence_lt},
+    {QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
