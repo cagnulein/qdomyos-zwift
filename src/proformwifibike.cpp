@@ -233,27 +233,27 @@ void proformwifibike::innerWriteResistance() {
             }
         }
         requestResistance = -1;
+    }
 
-        if (requestPower > 0) {
-            QSettings settings;
-            double erg_filter_upper =
-                settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-            if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
-                qDebug() << "change inclination due to request power = " << requestPower;
-                if (target_watts.value() > requestPower) {
-                    requestInclination = currentInclination().value() - 1;
-                } else {
-                    requestInclination = currentInclination().value() + 1;
-                }
+    if (requestPower > 0) {
+        QSettings settings;
+        double erg_filter_upper =
+            settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+        if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
+            qDebug() << "change inclination due to request power = " << requestPower;
+            if (target_watts.value() > requestPower) {
+                requestInclination = currentInclination().value() - 1;
+            } else {
+                requestInclination = currentInclination().value() + 1;
             }
         }
+    }
 
-        if (requestInclination != -100) {
-            emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-            forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
-                                                           // i'm using the gears in the inclination
-            requestInclination = -100;
-        }
+    if (requestInclination != -100) {
+        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+        forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                                                       // i'm using the gears in the inclination
+        requestInclination = -100;
     }
 }
 
