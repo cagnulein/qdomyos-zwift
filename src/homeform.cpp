@@ -176,7 +176,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_cadence = new DataObject(QStringLiteral("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
                                     QStringLiteral("0"), false, QStringLiteral("target_cadence"), 48, labelFontSize);
     target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
-                                  QStringLiteral("0"), false, QStringLiteral("target_power"), 48, labelFontSize);
+                                  QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
                                  false, QStringLiteral("target_zone"), 48, labelFontSize);
     target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
@@ -2446,6 +2446,13 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
             }
+        }        
+    } else if (name.contains(QStringLiteral("target_power"))) {
+        if (bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+            }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
         QSettings settings;
@@ -2591,6 +2598,13 @@ void homeform::Minus(const QString &name) {
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() - 1);
+            }
+        }
+    } else if (name.contains(QStringLiteral("target_power"))) {
+        if (bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
