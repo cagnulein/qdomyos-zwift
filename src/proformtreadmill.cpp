@@ -1775,6 +1775,11 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+#ifdef Q_OS_WIN
+        initRequest = true;
+        emit connectedAndDiscovered();
+#endif
     }
 }
 
