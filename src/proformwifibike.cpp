@@ -242,9 +242,9 @@ void proformwifibike::innerWriteResistance() {
         if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
             qDebug() << "change inclination due to request power = " << requestPower;
             if (target_watts.value() > requestPower) {
-                requestInclination = currentInclination().value() - 1;
+                requestInclination = currentInclination().value() - 0.5;
             } else {
-                requestInclination = currentInclination().value() + 1;
+                requestInclination = currentInclination().value() + 0.5;
             }
         }
     }
