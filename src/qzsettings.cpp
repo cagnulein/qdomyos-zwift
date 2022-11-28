@@ -553,8 +553,9 @@ const QString QZSettings::CRRGain = QStringLiteral("crrGain");
 const QString QZSettings::CWGain = QStringLiteral("cwGain");
 const QString QZSettings::proform_treadmill_cadence_lt = QStringLiteral("proform_treadmill_cadence_lt");
 const QString QZSettings::trainprogram_stop_at_end = QStringLiteral("trainprogram_stop_at_end");
+const QString QZSettings::domyos_elliptical_inclination = QStringLiteral("domyos_elliptical_inclination");
 
-const uint32_t allSettingsCount = 452;
+const uint32_t allSettingsCount = 453;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1010,6 +1011,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::CWGain, QZSettings::default_CWGain},
     {QZSettings::proform_treadmill_cadence_lt, QZSettings::default_proform_treadmill_cadence_lt},
     {QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end},
+    {QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

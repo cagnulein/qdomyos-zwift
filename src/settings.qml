@@ -584,6 +584,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.3
             property bool trainprogram_stop_at_end: false
+
+            // from version 2.12.5
+            property bool domyos_elliptical_inclination: true
         }
 
         function paddingZeros(text, limit) {
@@ -4110,6 +4113,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
                     }
+                }
+                SwitchDelegate {
+                    id: domyosEllipticalInclinationDelegate
+                    text: qsTr("Inclination Supported")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.domyos_elliptical_inclination
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.domyos_elliptical_inclination = checked
                 }
             }
 

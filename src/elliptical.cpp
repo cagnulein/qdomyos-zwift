@@ -133,3 +133,4 @@ metric elliptical::lastRequestedCadence() { return RequestedCadence; }
 metric elliptical::pelotonResistance() { return m_pelotonResistance; }
 metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
 metric elliptical::lastRequestedResistance() { return RequestedResistance; }
+bool elliptical::inclinationAvailableByHardware() { return true; }

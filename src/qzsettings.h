@@ -1582,6 +1582,9 @@ class QZSettings {
     static const QString trainprogram_stop_at_end;
     static constexpr bool default_trainprogram_stop_at_end = false;
 
+    static const QString domyos_elliptical_inclination;
+    static constexpr bool default_domyos_elliptical_inclination = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
