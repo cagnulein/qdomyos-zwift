@@ -196,8 +196,9 @@ void nordictrackifitadbtreadmill::update() {
 }
 
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
-        percentage = 0;
+    // these treadmills support negative inclination
+    /*if (percentage < 0)
+        percentage = 0;*/
     changeInclination(grade, percentage);
 }
 
