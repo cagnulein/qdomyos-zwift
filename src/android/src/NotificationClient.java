@@ -35,7 +35,7 @@ public class NotificationClient
 						  .setContentText(message)
 						  .setDefaults(Notification.DEFAULT_SOUND)
 						  .setColor(Color.PURPLE)
-						  .setOngoing(true)
+						  .setOngoing(true);
 
 						m_notificationManager.notify(0, m_builder.build());
 				} catch (Exception e) {
