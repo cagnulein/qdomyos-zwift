@@ -20,7 +20,7 @@ public class NotificationClient
 		  Intent serviceIntent = new Intent(context, ForegroundService.class);
 		  serviceIntent.putExtra("inputExtra", "QZ is Running");
 		  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			   context.startForegroundService(context, serviceIntent);
+			   context.startForegroundService(serviceIntent);
 		  } else {
 		      context.startService(serviceIntent);
 		  }
