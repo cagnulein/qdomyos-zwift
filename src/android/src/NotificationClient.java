@@ -34,7 +34,7 @@ public class NotificationClient
 						  .setContentTitle("QZ is running!")
 						  .setContentText(message)
 						  .setDefaults(Notification.DEFAULT_SOUND)
-						  .setColor(Color.PURPLE)
+						  .setColor(Color.MAGENTA)
 						  .setOngoing(true);
 
 						m_notificationManager.notify(0, m_builder.build());
