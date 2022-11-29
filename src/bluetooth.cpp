@@ -2126,6 +2126,11 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool());
     }
+
+    QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "notify",
+                                              "(Landroid/content/Context;Ljava/lang/String;)V",
+                                              QtAndroid::androidContext().object(), javaNotification.object<jstring>());
 #endif
 
 #ifdef Q_OS_IOS
