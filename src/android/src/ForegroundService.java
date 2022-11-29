@@ -27,7 +27,6 @@ public class ForegroundService extends Service {
 					 .setContentTitle("QZ is Running")
 					 .setContentText(input)
 					 .setSmallIcon(R.drawable.icon)
-					 .setLargeIcon(R.drawable.icon)
 					 .setContentIntent(pendingIntent)
 					 .build();
 					startForeground(1, notification);
