@@ -19,6 +19,8 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 	 implementation "com.android.billingclient:billing:4.0.0"
+	 implementation 'com.android.support:appcompat-v7:28.0.0'
+	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
 }
 
 android {
