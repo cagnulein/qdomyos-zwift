@@ -587,6 +587,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.5
             property bool domyos_elliptical_inclination: true
+            property bool gpx_loop: false
         }
 
         function paddingZeros(text, limit) {
@@ -5236,6 +5237,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.maps_type = mapsTypeTextField.displayText
                         }
+                    }
+                    SwitchDelegate {
+                        id: gpxLoopDelegate
+                        text: qsTr("Loop Start-End-Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gpx_loop
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.gpx_loop = checked
                     }
                 }
             }
