@@ -33,7 +33,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualBike) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
             virtualBike = new virtualbike(this);
@@ -115,6 +116,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         }
 
         QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
+        requestResistance = -1;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
