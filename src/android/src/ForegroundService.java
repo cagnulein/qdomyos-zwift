@@ -20,13 +20,14 @@ public class ForegroundService extends Service {
 	 public int onStartCommand(Intent intent, int flags, int startId) {
 		  String input = intent.getStringExtra("inputExtra");
 		  createNotificationChannel();
-		  Intent notificationIntent = new Intent(this, MainActivity.class);
+		  Intent notificationIntent = new Intent(this, MyActivity.class);
 		  PendingIntent pendingIntent = PendingIntent.getActivity(this,
 		          0, notificationIntent, 0);
 					Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
 					 .setContentTitle("QZ is Running")
 					 .setContentText(input)
-					 .setSmallIcon(R.drawable.ic_stat_name)
+					 .setSmallIcon(R.drawable.icon)
+					 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.icon))
 					 .setContentIntent(pendingIntent)
 					 .build();
 					startForeground(1, notification);
