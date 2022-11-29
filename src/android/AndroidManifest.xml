@@ -69,6 +69,10 @@
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
 				<!-- extract android style -->
 				</activity>
+				<service
+				    android:name=".ForegroundService"
+					 android:enabled="true"
+					 android:exported="true"></service>
 				<service android:name=".ChannelService"></service>
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
@@ -76,6 +80,7 @@
 
 <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>

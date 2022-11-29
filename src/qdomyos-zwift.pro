@@ -668,6 +668,7 @@ DISTFILES += \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
+   android/src/ForegroundService.java \
    android/src/NotificationClient.java \
         android/src/ScanRecordResult.java \
         android/src/NativeScanCallback.java \

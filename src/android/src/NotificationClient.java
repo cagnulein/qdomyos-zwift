@@ -17,29 +17,8 @@ public class NotificationClient
 	 public NotificationClient() {}
 
 	 public static void notify(Context context, String message) {
-		  try {
-			   m_notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-					 int importance = NotificationManager.IMPORTANCE_DEFAULT;
-					 NotificationChannel notificationChannel = new NotificationChannel("QZ", "QZ Notifier", importance);
-					 m_notificationManager.createNotificationChannel(notificationChannel);
-					 m_builder = new Notification.Builder(context, notificationChannel.getId());
-					} else {
-					 m_builder = new Notification.Builder(context);
-					}
-
-				m_builder.setSmallIcon(R.drawable.icon)
-				        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.icon))
-						  .setContentTitle("QZ is running!")
-						  .setContentText(message)
-						  .setDefaults(Notification.DEFAULT_SOUND)
-						  .setColor(Color.MAGENTA)
-						  .setOngoing(true);
-
-						m_notificationManager.notify(0, m_builder.build());
-				} catch (Exception e) {
-				e.printStackTrace();
-				}
+		  Intent serviceIntent = new Intent(this, ForegroundService.class);
+		  serviceIntent.putExtra("inputExtra", "QZ is Running");
+		  ContextCompat.startForegroundService(this, serviceIntent);
 	 }
 }
