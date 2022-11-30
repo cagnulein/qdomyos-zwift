@@ -20,7 +20,7 @@ public class ForegroundService extends Service {
 	 public int onStartCommand(Intent intent, int flags, int startId) {
 		  String input = intent.getStringExtra("inputExtra");
 		  createNotificationChannel();
-		  Intent notificationIntent = new Intent(this, MyActivity.class);
+                  Intent notificationIntent = new Intent();
 		  PendingIntent pendingIntent = PendingIntent.getActivity(this,
 		          0, notificationIntent, 0);
 					Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
