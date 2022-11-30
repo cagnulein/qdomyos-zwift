@@ -588,6 +588,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.5
             property bool domyos_elliptical_inclination: true
             property bool gpx_loop: false
+
+            // from version 2.12.6
+            property bool android_notification: false
         }
 
         function paddingZeros(text, limit) {
@@ -5674,6 +5677,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_cache_heart_device = checked
+                    }
+
+                    SwitchDelegate {
+                        id: androidNotificationDelegate
+                        text: qsTr("Android Notification")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_notification
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.android_notification = checked
                     }
 
                     SwitchDelegate {

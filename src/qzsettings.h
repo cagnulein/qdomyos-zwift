@@ -1588,6 +1588,9 @@ class QZSettings {
     static const QString gpx_loop;
     static constexpr bool default_gpx_loop = false;
 
+    static const QString android_notification;
+    static constexpr bool default_android_notification = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
