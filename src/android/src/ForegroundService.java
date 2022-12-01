@@ -22,7 +22,7 @@ public class ForegroundService extends Service {
 		  createNotificationChannel();
                   Intent notificationIntent = new Intent();
 		  PendingIntent pendingIntent = PendingIntent.getActivity(this,
-		          0, notificationIntent, 0);
+		          0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 					Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
 					 .setContentTitle("QZ is Running")
 					 .setContentText(input)
