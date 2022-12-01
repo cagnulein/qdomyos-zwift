@@ -590,7 +590,7 @@ import Qt.labs.settings 1.0
             property bool gpx_loop: false
 
             // from version 2.12.6
-            property bool android_notification: false
+            property bool android_notification: true
         }
 
         function paddingZeros(text, limit) {

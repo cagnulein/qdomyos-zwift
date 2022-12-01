@@ -1589,7 +1589,7 @@ class QZSettings {
     static constexpr bool default_gpx_loop = false;
 
     static const QString android_notification;
-    static constexpr bool default_android_notification = false;
+    static constexpr bool default_android_notification = true;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
