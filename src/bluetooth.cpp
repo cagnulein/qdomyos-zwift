@@ -1229,6 +1229,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(horizonGr7Bike);
                 innerTemplateManager->start(horizonGr7Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TACX FLOW")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
@@ -2127,11 +2128,11 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool());
     }
 
-    if(settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+    if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
         QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "notify",
-                                              "(Landroid/content/Context;Ljava/lang/String;)V",
-                                              QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
+            QtAndroid::androidContext().object(), javaNotification.object<jstring>());
     }
 #endif
 
