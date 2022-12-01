@@ -2,8 +2,8 @@
 #define CHARACTERISTICWRITEPROCESSOR2AD9_H
 
 #include "bluetoothdevice.h"
-#include "characteristicwriteprocessor.h"
 #include "characteristicnotifier2ad9.h"
+#include "characteristicwriteprocessor.h"
 
 class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
     Q_OBJECT
@@ -14,9 +14,10 @@ class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
 
   public:
     explicit CharacteristicWriteProcessor2AD9(double bikeResistanceGain, uint8_t bikeResistanceOffset,
-                                              bluetoothdevice *bike, CharacteristicNotifier2AD9 *notifier, QObject *parent = nullptr);
+                                              bluetoothdevice *bike, CharacteristicNotifier2AD9 *notifier,
+                                              QObject *parent = nullptr);
     virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out);
-    void changeSlope(int16_t slope);
+    void changeSlope(int16_t slope, uint8_t crr, uint8_t cw);
     void changePower(uint16_t power);
   signals:
     void changeInclination(double grade, double percentage);

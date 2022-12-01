@@ -1098,6 +1098,32 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(soleF80);
                 innerTemplateManager->start(soleF80);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("LF")) && b.name().length() == 18) &&
+                       !lifefitnessTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                lifefitnessTreadmill = new lifefitnesstreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected(b);
+                connect(lifefitnessTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(lifefitnessTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(lifefitnessTreadmill, &lifefitnesstreadmill::debug, this, &bluetooth::debug);
+                // NOTE: Commented due to #358
+                // connect(lifefitnessTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(lifefitnessTreadmill, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                lifefitnessTreadmill->deviceDiscovered(b);
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), lifefitnessTreadmill, SLOT(searchingStop()));
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(lifefitnessTreadmill);
+                innerTemplateManager->start(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
@@ -1491,7 +1517,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsTechBike->deviceDiscovered(b);
                 userTemplateManager->start(sportsTechBike);
                 innerTemplateManager->start(sportsTechBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) ||
+                        (b.name().toUpper().contains(QStringLiteral("CARE")) &&
+                         b.name().length() == 11)) // CARE9040177 - Carefitness CV-351
+                       && !sportsPlusBike && filter) {
+                this->setLastBluetoothDevice(b);
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
@@ -1682,6 +1712,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(iConceptBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("XT385")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("XT800")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT900"))) &&
                        !spiritTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2184,6 +2215,13 @@ void bluetooth::connectedAndDiscovered() {
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool());
     }
+
+    if(settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {
+        QAndroidJniObject javaNotification = QAndroidJniObject::fromString("QZ is running!");
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "notify",
+                                              "(Landroid/content/Context;Ljava/lang/String;)V",
+                                              QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    }
 #endif
 
 #ifdef Q_OS_IOS
@@ -2254,6 +2292,11 @@ void bluetooth::restart() {
 
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
+    }
+    if (lifefitnessTreadmill) {
+
+        delete lifefitnessTreadmill;
+        lifefitnessTreadmill = nullptr;
     }
     if (technogymmyrunTreadmill) {
 
@@ -2741,6 +2784,8 @@ bluetoothdevice *bluetooth::device() {
         return ultraSportBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (lifefitnessTreadmill) {
+        return lifefitnessTreadmill;
     } else if (technogymmyrunTreadmill) {
         return technogymmyrunTreadmill;
 #ifndef Q_OS_IOS

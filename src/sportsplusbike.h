@@ -48,12 +48,15 @@ class sportsplusbike : public bike {
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
+    uint16_t wattsFromResistance(double resistance);
     void startDiscover();
     uint16_t watts();
     double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
+
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -73,6 +76,8 @@ class sportsplusbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+
+    bool carefitness_bike = false;
 
     const resistance_t max_resistance = 24;
 

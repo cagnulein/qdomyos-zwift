@@ -176,7 +176,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     target_cadence = new DataObject(QStringLiteral("T.Cadence(rpm)"), QStringLiteral("icons/icons/cadence.png"),
                                     QStringLiteral("0"), false, QStringLiteral("target_cadence"), 48, labelFontSize);
     target_power = new DataObject(QStringLiteral("T.Power(W)"), QStringLiteral("icons/icons/watt.png"),
-                                  QStringLiteral("0"), false, QStringLiteral("target_power"), 48, labelFontSize);
+                                  QStringLiteral("0"), true, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
                                  false, QStringLiteral("target_zone"), 48, labelFontSize);
     target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
@@ -556,7 +556,8 @@ void homeform::peloton_start_workout() {
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
-            emit trainProgram->stop(false);
+            // useless, cause a treadmill to stop
+            // emit trainProgram->stop(false);
 
             delete trainProgram;
             trainProgram = nullptr;
@@ -2445,6 +2446,13 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
             }
+        }        
+    } else if (name.contains(QStringLiteral("target_power"))) {
+        if (bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+            }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
         QSettings settings;
@@ -2592,6 +2600,13 @@ void homeform::Minus(const QString &name) {
                     ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() - 1);
             }
         }
+    } else if (name.contains(QStringLiteral("target_power"))) {
+        if (bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+            }
+        }
     } else if (name.contains(QStringLiteral("fan"))) {
 
         if (bluetoothManager->device()) {
@@ -2698,6 +2713,11 @@ void homeform::Start_inner(bool send_event_to_device) {
 void homeform::Stop() {
     QSettings settings;
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+
+#ifdef Q_OS_IOS
+    // due to #857
+    bluetoothManager->getInnerTemplateManager()->reinit();
+#endif
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Stop pressed");
@@ -5324,17 +5344,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
 
             // if Video is > 60 secs Shorter it will be a speed adjusted one
             if ((trainProgramLengthSeconds - videoLengthSeconds) >= 60.0) {
-                double recfac = ((trainProgramLengthSeconds / videoLengthSeconds)+0.5);
+                double recfac = ((trainProgramLengthSeconds / videoLengthSeconds) + 0.5);
                 recordingFactor = ((int)(recfac));
-                qDebug() << "Video Recording Factor"
-                         << recordingFactor
-                         << trainProgramLengthSeconds
-                         << videoLengthSeconds
-                         << (videoLengthSeconds * ((double)(recordingFactor)) )
-                         << videoTimeStampSeconds
-                         << (videoTimeStampSeconds *((double)(recordingFactor)));
-                videoLengthSeconds = (videoLengthSeconds * ((double)(recordingFactor)) );
-                videoTimeStampSeconds = (videoTimeStampSeconds *((double)(recordingFactor)));
+                qDebug() << "Video Recording Factor" << recordingFactor << trainProgramLengthSeconds
+                         << videoLengthSeconds << (videoLengthSeconds * ((double)(recordingFactor)))
+                         << videoTimeStampSeconds << (videoTimeStampSeconds * ((double)(recordingFactor)));
+                videoLengthSeconds = (videoLengthSeconds * ((double)(recordingFactor)));
+                videoTimeStampSeconds = (videoTimeStampSeconds * ((double)(recordingFactor)));
             }
 
             // check if there is a difference >= 1 second
@@ -5346,12 +5362,12 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             qDebug() << videoTimeStampSeconds;
             // Video was just displayed, set the start Position
             if (videoMustBeReset) {
-                double videoStartPos = ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
+                double videoStartPos =
+                    ((double)(QTime(0, 0, 0).secsTo(source)) + videoLengthSeconds - trainProgramLengthSeconds);
                 // if videoStartPos is negativ the Video is shorter then the GPX. Wait for the gpx to reach a point
                 // where the Video can be played
                 if (videoStartPos >= 0.0) {
-                    videoTimeStampSeconds =
-                        (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);
+                    videoTimeStampSeconds = (videoStartPos - videoLengthSeconds + trainProgramLengthSeconds);
                     videoStartPos = videoStartPos / ((double)(recordingFactor));
                     qDebug() << "SetVideoStartPosition" << (videoStartPos * 1000.0);
                     videoPlaybackHalfPlayer->setPosition(videoStartPos * 1000.0);

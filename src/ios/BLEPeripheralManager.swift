@@ -22,6 +22,11 @@ let SensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
 let CSCMeasurementCharacteristicUUID = CBUUID(string: "0x2A5B")
 let SCControlPointCharacteristicUUID = CBUUID(string: "0x2A55")
 
+let PowerServiceUUID = CBUUID(string: "0x1818")
+let PowerFeatureCharacteristicUUID = CBUUID(string: "0x2A65")
+let PowerSensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
+let PowerMeasurementCharacteristicUUID = CBUUID(string: "0x2A63")
+
 @objc public class virtualbike_ios_swift: NSObject {
     private var peripheralManager: BLEPeripheralManager!
     

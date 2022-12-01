@@ -574,7 +574,24 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.87
             property bool nordictrack_t70_treadmill: false
-            
+
+            // from version 2.11.94
+            property real crrGain: 0
+            property real cwGain: 0
+
+            // from version 2.12.1
+            property bool proform_treadmill_cadence_lt: false
+
+            // from version 2.12.3
+            property bool trainprogram_stop_at_end: false
+
+			// from version 2.12.5
+            property bool domyos_elliptical_inclination: true
+            property bool gpx_loop: false
+
+            // from version 2.12.6
+            property bool android_notification: false
+
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -585,6 +602,7 @@ import Qt.labs.settings 1.0
 	        property int trixter_xdream_v1_bike_steering_R : 45
 	        property int trixter_xdream_v1_bike_steering_MAX : 45
 	        property int trixter_xdream_v1_bike_connection_timeout_ms : 500
+           
         }
 
         function paddingZeros(text, limit) {
@@ -1318,6 +1336,54 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCRRGain
+                            text: qsTr("Rolling Res. Gain")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: crrGainTextField
+                            text: settings.crrGain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.crrGain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCRRGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.crrGain = crrGainTextField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCWGain
+                            text: qsTr("Wind Res. Gain")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cwGainTextField
+                            text: settings.cwGain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.cwGain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCWGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cwGain = cwGainTextField.text
                         }
                     }
                     SwitchDelegate {
@@ -2778,6 +2844,22 @@ import Qt.labs.settings 1.0
                 //width: 640
                 //anchors.top: acc1.bottom
                 //anchors.topMargin: 10
+
+                SwitchDelegate {
+                    id: trainprogramStopAtEndDelegate
+                    text: qsTr("Stop Treadmill at the End")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.trainprogram_stop_at_end
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.trainprogram_stop_at_end = checked
+                }
+
                 accordionContent: ColumnLayout {
                     spacing: 0
                     RowLayout {
@@ -3358,6 +3440,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_se = checked
+                        }
+                        SwitchDelegate {
+                            id: proformCadenceLT
+                            text: qsTr("Proform Cadence LT")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_cadence_lt
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_cadence_lt = checked
                         }
                         RowLayout {
                             spacing: 10
@@ -4191,6 +4287,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
                     }
+                }
+                SwitchDelegate {
+                    id: domyosEllipticalInclinationDelegate
+                    text: qsTr("Inclination Supported")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.domyos_elliptical_inclination
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.domyos_elliptical_inclination = checked
                 }
             }
 
@@ -5301,6 +5411,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.maps_type = mapsTypeTextField.displayText
                         }
                     }
+                    SwitchDelegate {
+                        id: gpxLoopDelegate
+                        text: qsTr("Loop Start-End-Start")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gpx_loop
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.gpx_loop = checked
+                    }
                 }
             }
 
@@ -5723,6 +5847,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_cache_heart_device = checked
+                    }
+
+                    SwitchDelegate {
+                        id: androidNotificationDelegate
+                        text: qsTr("Android Notification")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_notification
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.android_notification = checked
                     }
 
                     SwitchDelegate {
