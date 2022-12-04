@@ -1,4 +1,5 @@
 #include "characteristicwriteprocessore005.h"
+#include "wahookickrsnapbike.h"
 #include "elliptical.h"
 #include "ftmsbike.h"
 #include "treadmill.h"
@@ -13,8 +14,6 @@ CharacteristicWriteProcessorE005::CharacteristicWriteProcessorE005(double bikeRe
       bikeResistanceGain(bikeResistanceGain), Bike(bike) {}
 
 int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
-    qDebug() << uuid;
-
     if (data.size()) {
         bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
         if (dt == bluetoothdevice::BIKE) {
@@ -25,109 +24,24 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
             bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
-            if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
-
-                // Set Target Resistance
-                resistance_t uresistance = data.at(1);
-                uresistance = uresistance / 10;
-                if (force_resistance && !erg_mode) {
-                    Bike->changeResistance(uresistance);
-                }
-                qDebug() << QStringLiteral("new requested resistance ") + QString::number(uresistance) +
-                                QStringLiteral(" enabled ") + force_resistance;
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
-                reply.append((quint8)FTMS_SUCCESS);
-            } else if (cmd == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
-
-            {
-                qDebug() << QStringLiteral("indoor bike simulation parameters");
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
-                reply.append((quint8)FTMS_SUCCESS);
-
-                int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
-                uint8_t crr = data.at(5);
-                uint8_t cw = data.at(6);
-                changeSlope(iresistance, crr, cw);
-            } else if (cmd == FTMS_SET_TARGET_POWER) // erg mode
-
-            {
-                qDebug() << QStringLiteral("erg mode");
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((quint8)FTMS_SET_TARGET_POWER);
-                reply.append((quint8)FTMS_SUCCESS);
-
-                uint16_t power = (((uint8_t)data.at(1)) + (data.at(2) << 8));
-                changePower(power);
-            } else if (cmd == FTMS_START_RESUME) {
-                qDebug() << QStringLiteral("start simulation!");
-
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((quint8)FTMS_START_RESUME);
-                reply.append((quint8)FTMS_SUCCESS);
-            } else if (cmd == FTMS_REQUEST_CONTROL) {
-                qDebug() << QStringLiteral("control requested");
-
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((char)FTMS_REQUEST_CONTROL);
-                reply.append((quint8)FTMS_SUCCESS);
-            } else {
-                qDebug() << QStringLiteral("not supported");
-
-                reply.append((quint8)FTMS_RESPONSE_CODE);
-                reply.append((quint8)cmd);
-                reply.append((quint8)FTMS_NOT_SUPPORTED);
+            if (cmd == wahookickrsnapbike::_setSimMode && data.count() >= 7) {
+                weight = ((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8);
+                rrc = ((uint16_t)data.at(3)) + (((uint16_t)data.at(4)) >> 8);
+                wrc = ((uint16_t)data.at(5)) + (((uint16_t)data.at(6)) >> 8);
+                qDebug() << "weigth" << weight << "rrc" << rrc << "wrc" << wrc;
+            } else if(cmd == wahookickrsnapbike::_setSimGrade && data.count() >= 3) {
+                uint16_t grade;
+                double fgrade;
+                grade = ((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8);
+                fgrade = (((((double)grade) / 65535.0) * 2) - 1.0) * 100.0;
+                qDebug() << "grade" << grade << "fgrade" << fgrade;
+                changeSlope(fgrade * 100, rrc, wrc);
             }
         } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
-            char a, b;
-            if ((char)data.at(0) == 0x02) {
-                // Set Target Speed
-                a = data.at(1);
-                b = data.at(2);
-
-                uint16_t uspeed = a + (((uint16_t)b) << 8);
-                double requestSpeed = (double)uspeed / 100.0;
-                if (dt == bluetoothdevice::TREADMILL) {
-                    ((treadmill *)Bike)->changeSpeed(requestSpeed);
-                }
-                qDebug() << QStringLiteral("new requested speed ") + QString::number(requestSpeed);
-            } else if ((char)data.at(0) == 0x03) // Set Target Inclination
-            {
-                a = data.at(1);
-                b = data.at(2);
-
-                int16_t sincline = a + (((int16_t)b) << 8);
-                double requestIncline = (double)sincline / 10.0;
-                if (requestIncline < 0)
-                    requestIncline = 0;
-
-                if (dt == bluetoothdevice::TREADMILL)
-                    ((treadmill *)Bike)->changeInclination(requestIncline, requestIncline);
-                // Resistance as incline on Sole E95s Elliptical #419
-                else if (dt == bluetoothdevice::ELLIPTICAL)
-                    ((elliptical *)Bike)->changeInclination(requestIncline, requestIncline);
-                qDebug() << "new requested incline " + QString::number(requestIncline);
-            } else if ((char)data.at(0) == 0x07) // Start request
-            {
-                // Bike->start();
-                qDebug() << QStringLiteral("request to start");
-            } else if ((char)data.at(0) == 0x08) // Stop request
-            {
-                // Bike->stop();
-                qDebug() << QStringLiteral("request to stop");
-            } else if ((char)data.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
-            {
-                qDebug() << QStringLiteral("indoor bike simulation parameters");
-                int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
-                uint8_t crr = data.at(5);
-                uint8_t cw = data.at(6);
-                changeSlope(iresistance, crr, cw);
-            }
-            reply.append((quint8)FTMS_RESPONSE_CODE);
-            reply.append((quint8)data.at(0));
-            reply.append((quint8)FTMS_SUCCESS);
         }
+        reply.append((quint8)FTMS_RESPONSE_CODE);
+        reply.append((quint8)data.at(0));
+        reply.append((quint8)FTMS_SUCCESS);
         /*if (notifier) {
             notifier->answer = reply;
         }*/
