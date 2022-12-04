@@ -506,9 +506,5 @@ void *proformwifibike::VirtualBike() { return virtualBike; }
 void *proformwifibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformwifibike::watts() {
-    if (currentCadence().value() == 0) {
-        return 0;
-    }
-
     return m_watts;
 }
