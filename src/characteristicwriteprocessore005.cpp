@@ -25,9 +25,9 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == wahookickrsnapbike::_setSimMode && data.count() >= 7) {
-                weight = ((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8);
-                rrc = ((uint16_t)data.at(3)) + (((uint16_t)data.at(4)) >> 8);
-                wrc = ((uint16_t)data.at(5)) + (((uint16_t)data.at(6)) >> 8);
+                weight = ((double)((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8)) / 100.0;
+                rrc = ((double)((uint16_t)data.at(3)) + (((uint16_t)data.at(4)) >> 8)) / 1000.0;
+                wrc = ((double)((uint16_t)data.at(5)) + (((uint16_t)data.at(6)) >> 8)) / 1000.0;
                 qDebug() << "weigth" << weight << "rrc" << rrc << "wrc" << wrc;
             } else if(cmd == wahookickrsnapbike::_setSimGrade && data.count() >= 3) {
                 uint16_t grade;
@@ -35,7 +35,7 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 grade = ((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8);
                 fgrade = (((((double)grade) / 65535.0) * 2) - 1.0) * 100.0;
                 qDebug() << "grade" << grade << "fgrade" << fgrade;
-                changeSlope(fgrade * 100, rrc, wrc);
+                changeSlope(fgrade, rrc, wrc);
             }
         } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         }

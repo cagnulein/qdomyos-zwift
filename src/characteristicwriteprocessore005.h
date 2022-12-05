@@ -20,7 +20,7 @@ class CharacteristicWriteProcessorE005 : public CharacteristicWriteProcessor {
     void changePower(uint16_t power);
 
   private:
-    uint16_t weight, rrc, wrc;
+    double weight, rrc, wrc;
 
   signals:
     void changeInclination(double grade, double percentage);
