@@ -591,6 +591,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.6
             property bool android_notification: true
+
+            // from version 2.12.8
+            property bool kingsmith_encrypt_v4: false
         }
 
         function paddingZeros(text, limit) {
@@ -3425,7 +3428,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v2
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.kingsmith_encrypt_v2 = checked
+                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; }
                         }
 
                         SwitchDelegate {
@@ -3440,7 +3443,22 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.kingsmith_encrypt_v3 = checked
+                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; }
+                        }
+
+                        SwitchDelegate {
+                            id: kingSmithV4TreadmillDelegate
+                            text: qsTr("WalkingPad X21 v3")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.kingsmith_encrypt_v4
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; }
                         }
                     }
                 }

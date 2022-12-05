@@ -1591,6 +1591,9 @@ class QZSettings {
     static const QString android_notification;
     static constexpr bool default_android_notification = true;
 
+    static const QString kingsmith_encrypt_v4;
+    static constexpr bool default_kingsmith_encrypt_v4 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
