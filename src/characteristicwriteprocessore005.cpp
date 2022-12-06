@@ -1,8 +1,8 @@
 #include "characteristicwriteprocessore005.h"
-#include "wahookickrsnapbike.h"
 #include "elliptical.h"
 #include "ftmsbike.h"
 #include "treadmill.h"
+#include "wahookickrsnapbike.h"
 #include <QSettings>
 #include <QtMath>
 
@@ -29,13 +29,13 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 rrc = ((double)((uint16_t)data.at(3)) + (((uint16_t)data.at(4)) >> 8)) / 1000.0;
                 wrc = ((double)((uint16_t)data.at(5)) + (((uint16_t)data.at(6)) >> 8)) / 1000.0;
                 qDebug() << "weigth" << weight << "rrc" << rrc << "wrc" << wrc;
-            } else if(cmd == wahookickrsnapbike::_setSimGrade && data.count() >= 3) {
+            } else if (cmd == wahookickrsnapbike::_setSimGrade && data.count() >= 3) {
                 uint16_t grade;
                 double fgrade;
-                grade = ((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8);
+                grade = (uint16_t)((uint8_t)data.at(1)) + (((uint16_t)((uint8_t)data.at(2))) << 8);
                 fgrade = (((((double)grade) / 65535.0) * 2) - 1.0) * 100.0;
                 qDebug() << "grade" << grade << "fgrade" << fgrade;
-                changeSlope(fgrade, rrc, wrc);
+                changeSlope(fgrade * 100.0, rrc, wrc);
             }
         } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         }
