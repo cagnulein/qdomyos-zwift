@@ -1531,8 +1531,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 pafersTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(pafersTreadmill);
                 innerTemplateManager->start(pafersTreadmill);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexT216Treadmill &&
-                       filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bowflexT216Treadmill = new bowflext216treadmill(this->pollDeviceTime, noConsole, noHeartService);

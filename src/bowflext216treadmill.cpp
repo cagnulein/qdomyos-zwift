@@ -93,7 +93,8 @@ void bowflext216treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -124,7 +125,7 @@ void bowflext216treadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -227,7 +228,8 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -360,6 +362,15 @@ void bowflext216treadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("edff9e80-cad7-11e5-ab63-0002a5d5c51b"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (gattCommunicationChannelService == nullptr) {
+        qDebug() << "trying with the BOWFLEX T6 treadmill";
+        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("15B7BF49-1693-481E-B877-69D33CE6BAFA"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if (gattCommunicationChannelService == nullptr) {
+            qDebug() << "WRONG SERVICE";
+            return;
+        }
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &bowflext216treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
