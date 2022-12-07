@@ -69,6 +69,7 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+   characteristicwriteprocessor.cpp \
    characteristicwriteprocessore005.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
