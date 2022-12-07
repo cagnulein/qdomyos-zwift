@@ -3,7 +3,6 @@
 #include "ftmsbike.h"
 #include "treadmill.h"
 #include "wahookickrsnapbike.h"
-#include <QSettings>
 #include <QtMath>
 
 CharacteristicWriteProcessorE005::CharacteristicWriteProcessorE005(double bikeResistanceGain,
@@ -16,11 +15,6 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
     if (data.size()) {
         bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
         if (dt == bluetoothdevice::BIKE) {
-            QSettings settings;
-            bool force_resistance =
-                settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
-                    .toBool();
-            bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
             char cmd = data.at(0);
             emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), data);
             if (cmd == wahookickrsnapbike::_setSimMode && data.count() >= 7) {
@@ -35,6 +29,11 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 fgrade = (((((double)grade) / 65535.0) * 2) - 1.0) * 100.0;
                 qDebug() << "grade" << grade << "fgrade" << fgrade;
                 changeSlope(fgrade * 100.0, rrc, wrc);
+            } else if (cmd == wahookickrsnapbike::_setErgMode && data.count() >= 3) {
+                uint16_t watts;
+                watts = (uint16_t)((uint8_t)data.at(1)) + (((uint16_t)((uint8_t)data.at(2))) << 8);
+                qDebug() << "erg mode" << watts;
+                changePower(watts);
             }
         } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         }
