@@ -863,7 +863,7 @@ void horizontreadmill::update() {
 
             if (gattCustomService) {
                 if (!horizon_paragon_x) {
-                    if (horizon_treadmill_7_8) {
+                    /*if (horizon_treadmill_7_8)*/ {
                         // stop
                         if (requestPause == -1) {
                             messageID++;
