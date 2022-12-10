@@ -69,6 +69,8 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+   characteristicwriteprocessor.cpp \
+   characteristicwriteprocessore005.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
    lifefitnesstreadmill.cpp \
@@ -255,6 +257,7 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+   characteristicwriteprocessore005.h \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
