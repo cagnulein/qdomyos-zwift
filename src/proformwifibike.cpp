@@ -265,7 +265,7 @@ void proformwifibike::update() {
         btinit();
         emit connectedAndDiscovered();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -413,11 +413,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
     if (!values[QStringLiteral("Current Watts")].isUndefined()) {
         double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-        m_watts = watt;
+        m_watt = watt;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
         double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
-        m_watts = watt;
+        m_watt = watt;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     }
 
@@ -506,5 +506,5 @@ void *proformwifibike::VirtualBike() { return virtualBike; }
 void *proformwifibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformwifibike::watts() {
-    return m_watts;
+    return m_watt.value();
 }
