@@ -189,6 +189,9 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if ((newValue.length() != 20))
         return;
 
+    if (bowflex_t6 == true && newValue.at(1) != 0x00)
+        return;
+
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
@@ -251,9 +254,15 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 }
 
 double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
-    double data = (double)convertedData / 100.0f;
-    return data * 1.60934;
+    if(bowflex_t6 == false) {
+        uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
+        double data = (double)convertedData / 100.0f;
+        return data * 1.60934;
+    } else {
+        uint16_t convertedData = (packet.at(13) << 8) | packet.at(12);
+        double data = (double)convertedData / 100.0f;
+        return data;
+    }
 }
 
 double bowflext216treadmill::GetKcalFromPacket(const QByteArray &packet) {
@@ -364,6 +373,7 @@ void bowflext216treadmill::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << "trying with the BOWFLEX T6 treadmill";
+        bowflex_t6 = true;
         QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("15B7BF49-1693-481E-B877-69D33CE6BAFA"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (gattCommunicationChannelService == nullptr) {
