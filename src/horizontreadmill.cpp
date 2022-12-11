@@ -866,6 +866,7 @@ void horizontreadmill::update() {
                     /*if (horizon_treadmill_7_8)*/ {
                         // stop
                         if (requestPause == -1) {
+                            Speed = 0; // forcing the speed to be sure, maybe I could remove this
                             if(!settings.value(QZSettings::horizon_treadmill_disable_pause, QZSettings::default_horizon_treadmill_disable_pause).toBool()) {
                                 messageID++;
                                 uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x01, 0x14, 0x00, 0x00, 0x00, 0x00};
@@ -874,11 +875,11 @@ void horizontreadmill::update() {
 
                                 writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
                                                     QStringLiteral("requestStop"), false, true);
-                                Speed = 0; // forcing the speed to be sure, maybe I could remove this
                             }
                             // pause
                         } else {
                             requestPause = -1;
+                            Speed = 0; // forcing the speed to be sure, maybe I could remove this
                             if(!settings.value(QZSettings::horizon_treadmill_disable_pause, QZSettings::default_horizon_treadmill_disable_pause).toBool()) {
                                 messageID++;
                                 uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x03, 0x01, 0x00, 0xf0, 0xe1, 0x00};
@@ -887,7 +888,6 @@ void horizontreadmill::update() {
 
                                 writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
                                                     QStringLiteral("requestPause"), false, false);
-                                Speed = 0; // forcing the speed to be sure, maybe I could remove this
                                 horizonPaused = true;
                             }
                         }
