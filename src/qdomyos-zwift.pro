@@ -673,6 +673,7 @@ DISTFILES += \
 	android/src/ChannelService.java \
    android/src/ForegroundService.java \
    android/src/NotificationClient.java \
+    android/src/PiP.java \
         android/src/ScanRecordResult.java \
         android/src/NativeScanCallback.java \
    android/src/HeartChannelController.java \
@@ -689,7 +690,7 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS =  armeabi-v7a arm64-v8a x86 x86_64
+ANDROID_ABIS = armeabi-v7a
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)

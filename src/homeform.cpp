@@ -2329,6 +2329,14 @@ void homeform::LargeButton(const QString &name) {
 }
 
 void homeform::Plus(const QString &name) {
+
+    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
+                                                                           "activity", "()Landroid/app/Activity;");
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/PiP",
+        "enterPiP", "(Landroid/app/Activity;)V", activity.object<jobject>());
+
+
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
