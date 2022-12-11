@@ -594,6 +594,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.8
             property bool kingsmith_encrypt_v4: false
+
+            // from versiomn 2.12.11
+            property bool horizon_treadmill_disable_pause: false
         }
 
         function paddingZeros(text, limit) {
@@ -3784,6 +3787,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_treadmill_7_8 = checked
+                        }
+
+                        SwitchDelegate {
+                            id: horizonTreadmillDisablePauseDelegate
+                            text: qsTr("Disable Puase")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_disable_pause
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_disable_pause = checked
                         }
 
                         RowLayout {

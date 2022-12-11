@@ -1594,6 +1594,9 @@ class QZSettings {
     static const QString kingsmith_encrypt_v4;
     static constexpr bool default_kingsmith_encrypt_v4 = false;
 
+    static const QString horizon_treadmill_disable_pause;
+    static constexpr bool default_horizon_treadmill_disable_pause = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

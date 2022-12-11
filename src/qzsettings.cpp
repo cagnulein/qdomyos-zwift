@@ -557,8 +557,9 @@ const QString QZSettings::domyos_elliptical_inclination = QStringLiteral("domyos
 const QString QZSettings::gpx_loop = QStringLiteral("gpx_loop");
 const QString QZSettings::android_notification = QStringLiteral("android_notification");
 const QString QZSettings::kingsmith_encrypt_v4 = QStringLiteral("kingsmith_encrypt_v4");
+const QString QZSettings::horizon_treadmill_disable_pause = QStringLiteral("horizon_treadmill_disable_pause");
 
-const uint32_t allSettingsCount = 456;
+const uint32_t allSettingsCount = 457;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1018,6 +1019,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gpx_loop, QZSettings::default_gpx_loop},
     {QZSettings::android_notification, QZSettings::default_android_notification},
     {QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4},
+    {QZSettings::horizon_treadmill_disable_pause, QZSettings::default_horizon_treadmill_disable_pause},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
