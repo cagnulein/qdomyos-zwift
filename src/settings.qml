@@ -3791,7 +3791,7 @@ import Qt.labs.settings 1.0
 
                         SwitchDelegate {
                             id: horizonTreadmillDisablePauseDelegate
-                            text: qsTr("Disable Puase")
+                            text: qsTr("Disable Pause")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
