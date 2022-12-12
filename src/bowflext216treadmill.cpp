@@ -254,12 +254,12 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 }
 
 double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    if(bowflex_t6 == false) {
+    if (bowflex_t6 == false) {
         uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
         double data = (double)convertedData / 100.0f;
         return data * 1.60934;
     } else {
-        uint16_t convertedData = (packet.at(13) << 8) | packet.at(12);
+        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(12)) + ((uint16_t)((uint8_t)packet.at(13)) << 8);
         double data = (double)convertedData / 100.0f;
         return data;
     }
