@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.os.Looper;
+import android.os.Handler;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,12 +32,17 @@ public class FloatingHandler {
 			 // FloatingWindowGFG service is started
                          context.startService(new Intent(context, FloatingWindowGFG.class));
 			 // The MainActivity closes here
-			 //finish();
+                         //finish();
 			} else {
 			 // If permission is not given,
 			 // it shows the AlertDialog box and
 			 // redirects to the Settings
-			 requestOverlayDisplayPermission();
+                         new Handler(Looper.getMainLooper()).post(new Runnable() {
+                             @Override
+                             public void run() {
+                                 requestOverlayDisplayPermission();
+                             }
+                         });
 			}
 	}
 

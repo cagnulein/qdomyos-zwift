@@ -494,9 +494,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
-
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -2337,6 +2334,9 @@ void homeform::LargeButton(const QString &name) {
 }
 
 void homeform::Plus(const QString &name) {
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;

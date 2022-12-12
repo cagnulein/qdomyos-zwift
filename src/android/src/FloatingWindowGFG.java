@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -73,7 +74,8 @@ public class FloatingWindowGFG extends Service {
 					 return true;
 					}
 		  });
-	     wv.loadUrl("robertoviola.cloud");
+                  wv.loadUrl("http://robertoviola.cloud");
+                  Log.d("QZ","loadurl");
 
 
 		  // WindowManager.LayoutParams takes a lot of parameters to set the
