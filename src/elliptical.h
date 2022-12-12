@@ -28,6 +28,8 @@ class elliptical : public bluetoothdevice {
     void setPaused(bool p);
     void setLap();
     uint16_t watts();
+    void setGears(int8_t d);
+    int8_t gears();
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
@@ -51,6 +53,8 @@ class elliptical : public bluetoothdevice {
     volatile double requestSpeed = -1;
     double requestInclination = -100;
     double CrankRevs = 0;
+    int8_t m_gears = 0;
+    resistance_t lastRawRequestedResistanceValue = -1;
 };
 
 #endif // ELLIPTICAL_H

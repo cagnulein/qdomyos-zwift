@@ -1967,6 +1967,11 @@ void homeform::sortTiles() {
                 preset_resistance_5->setGridId(i);
                 dataList.append(preset_resistance_5);
             }
+            if (settings.value(QZSettings::tile_gears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_gears_order, 25).toInt() == i) {
+                gears->setGridId(i);
+                dataList.append(gears);
+            }
         }
     }
 
@@ -2408,6 +2413,9 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() + 1);
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                ((elliptical *)bluetoothManager->device())
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() + 1);
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -2446,7 +2454,7 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance().value() + 1);
             }
-        }        
+        }
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -2561,6 +2569,9 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() - 1);
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                ((elliptical *)bluetoothManager->device())
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() - 1);
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {

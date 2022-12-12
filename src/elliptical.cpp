@@ -10,7 +10,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving,  true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
@@ -57,8 +57,17 @@ uint16_t elliptical::watts() {
     return m_watt.value();
 }
 void elliptical::changeResistance(resistance_t resistance) {
-    requestResistance = resistance;
-    RequestedResistance = resistance;
+    lastRawRequestedResistanceValue = resistance;
+    requestResistance = resistance + gears();
+    RequestedResistance = resistance + gears();
+}
+int8_t elliptical::gears() { return m_gears; }
+void elliptical::setGears(int8_t gears) {
+    qDebug() << "setGears" << gears;
+    m_gears = gears;
+    if (lastRawRequestedResistanceValue != -1) {
+        changeResistance(lastRawRequestedResistanceValue);
+    }
 }
 void elliptical::changeInclination(double grade, double inclination) {
     Q_UNUSED(grade);
