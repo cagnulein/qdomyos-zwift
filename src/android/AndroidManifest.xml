@@ -74,6 +74,7 @@
 					 android:enabled="true"
 					 android:exported="true"></service>
 				<service android:name=".ChannelService"></service>
+				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
@@ -89,4 +90,5 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
+	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 </manifest>

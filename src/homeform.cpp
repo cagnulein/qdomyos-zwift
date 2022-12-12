@@ -494,6 +494,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
+
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
