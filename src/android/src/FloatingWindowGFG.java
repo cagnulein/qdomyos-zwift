@@ -21,10 +21,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
-
-import com.wheic.floatingedittext.Common.Common;
 
 public class FloatingWindowGFG extends Service {
 
@@ -66,7 +66,7 @@ public class FloatingWindowGFG extends Service {
 		  // inflate a new view hierarchy from the floating_layout xml
 		  floatView = (ViewGroup) inflater.inflate(R.layout.floating_layout, null);
 
-		  WebView wv = (WebView)findViewById(R.id.webview);
+                  WebView wv = (WebView)floatView.findViewById(R.id.webview);
 		  wv.setWebViewClient(new WebViewClient(){
 			   public boolean shouldOverrideUrlLoading(WebView view, String url) {
 					 view.loadUrl(url);

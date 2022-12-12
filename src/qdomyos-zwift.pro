@@ -683,6 +683,7 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+    android/gradle.properties \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \
 	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
