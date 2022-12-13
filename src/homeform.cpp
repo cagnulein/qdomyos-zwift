@@ -2334,8 +2334,10 @@ void homeform::LargeButton(const QString &name) {
 }
 
 void homeform::Plus(const QString &name) {
+#ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
 
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();

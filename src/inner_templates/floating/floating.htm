@@ -1,0 +1,85 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="jquery-3.6.0.min.js"></script>
+  <script src="globals.js"></script>
+  <script src="main_ws_manager.js"></script>
+  <style>
+  canvas{
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+  }
+  </style>
+</head>
+  <body>
+    <div id="cesiumContainer" class="cesiumContainer"></div>
+	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; bottom: 0px; right: 0px; margin-bottom: 0px; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 2px;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</p></div>
+	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
+    <script type="text/javascript">
+    function a() {
+    onWorkout = false;
+    keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation', 'altitude']
+         let ell = new MainWSQueueElement({
+	     msg: null,
+		}, function(msg) {
+		  if (msg.msg === 'workout') {
+		      var speed = 0;
+				var cadence = 0;
+				var hr = 0;
+				var calories = 0;
+				var odometer = 0;
+				var watt = 0;
+				var elapsed_h = 0;
+				var elapsed_m = 0;
+				var elapsed_s = 0;
+				var inclination = 0;
+				var resistance = 0;
+				var elevation = 0;
+				var altitude = 0;
+				for (let key of keys_arr) {
+				    if (msg.content[key] === undefined)
+                                             continue;
+						if (key === 'speed') {
+                                                  currentSpeed = speed = msg.content[key];
+						} else if (key === 'cadence') {
+						  cadence = msg.content[key];
+						} else if (key === 'heart') {
+                                                  hr = msg.content[key];
+						} else if (key === 'calories') {
+                                                  calories = msg.content[key];
+						} else if (key === 'distance') {
+                                                  odometer = msg.content[key];
+						} else if (key === 'watts') {
+                                                  watt = msg.content[key];
+						} else if (key === 'elapsed_h') {
+                                                  elapsed_h = msg.content[key];
+						} else if (key === 'elapsed_m') {
+                                                  elapsed_m = msg.content[key];
+						} else if (key === 'elapsed_s') {
+                                                  elapsed_s = msg.content[key];
+						} else if (key === 'inclination') {
+                                                  inclination = msg.content[key];
+						} else if (key === 'resistance') {
+                                                  resistance = msg.content[key];
+						} else if (key === 'elevation') {
+                                                  elevation = msg.content[key];
+																} else if (key === 'altitude') {
+																  altitude = msg.content[key];
+																}
+				}
+
+            $('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+		  }
+		  return null;
+		}, 15000, 3);
+         ell.enqueue().then(onWorkout).catch(function(err) {
+	     console.error('Error is ' + err);
+                });
+    }
+      setTimeout(a,0);
+    </script>
+  </body>
+</html>
