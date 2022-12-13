@@ -77,7 +77,7 @@ public class FloatingWindowGFG extends Service {
 		  });
                   WebSettings settings = wv.getSettings();
                   settings.setJavaScriptEnabled(true);
-                  wv.loadUrl("https://scontent-fco2-1.xx.fbcdn.net/v/t39.30808-6/305566464_10162785487228079_9140635760419239210_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5cd70e&_nc_ohc=of9HtXwPVsYAX-sssNH&_nc_ht=scontent-fco2-1.xx&oh=00_AfDLGkz7HgU2UjN_T4LEqNUc1oZl2UAnIXxqgpTQ33j8uA&oe=639CCE4A");
+                  wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/floating.htm");
                   wv.clearView();
                   wv.measure(100, 100);
                   settings.setBuiltInZoomControls(true);

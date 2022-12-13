@@ -2334,12 +2334,12 @@ void homeform::LargeButton(const QString &name) {
 }
 
 void homeform::Plus(const QString &name) {
+    QSettings settings;
 #ifdef Q_OS_ANDROID
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+                                              "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt());
 #endif
 
-    QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
     if (name.contains(QStringLiteral("speed"))) {

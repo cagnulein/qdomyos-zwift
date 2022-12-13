@@ -17,15 +17,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.os.Looper;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class FloatingHandler {
     static Context _context;
+    static public int _port = 0;
 
-	public static void show(Context context) {
+        public static void show(Context context, int port) {
             _context = context;
+            _port = port;
+            Log.d("QZ", Integer.toString(port));
 		// First it confirms whether the
 		// 'Display over other apps' permission in given
 		if (checkOverlayDisplayPermission()) {
