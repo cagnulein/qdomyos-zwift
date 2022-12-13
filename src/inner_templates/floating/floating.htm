@@ -15,7 +15,24 @@
   </style>
 </head>
   <body>
-    <div id="cesiumContainer" class="cesiumContainer"></div>
+  <script>
+          // Create a new div element for the tile
+          const cadenceTile = document.createElement("div");
+          // Set the appropriate classes and attributes for the tile
+          cadenceTile.classList.add("tile");
+          cadenceTile.setAttribute("id", "cadenceTile");
+
+          // Add the elements for the big number, small number, buttons, and icon
+          cadenceTile.innerHTML = `
+            <p class="value">0</p>
+            <p class="secondline"></p>
+            <i class="icon"></i>
+            <p class="description">Cadence</p>
+          `;
+
+          // Append the tile to the page
+          document.body.appendChild(cadenceTile);
+      </script>
 	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; bottom: 0px; right: 0px; margin-bottom: 0px; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 2px;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</p></div>
 	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
     <script type="text/javascript">
@@ -64,11 +81,7 @@
                                                   inclination = msg.content[key];
 						} else if (key === 'resistance') {
                                                   resistance = msg.content[key];
-						} else if (key === 'elevation') {
-                                                  elevation = msg.content[key];
-																} else if (key === 'altitude') {
-																  altitude = msg.content[key];
-																}
+                                                }
 				}
 
             $('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
