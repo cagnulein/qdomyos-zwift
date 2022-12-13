@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.webkit.WebView;
+import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 import android.util.Log;
 
@@ -74,7 +75,14 @@ public class FloatingWindowGFG extends Service {
 					 return true;
 					}
 		  });
-                  wv.loadUrl("http://robertoviola.cloud");
+                  WebSettings settings = wv.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  wv.loadUrl("https://scontent-fco2-1.xx.fbcdn.net/v/t39.30808-6/305566464_10162785487228079_9140635760419239210_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5cd70e&_nc_ohc=of9HtXwPVsYAX-sssNH&_nc_ht=scontent-fco2-1.xx&oh=00_AfDLGkz7HgU2UjN_T4LEqNUc1oZl2UAnIXxqgpTQ33j8uA&oe=639CCE4A");
+                  wv.clearView();
+                  wv.measure(100, 100);
+                  settings.setBuiltInZoomControls(true);
+                  settings.setUseWideViewPort(true);
+                  settings.setDomStorageEnabled(true);
                   Log.d("QZ","loadurl");
 
 
@@ -102,8 +110,8 @@ public class FloatingWindowGFG extends Service {
 		  // 5) Next parameter is Layout_Format. System chooses a format that supports
 		  // translucency by PixelFormat.TRANSLUCENT
 		  floatWindowLayoutParam = new WindowManager.LayoutParams(
-		          (int) (width * (0.55f)),
-					 (int) (height * (0.58f)),
+                          (int) (width * (0.35f)),
+                                         (int) (height * (0.38f)),
 					 LAYOUT_TYPE,
 					 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
 					 PixelFormat.TRANSLUCENT
@@ -133,6 +141,8 @@ public class FloatingWindowGFG extends Service {
 
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
+
+                                         Log.d("QZ","onTouch");
 
 					 switch (event.getAction()) {
 						  // When the window will be touched,
