@@ -80,6 +80,7 @@ public class FloatingWindowGFG extends Service {
                   wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/floating.htm");
                   wv.clearView();
                   wv.measure(100, 100);
+                  wv.setAlpha(0.6f);
                   settings.setBuiltInZoomControls(true);
                   settings.setUseWideViewPort(true);
                   settings.setDomStorageEnabled(true);
@@ -110,8 +111,8 @@ public class FloatingWindowGFG extends Service {
 		  // 5) Next parameter is Layout_Format. System chooses a format that supports
 		  // translucency by PixelFormat.TRANSLUCENT
 		  floatWindowLayoutParam = new WindowManager.LayoutParams(
-                          (int) (width * (0.35f)),
-                                         (int) (height * (0.38f)),
+                          (int) (width * (0.30f)),
+                                         (int) (height * (0.22f)),
 					 LAYOUT_TYPE,
 					 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
 					 PixelFormat.TRANSLUCENT
