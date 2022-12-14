@@ -34,9 +34,7 @@
     function a() {
     onWorkout = false;
     keys_arr = ['speed', 'speed_avg','cadence','cadence_avg', 'heart','heart_avg', 'calories', 'distance', 'watts','watts_avg', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_avg', 'peloton_resistance','peloton_resistance_avg']
-         let ell = new MainWSQueueElement({
-	     msg: null,
-		}, function(msg) {
+         let ell = new MainWSQueueElement(null, function(msg) {
 		  if (msg.msg === 'workout') {
                                 var speed = 0;
                                 var speed_avg = 0;
@@ -113,7 +111,7 @@
 		  return null;
 		}, 15000, 3);
          ell.enqueue().then(onWorkout).catch(function(err) {
-	     console.error('Error is ' + err);
+             console.error('Error is ' + err);
                 });
     }
       setTimeout(a,0);
