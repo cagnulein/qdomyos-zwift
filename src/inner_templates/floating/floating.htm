@@ -20,14 +20,14 @@
 </head>
   <body style="background-color: #000000">
          <table class="metrics" style="background-color: #000000; color: #FFFFFF; font-family: sans-serif border: 0">
-         <tr class="speed"><td>🏃</td><td><small>km/h</small></td><td class="speed-value"><b>25.0</b></td><td><small>AVG</small></td><td class="speed-avg">22.2</td></tr>
-         <tr class="cadence"><td>🚴</td><td><small>rpm</small></td><td class="cadence-value"><b>62</b></td><td class="cadence-avg"><small>AVG</small></td><td>67</td></tr>
-         <tr class="heart"><td>💓</td><td><small>bpm</small></td><td class="heart-value"><b>110</b></td><td class="heart-avg"><small>AVG</small></td><td>130</td></tr>
-         <tr class="watt"><td>⚡</td><td><small>watt</small></td><td class="watt-value"><b>110</b></td><td class="watt-avg"><small>AVG</small></td><td>160</td></tr>
-         <tr class="resistance"><td>🧲</td><td><small>level</small></td><td class="resistance-value"><b>11</b></td><td class="resistance-avg"><small>AVG</small></td><td>13</td></tr>
-         <tr class="pelotonresistance"><td>🅿</td><td><small>level</small></td><td class="pelotonresistance-value"><b>56</b></td><td class="pelotonresistance-avg"><small>AVG</small></td><td>71</td></tr>
-         <tr class="calories"><td>🔥</td><td><small>kcal</small></td><td class="calories-value" colspan="3"><b>1100</b></td></tr>
-         <tr class="distance"><td>📏</td><td><small>km</small></td><td class="distance-value" colspan="3"><b>11.0</b></td></td></tr>
+         <tr class="speed"><td>🏃</td><td><small>km/h</small></td><td class="speed-value"><b>0.0</b></td><td><small>AVG</small></td><td class="speed-avg">0.0</td></tr>
+         <tr class="cadence"><td>🚴</td><td><small>rpm</small></td><td class="cadence-value"><b>0</b></td><td class="cadence-avg"><small>AVG</small></td><td>0</td></tr>
+         <tr class="heart"><td>💓</td><td><small>bpm</small></td><td class="heart-value"><b>0</b></td><td class="heart-avg"><small>AVG</small></td><td>0</td></tr>
+         <tr class="watt"><td>⚡</td><td><small>watt</small></td><td class="watt-value"><b>0</b></td><td class="watt-avg"><small>AVG</small></td><td>0</td></tr>
+         <tr class="resistance"><td>🧲</td><td><small>level</small></td><td class="resistance-value"><b>1</b></td><td class="resistance-avg"><small>AVG</small></td><td>1</td></tr>
+         <tr class="pelotonresistance"><td>🅿</td><td><small>level</small></td><td class="pelotonresistance-value"><b>1</b></td><td class="pelotonresistance-avg"><small>AVG</small></td><td>1</td></tr>
+         <tr class="calories"><td>🔥</td><td><small>kcal</small></td><td class="calories-value" colspan="3"><b>0</b></td></tr>
+         <tr class="distance"><td>📏</td><td><small>km</small></td><td class="distance-value" colspan="3"><b>0.00</b></td></td></tr>
          <tr class="elapsed"><td>⏲️</td><td><small>time</small></td><td class="elapsed-value" colspan="3"><b>0:00:00</b></td></tr>
          </table>
     <script type="text/javascript">
@@ -96,8 +96,19 @@
 				}
                                 $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
                                 $('.speed-avg').html(speed_avg.toFixed(1));
+                                $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
+                                $('.cadence-avg').html(cadence_avg.toFixed(0));
+                                $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
+                                $('.heart-avg').html(hr_avg.toFixed(0));
+                                $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
+                                $('.watt-avg').html(watt_avg.toFixed(0));
+                                $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
+                                $('.resistance-avg').html(resistance_avg.toFixed(0));
+                                $('.peloton_resistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
+                                $('.peloton_resistance-avg').html(peloton_resistance_avg.toFixed(0));
                                 $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
-                                //$('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>✈️Altitude:"+ altitude.toFixed(1) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
+                                $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "</b>");
+                                $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
 		  }
 		  return null;
 		}, 15000, 3);

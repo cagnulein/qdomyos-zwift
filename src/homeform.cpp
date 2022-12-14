@@ -447,6 +447,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
     QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
     QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
+    QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -544,6 +545,14 @@ void homeform::volumeDown() {
     QSettings settings;
     if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool())
         Minus(QStringLiteral("gears"));
+}
+
+void homeform::floatingOpen() {
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
+                                              "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt());
+#endif
 }
 
 void homeform::peloton_abort_workout() {
@@ -2335,10 +2344,6 @@ void homeform::LargeButton(const QString &name) {
 
 void homeform::Plus(const QString &name) {
     QSettings settings;
-#ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt());
-#endif
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;

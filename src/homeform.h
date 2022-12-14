@@ -668,6 +668,7 @@ class homeform : public QObject {
     void volumeUp();
     void keyMediaPrevious();
     void keyMediaNext();
+    void floatingOpen();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
