@@ -668,9 +668,12 @@ DISTFILES += \
 	android/gradlew \
 	android/gradlew.bat \
 	android/libs/android_antlib_4-14-0.jar \
+   android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
+   android/src/FloatingHandler.java \
+   android/src/FloatingWindowGFG.java \
    android/src/ForegroundService.java \
    android/src/NotificationClient.java \
         android/src/ScanRecordResult.java \
@@ -680,6 +683,7 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+    android/gradle.properties \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \
 	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
@@ -689,7 +693,7 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS =  armeabi-v7a arm64-v8a x86 x86_64
+ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
@@ -726,4 +730,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.12
+VERSION = 2.12.13
