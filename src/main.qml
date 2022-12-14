@@ -34,6 +34,7 @@ ApplicationWindow {
     signal volumeDown()
     signal keyMediaPrevious()
     signal keyMediaNext()
+    signal floatingOpen()
 
     property bool lockTiles: false
 
@@ -332,6 +333,14 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
+        }
+
+        ToolButton {
+            id: toolButtonFloating
+            icon.source: "icons/icons/mini-display.png"
+            onClicked: { console.log("floating!"); floatingOpen(); }
+            anchors.left: toolButton.right
+            visible: OS_VERSION === "Android" ? true : false
         }
 
         Popup {
