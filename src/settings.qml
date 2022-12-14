@@ -597,6 +597,9 @@ import Qt.labs.settings 1.0
 
             // from versiomn 2.12.11
             property bool horizon_treadmill_disable_pause: false
+
+            // from version 2.12.13
+            property bool domyos_bike_500_profile_v1: false
         }
 
         function paddingZeros(text, limit) {
@@ -2018,6 +2021,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_display_calories = checked
+                    }
+                    SwitchDelegate {
+                        id: domyosBike500ProfileV1Delegate
+                        text: qsTr("Bike 500 wattage profile")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.domyos_bike_500_profile_v1
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.domyos_bike_500_profile_v1 = checked
                     }
                 }
                 AccordionElement {

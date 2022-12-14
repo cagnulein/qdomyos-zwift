@@ -1597,6 +1597,9 @@ class QZSettings {
     static const QString horizon_treadmill_disable_pause;
     static constexpr bool default_horizon_treadmill_disable_pause = false;
 
+    static const QString domyos_bike_500_profile_v1;
+    static constexpr bool default_domyos_bike_500_profile_v1 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
