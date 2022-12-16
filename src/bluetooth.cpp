@@ -1359,6 +1359,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(octaneTreadmill);
                 innerTemplateManager->start(octaneTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ROWSPORT-")) ||
                         b.name().startsWith(QStringLiteral("ROW-S"))) &&
                        !echelonRower && filter) {
                 this->setLastBluetoothDevice(b);
