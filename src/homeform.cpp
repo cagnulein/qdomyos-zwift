@@ -807,6 +807,8 @@ void homeform::trainProgramSignals() {
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                     &rower::changePower);
+            connect(trainProgram, &trainprogram::changeResistance, ((rower *)bluetoothManager->device()),
+                    &rower::changeResistance);
         }
         connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
                 &bluetoothdevice::changeNextInclination300Meters);
