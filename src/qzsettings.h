@@ -1600,6 +1600,9 @@ class QZSettings {
     static const QString domyos_bike_500_profile_v1;
     static constexpr bool default_domyos_bike_500_profile_v1 = false;
 
+    static const QString ss2k_peloton;
+    static constexpr bool default_ss2k_peloton = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

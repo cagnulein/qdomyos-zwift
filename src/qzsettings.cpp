@@ -559,8 +559,9 @@ const QString QZSettings::android_notification = QStringLiteral("android_notific
 const QString QZSettings::kingsmith_encrypt_v4 = QStringLiteral("kingsmith_encrypt_v4");
 const QString QZSettings::horizon_treadmill_disable_pause = QStringLiteral("horizon_treadmill_disable_pause");
 const QString QZSettings::domyos_bike_500_profile_v1 = QStringLiteral("domyos_bike_500_profile_v1");
+const QString QZSettings::ss2k_peloton = QStringLiteral("ss2k_peloton");
 
-const uint32_t allSettingsCount = 458;
+const uint32_t allSettingsCount = 459;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1022,6 +1023,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4},
     {QZSettings::horizon_treadmill_disable_pause, QZSettings::default_horizon_treadmill_disable_pause},
     {QZSettings::domyos_bike_500_profile_v1, QZSettings::domyos_bike_500_profile_v1},
+    {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

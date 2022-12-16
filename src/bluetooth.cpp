@@ -151,6 +151,10 @@ void bluetooth::finished() {
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+    bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+
+    if (ss2k_peloton)
+        ftmsAccessoryFound = true;
 
     // since i can have multiple fanfit i can't wait more because i don't have the full list of the fanfit
     // devices connected to QZ. edit: let's wait at the last one item
@@ -237,6 +241,9 @@ bool bluetooth::ftmsAccessoryAvaiable() {
     QSettings settings;
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
+    bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+    if (ss2k_peloton)
+        return false;
 
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
         if (!ftmsAccessoryName.compare(b.name())) {
@@ -1184,10 +1191,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
-                        (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
-                        (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
-                        (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
-                        (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
+                        (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
+                         settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
+                             .toBool()) || // ss2k on a peloton bike
+                        (b.name().toUpper().startsWith("WAHOO KICKR")) ||
+                        (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
+                        (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
+                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1")) ||
+                        (b.name().toUpper().startsWith("INRIDE"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1964,7 +1975,8 @@ void bluetooth::connectedAndDiscovered() {
 
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().startsWith(ftmsAccessoryName))) && !ftmsAccessory &&
-                !ftmsAccessoryName.startsWith(QStringLiteral("Disabled"))) {
+                !ftmsAccessoryName.startsWith(QStringLiteral("Disabled")) &&
+                !settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
                 settings.setValue(QZSettings::ftms_accessory_lastdevice_name, b.name());
 
 #ifndef Q_OS_IOS

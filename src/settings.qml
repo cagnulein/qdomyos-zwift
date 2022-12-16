@@ -600,6 +600,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.13
             property bool domyos_bike_500_profile_v1: false
+
+            // from version 2.12.14
+            property bool ss2k_peloton: false
         }
 
         function paddingZeros(text, limit) {
@@ -4869,6 +4872,21 @@ import Qt.labs.settings 1.0
                                 text: "Refresh Devices List"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
+                            }                                                        
+
+                            SwitchDelegate {
+                                id: ss2kPelotonDelegate
+                                text: qsTr("Peloton Bike")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.ss2k_peloton
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.ss2k_peloton = checked
                             }
 
                             RowLayout {
