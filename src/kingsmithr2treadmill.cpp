@@ -580,4 +580,3 @@ void *kingsmithr2treadmill::VirtualTreadMill() { return virtualTreadMill; }
 void *kingsmithr2treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }
-bool kingsmithr2treadmill::supportStateMachine() { return true; }

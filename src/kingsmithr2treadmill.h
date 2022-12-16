@@ -109,7 +109,6 @@ class kingsmithr2treadmill : public treadmill {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void searchingStop();
-    virtual bool supportStateMachine() override;
 
   private slots:
 
