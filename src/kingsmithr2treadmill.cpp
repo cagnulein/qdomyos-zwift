@@ -126,8 +126,11 @@ void kingsmithr2treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -157,83 +160,84 @@ void kingsmithr2treadmill::update() {
             // writeCharacteristic(QStringLiteral(""), QStringLiteral("noOp"), false, true);
         }
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+        if (lastRunState == KINGSMITH_R2_RUN_STATE::START) {
+            if (requestSpeed != -1) {
+                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
-                double inc = Inclination.value();
-                if (requestInclination != -100) {
+                    double inc = Inclination.value();
+                    if (requestInclination != -100) {
 
-                    // only 0.5 steps ara available
-                    requestInclination = qRound(requestInclination * 2.0) / 2.0;
-                    inc = requestInclination;
-                    requestInclination = -100;
+                        // only 0.5 steps ara available
+                        requestInclination = qRound(requestInclination * 2.0) / 2.0;
+                        inc = requestInclination;
+                        requestInclination = -100;
+                    }
+                    forceSpeedOrIncline(requestSpeed, inc);
                 }
-                forceSpeedOrIncline(requestSpeed, inc);
+                requestSpeed = -1;
             }
-            requestSpeed = -1;
-        }
-        if (requestInclination != -100) {
-            if(requestInclination < 0)
-                requestInclination = 0;
-            // only 0.5 steps ara available
-            requestInclination = qRound(requestInclination * 2.0) / 2.0;
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            if (requestInclination != -100) {
+                if (requestInclination < 0)
+                    requestInclination = 0;
+                // only 0.5 steps ara available
+                requestInclination = qRound(requestInclination * 2.0) / 2.0;
+                if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                    requestInclination <= 15) {
+                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
 
-                double speed = currentSpeed().value();
-                if (requestSpeed != -1) {
+                    double speed = currentSpeed().value();
+                    if (requestSpeed != -1) {
 
-                    speed = requestSpeed;
-                    requestSpeed = -1;
+                        speed = requestSpeed;
+                        requestSpeed = -1;
+                    }
+                    forceSpeedOrIncline(speed, requestInclination);
                 }
-                forceSpeedOrIncline(speed, requestInclination);
+                requestInclination = -100;
             }
-            requestInclination = -100;
-        }
-        if (requestStart != -1) {
-            emit debug(QStringLiteral("starting..."));
-            if (lastControlMode != MANUAL) {
-                writeCharacteristic(QStringLiteral("props ControlMode 1"), QStringLiteral("turn on treadmill to manual mode"),
-                                    false, true);
+            if (requestStop != -1) {
+                emit debug(QStringLiteral("stopping..."));
+                if (lastRunState != STOP) {
+                    writeCharacteristic(QStringLiteral("props runState 0"), QStringLiteral("stopping"), false, true);
+                }
+                // don't go to standby mode automatically
+                requestStop = -1;
             }
-            if (lastRunState != START) {
-                writeCharacteristic(QStringLiteral("props runState 1"), QStringLiteral("starting"), false, true);
-            }
-            if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
-            }
-            requestStart = -1;
-            emit tapeStarted();
-        }
-        if (requestStop != -1) {
-            emit debug(QStringLiteral("stopping..."));
-            if (lastRunState != STOP) {
-                writeCharacteristic(QStringLiteral("props runState 0"), QStringLiteral("stopping"), false, true);
-            }
-            // don't go to standby mode automatically
-            requestStop = -1;
-        }
-        if (requestFanSpeed != -1) {
-            emit debug(QStringLiteral("changing fan speed..."));
+            if (requestFanSpeed != -1) {
+                emit debug(QStringLiteral("changing fan speed..."));
 
-            // sendChangeFanSpeed(requestFanSpeed);
-            requestFanSpeed = -1;
-        }
-        if (requestIncreaseFan != -1) {
-            emit debug(QStringLiteral("increasing fan speed..."));
+                // sendChangeFanSpeed(requestFanSpeed);
+                requestFanSpeed = -1;
+            }
+            if (requestIncreaseFan != -1) {
+                emit debug(QStringLiteral("increasing fan speed..."));
 
-            // sendChangeFanSpeed(FanSpeed + 1);
-            requestIncreaseFan = -1;
-        } else if (requestDecreaseFan != -1) {
-            emit debug(QStringLiteral("decreasing fan speed..."));
+                // sendChangeFanSpeed(FanSpeed + 1);
+                requestIncreaseFan = -1;
+            } else if (requestDecreaseFan != -1) {
+                emit debug(QStringLiteral("decreasing fan speed..."));
 
-            // sendChangeFanSpeed(FanSpeed - 1);
-            requestDecreaseFan = -1;
-        }
+                // sendChangeFanSpeed(FanSpeed - 1);
+                requestDecreaseFan = -1;
+            }
+        } else if (lastRunState == KINGSMITH_R2_RUN_STATE::STOP ||
+                   lastRunState == KINGSMITH_R2_RUN_STATE::UNKNOWN_RUN_STATE)
+            if (requestStart != -1) {
+                emit debug(QStringLiteral("starting..."));
+                if (lastControlMode != MANUAL) {
+                    writeCharacteristic(QStringLiteral("props ControlMode 1"),
+                                        QStringLiteral("turn on treadmill to manual mode"), false, true);
+                }
+                if (lastRunState != START) {
+                    writeCharacteristic(QStringLiteral("props runState 1"), QStringLiteral("starting"), false, true);
+                }
+                if (lastSpeed == 0.0) {
+                    lastSpeed = 0.5;
+                }
+                requestStart = -1;
+                emit tapeStarted();
+            }
     }
 }
 
@@ -300,7 +304,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
         }
-        if(i+1 >= _props.count()) {
+        if (i + 1 >= _props.count()) {
             qDebug() << "error decoding" << i;
             return;
         }
@@ -311,7 +315,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     double speed = props.value("CurrentSpeed", 0);
     Cadence = props.value("spm", 0);
-    KINGSMITH_R2_CONTROL_MODE controlMode = (KINGSMITH_R2_CONTROL_MODE)(int)props.value("ControlMode", (double)UNKNOWN_CONTROL_MODE);
+    KINGSMITH_R2_CONTROL_MODE controlMode =
+        (KINGSMITH_R2_CONTROL_MODE)(int)props.value("ControlMode", (double)UNKNOWN_CONTROL_MODE);
     KINGSMITH_R2_RUN_STATE runState = (KINGSMITH_R2_RUN_STATE)(int)props.value("runState", (double)UNKNOWN_RUN_STATE);
 
     // TODO:
@@ -354,7 +359,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -400,12 +406,12 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         lastRunState = runState;
         // TODO define bitflag enums to bluetoothdevice
         switch (runState) {
-            case STOP:
-                emit deviceStateChanged(1);
-                break;
-            case START:
-                emit deviceStateChanged(2);
-                break;
+        case STOP:
+            // emit deviceStateChanged(1);
+            break;
+        case START:
+            // emit deviceStateChanged(2);
+            break;
         }
     }
     firstCharacteristicChanged = false;
