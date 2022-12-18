@@ -603,6 +603,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.14
             property bool ss2k_peloton: false
+
+            // from version 2.12.16
+            property string computrainer_serialport: ""
         }
 
         function paddingZeros(text, limit) {
@@ -2189,6 +2192,39 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                    id: computrainerBikeAccordion
+                    title: qsTr("Computrainer Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcomputrainerSerialPort
+                            text: qsTr("Serial Port:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: computrainerSerialPortTextField
+                            text: settings.computrainer_serialport
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.computrainer_serialport = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okcomputrainerSerialPortButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.computrainer_serialport = computrainerSerialPortTextField.text
+                        }
+                    }
+                }
+
 
                 AccordionElement {
                     id: m3iBikeAccordion

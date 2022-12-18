@@ -1603,6 +1603,9 @@ class QZSettings {
     static const QString ss2k_peloton;
     static constexpr bool default_ss2k_peloton = false;
 
+    static const QString computrainer_serialport;
+    static const QString default_computrainer_serialport;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
