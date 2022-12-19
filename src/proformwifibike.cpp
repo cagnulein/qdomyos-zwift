@@ -215,7 +215,25 @@ void proformwifibike::forceResistance(double requestResistance) {
     websocket.sendTextMessage(send);
 }
 
+void proformwifibike::setTargetWatts(double watts) {
+
+    QString send = "{\"type\":\"set\",\"values\":{\"Target Watts\":\"" + QString::number(watts) + "\"}}";
+    qDebug() << "setTargetWatts" << send;
+    websocket.sendTextMessage(send);
+}
+
+void proformwifibike::setWorkoutType(QString type) {
+
+    QString send = "{\"type\":\"set\",\"values\":{\"Workout Type\":\"" + type + "\"}}";
+    qDebug() << "setWorkoutType" << send;
+    websocket.sendTextMessage(send);
+}
+
 void proformwifibike::innerWriteResistance() {
+    QSettings settings;
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    static QString last_mode = "MANUAL";
+
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
@@ -235,21 +253,19 @@ void proformwifibike::innerWriteResistance() {
         requestResistance = -1;
     }
 
-    if (requestPower > 0) {
-        QSettings settings;
-        double erg_filter_upper =
-            settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-        if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
-            qDebug() << "change inclination due to request power = " << requestPower;
-            if (target_watts.value() > requestPower) {
-                requestInclination = currentInclination().value() - 0.5;
-            } else {
-                requestInclination = currentInclination().value() + 0.5;
-            }
+    if (requestPower > 0 && erg_mode) {
+        if(last_mode.compare("WATTS_GOAL")) {
+            last_mode = "WATTS_GOAL";
+            setWorkoutType(last_mode);
         }
+        setTargetWatts(requestPower);
     }
 
-    if (requestInclination != -100) {
+    if (requestInclination != -100 && !erg_mode) {
+        if(last_mode.compare("MANUAL")) {
+            last_mode = "MANUAL";
+            setWorkoutType(last_mode);
+        }
         emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
         forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                        // i'm using the gears in the inclination
