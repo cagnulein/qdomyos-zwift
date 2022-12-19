@@ -258,7 +258,24 @@ void proformwifibike::innerWriteResistance() {
             last_mode = "WATTS_GOAL";
             setWorkoutType(last_mode);
         }
-        setTargetWatts(requestPower);
+        double r = requestPower;
+        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                qDebug() << QStringLiteral("request watt value was ") << r
+                         << QStringLiteral("but it will be transformed to")
+                         << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+            }
+            r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+        }
+        if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
+            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                qDebug()
+                    << QStringLiteral("request watt value was ") << r << QStringLiteral("but it will be transformed to")
+                    << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+            }
+            r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+        }
+        setTargetWatts(r);
     }
 
     if (requestInclination != -100 && !erg_mode) {
