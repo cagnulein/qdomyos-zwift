@@ -37,6 +37,10 @@
 #include <QThread>
 
 #ifdef WIN32
+#include <windef.h>
+#endif
+
+#ifdef WIN32
 #include <winbase.h>
 #include <windows.h>
 #else
