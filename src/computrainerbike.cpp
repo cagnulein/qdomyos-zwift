@@ -227,6 +227,97 @@ void computrainerbike::update() {
         btinit();
         emit connectedAndDiscovered();
     } else {
+
+        QSettings settings;
+        QString heartRateBeltName =
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        bool disable_hr_frommachinery =
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+        int Buttons, Status;
+        bool calibration;
+        double Power, HeartRate, cadence, speed, RRC, Load, Gradient;
+        uint8_t ss[24];
+        // get latest telemetry
+        myComputrainer->getTelemetry(Power, HeartRate, cadence, speed, RRC, calibration, Buttons, ss, Status);
+
+        Speed = speed;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        emit debug("Current Distance: " + QString::number(Distance.value()));
+        Cadence = cadence;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        m_watt = Power;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+
+        Inclination = Gradient;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Gradient));
+
+        if (watts())
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                                            //* 3.5) / 200 ) / 60
+        /*
+                                                                  Resistance = resistance;
+                                                                  m_pelotonResistance = (100 / 32) * Resistance.value();
+                                                                  emit resistanceRead(Resistance.value());    */
+
+        if (!disable_hr_frommachinery) {
+            Heart = HeartRate;
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+        }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+            }
+        }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+#endif
+#endif
+
+        /*
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));    */
+
         update_metrics(false, watts());
 
         // updating the treadmill console every second
@@ -314,102 +405,6 @@ resistance_t computrainerbike::pelotonToBikeResistance(int pelotonResistance) {
         return 16;
     }
     return Resistance.value();
-}
-
-void computrainerbike::serviceDiscovered(const QBluetoothUuid &gatt) {
-    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
-}
-
-void computrainerbike::characteristicChanged(const QString &newValue) {
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery =
-        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-
-    int Buttons, Status;
-    bool calibration;
-    double Power, HeartRate, cadence, speed, RRC, Load, Gradient;
-    uint8_t ss[24];
-    // get latest telemetry
-    myComputrainer->getTelemetry(Power, HeartRate, cadence, speed, RRC, calibration, Buttons, ss, Status);
-
-    Speed = speed;
-    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-    emit debug("Current Distance: " + QString::number(Distance.value()));
-    Cadence = cadence;
-    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    m_watt = Power;
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-
-    Inclination = Gradient;
-    emit debug(QStringLiteral("Current Inclination: ") + QString::number(Gradient));
-
-    if (watts())
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) *
-               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
-                                                              //* 3.5) / 200 ) / 60
-    /*
-                                                                  Resistance = resistance;
-                                                                  m_pelotonResistance = (100 / 32) * Resistance.value();
-                                                                  emit resistanceRead(Resistance.value());    */
-
-    if (!disable_hr_frommachinery) {
-        Heart = HeartRate;
-        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
-#ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
-#endif
-    {
-        if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-        }
-    }
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
-
-    /*
-    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
-    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
-    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));    */
 }
 
 void computrainerbike::btinit() { initDone = true; }

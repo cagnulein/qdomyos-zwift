@@ -46,13 +46,10 @@ class computrainerbike : public bike {
   private:
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;
-    void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
     uint16_t watts();
@@ -92,10 +89,6 @@ class computrainerbike : public bike {
 
   private slots:
 
-    void characteristicChanged(const QString &message);
-    void binaryMessageReceived(const QByteArray &message);
-
-    void serviceDiscovered(const QBluetoothUuid &gatt);
     void update();
 };
 
