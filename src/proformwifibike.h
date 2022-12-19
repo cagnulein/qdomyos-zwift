@@ -70,6 +70,8 @@ class proformwifibike : public bike {
     uint16_t watts();
     void forceResistance(double requestResistance);
     void innerWriteResistance();
+    void setTargetWatts(double watts);
+    void setWorkoutType(QString type);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
