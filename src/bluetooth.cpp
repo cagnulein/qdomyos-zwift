@@ -398,6 +398,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    QString computrainerSerialPort =
+        settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
 
@@ -588,6 +590,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(proformWifiBike);
                 innerTemplateManager->start(proformWifiBike);
+            } else if (!computrainerSerialPort.isEmpty() && !computrainerBike) {
+                this->stopDiscovery();
+                computrainerBike =
+                    new computrainerbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(computrainerBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(computrainerBike, &computrainerbike::debug, this, &bluetooth::debug);
+                computrainerBike->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(computrainerBike);
+                innerTemplateManager->start(computrainerBike);
             } else if (!proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
                 this->stopDiscovery();
                 proformWifiTreadmill = new proformwifitreadmill(noWriteResistance, noHeartService, bikeResistanceOffset,
@@ -2545,6 +2563,11 @@ void bluetooth::restart() {
         delete inspireBike;
         inspireBike = nullptr;
     }
+    if (computrainerBike) {
+
+        delete computrainerBike;
+        computrainerBike = nullptr;
+    }
     if (chronoBike) {
 
         delete chronoBike;
@@ -2801,6 +2824,8 @@ bluetoothdevice *bluetooth::device() {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+    } else if (computrainerBike) {
+        return computrainerBike;
     }
     return nullptr;
 }
