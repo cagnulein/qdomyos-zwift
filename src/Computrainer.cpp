@@ -497,7 +497,9 @@ void Computrainer::run() {
     pvars.unlock();
 
     // open the device
-    if (openPort()) {
+    int o = openPort();
+    qDebug() << "openPort" << o;
+    if (o) {
         quit(2);
         return; // open failed!
     } else {
