@@ -606,6 +606,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.16
             property string computrainer_serialport: ""
+
+            // from version 2.12.18
+            property bool strava_virtual_activity: true
         }
 
         function paddingZeros(text, limit) {
@@ -4452,6 +4455,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.strava_suffix = stravaSuffixTextField.text
                         }
+                    }                                        
+
+                    SwitchDelegate {
+                        id: stravaVirtualActivityDelegate
+                        text: qsTr("Strava Virtual Activity Tag")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_virtual_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_virtual_activity = checked
                     }
 
                     SwitchDelegate {

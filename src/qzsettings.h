@@ -1606,6 +1606,9 @@ class QZSettings {
     static const QString computrainer_serialport;
     static const QString default_computrainer_serialport;
 
+    static const QString strava_virtual_activity;
+    static constexpr bool default_strava_virtual_activity = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
