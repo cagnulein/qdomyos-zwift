@@ -399,6 +399,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     bool manufacturerDeviceFound = false;
+    bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -411,6 +412,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!ftmsAccessoryFound) {
 
         ftmsAccessoryFound = ftmsAccessoryAvaiable();
+    }
+    if (ss2k_peloton) {
+        ftmsAccessoryFound = true;
     }
     if (!cscFound) {
 
