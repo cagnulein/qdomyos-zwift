@@ -52,6 +52,11 @@
 #endif
 #endif
 
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>

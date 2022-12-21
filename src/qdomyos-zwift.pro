@@ -686,6 +686,7 @@ DISTFILES += \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+    android/src/Usbserial.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
     android/gradle.properties \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \
