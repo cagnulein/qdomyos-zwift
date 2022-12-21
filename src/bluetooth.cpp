@@ -590,6 +590,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(proformWifiBike);
                 innerTemplateManager->start(proformWifiBike);
+#ifndef Q_OS_IOS
             } else if (!computrainerSerialPort.isEmpty() && !computrainerBike) {
                 this->stopDiscovery();
                 computrainerBike =
@@ -606,6 +607,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(computrainerBike);
                 innerTemplateManager->start(computrainerBike);
+#endif
             } else if (!proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
                 this->stopDiscovery();
                 proformWifiTreadmill = new proformwifitreadmill(noWriteResistance, noHeartService, bikeResistanceOffset,
@@ -2563,11 +2565,13 @@ void bluetooth::restart() {
         delete inspireBike;
         inspireBike = nullptr;
     }
+#ifndef Q_OS_IOS
     if (computrainerBike) {
 
         delete computrainerBike;
         computrainerBike = nullptr;
     }
+#endif
     if (chronoBike) {
 
         delete chronoBike;
@@ -2824,8 +2828,10 @@ bluetoothdevice *bluetooth::device() {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+#ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
+#endif
     }
     return nullptr;
 }
