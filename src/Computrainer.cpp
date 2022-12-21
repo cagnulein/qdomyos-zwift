@@ -921,20 +921,40 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniEnvironment env;
     int fullLen = 0;
+
+    // previous buffer?
+    while(bufRX.count()) {
+        bytes[fullLen++] = bufRX.at(0);
+        bufRX.removeFirst();
+        qDebug() << "byte popped from rxBuf";
+        if(fullLen >= size) {
+            qDebug() << size << QByteArray((const char*)bytes,size).toHex(' ');
+            return size;
+        }
+    }
+
+    QAndroidJniEnvironment env;    
     while(fullLen < size) {
         QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
         jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
         if(len + fullLen > size) {
-            qDebug() << "buffer overflow! Truncate from" << len + fullLen << ". Original buffer:";
+            qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
             /*for(int i=0; i<len; i++) {
                 qDebug() << b[i];
             }*/
-            len = size - fullLen;
-            return fullLen;
+
+            for(int i=fullLen; i<size-fullLen; i++) {
+                bytes[i] = b[i - fullLen];
+            }
+            for(int i=size; i<len; i++) {
+                bufRX.append(b[i]);
+            }
+            qDebug() << len-size << "bytes to the rxBuf";
+            qDebug() << size << QByteArray((const char*)b,size).toHex(' ');
+            return size;
         }
         for(int i=fullLen; i<len + fullLen; i++) {
             bytes[i] = b[i - fullLen];

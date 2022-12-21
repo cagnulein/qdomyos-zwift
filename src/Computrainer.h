@@ -200,6 +200,10 @@ class Computrainer : public QThread {
     // raw device utils
     int rawWrite(uint8_t *bytes, int size); // unix!!
     int rawRead(uint8_t *bytes, int size);  // unix!!
+
+#ifdef Q_OS_ANDROID
+    QList<jbyte> bufRX;
+#endif
 };
 
 class CTsleeper : public QThread {
