@@ -413,14 +413,20 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     QJsonObject json = metrics.object();
     QJsonValue values = json.value("values");
 
-    if (!values[QStringLiteral("Current KPH")].isUndefined()) {
-        double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
-        Speed = kph;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    } else if (!values[QStringLiteral("KPH")].isUndefined()) {
-        double kph = values[QStringLiteral("KPH")].toString().toDouble();
-        Speed = kph;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+        if (!values[QStringLiteral("Current KPH")].isUndefined()) {
+            double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        } else if (!values[QStringLiteral("KPH")].isUndefined()) {
+            double kph = values[QStringLiteral("KPH")].toString().toDouble();
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+    } else {
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
 
     if (!values[QStringLiteral("Kilometers")].isUndefined()) {
