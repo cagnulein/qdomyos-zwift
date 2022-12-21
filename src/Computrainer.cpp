@@ -755,7 +755,11 @@ int Computrainer::closePort() {
 }
 
 int Computrainer::openPort() {
-#ifndef WIN32
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/Usbserial", "open", "(Landroid/content/Context;)V",
+        QtAndroid::androidContext().object());
+#elif !defined(WIN32)
 
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
 
@@ -877,7 +881,17 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 
     int rc = 0;
 
-#ifdef WIN32
+#ifdef Q_OS_ANDROID
+
+    QAndroidJniEnvironment env;
+    jbyteArray d = env->NewByteArray(size);
+    jbyte *b = env->GetByteArrayElements(d, 0);
+    for(int i=0; i<size; i++)
+        b[i] = bytes[i];
+    env->SetByteArrayRegion(d,0,size,b);
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+#elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
     if (!rc)
@@ -905,7 +919,25 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 int Computrainer::rawRead(uint8_t bytes[], int size) {
     int rc = 0;
 
-#ifdef WIN32
+#ifdef Q_OS_ANDROID
+
+    QAndroidJniEnvironment env;
+    QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+    jbyteArray d = dd.object<jbyteArray>();
+    jint len = env->GetArrayLength(d);
+    if(len > size) {
+        qDebug() << "buffer overflow!";
+        return 0;
+    }
+    jbyte *b = env->GetByteArrayElements(d, 0);
+    for(int i=0; i<len; i++) {
+        bytes[i] = b[i];
+    }
+
+    qDebug() << len << QString::fromLocal8Bit((const char *)bytes, len);
+
+    return len;
+#elif defined(WIN32)
     Q_UNUSED(size);
     // Readfile deals with timeouts and readyread issues
     DWORD cBytes;
