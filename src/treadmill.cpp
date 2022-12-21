@@ -5,17 +5,17 @@
 treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
-    qDebug() << "changeSpeed" << speed << autoResistanceEnable;
-    RequestedSpeed = speed;
+    qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult;
+    RequestedSpeed = speed * m_difficult;
     if (autoResistanceEnable)
-        requestSpeed = speed;
+        requestSpeed = speed * m_difficult;
 }
 void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(inclination);
-    qDebug() << "changeInclination" << grade << autoResistanceEnable;
-    RequestedInclination = grade;
+    qDebug() << "changeInclination" << grade << autoResistanceEnable << m_difficult;
+    RequestedInclination = grade * m_difficult;
     if (autoResistanceEnable) {
-        requestInclination = grade;
+        requestInclination = grade * m_difficult;
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
