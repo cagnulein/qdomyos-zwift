@@ -923,13 +923,16 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 
     QAndroidJniEnvironment env;
     QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+    jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
     jbyteArray d = dd.object<jbyteArray>();
-    jint len = env->GetArrayLength(d);
-    if(len > size) {
-        qDebug() << "buffer overflow!";
-        return 0;
-    }
     jbyte *b = env->GetByteArrayElements(d, 0);
+    if(len > size) {
+        qDebug() << "buffer overflow! Truncate from" << len << ". Original buffer:";
+        for(int i=0; i<len; i++) {
+            qDebug() << b[i];
+        }
+        len = size;
+    }    
     for(int i=0; i<len; i++) {
         bytes[i] = b[i];
     }

@@ -39,6 +39,7 @@ public class Usbserial {
 
     static UsbSerialPort port;
     static byte[] receiveData = new byte[4096];
+    static int lastReadLen = 0;
 
     public static void open(Context context) {
         Log.d("QZ","UsbSerial open");
@@ -110,10 +111,14 @@ public class Usbserial {
         }
     }
 
+    public static int readLen() {
+        return lastReadLen;
+    }
+
     public static byte[] read() {
         try {
-            int len = port.read(receiveData, 2000);
-            Log.d("QZ","UsbSerial reading " + len + new String(receiveData, StandardCharsets.UTF_8));
+            lastReadLen = port.read(receiveData, 2000);
+            Log.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
         }
         catch (IOException e) {
             // Do something here
