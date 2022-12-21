@@ -949,10 +949,10 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
             for(int i=fullLen; i<size-fullLen; i++) {
                 bytes[i] = b[i - fullLen];
             }
-            for(int i=size; i<len; i++) {
-                bufRX.append(b[i]);
+            for(int i=size; i<len + fullLen; i++) {
+                bufRX.append(b[i - fullLen]);
             }
-            qDebug() << len-size << "bytes to the rxBuf";
+            qDebug() << len + fullLen - size << "bytes to the rxBuf";
             qDebug() << size << QByteArray((const char*)b,size).toHex(' ');
             return size;
         }
