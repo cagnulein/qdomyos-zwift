@@ -877,7 +877,7 @@ int Computrainer::openPort() {
 
 int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 {
-    qDebug() << size << QString::fromLocal8Bit((const char *)bytes, size);
+    qDebug() << size << QByteArray((const char*)bytes,size).toHex(' ');
 
     int rc = 0;
 
@@ -922,24 +922,30 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 #ifdef Q_OS_ANDROID
 
     QAndroidJniEnvironment env;
-    QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-    jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
-    jbyteArray d = dd.object<jbyteArray>();
-    jbyte *b = env->GetByteArrayElements(d, 0);
-    if(len > size) {
-        qDebug() << "buffer overflow! Truncate from" << len << ". Original buffer:";
-        for(int i=0; i<len; i++) {
-            qDebug() << b[i];
+    int fullLen = 0;
+    while(fullLen < size) {
+        QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+        jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+        jbyteArray d = dd.object<jbyteArray>();
+        jbyte *b = env->GetByteArrayElements(d, 0);
+        if(len + fullLen > size) {
+            qDebug() << "buffer overflow! Truncate from" << len << ". Original buffer:";
+            for(int i=0; i<len; i++) {
+                qDebug() << b[i];
+            }
+            len = size - fullLen;
+            return 0;
         }
-        len = size;
-    }    
-    for(int i=0; i<len; i++) {
-        bytes[i] = b[i];
+        for(int i=fullLen; i<len + fullLen; i++) {
+            bytes[i] = b[i - fullLen];
+        }
+        qDebug() << len << QByteArray((const char*)b,len).toHex(' ');
+        fullLen += len;
     }
 
-    qDebug() << len << QString::fromLocal8Bit((const char *)bytes, len);
+    qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char*)bytes,size).toHex(' ');
 
-    return len;
+    return fullLen;
 #elif defined(WIN32)
     Q_UNUSED(size);
     // Readfile deals with timeouts and readyread issues
