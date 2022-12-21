@@ -929,12 +929,12 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
         if(len + fullLen > size) {
-            qDebug() << "buffer overflow! Truncate from" << len << ". Original buffer:";
-            for(int i=0; i<len; i++) {
+            qDebug() << "buffer overflow! Truncate from" << len + fullLen << ". Original buffer:";
+            /*for(int i=0; i<len; i++) {
                 qDebug() << b[i];
-            }
+            }*/
             len = size - fullLen;
-            return 0;
+            return fullLen;
         }
         for(int i=fullLen; i<len + fullLen; i++) {
             bytes[i] = b[i - fullLen];
