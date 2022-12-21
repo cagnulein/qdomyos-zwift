@@ -603,6 +603,12 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.14
             property bool ss2k_peloton: false
+
+            // from version 2.12.16
+            property string computrainer_serialport: ""
+
+            // from version 2.12.18
+            property bool strava_virtual_activity: true
         }
 
         function paddingZeros(text, limit) {
@@ -2189,6 +2195,39 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                    id: computrainerBikeAccordion
+                    title: qsTr("Computrainer Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcomputrainerSerialPort
+                            text: qsTr("Serial Port:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: computrainerSerialPortTextField
+                            text: settings.computrainer_serialport
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.computrainer_serialport = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okcomputrainerSerialPortButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.computrainer_serialport = computrainerSerialPortTextField.text
+                        }
+                    }
+                }
+
 
                 AccordionElement {
                     id: m3iBikeAccordion
@@ -4416,6 +4455,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.strava_suffix = stravaSuffixTextField.text
                         }
+                    }                                        
+
+                    SwitchDelegate {
+                        id: stravaVirtualActivityDelegate
+                        text: qsTr("Strava Virtual Activity Tag")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_virtual_activity
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_virtual_activity = checked
                     }
 
                     SwitchDelegate {

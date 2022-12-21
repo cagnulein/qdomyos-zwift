@@ -63,6 +63,7 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+   Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
@@ -71,6 +72,7 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
    characteristicwriteprocessor.cpp \
    characteristicwriteprocessore005.cpp \
+   computrainerbike.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
    lifefitnesstreadmill.cpp \
@@ -251,6 +253,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+   Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
@@ -258,6 +261,7 @@ HEADERS += \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
    characteristicwriteprocessore005.h \
+   computrainerbike.h \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
@@ -730,4 +734,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.15
+VERSION = 2.12.17
