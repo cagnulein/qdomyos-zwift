@@ -302,4 +302,4 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
       
       - name: Compile Android
-        run: cd src; qmake; make -j4
+        run: cd src; qmake; make -j4 && make install
