@@ -309,4 +309,4 @@ jobs:
           java-version: '17'          
       
       - name: Compile Android
-        run: cd src; qmake; make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install && androiddeployqt --input ${{ github.workspace }}/output/android/android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+        run: cd src; qmake; make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install; find ${{ github.workspace }}/output/android | "grep deployment-settings.json" ; androiddeployqt --input ${{ github.workspace }}/output/android/android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
