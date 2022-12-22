@@ -136,8 +136,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 				}
 	 };
 
-    @Override
-	 static public createConnection(String ip) {
+         static public void createConnection(String ip) {
 		  address = ip;
 
 		  /* If we have old RSA keys, just use them */
