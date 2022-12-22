@@ -298,7 +298,7 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_armv7'
-          modules: 'qtcharts  qtnetworkauth debug_info'
+          modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
       
       - name: Compile Android
