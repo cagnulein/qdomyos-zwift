@@ -302,11 +302,11 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
           
 
-       - uses: actions/checkout@v3
-       - uses: actions/setup-java@v3
+      - name: Install Java
+        uses: actions/setup-java@v3
         with:
-        distribution: 'temurin' # See 'Supported distributions' for available options
-        java-version: '17'          
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'          
       
       - name: Compile Android
         run: cd src; qmake; make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install && androiddeployqt --input ${{ github.workspace }}/output/android/android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
