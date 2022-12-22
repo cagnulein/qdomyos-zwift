@@ -297,7 +297,7 @@ jobs:
           version: '5.15.2'
           host: 'linux'
           target: 'android'
-          arch: 'android_armv7'
+          arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
       
