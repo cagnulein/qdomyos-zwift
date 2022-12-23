@@ -310,9 +310,6 @@ jobs:
       
       - name: Compile Android
         run: cd src; qmake; make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
-      
-      - name: Find APK Json
-        run: find | grep "android-qdomyos-zwift-deployment-settings.json" >> $GITHUB_OUTPUT
-      
+            
       - name: Build APK (not usable for production due to unpatched QT library)
-        run: cd src; androiddeployqt --input ${{ github.workspace }}/output/android/src/android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab        
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab        
