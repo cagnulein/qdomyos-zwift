@@ -551,7 +551,8 @@ void homeform::floatingOpen() {
 #ifdef Q_OS_ANDROID
     QSettings settings;
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt());
+                                              "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(),
+                                              settings.value("template_inner_QZWS_port", 6666).toInt());
 #endif
 }
 
@@ -2349,7 +2350,36 @@ void homeform::Plus(const QString &name) {
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Plus") << name;
-    if (name.contains(QStringLiteral("speed"))) {
+    if (name.contains(QStringLiteral("target_speed"))) {
+        if (bluetoothManager->device()) {
+
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
+                if (bluetoothManager->device()->difficult() == 0) {
+                    bluetoothManager->device()->setDifficult(0.03);
+                }
+
+                ((treadmill *)bluetoothManager->device())
+                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+            }
+        }
+    } else if (name.contains(QStringLiteral("target_inclination"))) {
+        if (bluetoothManager->device()) {
+
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
+                if (bluetoothManager->device()->difficult() == 0) {
+                    bluetoothManager->device()->setDifficult(0.03);
+                }
+
+                ((treadmill *)bluetoothManager->device())
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(),
+                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+            }
+        }
+    } else if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             // round up to the next .5 increment (.0 or .5)
             double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
@@ -2454,34 +2484,6 @@ void homeform::Plus(const QString &name) {
                 }
             }
         }
-    } else if (name.contains(QStringLiteral("target_speed"))) {
-        if (bluetoothManager->device()) {
-
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(0.03);
-                }
-
-                ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
-            }
-        }
-    } else if (name.contains(QStringLiteral("target_inclination"))) {
-        if (bluetoothManager->device()) {
-
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(0.03);
-                }
-
-                ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(), ((treadmill *)bluetoothManager->device())->currentInclination().value());
-            }
-        }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -2536,7 +2538,36 @@ void homeform::Minus(const QString &name) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     qDebug() << QStringLiteral("Minus") << name;
-    if (name.contains(QStringLiteral("speed"))) {
+    if (name.contains(QStringLiteral("target_speed"))) {
+        if (bluetoothManager->device()) {
+
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
+                if (bluetoothManager->device()->difficult() == 0) {
+                    bluetoothManager->device()->setDifficult(-0.03);
+                }
+
+                ((treadmill *)bluetoothManager->device())
+                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+            }
+        }
+    } else if (name.contains(QStringLiteral("target_inclination"))) {
+        if (bluetoothManager->device()) {
+
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
+                if (bluetoothManager->device()->difficult() == 0) {
+                    bluetoothManager->device()->setDifficult(-0.03);
+                }
+
+                ((treadmill *)bluetoothManager->device())
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(),
+                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+            }
+        }
+    } else if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 // round up to the next .5 increment (.0 or .5)
@@ -2638,34 +2669,6 @@ void homeform::Minus(const QString &name) {
                 }
             }
         }
-    } else if (name.contains(QStringLiteral("target_speed"))) {
-        if (bluetoothManager->device()) {
-
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(-0.03);
-                }
-
-                ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
-            }
-        }
-    } else if (name.contains(QStringLiteral("target_inclination"))) {
-        if (bluetoothManager->device()) {
-
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(-0.03);
-                }
-
-                ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(), ((treadmill *)bluetoothManager->device())->currentInclination().value());
-            }
-        }
     } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -2761,8 +2764,8 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             emit workoutEventStateChanged(bluetoothdevice::STARTED);
         } else {
-            // if loading a training program (gpx or xml) directly from the startup of QZ, there is no way to start the
-            // program otherwise
+            // if loading a training program (gpx or xml) directly from the startup of QZ, there is no way to start
+            // the program otherwise
             if (!trainProgram->isStarted()) {
                 qDebug() << QStringLiteral("starting training program from a resume");
                 trainProgram->restart();
@@ -3206,14 +3209,14 @@ void homeform::update() {
 
             this->target_speed->setValue(QString::number(
                 ((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
-            this->target_speed->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult(),'f', 0));
+            this->target_speed->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) +
+                                              QStringLiteral("% @0%=") +
+                                              QString::number(bluetoothManager->device()->difficult(), 'f', 0));
             this->target_incline->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
             this->target_incline->setSecondLine(
                 QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult(),'f', 0));
+                QString::number(bluetoothManager->device()->difficult(), 'f', 0));
 
             // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
             // so this logic should care about sync the treadmill state to the UI state
@@ -5482,8 +5485,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             bike *dev = (bike *)bluetoothManager->device();
             dev->setSpeedLimit(0);
         }
-        // Prepare for a possible Video play. Set the Start Position to 1 and a Rate so low that only a few frames are
-        // played
+        // Prepare for a possible Video play. Set the Start Position to 1 and a Rate so low that only a few frames
+        // are played
         setVideoPosition(1);
         setVideoRate(0.01);
         videoMustBeReset = true;
