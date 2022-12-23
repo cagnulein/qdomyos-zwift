@@ -133,12 +133,12 @@ public class QZAdbRemote implements DeviceConnectionListener {
 			return conn;
 		}
 
-	 private static ServiceConnection serviceConn = new ServiceConnection() {
+	 public ServiceConnection serviceConn = new ServiceConnection() {
 		  @Override
 		  public void onServiceConnected(ComponentName arg0, IBinder arg1) {
 			   binder = (ShellService.ShellServiceBinder)arg1;
 				if (connection != null) {
-					 binder.removeListener(connection, QZAdbRemote.this);
+					 binder.removeListener(connection, QZAdbRemote.getInstance());
 					}
 				connection = connectOrLookupConnection(_address, 5555);
 				}
@@ -180,11 +180,11 @@ public class QZAdbRemote implements DeviceConnectionListener {
 			}
 
 		  if (binder == null) {
-			   service = new Intent(QZAdbRemote.getInstance(), ShellService.class);
+			   service = new Intent(_context, ShellService.class);
 
 				/* Bind the service if we're not bound already. After binding, the callback will
 				 * perform the initial connection. */
-				_context.bindService(service, serviceConn, Service.BIND_AUTO_CREATE);
+				_context.bindService(service, QZAdbRemote.getInstance().serviceConn, Service.BIND_AUTO_CREATE);
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 					 _context.startForegroundService(service);

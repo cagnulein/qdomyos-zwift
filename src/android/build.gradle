@@ -44,7 +44,9 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    minSdkVersion = 21
+	 compileSdkVersion 33
+	 targetSdkVersion = 33
 
     buildToolsVersion '29.0.2'
 
