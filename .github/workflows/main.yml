@@ -271,6 +271,16 @@ jobs:
 #        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
 #        timeout-minutes: 2
 
+      - name: Install Qt Android
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+
       - uses: actions/checkout@v2
         with:
           repository: nttld/setup-ndk
@@ -289,18 +299,7 @@ jobs:
       #- uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21d
-
-# waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.15.2'
-          host: 'linux'
-          target: 'android'
-          arch: 'android'
-          modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
-          
+          add-to-path: true
 
       - name: Install Java
         uses: actions/setup-java@v3
