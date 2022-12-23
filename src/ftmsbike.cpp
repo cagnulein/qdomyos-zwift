@@ -82,8 +82,11 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
+    double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
+    requestResistance = fr;
+
+    write[3] = ((uint16_t)requestResistance * 10) & 0xFF;
+    write[4] = ((uint16_t)requestResistance * 10) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
