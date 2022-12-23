@@ -13,8 +13,8 @@ on:
     branches: [ master,  github-workflow-playground ]
   pull_request:
     branches: [ master ]
-  schedule:
-    - cron: "0 */12 * * *"    
+#  schedule:
+#    - cron: "0 */12 * * *"    
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -300,8 +300,14 @@ jobs:
           arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'          
           
-      - name: Set Android NDK 21
+      - name: Set Android NDK 21 && build
         run: |
           # Install NDK 21 after GitHub update
           # https://github.com/actions/virtual-environments/issues/5595
@@ -313,15 +319,7 @@ jobs:
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-
-      - name: Install Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '17'          
-      
-      - name: Compile Android
-        run: cd src; qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          cd src; qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install      
             
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab        
