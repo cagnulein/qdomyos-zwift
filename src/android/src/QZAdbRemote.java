@@ -47,6 +47,16 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 private static String _address = "127.0.0.1";
 	 private static Context _context;
 
+	 private static QZAdbRemote INSTANCE;
+
+	 public static QZAdbRemote getInstance() {
+		 if(INSTANCE == null) {
+			 INSTANCE = new QZAdbRemote();
+		 }
+
+	    return INSTANCE;
+	 }
+
 	 @Override
 	 public void notifyConnectionEstablished(DeviceConnection devConn) {
 		  ADBConnected = true;
@@ -123,12 +133,12 @@ public class QZAdbRemote implements DeviceConnectionListener {
 			return conn;
 		}
 
-	 private ServiceConnection serviceConn = new ServiceConnection() {
+	 private static ServiceConnection serviceConn = new ServiceConnection() {
 		  @Override
 		  public void onServiceConnected(ComponentName arg0, IBinder arg1) {
 			   binder = (ShellService.ShellServiceBinder)arg1;
 				if (connection != null) {
-					 binder.removeListener(connection, _context);
+					 binder.removeListener(connection, QZAdbRemote.this);
 					}
 				connection = connectOrLookupConnection(_address, 5555);
 				}
@@ -170,7 +180,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 			}
 
 		  if (binder == null) {
-			   service = new Intent(this, ShellService.class);
+			   service = new Intent(QZAdbRemote.getInstance(), ShellService.class);
 
 				/* Bind the service if we're not bound already. After binding, the callback will
 				 * perform the initial connection. */
