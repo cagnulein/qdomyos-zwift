@@ -42,7 +42,8 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 private static String lastCommand = "";
 	 private static boolean ADBConnected = false;
 
-	 private static String address = "127.0.0.1";
+	 private static String _address = "127.0.0.1";
+	 private static Context _context;
 
 	 @Override
 	 public void notifyConnectionEstablished(DeviceConnection devConn) {
@@ -125,9 +126,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 		  public void onServiceConnected(ComponentName arg0, IBinder arg1) {
 			   binder = (ShellService.ShellServiceBinder)arg1;
 				if (connection != null) {
-					 binder.removeListener(connection, MainActivity.this);
+					 binder.removeListener(connection, _context);
 					}
-				connection = connectOrLookupConnection(address, 5555);
+				connection = connectOrLookupConnection(_address, 5555);
 				}
 
 			@Override
@@ -136,8 +137,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 				}
 	 };
 
-         static public void createConnection(String ip) {
-		  address = ip;
+         static public void createConnection(String ip, Context context) {
+		  _address = ip;
+		  _context = context;
 
 		  /* If we have old RSA keys, just use them */
 		  AdbCrypto crypto = AdbUtils.readCryptoConfig(getFilesDir());
