@@ -616,7 +616,7 @@ void Computrainer::run() {
                 // no data
                 // how long to sleep for ... mmm save CPU cycles vs
                 //                           data overflow ?
-                CTsleeper::msleep(100); // lets try a tenth of a second
+                CTsleeper::msleep(10); // lets try a tenth of a second
             }
         }
 
@@ -742,6 +742,13 @@ int Computrainer::readMessage() {
         // From experience, the need to sync is quite rare
         // on a normally configured and working system
     }
+
+    // QZ patch for android, i don't know if it's right for all the cases
+    if (buf[0] != 0 || buf[1] != 0 || buf[2] != 0) {
+        qDebug() << "FRAME ERROR" << QByteArray((const char *)buf, 7).toHex(' ');
+        return 0;
+    }
+
     return rc;
 }
 
@@ -756,9 +763,8 @@ int Computrainer::closePort() {
 
 int Computrainer::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/Usbserial", "open", "(Landroid/content/Context;)V",
-        QtAndroid::androidContext().object());
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #elif !defined(WIN32)
 
     // LINUX AND MAC USES TERMIO / IOCTL / STDIO
@@ -877,7 +883,7 @@ int Computrainer::openPort() {
 
 int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
 {
-    qDebug() << size << QByteArray((const char*)bytes,size).toHex(' ');
+    qDebug() << size << QByteArray((const char *)bytes, size).toHex(' ');
 
     int rc = 0;
 
@@ -886,11 +892,10 @@ int Computrainer::rawWrite(uint8_t *bytes, int size) // unix!!
     QAndroidJniEnvironment env;
     jbyteArray d = env->NewByteArray(size);
     jbyte *b = env->GetByteArrayElements(d, 0);
-    for(int i=0; i<size; i++)
+    for (int i = 0; i < size; i++)
         b[i] = bytes[i];
-    env->SetByteArrayRegion(d,0,size,b);
-    QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    env->SetByteArrayRegion(d, 0, size, b);
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -924,46 +929,47 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
     int fullLen = 0;
 
     // previous buffer?
-    while(bufRX.count()) {
+    while (bufRX.count()) {
         bytes[fullLen++] = bufRX.at(0);
         bufRX.removeFirst();
         qDebug() << "byte popped from rxBuf";
-        if(fullLen >= size) {
-            qDebug() << size << QByteArray((const char*)bytes,size).toHex(' ');
+        if (fullLen >= size) {
+            qDebug() << size << QByteArray((const char *)bytes, size).toHex(' ');
             return size;
         }
     }
 
-    QAndroidJniEnvironment env;    
-    while(fullLen < size) {
-        QAndroidJniObject dd = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
+    QAndroidJniEnvironment env;
+    while (fullLen < size) {
+        QAndroidJniObject dd =
+            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
         jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
-        if(len + fullLen > size) {
+        if (len + fullLen > size) {
             qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
             /*for(int i=0; i<len; i++) {
                 qDebug() << b[i];
             }*/
 
-            for(int i=fullLen; i<size-fullLen; i++) {
+            for (int i = fullLen; i < size - fullLen; i++) {
                 bytes[i] = b[i - fullLen];
             }
-            for(int i=size; i<len + fullLen; i++) {
+            for (int i = size; i < len + fullLen; i++) {
                 bufRX.append(b[i - fullLen]);
             }
             qDebug() << len + fullLen - size << "bytes to the rxBuf";
-            qDebug() << size << QByteArray((const char*)b,size).toHex(' ');
+            qDebug() << size << QByteArray((const char *)b, size).toHex(' ');
             return size;
         }
-        for(int i=fullLen; i<len + fullLen; i++) {
+        for (int i = fullLen; i < len + fullLen; i++) {
             bytes[i] = b[i - fullLen];
         }
-        qDebug() << len << QByteArray((const char*)b,len).toHex(' ');
+        qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         fullLen += len;
     }
 
-    qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char*)bytes,size).toHex(' ');
+    qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char *)bytes, size).toHex(' ');
 
     return fullLen;
 #elif defined(WIN32)
