@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.core.app.NotificationCompat;
+
 import com.cgutman.androidremotedebugger.AdbUtils;
 import com.cgutman.androidremotedebugger.console.ConsoleBuffer;
 import com.cgutman.androidremotedebugger.devconn.DeviceConnection;
@@ -35,9 +37,9 @@ import com.cgutman.androidremotedebugger.service.ShellService;
 import com.cgutman.adblib.AdbCrypto;
 
 public class QZAdbRemote implements DeviceConnectionListener {
-	 private ShellService.ShellServiceBinder binder;
+	 private static ShellService.ShellServiceBinder binder;
 	 private static DeviceConnection connection;
-	 private Intent service;
+	 private static Intent service;
 	 private static final String LOG_TAG = "QZ:AdbRemote";
 	 private static String lastCommand = "";
 	 private static boolean ADBConnected = false;
@@ -71,7 +73,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 @Override
 	 public AdbCrypto loadAdbCrypto(DeviceConnection devConn) {
-		  return AdbUtils.readCryptoConfig(getFilesDir());
+		  return AdbUtils.readCryptoConfig(_context.getFilesDir());
 		}
 
 	 @Override
@@ -142,7 +144,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 		  _context = context;
 
 		  /* If we have old RSA keys, just use them */
-		  AdbCrypto crypto = AdbUtils.readCryptoConfig(getFilesDir());
+		  AdbCrypto crypto = AdbUtils.readCryptoConfig(_context.getFilesDir());
 		  if (crypto == null)
 		  {
 			   /* We need to make a new pair */
@@ -154,7 +156,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 					 public void run() {
 						  AdbCrypto crypto;
 
-						  crypto = AdbUtils.writeNewCryptoConfig(getFilesDir());
+						  crypto = AdbUtils.writeNewCryptoConfig(_context.getFilesDir());
 
 						  if (crypto == null)
 						  {
@@ -172,13 +174,13 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 				/* Bind the service if we're not bound already. After binding, the callback will
 				 * perform the initial connection. */
-				getApplicationContext().bindService(service, serviceConn, Service.BIND_AUTO_CREATE);
+				_context.bindService(service, serviceConn, Service.BIND_AUTO_CREATE);
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-					 startForegroundService(service);
+					 _context.startForegroundService(service);
 					}
 				else {
-					 startService(service);
+					 _context.startService(service);
 					}
 			}
 	 }
