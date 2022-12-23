@@ -271,6 +271,26 @@ jobs:
 #        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
 #        timeout-minutes: 2
 
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: nttld/setup-ndk
+#          path: setup-ndk
+      # The packages.json in nttld/setup-ndk has already been updated,
+      # https://github.com/nttld/setup-ndk/commit/831db5b02a0f0cab80614619efe461a3dcc140e6
+      # but `dist/*` has not been rebuilt yet. Build it.
+      # https://github.com/nttld/setup-ndk/tree/main/dist
+#      - name: Locally rebuilt setup-ndk
+#        run: |
+#          npm -prefix ./setup-ndk install
+#          npm -prefix ./setup-ndk run all
+      # Install using locally rebuilt setup-ndk
+#      - name: Setup Android NDK r21d
+#        uses: ./setup-ndk
+      #- uses: nttld/setup-ndk@v1
+#        with:
+#          ndk-version: r21d
+
+# waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
         uses: jurplel/install-qt-action@v2
         with:
@@ -280,26 +300,17 @@ jobs:
           arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
-
-      - uses: actions/checkout@v2
-        with:
-          repository: nttld/setup-ndk
-          path: setup-ndk
-      # The packages.json in nttld/setup-ndk has already been updated,
-      # https://github.com/nttld/setup-ndk/commit/831db5b02a0f0cab80614619efe461a3dcc140e6
-      # but `dist/*` has not been rebuilt yet. Build it.
-      # https://github.com/nttld/setup-ndk/tree/main/dist
-      - name: Locally rebuilt setup-ndk
+          
+      - name: Set Android NDK 21
         run: |
-          npm -prefix ./setup-ndk install
-          npm -prefix ./setup-ndk run all
-      # Install using locally rebuilt setup-ndk
-      - name: Setup Android NDK r21d
-        uses: ./setup-ndk
-      #- uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r21d
-          add-to-path: true
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
 
       - name: Install Java
         uses: actions/setup-java@v3
