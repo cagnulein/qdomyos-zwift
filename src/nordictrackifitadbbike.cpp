@@ -48,7 +48,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 #ifdef Q_OS_ANDROID
     jstring IP = QAndroidJniObject::fromString(ip).object<jstring>();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
-                                              "(Ljava/lang/String;Landroid/content/Context)V", QtAndroid::androidContext().object(),IP);
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP, QtAndroid::androidContext().object());
 #endif
 }
 
