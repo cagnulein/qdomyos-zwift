@@ -22,7 +22,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -46,8 +46,9 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     // ********************************************************************************************************
 
 #ifdef Q_OS_ANDROID
+    jstring IP = QAndroidJniObject::fromString(ip).object<jstring>();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
-                                              "(Ljava/lang/String;Landroid/content/Context)V", QtAndroid::androidContext().object(),ip);
+                                              "(Ljava/lang/String;Landroid/content/Context)V", QtAndroid::androidContext().object(),IP);
 #endif
 }
 
