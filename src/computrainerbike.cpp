@@ -172,13 +172,16 @@ uint16_t computrainerbike::wattsFromResistance(resistance_t resistance) {
 
 // must be double because it's an inclination
 void computrainerbike::forceResistance(double requestResistance) {
-
-    double inc = qRound(requestResistance / 0.5) * 0.5;
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
-    qDebug() << "forceResistance" << send;
+    if(myComputrainer->getMode() != CT_SSMODE)
+        myComputrainer->setMode(CT_SSMODE);
+    myComputrainer->setGradient(requestResistance);
+    qDebug() << "forceResistance" << requestResistance;
 }
 
 void computrainerbike::innerWriteResistance() {
+    QSettings settings;
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
@@ -199,17 +202,10 @@ void computrainerbike::innerWriteResistance() {
     }
 
     if (requestPower > 0) {
-        QSettings settings;
-        double erg_filter_upper =
-            settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-        if (fabs(target_watts.value() - requestPower) > erg_filter_upper) {
-            qDebug() << "change inclination due to request power = " << requestPower;
-            if (target_watts.value() > requestPower) {
-                requestInclination = currentInclination().value() - 0.5;
-            } else {
-                requestInclination = currentInclination().value() + 0.5;
-            }
-        }
+        if(myComputrainer->getMode() != CT_ERGOMODE)
+            myComputrainer->setMode(CT_ERGOMODE);
+        myComputrainer->setLoad(requestPower);
+        qDebug() << "change inclination due to request power = " << requestPower;
     }
 
     if (requestInclination != -100) {
