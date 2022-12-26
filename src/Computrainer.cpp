@@ -743,11 +743,10 @@ int Computrainer::readMessage() {
         // on a normally configured and working system
     }
 
-    // QZ patch for android, i don't know if it's right for all the cases
-    if (buf[0] != 0 || buf[1] != 0 || buf[2] != 0) {
-        qDebug() << "FRAME ERROR" << QByteArray((const char *)buf, 7).toHex(' ');
+    qDebug() << cleanFrame << QByteArray((const char*)buf, 7).toHex(' ');
+
+    if(!cleanFrame)
         return 0;
-    }
 
     return rc;
 }
@@ -927,6 +926,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
 #ifdef Q_OS_ANDROID
 
     int fullLen = 0;
+    cleanFrame = false;
 
     // previous buffer?
     while (bufRX.count()) {
@@ -947,18 +947,21 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
         if (len + fullLen > size) {
+            QByteArray tmpDebug;
             qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
             /*for(int i=0; i<len; i++) {
                 qDebug() << b[i];
             }*/
 
-            for (int i = fullLen; i < size - fullLen; i++) {
+            for (int i = fullLen; i < size; i++) {
                 bytes[i] = b[i - fullLen];
             }
             for (int i = size; i < len + fullLen; i++) {
-                bufRX.append(b[i - fullLen]);
+                jbyte bb = b[i - fullLen];
+                bufRX.append(bb);
+                tmpDebug.append(bb);
             }
-            qDebug() << len + fullLen - size << "bytes to the rxBuf";
+            qDebug() << len + fullLen - size << "bytes to the rxBuf" << tmpDebug.toHex(' ');
             qDebug() << size << QByteArray((const char *)b, size).toHex(' ');
             return size;
         }
@@ -970,6 +973,7 @@ int Computrainer::rawRead(uint8_t bytes[], int size) {
     }
 
     qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char *)bytes, size).toHex(' ');
+    cleanFrame = true;
 
     return fullLen;
 #elif defined(WIN32)

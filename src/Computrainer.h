@@ -203,6 +203,7 @@ class Computrainer : public QThread {
 
 #ifdef Q_OS_ANDROID
     QList<jbyte> bufRX;
+    bool cleanFrame = false;
 #endif
 };
 
