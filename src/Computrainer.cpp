@@ -743,10 +743,12 @@ int Computrainer::readMessage() {
         // on a normally configured and working system
     }
 
+#ifdef Q_OS_ANDROID
     qDebug() << cleanFrame << QByteArray((const char*)buf, 7).toHex(' ');
 
     if(!cleanFrame)
         return 0;
+#endif
 
     return rc;
 }
