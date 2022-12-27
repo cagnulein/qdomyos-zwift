@@ -2369,9 +2369,9 @@ void homeform::Plus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(0.03);
+                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() + 0.03);
+                if (bluetoothManager->device()->inclinationDifficult() == 0) {
+                    bluetoothManager->device()->setInclinationDifficult(0.03);
                 }
 
                 ((treadmill *)bluetoothManager->device())
@@ -2557,9 +2557,9 @@ void homeform::Minus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(-0.03);
+                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() - 0.03);
+                if (bluetoothManager->device()->inclinationDifficult() == 0) {
+                    bluetoothManager->device()->setInclinationDifficult(-0.03);
                 }
 
                 ((treadmill *)bluetoothManager->device())
@@ -3215,8 +3215,8 @@ void homeform::update() {
             this->target_incline->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
             this->target_incline->setSecondLine(
-                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->difficult(), 'f', 0));
+                QString::number(bluetoothManager->device()->inclinationDifficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                QString::number(bluetoothManager->device()->inclinationDifficult(), 'f', 0));
 
             // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
             // so this logic should care about sync the treadmill state to the UI state
