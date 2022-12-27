@@ -129,9 +129,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 
             lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
             qDebug() << " >> " + lastCommand;
-            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                  "(Ljava/lang/String;)V", command);
+                                                  "(Ljava/lang/String;)V", command.object<jstring>());
         }
         requestResistance = -1;
 #endif

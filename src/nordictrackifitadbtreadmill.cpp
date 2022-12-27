@@ -114,9 +114,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 
             lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
             qDebug() << " >> " + lastCommand;
-            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                  "(Ljava/lang/String;)V", command);
+                                                  "(Ljava/lang/String;)V", command.object<jstring>());
         }
         requestSpeed = -1;
 
@@ -128,9 +128,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 
             lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
             qDebug() << " >> " + lastCommand;
-            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
             QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                  "(Ljava/lang/String;)V", command);
+                                                  "(Ljava/lang/String;)V", command.object<jstring>());
         }
         requestInclination = -100;
 #endif
