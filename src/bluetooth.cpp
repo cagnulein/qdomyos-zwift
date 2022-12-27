@@ -682,7 +682,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(powerBike);
                 innerTemplateManager->start(powerBike);
-            } else if (power_as_treadmill && b.name().startsWith(powerSensorName) && !powerTreadmill && filter) {
+            } else if ((((power_as_treadmill && b.name().startsWith(powerSensorName))) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ZWIFT RUNPOD"))) && !powerTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 powerTreadmill = new strydrunpowersensor(noWriteResistance, noHeartService, false);
