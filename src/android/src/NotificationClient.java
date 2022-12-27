@@ -13,11 +13,14 @@ public class NotificationClient
 {
 	 private static NotificationManager m_notificationManager;
 	 private static Notification.Builder m_builder;
+         private static Context _context;
+         private static Intent serviceIntent = null;
 
 	 public NotificationClient() {}
 
 	 public static void notify(Context context, String message) {
-		  Intent serviceIntent = new Intent(context, ForegroundService.class);
+                  _context = context;
+                  serviceIntent = new Intent(context, ForegroundService.class);
 		  serviceIntent.putExtra("inputExtra", "QZ is Running");
 		  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 			   context.startForegroundService(serviceIntent);
@@ -25,4 +28,9 @@ public class NotificationClient
 		      context.startService(serviceIntent);
 		  }
 	 }
+
+         public static void hide() {
+             if(serviceIntent != null)
+                _context.stopService(serviceIntent);
+         }
 }

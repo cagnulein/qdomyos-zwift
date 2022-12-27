@@ -726,6 +726,7 @@ void homeform::aboutToQuit() {
     // closing floating window
     if(floating_open)
         floatingOpen();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide","()V");
 #endif
     /*if(bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();*/

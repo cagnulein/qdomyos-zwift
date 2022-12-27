@@ -656,7 +656,7 @@ ApplicationWindow {
             ItemDelegate {
                 text: qsTr("Quit")
                 width: parent.width
-                visible: OS_VERSION === "Other" || OS_VERSION === "Android" ? true : false
+                visible: OS_VERSION === "Other" ? true : false
                 onClicked: {
                     console.log("closing...")
                     Qt.callLater(Qt.quit)
