@@ -549,10 +549,17 @@ void homeform::volumeDown() {
 
 void homeform::floatingOpen() {
 #ifdef Q_OS_ANDROID
-    QSettings settings;
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
+    static bool floating_open = false;
+    if(!floating_open) {
+
+        QSettings settings;
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
                                               "(Landroid/content/Context;I)V", QtAndroid::androidContext().object(),
-                                              settings.value("template_inner_QZWS_port", 6666).toInt());
+                                              settings.value("template_inner_QZWS_port", 6666).toInt());        
+    } else {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide","()V");
+    }
+    floating_open = !floating_open;
 #endif
 }
 

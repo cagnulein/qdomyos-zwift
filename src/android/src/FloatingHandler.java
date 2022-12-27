@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class FloatingHandler {
     static Context _context;
     static public int _port = 0;
+    static Intent _intent = null;
 
         public static void show(Context context, int port) {
             _context = context;
@@ -32,8 +33,10 @@ public class FloatingHandler {
 		// First it confirms whether the
 		// 'Display over other apps' permission in given
 		if (checkOverlayDisplayPermission()) {
+                         if(_intent == null)
+                            _intent = new Intent(context, FloatingWindowGFG.class);
 			 // FloatingWindowGFG service is started
-                         context.startService(new Intent(context, FloatingWindowGFG.class));
+                         context.startService(_intent);
 			 // The MainActivity closes here
                          //finish();
 			} else {
@@ -45,6 +48,11 @@ public class FloatingHandler {
                             a.startActivityForResult(intent, -1);
 			}
 	}
+
+    public static void hide() {
+        if(_intent != null)
+            _context.stopService(_intent);
+    }
 
    private static boolean checkOverlayDisplayPermission() {
 		  // Android Version is lesser than Marshmallow
