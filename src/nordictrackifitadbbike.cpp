@@ -46,9 +46,9 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     // ********************************************************************************************************
 
 #ifdef Q_OS_ANDROID
-    jstring IP = QAndroidJniObject::fromString(ip).object<jstring>();
+    QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
-                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP, QtAndroid::androidContext().object());
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP.object<jstring>(), QtAndroid::androidContext().object());
 #endif
 }
 
@@ -121,21 +121,25 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             }
         }
 
+#ifdef Q_OS_ANDROID
+        if(requestResistance != -1) {
+            int x1 = 75;
+            int y2 = (int) (616.18 - (17.223 * requestResistance));
+            int y1Resistance = (int) (616.18 - (17.223 * Resistance.value()));
+
+            lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+            qDebug() << " >> " + lastCommand;
+            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                  "(Ljava/lang/String;)V", command);
+        }
+        requestResistance = -1;
+#endif
+
         QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
         requestResistance = -1;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
-
-#ifdef Q_OS_ANDROID
-        int x1 = 75;
-        int y2 = (int) (616.18 - (17.223 * requestResistance));
-        int y1Resistance = (int) (616.18 - (17.223 * Resistance.value()));
-
-        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
-        jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                              "(Ljava/lang/String;)V", command);
-#endif
 
         if (watts())
             KCal +=

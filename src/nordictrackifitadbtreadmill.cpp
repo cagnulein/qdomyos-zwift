@@ -57,6 +57,12 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         }
     }
     // ********************************************************************************************************
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP.object<jstring>(), QtAndroid::androidContext().object());
+#endif
 }
 
 void nordictrackifitadbtreadmill::processPendingDatagrams() {
@@ -98,6 +104,36 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 }
             }
         }
+
+#ifdef Q_OS_ANDROID
+        if(requestSpeed != -1) {
+            int x1 = 1845;
+            int y1Speed = 807 - (int) ((Speed.value() - 1) * 29.78);
+            //set speed slider to target position
+            int y2 = y1Speed - (int) ((requestSpeed - Speed.value()) * 29.78);
+
+            lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+            qDebug() << " >> " + lastCommand;
+            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                  "(Ljava/lang/String;)V", command);
+        }
+        requestSpeed = -1;
+
+        if(requestInclination != -100) {
+            int x1 = 75;
+            int y1Inclination = 807 - (int) ((currentInclination().value() + 3) * 29.9);
+            //set speed slider to target position
+            int y2 = y1Inclination - (int) ((requestInclination - currentInclination().value()) * 29.9);
+
+            lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+            qDebug() << " >> " + lastCommand;
+            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                  "(Ljava/lang/String;)V", command);
+        }
+        requestInclination = -100;
+#endif
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
         requestSpeed = -1;

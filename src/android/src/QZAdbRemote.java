@@ -196,6 +196,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 }
 
     static public void sendCommand(String command) {
+                  Log.d(LOG_TAG, "sendCommand " + ADBConnected + " " + command);
 		  if(ADBConnected) {
 			   StringBuilder commandBuffer = new StringBuilder();
 
