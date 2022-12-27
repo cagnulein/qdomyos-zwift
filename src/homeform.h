@@ -649,6 +649,10 @@ class homeform : public QObject {
     PathController pathController;
     bool videoMustBeReset = true;
 
+#ifdef Q_OS_ANDROID
+    bool floating_open = false;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);

@@ -549,7 +549,6 @@ void homeform::volumeDown() {
 
 void homeform::floatingOpen() {
 #ifdef Q_OS_ANDROID
-    static bool floating_open = false;
     if(!floating_open) {
 
         QSettings settings;
@@ -718,13 +717,16 @@ void homeform::refresh_bluetooth_devices_clicked() {
 }
 
 homeform::~homeform() {
-
     gpx_save_clicked();
     fit_save_clicked();
 }
 
 void homeform::aboutToQuit() {
-
+#ifdef Q_OS_ANDROID
+    // closing floating window
+    if(floating_open)
+        floatingOpen();
+#endif
     /*if(bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();*/
 }
