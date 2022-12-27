@@ -75,6 +75,12 @@
 					 android:exported="true"></service>
 				<service android:name=".ChannelService"></service>
 				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
+
+            <service android:name="com.cgutman.androidremotedebugger.service.ShellService"
+				    android:enabled="true"
+					 android:exported="false" >
+					</service>
+
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>

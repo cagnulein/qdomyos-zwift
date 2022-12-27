@@ -56,6 +56,12 @@ class nordictrackifitadbbike : public bike {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
+#ifdef Q_OS_ANDROID
+    QString lastCommand;
+#endif
+
+    QString ip;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

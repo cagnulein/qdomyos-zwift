@@ -22,7 +22,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -44,6 +44,12 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
         }
     }
     // ********************************************************************************************************
+
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP.object<jstring>(), QtAndroid::androidContext().object());
+#endif
 }
 
 bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
@@ -114,6 +120,21 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 }
             }
         }
+
+#ifdef Q_OS_ANDROID
+        if(requestResistance != -1) {
+            int x1 = 75;
+            int y2 = (int) (616.18 - (17.223 * requestResistance));
+            int y1Resistance = (int) (616.18 - (17.223 * Resistance.value()));
+
+            lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+            qDebug() << " >> " + lastCommand;
+            jstring command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+            QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                  "(Ljava/lang/String;)V", command);
+        }
+        requestResistance = -1;
+#endif
 
         QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
         requestResistance = -1;

@@ -680,6 +680,7 @@ DISTFILES += \
    android/src/FloatingWindowGFG.java \
    android/src/ForegroundService.java \
    android/src/NotificationClient.java \
+   android/src/QZAdbRemote.java \
         android/src/ScanRecordResult.java \
         android/src/NativeScanCallback.java \
    android/src/HeartChannelController.java \
@@ -687,6 +688,22 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
     android/src/Usbserial.java \
+   android/src/com/cgutman/adblib/AdbBase64.java \
+   android/src/com/cgutman/adblib/AdbConnection.java \
+   android/src/com/cgutman/adblib/AdbCrypto.java \
+   android/src/com/cgutman/adblib/AdbProtocol.java \
+   android/src/com/cgutman/adblib/AdbStream.java \
+   android/src/com/cgutman/adblib/package-info.java \
+   android/src/com/cgutman/androidremotedebugger/AdbUtils.java \
+   android/src/com/cgutman/androidremotedebugger/adblib/AndroidBase64.java \
+   android/src/com/cgutman/androidremotedebugger/console/CommandHistory.java \
+   android/src/com/cgutman/androidremotedebugger/console/ConsoleBuffer.java \
+   android/src/com/cgutman/androidremotedebugger/devconn/DeviceConnection.java \
+   android/src/com/cgutman/androidremotedebugger/devconn/DeviceConnectionListener.java \
+   android/src/com/cgutman/androidremotedebugger/service/ShellListener.java \
+   android/src/com/cgutman/androidremotedebugger/service/ShellService.java \
+   android/src/com/cgutman/androidremotedebugger/ui/Dialog.java \
+   android/src/com/cgutman/androidremotedebugger/ui/SpinnerDialog.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
     android/gradle.properties \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \

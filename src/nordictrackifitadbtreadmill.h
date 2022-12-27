@@ -61,6 +61,10 @@ class nordictrackifitadbtreadmill : public treadmill {
     lockscreen *h = 0;
 #endif
 
+#ifdef Q_OS_ANDROID
+    QString lastCommand = "";
+#endif
+
   signals:
     void disconnected();
     void debug(QString string);
