@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Usbserial {
 
-    static UsbSerialPort port;
+    static UsbSerialPort port = null;
     static byte[] receiveData = new byte[4096];
     static int lastReadLen = 0;
 
@@ -102,6 +102,9 @@ public class Usbserial {
     }
 
     public static void write (byte[] bytes) {
+        if(port == null)
+           return;
+
         Log.d("QZ","UsbSerial writing " + new String(bytes, StandardCharsets.UTF_8));
         try {
             port.write(bytes, 2000);
@@ -116,6 +119,11 @@ public class Usbserial {
     }
 
     public static byte[] read() {
+        if(port == null) {
+           lastReadLen = 0;
+           return receiveData;
+        }
+
         try {
             lastReadLen = port.read(receiveData, 2000);
             Log.d("QZ","UsbSerial reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
