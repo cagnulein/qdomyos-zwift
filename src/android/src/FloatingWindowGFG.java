@@ -53,9 +53,9 @@ public class FloatingWindowGFG extends Service {
 
 		  // The screen height and width are calculated, cause
 		  // the height and width of the floating window is set depending on this
-		  DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+                  /*DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
 		  int width = metrics.widthPixels;
-		  int height = metrics.heightPixels;
+                  int height = metrics.heightPixels;*/
 
 		  // To obtain a WindowManager of a different Display,
 		  // we need a Context for that display, so WINDOW_SERVICE is used
@@ -110,9 +110,10 @@ public class FloatingWindowGFG extends Service {
 		  // This problem is solved later.
 		  // 5) Next parameter is Layout_Format. System chooses a format that supports
 		  // translucency by PixelFormat.TRANSLUCENT
+
 		  floatWindowLayoutParam = new WindowManager.LayoutParams(
-                          (int) (width * (0.30f)),
-                                         (int) (height * (0.22f)),
+                          (int) (FloatingHandler._width ),
+                                         (int) (FloatingHandler._height ),
 					 LAYOUT_TYPE,
 					 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
 					 PixelFormat.TRANSLUCENT

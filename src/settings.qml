@@ -613,6 +613,8 @@ import Qt.labs.settings 1.0
             // from version 2.12.29
             property bool powr_sensor_running_cadence_half_on_strava: false
             property bool nordictrack_ifit_adb_remote: false
+            property int floating_height: 210
+            property int floating_width: 370
         }
 
         function paddingZeros(text, limit) {
@@ -2445,6 +2447,52 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.top_bar_enabled = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingWidth
+                            text: qsTr("Floating Window Width:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: floatingWidthField
+                            text: settings.floating_width
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.floating_width = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okFloatingWidthButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.floating_width = floatingWidthField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingHeight
+                            text: qsTr("Floating Window Height:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: floatingHeightField
+                            text: settings.floating_height
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.floating_height = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okFloatingHeightButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.floating_height = floatingHeightField.text
+                        }
                     }
                 }
             }

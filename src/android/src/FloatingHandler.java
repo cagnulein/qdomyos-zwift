@@ -26,10 +26,15 @@ public class FloatingHandler {
     static Context _context;
     static public int _port = 0;
     static Intent _intent = null;
+    static public int _width;
+    static public int _height;
 
-        public static void show(Context context, int port) {
+        public static void show(Context context, int port, int width, int height) {
             _context = context;
             _port = port;
+            _width = width;
+            _height = height;
+
 		// First it confirms whether the
 		// 'Display over other apps' permission in given
 		if (checkOverlayDisplayPermission()) {

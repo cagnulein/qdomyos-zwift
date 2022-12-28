@@ -565,8 +565,10 @@ const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
 const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
 const QString QZSettings::powr_sensor_running_cadence_half_on_strava = QStringLiteral("powr_sensor_running_cadence_half_on_strava");
 const QString QZSettings::nordictrack_ifit_adb_remote = QStringLiteral("nordictrack_ifit_adb_remote");
+const QString QZSettings::floating_height = QStringLiteral("floating_height");
+const QString QZSettings::floating_width = QStringLiteral("floating_width");
 
-const uint32_t allSettingsCount = 463;
+const uint32_t allSettingsCount = 465;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1033,6 +1035,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
     {QZSettings::powr_sensor_running_cadence_half_on_strava, QZSettings::default_powr_sensor_running_cadence_half_on_strava},
     {QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote},
+    {QZSettings::floating_height, QZSettings::default_floating_height},
+    {QZSettings::floating_width, QZSettings::default_floating_width},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
