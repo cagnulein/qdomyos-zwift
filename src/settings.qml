@@ -612,6 +612,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.29
             property bool powr_sensor_running_cadence_half_on_strava: false
+            property bool nordictrack_ifit_adb_remote: false
         }
 
         function paddingZeros(text, limit) {
@@ -2197,6 +2198,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.tdf_10_ip = proformTDFCompanionIPTextField.text
                         }
                     }
+                    SwitchDelegate {
+                        id: proformBikeAdbRemotedelegate
+                        text: qsTr("ADB Remote")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_ifit_adb_remote
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.nordictrack_ifit_adb_remote = checked
+                    }
                 }
 
                 AccordionElement {
@@ -3400,6 +3415,20 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.nordictrack_2950_ip = nordictrack2950IPTextField.text
                             }
+                        }
+                        SwitchDelegate {
+                            id: proformTreadmillAdbRemotedelegate
+                            text: qsTr("ADB Remote")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_ifit_adb_remote
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_ifit_adb_remote = checked
                         }
                         SwitchDelegate {
                             id: proform90IDelegate

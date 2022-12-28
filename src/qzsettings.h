@@ -1612,6 +1612,9 @@ class QZSettings {
     static const QString powr_sensor_running_cadence_half_on_strava;
     static constexpr bool default_powr_sensor_running_cadence_half_on_strava = false;
 
+    static const QString nordictrack_ifit_adb_remote;
+    static constexpr bool default_nordictrack_ifit_adb_remote = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
