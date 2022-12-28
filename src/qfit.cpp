@@ -22,6 +22,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
+    bool powr_sensor_running_cadence_half_on_strava = settings.value(QZSettings::powr_sensor_running_cadence_half_on_strava,
+                                                                     QZSettings::default_powr_sensor_running_cadence_half_on_strava).toBool();
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -213,7 +215,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sl = session.at(i);
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
-        newRecord.SetCadence(sl.cadence);
+        uint8_t cad = sl.cadence;
+        if(powr_sensor_running_cadence_half_on_strava)
+            cad = cad / 2;
+        newRecord.SetCadence(cad);
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
         newRecord.SetSpeed(sl.speed / 3.6);                                     // meter per second
         newRecord.SetPower(sl.watt);

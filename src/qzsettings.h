@@ -1609,6 +1609,9 @@ class QZSettings {
     static const QString strava_virtual_activity;
     static constexpr bool default_strava_virtual_activity = true;
 
+    static const QString powr_sensor_running_cadence_half_on_strava;
+    static constexpr bool default_powr_sensor_running_cadence_half_on_strava = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

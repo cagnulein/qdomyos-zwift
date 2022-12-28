@@ -563,8 +563,9 @@ const QString QZSettings::ss2k_peloton = QStringLiteral("ss2k_peloton");
 const QString QZSettings::computrainer_serialport = QStringLiteral("computrainer_serialport");
 const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
 const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
+const QString QZSettings::powr_sensor_running_cadence_half_on_strava = QStringLiteral("powr_sensor_running_cadence_half_on_strava");
 
-const uint32_t allSettingsCount = 461;
+const uint32_t allSettingsCount = 462;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1029,6 +1030,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
     {QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport},
     {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
+    {QZSettings::powr_sensor_running_cadence_half_on_strava, QZSettings::default_powr_sensor_running_cadence_half_on_strava},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

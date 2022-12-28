@@ -609,6 +609,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.18
             property bool strava_virtual_activity: true
+
+            // from version 2.12.29
+            property bool powr_sensor_running_cadence_half_on_strava: false
         }
 
         function paddingZeros(text, limit) {
@@ -4723,6 +4726,20 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.powr_sensor_running_cadence_double = checked
+                            }
+                            SwitchDelegate {
+                                id: powerSensorRunCadenceHalfStravaDelegate
+                                text: qsTr("Half Cadence on Strava")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.powr_sensor_running_cadence_half_on_strava
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.powr_sensor_running_cadence_half_on_strava = checked
                             }
 
                             Label {
