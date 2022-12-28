@@ -813,17 +813,20 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("moving_h"), el.hour());
         obj.setProperty(QStringLiteral("speed"), (dep = device->currentSpeed()).value());
         obj.setProperty(QStringLiteral("speed_avg"), dep.average());
+        obj.setProperty(QStringLiteral("speed_lapmax"), dep.lapMax());
         obj.setProperty(QStringLiteral("calories"), device->calories().value());
         obj.setProperty(QStringLiteral("distance"), device->odometer());
         obj.setProperty(QStringLiteral("heart"), (dep = device->currentHeart()).value());
         obj.setProperty(QStringLiteral("heart_avg"), dep.average());
         obj.setProperty(QStringLiteral("heart_max"), dep.max());
+        obj.setProperty(QStringLiteral("heart_lapmax"), dep.lapMax());
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
         obj.setProperty(QStringLiteral("watts_max"), dep.max());
+        obj.setProperty(QStringLiteral("watts_lapmax"), dep.lapMax());
         obj.setProperty(QStringLiteral("kgwatts"), (dep = device->wattKg()).value());
         obj.setProperty(QStringLiteral("kgwatts_avg"), dep.average());
         obj.setProperty(QStringLiteral("kgwatts_max"), dep.max());
@@ -844,10 +847,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("peloton_req_resistance"),
                             (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("peloton_resistance_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((bike *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("resistance"), (dep = ((bike *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("resistance_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
             obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("req_power"), (dep = ((bike *)device)->lastRequestedPower()).value());

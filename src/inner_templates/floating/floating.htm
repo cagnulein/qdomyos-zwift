@@ -10,30 +10,40 @@
   td {
     text-align: center;
     vertical-align: middle;
+    border-right: 10px solid #000000;
   }
   canvas{
       -moz-user-select: none;
       -webkit-user-select: none;
       -ms-user-select: none;
   }
+  @font-face {
+      font-family: "Radikal";
+      src: url("radikalmedium.otf") format("opentype");
+  }
+  table.customfont {
+      font-family: "Radikal", Verdana, Tahoma;
+  }
   </style>
 </head>
   <body style="background-color: #000000; opacity: 0.8">
-         <table class="metrics" style="color: #FFFFFF; font-family: sans-serif border: 0">
-         <tr class="speed"><td>🏃</td><td><small>km/h</small></td><td class="speed-value"><b>0.0</b></td><td><small>AVG</small></td><td class="speed-avg">0.0</td></tr>
-         <tr class="cadence"><td>🚴</td><td><small>rpm</small></td><td class="cadence-value"><b>0</b></td><td><small>AVG</small></td><td class="cadence-avg">0</td></tr>
-         <tr class="heart"><td>💓</td><td><small>bpm</small></td><td class="heart-value"><b>0</b></td><td><small>AVG</small></td><td class="heart-avg">0</td></tr>
-         <tr class="watt"><td>⚡</td><td><small>watt</small></td><td class="watt-value"><b>0</b></td><td><small>AVG</small></td><td class="watt-avg">0</td></tr>
-         <tr class="resistance"><td>🧲</td><td><small>level</small></td><td class="resistance-value"><b>1</b></td><td><small>AVG</small></td><td class="resistance-avg">1</td></tr>
-         <tr class="pelotonresistance"><td>🅿</td><td><small>level</small></td><td class="pelotonresistance-value"><b>1</b></td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td></tr>
-         <tr class="calories"><td>🔥</td><td><small>kcal</small></td><td class="calories-value" colspan="3"><b>0</b></td></tr>
-         <tr class="distance"><td>📏</td><td><small>km</small></td><td class="distance-value" colspan="3"><b>0.00</b></td></tr>
-         <tr class="elapsed"><td>⏲️</td><td><small>time</small></td><td class="elapsed-value" colspan="3"><b>0:00:00</b></td></tr>
+         <table class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif border: 0">
+         <tr class="speed"><td>🏃</td><td>SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value" style="font-size: 24px;"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
+         <tr class="cadence"><td>🚴</td><td>CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
+         <tr class="heart"><td>💓</td><td>PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
+         <tr class="watt"><td>⚡</td><td>POWER</td><td><small>AVG</small></td><td class="watt-avg">0</td><td class="watt-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="watt-max">0</td></tr>
+         <tr class="resistance"><td>🧲</td><td>RESISTANCE</td><td><small>AVG</small></td><td class="resistance-avg">1</td><td class="resistance-value" style="font-size: 24px;"><b>1</b></td><td><small>MAX</small></td><td class="resistance-max">1</td></tr>
+         <tr class="pelotonresistance"><td>🅿</td><td>P.RESISTANCE</td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td><td class="pelotonresistance-value" style="font-size: 24px;"><b>1</b></td><td><small>MAX</small></td><td class="pelotonresistance-max">1</td></tr>
+         <tr class="calories"><td>🔥</td><td>CALORIES</td><td class="calories-value" style="font-size: 24px;" colspan="5"><b>0</b></td></tr>
+         <tr class="distance"><td>📏</td><td>DISTANCE</td><td class="distance-value" style="font-size: 24px;" colspan="5"><b>0.00</b></td></tr>
+         <tr class="elapsed"><td>⏲️</td><td>ELAPSED</td><td class="elapsed-value" style="font-size: 24px;" colspan="5"><b>0:00:00</b></td></tr>
          </table>
     <script type="text/javascript">
     function a() {
     onWorkout = false;
-    keys_arr = ['speed', 'speed_avg','cadence','cadence_avg', 'heart','heart_avg', 'calories', 'distance', 'watts','watts_avg', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_avg', 'peloton_resistance','peloton_resistance_avg']
+    keys_arr = ['speed', 'speed_avg','cadence','cadence_avg', 'heart','heart_avg', 'calories', 'distance', 'watts','watts_avg',
+                'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_avg', 'peloton_resistance','peloton_resistance_avg',
+                'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax']
          let ell = new MainWSQueueElement(null, function(msg) {
 		  if (msg.msg === 'workout') {
                                 var speed = 0;
@@ -53,6 +63,13 @@
                                 var resistance_avg = 0;
                                 var peloton_resistance = 0;
                                 var peloton_resistance_avg = 0;
+                                var speed_lapmax = 0;
+                                var cadence_lapmax = 0;
+                                var hr_lapmax = 0;
+                                var watt_lapmax = 0;
+                                var resistance_lapmax = 0;
+                                var peloton_resistance_lapmax = 0;
+
 				for (let key of keys_arr) {
 				    if (msg.content[key] === undefined)
                                              continue;
@@ -60,14 +77,20 @@
                                                   speed = msg.content[key];
                                                 } else if (key === 'speed_avg') {
                                                   speed_avg = msg.content[key];
+                                                } else if (key === 'speed_lapmax') {
+                                                  speed_lapmax = msg.content[key];
 						} else if (key === 'cadence') {
 						  cadence = msg.content[key];
                                                 } else if (key === 'cadence_avg') {
                                                   cadence_avg = msg.content[key];
+                                                } else if (key === 'cadence_lapmax') {
+                                                  cadence_lapmax = msg.content[key];
 						} else if (key === 'heart') {
                                                   hr = msg.content[key];
                                                 } else if (key === 'heart_avg') {
                                                   hr_avg = msg.content[key];
+                                                } else if (key === 'heart_lapmax') {
+                                                  hr_lapmax = msg.content[key];
 						} else if (key === 'calories') {
                                                   calories = msg.content[key];
 						} else if (key === 'distance') {
@@ -76,6 +99,8 @@
                                                   watt = msg.content[key];
                                                 } else if (key === 'watts_avg') {
                                                   watt_avg = msg.content[key];
+                                                } else if (key === 'watts_lapmax') {
+                                                  watt_lapmax = msg.content[key];
 						} else if (key === 'elapsed_h') {
                                                   elapsed_h = msg.content[key];
 						} else if (key === 'elapsed_m') {
@@ -86,24 +111,34 @@
                                                   resistance = msg.content[key];
                                                 } else if (key === 'resistance_avg') {
                                                   resistance_avg = msg.content[key];
+                                                } else if (key === 'resistance_lapmax') {
+                                                  resistance_lapmax = msg.content[key];
                                                 } else if (key === 'peloton_resistance') {
                                                   peloton_resistance = msg.content[key];
                                                 } else if (key === 'peloton_resistance_avg') {
                                                   peloton_resistance_avg = msg.content[key];
+                                                } else if (key === 'peloton_resistance_lapmax') {
+                                                  peloton_resistance_lapmax = msg.content[key];
                                                 }
 				}
                                 $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
                                 $('.speed-avg').html(speed_avg.toFixed(1));
+                                $('.speed-max').html(speed_max.toFixed(1));
                                 $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
                                 $('.cadence-avg').html(cadence_avg.toFixed(0));
+                                $('.cadence-max').html(cadence_max.toFixed(0));
                                 $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
                                 $('.heart-avg').html(hr_avg.toFixed(0));
+                                $('.heart-max').html(hr_max.toFixed(0));
                                 $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
                                 $('.watt-avg').html(watt_avg.toFixed(0));
+                                $('.watt-max').html(watt_max.toFixed(0));
                                 $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
                                 $('.resistance-avg').html(resistance_avg.toFixed(0));
+                                $('.resistance-max').html(resistance_max.toFixed(0));
                                 $('.peloton_resistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
                                 $('.peloton_resistance-avg').html(peloton_resistance_avg.toFixed(0));
+                                $('.peloton_resistance-max').html(peloton_resistance_max.toFixed(0));
                                 $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
                                 $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "</b>");
                                 $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
