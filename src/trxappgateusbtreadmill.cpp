@@ -255,7 +255,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Speed = speed;
     Inclination = incline;
     KCal = kcal;
-    Distance = distance;
+    Distance = DistanceCalculated;
 
     lastTimeCharChanged = QTime::currentTime();
     firstCharChanged = false;
