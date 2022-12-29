@@ -79,7 +79,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         double speed = 0;
         double cadence = 0;
         double resistance = 0;
-        double gears = 0;
+        double gear = 0;
         double watt = 0;
         double grade = 0;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
@@ -100,7 +100,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    gears = QLocale().toDouble(aValues.last());
+                    gear = QLocale().toDouble(aValues.last());
                     // Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
