@@ -127,9 +127,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 #ifdef Q_OS_ANDROID
         bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
         if(nordictrack_ifit_adb_remote) {
-            if(requestResistance != -1) {
+            if(requestInclination != -100) {
                 int x1 = 75;
-                int y2 = (int) (616.18 - (17.223 * requestResistance));
+                int y2 = (int) (616.18 - (17.223 * (requestInclination + gears())));
                 int y1Resistance = (int) (616.18 - (17.223 * Resistance.value()));
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
@@ -138,12 +138,12 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                       "(Ljava/lang/String;)V", command.object<jstring>());
             }
-            requestResistance = -1;
+            requestInclination = -100;
         }
 #endif
 
-        QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
-        requestResistance = -1;
+        QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";";
+        requestInclination = -100;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
