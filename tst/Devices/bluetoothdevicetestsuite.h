@@ -13,8 +13,9 @@ protected:
     std::vector<devicediscoveryinfo> disablingConfigurations;
     QStringList names;
     discoveryoptions defaultDiscoveryOptions;
+    QSettings settings;
 public:
-    BluetoothDeviceTestSuite() {}
+    BluetoothDeviceTestSuite() : settings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
     // Sets up the test fixture.
     void SetUp() override;

@@ -33,6 +33,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
 
+    this->useDiscovery = startDiscovery;
     this->createTemplateManagers = createTemplateManagers;
 
     QString innerId = QStringLiteral("inner");
@@ -208,6 +209,9 @@ void bluetooth::finished() {
 }
 
 void bluetooth::startDiscovery() {
+
+    if(!this->useDiscovery)
+        return;
 
 #ifndef Q_OS_IOS
     QSettings settings;

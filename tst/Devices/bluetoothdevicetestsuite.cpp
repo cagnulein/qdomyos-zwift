@@ -36,6 +36,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
     for(devicediscoveryinfo discoveryInfo : enablingConfigurations) {
         for(QString deviceName : this->names)
         {
+            discoveryInfo.setValues(this->settings);
+
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
@@ -53,15 +55,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
 
 template<typename T>
 void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
-    BluetoothDeviceTestData& testData = this->typeParam;
-
-    QSettings settings("Roberto Viola", "QDomyos-Zwift Testing");
-    settings.clear();
-
-    settings.setValue(QZSettings::age, 1000);
-
-    auto x = settings.value(QZSettings::age, QZSettings::default_age).toInt();
-    EXPECT_EQ(1000, x);
+    BluetoothDeviceTestData& testData = this->typeParam;   
 
     bluetooth bt(this->defaultDiscoveryOptions);
 
@@ -69,6 +63,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
     for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
         for(QString deviceName : this->names)
         {
+            discoveryInfo.setValues(this->settings);
+
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
@@ -94,9 +90,10 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
     if(testData.get_testInvalidBluetoothDeviceInfo()) {
         // Test that the device is not identified when disabled in the settings AND has an invalid bluetooth device info
         for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
-
             for(QString deviceName : this->names)
             {
+                discoveryInfo.setValues(this->settings);
+
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
 
                 // try to create the device
@@ -130,6 +127,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
 
             for(QString deviceName : this->names)
             {
+                discoveryInfo.setValues(this->settings);
+
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
                 EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
@@ -157,6 +156,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
 
         for(QString deviceName : this->names)
         {
+            discoveryInfo.setValues(this->settings);
+
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device

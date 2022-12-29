@@ -136,6 +136,7 @@ class bluetooth : public QObject, public SignalHandler {
 
 
 private:
+    bool useDiscovery = false;
     bool createTemplateManagers =false;
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;

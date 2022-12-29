@@ -1,6 +1,7 @@
 #ifndef DEVICEDISCOVERYINFO_H
 #define DEVICEDISCOVERYINFO_H
 
+#include <QSettings>
 #include <QString>
 #include <vector>
 #include "discovereddevice.h"
@@ -21,8 +22,6 @@ public :
     bool fake_bike = false;
     bool fakedevice_elliptical = false;
     bool fakedevice_treadmill = false;
-
-    bool proformWifiBike = false;
     QString proformtdf4ip = nullptr;
 
     QString proformtreadmillip = nullptr;
@@ -64,6 +63,18 @@ public :
      * @param type The type to test for exclusion.
      */
     bool excludes(deviceType type) const;
+
+    /**
+     * @brief Configures the QSettings object.
+     * @param settings
+     * @param clear Specifies whether to clear the settings object.
+     */
+    void setValues(QSettings& settings, bool clear=true);
+
+    /**
+     * @brief Loads this object with values from the QSettings object.
+     */
+    void getValues(QSettings& settings);
 
 };
 
