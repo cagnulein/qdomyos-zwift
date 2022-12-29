@@ -15,6 +15,7 @@ using namespace std::chrono_literals;
 
 nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
+    bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -22,7 +23,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -33,7 +34,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualBike) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
             virtualBike = new virtualbike(this);
@@ -43,6 +45,14 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
         }
     }
     // ********************************************************************************************************
+
+#ifdef Q_OS_ANDROID
+    if(nordictrack_ifit_adb_remote) {
+        QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP.object<jstring>(), QtAndroid::androidContext().object());
+    }
+#endif
 }
 
 bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
@@ -69,7 +79,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         double speed = 0;
         double cadence = 0;
         double resistance = 0;
-        double gears = 0;
+        double gear = 0;
         double watt = 0;
         double grade = 0;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
@@ -90,7 +100,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    gears = QLocale().toDouble(aValues.last());
+                    gear = QLocale().toDouble(aValues.last());
                     // Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
@@ -114,7 +124,29 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             }
         }
 
-        QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
+#ifdef Q_OS_ANDROID
+        bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
+        if(nordictrack_ifit_adb_remote) {
+            if(requestInclination != -100) {
+                double inc = qRound(requestInclination / 0.5) * 0.5;
+                if(inc != currentInclination().value()) {
+                    int x1 = 75;
+                    int y2 = (int) (616.18 - (17.223 * (inc + gears())));
+                    int y1Resistance = (int) (616.18 - (17.223 * currentInclination().value()));
+
+                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+                    qDebug() << " >> " + lastCommand;
+                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                          "(Ljava/lang/String;)V", command.object<jstring>());
+                }
+            }
+            requestInclination = -100;
+        }
+#endif
+
+        QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";";
+        requestInclination = -100;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
@@ -152,7 +184,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        emit debug(QStringLiteral("Current Gear: ") + QString::number(gears));
+        emit debug(QStringLiteral("Current Gear: ") + QString::number(gear));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));

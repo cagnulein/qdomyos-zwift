@@ -24,6 +24,8 @@ class TemplateInfoSenderBuilder : public QObject {
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
+    void lap();
+    void floatingClose();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -54,6 +56,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

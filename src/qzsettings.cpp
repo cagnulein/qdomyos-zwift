@@ -551,8 +551,24 @@ const QString QZSettings::tile_avg_watt_lap_order = QStringLiteral("tile_avg_wat
 const QString QZSettings::nordictrack_t70_treadmill = QStringLiteral("nordictrack_t70_treadmill");
 const QString QZSettings::CRRGain = QStringLiteral("crrGain");
 const QString QZSettings::CWGain = QStringLiteral("cwGain");
+const QString QZSettings::proform_treadmill_cadence_lt = QStringLiteral("proform_treadmill_cadence_lt");
+const QString QZSettings::trainprogram_stop_at_end = QStringLiteral("trainprogram_stop_at_end");
+const QString QZSettings::domyos_elliptical_inclination = QStringLiteral("domyos_elliptical_inclination");
+const QString QZSettings::gpx_loop = QStringLiteral("gpx_loop");
+const QString QZSettings::android_notification = QStringLiteral("android_notification");
+const QString QZSettings::kingsmith_encrypt_v4 = QStringLiteral("kingsmith_encrypt_v4");
+const QString QZSettings::horizon_treadmill_disable_pause = QStringLiteral("horizon_treadmill_disable_pause");
+const QString QZSettings::domyos_bike_500_profile_v1 = QStringLiteral("domyos_bike_500_profile_v1");
+const QString QZSettings::ss2k_peloton = QStringLiteral("ss2k_peloton");
+const QString QZSettings::computrainer_serialport = QStringLiteral("computrainer_serialport");
+const QString QZSettings::default_computrainer_serialport = QStringLiteral("");
+const QString QZSettings::strava_virtual_activity = QStringLiteral("strava_virtual_activity");
+const QString QZSettings::powr_sensor_running_cadence_half_on_strava = QStringLiteral("powr_sensor_running_cadence_half_on_strava");
+const QString QZSettings::nordictrack_ifit_adb_remote = QStringLiteral("nordictrack_ifit_adb_remote");
+const QString QZSettings::floating_height = QStringLiteral("floating_height");
+const QString QZSettings::floating_width = QStringLiteral("floating_width");
 
-const uint32_t allSettingsCount = 450;
+const uint32_t allSettingsCount = 465;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1006,6 +1022,21 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_t70_treadmill, QZSettings::default_nordictrack_t70_treadmill},
     {QZSettings::CRRGain, QZSettings::default_CRRGain},
     {QZSettings::CWGain, QZSettings::default_CWGain},
+    {QZSettings::proform_treadmill_cadence_lt, QZSettings::default_proform_treadmill_cadence_lt},
+    {QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end},
+    {QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination},
+    {QZSettings::gpx_loop, QZSettings::default_gpx_loop},
+    {QZSettings::android_notification, QZSettings::default_android_notification},
+    {QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4},
+    {QZSettings::horizon_treadmill_disable_pause, QZSettings::default_horizon_treadmill_disable_pause},
+    {QZSettings::domyos_bike_500_profile_v1, QZSettings::domyos_bike_500_profile_v1},
+    {QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton},
+    {QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport},
+    {QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity},
+    {QZSettings::powr_sensor_running_cadence_half_on_strava, QZSettings::default_powr_sensor_running_cadence_half_on_strava},
+    {QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote},
+    {QZSettings::floating_height, QZSettings::default_floating_height},
+    {QZSettings::floating_width, QZSettings::default_floating_width},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

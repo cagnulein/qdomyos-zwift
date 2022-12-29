@@ -669,9 +669,13 @@ void trainprogram::scheduler() {
                             .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
                     emit lap();
                     restart();
+                    distanceEvaluation = false;
                 } else {
                     started = false;
-                    emit stop(false);
+                    if (settings
+                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                            .toBool())
+                        emit stop(false);
                     distanceEvaluation = false;
                 }
             }

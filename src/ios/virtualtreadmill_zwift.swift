@@ -230,12 +230,19 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-            if(requests.first!.value?.first == 0x11)
+          if(requests.first!.value?.first == 0x11)
           {
                    var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
                 
                 self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+          }
+          else if(requests.first!.value?.first == 0x03)
+          {
+              var high : Int16 = ((Int16)(requests.first!.value![2])) << 8;
+              self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
+                
+              self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
           }
             else if(requests.first!.value?.first == 0x05)
           {

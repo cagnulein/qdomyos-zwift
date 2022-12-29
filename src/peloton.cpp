@@ -575,6 +575,21 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
                 }
+
+                double offset =
+                    settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset)
+                        .toDouble();
+                double gain =
+                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                r.inclination *= gain;
+                r.inclination += offset;
+                r.lower_inclination *= gain;
+                r.lower_inclination += offset;
+                r.average_inclination *= gain;
+                r.average_inclination += offset;
+                r.upper_inclination *= gain;
+                r.upper_inclination += offset;
+
                 r.lower_speed = speed_lower * miles;
                 r.average_speed = speed_average * miles;
                 r.upper_speed = speed_upper * miles;

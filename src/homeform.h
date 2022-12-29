@@ -649,6 +649,10 @@ class homeform : public QObject {
     PathController pathController;
     bool videoMustBeReset = true;
 
+#ifdef Q_OS_ANDROID
+    bool floating_open = false;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
@@ -668,6 +672,7 @@ class homeform : public QObject {
     void volumeUp();
     void keyMediaPrevious();
     void keyMediaNext();
+    void floatingOpen();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);

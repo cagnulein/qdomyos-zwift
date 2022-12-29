@@ -16,6 +16,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         dirconManager = new DirconManager(t, 0, 0, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
+        connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
+                SLOT(dirconChangedInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
@@ -514,4 +516,10 @@ bool virtualtreadmill::RSCEnable() {
     if (cadence)
         return true;
     return false;
+}
+
+void virtualtreadmill::dirconChangedInclination(double grade, double percentage) {
+    Q_UNUSED(grade);
+    Q_UNUSED(percentage);
+    slopeChanged();
 }

@@ -1576,6 +1576,51 @@ class QZSettings {
     static const QString CWGain;
     static constexpr double default_CWGain = 0;
 
+    static const QString proform_treadmill_cadence_lt;
+    static constexpr bool default_proform_treadmill_cadence_lt = false;
+
+    static const QString trainprogram_stop_at_end;
+    static constexpr bool default_trainprogram_stop_at_end = false;
+
+    static const QString domyos_elliptical_inclination;
+    static constexpr bool default_domyos_elliptical_inclination = true;
+
+    static const QString gpx_loop;
+    static constexpr bool default_gpx_loop = false;
+
+    static const QString android_notification;
+    static constexpr bool default_android_notification = false;
+
+    static const QString kingsmith_encrypt_v4;
+    static constexpr bool default_kingsmith_encrypt_v4 = false;
+
+    static const QString horizon_treadmill_disable_pause;
+    static constexpr bool default_horizon_treadmill_disable_pause = false;
+
+    static const QString domyos_bike_500_profile_v1;
+    static constexpr bool default_domyos_bike_500_profile_v1 = false;
+
+    static const QString ss2k_peloton;
+    static constexpr bool default_ss2k_peloton = false;
+
+    static const QString computrainer_serialport;
+    static const QString default_computrainer_serialport;
+
+    static const QString strava_virtual_activity;
+    static constexpr bool default_strava_virtual_activity = true;
+
+    static const QString powr_sensor_running_cadence_half_on_strava;
+    static constexpr bool default_powr_sensor_running_cadence_half_on_strava = false;
+
+    static const QString nordictrack_ifit_adb_remote;
+    static constexpr bool default_nordictrack_ifit_adb_remote = false;
+
+    static const QString floating_width;
+    static constexpr int default_floating_width = 370;
+
+    static const QString floating_height;
+    static constexpr int default_floating_height = 210;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

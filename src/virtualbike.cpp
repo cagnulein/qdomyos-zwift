@@ -647,7 +647,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      << QStringLiteral("resistance sent to ifit") << resistance;
 
             double odometer = Bike->odometer() * 1000;
-            double calories = Bike->calories().value();
+            // ifit applies a constant multiplier to the kcal sent from bluetooth
+            double calories = Bike->calories().value() * 1.488;
             if (resistance > 0x26)
                 resistance = 0x26;
             qint64 t = (QDateTime::currentSecsSinceEpoch() - iFit_timer);
@@ -668,8 +669,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply3[15] = t & 0xff;
             reply3[16] = t >> 8;
             reply4[3] = ((uint16_t)calories);  // KCal
+            reply4[4] = (((uint16_t)calories) >> 8);  // KCal
             reply4[10] = ((uint16_t)calories); // KCal estimated
-            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
+            reply4[11] = (((uint16_t)calories) >> 8);  // KCal
+            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply4[4] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
                          (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) - (reply3[12]) -
                          (reply3[16]) - (reply2[15]) - (reply2[16]);
             reply4[19] = reply3[19];
