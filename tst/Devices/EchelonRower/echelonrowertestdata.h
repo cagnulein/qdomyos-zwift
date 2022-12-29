@@ -8,6 +8,7 @@ class EchelonRowerTestData : public BluetoothDeviceTestData {
 public:
     EchelonRowerTestData() : BluetoothDeviceTestData("Echelon Rower") {
         this->addDeviceName("ECH-ROW", comparison::StartsWith);
+        this->addDeviceName("ROWSPORT-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ROW-S", comparison::StartsWith);
     }
 

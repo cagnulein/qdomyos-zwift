@@ -45,6 +45,7 @@ HEADERS += \
     Devices/BowflexTreadmill/bowflextreadmilltestdata.h \
     Devices/CSCBike/cscbiketestdata.h \
     Devices/Chronobike/chronobiketestdata.h \
+    Devices/CompuTrainer/computrainertestdata.h \
     Devices/Concept2SkiErg/concept2skiergtestdata.h \
     Devices/DomyosBike/domyosbiketestdata.h \
     Devices/DomyosElliptical/domyosellipticaltestdata.h \
@@ -70,6 +71,7 @@ HEADERS += \
     Devices/KeepBike/keepbiketestdata.h \
     Devices/KingsmithR1ProTreadmill/kingsmithr1protreadmilltestdata.h \
     Devices/KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h \
+    Devices/LifeFitnessTreadmill/lifefitnesstreadmilltestdata.h \
     Devices/M3IBike/m3ibiketestdata.h \
     Devices/MCFBike/mcfbiketestdata.h \
     Devices/MepanelBike/mepanelbiketestdata.h \

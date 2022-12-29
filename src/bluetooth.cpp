@@ -634,8 +634,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
-                userTemplateManager->start(computrainerBike);
-                innerTemplateManager->start(computrainerBike);
+                this->startTemplateManagers(computrainerBike);
 #endif
             } else if (!proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
                 this->stopDiscovery();

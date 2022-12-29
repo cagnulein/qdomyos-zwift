@@ -55,6 +55,14 @@ template<typename T>
 void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
     BluetoothDeviceTestData& testData = this->typeParam;
 
+    QSettings settings("Roberto Viola", "QDomyos-Zwift Testing");
+    settings.clear();
+
+    settings.setValue(QZSettings::age, 1000);
+
+    auto x = settings.value(QZSettings::age, QZSettings::default_age).toInt();
+    EXPECT_EQ(1000, x);
+
     bluetooth bt(this->defaultDiscoveryOptions);
 
     // Test that the device is not identified when disabled in the settings

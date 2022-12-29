@@ -12,6 +12,7 @@
 #include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
 #include "BowflexTreadmill/bowflextreadmilltestdata.h"
 #include "Chronobike/chronobiketestdata.h"
+#include "CompuTrainer/computrainertestdata.h"
 #include "Concept2SkiErg/concept2skiergtestdata.h"
 #include "CSCBike/cscbiketestdata.h"
 #include "DomyosBike/domyosbiketestdata.h"
@@ -36,6 +37,7 @@
 #include "iConceptBike/iconceptbiketestdata.h"
 #include "InspireBike/inspirebiketestdata.h"
 #include "KeepBike/keepbiketestdata.h"
+#include "LifeFitnessTreadmill/lifefitnesstreadmilltestdata.h"
 #include "KingsmithR1ProTreadmill/kingsmithr1protreadmilltestdata.h"
 #include "KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h"
 #include "M3IBike/m3ibiketestdata.h"
@@ -90,6 +92,7 @@ ActivioTreadmillTestData,
 BHFitnessEllipticalTestData,
 BikeTestData,
 BowflexT216TreadmillTestData,
+CompuTrainerTestData,
 CSCBikeTestData,
 ChronobikeTestData,
 Concept2SkiErgTestData,
@@ -104,6 +107,7 @@ EchelonStrideTreadmillTestData,
 EllipticalTestData,
 FTMSBike1TestData,
 FTMSBike2TestData,
+FTMSBike3TestData,
 FTMSRowerTestData,
 FakeBikeTestData,
 FakeEllipticalTestData,
@@ -121,6 +125,7 @@ InspireBikeTestData,
 KeepBikeTestData,
 KingsmithR1ProTreadmillTestData,
 KingsmithR2TreadmillTestData,
+LifeFitnessTreadmillTestData,
 M3IBikeTestData,
 MCFBikeTestData,
 MepanelBikeTestData,
@@ -172,6 +177,7 @@ TrxAppGateUSBTreadmillTestData,
 UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
+ZwiftRunpodTestData,
 iConceptBikeTestData>;
 
 #endif

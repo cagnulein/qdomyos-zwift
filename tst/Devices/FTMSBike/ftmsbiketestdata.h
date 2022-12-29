@@ -47,6 +47,7 @@ public:
         this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase);// Yesoul C1H
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
         this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
         this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
@@ -56,5 +57,27 @@ public:
         this->addDeviceName("DIRETO XR", comparison::StartsWithIgnoreCase);
         this->addDeviceName("SMB1", comparison::StartsWithIgnoreCase);
         this->addDeviceName("INRIDE", comparison::StartsWithIgnoreCase);
+     }
+};
+
+class FTMSBike3TestData : public FTMSBikeTestData {
+private:
+    QString ftmsAccessoryName;
+protected:
+    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+        info.ss2k_peloton = enable;
+
+        if(enable)
+            info.ftmsAccessoryName = this->ftmsAccessoryName;
+        else
+            info.ftmsAccessoryName = "NOT "+this->ftmsAccessoryName;
+
+        return true;
+    }
+public:
+    FTMSBike3TestData() : FTMSBikeTestData("FTMS Accessory") {
+        this->ftmsAccessoryName = "accessory";
+
+        this->addDeviceName(this->ftmsAccessoryName, comparison::StartsWithIgnoreCase);
     }
 };

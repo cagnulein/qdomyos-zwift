@@ -8,6 +8,7 @@ class TacxNeo2TestData : public BluetoothDeviceTestData {
 public:
     TacxNeo2TestData() : BluetoothDeviceTestData("Tacx Neo 2 Bike") {
         this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TACX FLOW", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TACX SMART BIKE", comparison::StartsWithIgnoreCase);
     }
 

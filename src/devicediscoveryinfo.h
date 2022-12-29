@@ -48,6 +48,11 @@ public :
 
     bool technogym_myrun_treadmill_experimental = false;
 
+    QString computrainer_serial_port = nullptr;
+    bool ss2k_peloton = false;
+
+    QString ftmsAccessoryName = nullptr;
+
     /**
      * @brief Exclude a device type. Can be used to indicate a device of this type is already discovered.
      * @param type the device type to exclude.

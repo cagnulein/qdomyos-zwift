@@ -82,7 +82,9 @@ enum deviceType {
     FitshowTreadmill,
     InspireBike,
     ChronoBike,
-    MepanelBike
+    MepanelBike,
+    LifeFitnessTreadmill,
+    CompuTrainerBike
 };
 
 /**

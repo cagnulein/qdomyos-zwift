@@ -10,6 +10,7 @@ public:
 
         this->addDeviceName("XT385", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XT485", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("XT800", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XT900", comparison::StartsWithIgnoreCase);
     }
 
