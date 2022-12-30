@@ -539,9 +539,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 #endif
 
-    if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
-         eliteSterzoSmartFound && fitmetriaFanfitFound) ||
-        forceHeartBeltOffForTimeout) {
+    bool searchDevices = (heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
+                          eliteSterzoSmartFound && fitmetriaFanfitFound) ||
+                         forceHeartBeltOffForTimeout;
+
+    if (searchDevices) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
 
             bool filter = true;

@@ -286,10 +286,9 @@ signals:
   public slots:
     void restart();
     void debug(const QString &string);
-    void heartRate(uint8_t heart);
-
-  private slots:
+    void heartRate(uint8_t heart);  
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+  private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif

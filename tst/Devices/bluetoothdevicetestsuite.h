@@ -4,6 +4,8 @@
 #include "devices.h"
 #include "bluetooth.h"
 
+#include "Tools/testsettings.h"
+
 template <typename T>
 class BluetoothDeviceTestSuite : public testing::Test {
 protected:
@@ -13,9 +15,9 @@ protected:
     std::vector<devicediscoveryinfo> disablingConfigurations;
     QStringList names;
     discoveryoptions defaultDiscoveryOptions;
-    QSettings settings;
+    TestSettings testSettings;
 public:
-    BluetoothDeviceTestSuite() : settings("Roberto Viola", "QDomyos-Zwift Testing") {}
+    BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
     // Sets up the test fixture.
     void SetUp() override;
@@ -43,10 +45,11 @@ TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsEnabled
     this->test_deviceDetection_validNames_enabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsDisabled) {
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabled) {
     this->test_deviceDetection_validNames_disabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedValidNamesSettingsDisabledInvalidBluetoothDeviceInfo) {
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabledInvalidBluetoothDeviceInfo) {
     this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled();
 }
+

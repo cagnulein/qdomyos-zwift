@@ -21,6 +21,8 @@ SOURCES += \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
+        ToolTests/testsettingstestsuite.cpp \
+        Tools/testsettings.cpp \
         main.cpp
 
 
@@ -120,4 +122,6 @@ HEADERS += \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestsuite.h \
     Devices/devices.h \
-    Devices/iConceptBike/iconceptbiketestdata.h
+    Devices/iConceptBike/iconceptbiketestdata.h \
+    ToolTests/testsettingstestsuite.h \
+    Tools/testsettings.h

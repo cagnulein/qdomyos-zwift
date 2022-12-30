@@ -2,6 +2,7 @@
 #include "discoveryoptions.h"
 #include "bluetooth.h"
 #include "qzsettings.h"
+#include "Tools/testsettings.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
 QBluetoothUuid uuid{testUUID};
@@ -25,6 +26,8 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
     this->names = this->typeParam.get_deviceNames();
 
     EXPECT_GT(this->names.length(), 0) << "No bluetooth names configured for test";
+
+    this->testSettings.activate();
 }
 
 template<typename T>
@@ -36,14 +39,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
     for(devicediscoveryinfo discoveryInfo : enablingConfigurations) {
         for(QString deviceName : this->names)
         {
-            discoveryInfo.setValues(this->settings);
+            discoveryInfo.setValues(this->testSettings.qsettings);
 
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
             std::shared_ptr<bluetoothdevice> device;
 
-            EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
+            EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
 
             EXPECT_TRUE(testData.get_isExpectedDevice(bt.device()));
 
@@ -63,15 +66,12 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
     for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
         for(QString deviceName : this->names)
         {
-            discoveryInfo.setValues(this->settings);
+            discoveryInfo.setValues(this->testSettings.qsettings);
 
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
-            std::shared_ptr<bluetoothdevice> device;
-
-            EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
-
+            EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to run device discovery";
             EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when expected not to.";
 
             // restart the bluetooth manager to clear the device
@@ -92,14 +92,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
         for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
             for(QString deviceName : this->names)
             {
-                discoveryInfo.setValues(this->settings);
+                discoveryInfo.setValues(this->testSettings.qsettings);
 
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
 
                 // try to create the device
                 std::shared_ptr<bluetoothdevice> device;
 
-                EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
+                EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
 
                 EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when disabled in settings.";
 
@@ -127,11 +127,11 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
 
             for(QString deviceName : this->names)
             {
-                discoveryInfo.setValues(this->settings);
+                discoveryInfo.setValues(this->testSettings.qsettings);
 
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
-                EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
+                EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
 
                 EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device in spite of exclusion";
 
@@ -156,14 +156,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
 
         for(QString deviceName : this->names)
         {
-            discoveryInfo.setValues(this->settings);
+            discoveryInfo.setValues(this->testSettings.qsettings);
 
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
             std::shared_ptr<bluetoothdevice> device;
 
-            EXPECT_NO_THROW(bt.deviceConnected(deviceInfo)) << "Failed to create device object";
+            EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
 
             EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device from invalid name: " << deviceName.toStdString();
 
