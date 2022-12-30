@@ -209,6 +209,15 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
 // must be double because it's an inclination
 void proformwifibike::forceResistance(double requestResistance) {
 
+    if(tdf2) {
+        static bool newmode = false;
+        if(!newmode) {
+            QString send = "{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}";
+            qDebug() << "forceResistance" << send;
+            websocket.sendTextMessage(send);
+        }
+    }
+
     double inc = qRound(requestResistance / 0.5) * 0.5;
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
     qDebug() << "forceResistance" << send;
@@ -412,6 +421,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
     QJsonObject json = metrics.object();
     QJsonValue values = json.value("values");
+
+    if (!values[QStringLiteral("Master State")].isUndefined()) {
+        tdf2 = true;
+        qDebug() << QStringLiteral("TDF2 mod enabled!");
+    }
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         if (!values[QStringLiteral("Current KPH")].isUndefined()) {
