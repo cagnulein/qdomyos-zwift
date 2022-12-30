@@ -215,6 +215,7 @@ void proformwifibike::forceResistance(double requestResistance) {
             QString send = "{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}";
             qDebug() << "forceResistance" << send;
             websocket.sendTextMessage(send);
+            newmode = true;
         }
     }
 
