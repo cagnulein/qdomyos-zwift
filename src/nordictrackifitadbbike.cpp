@@ -132,7 +132,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             if(nordictrack_ifit_adb_remote) {
                 if(requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
-                    if(inc != currentInclination().value) {
+                    if(inc != currentInclination().value()) {
                         int x1 = 75;
                         int y2 = (int) (616.18 - (17.223 * (inc + gears())));
                         int y1Resistance = (int) (616.18 - (17.223 * currentInclination().value()));
