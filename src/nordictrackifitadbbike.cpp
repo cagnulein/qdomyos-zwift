@@ -124,31 +124,35 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             }
         }
 
-#ifdef Q_OS_ANDROID
-        bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
-        if(nordictrack_ifit_adb_remote) {
-            if(requestInclination != -100) {
-                double inc = qRound(requestInclination / 0.5) * 0.5;
-                if(inc != currentInclination().value) {
-                    int x1 = 75;
-                    int y2 = (int) (616.18 - (17.223 * (inc + gears())));
-                    int y1Resistance = (int) (616.18 - (17.223 * currentInclination().value()));
+        // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
+        if(lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
+            lastInclinationChanged = QDateTime::currentDateTime();
+    #ifdef Q_OS_ANDROID
+            bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
+            if(nordictrack_ifit_adb_remote) {
+                if(requestInclination != -100) {
+                    double inc = qRound(requestInclination / 0.5) * 0.5;
+                    if(inc != currentInclination().value) {
+                        int x1 = 75;
+                        int y2 = (int) (616.18 - (17.223 * (inc + gears())));
+                        int y1Resistance = (int) (616.18 - (17.223 * currentInclination().value()));
 
-                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
-                    qDebug() << " >> " + lastCommand;
-                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                          "(Ljava/lang/String;)V", command.object<jstring>());
+                        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+                        qDebug() << " >> " + lastCommand;
+                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                              "(Ljava/lang/String;)V", command.object<jstring>());
+                    }
                 }
+                requestInclination = -100;
             }
-            requestInclination = -100;
-        }
-#endif
+    #endif
 
-        QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";";
-        requestInclination = -100;
-        int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-        qDebug() << QString::number(ret) + " >> " + message;
+            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";";
+            requestInclination = -100;
+            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;
+        }
 
         if (watts())
             KCal +=
