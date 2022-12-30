@@ -2372,13 +2372,15 @@ void homeform::Plus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
+                double current = bluetoothManager->device()->difficult();
+                current = ((treadmill *)bluetoothManager->device())->currentSpeed().value() / current;
                 bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
                 if (bluetoothManager->device()->difficult() == 0) {
                     bluetoothManager->device()->setDifficult(0.03);
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+                    ->changeSpeed(current);
             }
         }
     } else if (name.contains(QStringLiteral("target_inclination"))) {
@@ -2560,13 +2562,15 @@ void homeform::Minus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
+                double current = bluetoothManager->device()->difficult();
+                current = ((treadmill *)bluetoothManager->device())->currentSpeed().value() / current;
                 bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
                 if (bluetoothManager->device()->difficult() == 0) {
                     bluetoothManager->device()->setDifficult(-0.03);
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+                    ->changeSpeed(current);
             }
         }
     } else if (name.contains(QStringLiteral("target_inclination"))) {
