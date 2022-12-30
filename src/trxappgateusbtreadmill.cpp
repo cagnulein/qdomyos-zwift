@@ -617,6 +617,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("REEBOK")) ||
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
+        device.name().toUpper().startsWith(QStringLiteral("K80_")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {
