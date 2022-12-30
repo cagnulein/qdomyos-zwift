@@ -27,19 +27,22 @@
   .icon {
    font-size: 24px
   }
+  .values {
+   min-width: 80px; max-width: 80px; font-size: 24px;
+  }
   </style>
 </head>
   <body style="background-color: #000000; opacity: 0.8">
          <table class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif border: 0">
-         <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value" style="font-size: 24px;"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
-         <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
-         <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
-         <tr class="watt"><td class="icon">⚡</td><td style="text-align: left">POWER</td><td><small>AVG</small></td><td class="watt-avg">0</td><td class="watt-value" style="font-size: 24px;"><b>0</b></td><td><small>MAX</small></td><td class="watt-max">0</td></tr>
-         <tr class="resistance"><td class="icon">🧲</td><td style="text-align: left">RESISTANCE</td><td><small>AVG</small></td><td class="resistance-avg">1</td><td class="resistance-value" style="font-size: 24px;"><b>1</b></td><td><small>MAX</small></td><td class="resistance-max">1</td></tr>
-         <tr class="pelotonresistance"><td class="icon">🅿</td><td style="text-align: left">P.RESISTANCE</td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td><td class="pelotonresistance-value" style="font-size: 24px;"><b>1</b></td><td><small>MAX</small></td><td class="pelotonresistance-max">1</td></tr>
-         <tr class="calories"><td class="icon">🔥</td><td style="text-align: left">CALORIES</td><td class="calories-value" style="font-size: 24px;" colspan="5"><b>0</b></td></tr>
-         <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value" style="font-size: 24px;" colspan="5"><b>0.00</b></td></tr>
-         <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value" style="font-size: 24px;" colspan="5"><b>0:00:00</b></td></tr>
+         <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value values"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
+         <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value values"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
+         <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value values"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
+         <tr class="watt"><td class="icon">⚡</td><td style="text-align: left">POWER</td><td><small>AVG</small></td><td class="watt-avg">0</td><td class="watt-value values"><b>0</b></td><td><small>MAX</small></td><td class="watt-max">0</td></tr>
+         <tr class="resistance"><td class="icon">🧲</td><td style="text-align: left">RESISTANCE</td><td><small>AVG</small></td><td class="resistance-avg">1</td><td class="resistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="resistance-max">1</td></tr>
+         <tr class="pelotonresistance"><td class="icon">🅿</td><td style="text-align: left">P.RESISTANCE</td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td><td class="pelotonresistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="pelotonresistance-max">1</td></tr>
+         <tr class="calories"><td class="icon">🔥</td><td style="text-align: left">CALORIES</td><td class="calories-value values" colspan="5"><b>0</b></td></tr>
+         <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
+         <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
          <tr><td colspan=3 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan=4 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
          </table>
 
@@ -241,9 +244,9 @@
                                 $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
                                 $('.resistance-avg').html(resistance_lapavg.toFixed(0));
                                 $('.resistance-max').html(resistance_lapmax.toFixed(0));
-                                $('.peloton_resistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
-                                $('.peloton_resistance-avg').html(peloton_resistance_lapavg.toFixed(0));
-                                $('.peloton_resistance-max').html(peloton_resistance_lapmax.toFixed(0));
+                                $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
+                                $('.pelotonresistance-avg').html(peloton_resistance_lapavg.toFixed(0));
+                                $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
                                 $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
                                 $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "</b>");
                                 $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");

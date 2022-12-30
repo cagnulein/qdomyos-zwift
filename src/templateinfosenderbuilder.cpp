@@ -876,12 +876,12 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
-            obj.setProperty(QStringLiteral("peloton_req_resistance"),
-                            (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("peloton_resistance_color"), dep.color());
             obj.setProperty(QStringLiteral("peloton_resistance_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("peloton_resistance_lapmax"), dep.lapMax());
+            obj.setProperty(QStringLiteral("peloton_req_resistance"),
+                            (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((bike *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_color"), dep.color());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
