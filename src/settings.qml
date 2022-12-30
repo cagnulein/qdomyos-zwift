@@ -615,6 +615,9 @@ import Qt.labs.settings 1.0
             property bool nordictrack_ifit_adb_remote: false
             property int floating_height: 210
             property int floating_width: 370
+
+            // from version 2.12.32
+            property int floating_transparency: 80
         }
 
         function paddingZeros(text, limit) {
@@ -2492,6 +2495,29 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.floating_height = floatingHeightField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFloatingTransparency
+                            text: qsTr("Floating Window % Transparency:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: floatingTransparencyField
+                            text: settings.floating_transparency
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.floating_transparency = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okFloatingTransparencyButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.floating_transparency = floatingTransparencyField.text
                         }
                     }
                 }

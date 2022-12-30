@@ -32,7 +32,7 @@
   }
   </style>
 </head>
-  <body style="background-color: #000000; opacity: 0.8">
+  <body class="transparency" style="background-color: #000000; opacity: 0.8">
          <table class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif border: 0">
          <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value values"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
          <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value values"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
@@ -82,7 +82,7 @@
     onSettingsOK = false;
     onWorkout = false;
     settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
-    'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', ]
+    'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency' ]
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
@@ -129,6 +129,8 @@
                         if(!msg.content[key]) {
                             $(".pelotonresistance").hide();
                         }
+                    } else if (key === 'floating_transparency') {
+                        $(".transparency").css("opacity", msg.content[key] / 100.0);
                     }
                 }
                 return msg.content;

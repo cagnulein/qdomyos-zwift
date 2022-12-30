@@ -80,7 +80,7 @@ public class FloatingWindowGFG extends Service {
                   wv.loadUrl("http://localhost:" + FloatingHandler._port + "/floating/floating.htm");
                   wv.clearView();
                   wv.measure(100, 100);
-                  wv.setAlpha(0.6f);
+                  wv.setAlpha(FloatingHandler._alpha / 100.0);
                   settings.setBuiltInZoomControls(true);
                   settings.setUseWideViewPort(true);
                   settings.setDomStorageEnabled(true);

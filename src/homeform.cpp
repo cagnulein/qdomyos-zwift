@@ -557,10 +557,11 @@ void homeform::floatingOpen() {
 
         QSettings settings;
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;III)V", QtAndroid::androidContext().object(),
+                                              "(Landroid/content/Context;IIII)V", QtAndroid::androidContext().object(),
                                               settings.value("template_inner_QZWS_port", 6666).toInt(),
                                                   settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
-                                                  settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt());
+                                                  settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
+                                                  settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt());
     } else {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide","()V");
     }
