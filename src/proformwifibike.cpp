@@ -210,13 +210,9 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
 void proformwifibike::forceResistance(double requestResistance) {
 
     if(tdf2) {
-        static bool newmode = false;
-        if(!newmode) {
-            QString send = "{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}";
-            qDebug() << "forceResistance" << send;
-            websocket.sendTextMessage(send);
-            newmode = true;
-        }
+        QString send = "{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}";
+        qDebug() << "forceResistance" << send;
+        websocket.sendTextMessage(send);
     }
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
