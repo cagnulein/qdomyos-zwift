@@ -93,6 +93,8 @@ class horizontreadmill : public treadmill {
     int32_t customRecv = 0;
     int32_t messageID = 0;
 
+    bool mobvoi_treadmill = false;
+
     void testProfileCRC();
     void updateProfileCRC();
     int GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crcStart = 65535);

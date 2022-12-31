@@ -833,6 +833,10 @@ void horizontreadmill::update() {
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
 
+            if(mobvoi_treadmill) {
+                forceSpeed(currentSpeed().value());
+            }
+
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
@@ -1813,6 +1817,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+            mobvoi_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
