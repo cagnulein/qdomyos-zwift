@@ -618,6 +618,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.32
             property int floating_transparency: 80
+
+            // from version 2.12.34
+            property bool floating_startup: false
         }
 
         function paddingZeros(text, limit) {
@@ -2519,6 +2522,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.floating_transparency = floatingTransparencyField.text
                         }
+                    }
+                    SwitchDelegate {
+                        id: floatingStartupDelegate
+                        text: qsTr("Floating Window Startup")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.floating_startup
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.floating_startup = checked
                     }
                 }
             }

@@ -1624,6 +1624,9 @@ class QZSettings {
     static const QString floating_transparency;
     static constexpr int default_floating_transparency = 80;
 
+    static const QString floating_startup;
+    static constexpr int default_floating_startup = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

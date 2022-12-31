@@ -2101,6 +2101,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 
     emit workoutNameChanged(workoutName());
     emit instructorNameChanged(instructorName());
+
+#ifdef Q_OS_ANDROID
+    if(settings.value(QZSettings::floating_startup, QZSettings::default_floating_startup).toBool()) {
+        floatingOpen();
+    }
+#endif
 }
 
 void homeform::deviceFound(const QString &name) {

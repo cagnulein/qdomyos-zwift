@@ -568,8 +568,9 @@ const QString QZSettings::nordictrack_ifit_adb_remote = QStringLiteral("nordictr
 const QString QZSettings::floating_height = QStringLiteral("floating_height");
 const QString QZSettings::floating_width = QStringLiteral("floating_width");
 const QString QZSettings::floating_transparency = QStringLiteral("floating_transparency");
+const QString QZSettings::floating_startup = QStringLiteral("floating_startup");
 
-const uint32_t allSettingsCount = 466;
+const uint32_t allSettingsCount = 467;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1039,6 +1040,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::floating_height, QZSettings::default_floating_height},
     {QZSettings::floating_width, QZSettings::default_floating_width},
     {QZSettings::floating_transparency, QZSettings::default_floating_transparency},
+    {QZSettings::floating_startup, QZSettings::default_floating_startup},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
