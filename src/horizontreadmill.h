@@ -85,6 +85,7 @@ class horizontreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    bool initPacketRecv = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
