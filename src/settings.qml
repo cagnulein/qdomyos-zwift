@@ -621,6 +621,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.34
             property bool floating_startup: false
+
+            // from version 2.12.35
+            property bool norditrack_s25i_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -3360,7 +3363,21 @@ import Qt.labs.settings 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0
+                        spacing: 0                        
+                        SwitchDelegate {
+                            id: nordictrackS25iDelegate
+                            text: qsTr("Nordictrack S25i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.norditrack_s25i_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.norditrack_s25i_treadmill = checked
+                        }
                         SwitchDelegate {
                             id: nordictrack10Delegate
                             text: qsTr("Nordictrack 10")

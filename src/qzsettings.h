@@ -1627,6 +1627,9 @@ class QZSettings {
     static const QString floating_startup;
     static constexpr int default_floating_startup = false;
 
+    static const QString norditrack_s25i_treadmill;
+    static constexpr int default_norditrack_s25i_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
