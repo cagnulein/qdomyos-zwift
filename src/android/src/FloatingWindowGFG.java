@@ -25,6 +25,7 @@ import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 import android.util.Log;
+import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 
@@ -38,6 +39,13 @@ public class FloatingWindowGFG extends Service {
 	 private WindowManager.LayoutParams floatWindowLayoutParam;
 	 private WindowManager windowManager;
 	 private Button maximizeBtn;
+
+         // Retrieve the user preference node for the package com.mycompany
+         SharedPreferences sharedPreferences;
+
+         // Preference key name
+         final String PREF_NAME_X = "floatWindowLayoutUpdateParamX";
+         final String PREF_NAME_Y = "floatWindowLayoutUpdateParamY";
 
 	 // As FloatingWindowGFG inherits Service class,
 	 // it actually overrides the onBind method
@@ -127,6 +135,10 @@ public class FloatingWindowGFG extends Service {
 		  floatWindowLayoutParam.x = 0;
 		  floatWindowLayoutParam.y = 0;
 
+                  sharedPreferences = getSharedPreferences("FloatingWindowGFG",MODE_PRIVATE);
+                  floatWindowLayoutParam.x = sharedPreferences.getInt(PREF_NAME_X, floatWindowLayoutParam.x);
+                  floatWindowLayoutParam.y = sharedPreferences.getInt(PREF_NAME_Y, floatWindowLayoutParam.y);
+
 		  // The ViewGroup that inflates the floating_layout.xml is
 		  // added to the WindowManager with all the parameters
 		  windowManager.addView(floatView, floatWindowLayoutParam);
@@ -167,6 +179,11 @@ public class FloatingWindowGFG extends Service {
 						  case MotionEvent.ACTION_MOVE:
 						      floatWindowLayoutUpdateParam.x = (int) ((x + event.getRawX()) - px);
 								floatWindowLayoutUpdateParam.y = (int) ((y + event.getRawY()) - py);
+
+                                                                SharedPreferences.Editor myEdit = sharedPreferences.edit();
+                                                                myEdit.putInt(PREF_NAME_X, floatWindowLayoutUpdateParam.x);
+                                                                myEdit.putInt(PREF_NAME_Y, floatWindowLayoutUpdateParam.y);
+                                                                myEdit.commit();
 
 								// updated parameter is applied to the WindowManager
 								windowManager.updateViewLayout(floatView, floatWindowLayoutUpdateParam);
