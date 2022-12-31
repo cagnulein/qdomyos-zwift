@@ -61,8 +61,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
-    if(!startDiscovery)
+    if(!startDiscovery) {
+        this->discoveryAgent = nullptr;
         return;
+    }
 
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
@@ -564,7 +566,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     connect(m3iBike, &m3ibike::debug, this, &bluetooth::debug);
                     m3iBike->deviceDiscovered(b);
                     connect(this, &bluetooth::searchingStop, m3iBike, &m3ibike::searchingStop);
-                    if (!discoveryAgent->isActive())
+                    if (this->discoveryAgent && !this->discoveryAgent->isActive())
                         emit searchingStop();
                     this->startTemplateManagers(m3iBike);
                 }
@@ -577,7 +579,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
                 // #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(fakeBike);
@@ -591,7 +593,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
                 // #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(fakeElliptical);
@@ -605,7 +607,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
                 // #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(fakeTreadmill);
@@ -621,7 +623,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
                 proformWifiBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(proformWifiBike);
@@ -637,7 +639,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(computrainerBike, &computrainerbike::debug, this, &bluetooth::debug);
                 computrainerBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(computrainerBike);
@@ -653,7 +655,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(proformWifiTreadmill, &proformwifitreadmill::debug, this, &bluetooth::debug);
                 proformWifiTreadmill->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(proformWifiTreadmill);
@@ -666,7 +668,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
                 // nordictrackifitadbTreadmill->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(nordictrackifitadbTreadmill);
@@ -679,7 +681,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nordictrackifitadbBike, &nordictrackifitadbbike::debug, this, &bluetooth::debug);
                 // nordictrackifitadbTreadmill->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(nordictrackifitadbBike);
@@ -693,7 +695,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(cscBike, &cscbike::debug, this, &bluetooth::debug);
                 cscBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(cscBike);
@@ -707,7 +709,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(powerBike, &stagesbike::debug, this, &bluetooth::debug);
                 powerBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(powerBike);
@@ -723,7 +725,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(powerTreadmill, &strydrunpowersensor::debug, this, &bluetooth::debug);
                 powerTreadmill->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(powerTreadmill);
@@ -740,7 +742,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(domyosRower, &domyosrower::debug, this, &bluetooth::debug);
                 domyosRower->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, domyosRower, &domyosrower::searchingStop);
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(domyosRower);
@@ -756,7 +758,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));//NOTE: Commented due to #358
                 domyosBike->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, domyosBike, &domyosbike::searchingStop);
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(domyosBike);
@@ -773,7 +775,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(domyosElliptical, &domyoselliptical::debug, this, &bluetooth::debug);
                 domyosElliptical->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, domyosElliptical, &domyoselliptical::searchingStop);
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(domyosElliptical);
@@ -791,7 +793,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nautilusElliptical, &nautiluselliptical::debug, this, &bluetooth::debug);
                 nautilusElliptical->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, nautilusElliptical, &nautiluselliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(nautilusElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS B"))) && !nautilusBike &&
@@ -807,7 +809,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nautilusBike, &nautilusbike::debug, this, &bluetooth::debug);
                 nautilusBike->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, nautilusBike, &nautilusbike::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(nautilusBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
@@ -821,7 +823,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(proformElliptical, &proformelliptical::debug, this, &bluetooth::debug);
                 proformElliptical->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(proformElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_EL"))) && !nordictrackElliptical && filter) {
@@ -836,7 +838,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nordictrackElliptical, &nordictrackelliptical::debug, this, &bluetooth::debug);
                 nordictrackElliptical->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(nordictrackElliptical);
 
@@ -853,7 +855,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 proformEllipticalTrainer->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformEllipticalTrainer,
                 // &proformellipticaltrainer::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(proformEllipticalTrainer);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_RW"))) && !proformRower && filter) {
@@ -867,7 +869,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(proformRower, &proformrower::debug, this, &bluetooth::debug);
                 proformRower->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(proformRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
@@ -882,7 +884,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(bhFitnessElliptical, &bhfitnesselliptical::debug, this, &bluetooth::debug);
                 bhFitnessElliptical->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, bhFitnessElliptical, &bhfitnesselliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(bhFitnessElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
@@ -905,7 +907,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(soleElliptical, &soleelliptical::debug, this, &bluetooth::debug);
                 soleElliptical->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, soleElliptical, &soleelliptical::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(soleElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
@@ -925,7 +927,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(domyos, &domyostreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 domyos->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, domyos, &domyostreadmill::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(domyos);
             } else if ((
@@ -957,7 +959,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::inclinationChanged);
                 kingsmithR2Treadmill->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, kingsmithR2Treadmill, &kingsmithr2treadmill::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(kingsmithR2Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
@@ -985,7 +987,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 kingsmithR1ProTreadmill->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, kingsmithR1ProTreadmill,
                         &kingsmithr1protreadmill::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(kingsmithR1ProTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
@@ -1003,7 +1005,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(shuaA5Treadmill, &shuaa5treadmill::speedChanged, this, &bluetooth::speedChanged);
                 connect(shuaA5Treadmill, &shuaa5treadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 shuaA5Treadmill->deviceDiscovered(b);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
@@ -1023,7 +1025,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(trueTreadmill, &truetreadmill::speedChanged, this, &bluetooth::speedChanged);
                 connect(trueTreadmill, &truetreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 trueTreadmill->deviceDiscovered(b);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(trueTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) ||
@@ -1050,7 +1052,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 soleF80->deviceDiscovered(b);
                 // NOTE: Commented due to #358
                 // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(soleF80);
@@ -1075,7 +1077,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 lifefitnessTreadmill->deviceDiscovered(b);
                 // NOTE: Commented due to #358
                 // connect(this, SIGNAL(searchingStop()), lifefitnessTreadmill, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
 				this->startTemplateManagers(lifefitnessTreadmill);
@@ -1112,7 +1114,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 horizonTreadmill->deviceDiscovered(b);
                 // NOTE: Commented due to #358
                 // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(horizonTreadmill);
@@ -1149,7 +1151,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     technogymmyrunTreadmill->deviceDiscovered(b);
                     // NOTE: Commented due to #358
                     // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                    if (!discoveryAgent->isActive()) {
+                    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                         emit searchingStop();
                     }
                     this->startTemplateManagers(technogymmyrunTreadmill);
@@ -1173,7 +1175,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     technogymmyrunrfcommTreadmill->deviceDiscovered(b);
                     // NOTE: Commented due to #358
                     // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                    if (!discoveryAgent->isActive()) {
+                    if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                         emit searchingStop();
                     }
                     this->startTemplateManagers(technogymmyrunrfcommTreadmill);
@@ -1816,7 +1818,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(fitshowTreadmill, &fitshowtreadmill::debug, this, &bluetooth::debug);
                 fitshowTreadmill->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, fitshowTreadmill, &fitshowtreadmill::searchingStop);
-                if (!discoveryAgent->isActive())
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->startTemplateManagers(fitshowTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("IC")) && b.name().length() == 8 && !inspireBike &&
@@ -1838,7 +1840,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 inspireBike->deviceDiscovered(b);
                 // NOTE: Commented due to #358
                 // connect(this, SIGNAL(searchingStop()), inspireBike, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(inspireBike);
@@ -1859,7 +1861,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 chronoBike->deviceDiscovered(b);
                 // NOTE: Commented due to #358
                 // connect(this, SIGNAL(searchingStop()), chronoBike, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(chronoBike);

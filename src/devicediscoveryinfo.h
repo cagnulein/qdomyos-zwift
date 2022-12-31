@@ -52,6 +52,8 @@ public :
 
     QString ftmsAccessoryName = nullptr;
 
+    explicit devicediscoveryinfo();
+
     /**
      * @brief Exclude a device type. Can be used to indicate a device of this type is already discovered.
      * @param type the device type to exclude.
@@ -75,6 +77,11 @@ public :
      * @brief Loads this object with values from the QSettings object.
      */
     void getValues(QSettings& settings);
+
+    /**
+     * @brief Temporarily creates an empty QSettings object and loads this object's members from it.
+     */
+    void loadDefaultValues();
 
 };
 

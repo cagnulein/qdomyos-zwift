@@ -17,6 +17,8 @@ public:
         // TODO: make sure there's only ever 1 instance.
     }
 
+    virtual ~TestSettings();
+
     /**
      * @brief Indicates if the default QSettings object accesses the same data as the one in this object.
      * @return
@@ -32,9 +34,6 @@ public:
      * @brief Restores the original QCoreApplication application and organisation names.
      */
     void deactivate();
-
-    virtual ~TestSettings();
-
 };
 
 #endif // TESTSETTINGS_H

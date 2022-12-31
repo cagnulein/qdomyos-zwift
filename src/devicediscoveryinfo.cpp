@@ -2,6 +2,10 @@
 #include "qzsettings.h"
 
 
+devicediscoveryinfo::devicediscoveryinfo(){
+
+}
+
 void devicediscoveryinfo::exclude(deviceType type) {
     this->exclusions.push_back(type);
 }
@@ -65,5 +69,18 @@ void devicediscoveryinfo::getValues(QSettings &settings){
     this->computrainer_serial_port = settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     this->ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     this->ftmsAccessoryName = settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
+}
+
+void devicediscoveryinfo::loadDefaultValues() {
+    // generate some settings with some random ids
+    QSettings settings("21f0b218-895f-11ed-a1eb-0242ac120002", "21f0b218-895f-11ed-a1eb-0242ac120002");
+
+    // clear the settings in case they exist from some other call
+    settings.clear();
+
+    this->getValues(settings);
+
+    // clear the settings
+    settings.clear();
 }
 

@@ -11,6 +11,9 @@ template<typename T>
 void BluetoothDeviceTestSuite<T>::SetUp() {
     devicediscoveryinfo defaultDiscoveryInfo;
 
+    // load the default values
+    defaultDiscoveryInfo.loadDefaultValues();
+
     // Test that the device is identified when enabled in the settings
     this->enablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, true);
     this->disablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, false);
@@ -44,10 +47,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
-            std::shared_ptr<bluetoothdevice> device;
-
             EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
-
             EXPECT_TRUE(testData.get_isExpectedDevice(bt.device()));
 
             // restart the bluetooth manager to clear the device
@@ -72,7 +72,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
 
             // try to create the device
             EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to run device discovery";
-            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when expected not to.";
+            EXPECT_EQ(bt.device(), nullptr) << "A device was created when none was expected.";
+            //EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when expected not to.";
 
             // restart the bluetooth manager to clear the device
             bt.restart();
@@ -97,11 +98,9 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
 
                 // try to create the device
-                std::shared_ptr<bluetoothdevice> device;
-
                 EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
-
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when disabled in settings.";
+                EXPECT_EQ(bt.device(), nullptr) << "A device was created when none was expected.";
+                //EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when disabled in settings.";
 
                 // restart the bluetooth manager to clear the device
                 bt.restart();
@@ -112,6 +111,9 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
 
 template<typename T>
 void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
+
+    FAIL() << "Exclusions are not yet implemented";
+
     BluetoothDeviceTestData& testData = this->typeParam;
 
     bluetooth bt(this->defaultDiscoveryOptions);
@@ -127,12 +129,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
 
             for(QString deviceName : this->names)
             {
+                // TODO: configure the bluetooth object to already have the exclusion set
+                FAIL() << "Exclusions are not yet implemented";
+
                 discoveryInfo.setValues(this->testSettings.qsettings);
 
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
                 EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
-
                 EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device in spite of exclusion";
 
                 bt.restart();
@@ -161,10 +165,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
             // try to create the device
-            std::shared_ptr<bluetoothdevice> device;
-
             EXPECT_NO_THROW(bt.deviceDiscovered(deviceInfo)) << "Failed to create device object";
-
             EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device from invalid name: " << deviceName.toStdString();
 
             // restart the bluetooth manager to clear the device
