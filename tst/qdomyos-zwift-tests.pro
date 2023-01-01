@@ -10,8 +10,6 @@ CONFIG -= app_bundle
 CONFIG += thread
 
 SOURCES += \
-        Devices/ActivioTreadmill/activiotreadmilltestdata.cpp \
-        Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
