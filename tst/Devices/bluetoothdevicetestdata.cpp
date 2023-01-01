@@ -76,6 +76,8 @@ std::string BluetoothDeviceTestData::get_testName() const {
     return this->testName;
 }
 
+bool BluetoothDeviceTestData::get_isAbstract() const { return false; }
+
 void BluetoothDeviceTestData::addInvalidDeviceName(const QString& deviceName, comparison cmp){
     QStringList newNames;
 

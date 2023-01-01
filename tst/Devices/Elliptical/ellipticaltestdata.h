@@ -8,6 +8,8 @@ class EllipticalTestData : public BluetoothDeviceTestData {
 public:
     EllipticalTestData() : BluetoothDeviceTestData("Elliptical (Abstract)") {}
 
+    bool get_isAbstract() const override { return true; }
+
     QStringList get_deviceNames() const override {
         QStringList result;
 

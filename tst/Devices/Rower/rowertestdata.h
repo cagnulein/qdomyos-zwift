@@ -8,6 +8,8 @@ class RowerTestData : public BluetoothDeviceTestData {
 public:
     RowerTestData() : BluetoothDeviceTestData("Rower (abstract)") {}
 
+    bool get_isAbstract() const override { return true; }
+
     QStringList get_deviceNames() const override {
         QStringList result;
 

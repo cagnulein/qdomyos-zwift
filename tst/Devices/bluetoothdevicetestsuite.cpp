@@ -21,6 +21,10 @@ void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt, const QBluetoot
 
 template<typename T>
 void BluetoothDeviceTestSuite<T>::SetUp() {
+
+    if(this->typeParam.get_isAbstract())
+        GTEST_SKIP() << "Device is abstract: " << this->typeParam.get_testName();
+
     devicediscoveryinfo defaultDiscoveryInfo(true);
 
     // Test that the device is identified when enabled in the settings
@@ -71,8 +75,11 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
 
     bluetooth bt(this->defaultDiscoveryOptions);
 
+    if(this->disablingConfigurations.size()==0)
+        GTEST_SKIP() << "Device has no disabling configurations: " << testData.get_testName();
+
     // Test that the device is not identified when disabled in the settings
-    for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
+    for(devicediscoveryinfo discoveryInfo : this->disablingConfigurations) {
         for(QString deviceName : this->names)
         {
             this->testSettings.loadFrom(discoveryInfo);
@@ -95,8 +102,12 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
     BluetoothDeviceTestData& testData = this->typeParam;
 
     bluetooth bt(this->defaultDiscoveryOptions);
+    bool hasInvalidBluetoothDeviceInfo = false;
+
 
     if(testData.get_testInvalidBluetoothDeviceInfo()) {
+        hasInvalidBluetoothDeviceInfo = true;
+
         // Test that the device is not identified when disabled in the settings AND has an invalid bluetooth device info
         for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
             for(QString deviceName : this->names)
@@ -114,6 +125,11 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
             }
         }
     }
+
+    if(this->disablingConfigurations.size()==0)
+        GTEST_SKIP() << "Device has no disabling configurations: " << testData.get_testName();
+    if(!hasInvalidBluetoothDeviceInfo)
+        GTEST_SKIP() << "Device test data has no invalid bluetoooth device info defined: " << testData.get_testName();
 }
 
 template<typename T>

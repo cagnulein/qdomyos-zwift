@@ -92,6 +92,13 @@ public:
 
     virtual std::string get_testName() const;
 
+
+    /**
+     * @brief Indicates if the test data is for an abstract class.
+     * @return
+     */
+    virtual bool get_isAbstract() const;
+
     /**
      * @brief A list of bluetooth device names that should be recognised as this device.
      */
