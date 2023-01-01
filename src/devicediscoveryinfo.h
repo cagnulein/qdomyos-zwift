@@ -4,18 +4,11 @@
 #include <QSettings>
 #include <QString>
 #include <vector>
-#include "discovereddevice.h"
 
 /**
  * @brief Settings used during the device discovery process.
  */
 class devicediscoveryinfo {
-private:
-    /**
-     * @brief Devices already discovered. May be used to exclude certain devices of
-     * ambiguous identity.
-     */
-    std::vector<deviceType> exclusions;
 public :
     QString filterDevice = QLatin1String("");
 
@@ -57,18 +50,6 @@ public :
      * @param loadDefaults Indicates if the default values should be loaded.
      */
     explicit devicediscoveryinfo(bool loadDefaults=true);
-
-    /**
-     * @brief Exclude a device type. Can be used to indicate a device of this type is already discovered.
-     * @param type the device type to exclude.
-     */
-    void exclude(deviceType type);
-
-    /**
-     * @brief Determine if the device type is excluded.
-     * @param type The type to test for exclusion.
-     */
-    bool excludes(deviceType type) const;
 
     /**
      * @brief Configures the QSettings object.

@@ -7,16 +7,6 @@ devicediscoveryinfo::devicediscoveryinfo(bool loadDefaults){
         this->loadDefaultValues();
 }
 
-void devicediscoveryinfo::exclude(deviceType type) {
-    this->exclusions.push_back(type);
-}
-
-bool devicediscoveryinfo::excludes(deviceType type) const {
-    for(auto item : exclusions)
-        if(item==type) return true;
-    return false;
-}
-
 void devicediscoveryinfo::setValues(QSettings &settings, bool clear) const {
     if(clear) settings.clear();
     settings.setValue(QZSettings::filter_device, this->filterDevice);

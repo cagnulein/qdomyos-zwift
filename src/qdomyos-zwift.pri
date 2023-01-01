@@ -256,7 +256,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
-    $$PWD/discovereddevice.h \
     $$PWD/discoveryoptions.h \
     $$PWD/templatemanagers.h \
    Computrainer.h \
