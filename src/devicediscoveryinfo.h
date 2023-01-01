@@ -52,7 +52,11 @@ public :
 
     QString ftmsAccessoryName = nullptr;
 
-    explicit devicediscoveryinfo();
+    /**
+     * @brief Constructor.
+     * @param loadDefaults Indicates if the default values should be loaded.
+     */
+    explicit devicediscoveryinfo(bool loadDefaults=true);
 
     /**
      * @brief Exclude a device type. Can be used to indicate a device of this type is already discovered.
@@ -71,7 +75,7 @@ public :
      * @param settings
      * @param clear Specifies whether to clear the settings object.
      */
-    void setValues(QSettings& settings, bool clear=true);
+    void setValues(QSettings& settings, bool clear=true) const;
 
     /**
      * @brief Loads this object with values from the QSettings object.

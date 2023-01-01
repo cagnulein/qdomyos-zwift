@@ -16,6 +16,15 @@ protected:
     QStringList names;
     discoveryoptions defaultDiscoveryOptions;
     TestSettings testSettings;
+
+    /**
+     * @brief Call bt.deviceDiscovered on the deviceInfo to try to detect and create the bluetoothdevice object for it.
+     * If an exception is thrown, the test is failed with a call to FAIL().
+     * Bascially replaces EXPECT_NO_THROW, for ease of breakpoint placement.
+     * @param bt
+     * @param deviceInfo
+     */
+    void tryDetectDevice(bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
@@ -37,7 +46,7 @@ public:
 
 TYPED_TEST_SUITE(BluetoothDeviceTestSuite, BluetoothDeviceTestDataTypes);
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceDetectedExclusions) {
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedDueToExclusions) {
     this->test_deviceDetection_exclusions();
 }
 

@@ -2,8 +2,9 @@
 #include "qzsettings.h"
 
 
-devicediscoveryinfo::devicediscoveryinfo(){
-
+devicediscoveryinfo::devicediscoveryinfo(bool loadDefaults){
+    if(loadDefaults)
+        this->loadDefaultValues();
 }
 
 void devicediscoveryinfo::exclude(deviceType type) {
@@ -16,7 +17,7 @@ bool devicediscoveryinfo::excludes(deviceType type) const {
     return false;
 }
 
-void devicediscoveryinfo::setValues(QSettings &settings, bool clear){
+void devicediscoveryinfo::setValues(QSettings &settings, bool clear) const {
     if(clear) settings.clear();
     settings.setValue(QZSettings::filter_device, this->filterDevice);
     settings.setValue(QZSettings::applewatch_fakedevice, this->fake_bike);
