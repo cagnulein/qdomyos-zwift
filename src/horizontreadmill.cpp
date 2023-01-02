@@ -54,7 +54,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
 
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(6000, &loop, SLOT(quit())); // 6 seconds are important
     } else {
         connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
         timeout.singleShot(3000, &loop, SLOT(quit()));
