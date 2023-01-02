@@ -209,6 +209,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
     }
 
+    uint32_t lastLapTimer = 0;
     for (int i = firstRealIndex; i < session.length(); i++) {
 
         fit::RecordMesg newRecord;
@@ -252,20 +253,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
         if (sl.lapTrigger) {
 
-            lapMesg.SetTotalElapsedTime(sl.elapsedTime - lapMesg.GetTotalElapsedTime());
-            lapMesg.SetTotalTimerTime(sl.elapsedTime - lapMesg.GetTotalTimerTime());
+            lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
+            lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
+            lastLapTimer = sl.elapsedTime;
 
             encode.Write(lapMesg);
 
-            lapMesg.SetStartTime(sl.time.toSecsSinceEpoch() - 631065600L);
-            lapMesg.SetTimestamp(sl.time.toSecsSinceEpoch() - 631065600L);
+            lapMesg.SetStartTime(date.GetTimeStamp() + i);
+            lapMesg.SetTimestamp(date.GetTimeStamp() + i);
             lapMesg.SetEvent(FIT_EVENT_WORKOUT);
             lapMesg.SetEventType(FIT_EVENT_LAP);
         }
     }
 
-    lapMesg.SetTotalElapsedTime(session.last().elapsedTime - lapMesg.GetTotalElapsedTime());
-    lapMesg.SetTotalTimerTime(session.last().elapsedTime - lapMesg.GetTotalTimerTime());
+    lapMesg.SetTotalElapsedTime(session.last().elapsedTime - lastLapTimer);
+    lapMesg.SetTotalTimerTime(session.last().elapsedTime - lastLapTimer);
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     encode.Write(lapMesg);
