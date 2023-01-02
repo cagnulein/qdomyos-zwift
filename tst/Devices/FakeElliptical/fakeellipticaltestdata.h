@@ -5,7 +5,7 @@
 
 class FakeEllipticalTestData : public BluetoothDeviceTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fakedevice_elliptical = enable;
         return true;
     }

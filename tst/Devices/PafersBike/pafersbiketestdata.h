@@ -5,7 +5,7 @@
 
 class PafersBikeTestData : public BluetoothDeviceTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         // the treadmill is given priority
         info.pafers_treadmill = !enable;
         return true;

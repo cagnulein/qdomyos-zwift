@@ -53,9 +53,9 @@ void BluetoothDeviceTestData::addDifferentCasings(const QStringList& names, QStr
     }
 }
 
-void BluetoothDeviceTestData::configureSettings(const devicediscoveryinfo &info, bool enable, std::vector<devicediscoveryinfo> configurations) const { }
+void BluetoothDeviceTestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const { }
 
-bool BluetoothDeviceTestData::configureSettings(devicediscoveryinfo &info, bool enable) const { return false;}
+bool BluetoothDeviceTestData::configureSettings(DeviceDiscoveryInfo &info, bool enable) const { return false;}
 
 BluetoothDeviceTestData::BluetoothDeviceTestData(std::string testName) {
     std::string output;
@@ -108,10 +108,10 @@ std::vector<std::shared_ptr<BluetoothDeviceTestData> > BluetoothDeviceTestData::
     return this->exclusions;
 }
 
-std::vector<devicediscoveryinfo> BluetoothDeviceTestData::get_configurations(const devicediscoveryinfo &info, bool enable) {
-    std::vector<devicediscoveryinfo> result;
+std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::get_configurations(const DeviceDiscoveryInfo &info, bool enable) {
+    std::vector<DeviceDiscoveryInfo> result;
 
-    devicediscoveryinfo newInfo(info);
+    DeviceDiscoveryInfo newInfo(info);
     if(this->configureSettings(newInfo, enable))
         result.push_back(newInfo);
 

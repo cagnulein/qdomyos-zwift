@@ -21,7 +21,7 @@ void TestSettings::deactivate() {
     this->active = false;
 }
 
-void TestSettings::loadFrom(const devicediscoveryinfo &info, bool clear){ info.setValues(this->qsettings, clear);}
+void TestSettings::loadFrom(const DeviceDiscoveryInfo &info, bool clear){ info.setValues(this->qsettings, clear);}
 
 TestSettings::~TestSettings() {
     this->deactivate();

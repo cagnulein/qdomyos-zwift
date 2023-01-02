@@ -25,7 +25,7 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
     if(this->typeParam.get_isAbstract())
         GTEST_SKIP() << "Device is abstract: " << this->typeParam.get_testName();
 
-    devicediscoveryinfo defaultDiscoveryInfo(true);
+    DeviceDiscoveryInfo defaultDiscoveryInfo(true);
 
     // Test that the device is identified when enabled in the settings
     this->enablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, true);
@@ -52,7 +52,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
 
     bluetooth bt(this->defaultDiscoveryOptions);
 
-    for(devicediscoveryinfo discoveryInfo : enablingConfigurations) {
+    for(DeviceDiscoveryInfo discoveryInfo : enablingConfigurations) {
         for(QString deviceName : this->names)
         {
             this->testSettings.loadFrom(discoveryInfo);
@@ -79,7 +79,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
         GTEST_SKIP() << "Device has no disabling configurations: " << testData.get_testName();
 
     // Test that the device is not identified when disabled in the settings
-    for(devicediscoveryinfo discoveryInfo : this->disablingConfigurations) {
+    for(DeviceDiscoveryInfo discoveryInfo : this->disablingConfigurations) {
         for(QString deviceName : this->names)
         {
             this->testSettings.loadFrom(discoveryInfo);
@@ -107,14 +107,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
     if(testData.get_testInvalidBluetoothDeviceInfo()) {
         hasInvalidBluetoothDeviceInfo = true;
 
-        std::vector<devicediscoveryinfo> allConfigurations;
-        for(devicediscoveryinfo discoveryInfo : this->disablingConfigurations)
+        std::vector<DeviceDiscoveryInfo> allConfigurations;
+        for(DeviceDiscoveryInfo discoveryInfo : this->disablingConfigurations)
             allConfigurations.push_back(discoveryInfo);
-        for(devicediscoveryinfo discoveryInfo : this->enablingConfigurations)
+        for(DeviceDiscoveryInfo discoveryInfo : this->enablingConfigurations)
             allConfigurations.push_back(discoveryInfo);
 
         // Test that the device is not identified when there is an invalid bluetooth device info
-        for(devicediscoveryinfo discoveryInfo : allConfigurations) {
+        for(DeviceDiscoveryInfo discoveryInfo : allConfigurations) {
             for(QString deviceName : this->names)
             {
                 this->testSettings.loadFrom(discoveryInfo);
@@ -144,16 +144,16 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
     // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
     auto exclusions = testData.get_exclusions();
     for(auto exclusion : exclusions) {
-        for(devicediscoveryinfo enablingDiscoveryInfo : enablingConfigurations) {
-            devicediscoveryinfo discoveryInfo(enablingDiscoveryInfo);
+        for(DeviceDiscoveryInfo enablingDiscoveryInfo : enablingConfigurations) {
+            DeviceDiscoveryInfo discoveryInfo(enablingDiscoveryInfo);
 
             for(QString deviceName : this->names)
             {
                 // get an enabling configuration for the exclusion
-                devicediscoveryinfo exclusionDiscoveryInfo(true);
+                DeviceDiscoveryInfo exclusionDiscoveryInfo(true);
                 QString exclusionDeviceName = exclusion.get()->get_deviceNames()[0];
                 QBluetoothDeviceInfo exclusionDeviceInfo = exclusion.get()->get_bluetoothDeviceInfo(uuid, deviceName);
-                std::vector<devicediscoveryinfo> configurationsEnablingTheExclusion = exclusion.get()->get_configurations(exclusionDiscoveryInfo, true);
+                std::vector<DeviceDiscoveryInfo> configurationsEnablingTheExclusion = exclusion.get()->get_configurations(exclusionDiscoveryInfo, true);
 
                 if(configurationsEnablingTheExclusion.size()>0) {
                     // get a configuration that should enable the detection of the excluding device
@@ -191,9 +191,9 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
     bluetooth bt(this->defaultDiscoveryOptions);    
 
     // Test that it doesn't detect this device for the "wrong" names
-    for(devicediscoveryinfo enablingDiscoveryInfo : enablingConfigurations) {
+    for(DeviceDiscoveryInfo enablingDiscoveryInfo : enablingConfigurations) {
 
-        devicediscoveryinfo discoveryInfo(enablingDiscoveryInfo);
+        DeviceDiscoveryInfo discoveryInfo(enablingDiscoveryInfo);
 
         for(QString deviceName : invalidNames)
         {

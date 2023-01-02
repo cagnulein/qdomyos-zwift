@@ -5,7 +5,7 @@
 
 class NordicTrackIFitADBTreadmillTestData : public BluetoothDeviceTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         if(enable)
             info.nordictrack_2950_ip = this->get_testIP();
         else

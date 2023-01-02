@@ -20,7 +20,7 @@ public:
 
 class SnodeBike1TestData : public SnodeBikeTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.snode_bike = enable;
         return true;
     }

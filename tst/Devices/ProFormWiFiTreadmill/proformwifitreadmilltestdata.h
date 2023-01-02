@@ -5,7 +5,7 @@
 
 class ProFormWiFiTreadmillTestData : public BluetoothDeviceTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.proformtreadmillip = enable ? this->get_testIP():QString();
         return true;
     }

@@ -8,7 +8,7 @@ class TrxAppGateUSBTreadmillTestData : public BluetoothDeviceTestData {
 protected:
     void configureExclusions() override;
 
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.toorx_bike = !enable;
         return true;
     }

@@ -24,24 +24,24 @@ public:
 
 class FitshowTreadmillFSTestData : public FitshowTreadmillTestData {
 protected:
-    void configureSettings(const devicediscoveryinfo& info, bool enable, std::vector<devicediscoveryinfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
         if(enable){
-            devicediscoveryinfo info1(info);
+            DeviceDiscoveryInfo info1(info);
             info1.snode_bike = false;
             info1.fitplus_bike = false;
             configurations.push_back(info1);
         } else {
-            devicediscoveryinfo info1(info);
+            DeviceDiscoveryInfo info1(info);
             info1.snode_bike = true;
             info1.fitplus_bike = true;
             configurations.push_back(info1);
 
-            devicediscoveryinfo info2(info);
+            DeviceDiscoveryInfo info2(info);
             info2.snode_bike = true;
             info2.fitplus_bike = false;
             configurations.push_back(info2);
 
-            devicediscoveryinfo info3(info);
+            DeviceDiscoveryInfo info3(info);
             info2.snode_bike = false;
             info2.fitplus_bike = true;
             configurations.push_back(info3);

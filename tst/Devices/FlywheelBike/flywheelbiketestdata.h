@@ -28,7 +28,7 @@ public:
 
 class FlywheelBike2TestData : public FlywheelBikeTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.flywheel_life_fitness_ic8 = enable;
         return true;
     }

@@ -7,7 +7,7 @@ class CSCBikeTestData : public BluetoothDeviceTestData {
 private:
     QString cscBikeName;
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
        info.cscName = enable ? this->cscBikeName : "Disabled";
        info.csc_as_bike = enable;
        return true;

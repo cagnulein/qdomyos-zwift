@@ -25,7 +25,7 @@ public:
 
 class FTMSBike1TestData : public FTMSBikeTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.hammerRacerS = enable;
         return true;
     }
@@ -64,7 +64,7 @@ class FTMSBike3TestData : public FTMSBikeTestData {
 private:
     QString ftmsAccessoryName;
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.ss2k_peloton = enable;
 
         if(enable)

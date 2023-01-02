@@ -32,7 +32,7 @@ public:
 
 class StagesBike2TestData : public StagesBikeTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.powerSensorName = enable ? "Disabled":"Roberto";
         return true;
     }

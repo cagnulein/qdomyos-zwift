@@ -5,7 +5,7 @@
 
 class TechnoGymMyRunTreadmillTestData : public BluetoothDeviceTestData {
 protected:
-    bool configureSettings(devicediscoveryinfo& info, bool enable) const override {
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.technogym_myrun_treadmill_experimental = !enable;
         return true;
     }

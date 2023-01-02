@@ -14,12 +14,12 @@ protected:
     /**
      * @brief Configurations that enable, or at least not prevent, the device from be detected.
      */
-    std::vector<devicediscoveryinfo> enablingConfigurations;
+    std::vector<DeviceDiscoveryInfo> enablingConfigurations;
 
     /**
      * @brief Configurations that should prevent the device from being detected.
      */
-    std::vector<devicediscoveryinfo> disablingConfigurations;
+    std::vector<DeviceDiscoveryInfo> disablingConfigurations;
 
     /**
      * @brief A sample of valid bluetooth names for the device.

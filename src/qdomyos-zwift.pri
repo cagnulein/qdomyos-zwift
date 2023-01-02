@@ -72,7 +72,6 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
-    devicediscoveryinfo.cpp \
    characteristicwriteprocessor.cpp \
    characteristicwriteprocessore005.cpp \
    computrainerbike.cpp \
@@ -268,7 +267,6 @@ HEADERS += \
    characteristicwriteprocessore005.h \
    computrainerbike.h \
     definitions.h \
-    devicediscoveryinfo.h \
     fakeelliptical.h \
    faketreadmill.h \
    lifefitnesstreadmill.h \
