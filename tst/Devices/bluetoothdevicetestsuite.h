@@ -11,10 +11,29 @@ class BluetoothDeviceTestSuite : public testing::Test {
 protected:
     T typeParam;
 
+    /**
+     * @brief Configurations that enable, or at least not prevent, the device from be detected.
+     */
     std::vector<devicediscoveryinfo> enablingConfigurations;
+
+    /**
+     * @brief Configurations that should prevent the device from being detected.
+     */
     std::vector<devicediscoveryinfo> disablingConfigurations;
+
+    /**
+     * @brief A sample of valid bluetooth names for the device.
+     */
     QStringList names;
+
+    /**
+     * @brief The default options for dicovery by an instance of the bluetooth class.
+     */
     discoveryoptions defaultDiscoveryOptions;
+
+    /**
+     * @brief Manages the QSettings used during the tests, separate from QSettings stored in the system generally.
+     */
     TestSettings testSettings;
 
     /**
@@ -35,10 +54,34 @@ public:
     // virtual void TearDown();
 
 
+    /**
+     * @brief Tests that a device is not detected if its exluding devices have already been detected.
+     */
     void test_deviceDetection_exclusions();
+
+    /**
+     * @brief Test that if a device is enabled in the settings, and no excluding devices have already been detected,
+     * the device under test will be created if a valud bluetooth name is provided.
+     */
     void test_deviceDetection_validNames_enabled();
+
+    /**
+     * @brief Test that if a device is disabled in the settings, and no excluding devices have already been detected,
+     * the device under test will NOT be created if a valid bluetooth name is provided.
+     */
     void test_deviceDetection_validNames_disabled();
+
+    /**
+     * @brief Test that for devices whose detected depends on valid bluetooth device info data,
+     * invalid bluetooth device info prevents detection.
+     */
     void test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
+
+    /**
+     * @brief Test that if a device is enabled in the settings, and no excluding devices have already been detected,
+     * the device under test will NOT be created if an invald name is provided.
+     * e.g.starts with correct text, but not the right length and/or wrong case.
+     */
     void test_deviceDetection_invalidNames_enabled();
 
 };
