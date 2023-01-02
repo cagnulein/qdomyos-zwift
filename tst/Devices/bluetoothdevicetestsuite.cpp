@@ -41,7 +41,7 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
 
     this->names = this->typeParam.get_deviceNames();
 
-    EXPECT_GT(this->names.length(), 0) << "No bluetooth names configured for test";
+    EXPECT_GT(this->names.size(), 0) << "No bluetooth names configured for test";
 
     this->testSettings.activate();
 }
@@ -132,7 +132,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
     }
 
     if(!hasInvalidBluetoothDeviceInfo)
-        GTEST_SKIP() << "Device test data has no invalid bluetoooth device info defined: " << testData.get_testName();
+        GTEST_SKIP() << "Device test data has no invalid bluetooth device info defined: " << testData.get_testName();
 }
 
 template<typename T>
@@ -183,15 +183,19 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
 {
     BluetoothDeviceTestData& testData = this->typeParam;
 
-    bluetooth bt(this->defaultDiscoveryOptions);
+    auto invalidNames = testData.get_failingDeviceNames();
+
+    if(invalidNames.length()==0)
+        GTEST_SKIP() << "No invalid names have been generated or explicitly defined for this device: " << testData.get_testName();
+
+    bluetooth bt(this->defaultDiscoveryOptions);    
 
     // Test that it doesn't detect this device for the "wrong" names
     for(devicediscoveryinfo enablingDiscoveryInfo : enablingConfigurations) {
 
         devicediscoveryinfo discoveryInfo(enablingDiscoveryInfo);
-        names = testData.get_failingDeviceNames();
 
-        for(QString deviceName : this->names)
+        for(QString deviceName : invalidNames)
         {
             this->testSettings.loadFrom(discoveryInfo);
 
