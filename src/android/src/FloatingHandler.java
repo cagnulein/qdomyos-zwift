@@ -28,12 +28,14 @@ public class FloatingHandler {
     static Intent _intent = null;
     static public int _width;
     static public int _height;
+    static public int _alpha;
 
-        public static void show(Context context, int port, int width, int height) {
+        public static void show(Context context, int port, int width, int height, int transparency) {
             _context = context;
             _port = port;
             _width = width;
             _height = height;
+            _alpha = transparency;
 
 		// First it confirms whether the
 		// 'Display over other apps' permission in given

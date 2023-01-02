@@ -171,6 +171,9 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
 
+init1:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -247,6 +250,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if(!initPacketRecv) {
+                qDebug() << "init 1 not received";
+                waitForAPacket();
+                goto init1;
+            }
+
+init2:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_1, sizeof(initData7_1),
                                 QStringLiteral("init"), false, false);
@@ -325,6 +337,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if(!initPacketRecv) {
+                qDebug() << "init 2 not received";
+                waitForAPacket();
+                goto init2;
+            }
+
+init3:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_2, sizeof(initData7_2),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -401,6 +422,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if(!initPacketRecv) {
+                qDebug() << "init 3 not received";
+                waitForAPacket();
+                goto init3;
+            }
+
+init4:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_3, sizeof(initData7_3),
                                 QStringLiteral("init"), false, false);
@@ -479,6 +509,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if(!initPacketRecv) {
+                qDebug() << "init 4 not received";
+                waitForAPacket();
+                goto init4;
+            }
+
+init5:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_4, sizeof(initData7_4),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -555,6 +594,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if(!initPacketRecv) {
+                qDebug() << "init 5 not received";
+                waitForAPacket();
+                goto init5;
+            }
+
+init6:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_5, sizeof(initData7_5),
                                 QStringLiteral("init"), false, false);
@@ -633,6 +681,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if(!initPacketRecv) {
+                qDebug() << "init 6 not received";
+                waitForAPacket();
+                goto init6;
+            }
+
+init7:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_6, sizeof(initData7_6),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -710,6 +767,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if(!initPacketRecv) {
+                qDebug() << "init 7 not received";
+                waitForAPacket();
+                goto init7;
+            }
+
+init8:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03, sizeof(initData03),
@@ -726,6 +792,12 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
                                 QStringLiteral("init"), false, true);
+
+            if(!initPacketRecv) {
+                qDebug() << "init 8 not received";
+                waitForAPacket();
+                goto init8;
+            }
         }
         messageID = 0x10;
     }
@@ -760,6 +832,10 @@ void horizontreadmill::update() {
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
+
+            if(mobvoi_treadmill) {
+                forceSpeed(currentSpeed().value());
+            }
 
             sec1Update = 0;
             // updateDisplay(elapsed);
@@ -1099,6 +1175,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (customRecv <= 0) {
             emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
             qDebug() << "full custom packet received";
+            initPacketRecv = true;
             customRecv = 0;
             emit packetReceived();
         }
@@ -1740,6 +1817,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+            mobvoi_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);

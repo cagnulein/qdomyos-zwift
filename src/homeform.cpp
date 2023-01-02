@@ -557,10 +557,11 @@ void homeform::floatingOpen() {
 
         QSettings settings;
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;III)V", QtAndroid::androidContext().object(),
+                                              "(Landroid/content/Context;IIII)V", QtAndroid::androidContext().object(),
                                               settings.value("template_inner_QZWS_port", 6666).toInt(),
                                                   settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
-                                                  settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt());
+                                                  settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
+                                                  settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt());
     } else {
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide","()V");
     }
@@ -2100,6 +2101,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 
     emit workoutNameChanged(workoutName());
     emit instructorNameChanged(instructorName());
+
+#ifdef Q_OS_ANDROID
+    if(settings.value(QZSettings::floating_startup, QZSettings::default_floating_startup).toBool()) {
+        floatingOpen();
+    }
+#endif
 }
 
 void homeform::deviceFound(const QString &name) {
@@ -2377,7 +2384,7 @@ void homeform::Plus(const QString &name) {
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+                    ->changeSpeed(((treadmill *)bluetoothManager->device())->lastRawSpeedRequested());
             }
         }
     } else if (name.contains(QStringLiteral("target_inclination"))) {
@@ -2391,8 +2398,8 @@ void homeform::Plus(const QString &name) {
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(),
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->lastRawInclinationRequested(),
+                                        ((treadmill *)bluetoothManager->device())->lastRawInclinationRequested());
             }
         }
     } else if (name.contains(QStringLiteral("speed"))) {
@@ -2565,7 +2572,7 @@ void homeform::Minus(const QString &name) {
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value());
+                    ->changeSpeed(((treadmill *)bluetoothManager->device())->lastRawSpeedRequested());
             }
         }
     } else if (name.contains(QStringLiteral("target_inclination"))) {
@@ -2579,8 +2586,8 @@ void homeform::Minus(const QString &name) {
                 }
 
                 ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value(),
-                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->lastRawInclinationRequested(),
+                                        ((treadmill *)bluetoothManager->device())->lastRawInclinationRequested());
             }
         }
     } else if (name.contains(QStringLiteral("speed"))) {

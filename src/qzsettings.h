@@ -1621,6 +1621,15 @@ class QZSettings {
     static const QString floating_height;
     static constexpr int default_floating_height = 210;
 
+    static const QString floating_transparency;
+    static constexpr int default_floating_transparency = 80;
+
+    static const QString floating_startup;
+    static constexpr int default_floating_startup = false;
+
+    static const QString norditrack_s25i_treadmill;
+    static constexpr int default_norditrack_s25i_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -26,6 +26,8 @@ class treadmill : public bluetoothdevice {
     void clearStats();
     void setLap();
     void setPaused(bool p);
+    double lastRawSpeedRequested() {return (m_lastRawSpeedRequested != -1 ? m_lastRawSpeedRequested : currentSpeed().value());}
+    double lastRawInclinationRequested() {return (m_lastRawInclinationRequested != -100 ? m_lastRawInclinationRequested : currentInclination().value());}
     virtual void setLastSpeed(double speed);
     virtual void setLastInclination(double inclination);
     virtual bool autoPauseWhenSpeedIsZero();
@@ -56,6 +58,8 @@ class treadmill : public bluetoothdevice {
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
     metric VerticalOscillationMM;
+    double m_lastRawSpeedRequested = -1;
+    double m_lastRawInclinationRequested = -100;
 };
 
 #endif // TREADMILL_H

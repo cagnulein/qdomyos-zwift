@@ -1669,6 +1669,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->startTemplateManagers(activioTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
                         (b.name().startsWith(QStringLiteral("V-RUN"))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("K80_"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
