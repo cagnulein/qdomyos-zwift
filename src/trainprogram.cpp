@@ -669,6 +669,7 @@ void trainprogram::scheduler() {
                             .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
                     emit lap();
                     restart();
+                    distanceEvaluation = false;
                 } else {
                     started = false;
                     if (settings

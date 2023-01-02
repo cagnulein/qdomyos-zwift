@@ -541,6 +541,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject metrics = target_metrics.at(i).toObject();
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            QString segment_type = metrics[QStringLiteral("segment_type")].toString();
             if (metrics_ar.count() > 1 && !offset.isEmpty()) {
                 QJsonObject speed = metrics_ar.at(0).toObject();
                 double speed_lower = speed[QStringLiteral("lower")].toDouble();
@@ -596,6 +597,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.lower_inclination = inc_lower;
                 r.average_inclination = inc_average;
                 r.upper_inclination = inc_upper;
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.speed << r.inclination;
+            } else if(segment_type.contains("floor")) {
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }

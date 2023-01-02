@@ -491,6 +491,14 @@ int main(int argc, char *argv[]) {
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
     }
+
+    result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
+        if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "POST_NOTIFICATIONS denied!";
+    }
 #endif
 
     /* test virtual echelon

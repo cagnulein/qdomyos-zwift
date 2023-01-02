@@ -85,6 +85,7 @@ class horizontreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    bool initPacketRecv = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -93,6 +94,8 @@ class horizontreadmill : public treadmill {
 
     int32_t customRecv = 0;
     int32_t messageID = 0;
+
+    bool mobvoi_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();

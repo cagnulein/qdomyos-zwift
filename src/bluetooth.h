@@ -25,6 +25,9 @@
 #include "bowflext216treadmill.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
+#ifndef Q_OS_IOS
+#include "computrainerbike.h"
+#endif
 #include "concept2skierg.h"
 #include "cscbike.h"
 #include "domyosbike.h"
@@ -153,6 +156,9 @@ protected:
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+#ifndef Q_OS_IOS
+    computrainerbike *computrainerBike = nullptr;
+#endif
     concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
