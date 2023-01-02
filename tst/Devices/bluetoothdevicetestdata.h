@@ -132,6 +132,9 @@ protected:
 
     /**
      * @brief Add a device name that should be identified as this device.
+     * If the comparison specified contains "starts with", then samples that start with the
+     * specified device name will be added. If a case sensitive comparison is specified,
+     * samples with invalid casing will be added to the invalid names list.
      * @param deviceName
      * @param length The expected length. Use 0 for unrestricted.
      */
@@ -139,6 +142,8 @@ protected:
 
     /**
      * @brief Add a device name as a prefix and suffix that should be identified as this device.
+     * If a case sensitive comparison is specified,
+     * samples with invalid casing will be added to the invalid names list.
      * @param deviceName
      */
     void addDeviceName(const QString& deviceNameStartsWith, const QString& deviceNameEndsWith, comparison cmp);
@@ -151,6 +156,7 @@ protected:
 
     /**
      * @brief Add the specified device names with different casings.
+     * Used to provide device names to test case sensitivity or insensitivity.
      * @param names
      * @param target
      */
@@ -173,11 +179,19 @@ protected:
      */
     virtual bool configureSettings(devicediscoveryinfo& info, bool enable) const;
 
+    /**
+     * @brief Constructor
+     * @param testName A user-friendly name for the test, e.g. the device name: "SupaDupa Treadmill"
+     */
     BluetoothDeviceTestData(std::string testName);
 public:
 
     virtual ~BluetoothDeviceTestData();
 
+    /**
+     * @brief Gets the test name.
+     * @return
+     */
     virtual std::string get_testName() const;
 
 
