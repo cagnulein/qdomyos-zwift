@@ -38,7 +38,7 @@ public:
     void test_deviceDetection_exclusions();
     void test_deviceDetection_validNames_enabled();
     void test_deviceDetection_validNames_disabled();
-    void test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled();
+    void test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
     void test_deviceDetection_invalidNames_enabled();
 
 };
@@ -58,7 +58,7 @@ TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisa
     this->test_deviceDetection_validNames_disabled();
 }
 
-TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisabledInvalidBluetoothDeviceInfo) {
-    this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled();
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesInvalidBluetoothDeviceInfo) {
+    this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
 }
 

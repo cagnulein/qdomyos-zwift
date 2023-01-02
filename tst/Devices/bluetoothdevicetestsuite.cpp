@@ -98,18 +98,23 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
 
 
 template<typename T>
-void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoothDeviceInfo_disabled()  {
+void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoothDeviceInfo()  {
     BluetoothDeviceTestData& testData = this->typeParam;
 
     bluetooth bt(this->defaultDiscoveryOptions);
     bool hasInvalidBluetoothDeviceInfo = false;
 
-
     if(testData.get_testInvalidBluetoothDeviceInfo()) {
         hasInvalidBluetoothDeviceInfo = true;
 
-        // Test that the device is not identified when disabled in the settings AND has an invalid bluetooth device info
-        for(devicediscoveryinfo discoveryInfo : disablingConfigurations) {
+        std::vector<devicediscoveryinfo> allConfigurations;
+        for(devicediscoveryinfo discoveryInfo : this->disablingConfigurations)
+            allConfigurations.push_back(discoveryInfo);
+        for(devicediscoveryinfo discoveryInfo : this->enablingConfigurations)
+            allConfigurations.push_back(discoveryInfo);
+
+        // Test that the device is not identified when there is an invalid bluetooth device info
+        for(devicediscoveryinfo discoveryInfo : allConfigurations) {
             for(QString deviceName : this->names)
             {
                 this->testSettings.loadFrom(discoveryInfo);
@@ -118,7 +123,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
 
                 // try to create the device
                 this->tryDetectDevice(bt, deviceInfo);
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when disabled in settings.";
+                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when bluetooth device info is invalid.";
 
                 // restart the bluetooth manager to clear the device
                 bt.restart();
@@ -126,8 +131,6 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
         }
     }
 
-    if(this->disablingConfigurations.size()==0)
-        GTEST_SKIP() << "Device has no disabling configurations: " << testData.get_testName();
     if(!hasInvalidBluetoothDeviceInfo)
         GTEST_SKIP() << "Device test data has no invalid bluetoooth device info defined: " << testData.get_testName();
 }
