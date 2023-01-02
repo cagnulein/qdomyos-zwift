@@ -73,6 +73,8 @@ class bowflext216treadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
+    bool bowflex_t6 = false;
+
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

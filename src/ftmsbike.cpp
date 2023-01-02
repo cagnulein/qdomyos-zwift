@@ -81,12 +81,22 @@ void ftmsbike::forcePower(int16_t requestPower) {
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    QSettings settings;
+    if(!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
+        double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
+        requestResistance = fr;
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        write[3] = ((uint16_t)requestResistance * 10) & 0xFF;
+        write[4] = ((uint16_t)requestResistance * 10) >> 8;
+
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    } else {
+        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+        write[1] = ((uint8_t)(requestResistance));
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    }
 }
 
 void ftmsbike::update() {
@@ -296,7 +306,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
-        if (Flags.avgPower) {
+        if (Flags.avgPower && newValue.length() > index + 1) {
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
@@ -486,7 +496,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
         }
 
-        if (Flags.avgPower) {
+        if (Flags.avgPower && newValue.length() > index + 1) {
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)newValue.at(index))));
@@ -784,7 +794,7 @@ void ftmsbike::serviceScanDone(void) {
     QBluetoothUuid ftmsService((quint16)0x1826);
     bool JK_fitness_577 = bluetoothDevice.name().toUpper().startsWith("DHZ-");
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        if((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
+        if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &ftmsbike::stateChanged);

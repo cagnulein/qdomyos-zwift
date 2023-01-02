@@ -237,9 +237,11 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     }
     FanSpeed = 0;
 
+    QTime now = QTime::currentTime();
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
+        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
     }
+    lastTimeCharChanged = now;
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
@@ -259,7 +261,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     KCal = kcal;
     Distance = distance;
 
-    lastTimeCharChanged = QTime::currentTime();
     firstCharChanged = false;
 }
 
@@ -281,7 +282,7 @@ double trxappgateusbtreadmill::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = ((packet.at(6) - 1) << 8) | (packet.at(7) - 1);
+    uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
 }
@@ -619,6 +620,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("REEBOK")) ||
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
+        device.name().toUpper().startsWith(QStringLiteral("K80_")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {

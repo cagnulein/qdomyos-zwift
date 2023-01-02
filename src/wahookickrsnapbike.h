@@ -42,7 +42,6 @@ class wahookickrsnapbike : public bike {
     bool connected();
     resistance_t maxResistance() { return 100; }
 
-  private:
     enum OperationCode : uint8_t {
         _unlock = 32,
         _setResistanceMode = 64,
@@ -56,6 +55,7 @@ class wahookickrsnapbike : public bike {
         _setWheelCircumference = 72,
     };
 
+  private:
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
     QByteArray setStandardMode(uint8_t level);

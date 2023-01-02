@@ -79,6 +79,12 @@ void strydrunpowersensor::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
+        if (requestInclination != -100) {
+            Inclination = requestInclination;
+            emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            requestInclination = -100;
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
@@ -96,7 +102,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -142,8 +149,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
 
         if (watts())
-            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                       3.5) /
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -154,7 +161,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
-        bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
+        bool double_cadence = settings
+                                  .value(QZSettings::powr_sensor_running_cadence_double,
+                                         QZSettings::default_powr_sensor_running_cadence_double)
+                                  .toBool();
         double cadence_multiplier = 1.0;
         if (double_cadence)
             cadence_multiplier = 2.0;
@@ -168,7 +178,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
             qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
-            if(InstantaneousStrideLengthCM.value() == 0) {
+            if (InstantaneousStrideLengthCM.value() == 0) {
                 GroundContactMS.setValue(0);
                 VerticalOscillationMM.setValue(0);
                 emit groundContactChanged(GroundContactMS.value());
@@ -196,16 +206,17 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         if (newValue.at(0) == 0x02) {
             CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
         } else {
-            CrankRevs =
-                (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) | ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                 ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+            CrankRevs = (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                         ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
         }
         if (newValue.at(0) == 0x01) {
             index += 4;
         } else {
             index += 2;
         }
-        LastCrankEventTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+        LastCrankEventTime =
+            (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
         int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
         if (deltaT < 0) {
@@ -230,7 +241,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
         if (power_as_treadmill) {
-            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+            Speed =
+                Cadence.value() *
+                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                    .toDouble();
 
             emit speedChanged(Speed.value());
             Distance += ((Speed.value() / 3600000.0) *
@@ -275,8 +289,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -372,7 +388,8 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
             auto virtualTreadmill = new virtualtreadmill(this, noHeartService);

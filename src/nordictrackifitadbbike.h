@@ -37,10 +37,10 @@ class nordictrackifitadbbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
 
@@ -52,6 +52,12 @@ class nordictrackifitadbbike : public bike {
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
+
+#ifdef Q_OS_ANDROID
+    QString lastCommand;
+#endif
+
+    QString ip;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

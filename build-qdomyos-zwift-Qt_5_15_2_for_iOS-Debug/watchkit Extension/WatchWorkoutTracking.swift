@@ -223,7 +223,22 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                           start: workoutSession.startDate!,
                                                           end: Date())
             
-            workoutBuilder.add([sampleDistance]) {(success, error) in}
+            workoutBuilder.add([sampleDistance]) {(success, error) in
+                if let error = error {
+                    print(error)
+                }
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    self.workoutBuilder.finishWorkout{ (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                    }
+                }
+            }
         } else {
             
             guard let quantityTypeDistance = HKQuantityType.quantityType(
@@ -236,15 +251,25 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                           start: workoutSession.startDate!,
                                                           end: Date())
             
-            workoutBuilder.add([sampleDistance]) {(success, error) in}
+            workoutBuilder.add([sampleDistance]) {(success, error) in
+                if let error = error {
+                    print(error)
+                }
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    self.workoutBuilder.finishWorkout{ (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                    }
+                }
+            }
         }
         
-        workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
-            
-        }
-        workoutBuilder.finishWorkout{ (workout, error) in
-            workout?.setValue(quantityMiles, forKey: "totalDistance")
-        }
+   
     }
     
     func fetchStepCounts() {

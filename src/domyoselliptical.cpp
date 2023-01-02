@@ -205,7 +205,7 @@ void domyoselliptical::update() {
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
-            } else if (requestResistance == 0) {
+            } else if (requestResistance <= 0) {
                 requestResistance = 1;
             }
 
@@ -586,10 +586,20 @@ uint16_t domyoselliptical::watts() {
         double VO2R = 210.0 / pace;
         double VO2A = (VO2R * weight) / 1000.0;
         double hwatts = 75 * VO2A;
-        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        double inc_res_ratio;
+        if(settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination).toBool())
+            inc_res_ratio = currentInclination().value() / 100.0;
+        else
+            inc_res_ratio = currentResistance().value() / 100.0;
+        double vwatts = ((9.8 * weight) * (inc_res_ratio));
         watts = hwatts + vwatts;
     }
     return watts;
+}
+
+bool domyoselliptical::inclinationAvailableByHardware() {
+    QSettings settings;
+    return settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination).toBool();
 }
 
 void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {

@@ -63,14 +63,19 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+   Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+   characteristicwriteprocessor.cpp \
+   characteristicwriteprocessore005.cpp \
+   computrainerbike.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
+   lifefitnesstreadmill.cpp \
    mepanelbike.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
@@ -249,15 +254,19 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+   Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+   characteristicwriteprocessore005.h \
+   computrainerbike.h \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
+   lifefitnesstreadmill.h \
    mepanelbike.h \
    nautilusbike.h \
     nordictrackelliptical.h \
@@ -665,16 +674,40 @@ DISTFILES += \
 	android/gradlew \
 	android/gradlew.bat \
 	android/libs/android_antlib_4-14-0.jar \
+   android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
+   android/src/FloatingHandler.java \
+   android/src/FloatingWindowGFG.java \
+   android/src/ForegroundService.java \
+   android/src/NotificationClient.java \
+   android/src/QZAdbRemote.java \
         android/src/ScanRecordResult.java \
         android/src/NativeScanCallback.java \
    android/src/HeartChannelController.java \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+    android/src/Usbserial.java \
+   android/src/com/cgutman/adblib/AdbBase64.java \
+   android/src/com/cgutman/adblib/AdbConnection.java \
+   android/src/com/cgutman/adblib/AdbCrypto.java \
+   android/src/com/cgutman/adblib/AdbProtocol.java \
+   android/src/com/cgutman/adblib/AdbStream.java \
+   android/src/com/cgutman/adblib/package-info.java \
+   android/src/com/cgutman/androidremotedebugger/AdbUtils.java \
+   android/src/com/cgutman/androidremotedebugger/adblib/AndroidBase64.java \
+   android/src/com/cgutman/androidremotedebugger/console/CommandHistory.java \
+   android/src/com/cgutman/androidremotedebugger/console/ConsoleBuffer.java \
+   android/src/com/cgutman/androidremotedebugger/devconn/DeviceConnection.java \
+   android/src/com/cgutman/androidremotedebugger/devconn/DeviceConnectionListener.java \
+   android/src/com/cgutman/androidremotedebugger/service/ShellListener.java \
+   android/src/com/cgutman/androidremotedebugger/service/ShellService.java \
+   android/src/com/cgutman/androidremotedebugger/ui/Dialog.java \
+   android/src/com/cgutman/androidremotedebugger/ui/SpinnerDialog.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+    android/gradle.properties \
 	android/src/org/qtproject/qt/android/purchasing/Security.java \
 	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
 	android/src/org/qtproject/qt/android/purchasing/Base64.java \
@@ -685,7 +718,6 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
-#ANDROID_ABIS = arm64-v8a
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
@@ -722,4 +754,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.88
+VERSION = 2.12.35

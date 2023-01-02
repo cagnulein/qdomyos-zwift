@@ -25,6 +25,9 @@
 #include "bowflext216treadmill.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
+#ifndef Q_OS_IOS
+#include "computrainerbike.h"
+#endif
 #include "concept2skierg.h"
 #include "cscbike.h"
 #include "domyosbike.h"
@@ -55,6 +58,7 @@
 #include "keepbike.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
+#include "lifefitnesstreadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
 #include "mepanelbike.h"
@@ -136,6 +140,9 @@ class bluetooth : public QObject, public SignalHandler {
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+#ifndef Q_OS_IOS
+    computrainerbike *computrainerBike = nullptr;
+#endif
     concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
@@ -194,6 +201,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
+    lifefitnesstreadmill *lifefitnessTreadmill = nullptr;
     keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;

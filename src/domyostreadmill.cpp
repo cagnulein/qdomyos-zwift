@@ -49,8 +49,15 @@ QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-
 QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
 QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                  double forceInitInclination) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -85,8 +92,13 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
 
     if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
-        emit debug(QStringLiteral("writeCharacteristic error because the connection is closed"));
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
 
+        return;
+    }
+    
+    if (!gattWriteCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
         return;
     }
 
@@ -94,14 +106,14 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
                                                          QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') <<
+                   QStringLiteral(" // ") + info;
     }
 
     loop.exec();
 
     if (timeout.isActive() == false) {
-        emit debug(QStringLiteral(" exit for timeout"));
+        qDebug() << QStringLiteral(" exit for timeout");
     }
 }
 

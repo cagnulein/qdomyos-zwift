@@ -95,7 +95,8 @@ void bowflext216treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !this->hasVirtualDevice()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -127,7 +128,7 @@ void bowflext216treadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -191,6 +192,9 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if ((newValue.length() != 20))
         return;
 
+    if (bowflex_t6 == true && newValue.at(1) != 0x00)
+        return;
+
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
@@ -230,7 +234,8 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -252,9 +257,15 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 }
 
 double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
-    double data = (double)convertedData / 100.0f;
-    return data * 1.60934;
+    if (bowflex_t6 == false) {
+        uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
+        double data = (double)convertedData / 100.0f;
+        return data * 1.60934;
+    } else {
+        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(12)) + ((uint16_t)((uint8_t)packet.at(13)) << 8);
+        double data = (double)convertedData / 100.0f;
+        return data / 1.60934;
+    }
 }
 
 double bowflext216treadmill::GetKcalFromPacket(const QByteArray &packet) {
@@ -363,6 +374,16 @@ void bowflext216treadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("edff9e80-cad7-11e5-ab63-0002a5d5c51b"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    if (gattCommunicationChannelService == nullptr) {
+        qDebug() << "trying with the BOWFLEX T6 treadmill";
+        bowflex_t6 = true;
+        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("15B7BF49-1693-481E-B877-69D33CE6BAFA"));
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if (gattCommunicationChannelService == nullptr) {
+            qDebug() << "WRONG SERVICE";
+            return;
+        }
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &bowflext216treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();

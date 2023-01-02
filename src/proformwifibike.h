@@ -66,6 +66,8 @@ class proformwifibike : public bike {
     uint16_t watts() override;
     void forceResistance(double requestResistance);
     void innerWriteResistance();
+    void setTargetWatts(double watts);
+    void setWorkoutType(QString type);
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
@@ -76,7 +78,6 @@ class proformwifibike : public bike {
     QString lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint16_t m_watts = 0;
     metric target_watts;
 
     bool initDone = false;
@@ -84,6 +85,8 @@ class proformwifibike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool tdf2 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -46,11 +46,7 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << serverName;
         mdnsServer = new QMdnsEngine::Server(this);
-#ifndef Q_OS_IOS
         mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, serverName.toUtf8() + QByteArrayLiteral("H"), this);
-#else
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, QHostInfo::localHostName().toUtf8(), this);
-#endif
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
