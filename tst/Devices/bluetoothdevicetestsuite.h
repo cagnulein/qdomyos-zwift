@@ -58,7 +58,10 @@ TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesSettingsDisa
     this->test_deviceDetection_validNames_disabled();
 }
 
+TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedInvalidNamesSettingsEnabled) {
+    this->test_deviceDetection_invalidNames_enabled();
+}
+
 TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesInvalidBluetoothDeviceInfo) {
     this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
 }
-
