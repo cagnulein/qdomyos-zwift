@@ -280,7 +280,7 @@ double trxappgateusbtreadmill::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = ((packet.at(6) - 1) * 100) | (packet.at(7) - 1);
+    uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
 }
