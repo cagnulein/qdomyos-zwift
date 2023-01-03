@@ -833,10 +833,6 @@ void horizontreadmill::update() {
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
 
-            if(mobvoi_treadmill && currentSpeed().value() != 0) {
-                forceSpeed(currentSpeed().value());
-            }
-
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
@@ -1063,15 +1059,13 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, false);
         }
     } else if (gattFTMSService) {
-        if(!mobvoi_treadmill) {
-            // for the Tecnogym Myrun
-            uint8_t write[] = {FTMS_REQUEST_CONTROL};
-            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                                true);
-            write[0] = {FTMS_START_RESUME};
-            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                                false, true);
-        }
+        // for the Tecnogym Myrun
+        uint8_t write[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                            true);
+        write[0] = {FTMS_START_RESUME};
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
+                            false, true);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
