@@ -62,15 +62,15 @@ protected:
             // power_as_treadmill enabled and powerSensorName in settings doesn't match device name
             // should work because this isn't using the power sensor name from the settings.
             DeviceDiscoveryInfo info2(info);
-            info1.power_as_treadmill = true;
-            info1.powerSensorName = "NOT " + this->powerSensorName;
+            info2.power_as_treadmill = true;
+            info2.powerSensorName = "NOT " + this->powerSensorName;
             configurations.push_back(info2);
 
             // power_as_treadmill enabled
             // should work because this isn't using the these settings
             DeviceDiscoveryInfo info3(info);
-            info1.power_as_treadmill = false;
-            info1.powerSensorName = this->powerSensorName;
+            info3.power_as_treadmill = false;
+            info3.powerSensorName = this->powerSensorName;
             configurations.push_back(info3);
 
         }

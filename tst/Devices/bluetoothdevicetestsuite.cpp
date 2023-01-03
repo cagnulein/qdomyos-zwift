@@ -26,8 +26,6 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
         GTEST_SKIP() << "Device is abstract: " << this->typeParam.get_testName();
 
     DeviceDiscoveryInfo defaultDiscoveryInfo(true);
-
-    // Test that the device is identified when enabled in the settings
     this->enablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, true);
     this->disablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, false);
 

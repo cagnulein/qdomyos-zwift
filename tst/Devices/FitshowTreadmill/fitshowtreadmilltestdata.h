@@ -42,8 +42,8 @@ protected:
             configurations.push_back(info2);
 
             DeviceDiscoveryInfo info3(info);
-            info2.snode_bike = false;
-            info2.fitplus_bike = true;
+            info3.snode_bike = false;
+            info3.fitplus_bike = true;
             configurations.push_back(info3);
         }
     }
