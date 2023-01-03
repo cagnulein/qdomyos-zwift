@@ -5,7 +5,7 @@ SUBDIRS = \
     src/qdomyos-zwift.pro \
     tst/qdomyos-zwift-tests.pro
     
-tst.depends = src
+tst.depends = src/qdomyos-zwift-lib.pro
 
 
  
