@@ -332,6 +332,12 @@ jobs:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '8'          
           
+      - shell: bash
+        run: |
+          rc=/tmp/rcfile
+          echo 'shopt -s expand_aliases' > $rc
+          echo 'alias llvm-ar="/usr/local/lib/android/sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"' >> $rc
+
       - name: Set Android NDK 21 && build
         run: |
           # Install NDK 21 after GitHub update
@@ -344,11 +350,11 @@ jobs:
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393          
-          alias llvm-ar = "/usr/local/lib/android/sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+          source /tmp/rcfile          
           #qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install      
 
       - name: Check LLVM
-        run: llvm-ar -V
+        run: source /tmp/rcfile && llvm-ar -V
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab        
