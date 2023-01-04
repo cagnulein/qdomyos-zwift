@@ -1630,6 +1630,9 @@ class QZSettings {
     static const QString norditrack_s25i_treadmill;
     static constexpr int default_norditrack_s25i_treadmill = false;
 
+    static const QString toorx_ftms_treadmill;
+    static constexpr bool default_toorx_ftms_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
