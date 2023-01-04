@@ -624,6 +624,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.35
             property bool norditrack_s25i_treadmill: false
+
+            // from version 2.12.36
+            property bool toorx_ftms_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -4248,6 +4251,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.toorx_bike = checked
+                    }                    
+
+                    SwitchDelegate {
+                        id: toorxFTMSTreadmillDelegate
+                        text: qsTr("Toorx FTMS Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_ftms_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.toorx_ftms_treadmill = checked
                     }
 
                     SwitchDelegate {
