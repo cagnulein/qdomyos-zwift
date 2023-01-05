@@ -4,7 +4,7 @@ QT+= charts
 
 unix:android: QT += androidextras gui-private
 
-android: include(../android_openssl/openssl.pri)
+android: include(android_openssl/openssl.pri)
 
 INCLUDEPATH += $$PWD/src/qmdnsengine/src/include
 
