@@ -571,8 +571,9 @@ const QString QZSettings::floating_transparency = QStringLiteral("floating_trans
 const QString QZSettings::floating_startup = QStringLiteral("floating_startup");
 const QString QZSettings::norditrack_s25i_treadmill = QStringLiteral("norditrack_s25i_treadmill");
 const QString QZSettings::toorx_ftms_treadmill = QStringLiteral("toorx_ftms_treadmill");
+const QString QZSettings::nordictrack_t65s_83_treadmill = QStringLiteral("nordictrack_t65s_83_treadmill");
 
-const uint32_t allSettingsCount = 469;
+const uint32_t allSettingsCount = 470;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1045,6 +1046,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::floating_startup, QZSettings::default_floating_startup},
     {QZSettings::norditrack_s25i_treadmill, QZSettings::default_norditrack_s25i_treadmill},
     {QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill},
+    {QZSettings::nordictrack_t65s_83_treadmill, QZSettings::default_nordictrack_t65s_83_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
