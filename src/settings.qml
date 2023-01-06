@@ -627,6 +627,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.36
             property bool toorx_ftms_treadmill: false
+
+            // from version 2.12.38
+            property bool nordictrack_t65s_83_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -3397,7 +3400,7 @@ import Qt.labs.settings 1.0
                         }
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
-                            text: qsTr("Nordictrack T6.5S")
+                            text: qsTr("Nordictrack T6.5S v81")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -3409,6 +3412,22 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_t65s_treadmill = checked
                         }                        
+
+                        SwitchDelegate {
+                            id: nordictrackT65S_83Delegate
+                            text: qsTr("Nordictrack T6.5S v83")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t65s_83_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t65s_83_treadmill = checked
+                        }
+
                         SwitchDelegate {
                             id: nordictrackT70Delegate
                             text: qsTr("Nordictrack T7.0")
