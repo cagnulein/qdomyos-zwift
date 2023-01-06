@@ -333,7 +333,7 @@ jobs:
           java-version: '8'          
 
       - name: Set Android NDK 21 && build
-        run: |
+        run: 
           # Install NDK 21 after GitHub update
           # https://github.com/actions/virtual-environments/issues/5595
           ANDROID_ROOT="/usr/local/lib/android"
