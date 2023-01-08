@@ -59,7 +59,7 @@ class HorizonTreadmillToorxTestData : public BluetoothDeviceTestData {
             {
                 // Enabled in settings, but with excluding setting
                 DeviceDiscoveryInfo info1(info);
-                info1.toorx_ftms_treadmill = false;
+                info1.toorx_ftms_treadmill = true;
                 info1.toorx_ftms = true;
                 configurations.push_back(info1);
             }
