@@ -27,6 +27,7 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::flywheel_life_fitness_ic8, this->flywheel_life_fitness_ic8);
     settings.setValue(QZSettings::toorx_bike, this->toorx_bike);
     settings.setValue(QZSettings::toorx_ftms, this->toorx_ftms);
+    settings.setValue(QZSettings::toorx_ftms_treadmill, this->toorx_ftms_treadmill);
     settings.setValue(QZSettings::snode_bike, this->snode_bike);
     settings.setValue(QZSettings::fitplus_bike, this->fitplus_bike);
     settings.setValue(QZSettings::technogym_myrun_treadmill_experimental, this->technogym_myrun_treadmill_experimental);
@@ -54,6 +55,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->flywheel_life_fitness_ic8 = settings.value(QZSettings::flywheel_life_fitness_ic8, QZSettings::default_flywheel_life_fitness_ic8).toBool();
     this->toorx_bike = settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool();
     this->toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
+    this->toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
     this->snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     this->fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool();
     this->technogym_myrun_treadmill_experimental = settings.value(QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental).toBool();

@@ -35,6 +35,7 @@ public :
     bool toorx_bike = false;
 
     bool toorx_ftms = false;
+    bool toorx_ftms_treadmill = false;
     bool snode_bike = false;
     bool fitplus_bike = false;
 
