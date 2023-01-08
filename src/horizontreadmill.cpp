@@ -1179,6 +1179,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    if(isPaused() && settings.value(QZSettings::horizon_treadmill_suspend_stats_pause, QZSettings::default_horizon_treadmill_suspend_stats_pause).toBool()) {
+        qDebug() << "treadmill paused so I'm ignoring the new metrics";
+        return;
+    }
+
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
         Speed = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |

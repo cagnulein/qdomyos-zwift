@@ -630,6 +630,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.38
             property bool nordictrack_t65s_83_treadmill: false
+            property bool horizon_treadmill_suspend_stats_pause: false
         }
 
         function paddingZeros(text, limit) {
@@ -4023,6 +4024,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_treadmill_disable_pause = checked
+                        }
+
+                        SwitchDelegate {
+                            id: horizonTreadmillSuspendStatsPauseDelegate
+                            text: qsTr("Supends stats while paused")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_suspend_stats_pause
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_suspend_stats_pause = checked
                         }
 
                         RowLayout {
