@@ -631,6 +631,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.38
             property bool nordictrack_t65s_83_treadmill: false
             property bool horizon_treadmill_suspend_stats_pause: false
+
+            // from version 2.12.39
+            property bool sportstech_sx600: false
         }
 
         function paddingZeros(text, limit) {
@@ -1959,6 +1962,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtufit_etappe = checked
+                    }
+                    SwitchDelegate {
+                        id: sportstechSx600BikeDelegate
+                        text: qsTr("Sportstech SX600 bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sportstech_sx600
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.sportstech_sx600 = checked
                     }
                 }
                 AccordionElement {
