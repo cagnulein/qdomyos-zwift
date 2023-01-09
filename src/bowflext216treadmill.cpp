@@ -277,10 +277,14 @@ double bowflext216treadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double bowflext216treadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(4);
-    double data = convertedData;
+    if (bowflex_t6 == false) {
+        uint16_t convertedData = packet.at(4);
+        double data = convertedData;
 
-    return data;
+        return data;
+    } else {
+        return 0;
+    }
 }
 
 void bowflext216treadmill::btinit(bool startTape) {
