@@ -396,8 +396,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::setActivityDescription);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
             &homeform::chartSaved);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::lap, this,
-            &homeform::Lap);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::floatingClose, this,
             &homeform::floatingOpen);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
@@ -553,17 +552,17 @@ void homeform::volumeDown() {
 
 void homeform::floatingOpen() {
 #ifdef Q_OS_ANDROID
-    if(!floating_open) {
+    if (!floating_open) {
 
         QSettings settings;
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "show",
-                                              "(Landroid/content/Context;IIII)V", QtAndroid::androidContext().object(),
-                                              settings.value("template_inner_QZWS_port", 6666).toInt(),
-                                                  settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
-                                                  settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
-                                                  settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt());
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/FloatingHandler", "show", "(Landroid/content/Context;IIII)V",
+            QtAndroid::androidContext().object(), settings.value("template_inner_QZWS_port", 6666).toInt(),
+            settings.value(QZSettings::floating_width, QZSettings::default_floating_width).toInt(),
+            settings.value(QZSettings::floating_height, QZSettings::default_floating_height).toInt(),
+            settings.value(QZSettings::floating_transparency, QZSettings::default_floating_transparency).toInt());
     } else {
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide","()V");
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/FloatingHandler", "hide", "()V");
     }
     floating_open = !floating_open;
 #endif
@@ -673,6 +672,8 @@ QString homeform::getWritableAppDir() {
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#elif defined(Q_OS_WINDOWS)
+    path = QDir::currentPath() + "/";
 #endif
     return path;
 }
@@ -731,9 +732,9 @@ homeform::~homeform() {
 void homeform::aboutToQuit() {
 #ifdef Q_OS_ANDROID
     // closing floating window
-    if(floating_open)
+    if (floating_open)
         floatingOpen();
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide","()V");
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
     /*if(bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();*/
@@ -2103,7 +2104,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     emit instructorNameChanged(instructorName());
 
 #ifdef Q_OS_ANDROID
-    if(settings.value(QZSettings::floating_startup, QZSettings::default_floating_startup).toBool()) {
+    if (settings.value(QZSettings::floating_startup, QZSettings::default_floating_startup).toBool()) {
         floatingOpen();
     }
 #endif
@@ -2392,7 +2393,8 @@ void homeform::Plus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
-                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() + 0.03);
+                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() +
+                                                                    0.03);
                 if (bluetoothManager->device()->inclinationDifficult() == 0) {
                     bluetoothManager->device()->setInclinationDifficult(0.03);
                 }
@@ -2580,7 +2582,8 @@ void homeform::Minus(const QString &name) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
-                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() - 0.03);
+                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() -
+                                                                    0.03);
                 if (bluetoothManager->device()->inclinationDifficult() == 0) {
                     bluetoothManager->device()->setInclinationDifficult(-0.03);
                 }
@@ -3239,8 +3242,8 @@ void homeform::update() {
             this->target_incline->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
             this->target_incline->setSecondLine(
-                QString::number(bluetoothManager->device()->inclinationDifficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
-                QString::number(bluetoothManager->device()->inclinationDifficult(), 'f', 0));
+                QString::number(bluetoothManager->device()->inclinationDifficult() * 100.0, 'f', 0) +
+                QStringLiteral("% @0%=") + QString::number(bluetoothManager->device()->inclinationDifficult(), 'f', 0));
 
             // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
             // so this logic should care about sync the treadmill state to the UI state
@@ -3481,8 +3484,10 @@ void homeform::update() {
                 } else {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
                 }
-                if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-                    ((bike*)bluetoothManager->device())->pelotonResistance().setColor(this->peloton_resistance->valueFontColor());
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                    ((bike *)bluetoothManager->device())
+                        ->pelotonResistance()
+                        .setColor(this->peloton_resistance->valueFontColor());
             }
 
             int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
