@@ -399,6 +399,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::floatingClose, this,
             &homeform::floatingOpen);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Plus, this,
+            &homeform::pelotonOffset_Plus);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
+            &homeform::pelotonOffset_Minus);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
@@ -2558,6 +2562,10 @@ void homeform::Plus(const QString &name) {
         qDebug() << "Plus" << name;
     }
 }
+
+void homeform::pelotonOffset_Plus() { Plus(QStringLiteral("peloton_offset")); }
+
+void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); }
 
 void homeform::Minus(const QString &name) {
     QSettings settings;
