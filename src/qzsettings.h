@@ -1636,6 +1636,12 @@ class QZSettings {
     static const QString nordictrack_t65s_83_treadmill;
     static constexpr bool default_nordictrack_t65s_83_treadmill = false;
 
+    static const QString horizon_treadmill_suspend_stats_pause;
+    static constexpr bool default_horizon_treadmill_suspend_stats_pause = false;
+
+    static const QString sportstech_sx600;
+    static constexpr bool default_sportstech_sx600 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

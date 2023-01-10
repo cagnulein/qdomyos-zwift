@@ -1017,9 +1017,10 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if (!horizon_paragon_x) {
             messageID++;
             uint8_t datas[4];
+            double s = qRound(requestSpeed * 0.621371 * 10);
             datas[0] = 0;
-            datas[1] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
-            datas[2] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+            datas[1] = (uint8_t)(s) & 0xff;
+            datas[2] = (uint16_t)(s) >> 8;
             datas[3] = 0;
             int confirm = GenerateCRC_CCITT(datas, 4);
             uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1040,8 +1041,9 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             double miles_conversion = 1.0;
             if (miles)
                 miles_conversion = 0.621371;
-            datas[0] = (uint8_t)(requestSpeed * miles_conversion * 10) & 0xff;
-            datas[1] = (uint16_t)(requestSpeed * miles_conversion * 10) >> 8;
+            double s = qRound(requestSpeed * miles_conversion * 10);
+            datas[0] = (uint8_t)(s) & 0xff;
+            datas[1] = (uint16_t)(s) >> 8;
             datas[2] = 0x01;
             uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x03, 0x00,
                                             0x00, 0x00, 0x6f, 0x00, 0x01, 0x0d, 0x0a};
@@ -1175,6 +1177,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             customRecv = 0;
             emit packetReceived();
         }
+    }
+
+    if(isPaused() && settings.value(QZSettings::horizon_treadmill_suspend_stats_pause, QZSettings::default_horizon_treadmill_suspend_stats_pause).toBool()) {
+        qDebug() << "treadmill paused so I'm ignoring the new metrics";
+        return;
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&

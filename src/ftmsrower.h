@@ -69,6 +69,7 @@ class ftmsrower : public rower {
 
     bool filterWattNull = false;
     bool WHIPR = false;
+    bool KINGSMITH = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

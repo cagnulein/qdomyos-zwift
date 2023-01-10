@@ -394,7 +394,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool fitmetriaFanfitFound =
         !settings.value(QZSettings::fitmetria_fanfit_enable, QZSettings::default_fitmetria_fanfit_enable).toBool();
     bool toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
-    bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
+    bool toorx_ftms_treadmill =
+        settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
     bool toorx_bike = (settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool() ||
                        settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool() ||
                        settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool() ||
@@ -715,7 +716,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->startTemplateManagers(powerBike);
             } else if ((((power_as_treadmill && b.name().startsWith(powerSensorName))) ||
-                        b.name().toUpper().startsWith(QStringLiteral("ZWIFT RUNPOD"))) && !powerTreadmill && filter) {
+                        b.name().toUpper().startsWith(QStringLiteral("ZWIFT RUNPOD"))) &&
+                       !powerTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 powerTreadmill = new strydrunpowersensor(noWriteResistance, noHeartService, false);
@@ -1231,10 +1233,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
                         (b.name().toUpper().startsWith("WAHOO KICKR")) ||
-                        (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
-                        (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
-                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1")) ||
-                        (b.name().toUpper().startsWith("INRIDE"))) &&
+                        (b.name().toUpper().startsWith("KICKR CORE")) || (b.name().toUpper().startsWith("B94")) ||
+                        (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
+                        (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
+                        (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
