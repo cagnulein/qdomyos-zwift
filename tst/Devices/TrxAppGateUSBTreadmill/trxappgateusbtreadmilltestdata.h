@@ -9,32 +9,18 @@ protected:
     void configureExclusions() override;
 
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+        DeviceDiscoveryInfo config(info);
 
         if(enable) {
-            DeviceDiscoveryInfo info1(info);
-            info1.toorx_bike = false;
-            info1.toorx_ftms_treadmill = false;
-            configurations.push_back(info1);
+            config.toorx_bike = false;
+            config.toorx_ftms_treadmill = false;
+            configurations.push_back(config);
         } else {
-            DeviceDiscoveryInfo info1(info);
-            info1.toorx_bike = true;
-            info1.toorx_ftms_treadmill = true;
-            configurations.push_back(info1);
-
-            DeviceDiscoveryInfo info2(info);
-            info2.toorx_bike = false;
-            info2.toorx_ftms_treadmill = true;
-            configurations.push_back(info2);
-
-            DeviceDiscoveryInfo info3(info);
-            info3.toorx_bike = false;
-            info3.toorx_ftms_treadmill = false;
-            configurations.push_back(info3);
-
-            DeviceDiscoveryInfo info4(info);
-            info4.toorx_bike = true;
-            info4.toorx_ftms_treadmill = false;
-            configurations.push_back(info4);
+            for(int i=1; i<4; i++) {
+                config.toorx_bike = i&1;
+                config.toorx_ftms_treadmill = i&2;
+                configurations.push_back(config);
+            }
         }
     }
 public:

@@ -10,28 +10,26 @@ protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
         if(enable) {
             // power_as_treadmill enabled and powerSensorName in settings matches device name
-            DeviceDiscoveryInfo info1(info);
-            info1.power_as_treadmill = true;
-            info1.powerSensorName = this->powerSensorName;
-            configurations.push_back(info1);
+            DeviceDiscoveryInfo config(info);
+            config.power_as_treadmill = true;
+            config.powerSensorName = this->powerSensorName;
+            configurations.push_back(config);
         } else {
             // enabled but powerSensorName in settings does not match device name
-            DeviceDiscoveryInfo info1(info);
-            info1.power_as_treadmill = true;
-            info1.powerSensorName = "NOT " +this->powerSensorName;
-            configurations.push_back(info1);
+            DeviceDiscoveryInfo config(info);
+            config.power_as_treadmill = true;
+            config.powerSensorName = "NOT " +this->powerSensorName;
+            configurations.push_back(config);
 
             // disabled with non-matching name
-            DeviceDiscoveryInfo info2(info);
-            info2.power_as_treadmill = false;
-            info2.powerSensorName = "NOT " +this->powerSensorName;
-            configurations.push_back(info2);
+            config.power_as_treadmill = false;
+            config.powerSensorName = "NOT " +this->powerSensorName;
+            configurations.push_back(config);
 
             // disabled with matching name
-            DeviceDiscoveryInfo info3(info);
-            info3.power_as_treadmill = false;
-            info3.powerSensorName = this->powerSensorName;
-            configurations.push_back(info3);
+            config.power_as_treadmill = false;
+            config.powerSensorName = this->powerSensorName;
+            configurations.push_back(config);
         }
     }
 public:
@@ -52,26 +50,25 @@ private:
     QString powerSensorName;
 protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+        DeviceDiscoveryInfo config(info);
+
         if(enable) {
             // power_as_treadmill enabled and powerSensorName in settings matches device name
-            DeviceDiscoveryInfo info1(info);
-            info1.power_as_treadmill = true;
-            info1.powerSensorName = this->powerSensorName;
-            configurations.push_back(info1);
+            config.power_as_treadmill = true;
+            config.powerSensorName = this->powerSensorName;
+            configurations.push_back(config);
 
             // power_as_treadmill enabled and powerSensorName in settings doesn't match device name
             // should work because this isn't using the power sensor name from the settings.
-            DeviceDiscoveryInfo info2(info);
-            info2.power_as_treadmill = true;
-            info2.powerSensorName = "NOT " + this->powerSensorName;
-            configurations.push_back(info2);
+            config.power_as_treadmill = true;
+            config.powerSensorName = "NOT " + this->powerSensorName;
+            configurations.push_back(config);
 
             // power_as_treadmill enabled
             // should work because this isn't using the these settings
-            DeviceDiscoveryInfo info3(info);
-            info3.power_as_treadmill = false;
-            info3.powerSensorName = this->powerSensorName;
-            configurations.push_back(info3);
+            config.power_as_treadmill = false;
+            config.powerSensorName = this->powerSensorName;
+            configurations.push_back(config);
 
         }
     }

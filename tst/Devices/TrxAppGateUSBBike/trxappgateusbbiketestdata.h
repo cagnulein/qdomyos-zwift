@@ -26,16 +26,14 @@ protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
         // This particular case of TrxAppGateUSBBike is independant of the setting
 
-        DeviceDiscoveryInfo info1(info);
-        info1.toorx_bike = true;
-        info1.toorx_ftms_treadmill = !enable;
-        configurations.push_back(info1);
+        DeviceDiscoveryInfo config(info);
+        config.toorx_bike = true;
+        config.toorx_ftms_treadmill = !enable;
+        configurations.push_back(config);
 
-
-        DeviceDiscoveryInfo info2(info);
-        info2.toorx_bike = false;
-        info1.toorx_ftms_treadmill = !enable;
-        configurations.push_back(info2);
+        config.toorx_bike = false;
+        config.toorx_ftms_treadmill = !enable;
+        configurations.push_back(config);
     }
 public:
     TrxAppGateUSBBike1TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike")  {
@@ -48,22 +46,19 @@ class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
 protected:
 
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+        DeviceDiscoveryInfo config(info);
 
         if(enable) {
-            DeviceDiscoveryInfo info1(info);
-            info1.toorx_bike = true;
-            info1.toorx_ftms_treadmill = false;
-            configurations.push_back(info1);
+            config.toorx_bike = true;
+            config.toorx_ftms_treadmill = false;
+            configurations.push_back(config);
         } else {
-            DeviceDiscoveryInfo info1(info);
-            info1.toorx_bike = false;
-            info1.toorx_ftms_treadmill = true;
-            configurations.push_back(info1);
-
-            DeviceDiscoveryInfo info2(info);
-            info2.toorx_bike = false;
-            info2.toorx_ftms_treadmill = false;
-            configurations.push_back(info2);
+            config.toorx_bike = false;
+            config.toorx_ftms_treadmill = true;
+            configurations.push_back(config);
+            config.toorx_bike = false;
+            config.toorx_ftms_treadmill = false;
+            configurations.push_back(config);
         }
     }
 public:

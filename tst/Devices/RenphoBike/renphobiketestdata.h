@@ -31,15 +31,14 @@ public:
 class RenphoBike2TestData : public RenphoBikeTestData {
 protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
-        DeviceDiscoveryInfo info1(info);
-        info1.toorx_ftms = enable;
-        info1.toorx_bike = true;
-        configurations.push_back(info1);
+        DeviceDiscoveryInfo config(info);
 
-        DeviceDiscoveryInfo info2(info);
-        info2.toorx_ftms = enable;
-        info2.toorx_bike = false;
-        configurations.push_back(info2);
+        config.toorx_ftms = enable;
+        config.toorx_bike = true;
+        configurations.push_back(config);
+        config.toorx_ftms = enable;
+        config.toorx_bike = false;
+        configurations.push_back(config);
     }
 public:
     RenphoBike2TestData() : RenphoBikeTestData("Renpho Bike (Toorx FTMS)"){
