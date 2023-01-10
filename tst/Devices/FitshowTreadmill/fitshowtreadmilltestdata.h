@@ -32,15 +32,11 @@ protected:
             config.fitplus_bike = false;
             configurations.push_back(config);
         } else {
-            config.snode_bike = true;
-            config.fitplus_bike = true;
-            configurations.push_back(config);
-            config.snode_bike = true;
-            config.fitplus_bike = false;
-            configurations.push_back(config);
-            config.snode_bike = false;
-            config.fitplus_bike = true;
-            configurations.push_back(config);
+            for(int i=1; i<4; i++) {
+                config.snode_bike = i&1;
+                config.fitplus_bike = i&2;
+                configurations.push_back(config);
+            }
         }
     }
 public:
