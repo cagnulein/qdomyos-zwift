@@ -28,10 +28,13 @@ protected:
 
         DeviceDiscoveryInfo info1(info);
         info1.toorx_bike = true;
+        info1.toorx_ftms_treadmill = !enable;
         configurations.push_back(info1);
+
 
         DeviceDiscoveryInfo info2(info);
         info2.toorx_bike = false;
+        info1.toorx_ftms_treadmill = !enable;
         configurations.push_back(info2);
     }
 public:
@@ -43,9 +46,25 @@ public:
 
 class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.toorx_bike = enable;
-        return true;
+
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+
+        if(enable) {
+            DeviceDiscoveryInfo info1(info);
+            info1.toorx_bike = true;
+            info1.toorx_ftms_treadmill = false;
+            configurations.push_back(info1);
+        } else {
+            DeviceDiscoveryInfo info1(info);
+            info1.toorx_bike = false;
+            info1.toorx_ftms_treadmill = true;
+            configurations.push_back(info1);
+
+            DeviceDiscoveryInfo info2(info);
+            info2.toorx_bike = false;
+            info2.toorx_ftms_treadmill = false;
+            configurations.push_back(info2);
+        }
     }
 public:
     TrxAppGateUSBBike2TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike (enabled in settings)") {
