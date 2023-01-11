@@ -372,10 +372,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     movieFileName = QUrl("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#ifndef STEAM_STORE
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
     tLicense.start(600000);
     licenseRequest();
+#endif
 #endif
 
     this->bluetoothManager = bl;
