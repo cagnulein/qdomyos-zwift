@@ -98,10 +98,16 @@ jobs:
           name: windows-binary
           path: src/debug/output
 
-  window--steam-build:
+  window-steam-build:
     runs-on: windows-latest
 
     steps:
+      - uses: CyberAndrii/steam-totp@v1
+        name: Generate TOTP
+        id: steam-totp
+        with:
+          shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
+          
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
         uses: actions/checkout@v2
@@ -148,7 +154,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
-            echo "#define STEAM_STORE >> secret.h 
+            echo "#define STEAM_STORE" >> secret.h
             make -j8
             cd debug
             mkdir output
@@ -160,11 +166,6 @@ jobs:
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .            
 
-      - uses: CyberAndrii/steam-totp@v1
-        name: Generate TOTP
-        id: steam-totp
-        with:
-          shared_secret: ${{ secrets.STEAM_SHARED_SECRET }}
       - uses: game-ci/steam-deploy@v1
         with:
           username: ${{ secrets.STEAM_USERNAME }}
