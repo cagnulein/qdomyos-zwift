@@ -169,7 +169,7 @@ jobs:
           ssfnFileContents: ${{ secrets.STEAM_SSFN_FILE_CONTENTS }}
           appId: 2267200
           buildDescription: 2.12.41
-          rootPath: build
+          rootPath: src/debug/output
           depot1Path: StandaloneWindows64
           #depot2Path: StandaloneLinux64
           releaseBranch: prerelease
