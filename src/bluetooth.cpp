@@ -1179,6 +1179,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
             } else if ((b.name().toUpper().startsWith("TACX NEO") ||
                         b.name().toUpper().startsWith(QStringLiteral("TACX FLOW")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                        !tacxneo2Bike && filter) {
                 this->setLastBluetoothDevice(b);
