@@ -37,6 +37,14 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
+          
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -70,14 +78,15 @@ jobs:
 
       - name: Build
         run: |         
-            cd src
             qmake
+            cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            cd ..
             make -j8
-            cd debug
+            cd src/debug
             mkdir output
             mkdir appx
             cp qdomyos-zwift.exe output/
@@ -217,6 +226,14 @@ jobs:
           path: "src/qmdnsengine/"
           ref: "zwift"
 
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       
@@ -228,7 +245,7 @@ jobs:
           modules: 'qtnetworkauth qtcharts'
       
       - name: Compile Linux Desktop
-        run: cd src; qmake; make -j8
+        run: qmake; make -j8
         
       - name: Archive linux-desktop binary
         uses: actions/upload-artifact@v2
@@ -334,6 +351,14 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
+          
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev          
@@ -382,7 +407,7 @@ jobs:
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '8'          
-          
+
       - name: Set Android NDK 21 && build
         run: |
           # Install NDK 21 after GitHub update
@@ -393,9 +418,10 @@ jobs:
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
-          cd src; qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install      
-            
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install      
+
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab        
