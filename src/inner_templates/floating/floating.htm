@@ -192,7 +192,7 @@
                 'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_lapavg', 'peloton_resistance','peloton_resistance_lapavg',
                 'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
 					 'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-					 'target_cadence', 'target_power']
+                                         'target_cadence', 'target_power', 'peloton_offset']
          let ell = new MainWSQueueElement(null, function(msg) {
 		  if (msg.msg === 'workout') {
         var speed = 0;
@@ -222,6 +222,7 @@
         var target_peloton_resistance = 0;
         var target_cadence = 0;
         var target_power = 0;
+        var peloton_offset = 0;
 
 				for (let key of keys_arr) {
 				  if (msg.content[key] === undefined)
@@ -280,6 +281,8 @@
             target_cadence = msg.content[key];            
           } else if (key === 'target_power') {
             target_power = msg.content[key];                                                
+          } else if (key === 'peloton_offset') {
+            peloton_offset = msg.content[key];
           } else if (key === 'peloton_resistance_color') {
             $('.peloton_resistance-value').css('color', msg.content[key]);
           } else if (key === 'heart_color') {
@@ -325,6 +328,7 @@
         $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
         $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "</b>");
         $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
+        $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
 		  }
 		  return null;
 		}, 15000, 3);

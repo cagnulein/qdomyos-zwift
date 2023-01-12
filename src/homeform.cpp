@@ -405,6 +405,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::pelotonOffset_Plus);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
             &homeform::pelotonOffset_Minus);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset, this,
+            &homeform::pelotonOffset);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),

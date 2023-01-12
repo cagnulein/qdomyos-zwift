@@ -28,6 +28,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void floatingClose();
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
+    int pelotonOffset();
 
   private:
     bool validFileTemplateType(const QString &tp) const;

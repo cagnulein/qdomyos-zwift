@@ -709,6 +709,7 @@ class homeform : public QObject {
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
+    int pelotonOffset() {return (trainProgram?trainProgram->offsetElapsedTime():0);}
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
