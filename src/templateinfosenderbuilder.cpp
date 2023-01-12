@@ -890,6 +890,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("latitude"), device->currentCordinate().latitude());
         obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
+        obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())

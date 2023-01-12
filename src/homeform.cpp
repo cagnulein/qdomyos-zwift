@@ -372,10 +372,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     movieFileName = QUrl("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#ifndef STEAM_STORE
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
     tLicense.start(600000);
     licenseRequest();
+#endif
 #endif
 
     this->bluetoothManager = bl;
@@ -403,6 +405,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::pelotonOffset_Plus);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
             &homeform::pelotonOffset_Minus);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset, this,
+            &homeform::pelotonOffset);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
@@ -2453,7 +2457,12 @@ void homeform::Plus(const QString &name) {
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5;
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
+                if (step < ((elliptical *)bluetoothManager->device())->minStepInclination())
+                    step = ((elliptical *)bluetoothManager->device())->minStepInclination();
+                double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() + step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
@@ -2648,7 +2657,12 @@ void homeform::Minus(const QString &name) {
                 double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-                double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5;
+                double step =
+                    settings.value(QZSettings::treadmill_step_incline, QZSettings::default_treadmill_step_incline)
+                        .toDouble();
+                if (step < ((elliptical *)bluetoothManager->device())->minStepInclination())
+                    step = ((elliptical *)bluetoothManager->device())->minStepInclination();
+                double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() - step;
                 ((elliptical *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())

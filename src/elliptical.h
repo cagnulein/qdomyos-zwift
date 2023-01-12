@@ -30,6 +30,7 @@ class elliptical : public bluetoothdevice {
     uint16_t watts();
     void setGears(int8_t d);
     int8_t gears();
+    virtual double minStepInclination() { return 0.5; }
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);

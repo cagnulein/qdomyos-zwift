@@ -106,6 +106,82 @@ jobs:
         with:
           name: windows-binary
           path: src/debug/output
+
+  window-steam-build:
+    runs-on: windows-latest
+
+    steps:         
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-toolchain
+          msystem: mingw64
+          release: false          
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          cmake-version: '3.20.x'      
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_mingw81
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"          
+
+      - name: Build
+        run: |         
+            cd src
+            qmake
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            echo "#define STEAM_STORE" >> secret.h
+            make -j8
+            cd debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .            
+
+      - uses: game-ci/steam-deploy@v1
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          password: ${{ secrets.STEAM_PASSWORD }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
+          ssfnFileName: ${{ secrets.STEAM_SSFN_FILE_NAME }}
+          ssfnFileContents: ${{ secrets.STEAM_SSFN_FILE_CONTENTS }}
+          appId: 2267200
+          buildDescription: 2.12.41
+          rootPath: src/debug/output
+          depot1Path: ./
+          #depot2Path: StandaloneLinux64
+          releaseBranch: prerelease
           
   # This workflow contains a single job called "build"
   linux-x86-build:
