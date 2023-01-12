@@ -160,7 +160,7 @@ jobs:
             echo "#define STEAM_STORE" >> secret.h
             cd ..
             make -j8
-            cd debug
+            cd src/debug
             mkdir output
             mkdir appx
             cp qdomyos-zwift.exe output/
