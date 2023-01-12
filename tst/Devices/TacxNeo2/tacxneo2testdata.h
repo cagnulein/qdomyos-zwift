@@ -10,7 +10,7 @@ public:
         this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TACX FLOW", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TACX SMART BIKE", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("THINK-X", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("THINK X", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TacxNeo2; }
