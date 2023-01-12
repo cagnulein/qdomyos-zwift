@@ -150,14 +150,15 @@ jobs:
           install-deps: "true"          
 
       - name: Build
-        run: |         
+        run: |    
+            qmake     
             cd src
-            qmake
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
             echo "#define STEAM_STORE" >> secret.h
+            cd ..
             make -j8
             cd debug
             mkdir output
