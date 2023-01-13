@@ -640,6 +640,8 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.43
             property bool proform_hybrid_trainer_xt: false
+            property bool gears_restore_value: false
+            property int gears_current_value: 0
         }
 
         function paddingZeros(text, limit) {
@@ -1318,6 +1320,40 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.speed_power_based = checked
+                    }
+                    Label {
+                        text: qsTr("QZ calculates speed based on your pedal cadence (RPMs). Enable this setting if you want your speed to be calculated based on your power output (watts), as Zwift and some other apps do. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        color: Material.color(Material.Red)
+                    }
+                    SwitchDelegate {
+                        id: gearsRestoreDelegate
+                        text: qsTr("Restore Gears on Startup")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.gears_restore_value
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.gears_restore_value = checked
+                    }
+                    Label {
+                        text: qsTr("QZ will remember the last Gears value and it will restore on startup")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        color: Material.color(Material.Red)
                     }
                     RowLayout {
                         spacing: 10

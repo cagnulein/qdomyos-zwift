@@ -2116,6 +2116,14 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         floatingOpen();
     }
 #endif
+
+    if(settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool()) {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            ((bike*)bluetoothManager->device())->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toInt());
+        } else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            ((elliptical*)bluetoothManager->device())->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toInt());
+        }
+    }
 }
 
 void homeform::deviceFound(const QString &name) {

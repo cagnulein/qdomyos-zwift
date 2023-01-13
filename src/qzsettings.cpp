@@ -578,8 +578,10 @@ const QString QZSettings::horizon_treadmill_suspend_stats_pause =
 const QString QZSettings::sportstech_sx600 = QStringLiteral("sportstech_sx600");
 const QString QZSettings::sole_elliptical_inclination = QStringLiteral("sole_elliptical_inclination");
 const QString QZSettings::proform_hybrid_trainer_xt = QStringLiteral("proform_hybrid_trainer_xt");
+const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_value");
+const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value");
 
-const uint32_t allSettingsCount = 474;
+const uint32_t allSettingsCount = 476;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1058,6 +1060,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600},
     {QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination},
     {QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt},
+    {QZSettings::gears_restore_value, QZSettings::default_gears_restore_value},
+    {QZSettings::gears_current_value, QZSettings::gears_current_value},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
