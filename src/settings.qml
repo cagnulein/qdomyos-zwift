@@ -637,6 +637,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.41
             property bool sole_elliptical_inclination: false
+
+            // from version 2.12.43
+            property bool proform_hybrid_trainer_xt: false
         }
 
         function paddingZeros(text, limit) {
@@ -4449,6 +4452,28 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.domyos_elliptical_inclination = checked
+                        }
+                    }
+                    AccordionElement {
+                        id: proformEllipticalAccordion
+                        title: qsTr("Proform Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            id: proformHybridDelegate
+                            text: qsTr("Proform Hybrid Trainer XT")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_hybrid_trainer_xt
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_hybrid_trainer_xt = checked
                         }
                     }
 
