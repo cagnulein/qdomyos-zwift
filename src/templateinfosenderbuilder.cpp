@@ -636,6 +636,22 @@ void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfo
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject main, outObj;
+    emit pelotonOffset_Plus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_plus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject main, outObj;
+    emit pelotonOffset_Minus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_minus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject main, outObj;
     emit floatingClose();
@@ -731,6 +747,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("lap")) {
                     onLap(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("pelotonoffset_plus")) {
+                    onPelotonOffsetPlus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("pelotonoffset_minus")) {
+                    onPelotonOffsetMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("floating_close")) {
                     onFloatingClose(jsonObject[QStringLiteral("content")], sender);
@@ -868,12 +890,19 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("latitude"), device->currentCordinate().latitude());
         obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
+        obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(
             QStringLiteral("nickName"),
-            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()).isEmpty()
+            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())
+                    .isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
         if (tp == bluetoothdevice::BIKE) {
+            obj.setProperty(QStringLiteral("target_resistance"), ((bike *)device)->lastRequestedResistance().value());
+            obj.setProperty(QStringLiteral("target_peloton_resistance"),
+                            ((bike *)device)->lastRequestedPelotonResistance().value());
+            obj.setProperty(QStringLiteral("target_cadence"), ((bike *)device)->lastRequestedCadence().value());
+            obj.setProperty(QStringLiteral("target_power"), ((bike *)device)->lastRequestedPower().value());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());

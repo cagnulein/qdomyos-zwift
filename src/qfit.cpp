@@ -157,10 +157,18 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
+    encode.Open(file);
+    encode.Write(fileIdMesg);
+    encode.Write(devIdMesg);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
+
+    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+
     fit::LapMesg lapMesg;
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
-    lapMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
-    lapMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetStartTime(date.GetTimeStamp() + firstRealIndex);
+    lapMesg.SetTimestamp(date.GetTimeStamp() + firstRealIndex);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
@@ -180,13 +188,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
-    encode.Open(file);
-    encode.Write(fileIdMesg);
-    encode.Write(devIdMesg);
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
-
-    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
     SessionLine sl;
     if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
         double distanceOld = -1.0;

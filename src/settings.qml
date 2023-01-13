@@ -624,6 +624,19 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.35
             property bool norditrack_s25i_treadmill: false
+
+            // from version 2.12.36
+            property bool toorx_ftms_treadmill: false
+
+            // from version 2.12.38
+            property bool nordictrack_t65s_83_treadmill: false
+            property bool horizon_treadmill_suspend_stats_pause: false
+
+            // from version 2.12.39
+            property bool sportstech_sx600: false
+
+            // from version 2.12.41
+            property bool sole_elliptical_inclination: false
         }
 
         function paddingZeros(text, limit) {
@@ -1952,6 +1965,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtufit_etappe = checked
+                    }
+                    SwitchDelegate {
+                        id: sportstechSx600BikeDelegate
+                        text: qsTr("Sportstech SX600 bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sportstech_sx600
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.sportstech_sx600 = checked
                     }
                 }
                 AccordionElement {
@@ -3394,7 +3421,7 @@ import Qt.labs.settings 1.0
                         }
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
-                            text: qsTr("Nordictrack T6.5S")
+                            text: qsTr("Nordictrack T6.5S v81")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -3406,6 +3433,22 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_t65s_treadmill = checked
                         }                        
+
+                        SwitchDelegate {
+                            id: nordictrackT65S_83Delegate
+                            text: qsTr("Nordictrack T6.5S v83")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t65s_83_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t65s_83_treadmill = checked
+                        }
+
                         SwitchDelegate {
                             id: nordictrackT70Delegate
                             text: qsTr("Nordictrack T7.0")
@@ -4003,6 +4046,21 @@ import Qt.labs.settings 1.0
                             onClicked: settings.horizon_treadmill_disable_pause = checked
                         }
 
+                        SwitchDelegate {
+                            id: horizonTreadmillSuspendStatsPauseDelegate
+                            text: qsTr("Supends stats while paused")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_suspend_stats_pause
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_suspend_stats_pause = checked
+                        }
+
                         RowLayout {
                             spacing: 10
                             Label {
@@ -4248,6 +4306,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.toorx_bike = checked
+                    }                    
+
+                    SwitchDelegate {
+                        id: toorxFTMSTreadmillDelegate
+                        text: qsTr("Toorx FTMS Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_ftms_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.toorx_ftms_treadmill = checked
                     }
 
                     SwitchDelegate {
@@ -4323,49 +4396,84 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
+
             AccordionElement {
-                id: domyosEllipticalAccordion
-                title: qsTr("Domyos Elliptical Options")
+                id: ellipticalAccordion
+                title: qsTr("Elliptical Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
-                accordionContent: RowLayout {
-                    spacing: 10
-                    Label {
-                        id: labelDomyosEllipticalSpeedRatio
-                        text: qsTr("Speed Ratio:")
-                        Layout.fillWidth: true
-                    }
-                    TextField {
-                        id: domyosEllipticalSpeedRatioTextField
-                        text: settings.domyos_elliptical_speed_ratio
-                        horizontalAlignment: Text.AlignRight
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
-                        onAccepted: settings.domyos_elliptical_speed_ratio = text
-                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                    }
-                    Button {
-                        id: okDomyosEllipticalRatioButton
-                        text: "OK"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
-                    }
-                }
-                SwitchDelegate {
-                    id: domyosEllipticalInclinationDelegate
-                    text: qsTr("Inclination Supported")
+                accordionContent: ColumnLayout {
                     spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.domyos_elliptical_inclination
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.domyos_elliptical_inclination = checked
+
+                    AccordionElement {
+                        id: domyosEllipticalAccordion
+                        title: qsTr("Domyos Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelDomyosEllipticalSpeedRatio
+                                text: qsTr("Speed Ratio:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosEllipticalSpeedRatioTextField
+                                text: settings.domyos_elliptical_speed_ratio
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_elliptical_speed_ratio = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okDomyosEllipticalRatioButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
+                            }
+                        }
+                        SwitchDelegate {
+                            id: domyosEllipticalInclinationDelegate
+                            text: qsTr("Inclination Supported")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_elliptical_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_elliptical_inclination = checked
+                        }
+                    }
+
+                    AccordionElement {
+                        id: soleEllipticalAccordion
+                        title: qsTr("Sole Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            id: soleEllipticalInclinationDelegate
+                            text: qsTr("Inclination Supported")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_elliptical_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_elliptical_inclination = checked
+                        }
+                    }
                 }
             }
 

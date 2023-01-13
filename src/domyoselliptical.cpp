@@ -292,6 +292,8 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue) *
                       settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -317,9 +319,21 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        else {
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+        }
+#endif
+#endif
     }
 
     CrankRevs++;

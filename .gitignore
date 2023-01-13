@@ -40,6 +40,8 @@ template-examples/train-program-saver/.eslintrc.js
 template-examples/train-program-saver/.jshintrc
 template-examples/train-program-saver/debug.js
 
+google_test/*
+
 # Qt-es
 *.pro.user
 *build-*
