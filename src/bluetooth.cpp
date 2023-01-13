@@ -1230,6 +1230,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) ||
+                        (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
                         (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)

@@ -178,7 +178,7 @@ jobs:
           ssfnFileName: ${{ secrets.STEAM_SSFN_FILE_NAME }}
           ssfnFileContents: ${{ secrets.STEAM_SSFN_FILE_CONTENTS }}
           appId: 2267200
-          buildDescription: 2.12.41
+          buildDescription: 2.12
           rootPath: src/debug/output
           depot1Path: ./
           #depot2Path: StandaloneLinux64
