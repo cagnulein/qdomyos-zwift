@@ -46,6 +46,8 @@ public :
 
     QString ftmsAccessoryName = nullptr;
 
+    bool trixter_xdream_v1_bike = false;
+
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.

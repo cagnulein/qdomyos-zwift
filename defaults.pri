@@ -2,6 +2,9 @@ QT += gui bluetooth widgets xml positioning quick networkauth websockets texttos
 QTPLUGIN += qavfmediaplayer
 QT+= charts
 
+windows: QT += serialport
+unix:!android: QT += serialport
+
 unix:android: QT += androidextras gui-private
 
 android: include(android_openssl/openssl.pri)

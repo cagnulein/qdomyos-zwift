@@ -17,6 +17,7 @@ SOURCES += \
         Devices/RenphoBike/renphobiketestdata.cpp \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
+        Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
@@ -113,6 +114,8 @@ HEADERS += \
     Devices/TechnogymMyRunTreadmillRFComm/technogymmyruntreadmillrfcommtestdata.h \
     Devices/ToorxTreadmill/toorxtreadmilltestdata.h \
     Devices/Treadmill/treadmilltestdata.h \
+    Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.h \
+    Devices/TrixterXDreamBike/trixterxdreamv1biketestdata.h \
     Devices/TrueTreadmill/truetreadmilltestdata.h \
     Devices/TrxAppGateUSBBike/trxappgateusbbiketestdata.h \
     Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h \

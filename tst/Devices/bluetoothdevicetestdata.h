@@ -91,7 +91,8 @@ enum deviceType {
     ChronoBike,
     MepanelBike,
     LifeFitnessTreadmill,
-    CompuTrainerBike
+    CompuTrainerBike,
+    TrixterXDreamV1Bike
 };
 
 class BluetoothDeviceTestData;
