@@ -16,6 +16,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         dirconManager = new DirconManager(t, 0, 0, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
+        connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
+                SLOT(dirconChangedInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
@@ -32,7 +34,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround) {
 
         qDebug() << "ios_zwift_workaround activated!";
@@ -239,7 +242,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QObject::connect(serviceFTMS, &QLowEnergyService::characteristicChanged, this,
                              &virtualtreadmill::characteristicChanged);
 
-        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
             pars.setInterval(100, 100);
@@ -297,7 +301,8 @@ void virtualtreadmill::slopeChanged() {
 
 void virtualtreadmill::reconnect() {
     QSettings settings;
-    bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+    bool bluetooth_relaxed =
+        settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
     bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
 
     if (bluetooth_relaxed) {
@@ -331,7 +336,10 @@ void virtualtreadmill::treadmillProvider() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
+    bool double_cadence = settings
+                              .value(QZSettings::powr_sensor_running_cadence_double,
+                                     QZSettings::default_powr_sensor_running_cadence_double)
+                              .toBool();
     double cadence_multiplier = 2.0;
     if (double_cadence)
         cadence_multiplier = 1.0;
@@ -345,7 +353,7 @@ void virtualtreadmill::treadmillProvider() {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
-                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope());
+                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
         return;
     }
@@ -357,7 +365,8 @@ void virtualtreadmill::treadmillProvider() {
         return;
     } else {
         QSettings settings;
-        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         if (bluetooth_relaxed) {
             leController->stopAdvertising();
         }
@@ -509,4 +518,10 @@ bool virtualtreadmill::RSCEnable() {
     if (cadence)
         return true;
     return false;
+}
+
+void virtualtreadmill::dirconChangedInclination(double grade, double percentage) {
+    Q_UNUSED(grade);
+    Q_UNUSED(percentage);
+    slopeChanged();
 }

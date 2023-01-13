@@ -271,6 +271,18 @@ class bluetoothdevice : public QObject {
     double difficult();
 
     /**
+     * @brief setDifficult Sets the difficulty level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setInclinationDifficult(double d);
+
+    /**
+     * @brief difficult Gets the difficulty level. Units: depends on implementation.
+     * @return
+     */
+    double inclinationDifficult();
+
+    /**
      * @brief weightLoss Gets the value of the weight loss metric. Units: kg
      * @return
      */
@@ -390,7 +402,7 @@ class bluetoothdevice : public QObject {
     metric elapsed;
 
     /**
-     * @brief moving The time spent moving int he current session. Units: seconds
+     * @brief moving The time spent moving in the current session. Units: seconds
      */
     metric moving; // moving time
 
@@ -435,6 +447,11 @@ class bluetoothdevice : public QObject {
      * @brief m_difficult The current difficulty. Units: device dependent
      */
     double m_difficult = 1.0;
+
+    /**
+     * @brief m_difficult The current difficulty. Units: device dependent
+     */
+    double m_inclination_difficult = 1.0;
 
     /**
      * @brief m_jouls The number of joules expended in the current session. Unit: joules

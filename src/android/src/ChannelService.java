@@ -47,7 +47,7 @@ public class ChannelService extends Service {
     private AntChannelProvider mAntChannelProvider = null;
     private boolean mAllowAddChannel = false;
 
-	 HeartChannelController heartChannelController = null;
+    HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
 
@@ -116,17 +116,17 @@ public class ChannelService extends Service {
             if (null != powerChannelController) {
                 powerChannelController.cadence = cadence;
             }
-			   if (null != speedChannelController) {
-					 speedChannelController.cadence = cadence;
-				}
+            if (null != speedChannelController) {
+                speedChannelController.cadence = cadence;
+            }
         }
 
-	     int getHeart() {
-			  if (null != heartChannelController) {
-				   return heartChannelController.heart;
-			  }
-		     return 0;
-		  }
+        int getHeart() {
+            if (null != heartChannelController) {
+                return heartChannelController.heart;
+            }
+            return 0;
+        }
 
         /**
          * Closes all channels currently added.
@@ -134,28 +134,28 @@ public class ChannelService extends Service {
         void clearAllChannels() {
             closeAllChannels();
         }
-        }
+    }
 
     public void openAllChannels() throws ChannelNotAvailableException {
-		      if(Ant.heartRequest)
-				   heartChannelController = new HeartChannelController(acquireChannel());
+        if (Ant.heartRequest)
+            heartChannelController = new HeartChannelController(acquireChannel());
 
-				if(Ant.speedRequest) {
-					powerChannelController = new PowerChannelController(acquireChannel());
-					speedChannelController = new SpeedChannelController(acquireChannel());
-				}
+        if (Ant.speedRequest) {
+            powerChannelController = new PowerChannelController(acquireChannel());
+            speedChannelController = new SpeedChannelController(acquireChannel());
+        }
     }
 
     private void closeAllChannels() {
-		      if(heartChannelController != null)
-				   heartChannelController.close();
-				if(powerChannelController != null)
-				   powerChannelController.close();
-				if(speedChannelController != null)
-				   speedChannelController.close();
-				heartChannelController = null;
-            powerChannelController = null;
-            speedChannelController = null;
+        if (heartChannelController != null)
+            heartChannelController.close();
+        if (powerChannelController != null)
+            powerChannelController.close();
+        if (speedChannelController != null)
+            speedChannelController.close();
+        heartChannelController = null;
+        powerChannelController = null;
+        speedChannelController = null;
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
@@ -171,19 +171,18 @@ public class ChannelService extends Service {
                  * acquireChannel(context, PredefinedNetwork,
                  * requiredCapabilities, desiredCapabilities).
                  */
-					  if(Ant.garminKey == false)
-					     mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
-					  else
-					  {
-						  NetworkKey mNK = new NetworkKey(new byte[] { (byte)0xb9, (byte)0xa5, (byte)0x21, (byte)0xfb,
-							  (byte)0xbd, (byte)0x72, (byte)0xc3, (byte)0x45 });
-						  Log.v(TAG, mNK.toString());
-						  mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
-					  }
-				   } catch (RemoteException e) {
-					 Log.v(TAG, "ACP Remote Ex");
-					} catch (UnsupportedFeatureException e) {
-					 Log.v(TAG, "ACP UnsupportedFeature Ex");
+                if (Ant.garminKey == false)
+                    mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
+                else {
+                    NetworkKey mNK = new NetworkKey(new byte[]{(byte) 0xb9, (byte) 0xa5, (byte) 0x21, (byte) 0xfb,
+                            (byte) 0xbd, (byte) 0x72, (byte) 0xc3, (byte) 0x45});
+                    Log.v(TAG, mNK.toString());
+                    mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
+                }
+            } catch (RemoteException e) {
+                Log.v(TAG, "ACP Remote Ex");
+            } catch (UnsupportedFeatureException e) {
+                Log.v(TAG, "ACP UnsupportedFeature Ex");
             }
         }
         return mAntChannel;

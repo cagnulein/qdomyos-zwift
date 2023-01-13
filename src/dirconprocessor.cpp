@@ -1,5 +1,8 @@
 #include "dirconprocessor.h"
 #include "dirconpacket.h"
+#include "qzsettings.h"
+#include <QSettings>
+#include <QHostInfo>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)
@@ -198,6 +201,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     DirconPacket pkt;
     QTcpSocket *socket;
     DirconProcessorClient *client;
+    QSettings settings;
     bool rv = true, rvs;
     pkt.additional_data = data;
     pkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
@@ -205,7 +209,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        /*if (client->char_notify.indexOf(uuid) >= 0)*/ {
+        if (client->char_notify.indexOf(uuid) >= 0 || !settings.value(QZSettings::wahoo_rgt_dircon, QZSettings::default_wahoo_rgt_dircon).toBool()) {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)

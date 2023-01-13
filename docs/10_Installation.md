@@ -13,6 +13,7 @@ $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/
 $ git submodule update --init src/qmdnsengine/
+$ git submodule update --init tst/googletest/
 $ cd src
 $ qmake
 $ make -j4
@@ -25,13 +26,13 @@ $ sudo ./qdomyos-zwift
 You will need to (at a minimum) to install the xcode Command Line Tools (CLI) thanks to @richardwait
 https://developer.apple.com/download/more/?=xcode
 
-Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-mac-x64-5.12.9.dmg and simply run the qdomyos-zwift relase for MacOs
+Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-mac-x64-5.12.9.dmg and simply run the qdomyos-zwift release for MacOs
 
 ## On Raspberry Pi Zero W
 
 ![raspi](../docs/img/raspi-bike.jpg)
 
-This guide will walk you through steps to setup an autonomous, headless raspberry brigde.
+This guide will walk you through steps to setup an autonomous, headless raspberry bridge.
 
 
 ### Initial System Preparation
@@ -108,6 +109,7 @@ This operation takes a moment to complete.
 `cd qdomyos-zwift`  
 `git submodule update --init src/smtpclient/`  
 `git submodule update --init src/qmdnsengine/`  
+`git submodule update --init tst/googletest/`
 `cd src`    
 `qmake`    
 `make`  

@@ -101,7 +101,7 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
 
     if (currentSpeed().value() < 10.0) {
 
@@ -283,10 +283,10 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     qDebug() << QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' ');
 
-    // for the init packets, the lenght is always less than 20
-    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
-    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
-    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of
+    // for the init packets, the length is always less than 20
+    // for the display and status packets, the length is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the length will be always != 20
+    // - t900: it splits packets with length grater than 20 in two distinct packets, so the first one it has length of
     // 20,
     //         and the second one with the remained byte
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
@@ -307,7 +307,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     startBytes3.append(0xf0);
     startBytes3.append(0xdd);
 
-    // on some treadmills, the 26bytes has splitted in 2 packets
+    // on some treadmills, the 26bytes has split in 2 packets
     if ((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes3) && value.length() == 7)) {
@@ -427,7 +427,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     KCal = kcal;
     Distance = distance;
@@ -663,7 +663,30 @@ resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
-    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    QSettings settings;
+    if(!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1).toBool() || resistance < 8)
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    else {
+        switch((int)resistance) {
+            case 8:
+                return (13.6 * Cadence.value()) / 9.5488;
+            case 9:
+                return (15.3 * Cadence.value()) / 9.5488;
+            case 10:
+                return (17.3 * Cadence.value()) / 9.5488;
+            case 11:
+                return (19.8 * Cadence.value()) / 9.5488;
+            case 12:
+                return (22.5 * Cadence.value()) / 9.5488;
+            case 13:
+                return (25.6 * Cadence.value()) / 9.5488;
+            case 14:
+                return (28.4 * Cadence.value()) / 9.5488;
+            case 15:
+                return (35.9 * Cadence.value()) / 9.5488;
+        }
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    }
 }
 
 uint16_t domyosbike::watts() {

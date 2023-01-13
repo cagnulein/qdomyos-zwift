@@ -22,11 +22,15 @@ class elliptical : public bluetoothdevice {
     virtual bool connected();
     metric pelotonResistance();
     virtual int pelotonToEllipticalResistance(int pelotonResistance);
+    virtual bool inclinationAvailableByHardware();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setPaused(bool p);
     void setLap();
     uint16_t watts();
+    void setGears(int8_t d);
+    int8_t gears();
+    virtual double minStepInclination() { return 0.5; }
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
@@ -50,6 +54,8 @@ class elliptical : public bluetoothdevice {
     volatile double requestSpeed = -1;
     double requestInclination = -100;
     double CrankRevs = 0;
+    int8_t m_gears = 0;
+    resistance_t lastRawRequestedResistanceValue = -1;
 };
 
 #endif // ELLIPTICAL_H

@@ -108,18 +108,19 @@ void renphobike::update() {
             if (requestPower != -1) {
                 debug("writing power request " + QString::number(requestPower));
                 QSettings settings;
-                bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                                         .toString()
-                                         .startsWith(QStringLiteral("Disabled"));
+                bool power_sensor =
+                    !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                         .toString()
+                         .startsWith(QStringLiteral("Disabled"));
                 // if zwift is connected, QZ routes the ftms packets directly to the bike.
                 // but if zwift is connected and there is also a power sensor attached, we need to change the erg mode
-                // dinamically if peloton is connected, the power request is handled by QZ
+                // dynamically if peloton is connected, the power request is handled by QZ
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || power_sensor) && requestPower != 0)
                     forcePower(ergModificator(requestPower));
                 requestPower = -1;
                 requestResistance = -1;
             }
-            // if zwift is connected we have to avoud to send resistance to the bike
+            // if zwift is connected we have to avoid to send resistance to the bike
             if ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) {
                 if (requestResistance != -1) {
                     if (requestResistance > max_resistance)
@@ -164,7 +165,8 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -205,7 +207,9 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -220,7 +224,9 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 
     if (Flags.instantCadence) {
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString().startsWith("Disabled"))
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                .toString()
+                .startsWith("Disabled"))
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)newValue.at(index)))) /
                       2.0;
@@ -292,7 +298,9 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     } else {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) / 200.0) /
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
@@ -348,7 +356,8 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -369,9 +378,16 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
     foreach (QLowEnergyService *s, gattCommunicationChannelService) {
         qDebug() << "stateChanged" << s->serviceUuid() << s->state();
-        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
-            qDebug() << "not all services discovered";
-            return;
+#ifdef Q_OS_WINDOWS
+        QBluetoothUuid ftmsService((quint16)0x1826);
+        qDebug() << "windows workaround, check only the ftms service" << (s->serviceUuid() == ftmsService);
+        if (s->serviceUuid() == ftmsService)
+#endif
+        {
+            if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+                qDebug() << "not all services discovered";
+                return;
+            }
         }
     }
 
@@ -458,11 +474,14 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -495,7 +514,7 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     qDebug() << QStringLiteral("to") << powerRequested;
 
     if (power_sensor && virtualBike) {
-        if(QDateTime::currentMSecsSinceEpoch() > (virtualBike->whenLastFTMSFrameReceived() + 5000)) {
+        if (QDateTime::currentMSecsSinceEpoch() > (virtualBike->whenLastFTMSFrameReceived() + 5000)) {
             double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
             lastPowerRequestedFactor = f / powerRequested;
             powerRequested = f;
@@ -581,10 +600,17 @@ void renphobike::serviceScanDone(void) {
 #endif
 
     foreach (QBluetoothUuid s, m_control->services()) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-                SLOT(stateChanged(QLowEnergyService::ServiceState)));
-        gattCommunicationChannelService.last()->discoverDetails();
+#ifdef Q_OS_WINDOWS
+        QBluetoothUuid ftmsService((quint16)0x1826);
+        qDebug() << "windows workaround, check only the ftms service" << s << ftmsService << (s == ftmsService);
+        if (s == ftmsService)
+#endif
+        {
+            gattCommunicationChannelService.append(m_control->createServiceObject(s));
+            connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
+                    SLOT(stateChanged(QLowEnergyService::ServiceState)));
+            gattCommunicationChannelService.last()->discoverDetails();
+        }
     }
 }
 
@@ -663,7 +689,9 @@ uint8_t renphobike::resistanceFromPowerRequest(uint16_t power)
 
 double renphobike::bikeResistanceToPeloton(double resistance) {
     QSettings settings;
-    bool renpho_peloton_conversion_v2 = settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2).toBool();
+    bool renpho_peloton_conversion_v2 =
+        settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
+            .toBool();
 
     if (!renpho_peloton_conversion_v2) {
         // 0,0069x2 + 0,3538x + 24,207

@@ -31,7 +31,6 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #include "bike.h"
@@ -58,7 +57,7 @@ class proformwifibike : public bike {
   private:
     QWebSocket websocket;
     resistance_t max_resistance = 100;
-    resistance_t min_resistance = -8;
+    resistance_t min_resistance = -20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
@@ -69,8 +68,10 @@ class proformwifibike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts();
-    void forceResistance(resistance_t requestResistance);
+    void forceResistance(double requestResistance);
     void innerWriteResistance();
+    void setTargetWatts(double watts);
+    void setWorkoutType(QString type);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -82,13 +83,15 @@ class proformwifibike : public bike {
     QString lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint16_t m_watts = 0;
+    metric target_watts;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool tdf2 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

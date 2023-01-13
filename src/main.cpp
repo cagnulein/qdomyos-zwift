@@ -262,10 +262,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
         ts << txt;
-
         fprintf(stderr, "%s", txt.toLocal8Bit().constData());
     }
-
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
@@ -492,6 +490,14 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
+        if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "POST_NOTIFICATIONS denied!";
     }
 #endif
 

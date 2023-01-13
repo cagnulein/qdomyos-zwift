@@ -76,13 +76,32 @@ void spirittreadmill::forceIncline(double requestIncline) {
     if (XT385) {
         uint8_t increase[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
         if (requestIncline > Inclination.value()) {
+            if (requestInclinationState == IDLE)
+                requestInclinationState = UP;
+            else if (requestInclinationState == DOWN) {
+                requestInclinationState = IDLE;
+                this->requestInclination = -100;
+                return;
+            }
             uint8_t increaseSpeed[] = {0x5b, 0x02, 0xF1, 0x04, 0x5d};
             writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseIncline"), false, true);
             writeCharacteristic(increase, sizeof(increase), QStringLiteral("increaseIncline"), false, true);
-        } else {
+
+        } else if (requestIncline < Inclination.value()) {
+            if (requestInclinationState == IDLE)
+                requestInclinationState = DOWN;
+            else if (requestInclinationState == UP) {
+                requestInclinationState = IDLE;
+                this->requestInclination = -100;
+                return;
+            }
             uint8_t decreaseSpeed[] = {0x5b, 0x02, 0xF1, 0x05, 0x5d};
             writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseIncline"), false, true);
             writeCharacteristic(increase, sizeof(increase), QStringLiteral("decreaseIncline"), false, true);
+
+        } else {
+            this->requestInclination = -100;
+            requestInclinationState = IDLE;
         }
     }
 }
@@ -153,11 +172,19 @@ void spirittreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (requestInclination != currentInclination().value()) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
+            if (requestInclination < 0)
+                requestInclination = 0;
+            double inc = qRound(requestInclination / 0.5) * 0.5;
+            // this treadmill has 0.5% step inclination
+            if (inc != currentInclination().value() && inc >= 0 && inc <= 15) {
+                emit debug(QStringLiteral("writing incline ") + QString::number(inc));
+                forceIncline(inc);
+            } else if (inc == currentInclination().value()) {
+                qDebug() << "int inclination match the current one" << inc << currentInclination().value();
+                requestInclination = -100;
             }
-            requestInclination = -100;
+            // i have to do the reset on when the inclination is equal to the current
+            // requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -222,7 +249,8 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -415,13 +443,26 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !virtualTreadMill) {
+        if (!firstVirtualTreadmill && !virtualTreadMill && !virtualBike) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, false);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadMill = new virtualtreadmill(this, false);
+                    connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
+                    connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                            &spirittreadmill::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &spirittreadmill::changeInclinationRequested);
+                }
             }
         }
         firstVirtualTreadmill = 1;
@@ -433,6 +474,14 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+}
+
+void spirittreadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    if (grade < 0)
+        grade = 0;
+    changeInclination(grade, percentage);
 }
 
 void spirittreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

@@ -140,7 +140,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Returns sample_time_offset field
     // Units: ms
-    // Comment: Each time in the array describes the time at which the barometer sample with the corrosponding index was taken. The samples may span across seconds. Array size must match the number of samples in baro_cal
+    // Comment: Each time in the array describes the time at which the barometer sample with the corresponding index was taken. The samples may span across seconds. Array size must match the number of samples in baro_cal
     ///////////////////////////////////////////////////////////////////////
     FIT_UINT16 GetSampleTimeOffset(FIT_UINT8 index) const
     {
@@ -150,7 +150,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     // Set sample_time_offset field
     // Units: ms
-    // Comment: Each time in the array describes the time at which the barometer sample with the corrosponding index was taken. The samples may span across seconds. Array size must match the number of samples in baro_cal
+    // Comment: Each time in the array describes the time at which the barometer sample with the corresponding index was taken. The samples may span across seconds. Array size must match the number of samples in baro_cal
     ///////////////////////////////////////////////////////////////////////
     void SetSampleTimeOffset(FIT_UINT8 index, FIT_UINT16 sampleTimeOffset)
     {

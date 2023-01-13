@@ -15,6 +15,7 @@ using namespace std::chrono_literals;
 
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
+    bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -35,8 +36,11 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -54,6 +58,14 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         }
     }
     // ********************************************************************************************************
+
+#ifdef Q_OS_ANDROID
+    if(nordictrack_ifit_adb_remote) {
+        QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+                                              "(Ljava/lang/String;Landroid/content/Context;)V", IP.object<jstring>(), QtAndroid::androidContext().object());
+    }
+#endif
 }
 
 void nordictrackifitadbtreadmill::processPendingDatagrams() {
@@ -70,7 +82,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+        QString ip =
+            settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -95,7 +108,42 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
+#ifdef Q_OS_ANDROID
+        bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
+        if(nordictrack_ifit_adb_remote) {
+            if(requestSpeed != -1) {
+                int x1 = 1845;
+                int y1Speed = 807 - (int) ((Speed.value() - 1) * 29.78);
+                //set speed slider to target position
+                int y2 = y1Speed - (int) ((requestSpeed - Speed.value()) * 29.78);
+
+                lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+                qDebug() << " >> " + lastCommand;
+                QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+            }
+            requestSpeed = -1;
+
+            if(requestInclination != -100) {
+                int x1 = 75;
+                int y1Inclination = 807 - (int) ((currentInclination().value() + 3) * 29.9);
+                //set speed slider to target position
+                int y2 = y1Inclination - (int) ((requestInclination - currentInclination().value()) * 29.9);
+
+                lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " + QString::number(x1) + " " + QString::number(y2) + " 200";
+                qDebug() << " >> " + lastCommand;
+                QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                      "(Ljava/lang/String;)V", command.object<jstring>());
+            }
+            requestInclination = -100;
+        }
+#endif
+
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
+        requestSpeed = -1;
+        requestInclination = -100;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
@@ -169,7 +217,7 @@ void nordictrackifitadbtreadmill::update() {
     QSettings settings;
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-    if(initRequest) {
+    if (initRequest) {
         initRequest = false;
         emit connectedAndDiscovered();
     }
@@ -196,8 +244,9 @@ void nordictrackifitadbtreadmill::update() {
 }
 
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
-        percentage = 0;
+    // these treadmills support negative inclination
+    /*if (percentage < 0)
+        percentage = 0;*/
     changeInclination(grade, percentage);
 }
 

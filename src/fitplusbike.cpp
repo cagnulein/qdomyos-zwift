@@ -72,7 +72,8 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
-    if (virtufit_etappe) {
+    bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
+    if (virtufit_etappe || merach_MRK) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
@@ -146,6 +147,104 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x18, 0x0e, 0x57, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         }
+    } else if (sportstech_sx600) {
+        if (requestResistance == 1) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x00, 0x00, 0x41, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 2) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x02, 0x00, 0x43, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 3) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x03, 0xfa, 0xb8, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 4) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x04, 0xfb, 0xbe, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 5) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x05, 0x00, 0x44, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 6) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x06, 0xfd, 0xba, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 7) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x07, 0xfe, 0xb8, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 8) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x08, 0x00, 0x49, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 9) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x09, 0x00, 0x48, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 10) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0a, 0x00, 0x4b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 11) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0b, 0x00, 0x4a, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 12) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0c, 0x03, 0x4e, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 13) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0d, 0x03, 0x4f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 14) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0e, 0x00, 0x4f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 15) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0f, 0x05, 0x4b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 16) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x10, 0x06, 0x57, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 17) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x11, 0x00, 0x50, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 18) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x12, 0x08, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 19) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x13, 0x00, 0x52, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 20) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x14, 0x00, 0x55, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 21) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x15, 0x00, 0x54, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 22) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x16, 0x00, 0x57, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 23) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x17, 0x00, 0x56, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 24) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x18, 0x00, 0x59, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 25) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x19, 0x00, 0x58, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 27) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1a, 0x00, 0x59, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 27) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1b, 0x00, 0x5a, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 28) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1c, 0x00, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 29) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1d, 0x00, 0x5c, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 30) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1e, 0x00, 0x5f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 31) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1f, 0x00, 0x5e, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 32) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x20, 0x00, 0x61, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        }
     }
 }
 
@@ -163,9 +262,12 @@ void fitplusbike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
         update_metrics(true, watts());
-        bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+        bool virtufit_etappe =
+            settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+        bool sportstech_sx600 =
+            settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-        if (virtufit_etappe) {
+        if (virtufit_etappe || merach_MRK || sportstech_sx600) {
 
         } else {
 
@@ -176,10 +278,11 @@ void fitplusbike::update() {
                              settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
                                (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
                                 settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
-                           (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
-                                              settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
-                                             (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
-                                              settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
+                           (Heart.value() *
+                            ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                              settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                             (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                              settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
                 if (avgP < 50) {
                     avgP = 50;
                 }
@@ -194,20 +297,50 @@ void fitplusbike::update() {
             // updateDisplay(elapsed);
         }
 
-        uint8_t noOpData[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t noOpData1[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-        switch (counterPoll) {
-        case 0:
-            writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-            break;
-        default:
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
-            break;
-        }
+        if (sportstech_sx600) {
+            uint8_t noOpData[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t noOpData1[] = {0x02, 0x02, 0x43, 0x01, 0x42, 0x03, 0x01, 0x03};
+            uint8_t noOpData2[] = {0x02, 0x53, 0x9f, 0x02, 0x00, 0x00, 0xce, 0x03};
+            uint8_t noOpData3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            uint8_t noOpData4[] = {0x02, 0x53, 0x9f, 0x02, 0x00, 0x00, 0xce, 0x03};
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                break;
+            case 1:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                break;
+            case 2:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
+                break;
+            case 3:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                break;
+            default:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
+                break;
+            }
 
-        counterPoll++;
-        if (counterPoll > 1) {
-            counterPoll = 0;
+            counterPoll++;
+            if (counterPoll > 4) {
+                counterPoll = 0;
+            }
+        } else {
+            uint8_t noOpData[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t noOpData1[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                break;
+            default:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                break;
+            }
+
+            counterPoll++;
+            if (counterPoll > 1) {
+                counterPoll = 0;
+            }
         }
 
         if (requestResistance != -1) {
@@ -255,13 +388,35 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     lastPacket = newValue;
 
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
-    if (virtufit_etappe) {
+    bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
+    if (virtufit_etappe || merach_MRK || sportstech_sx600) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
 
         if (newValue.length() == 15) {
             Resistance = newValue.at(5);
-            m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+            if (merach_MRK || sportstech_sx600) {
+                // if we change this, also change the wattsFromResistance function. We can create a standard function in
+                // order to have all the costants in one place (I WANT MORE TIME!!!)
+                double ac = 0.01243107769;
+                double bc = 1.145964912;
+                double cc = -23.50977444;
+
+                double ar = 0.1469553975;
+                double br = -5.841344538;
+                double cr = 97.62165482;
+
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                               (cr - (m_watt.value() * 132.0 /
+                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+            } else {
+                m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+            }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
@@ -272,7 +427,9 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
             else*/
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
 
         } else if (newValue.length() == 13) {
 
@@ -298,12 +455,15 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
             Speed = (double)((((uint8_t)newValue.at(7)) << 8) | ((uint8_t)newValue.at(6))) / 10.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -341,7 +501,8 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -365,8 +526,12 @@ void fitplusbike::btinit() {
 
     QSettings settings;
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+    bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-    if (virtufit_etappe) {
+    if (merach_MRK) {
+        uint8_t initData1[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else if (virtufit_etappe) {
         uint8_t initData1[] = {0x02, 0x42, 0x42, 0x03};
         uint8_t initData2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
         uint8_t initData3[] = {0x02, 0x41, 0x03, 0x42, 0x03};
@@ -387,6 +552,28 @@ void fitplusbike::btinit() {
 
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+    } else if (sportstech_sx600) {
+        uint8_t initData1[] = {0x02, 0x42, 0x42, 0x03};
+        uint8_t initData2[] = {0x02, 0x53, 0x9f, 0x02, 0x00, 0x00, 0xce, 0x03};
+        uint8_t initData3[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+        uint8_t initData4[] = {0x02, 0x44, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x3c, 0xaa, 0x18, 0x00, 0xc0, 0x03};
+        uint8_t initData5[] = {0x02, 0x44, 0x0b, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4e, 0x03};
+        uint8_t initData6[] = {0x02, 0x44, 0x02, 0x46, 0x03};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData2), QStringLiteral("init"), false, false);
+
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData2), QStringLiteral("init"), false, false);
+
+        max_resistance = 32;
 
     } else {
 
@@ -448,11 +635,14 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -517,6 +707,10 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')';
     {
         bluetoothDevice = device;
+
+        if (device.name().startsWith(QStringLiteral("MRK-"))) {
+            merach_MRK = true;
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitplusbike::serviceDiscovered);

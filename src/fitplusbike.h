@@ -44,7 +44,7 @@ class fitplusbike : public bike {
     void *VirtualDevice();
 
   private:
-    const resistance_t max_resistance = 24;
+    resistance_t max_resistance = 24;
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -74,6 +74,8 @@ class fitplusbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool merach_MRK = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

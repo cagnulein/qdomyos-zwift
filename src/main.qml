@@ -34,9 +34,9 @@ ApplicationWindow {
     signal volumeDown()
     signal keyMediaPrevious()
     signal keyMediaNext()
+    signal floatingOpen()
 
     property bool lockTiles: false
-    property bool showVideo: false
 
     Settings {
         id: settings
@@ -335,6 +335,14 @@ ApplicationWindow {
             }
         }
 
+        ToolButton {
+            id: toolButtonFloating
+            icon.source: "icons/icons/mini-display.png"
+            onClicked: { console.log("floating!"); floatingOpen(); }
+            anchors.left: toolButton.right
+            visible: OS_VERSION === "Android" ? true : false
+        }
+
         Popup {
             id: popupAutoResistance
              parent: Overlay.overlay
@@ -467,7 +475,7 @@ ApplicationWindow {
                 if(rootItem.currentCoordinateValid) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
-                    showVideo = !showVideo
+                    rootItem.videoVisible = !rootItem.videoVisible
                 } else {
                     console.log("coordinate is NOT valid for map");
                 }
@@ -476,7 +484,7 @@ ApplicationWindow {
             icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
-            visible: rootItem.videoVisible
+            visible: rootItem.videoIconVisible
         }
 
         ToolButton {
@@ -583,7 +591,7 @@ ApplicationWindow {
             }
             /*
             ItemDelegate {
-                text: qsTr("Whats On Zwift™")
+                text: qsTr("What's On Zwift™")
                 width: parent.width
                 onClicked: {
                     popupWhatsOnZwiftHelper.open()
@@ -656,7 +664,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.11.67"
+                text: "version 2.12.42"
                 width: parent.width
             }
 				FileDialog {

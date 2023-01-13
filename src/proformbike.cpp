@@ -520,7 +520,7 @@ void proformbike::update() {
                 innerWriteResistance();
             }
             if (requestInclination != -100 && (proform_studio || proform_tdf_10)) {
-                // only 0.5 steps ara avaiable
+                // only 0.5 steps ara available
                 double inc = qRound(requestInclination * 2.0) / 2.0;
                 if (inc != currentInclination().value()) {
                     emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination) +
@@ -663,7 +663,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
                          100.0);
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+                Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
 
             double incline =
@@ -881,7 +881,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                              .toDouble()) *
                         ((double)Cadence.value());
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+                Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
         }
     }

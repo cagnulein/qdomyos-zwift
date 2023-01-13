@@ -12,12 +12,15 @@
 
 using namespace std::chrono_literals;
 
-yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService) {
+yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                       double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &yesoulbike::update);
     refresh->start(200ms);
@@ -129,7 +132,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (watts())
         KCal +=
@@ -272,7 +275,7 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&yesoulbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &yesoulbike::changeInclination);
             }

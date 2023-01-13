@@ -87,7 +87,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
 
     display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
     display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;
@@ -204,7 +204,7 @@ void domyoselliptical::update() {
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
-            } else if (requestResistance == 0) {
+            } else if (requestResistance <= 0) {
                 requestResistance = 1;
             }
 
@@ -291,6 +291,8 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue) *
                       settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -316,9 +318,21 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        else {
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+        }
+#endif
+#endif
     }
 
     CrankRevs++;
@@ -589,10 +603,20 @@ uint16_t domyoselliptical::watts() {
         double VO2R = 210.0 / pace;
         double VO2A = (VO2R * weight) / 1000.0;
         double hwatts = 75 * VO2A;
-        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        double inc_res_ratio;
+        if(settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination).toBool())
+            inc_res_ratio = currentInclination().value() / 100.0;
+        else
+            inc_res_ratio = currentResistance().value() / 100.0;
+        double vwatts = ((9.8 * weight) * (inc_res_ratio));
         watts = hwatts + vwatts;
     }
     return watts;
+}
+
+bool domyoselliptical::inclinationAvailableByHardware() {
+    QSettings settings;
+    return settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination).toBool();
 }
 
 void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {

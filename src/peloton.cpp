@@ -132,7 +132,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
     if (data.isEmpty()) {
         qDebug() << QStringLiteral(
-            "peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
+            "peloton::workoutlist_onfinish Peloton API doesn't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
     }
@@ -159,7 +159,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
             current_workout_status = status;
         } else {
             timer->start(10s); // check for a status changed
-            // i don't need to set current_workout_status because, the bike was missing and than i didn't set the
+            // I don't need to set current_workout_status because the bike was missing and then I didn't set the
             // workout
         }
     } else {
@@ -293,6 +293,11 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonObject offsets = instructor_cue[QStringLiteral("offsets")].toObject();
         QJsonObject resistance_range = instructor_cue[QStringLiteral("resistance_range")].toObject();
         QJsonObject cadence_range = instructor_cue[QStringLiteral("cadence_range")].toObject();
+
+        if(resistance_range.count() == 0 && cadence_range.count() == 0) {
+            qDebug() << "no resistance and cadence found!";
+            continue;
+        }
 
         trainrow r;
         int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
@@ -536,6 +541,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject metrics = target_metrics.at(i).toObject();
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            QString segment_type = metrics[QStringLiteral("segment_type")].toString();
             if (metrics_ar.count() > 1 && !offset.isEmpty()) {
                 QJsonObject speed = metrics_ar.at(0).toObject();
                 double speed_lower = speed[QStringLiteral("lower")].toDouble();
@@ -570,12 +576,35 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
                 }
+
+                double offset =
+                    settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset)
+                        .toDouble();
+                double gain =
+                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                r.inclination *= gain;
+                r.inclination += offset;
+                r.lower_inclination *= gain;
+                r.lower_inclination += offset;
+                r.average_inclination *= gain;
+                r.average_inclination += offset;
+                r.upper_inclination *= gain;
+                r.upper_inclination += offset;
+
                 r.lower_speed = speed_lower * miles;
                 r.average_speed = speed_average * miles;
                 r.upper_speed = speed_upper * miles;
                 r.lower_inclination = inc_lower;
                 r.average_inclination = inc_average;
                 r.upper_inclination = inc_upper;
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.speed << r.inclination;
+            } else if(segment_type.contains("floor")) {
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }

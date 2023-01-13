@@ -124,6 +124,8 @@ void bluetoothdevice::disconnectBluetooth() {
 metric bluetoothdevice::wattsMetric() { return m_watt; }
 void bluetoothdevice::setDifficult(double d) { m_difficult = d; }
 double bluetoothdevice::difficult() { return m_difficult; }
+void bluetoothdevice::setInclinationDifficult(double d) { m_inclination_difficult = d; }
+double bluetoothdevice::inclinationDifficult() { return m_inclination_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
@@ -139,8 +141,10 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -149,7 +153,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving,  true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
 
             elapsed += deltaTime;
         }
@@ -164,10 +168,13 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
 
-            m_watt = 0;
+            if (watt_calc) {
+                m_watt = 0;
+            }
             WattKg = 0;
         }
-    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause)
+                             .toBool()) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;
