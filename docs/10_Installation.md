@@ -15,7 +15,7 @@ $ git submodule update --init src/smtpclient/
 $ git submodule update --init src/qmdnsengine/
 $ git submodule update --init tst/googletest/
 $ cd src
-$ qmake
+$ qmake qdomyos-zwift.pro
 $ make -j4
 $ sudo ./qdomyos-zwift
 ```
@@ -111,7 +111,7 @@ This operation takes a moment to complete.
 `git submodule update --init src/qmdnsengine/`  
 `git submodule update --init tst/googletest/`
 `cd src`    
-`qmake`    
+`qmake qdomyos-zwift.pro`    
 `make`  
 
 Please note :
