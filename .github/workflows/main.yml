@@ -256,7 +256,7 @@ jobs:
 
       - name: Test
         working-directory: "tst/"
-        run: GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 qdomyos-zwift-tests -V
+        run: GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 tst/qdomyos-zwift-tests -V
 
       - name: Upload test results
         uses: actions/upload-artifact@v2
