@@ -18,6 +18,7 @@
 #include <QtCore/qloggingcategory.h>
 
 #include "qzsettings.h"
+#include "discoveryoptions.h"
 
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
@@ -120,9 +121,11 @@ class bluetooth : public QObject, public SignalHandler {
 
     Q_OBJECT
   public:
+    bluetooth(const discoveryoptions &options);
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
-                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+                       bool createTemplateManagers=true, bool startDiscovery=true);
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
@@ -144,6 +147,10 @@ protected:
      */
     void nonBluetoothDeviceDiscovery();
   private:
+
+private:
+    bool useDiscovery = false;
+    bool createTemplateManagers =false;
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
@@ -151,7 +158,7 @@ protected:
     bool discovering = false;
     // Indicates the non-bluetooth discovery is active
     bool discoveringNonBluetooth = false;
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent=nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
@@ -293,7 +300,9 @@ protected:
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
-  signals:
+    void startTemplateManagers(bluetoothdevice *b);
+    void stopTemplateManagers();
+signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
@@ -302,10 +311,9 @@ protected:
   public slots:
     void restart();
     void debug(const QString &string);
-    void heartRate(uint8_t heart);
-
-  private slots:
+    void heartRate(uint8_t heart);  
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+  private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif

@@ -65,6 +65,9 @@ SignalHandler::~SignalHandler() {
         }
     }
 #endif //__MINGW32_MAJOR_VERSION
+
+    // permit creation of a new SignalHandler
+    g_handler = NULL;
 }
 
 #if 0

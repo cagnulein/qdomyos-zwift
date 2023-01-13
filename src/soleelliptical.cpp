@@ -94,6 +94,23 @@ void soleelliptical::forceResistanceAndInclination(resistance_t requestResistanc
     }
 }
 
+void soleelliptical::forceInclination(uint8_t inclination) {
+
+    uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+    uint8_t writeUp[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
+
+    uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
+
+    if (currentInclination().value() < inclination) {
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + inclination, false, true);
+    } else if (currentInclination().value() > inclination) {
+        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + inclination, false,
+                            true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+    }
+}
+
 void soleelliptical::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
@@ -124,8 +141,11 @@ void soleelliptical::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -193,16 +213,23 @@ void soleelliptical::update() {
             }
             requestResistance = -1;
         } else if (requestInclination != -100) {
+            bool sole_elliptical_inclination =
+                settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
+                    .toBool();
+
             if (requestInclination > 15) {
                 requestInclination = 15;
-            } else if (requestInclination == 0) {
-                requestInclination = 1;
+            } else if (requestInclination < 0) {
+                requestInclination = 0;
             }
 
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
-                forceResistanceAndInclination(currentResistance().value(), requestInclination);
+                if (sole_elliptical_inclination)
+                    forceInclination(requestInclination);
+                else
+                    forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
             requestInclination = -100;
         }
@@ -251,16 +278,29 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
+    if (newValue.length() == 5 && newValue.at(1) == 0x02 && newValue.at(2) == 0x12) {
+
+        Inclination = newValue.at(3);
+        emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
+        return;
+    }
+
     if (newValue.length() < 20) {
         return;
     }
 
-    double speed = GetSpeedFromPacket(newValue) *
-                   settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble() * miles;
+    double speed =
+        GetSpeedFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble() *
+        miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -269,7 +309,6 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
     // m_watt = watt;
 
-    // Inclination = newValue.at(21);
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
@@ -282,9 +321,21 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        else {
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+        }
+#endif
+#endif
     }
 
     Distance += ((Speed.value() / 3600000.0) *

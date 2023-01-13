@@ -13,6 +13,7 @@ $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/
 $ git submodule update --init src/qmdnsengine/
+$ git submodule update --init tst/googletest/
 $ cd src
 $ qmake
 $ make -j4
@@ -108,6 +109,7 @@ This operation takes a moment to complete.
 `cd qdomyos-zwift`  
 `git submodule update --init src/smtpclient/`  
 `git submodule update --init src/qmdnsengine/`  
+`git submodule update --init tst/googletest/`
 `cd src`    
 `qmake`    
 `make`  
