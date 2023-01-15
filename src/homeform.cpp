@@ -3811,6 +3811,7 @@ void homeform::update() {
             if (!paused && !stopped) {
 
                 static QRandomGenerator r;
+                r.seed(QDateTime::currentDateTime().toMSecsSinceEpoch());
                 static uint32_t last_seconds = 0;
                 uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
@@ -3835,48 +3836,48 @@ void homeform::update() {
                             double speed = settings
                                                .value(QZSettings::trainprogram_speed_min,
                                                       QZSettings::default_trainprogram_speed_min)
-                                               .toUInt();
+                                               .toDouble();
                             double incline = settings
                                                  .value(QZSettings::trainprogram_incline_min,
                                                         QZSettings::default_trainprogram_incline_min)
-                                                 .toUInt();
+                                                 .toDouble();
                             if (!speed) {
                                 speed = 1.0;
                             }
                             if (settings.value(QZSettings::trainprogram_speed_min,
                                                QZSettings::default_trainprogram_speed_min)
-                                        .toUInt() != 0 &&
+                                        .toDouble() != 0 &&
                                 settings.value(QZSettings::trainprogram_speed_min,
                                                QZSettings::default_trainprogram_speed_min)
-                                        .toUInt() < settings
+                                        .toDouble() < settings
                                                         .value(QZSettings::trainprogram_speed_max,
                                                                QZSettings::default_trainprogram_speed_max)
-                                                        .toUInt()) {
-                                speed = (double)r.bounded(settings.value(QZSettings::trainprogram_speed_min,
+                                                        .toDouble()) {
+                                speed = (double)r.bounded((uint32_t)(settings.value(QZSettings::trainprogram_speed_min,
                                                                          QZSettings::default_trainprogram_speed_min)
-                                                                  .toUInt() *
-                                                              10,
-                                                          settings.value(QZSettings::trainprogram_speed_max,
+                                                                  .toDouble() *
+                                                              10.0),
+                                                          (uint32_t)(settings.value(QZSettings::trainprogram_speed_max,
                                                                          QZSettings::default_trainprogram_speed_max)
-                                                                  .toUInt() *
-                                                              10) /
+                                                                  .toDouble() *
+                                                              10.0)) /
                                         10.0;
                             }
                             if (settings
                                     .value(QZSettings::trainprogram_incline_min,
                                            QZSettings::default_trainprogram_incline_min)
-                                    .toUInt() < settings
+                                    .toDouble() < settings
                                                     .value(QZSettings::trainprogram_incline_max,
                                                            QZSettings::default_trainprogram_incline_max)
-                                                    .toUInt()) {
-                                incline = (double)r.bounded(settings.value(QZSettings::trainprogram_incline_min,
+                                                    .toDouble()) {
+                                incline = (double)r.bounded((uint32_t)(settings.value(QZSettings::trainprogram_incline_min,
                                                                            QZSettings::default_trainprogram_incline_min)
-                                                                    .toUInt() *
-                                                                10,
-                                                            settings.value(QZSettings::trainprogram_incline_max,
+                                                                    .toDouble() *
+                                                                10.0),
+                                                            (uint32_t)(settings.value(QZSettings::trainprogram_incline_max,
                                                                            QZSettings::default_trainprogram_incline_max)
-                                                                    .toUInt() *
-                                                                10) /
+                                                                    .toDouble() *
+                                                                10.0)) /
                                           10.0;
                             }
                             ((treadmill *)bluetoothManager->device())->changeSpeedAndInclination(speed, incline);
