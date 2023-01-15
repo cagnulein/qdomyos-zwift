@@ -113,6 +113,43 @@ void rower::setLap() {
 }
 
 // min/500m
+QTime rower::averagePace() {
+
+    QSettings settings;
+    //bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    /*if (miles) {
+        unit_conversion = 0.621371;
+    }*/
+    if (Speed.average() == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = Speed.average() * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
+}
+
+// min/500m
+QTime rower::maxPace() {
+
+    QSettings settings;
+    //bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    /*if (miles) {
+        unit_conversion = 0.621371;
+    }*/
+    if (Speed.max() == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = Speed.max() * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
+}
+
+
+// min/500m
 QTime rower::currentPace() {
     QSettings settings;
     // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();

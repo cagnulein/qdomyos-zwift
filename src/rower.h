@@ -18,6 +18,8 @@ class rower : public bluetoothdevice {
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
     virtual QTime currentPace();
+    virtual QTime averagePace();
+    virtual QTime maxPace();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
