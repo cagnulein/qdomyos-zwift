@@ -836,6 +836,8 @@ void homeform::trainProgramSignals() {
                     &rower::changePower);
             connect(trainProgram, &trainprogram::changeResistance, ((rower *)bluetoothManager->device()),
                     &rower::changeResistance);
+            connect(trainProgram, &trainprogram::changeCadence, ((rower *)bluetoothManager->device()),
+                    &rower::changeCadence);
         }
         connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
                 &bluetoothdevice::changeNextInclination300Meters);
