@@ -173,10 +173,7 @@ QTime rower::currentPace() {
 
 // min/500m
 QTime rower::lastPace500m() {
-
-    if(speedLast500mValues.count() == 0)
-        return QTime(0,0,0,0);
-
+    
     QSettings settings;
     // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     const double unit_conversion = 1.0;
@@ -189,12 +186,15 @@ QTime rower::lastPace500m() {
     if(!paused && Speed.value() > 0) {
         double o = odometer();
         speedLast500mValues.append(new rowerSpeedDistance(o, Speed.value()));
-        while(o > speedLast500mValues.first()->distance + 500) {
+        while(o > speedLast500mValues.first()->distance + 0.5) {
             delete speedLast500mValues.first();
             speedLast500mValues.removeFirst();
         }
     }
 
+    if(speedLast500mValues.count() == 0)
+        return QTime(0,0,0,0);
+    
     double avg = 0;
     for(int i=0; i<speedLast500mValues.count(); i++)
         avg += speedLast500mValues.at(i)->speed;
