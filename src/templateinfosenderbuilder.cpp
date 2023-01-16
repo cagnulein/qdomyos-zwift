@@ -65,6 +65,7 @@ bool TemplateInfoSenderBuilder::validFileTemplateType(const QString &tp) const {
 
 void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo, const QString &folder,
                                                           QStringList &dirTemplates) {
+    QSettings settings;
     QDirIterator it(folder);
     QString content, templateId;
     // QString tempType; // NOTE: clazy-unused-non-triviak-variable
@@ -118,6 +119,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo,
 }
 
 void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &folders) {
+    QSettings settings;
     stop();
     masterId = idInfo;
     foldersToLook = folders;
@@ -213,6 +215,7 @@ QStringList TemplateInfoSenderBuilder::templateIdList() const { return templateF
 
 void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInfoSender *tempSender) {
     QJsonObject outObj;
+    QSettings settings;
     QStringList keys = settings.allKeys();
     QJsonValue keys_req;
     QJsonArray keys_arr;
@@ -377,6 +380,7 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QVariant valConv;
     QVariant settingVal;
     QJsonObject outObj;
+    QSettings settings;
     for (auto &key : keys) {
         if (settings.contains(key)) {
             val = obj[key];
@@ -629,6 +633,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
 }
 
 void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit lap();
     main[QStringLiteral("msg")] = QStringLiteral("R_lap");
@@ -637,6 +642,7 @@ void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfo
 }
 
 void TemplateInfoSenderBuilder::onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit pelotonOffset_Plus();
     main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_plus");
@@ -645,6 +651,7 @@ void TemplateInfoSenderBuilder::onPelotonOffsetPlus(const QJsonValue &msgContent
 }
 
 void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit pelotonOffset_Minus();
     main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_minus");
@@ -653,6 +660,7 @@ void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgConten
 }
 
 void TemplateInfoSenderBuilder::onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit floatingClose();
     main[QStringLiteral("msg")] = QStringLiteral("R_floating_close");
@@ -782,6 +790,8 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
 void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue glob = engine->globalObject();
     QJSValue obj;
+    QSettings settings;
+
     if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
         glob.setProperty(QStringLiteral("workout"), obj);

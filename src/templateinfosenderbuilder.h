@@ -46,7 +46,6 @@ class TemplateInfoSenderBuilder : public QObject {
     TemplateInfoSenderBuilder(QObject *parent);
     void load(const QString &idInfo, const QStringList &folders);
     static QHash<QString, TemplateInfoSenderBuilder *> instanceMap;
-    QSettings settings;
     QHash<QString, TemplateInfoSender *> templateInfoMap;
     TemplateInfoSender *newTemplate(const QString &id, const QString &tp, const QString &dataTempl);
     QHash<QString, QString> templateFilesList;
