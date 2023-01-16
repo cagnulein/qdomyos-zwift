@@ -176,7 +176,7 @@
 						  } else if (key === 'tile_target_power_enabled') {
 						      tile_target_power_enabled = msg.content[key];
 						  } else if (key === 'tile_peloton_offset_enabled') {
-						      if(!msg.content[key]) {
+                                                      if(msg.content[key] === 'false') {
 								   $(".pelotonoffset").hide();
 								}
 						  }
