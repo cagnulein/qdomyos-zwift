@@ -130,39 +130,39 @@
                     if (msg.content[key] === undefined)
                         return null;
                     if (key === 'tile_speed_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".speed").hide();
                         }
                     } else if (key === 'tile_cadence_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".cadence").hide();
                         }
                     } else if (key === 'tile_calories_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".calories").hide();
                         }
                     } else if (key === 'tile_odometer_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".distance").hide();
                         }
                     } else if (key === 'tile_resistance_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".resistance").hide();
                         }
                     } else if (key === 'tile_watt_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".watt").hide();
                         }
                     } else if (key === 'tile_heart_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".heart").hide();
                         }
                     } else if (key === 'tile_elapsed_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".elapsed").hide();
                         }
                     } else if (key === 'tile_peloton_resistance_enabled') {
-                        if(!msg.content[key]) {
+                        if(msg.content[key] === 'false') {
                             $(".pelotonresistance").hide();
                         }
                     } else if (key === 'floating_transparency') {
