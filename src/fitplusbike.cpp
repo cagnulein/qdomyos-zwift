@@ -19,7 +19,7 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 fitplusbike::fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
 #ifdef Q_OS_IOS
-    QSetting settings;
+    QSettings settings;
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
     if(sportstech_sx600) {
         QZ_EnableDiscoveryCharsAndDescripttors = false;
