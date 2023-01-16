@@ -168,13 +168,13 @@
                     } else if (key === 'floating_transparency') {
                         $(".transparency").css("opacity", msg.content[key] / 100.0);
 						  } else if (key === 'tile_target_resistance_enabled') {
-						      tile_target_resistance_enabled = msg.content[key];
+                                                      tile_target_resistance_enabled = msg.content[key] === 'true';
 						  } else if (key === 'tile_target_peloton_resistance_enabled') {
-						      tile_target_peloton_resistance_enabled = msg.content[key];
+                                                      tile_target_peloton_resistance_enabled = msg.content[key] === 'true';
 						  } else if (key === 'tile_target_cadence_enabled') {
-						      tile_target_cadence_enabled = msg.content[key];
+                                                      tile_target_cadence_enabled = msg.content[key] === 'true';
 						  } else if (key === 'tile_target_power_enabled') {
-						      tile_target_power_enabled = msg.content[key];
+                                                      tile_target_power_enabled = msg.content[key] === 'true';
 						  } else if (key === 'tile_peloton_offset_enabled') {
                                                       if(msg.content[key] === 'false') {
 								   $(".pelotonoffset").hide();
