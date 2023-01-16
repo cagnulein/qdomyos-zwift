@@ -2810,6 +2810,11 @@ void homeform::Start_inner(bool send_event_to_device) {
             }
             Session.clear();
             chartImagesFilenames.clear();
+            
+#ifdef Q_OS_IOS
+            // due to #857
+            bluetoothManager->getInnerTemplateManager()->start(bluetoothManager->device());
+#endif
 
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
                 stravaPelotonActivityName = QLatin1String("");
