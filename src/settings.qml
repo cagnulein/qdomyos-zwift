@@ -642,6 +642,10 @@ import Qt.labs.settings 1.0
             property bool proform_hybrid_trainer_xt: false
             property bool gears_restore_value: false
             property int gears_current_value: 0
+
+            // from version 2.12.44
+            property bool tile_pace_last500m_enabled: true
+            property int  tile_pace_last500m_order: 49
         }
 
         function paddingZeros(text, limit) {

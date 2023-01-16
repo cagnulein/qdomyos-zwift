@@ -1654,6 +1654,12 @@ class QZSettings {
     static const QString gears_current_value;
     static constexpr int default_gears_current_value = 0;
 
+    static const QString tile_pace_last500m_enabled;
+    static constexpr bool default_tile_pace_last500m_enabled = true;
+
+    static const QString tile_pace_last500m_order;
+    static constexpr int default_tile_pace_last500m_order = 49;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

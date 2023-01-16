@@ -162,6 +162,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     pace =
         new DataObject(QStringLiteral("Pace (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
                        QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
+
+    pace_last500m = new DataObject(QStringLiteral("Pace 500m (m/") + unit + QStringLiteral(")"), QStringLiteral("icons/icons/pace.png"),
+                                   QStringLiteral("0:00"), false, QStringLiteral("pace"), 48, labelFontSize);
+
     resistance = new DataObject(QStringLiteral("Resistance"), QStringLiteral("icons/icons/resistance.png"),
                                 QStringLiteral("0"), true, QStringLiteral("resistance"), 48, labelFontSize);
     peloton_resistance =
@@ -856,8 +860,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(42);
-    for (int i = 0; i < 42; i++) {
+    r.reserve(43);
+    for (int i = 0; i < 43; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -1716,6 +1720,13 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_target_zone_order, 24).toInt() == i) {
                 target_zone->setGridId(i);
                 dataList.append(target_zone);
+            }
+
+            if (settings.value(QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled).toBool() &&
+                settings.value(QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order).toInt() == i) {
+
+                pace_last500m->setGridId(i);
+                dataList.append(pace_last500m);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
@@ -3371,6 +3382,9 @@ void homeform::update() {
 
                 pace = 0;
             }
+
+            this->pace_last500m->setValue(((rower *)bluetoothManager->device())->lastPace500m().toString(QStringLiteral("m:ss")));
+
             this->pace->setValue(((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             this->pace->setSecondLine(
                 QStringLiteral("AVG: ") +

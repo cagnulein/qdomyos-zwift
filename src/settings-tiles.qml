@@ -183,6 +183,8 @@ ScrollView {
 		  property string tile_preset_inclination_5_color: "grey"
 		  property bool tile_avg_watt_lap_enabled: false
 		  property int tile_avg_watt_lap_order: 48
+        property bool tile_pace_last500m_enabled: true
+        property int  tile_pace_last500m_order: 49
     }
 
 
@@ -1655,6 +1657,39 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: paceLast500mEnabledAccordion
+            title: qsTr("Pace Last 500m")
+            linkedBoolSetting: "tile_pace_last500m_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelPacelast500mOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: pacelast500mOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_pace_last500m_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = pacelast500mOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okPacelast500mOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText
+                }
+            }
+        }
+
         AccordionCheckElement {
             id: presetResistance1EnabledAccordion
             title: qsTr("Preset Resistance 1")

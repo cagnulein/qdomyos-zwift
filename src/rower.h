@@ -14,6 +14,7 @@ class rower : public bluetoothdevice {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
+    virtual QTime lastPace500m();
     virtual metric currentResistance();
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
@@ -60,6 +61,15 @@ class rower : public bluetoothdevice {
     double CrankRevs = 0;
 
     metric m_pelotonResistance;
+
+    class rowerSpeedDistance {
+    public:
+        rowerSpeedDistance(double distance, double speed) {this->distance = distance; this->speed = speed;}
+        double distance;
+        double speed;
+    };
+
+    QList<rowerSpeedDistance*> speedLast500mValues;
 };
 
 #endif // ROWER_H

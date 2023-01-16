@@ -580,8 +580,10 @@ const QString QZSettings::sole_elliptical_inclination = QStringLiteral("sole_ell
 const QString QZSettings::proform_hybrid_trainer_xt = QStringLiteral("proform_hybrid_trainer_xt");
 const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_value");
 const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value");
+const QString QZSettings::tile_pace_last500m_enabled = QStringLiteral("tile_pace_last500m_enabled");
+const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_last500m_order");
 
-const uint32_t allSettingsCount = 476;
+const uint32_t allSettingsCount = 478;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1062,6 +1064,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt},
     {QZSettings::gears_restore_value, QZSettings::default_gears_restore_value},
     {QZSettings::gears_current_value, QZSettings::gears_current_value},
+    {QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled},
+    {QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

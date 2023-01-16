@@ -613,6 +613,7 @@ class homeform : public QObject {
     DataObject *preset_inclination_3;
     DataObject *preset_inclination_4;
     DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
 
     QTimer *timer;
     QTimer *backupTimer;
