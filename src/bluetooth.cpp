@@ -53,6 +53,9 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.setValue(sKey + QStringLiteral("enabled"), false);
     }
 
+    QString nordictrack_2950_ip =
+        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
@@ -126,6 +129,12 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #endif
 
         this->startDiscovery();
+    }
+
+    // wifi devices on windows
+    if(!nordictrack_2950_ip.isEmpty()) {
+        // faking a bluetooth device
+        deviceDiscovered(QBluetoothDeviceInfo());
     }
 }
 
