@@ -26,12 +26,12 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
     QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
-    refresh->start(200ms);
 
 #ifdef Q_OS_WIN32
     if (!nordictrack_ifit_adb_remote)
 #endif
     {
+        refresh->start(200ms);
         socket = new QUdpSocket(this);
         bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
         qDebug() << result;
@@ -40,6 +40,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     }
 #ifdef Q_OS_WIN32
     else {
+        refresh->start(1000ms);
         runAdbCommand("connect " + ip);
     }
 #endif
@@ -260,7 +261,8 @@ void nordictrackifitadbtreadmill::update() {
     if (nordictrack_ifit_adb_remote) {
         QString file = runAdbCommand("shell ls -rt /sdcard/.wolflogs/ | tail -n 1");
         QString out;
-        file += "/sdcard/.wolflogs/" + file;
+        file = file.replace("\r\n", "");
+        file = "/sdcard/.wolflogs/" + file;
         out = runAdbCommand("shell tail -n500 " + file + " | grep -a \"Changed KPH\" | tail -n1");
         if (out.contains("KPH")) {
             Speed = out.split(' ').last().toDouble();
