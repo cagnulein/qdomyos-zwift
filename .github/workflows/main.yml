@@ -88,7 +88,7 @@ jobs:
             make -j8
             cd src/debug
             mkdir output
-            mkdir appx
+            mkdir appx            
             cp qdomyos-zwift.exe output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
@@ -97,6 +97,7 @@ jobs:
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .     
             cp ../../../icons/iOS/iTunesArtwork@2x.png .     
             cp ../../AppxManifest.xml .
+            cp -a ../../adb .
             cd ..
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
@@ -168,7 +169,8 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .            
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" . 
+            cp -a ../../adb .            
 
       - uses: game-ci/steam-deploy@v1
         with:
