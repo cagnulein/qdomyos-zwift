@@ -258,8 +258,9 @@ void nordictrackifitadbtreadmill::update() {
 
 #ifdef Q_OS_WIN32
     if (nordictrack_ifit_adb_remote) {
-        QString file = runAdbCommand("shell ls -Art | tail -n 1");
+        QString file = runAdbCommand("shell ls -rt /sdcard/.wolflogs/ | tail -n 1");
         QString out;
+        file += "/sdcard/.wolflogs/" + file;
         out = runAdbCommand("shell tail -n500 " + file + " | grep -a \"Changed KPH\" | tail -n1");
         if (out.contains("KPH")) {
             Speed = out.split(' ').last().toDouble();
