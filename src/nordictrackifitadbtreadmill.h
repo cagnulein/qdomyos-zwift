@@ -38,6 +38,7 @@ class nordictrackifitadbtreadmill : public treadmill {
   private:
     void forceIncline(double incline);
     void forceSpeed(double speed);
+    QString runAdbCommand(QString command);
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
