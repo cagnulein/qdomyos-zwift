@@ -25,7 +25,7 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
-#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 #include <QSerialPort>
 #endif
 
@@ -89,7 +89,11 @@ class Daum : public QThread {
 
     QTimer *timer_;
     QString serialDeviceName_;
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     QSerialPort *serial_dev_;
+#else
+    QObject *serial_dev_;
+#endif
 
     char deviceAddress_;
     unsigned int maxDeviceLoad_;

@@ -48,11 +48,13 @@ int Daum::stop() {
 }
 
 bool Daum::discover(QString dev) {
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     if (!openPort(dev)) {
         return false;
     }
 
     QSerialPort &s(*serial_dev_);
+
     QByteArray data;
     data.append(0x11);
 
@@ -69,7 +71,7 @@ bool Daum::discover(QString dev) {
     }
     data = s.readAll();
     closePort();
-
+#endif
     return true;
 }
 
@@ -106,6 +108,7 @@ double Daum::getHeartRate() const {
 
 bool Daum::openPort(QString dev) {
     QMutexLocker locker(&pvars);
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     if (serial_dev_ == nullptr) {
         serial_dev_ = new QSerialPort();
     }
@@ -124,13 +127,17 @@ bool Daum::openPort(QString dev) {
         return false;
     }
 
+#endif
+
     return true;
 }
 
 bool Daum::closePort() {
     QMutexLocker locker(&pvars);
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     delete serial_dev_;
     serial_dev_ = nullptr;
+#endif
     return true;
 }
 
@@ -149,8 +156,10 @@ void Daum::run() {
             connect(timer_, SIGNAL(timeout()), this, SLOT(requestRealtimeData()), Qt::DirectConnection);
         }
 
-        // discard prev. read data
+// discard prev. read data
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
         serial_dev_->readAll();
+#endif
     }
 
     initializeConnection();
@@ -284,7 +293,9 @@ void Daum::requestRealtimeData() {
     // Discard any existing data
     {
         QMutexLocker locker(&pvars);
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
         serial_dev_->readAll();
+#endif
         addr = deviceAddress_;
     }
 
@@ -456,7 +467,9 @@ bool Daum::isPaused() const {
 QByteArray Daum::WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes) {
     QMutexLocker locker(&pvars);
 
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     QSerialPort &s(*serial_dev_);
+
     QByteArray ret;
     if (!s.isOpen()) {
         return ret;
@@ -484,5 +497,6 @@ QByteArray Daum::WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes
     }
 
     s.readAll(); // discard additional data
+#endif
     return ret;
 }
