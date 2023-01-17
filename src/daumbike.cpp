@@ -238,7 +238,7 @@ void daumbike::update() {
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
         Inclination = 0;
-        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Gradient));
+        // emit debug(QStringLiteral("Current Inclination: ") + QString::number(Gradient));
 
         if (watts())
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
