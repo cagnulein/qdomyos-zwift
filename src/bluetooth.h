@@ -31,7 +31,9 @@
 #endif
 #include "concept2skierg.h"
 #include "cscbike.h"
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
 #include "daumbike.h"
+#endif
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "domyosrower.h"
@@ -149,7 +151,9 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
 #endif
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
     daumbike *daumBike = nullptr;
+#endif
     concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;

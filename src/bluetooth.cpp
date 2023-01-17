@@ -626,6 +626,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(proformWifiBike);
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
             } else if (!daumBikeSerialPort.isEmpty() && !daumBike) {
                 this->stopDiscovery();
                 daumBike = new daumbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -639,6 +640,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(daumBike);
+#endif
 #ifndef Q_OS_IOS
             } else if (!computrainerSerialPort.isEmpty() && !computrainerBike) {
                 this->stopDiscovery();
@@ -2551,11 +2553,13 @@ void bluetooth::restart() {
         delete inspireBike;
         inspireBike = nullptr;
     }
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
     if (daumBike) {
 
         delete daumBike;
         daumBike = nullptr;
     }
+#endif
 #ifndef Q_OS_IOS
     if (computrainerBike) {
 
@@ -2819,8 +2823,10 @@ bluetoothdevice *bluetooth::device() {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
     } else if (daumBike) {
         return daumBike;
+#endif
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;

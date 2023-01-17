@@ -5,6 +5,7 @@ QT+= charts
 
 win32:QT += serialport
 macx:QT += serialport
+unix:QT += serialport
 
 qtHaveModule(httpserver) {
     QT += httpserver
