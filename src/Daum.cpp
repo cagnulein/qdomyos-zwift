@@ -18,25 +18,15 @@
  */
 
 #include "Daum.h"
+#include <QDate>
+#include <QRegularExpression>
+#include <QTime>
 
-Daum::Daum(QObject *parent, QString device, QString profile) : QThread(parent),
-    timer_(nullptr),
-    serialDeviceName_(device),
-    serial_dev_(nullptr),
-    deviceAddress_(-1),
-    maxDeviceLoad_(800),
-    serialWriteDelay_(0),
-    playSound_(profile.contains("sound", Qt::CaseInsensitive)),
-    paused_(false),
-    devicePower_(0),
-    deviceHeartRate_(0),
-    deviceCadence_(0),
-    deviceSpeed_(0),
-    load_(kDefaultLoad),
-    loadToWrite_(kDefaultLoad),
-    forceUpdate_(profile.contains("force", Qt::CaseInsensitive)),
-    profile_(profile) {
-}
+Daum::Daum(QObject *parent, QString device, QString profile)
+    : QThread(parent), timer_(nullptr), serialDeviceName_(device), serial_dev_(nullptr), deviceAddress_(-1),
+      maxDeviceLoad_(800), serialWriteDelay_(0), playSound_(profile.contains("sound", Qt::CaseInsensitive)),
+      paused_(false), devicePower_(0), deviceHeartRate_(0), deviceCadence_(0), deviceSpeed_(0), load_(kDefaultLoad),
+      loadToWrite_(kDefaultLoad), forceUpdate_(profile.contains("force", Qt::CaseInsensitive)), profile_(profile) {}
 
 int Daum::start() {
     QThread::start();
@@ -87,8 +77,12 @@ void Daum::setLoad(double load) {
     const unsigned int minDeviceLoad = 25;
     unsigned int local_load = (unsigned int)load;
     QMutexLocker locker(&pvars);
-    if (local_load > maxDeviceLoad_) { local_load = maxDeviceLoad_; }
-    if (local_load < minDeviceLoad) { local_load = minDeviceLoad; }
+    if (local_load > maxDeviceLoad_) {
+        local_load = maxDeviceLoad_;
+    }
+    if (local_load < minDeviceLoad) {
+        local_load = minDeviceLoad;
+    }
     qDebug() << "setLoad(): " << local_load;
     loadToWrite_ = local_load;
 }
@@ -127,7 +121,7 @@ bool Daum::openPort(QString dev) {
     serial_dev_->setParity(QSerialPort::NoParity);
 
     if (!serial_dev_->open(QSerialPort::ReadWrite)) {
-       return false;
+        return false;
     }
 
     return true;
@@ -141,7 +135,7 @@ bool Daum::closePort() {
 }
 
 void Daum::run() {
-    //closePort();
+    // closePort();
     if (!openPort(serialDeviceName_)) {
         exit(-1);
     }
@@ -305,14 +299,14 @@ void Daum::requestRealtimeData() {
     }
 
     // local cache of telemetry data
-    int pwr = (unsigned char) data[5];
-    int rpm = (unsigned char) data[6];
+    int pwr = (unsigned char)data[5];
+    int rpm = (unsigned char)data[6];
     int speed = data[7];
-    int pulse = (unsigned char) data[14];
+    int pulse = (unsigned char)data[14];
 
     // sanity check
     if (pwr >= 5 && pwr <= 160) {
-        int pedalling = data[4];   // either 0/1 or w/ offset of 128
+        int pedalling = data[4]; // either 0/1 or w/ offset of 128
         pwr = pwr * 5 * (pedalling != 0 ? 1 : 0);
     } else {
         pwr = 0;
@@ -352,7 +346,7 @@ void Daum::requestRealtimeData() {
         data.append(MapLoadToByte(pwr));
         qInfo() << "Writing power to device: " << pwr << "W";
         QByteArray res = WriteDataAndGetAnswer(data, 3);
-        qDebug() << "set power to " << (int)data[2]*5 << "W";
+        qDebug() << "set power to " << (int)data[2] * 5 << "W";
         if (res != data && res[2] != data[2] && pwr > 400) {
             // reduce power limit because some devices are limited too 400W instead of 800W
             QMutexLocker locker(&pvars);
@@ -402,7 +396,9 @@ int Daum::GetDeviceVersion() {
 }
 bool Daum::SetProgram(unsigned int prog) {
     QByteArray dat;
-    if (prog > 79) { prog = 79; }   // clamp to max
+    if (prog > 79) {
+        prog = 79;
+    } // clamp to max
     dat.append((char)0x23).append(deviceAddress_).append((char)prog);
     return WriteDataAndGetAnswer(dat, dat.length() + 1).length() == 4; // device tells pedalling state too
 }
@@ -422,20 +418,20 @@ bool Daum::SetDate() {
     QDate d = QDate::currentDate();
     QByteArray dat;
     char year = d.year() - 2000;
-    if (year < 0 || year > 99) { year = 0; }
-    dat.append((char)0x64).append(deviceAddress_)
-            .append((char)d.day())
-            .append((char)d.month())
-            .append(year);
+    if (year < 0 || year > 99) {
+        year = 0;
+    }
+    dat.append((char)0x64).append(deviceAddress_).append((char)d.day()).append((char)d.month()).append(year);
     return WriteDataAndGetAnswer(dat, 2).length() == 2;
 }
 bool Daum::SetTime() {
     QTime tim = QTime::currentTime();
     QByteArray dat;
-    dat.append((char)0x62).append(deviceAddress_)
-            .append((char)tim.second())
-            .append((char)tim.minute())
-            .append((char)tim.hour());
+    dat.append((char)0x62)
+        .append(deviceAddress_)
+        .append((char)tim.second())
+        .append((char)tim.minute())
+        .append((char)tim.hour());
     return WriteDataAndGetAnswer(dat, 2).length() == 2;
 }
 void Daum::PlaySound() {
@@ -448,7 +444,7 @@ void Daum::PlaySound() {
 }
 
 char Daum::MapLoadToByte(unsigned int load) const {
-    char load_map = load/5;
+    char load_map = load / 5;
     return load_map;
 }
 
@@ -457,7 +453,7 @@ bool Daum::isPaused() const {
     return paused_;
 }
 
-QByteArray Daum::WriteDataAndGetAnswer(QByteArray const& dat, int response_bytes) {
+QByteArray Daum::WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes) {
     QMutexLocker locker(&pvars);
 
     QSerialPort &s(*serial_dev_);
@@ -468,7 +464,7 @@ QByteArray Daum::WriteDataAndGetAnswer(QByteArray const& dat, int response_bytes
 
     QThread::msleep(serialWriteDelay_);
     s.write(dat);
-    if(!s.waitForBytesWritten(1000)) {
+    if (!s.waitForBytesWritten(1000)) {
         qWarning() << "failed to write data to daum cockpit";
         exit(-1);
     }
@@ -480,13 +476,13 @@ QByteArray Daum::WriteDataAndGetAnswer(QByteArray const& dat, int response_bytes
                 return ret;
             }
             ret.append(s.read(response_bytes - ret.length()));
-        } while(--retries > 0 && ret.length() < response_bytes);
+        } while (--retries > 0 && ret.length() < response_bytes);
         if (retries <= 0) {
             qWarning() << "failed to read desired (" << response_bytes << ") data from device. Read: " << ret.length();
             ret.clear();
         }
     }
 
-    s.readAll();    // discard additional data
+    s.readAll(); // discard additional data
     return ret;
 }

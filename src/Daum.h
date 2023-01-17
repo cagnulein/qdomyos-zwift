@@ -20,12 +20,12 @@
 #ifndef _GC_Daum_h
 #define _GC_Daum_h 1
 
-#include <QString>
 #include <QDebug>
-#include <QThread>
 #include <QMutex>
+#include <QString>
+#include <QThread>
 #include <QTimer>
-#if defined(Q_OS_WINDOWS) || defiend(Q_OS_MAC)
+#if defined(Q_OS_WINDOWS) || defined(Q_OS_MAC)
 #include <QSerialPort>
 #endif
 
@@ -35,12 +35,11 @@
  * This work is based on the documents found on the daum-electronic site:
  * http://www.daum-electronic.de/de/support/supp02.html
  * and the implementation details are inspired by the Fortius class.
-*/
+ */
 
-class Daum : public QThread
-{
+class Daum : public QThread {
     Q_OBJECT
-public:
+  public:
     // default load
     const int kDefaultLoad = 100;
     const int kQueryIntervalMS = 1000;
@@ -61,7 +60,7 @@ public:
     double getCadence() const;
     double getHeartRate() const;
 
-private:
+  private:
     void run();
 
     bool openPort(QString dev);
@@ -81,10 +80,9 @@ private:
     bool SetTime();
     void PlaySound();
 
-    QByteArray WriteDataAndGetAnswer(QByteArray const& dat, int response_bytes);
+    QByteArray WriteDataAndGetAnswer(QByteArray const &dat, int response_bytes);
     char MapLoadToByte(unsigned int load) const;
     bool isPaused() const;
-
 
     // a lock for our private vars
     mutable QMutex pvars;
@@ -124,9 +122,8 @@ private:
         COCKPIT_8008_TRS_PRO = 0x64
     };
 
-private slots:
+  private slots:
     void requestRealtimeData();
 };
 
 #endif // _GC_Daum_h
-

@@ -646,6 +646,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.44
             property bool tile_pace_last500m_enabled: true
             property int  tile_pace_last500m_order: 49
+
+            // from version 2.12.46
+            property string daumbike_serialport: ""
         }
 
         function paddingZeros(text, limit) {
@@ -2331,6 +2334,37 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                AccordionElement {
+                    id: daumBikeAccordion
+                    title: qsTr("Daum Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labeldaumBikeSerialPort
+                            text: qsTr("Serial Port:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: daumbikeSerialPortTextField
+                            text: settings.daumbike_serialport
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.daumbike_serialport = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okdaumBikeSerialPortButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.daumbike_serialport = daumbikeSerialPortTextField.text
+                        }
+                    }
+                }
 
                 AccordionElement {
                     id: m3iBikeAccordion

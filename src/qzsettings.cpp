@@ -582,8 +582,10 @@ const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_va
 const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value");
 const QString QZSettings::tile_pace_last500m_enabled = QStringLiteral("tile_pace_last500m_enabled");
 const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_last500m_order");
+const QString QZSettings::daumbike_serialport = QStringLiteral("daumbike_serialport");
+const QString QZSettings::default_daumbike_serialport = QStringLiteral("");
 
-const uint32_t allSettingsCount = 478;
+const uint32_t allSettingsCount = 479;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1066,6 +1068,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_current_value, QZSettings::gears_current_value},
     {QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled},
     {QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order},
+    {QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -3,6 +3,9 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 QTPLUGIN += qavfmediaplayer
 QT+= charts
 
+win32:QT += serialport
+macx:QT += serialport
+
 qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER
@@ -64,6 +67,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 
 SOURCES += \
     $$PWD/Daum.cpp \
+   $$PWD/daumbike.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -255,6 +259,7 @@ INCLUDEPATH += fit-sdk/
 
 HEADERS += \
     $$PWD/Daum.h \
+   $$PWD/daumbike.h \
     $$PWD/discoveryoptions.h \
    Computrainer.h \
    PathController.h \

@@ -11,12 +11,10 @@
 #include <QAndroidJniObject>
 #endif
 
-bluetooth::bluetooth(const discoveryoptions& options) : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
-                                                          options.pollDeviceTime, options.noConsole, options.testResistance,
-                                                          options.bikeResistanceOffset, options.bikeResistanceGain,
-                                                           options.createTemplateManagers,options.startDiscovery) {
-
-}
+bluetooth::bluetooth(const discoveryoptions &options)
+    : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
+                options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
+                options.bikeResistanceGain, options.createTemplateManagers, options.startDiscovery) {}
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
@@ -38,11 +36,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     QString innerId = QStringLiteral("inner");
     QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
-    if(this->createTemplateManagers) {
+    if (this->createTemplateManagers) {
         QString path = homeform::getWritableAppDir() + QStringLiteral("QZTemplates");
         this->userTemplateManager = TemplateInfoSenderBuilder::getInstance(
             QStringLiteral("user"), QStringList({path, QStringLiteral(":/templates/")}), this);
-
 
         settings.setValue(sKey + QStringLiteral("enabled"), true);
         settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
@@ -53,7 +50,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.setValue(sKey + QStringLiteral("enabled"), false);
     }
 
-
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     this->startTemplateManagers(schwinnIC4Bike);
@@ -61,7 +57,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
-    if(!startDiscovery) {
+    if (!startDiscovery) {
         this->discoveryAgent = nullptr;
         return;
     }
@@ -137,16 +133,15 @@ bluetooth::~bluetooth() {
     }*/
 }
 
-
 void bluetooth::startTemplateManagers(bluetoothdevice *b) {
-    if(this->createTemplateManagers) {
-       this->userTemplateManager->start(b);
-       this->innerTemplateManager->start(b);
+    if (this->createTemplateManagers) {
+        this->userTemplateManager->start(b);
+        this->innerTemplateManager->start(b);
     }
 }
 
 void bluetooth::stopTemplateManagers() {
-    if(this->createTemplateManagers) {
+    if (this->createTemplateManagers) {
         this->userTemplateManager->stop();
         this->innerTemplateManager->stop();
     }
@@ -212,7 +207,7 @@ void bluetooth::finished() {
 
 void bluetooth::startDiscovery() {
 
-    if(!this->useDiscovery)
+    if (!this->useDiscovery)
         return;
 
 #ifndef Q_OS_IOS
@@ -442,6 +437,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+    QString daumBikeSerialPort =
+        settings.value(QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
 
@@ -629,6 +626,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(proformWifiBike);
+            } else if (!daumBikeSerialPort.isEmpty() && !daumBike) {
+                this->stopDiscovery();
+                daumBike = new daumbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(daumBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(daumBike, &daumbike::debug, this, &bluetooth::debug);
+                daumBike->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->startTemplateManagers(daumBike);
 #ifndef Q_OS_IOS
             } else if (!computrainerSerialPort.isEmpty() && !computrainerBike) {
                 this->stopDiscovery();
@@ -1083,7 +1093,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
-				this->startTemplateManagers(lifefitnessTreadmill);
+                this->startTemplateManagers(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
@@ -1231,7 +1241,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) ||
                         (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
-                        (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
+                        (b.name().toUpper().startsWith("FLXCY-")) ||  // Pro FlexBike
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
@@ -2541,6 +2551,11 @@ void bluetooth::restart() {
         delete inspireBike;
         inspireBike = nullptr;
     }
+    if (daumBike) {
+
+        delete daumBike;
+        daumBike = nullptr;
+    }
 #ifndef Q_OS_IOS
     if (computrainerBike) {
 
@@ -2804,6 +2819,8 @@ bluetoothdevice *bluetooth::device() {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+    } else if (daumBike) {
+        return daumBike;
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
