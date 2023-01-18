@@ -21,7 +21,7 @@ fitplusbike::fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bi
 #ifdef Q_OS_IOS
     QSettings settings;
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
-    if(sportstech_sx600) {
+    if (sportstech_sx600) {
         QZ_EnableDiscoveryCharsAndDescripttors = false;
     } else {
         QZ_EnableDiscoveryCharsAndDescripttors = true;
@@ -396,9 +396,9 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-
-    if(sportstech_sx600 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
-        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    if (sportstech_sx600 && characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+        bool disable_hr_frommachinery =
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
         union flags {
             struct {
@@ -433,7 +433,9 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             index += 2;
             qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
@@ -457,7 +459,10 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            2.0) *
-                          settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
+                          settings
+                              .value(QZSettings::horizon_gr7_cadence_multiplier,
+                                     QZSettings::default_horizon_gr7_cadence_multiplier)
+                              .toDouble();
             }
             index += 2;
             qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
@@ -468,7 +473,10 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             avgCadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0) *
-                         settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
+                         settings
+                             .value(QZSettings::horizon_gr7_cadence_multiplier,
+                                    QZSettings::default_horizon_gr7_cadence_multiplier)
+                             .toDouble();
             index += 2;
             qDebug() << QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence);
         }
@@ -476,7 +484,6 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.totDistance) {
             index += 3;
         } else {
-
         }
 
         qDebug() << QStringLiteral("Current Distance: ") + QString::number(Distance.value());
@@ -557,7 +564,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.remainingTime) {
             // todo
         }
-    } else if (virtufit_etappe || merach_MRK || sportstech_sx600) {
+    } else if (virtufit_etappe || merach_MRK || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
 
@@ -778,10 +785,11 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     qDebug() << QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
-    if(sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
-        if(gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
-           gattCommunicationChannelServiceFTMS->state()  != QLowEnergyService::ServiceDiscovered) {
-            qDebug() << "sportstech_sx600 not all services discovered" << gattCommunicationChannelService->state() << gattCommunicationChannelServiceFTMS->state();
+    if (sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
+        if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceDiscovered ||
+            gattCommunicationChannelServiceFTMS->state() != QLowEnergyService::ServiceDiscovered) {
+            qDebug() << "sportstech_sx600 not all services discovered" << gattCommunicationChannelService->state()
+                     << gattCommunicationChannelServiceFTMS->state();
             return;
         }
     }
@@ -846,18 +854,20 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
 
-        if(sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
+        if (sportstech_sx600 && gattCommunicationChannelServiceFTMS) {
             QBluetoothUuid _gattNotifyFTMSCharacteristicId((quint16)0x2AD2);
-            gattNotifyFTMSCharacteristic = gattCommunicationChannelServiceFTMS->characteristic(_gattNotifyFTMSCharacteristicId);
+            gattNotifyFTMSCharacteristic =
+                gattCommunicationChannelServiceFTMS->characteristic(_gattNotifyFTMSCharacteristicId);
             Q_ASSERT(gattNotifyFTMSCharacteristic.isValid());
 
             connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::characteristicChanged, this,
                     &fitplusbike::characteristicChanged);
             connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::characteristicWritten, this,
                     &fitplusbike::characteristicWritten);
-            connect(gattCommunicationChannelServiceFTMS,
-                    static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                    this, &fitplusbike::errorService);
+            connect(
+                gattCommunicationChannelServiceFTMS,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &fitplusbike::errorService);
             connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::descriptorWritten, this,
                     &fitplusbike::descriptorWritten);
 
@@ -893,11 +903,12 @@ void fitplusbike::serviceScanDone(void) {
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitplusbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 
-    if(sportstech_sx600) {
+    if (sportstech_sx600) {
         gattCommunicationChannelServiceFTMS = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-        if(gattCommunicationChannelServiceFTMS) {
+        if (gattCommunicationChannelServiceFTMS) {
             qDebug() << "FTMS found!";
-            connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::stateChanged, this, &fitplusbike::stateChanged);
+            connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::stateChanged, this,
+                    &fitplusbike::stateChanged);
             gattCommunicationChannelServiceFTMS->discoverDetails();
         }
     }
