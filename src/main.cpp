@@ -297,11 +297,11 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
-    QSettings settings;
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
+    QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (forceQml)
 #endif
