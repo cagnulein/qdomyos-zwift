@@ -19,12 +19,12 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     retry.setInterval(10s);
     connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
-    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
-             .toString()
-             .compare(QStringLiteral("username"))) {
-        qDebug() << QStringLiteral("invalid peloton credentials");
-        return;
-    }
+    /* if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
+              .toString()
+              .compare(QStringLiteral("username"))) {
+         qDebug() << QStringLiteral("invalid peloton credentials");
+         return;
+     }*/
 
     startEngine();
 }
@@ -111,9 +111,10 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
     // REMOVE IT
     // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole", 3600);
     // searchWorkout(QDate(2020,1,18) ,"Denis & Matt", 3600); //     Multiple Instructors
+    searchWorkout(QDate(2021, 4, 23), "Ben Alldis", 3600);
 }
 
-void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedaling_duration) {
+void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedaling_duration, QString class_id) {
     int found = 0;
     for (const QJsonValue &r : qAsConst(lessons)) {
         QDate d = QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
@@ -156,6 +157,8 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
             }
         }
     } else if (found > 1) {
+        found = 0;
+        QStringList hfbID;
         qDebug() << QStringLiteral("HomeFitnessBuddy found more than one workout with the same date and same "
                                    "Instructor, try to filter this out using the length...");
         for (const QJsonValue &r : qAsConst(lessons)) {
@@ -166,20 +169,24 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
             int len = r.toObject().value(QStringLiteral("Length")).toString().toInt();
             bool duration = (len == (pedaling_duration / 60));
             if (d == date && c && duration) {
-                connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
-                QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
-                QUrlQuery query;
-                query.addQueryItem(QStringLiteral("class_id"),
-                                   r.toObject().value(QStringLiteral("Class ID")).toString());
-                url.setQuery(query.query());
-                QNetworkRequest request(url);
-
-                // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-                request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-
-                mgr->get(request);
-                return;
+                found++;
+                hfbID.append(r.toObject().value(QStringLiteral("Class ID")).toString());
             }
+        }
+
+        if (found == 1) {
+            connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
+            QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
+            QUrlQuery query;
+            query.addQueryItem(QStringLiteral("class_id"), hfbID.first());
+            url.setQuery(query.query());
+            QNetworkRequest request(url);
+
+            // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+
+            mgr->get(request);
+        } else {
         }
     }
 }
@@ -192,7 +199,8 @@ void homefitnessbuddy::search_workout_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
     // NOTE: clazy-unused-non-trivial-variable
-    // QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+    // QString difficulty = settings.value(QZSettings::peloton_difficulty,
+    // QZSettings::default_peloton_difficulty).toString();
 
     trainrows.clear();
     trainrows = zwiftworkout::load(payload);

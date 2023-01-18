@@ -23,7 +23,7 @@ class homefitnessbuddy : public QObject {
 
   public:
     homefitnessbuddy(bluetooth *bl, QObject *parent);
-    void searchWorkout(QDate date, const QString &coach, int pedaling_duration);
+    void searchWorkout(QDate date, const QString &coach, int pedaling_duration, QString class_id);
     QList<trainrow> trainrows;
 
   private:

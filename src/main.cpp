@@ -11,6 +11,7 @@
 
 #include "bluetooth.h"
 #include "domyostreadmill.h"
+#include "homefitnessbuddy.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
@@ -297,11 +298,15 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
+    new homefitnessbuddy(nullptr, nullptr);
+
+    return app->exec();
+
+    QSettings settings;
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
-    QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (forceQml)
 #endif
