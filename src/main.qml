@@ -321,7 +321,7 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            text: stackView.depth > 1 ? "⏴" : "⏴"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
