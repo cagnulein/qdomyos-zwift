@@ -644,7 +644,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         if (!PZP->searchWorkout(current_ride_id)) {
             current_api = homefitnessbuddy_api;
             HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration,
-                               current_workout_id);
+                               current_ride_id);
         } else {
             current_api = powerzonepack_api;
         }

@@ -27,6 +27,8 @@ class homefitnessbuddy : public QObject {
     QList<trainrow> trainrows;
 
   private:
+    QString pelotonClassID;
+    void getClassID(QString id);
     const int peloton_workout_second_resolution = 10;
 
     QNetworkAccessManager *mgr = nullptr;
@@ -39,6 +41,7 @@ class homefitnessbuddy : public QObject {
   private slots:
     void login_onfinish(QNetworkReply *reply);
     void search_workout_onfinish(QNetworkReply *reply);
+    void search_detail_onfinish(QNetworkReply *reply);
     void error(QNetworkReply::NetworkError code);
     void startEngine();
 

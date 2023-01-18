@@ -11,7 +11,6 @@
 
 #include "bluetooth.h"
 #include "domyostreadmill.h"
-#include "homefitnessbuddy.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
@@ -298,10 +297,6 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
-    new homefitnessbuddy(nullptr, nullptr);
-
-    return app->exec();
-
     QSettings settings;
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -405,7 +400,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700, "");
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
