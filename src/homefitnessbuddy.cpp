@@ -110,7 +110,7 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
 
     // REMOVE IT
     // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole", 3600, "");
-    searchWorkout(QDate(2020, 1, 18), "Denis & Matt", 3600, ""); //     Multiple Instructors
+    // searchWorkout(QDate(2020, 1, 18), "Denis & Matt", 3600, ""); //     Multiple Instructors
     // searchWorkout(QDate(2021, 4, 23), "Ben Alldis", 2700, "a5f95a660f5b4a84ac6a86aa4468ea1d");
 }
 
