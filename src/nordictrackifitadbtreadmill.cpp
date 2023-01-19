@@ -40,7 +40,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     }
 #ifdef Q_OS_WIN32
     else {
-        refresh->start(1000ms);
+        refresh->start(2000ms);
         runAdbCommand("connect " + ip);
     }
 #endif
@@ -259,27 +259,61 @@ void nordictrackifitadbtreadmill::update() {
 
 #ifdef Q_OS_WIN32
     if (nordictrack_ifit_adb_remote) {
-        QString file = runAdbCommand("shell ls -rt /sdcard/.wolflogs/ | tail -n 1");
+        QString file = runAdbCommand("shell ls -l /sdcard/.wolflogs/");
         QString out;
-        file = file.replace("\r\n", "");
-        file = "/sdcard/.wolflogs/" + file;
-        out = runAdbCommand("shell tail -n500 " + file + " | grep -a \"Changed KPH\" | tail -n1");
-        if (out.contains("KPH")) {
-            Speed = out.split(' ').last().toDouble();
-        } else {
-            out = runAdbCommand("shell grep -a \"Changed KPH\" " + file + "  | tail -n1");
-            if (out.contains("KPH")) {
-                Speed = out.split(' ').last().toDouble();
+
+        QStringList files = out.split("\r\n");
+        QList<adbfile> adbFiles;
+
+        foreach (QString f, files) {
+            QStringList d = f.split(" ", Qt::SkipEmptyParts);
+            qDebug() << f << d.count();
+            if (d.count() > 6) {
+                QString dateS = d[4];
+                QString timeS = d[5];
+                QString name = d[6];
+
+                if (name.contains("logs") && name.contains(".txt")) {
+                    QDate date =
+                        QDate(dateS.split("-")[0].toUInt(), dateS.split("-")[1].toUInt(), dateS.split("-")[2].toUInt());
+                    QTime time = QTime(timeS.split(":")[0].toUInt(), timeS.split(":")[1].toUInt(), 0);
+                    adbfile a;
+                    a.date = QDateTime(date, time);
+                    a.name = name;
+                    adbFiles.append(a);
+                }
             }
         }
 
-        out = runAdbCommand("shell tail -n500 " + file + " | grep -a \"Changed Grade\" | tail -n1");
-        if (out.contains("Grade")) {
-            Inclination = out.split(' ').last().toDouble();
+        if (adbFiles.count() == 0) {
+            qDebug() << "no log file found";
         } else {
-            out = runAdbCommand("shell grep -a \"Changed Grade\" " + file + "  | tail -n1");
-            if (out.contains("Grade")) {
-                Inclination = out.split(' ').last().toDouble();
+            qSort(adbFiles.begin(), adbFiles.end(), dtcomp);
+            qDebug() << adbFiles.first().name;
+
+            file = "/sdcard/.wolflogs/" + adbFiles.first().name;
+            out = runAdbCommand("pull " + file + " " + adbFiles.first().name);
+            if (QFile::exists(adbFiles.first().name)) {
+                QStringList stringList;
+                QFile textFile(adbFiles.first().name);
+                QTextStream textStream(&textFile);
+                double speed = 0;
+                double inclination = 0;
+                while (true) {
+                    QString line = textStream.readLine();
+                    if (line.contains("Changed KPH")) {
+                        qDebug() << line;
+                        speed = out.split(' ').last().toDouble();
+                    } else if (line.contains("Changed Grade")) {
+                        qDebug() << line;
+                        inclination = out.split(' ').last().toDouble();
+                    }
+                }
+                Speed = speed;
+                Inclination = inclination;
+                textFile.close();
+            } else {
+                qDebug() << adbFiles.first().name << "doesn't exist!";
             }
         }
 

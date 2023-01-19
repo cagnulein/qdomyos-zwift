@@ -58,6 +58,13 @@ class nordictrackifitadbtreadmill : public treadmill {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    static bool dtcomp(adbfile left, adbfile right) { return left.date > right.date; }
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
