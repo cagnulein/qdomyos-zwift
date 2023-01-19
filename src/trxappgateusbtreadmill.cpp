@@ -132,6 +132,10 @@ void trxappgateusbtreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            // only 0.5 changes otherwise it beeps forever
+            if(jtx_fitness_sprint_treadmill)
+                requestInclination = qRound(requestInclination * 2.0) / 2.0;
+
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);

@@ -298,39 +298,43 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     if(proform_hybrid_trainer_xt) {
         switch (r) {
         case 0:
-            return 1;
+            return 0;
         case 2:
-            return 2;
+            return 1;
         case 4:
-            return 3;
+            return 2;
         case 7:
         case 8:
-            return 4;
+            return 3;
         case 9:
+            return 4;
+        case 0xc:
             return 5;
-        case 0xb:
-            return 6;
         case 0xe:
+            return 6;
+        case 0x11:
             return 7;
-        case 0x10:
-            return 8;
         case 0x13:
         case 0x18:
-            return 9;
+            return 8;
         case 0x14:
         case 0x15:
         case 0x1a:
+            return 9;
+        case 0x1b:
             return 10;
-        case 0x1d:
+        case 0x1c:
             return 11;
-        case 0x1f:
+        case 0x1d:
             return 12;
-        case 0x21:
+        case 0x1f:
             return 13;
-        case 0x24:
+        case 0x22:
             return 14;
-        case 0x26:
+        case 0x24:
             return 15;
+        case 0x27:
+            return 16;
         }
     } else {
         switch (r) {

@@ -11,12 +11,10 @@
 #include <QAndroidJniObject>
 #endif
 
-bluetooth::bluetooth(const discoveryoptions& options) : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
-                                                          options.pollDeviceTime, options.noConsole, options.testResistance,
-                                                          options.bikeResistanceOffset, options.bikeResistanceGain,
-                                                           options.createTemplateManagers,options.startDiscovery) {
-
-}
+bluetooth::bluetooth(const discoveryoptions &options)
+    : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
+                options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
+                options.bikeResistanceGain, options.createTemplateManagers, options.startDiscovery) {}
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
@@ -38,11 +36,10 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     QString innerId = QStringLiteral("inner");
     QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
-    if(this->createTemplateManagers) {
+    if (this->createTemplateManagers) {
         QString path = homeform::getWritableAppDir() + QStringLiteral("QZTemplates");
         this->userTemplateManager = TemplateInfoSenderBuilder::getInstance(
             QStringLiteral("user"), QStringList({path, QStringLiteral(":/templates/")}), this);
-
 
         settings.setValue(sKey + QStringLiteral("enabled"), true);
         settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
@@ -64,7 +61,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
-    if(!startDiscovery) {
+    if (!startDiscovery) {
         this->discoveryAgent = nullptr;
         return;
     }
@@ -146,16 +143,15 @@ bluetooth::~bluetooth() {
     }*/
 }
 
-
 void bluetooth::startTemplateManagers(bluetoothdevice *b) {
-    if(this->createTemplateManagers) {
-       this->userTemplateManager->start(b);
-       this->innerTemplateManager->start(b);
+    if (this->createTemplateManagers) {
+        this->userTemplateManager->start(b);
+        this->innerTemplateManager->start(b);
     }
 }
 
 void bluetooth::stopTemplateManagers() {
-    if(this->createTemplateManagers) {
+    if (this->createTemplateManagers) {
         this->userTemplateManager->stop();
         this->innerTemplateManager->stop();
     }
@@ -221,7 +217,7 @@ void bluetooth::finished() {
 
 void bluetooth::startDiscovery() {
 
-    if(!this->useDiscovery)
+    if (!this->useDiscovery)
         return;
 
 #ifndef Q_OS_IOS
@@ -1092,7 +1088,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
-				this->startTemplateManagers(lifefitnessTreadmill);
+                this->startTemplateManagers(lifefitnessTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
@@ -1238,9 +1234,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
-                        (b.name().toUpper().startsWith("ZWIFT HUB")) ||
+                        (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
                         (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
-                        (b.name().toUpper().startsWith("FLXCY-")) || // Pro FlexBike
+                        (b.name().toUpper().startsWith("FLXCY-")) ||  // Pro FlexBike
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
