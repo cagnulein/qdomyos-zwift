@@ -876,7 +876,7 @@ import Qt.labs.settings 1.0
                     }
 
                     Label {
-                        text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift). You can learn about <a href='https://blog.onepeloton.com/power-zone-training-faqs-with-matt-wilpers-and-denis-morton'>Power Zone Training here</a>.")
+                        text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8
@@ -1356,7 +1356,33 @@ import Qt.labs.settings 1.0
                                     }
                                 }
                             }
+
+                            Label {
+                                text: qsTr("QZ uses a standard age-based calculation for maximum heart rate and then sets the heart rate zones based on that max heart rate. If you know your actual max heart rate (the highest your heart rate is known to reach), turn this option on and enter your actual max heart rate. Then click OK.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
                         }
+                    }
+
+                    Label {
+                        text: qsTr("Choose the percentages for where you want your zones 1-4 to end and click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -1467,6 +1493,18 @@ import Qt.labs.settings 1.0
                                 }
                             }
                         }
+                    }
+                    Label {
+                        text: qsTr("Expand the bars to the right to display the options under this setting. These settings are used to calculate power (watts) for bikes that do not have power meters. Instead QZ estimates power from your cadence and heart rate. You can calibrate how QZ calculates your power from heart rate as follows: If you know that at a stable pace you produce 100W of power at a heart rate of 150 BPM and 150W at 170 BPM, you can add these values under Sessions 1 and 2 Watt and HR and QZ will calculate your power based on that trend line.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
@@ -1590,6 +1628,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
                         }
                     }
+
+                    Label {
+                        text: qsTr("Enables QZ to include the weight of your bike when calculating speed. For example, if you are competing against yourself on VZfit, adding bike weight will “level the playing field” against your virtual self. If you have set QZ to calculate distance in miles, enter the bike weight in pounds (lbs). Default unit is kilograms (kgs).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -1652,6 +1704,20 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.zwift_erg = checked
                     }
+
+                    Label {
+                        text: qsTr("Enable this setting ONLY when using Zwift in ERG (workout) Mode. QZ will communicate the target resistance (or automatically adjust your resistance if your bike has this capability) to match the target watts based on your cadence (RPM). In ERG Mode, the changes in road slope will not affect target resistance, as is the case in Simulation Mode. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: zwiftNegativeIncliantionX2Delegate
                         text: qsTr("Double Negative Inclination")
@@ -1666,6 +1732,20 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.zwift_negative_inclination_x2 = checked
                     }
+
+                    Label {
+                        text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -1689,6 +1769,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_resistance_offset = bikeResistanceOffsetTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("This setting sets your “flat road” in Zwift. All communicated resistance changes will be based on this setting. The value entered is personal preference and will be dependent on your level of fitness. The suggested value for Echelon bikes is between 18 and 20. Default is 4.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -1716,6 +1809,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("(for bikes and treadmills when using “treadmill as a bike” setting). This setting scales the resistance from your bike or the speed from your treadmill before sending it to Zwift. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -1739,6 +1845,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_filter = zwiftErgFilterTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("In ERG Mode or during a Power Zone workout on Peloton, the app sends a “target output” request. If the output requested doesn’t match your current output (calculated using cadence and resistance level), your target resistance will change to help you get closer to the target output. If the filter is set to higher values, you will get less adjustment of the target resistance and you will have to increase your cadence to match the target output. The Up and Down Watt Filter settings are the upper and lower margin before the adjustment of resistance is communicated. Example: if the up and down filters are set to 10 and the target output is 100 watts, a change of your resistance will only be communicated if your bike produces less than 90 Watts or more than 110 Watts. Default is 10.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -1766,6 +1885,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("See above. Default is 10.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -1789,6 +1921,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("Use this setting to set a minimum target resistance. For example, if you do not want to ride at a resistance below 25, enter a value of 25 and QZ will not set a target resistance below 25. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -1816,6 +1961,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("Similar to the above, but sets a maximum target resistance. Default is 999.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -1840,6 +1998,32 @@ import Qt.labs.settings 1.0
                             onClicked: settings.bike_resistance_start = bikeResistanceStartTextField.text
                         }
                     }
+
+                    Label {
+                        text: qsTr("(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+
+                Label {
+                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group</a>.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 AccordionElement {
@@ -2636,6 +2820,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.ant_cadence = checked
                     }
 
+                    Label {
+                        text: qsTr("Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: antHeartDelegate
                         text: qsTr("Ant+ Heart")
@@ -2649,6 +2846,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ant_heart = checked
+                    }
+
+                    Label {
+                        text: qsTr("This setting enables receiving the heart rate from an external HRM over ANT+ instead of from QZ.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
