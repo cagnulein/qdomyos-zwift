@@ -260,9 +260,8 @@ void nordictrackifitadbtreadmill::update() {
 #ifdef Q_OS_WIN32
     if (nordictrack_ifit_adb_remote) {
         QString file = runAdbCommand("shell ls -l /sdcard/.wolflogs/");
-        QString out;
 
-        QStringList files = out.split("\r\n");
+        QStringList files = file.split("\r\r\n");
         QList<adbfile> adbFiles;
 
         foreach (QString f, files) {
@@ -292,7 +291,7 @@ void nordictrackifitadbtreadmill::update() {
             qDebug() << adbFiles.first().name;
 
             file = "/sdcard/.wolflogs/" + adbFiles.first().name;
-            out = runAdbCommand("pull " + file + " " + adbFiles.first().name);
+            QString out = runAdbCommand("pull " + file + " " + adbFiles.first().name);
             if (QFile::exists(adbFiles.first().name)) {
                 QStringList stringList;
                 QFile textFile(adbFiles.first().name);
