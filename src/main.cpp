@@ -173,6 +173,14 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 
             bikeResistanceOffset = atoi(argv[++i]);
         }
+        if (!qstrcmp(argv[i], "-profile")) {
+            QString profileName = argv[++i];
+            if (QFile::exists(homeform::getProfileDir() + "/" + profileName)) {
+                homeform::loadSettings(QUrl(homeform::getProfileDir() + "/" + profileName));
+            } else {
+                qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+            }
+        }
     }
 
     if (nogui) {
