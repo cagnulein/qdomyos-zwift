@@ -299,7 +299,7 @@ void nordictrackifitadbtreadmill::update() {
                 QTextStream textStream(&textFile);
                 double speed = 0;
                 double inclination = 0;
-                while (true) {
+                while (!textStream.atEnd()) {
                     QString line = textStream.readLine();
                     if (line.contains("Changed KPH")) {
                         qDebug() << line;
