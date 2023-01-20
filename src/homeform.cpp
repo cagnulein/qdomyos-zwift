@@ -2414,10 +2414,22 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                bool treadmill_difficulty_gain_or_offset =
+                    settings
+                        .value(QZSettings::treadmill_difficulty_gain_or_offset,
+                               QZSettings::default_treadmill_difficulty_gain_or_offset)
+                        .toBool();
 
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(0.03);
+                if (!treadmill_difficulty_gain_or_offset) {
+                    bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
+                    if (bluetoothManager->device()->difficult() == 0) {
+                        bluetoothManager->device()->setDifficult(0.03);
+                    }
+                } else {
+                    bluetoothManager->device()->setDifficultOffset(bluetoothManager->device()->difficultOffset() + 0.1);
+                    if (bluetoothManager->device()->difficultOffset() == 0) {
+                        bluetoothManager->device()->setDifficultOffset(0.1);
+                    }
                 }
 
                 ((treadmill *)bluetoothManager->device())
@@ -2428,11 +2440,24 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                bool treadmill_difficulty_gain_or_offset =
+                    settings
+                        .value(QZSettings::treadmill_difficulty_gain_or_offset,
+                               QZSettings::default_treadmill_difficulty_gain_or_offset)
+                        .toBool();
 
-                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() +
-                                                                    0.03);
-                if (bluetoothManager->device()->inclinationDifficult() == 0) {
-                    bluetoothManager->device()->setInclinationDifficult(0.03);
+                if (!treadmill_difficulty_gain_or_offset) {
+                    bluetoothManager->device()->setInclinationDifficult(
+                        bluetoothManager->device()->inclinationDifficult() + 0.03);
+                    if (bluetoothManager->device()->inclinationDifficult() == 0) {
+                        bluetoothManager->device()->setInclinationDifficult(0.03);
+                    }
+                } else {
+                    bluetoothManager->device()->setInclinationDifficultOffset(
+                        bluetoothManager->device()->inclinationDifficultOffset() + 0.5);
+                    if (bluetoothManager->device()->inclinationDifficultOffset() == 0) {
+                        bluetoothManager->device()->setInclinationDifficultOffset(0.5);
+                    }
                 }
 
                 ((treadmill *)bluetoothManager->device())
@@ -2612,10 +2637,22 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                bool treadmill_difficulty_gain_or_offset =
+                    settings
+                        .value(QZSettings::treadmill_difficulty_gain_or_offset,
+                               QZSettings::default_treadmill_difficulty_gain_or_offset)
+                        .toBool();
 
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
-                if (bluetoothManager->device()->difficult() == 0) {
-                    bluetoothManager->device()->setDifficult(-0.03);
+                if (!treadmill_difficulty_gain_or_offset) {
+                    bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
+                    if (bluetoothManager->device()->difficult() == 0) {
+                        bluetoothManager->device()->setDifficult(-0.03);
+                    }
+                } else {
+                    bluetoothManager->device()->setDifficultOffset(bluetoothManager->device()->difficultOffset() - 0.1);
+                    if (bluetoothManager->device()->difficultOffset() == 0) {
+                        bluetoothManager->device()->setDifficultOffset(-0.1);
+                    }
                 }
 
                 ((treadmill *)bluetoothManager->device())
@@ -2626,11 +2663,24 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
 
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                bool treadmill_difficulty_gain_or_offset =
+                    settings
+                        .value(QZSettings::treadmill_difficulty_gain_or_offset,
+                               QZSettings::default_treadmill_difficulty_gain_or_offset)
+                        .toBool();
 
-                bluetoothManager->device()->setInclinationDifficult(bluetoothManager->device()->inclinationDifficult() -
-                                                                    0.03);
-                if (bluetoothManager->device()->inclinationDifficult() == 0) {
-                    bluetoothManager->device()->setInclinationDifficult(-0.03);
+                if (!treadmill_difficulty_gain_or_offset) {
+                    bluetoothManager->device()->setInclinationDifficult(
+                        bluetoothManager->device()->inclinationDifficult() - 0.03);
+                    if (bluetoothManager->device()->inclinationDifficult() == 0) {
+                        bluetoothManager->device()->setInclinationDifficult(-0.03);
+                    }
+                } else {
+                    bluetoothManager->device()->setInclinationDifficultOffset(
+                        bluetoothManager->device()->inclinationDifficultOffset() - 0.5);
+                    if (bluetoothManager->device()->inclinationDifficultOffset() == 0) {
+                        bluetoothManager->device()->setInclinationDifficult(-0.5);
+                    }
                 }
 
                 ((treadmill *)bluetoothManager->device())

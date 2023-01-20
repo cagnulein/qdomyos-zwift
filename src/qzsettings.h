@@ -1660,6 +1660,9 @@ class QZSettings {
     static const QString tile_pace_last500m_order;
     static constexpr int default_tile_pace_last500m_order = 49;
 
+    static const QString treadmill_difficulty_gain_or_offset;
+    static constexpr bool default_treadmill_difficulty_gain_or_offset = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

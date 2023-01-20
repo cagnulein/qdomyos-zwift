@@ -646,6 +646,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.44
             property bool tile_pace_last500m_enabled: true
             property int  tile_pace_last500m_order: 49
+
+            // from version 2.12.51
+            property bool treadmill_difficulty_gain_or_offset: false
         }
 
         function paddingZeros(text, limit) {
@@ -3758,6 +3761,34 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.pause_on_start_treadmill = checked
+                }
+
+                SwitchDelegate {
+                    id: treadmillDifficultyGainOffsetDelegate
+                    text: qsTr("Difficulty offset based")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.treadmill_difficulty_gain_or_offset
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.treadmill_difficulty_gain_or_offset = checked
+                }
+
+                Label {
+                    text: qsTr("Target Speed and Target Incline tile offer a way to increase/decrease the current difficulty with the plus/minus buttons. By default, with this setting disabled, the speed and the inclination change with a 3% gain for every pressure. Switching this ON, QZ will add a 0.1 speed offset or a 0.5 incline offset instead.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 RowLayout {
