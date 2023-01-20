@@ -2915,6 +2915,20 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.top_bar_enabled = checked
                     }
+
+                    Label {
+                        text: qsTr("Allows continuous display of the Start/Pause and Stop buttons across the top of the screen during your workouts. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -2938,6 +2952,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.floating_width = floatingWidthField.text
                         }
                     }
+
+                    Label {
+                        text: qsTr("Android Only: width of the floating window.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -2961,6 +2989,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.floating_height = floatingHeightField.text
                         }
                     }
+
+                    Label {
+                        text: qsTr("Android Only: height of the floating window.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -2984,6 +3026,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.floating_transparency = floatingTransparencyField.text
                         }
                     }
+
+                    Label {
+                        text: qsTr("Android Only: transparency percentage of the floating window.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: floatingStartupDelegate
                         text: qsTr("Floating Window Startup")
@@ -2997,6 +3053,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.floating_startup = checked
+                    }
+
+                    Label {
+                        text: qsTr("Android Only: if enabled the floating window will start as soon as the fitness devices is connected.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
@@ -3034,6 +3103,20 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+
+                    Label {
+                        text: qsTr("Enter the email address you use to login to Peloton (NOT your leaderboard name). Ensure there are no spaces before or after your email. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3058,6 +3141,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_password = pelotonPasswordTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("Enter the password you use to login to Peloton. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -3087,6 +3183,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3109,6 +3218,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.pzp_username = pzpUsernameTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave (or change back to) the default of “username” (without quotation marks, all lowercase and all one word) until further notice.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -3137,6 +3259,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("As of 4/1/2022, this feature is broken due to a Power Zone Pack (PZP) website change. Leave this setting blank until further notice.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3160,6 +3295,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_gain = pelotonGainTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("Conversion gain is a multiplier. Use this setting to align the Peloton resistance calculated by QZ with the relative effort required by your bike. In most cases the default values will be correct.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -3186,6 +3334,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.peloton_offset = pelotonOffsetTextField.text
                         }
                     }
+
+                    Label {
+                        text: qsTr("Increases the resistance that QZ displays in the Peloton Resistance tile. If QZ’s calculated conversion from your bike’s resistance scale to Peloton’s seems too low, the number you enter here will be added to the calculated resistance without increasing your effort or actual resistance. (Example: If QZ displays Peloton Resistance of 30 and you enter 5, QZ will display 35.)")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: cadenceSensorDelegate
                         text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
@@ -3199,6 +3361,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bike_cadence_sensor = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on to send cadence to Peloton over Bluetooth. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     /*
@@ -3256,6 +3431,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("By default, QZ communicates heart rate to Peloton. Use this setting to change the metric that appears on the Peloton screen.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3283,6 +3471,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("Allows you to choose whether you would like the Peloton class air date to display before or after the class title on Strava.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: pelotonDescriptionLinkDelegate
                         text: qsTr("Activity Link in Strava")
@@ -3296,6 +3497,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.peloton_description_link = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
@@ -3323,6 +3537,19 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.trainprogram_stop_at_end = checked
+                }
+
+                Label {
+                    text: qsTr("Treadmill only: enabling this if you want that QZ will stop the tape at the end of the current train program.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 accordionContent: ColumnLayout {
@@ -3355,6 +3582,18 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                Label {
+                    text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
 
                 RowLayout {
                     spacing: 10
@@ -3379,6 +3618,20 @@ import Qt.labs.settings 1.0
                         onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934;}
                     }
                 }
+
+                Label {
+                    text: qsTr("Enter your 1 mile time goal, click OK. This setting will be used when you’re following a training program with the speed control. These settings should also match the Zwift app settings. More info: https://github.com/cagnulein/qdomyos-zwift/issues/609.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3402,6 +3655,20 @@ import Qt.labs.settings 1.0
                         onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5;}
                     }
                 }
+
+                Label {
+                    text: qsTr("See 1 Mile Pace above; same except 5 km instead of 1 mile.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3425,6 +3692,20 @@ import Qt.labs.settings 1.0
                         onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10;}
                     }
                 }
+
+                Label {
+                    text: qsTr("See 1 Mile Pace above; same except 10 km instead of 1 mile.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3448,6 +3729,20 @@ import Qt.labs.settings 1.0
                         onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21;}
                     }
                 }
+
+                Label {
+                    text: qsTr("See 1 Mile Pace above; same except half marathon distance instead of 1 mile.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3470,6 +3765,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42;}
                     }
+                }
+
+                Label {
+                    text: qsTr("See 1 Mile Pace above; same except marathon distance instead of 1 mile.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 RowLayout {
@@ -3497,6 +3805,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.pace_default = treadmillPaceDefaultTextField.displayText
                     }
+                }
+
+                Label {
+                    text: qsTr("Select the default Pace to be used when the ZWO file does not indicate a precise pace.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 AccordionCheckElement {
@@ -3707,6 +4028,20 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                Label {
+                    text: qsTr("Turn on and enter your choices for workout time (in minutes and seconds) and the maximum and minimum speed, incline (treadmill), and resistance (bike) and QZ will randomly change your speed and resistance or incline accordingly for the period of time you have selected.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
             }
 
             AccordionElement {
@@ -3733,6 +4068,19 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                Label {
+                    text: qsTr("Turn on to convert your treadmill output to bike output when riding on Zwift. QZ sends your treadmill metrics to Zwift over Bluetooth so that you can participate as a bike rider. Default is off.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 SwitchDelegate {
                     id: treadmillForceSpeedDelegate
                     text: qsTr("Treadmill Speed Forcing")
@@ -3748,6 +4096,19 @@ import Qt.labs.settings 1.0
                     onClicked: settings.treadmill_force_speed = checked
                 }
 
+                Label {
+                    text: qsTr("Turn this on to have QZ control the speed of your treadmill during, for example, Peloton classes based on the coach’s speed callouts. Your speed will be in the low, upper or average range based on your Peloton Options > Difficulty setting. Default is off.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 SwitchDelegate {
                     id: pauseOnStartTreadmillDelegate
                     text: qsTr("Pause when App Starts")
@@ -3761,6 +4122,19 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.pause_on_start_treadmill = checked
+                }
+
+                Label {
+                    text: qsTr("Turn this on to have QZ go into Pause mode upon opening when using a treadmill. This is for treadmills only. Default is off.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
                 }
 
                 SwitchDelegate {
@@ -3816,6 +4190,19 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                Label {
+                    text: qsTr("(Speed Tile) This controls the amount of the increase or decrease in the speed (in kph/mph) when you press the plus or minus button in the Speed Tile. Default is 0.5 kph.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3841,6 +4228,31 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                Label {
+                    text: qsTr("(Incline Tile) This controls the amount of the increase or decrease in the inclination when you press the plus or minus button in the Incline Tile. Default is 0.5.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                Label {
+                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
 
                 AccordionElement {
                     id: proformTreadmillAccordion
@@ -5004,6 +5416,19 @@ import Qt.labs.settings 1.0
                         onClicked: refresh_bluetooth_devices_clicked();
                     }
 
+                    Label {
+                        text: qsTr("Allows you to force QZ to connect to your equipment (see “Bluetooth Troubleshooting” below). Default is “Disabled.”")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5027,6 +5452,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.watt_offset = wattOffsetTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. The number you enter as an Offset adds that amount to your watts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -5054,6 +5492,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("You can increase/decrease your watt output for moving your avatar faster/slower in Zwift or other similar apps as a way of calibrating your equipment. For example, to use a rower to cycle in Zwift, you could double your watt output to better match your cycling speed by entering 2. The number you enter is a multiplier applied to your actual watts.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5079,6 +5530,20 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("You can increase/decrease your speed for moving your avatar faster/slower in Zwift if your equipment outputs speed but not watts. The number you enter as an Offset adds that amount to your speed.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5102,6 +5567,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.speed_gain = speedGainTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("You can increase/decrease your speed output for moving your avatar faster/slower in Zwift or other apps as a way of calibrating your equipment if your equipment outputs speed but not watts. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -5129,6 +5607,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("You can increase/decrease your cadence output. The number you enter as an Offset adds that amount to your cadence.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5152,6 +5643,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.cadence_gain = speedGainTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("You can increase/decrease your cadence output as a way of calibrating your equipment if your equipment outputs cadence but not watts. The number you enter is a multiplier applied to your actual cadence.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     Label {
@@ -5184,7 +5688,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.strava_suffix = stravaSuffixTextField.text
                         }
-                    }                                        
+                    }
+
+                    Label {
+                        text: qsTr("Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     SwitchDelegate {
                         id: stravaVirtualActivityDelegate
@@ -5199,6 +5716,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.strava_virtual_activity = checked
+                    }
+
+                    Label {
+                        text: qsTr("Append the Virtual Tag to the Strava Activity")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     SwitchDelegate {
@@ -5216,6 +5746,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.volume_change_gears = checked
                     }
 
+                    Label {
+                        text: qsTr("Allows you to change resistance during auto-follow mode using the volume buttons of the device running QZ, Bluetooth headphones or a Bluetooth remote. Changes made using these external controls will be visible in the Gears tile. This is a VERY USEFUL feature! Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: powerAvg5s
                         text: qsTr("Power Average 5 sec.")
@@ -5231,6 +5774,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.power_avg_5s = checked
                     }
 
+                    Label {
+                        text: qsTr("If the power output/watts your equipment sends to QZ is quite variable, this setting will result in smoother Power Zone graphs. This is also helpful for use with Power Meter Pedals. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: instantPowerOnPause
                         text: qsTr("Instant Power on Pause")
@@ -5244,6 +5800,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.instant_power_on_pause = checked
+                    }
+
+                    Label {
+                        text: qsTr("Enables the calculation of watts, even while in Pause mode. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     RowLayout {
@@ -5271,6 +5840,19 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    Label {
+                        text: qsTr("Inclination Offset and Gain are used to adjust the incline set by Zwift instead of, or in addition to, using the QZ Zwift Gain setting. For example, when Zwift changes the incline to 1%, you can have your treadmill change to 2%. The number you enter as an offset adds to the inclination sent from Zwift or any other 3rd party app. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -5294,6 +5876,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
                         }
+                    }
+
+                    Label {
+                        text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
@@ -5342,6 +5937,20 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.cadence_sensor_as_bike = checked
                             }
+
+                            Label {
+                                text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a cadence sensor so your bike will work with QZ. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             Label {
                                 id: labelCadenceSensorName
                                 text: qsTr("Cadence Sensor:")
@@ -5376,6 +5985,20 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
                             }
+
+                            Label {
+                                text: qsTr("Use this setting to connect QZ to your cadence sensor. Default is Disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             RowLayout {
                                 spacing: 10
                                 Label {
@@ -5399,6 +6022,19 @@ import Qt.labs.settings 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text
                                 }
+                            }
+
+                            Label {
+                                text: qsTr("Wheel ratio is the multiplier used by QZ to calculate your speed based on your cadence. For example, if you enter 1 for your wheel ratio and you are riding at a cadence of 30, QZ will display your speed as 30 km/h. The default of 0.33 is correct for most bikes.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
                         }
                     }
@@ -5425,6 +6061,20 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.power_sensor_as_bike = checked
                             }
+
+                            Label {
+                                text: qsTr("If your bike doesn’t have Bluetooth, this setting allows you to use a power meter pedal sensor so your bike will work with QZ. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             SwitchDelegate {
                                 id: powerSensorAsTreadmillDelegate
                                 text: qsTr("Power Sensor as a Treadmill")
@@ -5439,6 +6089,20 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.power_sensor_as_treadmill = checked
                             }
+
+                            Label {
+                                text: qsTr("If your treadmill doesn’t have Bluetooth, this setting allows you to use a Stryde sensor (or similar) so your treadmill will work with QZ. Default is off.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             SwitchDelegate {
                                 id: powerSensorRunCadenceDoubleDelegate
                                 text: qsTr("Doubling Cadence for Run")
@@ -5453,6 +6117,20 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.powr_sensor_running_cadence_double = checked
                             }
+
+                            Label {
+                                text: qsTr("Some power sensors send cadence divided by 2. This setting will fix this behavior.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             SwitchDelegate {
                                 id: powerSensorRunCadenceHalfStravaDelegate
                                 text: qsTr("Half Cadence on Strava")
@@ -5466,6 +6144,19 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.powr_sensor_running_cadence_half_on_strava = checked
+                            }
+
+                            Label {
+                                text: qsTr("Divide the cadence sent to Strava by 2.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
 
                             Label {
@@ -5501,6 +6192,19 @@ import Qt.labs.settings 1.0
                                 text: "Refresh Devices List"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
+                            }
+
+                            Label {
+                                text: qsTr("Leave on Disabled or select from list of found Bluetooth devices.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
                             }
                         }
                     }
@@ -6191,6 +6895,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.bluetooth_relaxed = checked
                     }
 
+                    Label {
+                        text: qsTr("Leave this setting off unless the Support staff asks you to turn it on during troubleshooting. Can improve the Android Bluetooth connection to Zwift. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: bluetooth30mHangsDelegate
                         text: qsTr("Bluetooth hangs after 30m")
@@ -6206,6 +6923,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.bluetooth_30m_hangs = checked
                     }
 
+                    Label {
+                        text: qsTr("Same as “Relaxed Bluetooth for mad devices”. Leave off unless the Support staff asks you to turn it on. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: batteryServiceDelegate
                         text: qsTr("Simulate Battery Service")
@@ -6219,6 +6949,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.battery_service = checked
+                    }
+
+                    Label {
+                        text: qsTr("Leave this off unless the Support staff asks you to turn it on. Enables a new Bluetooth service, indicating the battery level of your device. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
         /*
                     SwitchDelegate {
@@ -6262,6 +7005,20 @@ import Qt.labs.settings 1.0
                                         Layout.fillWidth: true
                                         onClicked: settings.virtual_device_onlyheart = checked
                                     }
+
+                                    Label {
+                                        text: qsTr("Forces QZ to communicate ONLY the Heart Rate metric to third-party apps. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
                                     SwitchDelegate {
                                         id: virtualDeviceEchelonDelegate
                                         text: qsTr("Virtual Echelon")
@@ -6275,6 +7032,19 @@ import Qt.labs.settings 1.0
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: settings.virtual_device_echelon = checked
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables QZ to communicate with the Echelon app. This setting can only be used with iOS running QZ and iOS running the Echelon app. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
                                     }
 
                                     SwitchDelegate {
@@ -6291,6 +7061,20 @@ import Qt.labs.settings 1.0
                                         Layout.fillWidth: true
                                         onClicked: settings.virtual_device_rower = checked
                                     }
+
+                                    Label {
+                                        text: qsTr("Enables QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing (examples: Kinomap and BitGym). This should be off for Zwift. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
                                     SwitchDelegate {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
@@ -6306,6 +7090,20 @@ import Qt.labs.settings 1.0
                                         onClicked: settings.virtualbike_forceresistance = checked
                                     }
 
+                                    Label {
+                                        text: qsTr("Enables third-party apps to change the resistance of your equipment. Default is on.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+
                                     SwitchDelegate {
                                         id: bikePowerSensorDelegate
                                         text: qsTr("Bike Power Sensor")
@@ -6320,6 +7118,20 @@ import Qt.labs.settings 1.0
                                         Layout.fillWidth: true
                                         onClicked: settings.bike_power_sensor = checked
                                     }
+
+                                    Label {
+                                        text: qsTr("This changes the virtual Bluetooth bridge from the standard FMTS to the Power Sensor interface. Default is off.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
                                     SwitchDelegate {
                                         id: virtualDeviceIfitDelegate
                                         text: qsTr("Virtual iFit")
@@ -6333,6 +7145,19 @@ import Qt.labs.settings 1.0
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: settings.virtual_device_ifit = checked
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 8
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
                                     }
                                 }
                             }
@@ -6357,18 +7182,20 @@ import Qt.labs.settings 1.0
                                         Layout.fillWidth: true
                                         onClicked: settings.wahoo_rgt_dircon = checked
                                     }
+
                                     Label {
-                                        Layout.preferredWidth: parent.width
-                                        id: wahooRGTDirconLabel
-                                        text: qsTr("Leave the RGT compatibility disabled in order to use Zwift")
+                                        text: qsTr("Enables the compatibility of the Wahoo KICKR protocol to Wahoo RGT app. Leave the RGT compatibility disabled in order to use Zwift.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: 8
                                         textFormat: Text.PlainText
                                         wrapMode: Text.WordWrap
                                         verticalAlignment: Text.AlignVCenter
-                                        color: Material.color(Material.Red)
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
                                     }
+
                                     RowLayout {
                                         spacing: 10
                                         Label {
@@ -6410,6 +7237,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.run_cadence_sensor = checked
+                    }
+
+                    Label {
+                        text: qsTr("Forces the virtual Bluetooth bridge to send only the cadence information instead of the full FTMS metrics. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     AccordionElement {
@@ -6472,6 +7312,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.android_wakelock = checked
                     }
 
+                    Label {
+                        text: qsTr("Forces Android devices to remain awake while QZ is running. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: iosPelotonWorkaroundDelegate
                         text: qsTr("iOS Peloton Workaround")
@@ -6485,6 +7338,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_peloton_workaround = checked
+                    }
+
+                    Label {
+                        text: qsTr("This MUST be always ON on an iOS device. Turning it OFF will lead to unexpected crashes of QZ. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     SwitchDelegate {
@@ -6502,6 +7368,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.applewatch_fakedevice = checked
                     }
 
+                    Label {
+                        text: qsTr("Simulates QZ being connected to a bike. When this is turned on QZ will calculate KCal based on your heart rate. Examples of when to use this setting: ○ To capture Peloton class data for classes without connected equipment (e.g., a strength or yoga workout).. ○ To arrange tiles on the QZ dashboard without connecting to your equipment. ○ To use the QZ Apple Watch app without connecting to your equipment.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: fakeTreadmillDelegate
                         text: qsTr("Fake Treadmill")
@@ -6515,6 +7394,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.fakedevice_treadmill = checked
+                    }
+
+                    Label {
+                        text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a treadmill.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     SwitchDelegate {
@@ -6532,6 +7424,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.fakedevice_elliptical = checked
                     }
 
+                    Label {
+                        text: qsTr("Same as Fake Device but instead of simulating a bike it simulates an elliptical.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: appleHeartCacheDelegate
                         text: qsTr("iOS Heart Caching")
@@ -6545,6 +7450,19 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_cache_heart_device = checked
+                    }
+
+                    Label {
+                        text: qsTr("Leave this on unless you have issues connecting your Bluetooth HRM to QZ. If turning this off does not solve the connection issue, open a support ticket on GitHub. Default is on.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     SwitchDelegate {
@@ -6562,6 +7480,19 @@ import Qt.labs.settings 1.0
                         onClicked: settings.android_notification = checked
                     }
 
+                    Label {
+                        text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     SwitchDelegate {
                         id: logDebugDelegate
                         text: qsTr("Debug Log")
@@ -6577,11 +7508,37 @@ import Qt.labs.settings 1.0
                         onClicked: settings.log_debug = checked
                     }
 
+                    Label {
+                        text: qsTr("Turn this on to save a debug log to your device for use when requesting help with a bug.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
                     Button {
                         id: clearLogs
                         text: "Clear History"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: rootItem.clearFiles();
+                    }
+
+                    Label {
+                        text: qsTr("Clears all the QZ logs, QZ .fit files and QZ images (these files are saved by QZ for every session) from your device while maintaining your saved Profiles and Settings.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
