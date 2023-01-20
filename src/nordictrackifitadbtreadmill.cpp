@@ -303,10 +303,10 @@ void nordictrackifitadbtreadmill::update() {
                     QString line = textStream.readLine();
                     if (line.contains("Changed KPH")) {
                         qDebug() << line;
-                        speed = out.split(' ').last().toDouble();
+                        speed = line.split(' ').last().toDouble();
                     } else if (line.contains("Changed Grade")) {
                         qDebug() << line;
-                        inclination = out.split(' ').last().toDouble();
+                        inclination = line.split(' ').last().toDouble();
                     }
                 }
                 Speed = speed;
