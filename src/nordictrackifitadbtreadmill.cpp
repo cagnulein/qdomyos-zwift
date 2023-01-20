@@ -295,6 +295,7 @@ void nordictrackifitadbtreadmill::update() {
             if (QFile::exists(adbFiles.first().name)) {
                 QStringList stringList;
                 QFile textFile(adbFiles.first().name);
+                textFile.open(QIODevice::ReadOnly);
                 QTextStream textStream(&textFile);
                 double speed = 0;
                 double inclination = 0;
