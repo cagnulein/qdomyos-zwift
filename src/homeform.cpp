@@ -3094,6 +3094,9 @@ void homeform::update() {
                 else if (next.resistance != -1)
                     nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
+                else if (next.zoneHR != -1)
+                    nextRows->setValue(QStringLiteral("HR") + QString::number(next.zoneHR) + QStringLiteral(" ") +
+                                       next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
@@ -4018,6 +4021,11 @@ void homeform::update() {
                         .toUInt();
                 if (fromTrainProgram) {
                     zone = trainProgram->currentRow().zoneHR;
+                    if (zone > 0) {
+                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
+                    } else {
+                        settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
+                    }
                     if (trainProgram->currentRow().maxSpeed > 0) {
                         maxSpeed = trainProgram->currentRow().maxSpeed;
                     }
