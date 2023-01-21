@@ -439,6 +439,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+    bool pafers_treadmill_bh_iboxster_plus =
+        settings
+            .value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus)
+            .toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1544,7 +1548,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 eslinkerTreadmill->deviceDiscovered(b);
                 this->startTemplateManagers(eslinkerTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
-                       pafers_treadmill && filter) {
+                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersTreadmill = new paferstreadmill(this->pollDeviceTime, noConsole, noHeartService);
