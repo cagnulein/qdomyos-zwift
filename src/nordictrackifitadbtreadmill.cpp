@@ -315,6 +315,10 @@ void nordictrackifitadbtreadmill::forceIncline(double incline) {}
 void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
+
+    Speed = speed;
+    Inclination = inclination;
+
     QSettings settings;
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     QString heartRateBeltName =

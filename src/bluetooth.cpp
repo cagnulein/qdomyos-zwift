@@ -53,7 +53,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
 
-
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     this->startTemplateManagers(schwinnIC4Bike);
@@ -127,12 +126,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
         this->startDiscovery();
     }
-
-    // wifi devices on windows
-    if(!nordictrack_2950_ip.isEmpty()) {
-        // faking a bluetooth device
-        deviceDiscovered(QBluetoothDeviceInfo());
-    }
 }
 
 bluetooth::~bluetooth() {
@@ -160,14 +153,22 @@ void bluetooth::stopTemplateManagers() {
 void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
 
+    QSettings settings;
 #ifdef Q_OS_WIN
+    QString nordictrack_2950_ip =
+        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    // wifi devices on windows
+    if (!nordictrack_2950_ip.isEmpty()) {
+        // faking a bluetooth device
+        deviceDiscovered(QBluetoothDeviceInfo());
+    }
+
     if (device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
         return;
     }
 #endif
 
-    QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
