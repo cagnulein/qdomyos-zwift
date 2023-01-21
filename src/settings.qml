@@ -1038,7 +1038,7 @@ import Qt.labs.settings 1.0
                     }
 
                     Label {
-                        text: qsTr("This option avoids your equipment “going to sleep” by allowing QZ to maintain a connection to your equipment. Turn this on for:<br> - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment.<br> - Capturing non-equipment-based workouts, such as yoga or strength training.<br>NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
+                        text: qsTr("Turn this on for: - Peloton Bootcamp classes or other workouts that are on and off the bike or treadmill. QZ will continue to track your workout even when you step away from your equipment. - Capturing non-equipment-based workouts, such as yoga or strength training. NOTE: All such workouts are labeled as “Rides” in Strava, but you can edit the label in Strava.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8
@@ -2018,7 +2018,7 @@ import Qt.labs.settings 1.0
                 }
 
                 Label {
-                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group</a>.")
+                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 8
