@@ -175,8 +175,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
-            if (QFile::exists(homeform::getProfileDir() + "/" + profileName)) {
-                homeform::loadSettings(QUrl(homeform::getProfileDir() + "/" + profileName));
+            if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+                homeform::loadSettings(QUrl(homeform::getProfileDir() + "/" + profileName + ".qzs"));
             } else {
                 qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
             }
