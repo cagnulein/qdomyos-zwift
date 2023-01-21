@@ -649,6 +649,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.51
             property bool treadmill_difficulty_gain_or_offset: false
+            property bool pafers_treadmill_bh_iboxster_plus: false
         }
 
         function paddingZeros(text, limit) {
@@ -4520,6 +4521,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.pafers_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: bhIboxsterPlusDelegate
+                            text: qsTr("BH IBoxster Plus")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.pafers_treadmill_bh_iboxster_plus
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.pafers_treadmill_bh_iboxster_plus = checked
                         }
                     }
                 }
