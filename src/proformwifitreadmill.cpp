@@ -68,6 +68,7 @@ void proformwifitreadmill::changeInclinationRequested(double grade, double perce
         percentage = 0;
     if (grade < 0)
         grade = 0;
+    qDebug() << "changeInclinationRequested" << percentage << grade;
     changeInclination(grade, percentage);
 }
 
@@ -90,29 +91,30 @@ void proformwifitreadmill::forceIncline(double requestIncline) {
 }
 
 void proformwifitreadmill::update() {
-    qDebug() << "websocket.state()" << websocket.state();
+    //qDebug() << "websocket.state()" << websocket.state();
 
     if (initRequest) {
         initRequest = false;
         btinit();
+        initspeed();
         emit connectedAndDiscovered();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
 
         if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= speed_km_min  && requestSpeed <= speed_km_max ) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if (requestInclination < 0)
-                requestInclination = 0;
+            if (requestInclination < incline_min )
+                requestInclination = incline_min ;
             // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
+            if (requestInclination != currentInclination().value() && requestInclination >= incline_min  &&
+                requestInclination <= incline_max ) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
 
                 forceIncline(requestInclination);
@@ -147,6 +149,32 @@ void proformwifitreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void proformwifitreadmill::binaryMessageReceived(const QByteArray &message) { characteristicChanged(message); }
 
+void proformwifitreadmill::initspeed() {
+    for(int i=0; i<MAXPOINTS; i++) {
+        ptime[i]=QDateTime::currentMSecsSinceEpoch();
+        points[i]=0.0;
+    }
+}
+double proformwifitreadmill::averagespeed(double kph) {
+    if (kph==0.0) initspeed();
+    else {
+        for (int i=MAXPOINTS-1; i>0; i--) {
+            ptime[i]=ptime[i-1];
+            points[i]=points[i-1];
+        }
+        points[0]=kph;
+        ptime[0]=QDateTime::currentMSecsSinceEpoch();
+        kph=0.0;
+        qint64 time=0;
+        for(int i=0; i<MAXPOINTS-1; i++) {
+            kph+=points[i]*(ptime[i]-ptime[i+1]);
+            time+=ptime[i]-ptime[i+1];
+        }
+        kph=round((kph/time)*10)/10;
+        
+    }
+    return kph;
+}
 void proformwifitreadmill::characteristicChanged(const QString &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
@@ -154,7 +182,9 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
-    emit debug(QStringLiteral(" << ") + newValue);
+    if (QString::compare(newValue,QStringLiteral("{ }"))){
+    	emit debug(QStringLiteral(" << ") + newValue);
+    }
 
     lastPacket = newValue;
 
@@ -168,11 +198,15 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
 
     if (!values[QStringLiteral("Current KPH")].isUndefined()) {
         double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
-        Speed = kph;
+        Speed = averagespeed(kph);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     } else if (!values[QStringLiteral("KPH")].isUndefined()) {
         double kph = values[QStringLiteral("KPH")].toString().toDouble();
-        Speed = kph;
+        Speed = averagespeed(kph);
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    } else if (!values[QStringLiteral("Current MPH")].isUndefined()) {
+        double mph = values[QStringLiteral("Current MPH")].toString().toDouble();
+        Speed = averagespeed(mph*1.60934);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
@@ -209,6 +243,26 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         double incline = values[QStringLiteral("Actual Incline")].toString().toDouble();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    } else if (!values[QStringLiteral("Incline")].isUndefined()) {
+        double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    }
+    if (!values[QStringLiteral("Minimum Incline")].isUndefined()) {
+        incline_min  = values[QStringLiteral("Minimum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Minimum Incline: ") + QString::number(incline_min ));
+    }
+    if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
+        incline_max  = values[QStringLiteral("Maximum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum Incline: ") + QString::number(incline_max ));
+    }
+    if (!values[QStringLiteral("Minimum KPH")].isUndefined()) {
+        speed_km_min  = values[QStringLiteral("Minimum KPH")].toString().toDouble();
+        emit debug(QStringLiteral("Minimum KPH: ") + QString::number(speed_km_min ));
+    }
+    if (!values[QStringLiteral("Maximum KPH")].isUndefined()) {
+        speed_km_max  = values[QStringLiteral("Maximum KPH")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum KPH: ") + QString::number(speed_km_max ));
     }
 
     if (watts())

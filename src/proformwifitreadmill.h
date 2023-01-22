@@ -53,6 +53,12 @@ class proformwifitreadmill : public treadmill {
     void *VirtualDevice();
 
   private:
+    #define MAXPOINTS   6
+    qint64  ptime[MAXPOINTS];
+    double   points[MAXPOINTS];
+    void initspeed();
+    double averagespeed(double kph);
+
     QWebSocket websocket;
     void connectToDevice();
     double GetDistanceFromPacket(QByteArray packet);
@@ -84,6 +90,11 @@ class proformwifitreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    double incline_min = 0.0;
+    double incline_max = 13.0;
+    double speed_km_min = 2.0;
+    double speed_km_max = 22.0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
