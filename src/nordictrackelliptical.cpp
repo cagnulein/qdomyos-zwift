@@ -534,6 +534,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 }
 
 void nordictrackelliptical::btinit() {
+    QSettings settings;
+    bool proform_hybrid_trainer_xt =
+        settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
 
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -551,12 +554,20 @@ void nordictrackelliptical::btinit() {
         uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+
         uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04,
                                 0x00, 0x2e, 0x44, 0x50, 0x6a, 0x82, 0xa8, 0xb4, 0xd6, 0xf6};
+        uint8_t initData10b[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x06, 0x28, 0x90, 0x04, 0x00, 0x96, 0x24, 0xa8, 0x3a, 0xca, 0x68, 0xfc, 0x86, 0x2e};
+
         uint8_t initData11[] = {0x01, 0x12, 0x2c, 0x48, 0x62, 0x9a, 0xd0, 0xfc, 0x0e, 0x5e,
                                 0x94, 0xa0, 0xfa, 0x32, 0x78, 0x84, 0xc6, 0x06, 0x7c, 0xb8};
+        uint8_t initData11b[] = {0x01, 0x12, 0xcc, 0x50, 0xf2, 0x92, 0x50, 0xf4, 0x9e, 0x26, 0xf4, 0x98, 0x2a, 0xfa, 0xb8, 0x4c, 0x16, 0xde, 0x9c, 0x20};
+
+
         uint8_t initData12[] = {0xff, 0x08, 0xf2, 0x2a, 0xa0, 0x80, 0x02, 0x00, 0x00, 0xda,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData12b[] = {0xff, 0x08, 0xe2, 0xa2, 0xa0, 0x80, 0x02, 0x00, 0x00, 0xf2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x06, 0x15, 0x02, 0x0e,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -575,6 +586,9 @@ void nordictrackelliptical::btinit() {
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData10[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa8, 0x00, 0x00, 0x00,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        uint8_t noOpData9b[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x06, 0x13, 0x02, 0x00, 0x0d, 0x3c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
+        uint8_t noOpData10b[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x85, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
@@ -602,38 +616,76 @@ void nordictrackelliptical::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+        if(!proform_hybrid_trainer_xt) {
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
 
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
 
-        writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        } else {
+            writeCharacteristic(initData10b, sizeof(initData10b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11b, sizeof(initData11b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12b, sizeof(initData12b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData9b, sizeof(noOpData9b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData10b, sizeof(noOpData10b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        }
     }
 
     initDone = true;
