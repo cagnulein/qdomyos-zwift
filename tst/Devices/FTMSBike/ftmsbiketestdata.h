@@ -65,9 +65,9 @@ public:
 
         // Starts with DT- and is 14+ characters long.
         // TODO: update once addDeviceName can generate valid and invalid names for variable length patterns
-        this->addDeviceName("DT-0123456789ABCD", comparison::IgnoreCase); // Sole SB700
+        this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
         this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
-        this->addInvalidDeviceName("DT-0123456789ABC", comparison::IgnoreCase); // too short for Sole SB700
+        this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
      }
 };
 
