@@ -77,6 +77,7 @@ QString logfilename = QStringLiteral("debug-") +
                           .replace(QStringLiteral(" "), QStringLiteral("_"))
                           .replace(QStringLiteral("."), QStringLiteral("_")) +
                       QStringLiteral(".log");
+QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
@@ -176,7 +177,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
             if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
-                homeform::loadSettings(QUrl(homeform::getProfileDir() + "/" + profileName + ".qzs"));
+                profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
             } else {
                 qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
             }
@@ -311,6 +312,10 @@ int main(int argc, char *argv[]) {
 
     QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    if (!profileToLoad.isEmpty()) {
+        homeform::loadSettings(profileToLoad);
+    }
+
     if (forceQml)
 #endif
     {
