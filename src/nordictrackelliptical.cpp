@@ -356,6 +356,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
             return 5;
         case 0xe:
             return 6;
+        case 0x10:
         case 0x11:
             return 7;
         case 0x13:
