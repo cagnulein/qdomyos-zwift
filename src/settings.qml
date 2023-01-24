@@ -650,6 +650,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.51
             property bool treadmill_difficulty_gain_or_offset: false
             property bool pafers_treadmill_bh_iboxster_plus: false
+
+            // from version 2.12.52
+            property bool proform_cycle_trainer_400: false
         }
 
         function paddingZeros(text, limit) {
@@ -2594,6 +2597,21 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
                     }
+                    SwitchDelegate {
+                        id: proformCycleTrainerdelegate
+                        text: qsTr("Cycle Trainer 400")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_cycle_trainer_400
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_cycle_trainer_400 = checked
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
