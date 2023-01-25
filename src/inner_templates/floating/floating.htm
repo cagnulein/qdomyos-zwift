@@ -30,21 +30,28 @@
   .values {
    min-width: 80px; max-width: 80px; font-size: 24px;
   }
+  .avg-max {
+   text-align: center; 
+   vertical-align: middle;
+   font-size: 10px;
+   margin-left: auto;
+  margin-right: auto;
+  }
   </style>
 </head>
   <body class="transparency" style="background-color: #000000; opacity: 0.8">
          <table class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
-         <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value values"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
-         <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value values"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
-         <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value values"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
-         <tr class="watt"><td class="icon">⚡</td><td style="text-align: left">POWER</td><td><small>AVG</small></td><td class="watt-avg">0</td><td class="watt-value values"><b>0</b></td><td><small>MAX</small></td><td class="watt-max">0</td></tr>
-         <tr class="resistance"><td class="icon">🆁</td><td style="text-align: left">RESISTANCE</td><td><small>AVG</small></td><td class="resistance-avg">1</td><td class="resistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="resistance-max">1</td></tr>
-         <tr class="pelotonresistance"><td class="icon">🅿</td><td style="text-align: left">P.RESISTANCE</td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td><td class="pelotonresistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="pelotonresistance-max">1</td></tr>
-         <tr class="calories"><td class="icon">🔥</td><td style="text-align: left">CALORIES</td><td class="calories-value values" colspan="5"><b>0</b></td></tr>
-         <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
-         <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
-			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
-         <tr><td colspan=3 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan=4 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
+         <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="speed-avg">0.0</td></tr></table></td><td class="speed-value values"><b>0.0</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="speed-max">0.0</td></tr></table></td></tr>
+         <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="cadence-avg">0</td></tr></table></td><td class="cadence-value values"><b>0</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="cadence-max">0</td></tr></table></td></tr>
+         <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="heart-avg">0</td></tr></table></td><td class="heart-value values"><b>0</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="heart-max">0</td></tr></table></tr>
+         <tr class="watt"><td class="icon">⚡</td><td style="text-align: left">POWER</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="watt-avg">0</td></tr></table></td><td class="watt-value values"><b>0</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="watt-max">0</td></tr></table></tr>
+         <tr class="resistance"><td class="icon">🆁</td><td style="text-align: left">RESISTANCE</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="resistance-avg">0</td></tr></table></td><td class="resistance-value values"><b>1</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="resistance-max">0</td></tr></table></tr>
+         <tr class="pelotonresistance"><td class="icon">🅿</td><td style="text-align: left">P.RESISTANCE</td><td><table class="avg-max"><tr><td><small>AVG</small></td><tr><td class="pelotonresistance-avg">0</td></tr></table></td><td class="pelotonresistance-value values"><b>1</b></td><td><table class="avg-max"><tr><td><small>MAX</small></td><tr><td class="pelotonresistance-max">0</td></tr></table></tr>
+         <tr class="calories"><td class="icon">🔥</td><td style="text-align: left">CALORIES</td><td class="calories-value values" colspan="3"><b>0</b></td></tr>
+         <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="3"><b>0.00</b></td></tr>
+         <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="3"><b>0:00:00</b></td></tr>
+			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
+         <tr><td colspan=3 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan=2 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
          </table>
 
          <script>
