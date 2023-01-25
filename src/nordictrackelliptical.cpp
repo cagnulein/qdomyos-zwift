@@ -366,20 +366,18 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
         case 0x15:
         case 0x1a:
             return 9;
-        case 0x1b:
-            return 10;
-        case 0x1c:
-            return 11;
         case 0x1d:
-            return 12;
+            return 10;
         case 0x1f:
-            return 13;
-        case 0x22:
-            return 14;
+            return 11;
+        case 0x21:
+            return 12;
         case 0x24:
-            return 15;
+            return 13;
+        case 0x26:
+            return 14;
         case 0x27:
-            return 16;
+            return 15;
         }
     } else {
         switch (r) {
