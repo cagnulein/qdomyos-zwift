@@ -3123,7 +3123,6 @@ void homeform::update() {
                              " /min");
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("h:mm:ss")));
         moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
-        pidHR->setValue(QString::number(treadmill_pid_heart_zone));
 
         if (trainProgram) {
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
@@ -3802,6 +3801,8 @@ void homeform::update() {
         QString Z;
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
+        double hrCurrentZoneRangeMin = 0;
+        double hrCurrentZoneRangeMax = maxHeartRate;
 
         if (percHeartRate <
             settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble()) {
@@ -3812,6 +3813,11 @@ void homeform::update() {
             if (currentHRZone >= 2) { // double precision could cause unwanted approximation
                 currentHRZone = 1.9999;
             }
+            hrCurrentZoneRangeMax =
+                ((settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() *
+                  maxHeartRate) /
+                 100) -
+                1;
             heart->setValueFontColor(QStringLiteral("lightsteelblue"));
         } else if (percHeartRate <
                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble()) {
@@ -3824,6 +3830,15 @@ void homeform::update() {
             if (currentHRZone >= 3) { // double precision could cause unwanted approximation
                 currentHRZone = 2.9999;
             }
+            hrCurrentZoneRangeMin =
+                (settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() *
+                 maxHeartRate) /
+                100;
+            hrCurrentZoneRangeMax =
+                ((settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() *
+                  maxHeartRate) /
+                 100) -
+                1;
             heart->setValueFontColor(QStringLiteral("green"));
         } else if (percHeartRate <
                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble()) {
@@ -3836,6 +3851,15 @@ void homeform::update() {
             if (currentHRZone >= 4) { // double precision could cause unwanted approximation
                 currentHRZone = 3.9999;
             }
+            hrCurrentZoneRangeMin =
+                (settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() *
+                 maxHeartRate) /
+                100;
+            hrCurrentZoneRangeMax =
+                ((settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() *
+                  maxHeartRate) /
+                 100) -
+                1;
             heart->setValueFontColor(QStringLiteral("yellow"));
         } else if (percHeartRate <
                    settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble()) {
@@ -3848,10 +3872,46 @@ void homeform::update() {
             if (currentHRZone >= 5) { // double precision could cause unwanted approximation
                 currentHRZone = 4.9999;
             }
+            hrCurrentZoneRangeMin =
+                (settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() *
+                 maxHeartRate) /
+                100;
+            hrCurrentZoneRangeMax =
+                ((settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() *
+                  maxHeartRate) /
+                 100) -
+                1;
             heart->setValueFontColor(QStringLiteral("orange"));
         } else {
             currentHRZone = 5;
             heart->setValueFontColor(QStringLiteral("red"));
+            hrCurrentZoneRangeMin =
+                (settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() *
+                 maxHeartRate) /
+                100;
+        }
+        pidHR->setValue(QString::number(treadmill_pid_heart_zone));
+        pidHR->setSecondLine(QString::number(hrCurrentZoneRangeMin) + "-" + QString::number(hrCurrentZoneRangeMax));
+        switch (treadmill_pid_heart_zone) {
+        case 5:
+            pidHR->setValueFontColor(QStringLiteral("red"));
+            break;
+        case 4:
+            pidHR->setValueFontColor(QStringLiteral("orange"));
+            break;
+        case 3:
+            pidHR->setValueFontColor(QStringLiteral("yellow"));
+            break;
+        case 2:
+            pidHR->setValueFontColor(QStringLiteral("green"));
+            break;
+        case 1:
+            pidHR->setValueFontColor(QStringLiteral("lightsteelblue"));
+            break;
+        default:
+        case 0:
+            pidHR->setValueFontColor(QStringLiteral("white"));
+            break;
         }
         bluetoothManager->device()->currentHeart().setColor(heart->valueFontColor());
         bluetoothManager->device()->setHeartZone(currentHRZone);
