@@ -358,7 +358,6 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
-    bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
@@ -661,6 +660,7 @@ class homeform : public QObject {
     void deleteSettings(const QUrl &filename);
     void saveProfile(QString profilename);
     void restart();
+    bool pelotonAskStart() { return m_pelotonAskStart; }
 
   private slots:
     void Start();

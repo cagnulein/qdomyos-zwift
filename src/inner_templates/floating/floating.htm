@@ -103,6 +103,34 @@
                  console.error('Error is ' + err);
              });
          }
+
+         function peloton_start_workout() {
+          let el = new MainWSQueueElement({
+                 msg: 'peloton_start_workout',
+             }, function(msg) {
+                 if (msg.msg === 'R_peloton_start_workout') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function peloton_abort_workout() {
+          let el = new MainWSQueueElement({
+                 msg: 'peloton_abort_workout',
+             }, function(msg) {
+                 if (msg.msg === 'R_peloton_abort_workout') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
          </script>
 
 
@@ -198,7 +226,7 @@
                 'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_lapavg', 'peloton_resistance','peloton_resistance_lapavg',
                 'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
 					 'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-                                         'target_cadence', 'target_power', 'peloton_offset']
+                                         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start']
          let ell = new MainWSQueueElement(null, function(msg) {
 		  if (msg.msg === 'workout') {
         var speed = 0;
@@ -229,6 +257,7 @@
         var target_cadence = 0;
         var target_power = 0;
         var peloton_offset = 0;
+        var peloton_ask_already_running = false;
 
 				for (let key of keys_arr) {
 				  if (msg.content[key] === undefined)
@@ -299,6 +328,15 @@
             $('.watt-value').css('color', msg.content[key]);
           } else if (key === 'speed_color') {
             $('.speed-value').css('color', msg.content[key]);
+          } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
+            peloton_ask_already_running = true;
+            if (confirm("Peloton Workout in progress! Do you want to follow the resistance?")) {
+              peloton_ask_already_running = false;
+              peloton_start_workout();
+            } else {
+              peloton_ask_already_running = false;
+              peloton_abort_workout();
+            }
           }
 				}
         $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
