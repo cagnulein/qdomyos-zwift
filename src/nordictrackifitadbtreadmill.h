@@ -49,6 +49,29 @@ class nordictrackifitadbtreadmillAdbThread : public QThread {
     QString runAdbCommand(QString command);
 };
 
+class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
+
+    void run();
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+
+  private:
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    static bool dtcomp(adbfile left, adbfile right) { return left.date > right.date; }
+    QString runAdbCommand(QString command);
+    void runAdbTailCommand(QString command);
+};
+
 class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
@@ -81,6 +104,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     QHostAddress lastSender;
 
     nordictrackifitadbtreadmillAdbThread *adbThread = nullptr;
+    nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
