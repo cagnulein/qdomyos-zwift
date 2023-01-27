@@ -454,12 +454,14 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
     const double miles = 1.60934;
+    bool proform_hybrid_trainer_xt =
+        settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C && !proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -492,6 +494,19 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     // wattage = newValue.at(12)
+
+    if(proform_hybrid_trainer_xt) {
+        uint8_t c = newValue.at(18);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+    }
 
     Resistance = GetResistanceFromPacket(newValue);
 
