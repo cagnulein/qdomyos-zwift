@@ -1091,6 +1091,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("WINFITA")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
