@@ -521,15 +521,7 @@ void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *t
 }
 
 void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->clearStats();
-        device->start();
-        emit workoutEventStateChanged(bluetoothdevice::STARTED);
-    } else {
-        device->start();
-        device->setPaused(false);
-        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
-    }
+    emit Start();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_start");
     QJsonDocument out(main);
@@ -537,11 +529,7 @@ void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->stop(true);
-        device->setPaused(true);
-        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
-    }
+    emit Pause();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_pause");
     QJsonDocument out(main);
@@ -549,10 +537,7 @@ void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
-    device->stop(false);
-    device->setPaused(true);
-    device->clearStats();
-    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
+    emit Stop();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_stop");
     QJsonDocument out(main);

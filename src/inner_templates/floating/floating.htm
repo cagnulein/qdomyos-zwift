@@ -44,7 +44,7 @@
          <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
          <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
 			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
-         <tr><td colspan=3 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan=4 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
+         <tr><td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Start()">▶/⏸</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td><td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
          </table>
 
          <script>
@@ -123,6 +123,34 @@
                  msg: 'peloton_abort_workout',
              }, function(msg) {
                  if (msg.msg === 'R_peloton_abort_workout') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function Start() {
+          let el = new MainWSQueueElement({
+                 msg: 'start',
+             }, function(msg) {
+                 if (msg.msg === 'R_start') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function Stop() {
+          let el = new MainWSQueueElement({
+                 msg: 'stop',
+             }, function(msg) {
+                 if (msg.msg === 'R_stop') {
                      return msg.content;
                  }
                  return null;

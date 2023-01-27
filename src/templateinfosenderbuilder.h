@@ -32,6 +32,9 @@ class TemplateInfoSenderBuilder : public QObject {
     bool pelotonAskStart();
     void peloton_start_workout();
     void peloton_abort_workout();
+    void Start();
+    void Pause();
+    void Stop();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
