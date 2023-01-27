@@ -44,7 +44,7 @@
          <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
          <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
 			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
-         <tr><td colspan=3 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan=4 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
+         <tr><td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Start()">▶/⏸</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td><td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
          </table>
 
          <script>
@@ -95,6 +95,62 @@
                  msg: 'floating_close',
              }, function(msg) {
                  if (msg.msg === 'R_floating_close') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function peloton_start_workout() {
+          let el = new MainWSQueueElement({
+                 msg: 'peloton_start_workout',
+             }, function(msg) {
+                 if (msg.msg === 'R_peloton_start_workout') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function peloton_abort_workout() {
+          let el = new MainWSQueueElement({
+                 msg: 'peloton_abort_workout',
+             }, function(msg) {
+                 if (msg.msg === 'R_peloton_abort_workout') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function Start() {
+          let el = new MainWSQueueElement({
+                 msg: 'start',
+             }, function(msg) {
+                 if (msg.msg === 'R_start') {
+                     return msg.content;
+                 }
+                 return null;
+             }, 15000, 1);
+             el.enqueue().catch(function(err) {
+                 console.error('Error is ' + err);
+             });
+         }
+
+         function Stop() {
+          let el = new MainWSQueueElement({
+                 msg: 'stop',
+             }, function(msg) {
+                 if (msg.msg === 'R_stop') {
                      return msg.content;
                  }
                  return null;
@@ -198,7 +254,7 @@
                 'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_lapavg', 'peloton_resistance','peloton_resistance_lapavg',
                 'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
 					 'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-                                         'target_cadence', 'target_power', 'peloton_offset']
+                                         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start']
          let ell = new MainWSQueueElement(null, function(msg) {
 		  if (msg.msg === 'workout') {
         var speed = 0;
@@ -229,6 +285,7 @@
         var target_cadence = 0;
         var target_power = 0;
         var peloton_offset = 0;
+        var peloton_ask_already_running = false;
 
 				for (let key of keys_arr) {
 				  if (msg.content[key] === undefined)
@@ -299,6 +356,15 @@
             $('.watt-value').css('color', msg.content[key]);
           } else if (key === 'speed_color') {
             $('.speed-value').css('color', msg.content[key]);
+          } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
+            peloton_ask_already_running = true;
+            if (confirm("Peloton Workout in progress! Do you want to follow the resistance?")) {
+              peloton_ask_already_running = false;
+              peloton_start_workout();
+            } else {
+              peloton_ask_already_running = false;
+              peloton_abort_workout();
+            }
           }
 				}
         $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
