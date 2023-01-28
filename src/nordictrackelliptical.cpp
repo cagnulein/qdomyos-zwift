@@ -456,6 +456,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     const double miles = 1.60934;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -479,6 +481,11 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
+
+        if(proform_hybrid_trainer_xt) {
+            heart = newValue.at(3);
+        }
+
     } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
         Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -526,6 +533,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    if(!disable_hr_frommachinery && heart > 0) {
+        Heart = heart;
+    } else
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -552,6 +562,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+    emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
