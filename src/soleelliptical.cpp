@@ -139,6 +139,10 @@ void soleelliptical::update() {
         update_metrics(true, watts());
 
         QSettings settings;
+        bool sole_elliptical_inclination =
+            settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
+                .toBool();
+
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =
@@ -196,7 +200,7 @@ void soleelliptical::update() {
         }
 
         // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -100)
+        if (requestInclination != -100 && !sole_elliptical_inclination)
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
@@ -213,10 +217,6 @@ void soleelliptical::update() {
             }
             requestResistance = -1;
         } else if (requestInclination != -100) {
-            bool sole_elliptical_inclination =
-                settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
-                    .toBool();
-
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination < 0) {
@@ -280,7 +280,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (newValue.length() == 5 && newValue.at(1) == 0x02 && newValue.at(2) == 0x12) {
 
-        Inclination = newValue.at(3);
+        Inclination = newValue.at(3) + 1;
         emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
         return;
     }

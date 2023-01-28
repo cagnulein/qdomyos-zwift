@@ -412,6 +412,9 @@ void proformbike::update() {
         bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
         bool nordictrack_gx_2_7 =
             settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
+        bool proform_cycle_trainer_400 =
+            settings.value(QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400)
+                .toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -452,6 +455,14 @@ void proformbike::update() {
         uint8_t noOpData5_nordictrack_gx_2_7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x00,
                                                   0x03, 0x80, 0x00, 0x40, 0xd5, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        // proform_cycle_trainer_400
+        uint8_t noOpData2_proform_cycle_trainer_400[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
+                                                         0x0f, 0x80, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3_proform_cycle_trainer_400[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x05, 0x00,
+                                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6_proform_cycle_trainer_400[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xad, 0x00, 0x00, 0x00,
+                                                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         switch (counterPoll) {
         case 0:
             if (nordictrack_gx_2_7) {
@@ -469,6 +480,9 @@ void proformbike::update() {
             } else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
+            else if (proform_cycle_trainer_400)
+                writeCharacteristic(noOpData2_proform_cycle_trainer_400, sizeof(noOpData2_proform_cycle_trainer_400),
+                                    QStringLiteral("noOp"));
             else
                 writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
             break;
@@ -481,7 +495,10 @@ void proformbike::update() {
             else if (nordictrack_gx_2_7) {
                 writeCharacteristic(noOpData3_nordictrack_gx_2_7, sizeof(noOpData3_nordictrack_gx_2_7),
                                     QStringLiteral("noOp"));
-            } else
+            } else if (proform_cycle_trainer_400)
+                writeCharacteristic(noOpData3_proform_cycle_trainer_400, sizeof(noOpData3_proform_cycle_trainer_400),
+                                    QStringLiteral("noOp"));
+            else
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
@@ -507,6 +524,9 @@ void proformbike::update() {
                 writeCharacteristic(noOpData6_proform_studio, sizeof(noOpData6_proform_studio), QStringLiteral("noOp"));
             else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData6_proform_tour_de_france_clc, sizeof(noOpData6_proform_tour_de_france_clc),
+                                    QStringLiteral("noOp"));
+            else if (proform_cycle_trainer_400)
+                writeCharacteristic(noOpData6_proform_cycle_trainer_400, sizeof(noOpData6_proform_cycle_trainer_400),
                                     QStringLiteral("noOp"));
             else
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
@@ -535,7 +555,8 @@ void proformbike::update() {
         counterPoll++;
         if (counterPoll > 6) {
             counterPoll = 0;
-        } else if (counterPoll == 6 && proform_tour_de_france_clc && requestResistance == -1) {
+        } else if (counterPoll == 6 && (proform_tour_de_france_clc || proform_cycle_trainer_400) &&
+                   requestResistance == -1) {
             // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
         } else if (counterPoll == 5 && nordictrack_gx_2_7) {
@@ -663,7 +684,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
                          100.0);
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
 
             double incline =
@@ -881,7 +904,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                              .toDouble()) *
                         ((double)Cadence.value());
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
         }
     }
@@ -954,6 +979,8 @@ void proformbike::btinit() {
     QSettings settings;
     bool nordictrack_gx_2_7 =
         settings.value(QZSettings::nordictrack_gx_2_7, QZSettings::default_nordictrack_gx_2_7).toBool();
+    bool proform_cycle_trainer_400 =
+        settings.value(QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400).toBool();
 
     if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
@@ -1143,6 +1170,22 @@ void proformbike::btinit() {
             uint8_t initData11[] = {0x01, 0x12, 0xec, 0xd8, 0xc2, 0xca, 0xd0, 0xac, 0xae, 0xae,
                                     0xd4, 0xd0, 0xda, 0xc2, 0xf8, 0xf4, 0xe6, 0x16, 0x3c, 0x28};
             uint8_t initData12[] = {0xff, 0x08, 0x52, 0x7a, 0xa0, 0x80, 0x02, 0x00, 0x00, 0x6b,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        } else if (proform_cycle_trainer_400) {
+            max_resistance = 16;
+
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                    0x01, 0x52, 0x74, 0x94, 0xb2, 0xde, 0x08, 0x20, 0x5e, 0x8a};
+            uint8_t initData11[] = {0x01, 0x12, 0xbc, 0xec, 0x1a, 0x46, 0x90, 0xa8, 0xe6, 0x22,
+                                    0x64, 0xa4, 0xe2, 0x2e, 0x98, 0xd0, 0x0e, 0x7a, 0xac, 0x1c};
+            uint8_t initData12[] = {0xff, 0x08, 0x4a, 0xb6, 0x20, 0x98, 0x02, 0x00, 0x00, 0x93,
                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);

@@ -1,8 +1,6 @@
 #include "bluetoothdevicetestsuite.h"
 #include "discoveryoptions.h"
 #include "bluetooth.h"
-#include "qzsettings.h"
-#include "Tools/testsettings.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
 QBluetoothUuid uuid{testUUID};
@@ -59,7 +57,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
 
             // try to create the device
             this->tryDetectDevice(bt, deviceInfo);
-            EXPECT_TRUE(testData.get_isExpectedDevice(bt.device()));
+            EXPECT_TRUE(testData.get_isExpectedDevice(bt.device())) << "Failed to detect device using name: " << deviceName.toStdString();
 
             // restart the bluetooth manager to clear the device
             bt.restart();
@@ -86,7 +84,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
 
             // try to create the device
             this->tryDetectDevice(bt, deviceInfo);
-            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when expected not to.";
+            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when expected not to: " << deviceName.toStdString();
 
             // restart the bluetooth manager to clear the device
             bt.restart();
@@ -121,7 +119,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
 
                 // try to create the device
                 this->tryDetectDevice(bt, deviceInfo);
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when bluetooth device info is invalid.";
+                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Created the device when bluetooth device info is invalid: " << deviceName.toStdString();
 
                 // restart the bluetooth manager to clear the device
                 bt.restart();
@@ -168,7 +166,10 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
                 this->tryDetectDevice(bt, deviceInfo);
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected the " << testData.get_testName() << " in spite of exclusion";
+                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected the " << testData.get_testName()
+                                                                         << " from "
+                                                                         << deviceName.toStdString()
+                                                                         << " in spite of exclusion";
 
                 bt.restart();
             }
@@ -201,7 +202,8 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
 
             // try to create the device
             this->tryDetectDevice(bt, deviceInfo);
-            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device from invalid name: " << deviceName.toStdString();
+            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected device from invalid name: "
+                                                                     << deviceName.toStdString();
 
             // restart the bluetooth manager to clear the device
             bt.restart();
