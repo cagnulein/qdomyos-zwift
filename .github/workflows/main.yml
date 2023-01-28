@@ -407,7 +407,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '8'          
+          java-version: '11'
 
       - name: Set Android NDK 21 && build
         run: |
