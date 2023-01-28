@@ -81,6 +81,10 @@
 					 android:exported="false" >
 					</service>
 
+                                <service
+                                    android:name=".ScreenCaptureService"
+                                    android:foregroundServiceType="mediaProjection" />
+
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>

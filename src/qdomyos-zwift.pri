@@ -63,6 +63,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/androidactivityresultreceiver.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -253,6 +254,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/androidactivityresultreceiver.h \
     $$PWD/discoveryoptions.h \
    Computrainer.h \
    PathController.h \
@@ -664,6 +666,8 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/src/MediaProjection.java \
+    $$PWD/android/src/ScreenCaptureService.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \

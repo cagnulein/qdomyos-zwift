@@ -7,6 +7,7 @@
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
@@ -2150,6 +2151,16 @@ void bluetooth::connectedAndDiscovered() {
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
     }
+#endif
+
+#ifdef Q_OS_ANDROID
+    AndroidActivityResultReceiver* a = new AndroidActivityResultReceiver();
+    QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
+        "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
+        QAndroidJniObject::fromString("media_projection").object<jstring>());
+    QAndroidJniObject intent =
+        MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
+    QtAndroid::startActivity(intent, 100, a);
 #endif
 
 #ifdef Q_OS_IOS
