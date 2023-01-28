@@ -269,8 +269,7 @@ private:
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
-    void startTemplateManagers(bluetoothdevice *b);
-    void stopTemplateManagers();
+    void signalBluetoothDeviceConnected(bluetoothdevice *b);
 signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
