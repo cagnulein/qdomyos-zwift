@@ -144,6 +144,21 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     const int valueElapsedFontSize = 30;
     const int valueTimeFontSize = 22;
 #endif
+
+    QString innerId = QStringLiteral("inner");
+    QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
+
+    QString path = homeform::getWritableAppDir() + QStringLiteral("QZTemplates");
+    this->userTemplateManager = TemplateInfoSenderBuilder::getInstance(
+                QStringLiteral("user"), QStringList({path, QStringLiteral(":/templates/")}), this);
+
+    settings.setValue(sKey + QStringLiteral("enabled"), true);
+    settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
+    settings.setValue(sKey + QStringLiteral("port"), 0);
+    this->innerTemplateManager = TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
+
+
+
     speed = new DataObject(QStringLiteral("Speed (") + unit + QStringLiteral("/h)"),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                            QStringLiteral("speed"), 48, labelFontSize);
@@ -387,52 +402,54 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     this->bluetoothManager = bl;
     this->engine = engine;
+    connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
+    connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
-    connect(this, &homeform::workoutNameChanged, bluetoothManager->getUserTemplateManager(),
+    connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
-    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getUserTemplateManager(),
+    connect(this, &homeform::workoutStartDateChanged, this->userTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutStartDate);
-    connect(this, &homeform::instructorNameChanged, bluetoothManager->getUserTemplateManager(),
+    connect(this, &homeform::instructorNameChanged, this->userTemplateManager,
             &TemplateInfoSenderBuilder::onInstructorName);
-    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getUserTemplateManager(),
+    connect(this, &homeform::workoutEventStateChanged, this->userTemplateManager,
             &TemplateInfoSenderBuilder::workoutEventStateChanged);
-    connect(bluetoothManager->getUserTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
+    connect(this->userTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::chartSaved, this,
             &homeform::chartSaved);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::floatingClose, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::floatingClose, this,
             &homeform::floatingOpen);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Plus, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset_Plus, this,
             &homeform::pelotonOffset_Plus);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
             &homeform::pelotonOffset_Minus);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset, this,
             &homeform::pelotonOffset);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonAskStart, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonAskStart, this,
             &homeform::pelotonAskStart);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::peloton_start_workout, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_start_workout, this,
             &homeform::peloton_start_workout);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::peloton_abort_workout, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_abort_workout, this,
             &homeform::peloton_abort_workout);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Start, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Start, this,
             &homeform::Start);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Pause, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Pause, this,
             &homeform::Start);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Stop, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Stop, this,
             &homeform::Stop);
-    connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
+    connect(this, &homeform::workoutNameChanged, this->innerTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
-    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
+    connect(this, &homeform::workoutStartDateChanged, this->innerTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutStartDate);
-    connect(this, &homeform::instructorNameChanged, bluetoothManager->getInnerTemplateManager(),
+    connect(this, &homeform::instructorNameChanged, this->innerTemplateManager,
             &TemplateInfoSenderBuilder::onInstructorName);
-    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getInnerTemplateManager(),
+    connect(this, &homeform::workoutEventStateChanged, this->innerTemplateManager,
             &TemplateInfoSenderBuilder::workoutEventStateChanged);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
@@ -2643,6 +2660,16 @@ void homeform::pelotonOffset_Plus() { Plus(QStringLiteral("peloton_offset")); }
 
 void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); }
 
+void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
+    this->innerTemplateManager->start(b);
+    this->userTemplateManager->start(b);
+}
+
+void homeform::bluetoothDeviceDisconnected() {
+    this->innerTemplateManager->stop();
+    this->userTemplateManager->stop();
+}
+
 void homeform::Minus(const QString &name) {
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
@@ -2895,7 +2922,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 
 #ifdef Q_OS_IOS
             // due to #857
-            bluetoothManager->getInnerTemplateManager()->start(bluetoothManager->device());
+            this->innerTemplateManager->start(bluetoothManager->device());
 #endif
 
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
@@ -2943,7 +2970,7 @@ void homeform::Stop() {
 
 #ifdef Q_OS_IOS
     // due to #857
-    bluetoothManager->getInnerTemplateManager()->reinit();
+    this->innerTemplateManager->reinit();
 #endif
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())

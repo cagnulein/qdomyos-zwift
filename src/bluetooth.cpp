@@ -14,11 +14,11 @@
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
-                options.bikeResistanceGain, options.createTemplateManagers, options.startDiscovery) {}
+                options.bikeResistanceGain, options.startDiscovery) {}
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
-                     double bikeResistanceGain, bool createTemplateManagers, bool startDiscovery) {
+                     double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -32,23 +32,8 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     this->useDiscovery = startDiscovery;
-    this->createTemplateManagers = createTemplateManagers;
 
-    QString innerId = QStringLiteral("inner");
-    QString sKey = QStringLiteral("template_") + innerId + QStringLiteral("_" TEMPLATE_PRIVATE_WEBSERVER_ID "_");
-    if (this->createTemplateManagers) {
-        QString path = homeform::getWritableAppDir() + QStringLiteral("QZTemplates");
-        this->userTemplateManager = TemplateInfoSenderBuilder::getInstance(
-            QStringLiteral("user"), QStringList({path, QStringLiteral(":/templates/")}), this);
 
-        settings.setValue(sKey + QStringLiteral("enabled"), true);
-        settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
-        settings.setValue(sKey + QStringLiteral("port"), 0);
-        this->innerTemplateManager =
-            TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
-    } else {
-        settings.setValue(sKey + QStringLiteral("enabled"), false);
-    }
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
@@ -134,17 +119,11 @@ bluetooth::~bluetooth() {
 }
 
 void bluetooth::startTemplateManagers(bluetoothdevice *b) {
-    if (this->createTemplateManagers) {
-        this->userTemplateManager->start(b);
-        this->innerTemplateManager->start(b);
-    }
+    emit this->bluetoothDeviceConnected(b);
 }
 
 void bluetooth::stopTemplateManagers() {
-    if (this->createTemplateManagers) {
-        this->userTemplateManager->stop();
-        this->innerTemplateManager->stop();
-    }
+    emit this->bluetoothDeviceDisconnected();
 }
 
 void bluetooth::finished() {
@@ -2188,7 +2167,7 @@ void bluetooth::restart() {
 
     devices.clear();
 
-    this->stopTemplateManagers();
+    emit this->bluetoothDeviceDisconnected();
 
     if (device() && device()->VirtualDevice()) {
         if (device()->deviceType() == bluetoothdevice::TREADMILL) {
