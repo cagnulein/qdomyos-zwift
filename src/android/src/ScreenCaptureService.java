@@ -209,8 +209,8 @@ public class ScreenCaptureService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (isStartCommand(intent)) {
             // create notification
-            //Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
-            //startForeground(notification.first, notification.second);
+            Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
+            startForeground(notification.first, notification.second);
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);
