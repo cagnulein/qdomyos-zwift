@@ -60,6 +60,7 @@ public class ScreenCaptureService extends Service {
     private OrientationChangeCallback mOrientationChangeCallback;
 
 	 private static String lastText = "";
+	 private static boolean isRunning = false;
 
 	 public static String getLastText() {
 		 return lastText;
@@ -104,8 +105,7 @@ public class ScreenCaptureService extends Service {
                     ByteBuffer buffer = planes[0].getBuffer();
                     int pixelStride = planes[0].getPixelStride();
                     int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;
-						  static boolean isRunning = false;
+                    int rowPadding = rowStride - pixelStride * mWidth;						  
 
 						  /*
                     // create bitmap
@@ -175,8 +175,7 @@ public class ScreenCaptureService extends Service {
 									  }
 								  });
 							  }
-                }
-
+						  }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
