@@ -4,6 +4,11 @@
 #include <QMutexLocker>
 #include <QtXml/QtXml>
 #include <chrono>
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -425,6 +430,13 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+
+#ifdef Q_OS_ANDROID
+    qDebug() << "ScreenCaptureService::getLastText"
+             << QAndroidJniObject::callStaticMethod<jstring>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                             "getLastText", "()Ljava/lang/String;");
+#endif
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||

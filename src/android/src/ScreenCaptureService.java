@@ -59,6 +59,12 @@ public class ScreenCaptureService extends Service {
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
 
+	 private static String lastText = "";
+
+	 public static String getLastText() {
+		 return lastText;
+	 }
+
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -99,7 +105,9 @@ public class ScreenCaptureService extends Service {
                     int pixelStride = planes[0].getPixelStride();
                     int rowStride = planes[0].getRowStride();
                     int rowPadding = rowStride - pixelStride * mWidth;
+						  static boolean isRunning = false;
 
+						  /*
                     // create bitmap
                     bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                     bitmap.copyPixelsFromBuffer(buffer);
@@ -110,9 +118,63 @@ public class ScreenCaptureService extends Service {
 
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
+						  */
 
-                    TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+						  if(!isRunning) {
+							  isRunning = true;
 
+							  TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+							  InputImage image = InputImage.fromByteArray(
+							  buffer,
+							  /* image width */mWidth + rowPadding / pixelStride,
+							  /* image height */mHeight,
+							  0,
+							  InputImage.FLEX_RGBA_8888 // or IMAGE_FORMAT_YV12
+							  );
+
+							  Task<Text> result =
+							  recognizer.process(image)
+							  .addOnSuccessListener(new OnSuccessListener<Text>() {
+								  @Override
+								  public void onSuccess(Text visionText) {
+									  // Task completed successfully
+
+									  String resultText = result.getText();
+									  lastText = resultText;
+									  for (Text.TextBlock block : result.getTextBlocks()) {
+										   String blockText = block.getText();
+											Point[] blockCornerPoints = block.getCornerPoints();
+											Rect blockFrame = block.getBoundingBox();
+											for (Text.Line line : block.getLines()) {
+												 String lineText = line.getText();
+												 Point[] lineCornerPoints = line.getCornerPoints();
+												 Rect lineFrame = line.getBoundingBox();
+												 for (Text.Element element : line.getElements()) {
+													  String elementText = element.getText();
+													  Point[] elementCornerPoints = element.getCornerPoints();
+													  Rect elementFrame = element.getBoundingBox();
+													  for (Text.Symbol symbol : element.getSymbols()) {
+														   String symbolText = symbol.getText();
+															Point[] symbolCornerPoints = symbol.getCornerPoints();
+															Rect symbolFrame = symbol.getBoundingBox();
+															}
+												 }
+											}
+									  }
+
+								     isRunning = false;
+									  }
+								  })
+							  .addOnFailureListener(
+							  new OnFailureListener() {
+								  @Override
+								  public void onFailure(@NonNull Exception e) {
+									  // Task failed with an exception
+									  isRunning = false;
+									  }
+								  });
+							  }
                 }
 
             } catch (Exception e) {
