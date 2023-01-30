@@ -441,6 +441,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
+    bool pafers_treadmill_bh_iboxster_plus =
+        settings
+            .value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus)
+            .toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1047,6 +1051,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("F65")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TT8")) ||
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ST90")) ||
                         b.name().toUpper().startsWith(QStringLiteral("F85"))) &&
                        !soleF80 && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1101,6 +1106,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
@@ -1241,9 +1247,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
-                        (b.name().toUpper().startsWith("ZWIFT HUB")) ||
+                        (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
                         (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
                         (b.name().toUpper().startsWith("FLXCY-")) ||  // Pro FlexBike
+                        (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) ||  // SOLE SB700
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
@@ -1561,7 +1568,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 eslinkerTreadmill->deviceDiscovered(b);
                 this->startTemplateManagers(eslinkerTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("PAFERS_")) && !pafersTreadmill &&
-                       pafers_treadmill && filter) {
+                       (pafers_treadmill || pafers_treadmill_bh_iboxster_plus) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 pafersTreadmill = new paferstreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1828,6 +1835,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->startTemplateManagers(fitPlusBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

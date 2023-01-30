@@ -46,6 +46,8 @@ public :
 
     QString ftmsAccessoryName = nullptr;
 
+    bool pafers_treadmill_bh_iboxster_plus = false;
+
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.

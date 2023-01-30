@@ -45,6 +45,7 @@ class nordictrackelliptical : public elliptical {
     void *VirtualTreadmill();
     void *VirtualDevice();
     int pelotonToEllipticalResistance(int pelotonResistance);
+    bool inclinationAvailableByHardware() { return false; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);

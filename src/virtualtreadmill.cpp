@@ -347,7 +347,7 @@ void virtualtreadmill::treadmillProvider() {
         // really connected to a device
         if (h->virtualtreadmill_updateFTMS(
                 normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
-                (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
+                (uint16_t)((treadmill *)treadMill)->wattsMetric().value(), treadMill->currentInclination().value() * 10)) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)

@@ -584,8 +584,12 @@ const QString QZSettings::tile_pace_last500m_enabled = QStringLiteral("tile_pace
 const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_last500m_order");
 const QString QZSettings::daumbike_serialport = QStringLiteral("daumbike_serialport");
 const QString QZSettings::default_daumbike_serialport = QStringLiteral("");
+const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("treadmill_difficulty_gain_or_offset");
+const QString QZSettings::pafers_treadmill_bh_iboxster_plus = QStringLiteral("pafers_treadmill_bh_iboxster_plus");
+const QString QZSettings::proform_cycle_trainer_400 = QStringLiteral("proform_cycle_trainer_400");
 
-const uint32_t allSettingsCount = 479;
+const uint32_t allSettingsCount = 482;
+
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1069,6 +1073,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled},
     {QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order},
     {QZSettings::daumbike_serialport, QZSettings::default_daumbike_serialport},
+    {QZSettings::treadmill_difficulty_gain_or_offset, QZSettings::default_treadmill_difficulty_gain_or_offset},
+    {QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus},
+    {QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
