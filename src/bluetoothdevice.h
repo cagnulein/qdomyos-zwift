@@ -259,28 +259,52 @@ class bluetoothdevice : public QObject {
     bool autoResistance() { return autoResistanceEnable; }
 
     /**
-     * @brief setDifficult Sets the difficulty level.
+     * @brief setDifficult Sets the difficulty gain level.
      * @param d The difficulty level. Units: depends on implementation.
      */
     void setDifficult(double d);
 
     /**
-     * @brief difficult Gets the difficulty level. Units: depends on implementation.
+     * @brief difficult Gets the difficulty gain level. Units: depends on implementation.
      * @return
      */
     double difficult();
 
     /**
-     * @brief setDifficult Sets the difficulty level.
+     * @brief setDifficult Sets the difficulty gain level.
      * @param d The difficulty level. Units: depends on implementation.
      */
     void setInclinationDifficult(double d);
 
     /**
-     * @brief difficult Gets the difficulty level. Units: depends on implementation.
+     * @brief difficult Gets the difficulty gain level. Units: depends on implementation.
      * @return
      */
     double inclinationDifficult();
+
+    /**
+     * @brief setDifficult Sets the difficulty offset level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setDifficultOffset(double d);
+
+    /**
+     * @brief difficult Gets the difficulty offset level. Units: depends on implementation.
+     * @return
+     */
+    double difficultOffset();
+
+    /**
+     * @brief setDifficult Sets the difficulty offset level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setInclinationDifficultOffset(double d);
+
+    /**
+     * @brief difficult Gets the difficulty offset level. Units: depends on implementation.
+     * @return
+     */
+    double inclinationDifficultOffset();
 
     /**
      * @brief weightLoss Gets the value of the weight loss metric. Units: kg
@@ -444,14 +468,24 @@ class bluetoothdevice : public QObject {
     double requestFanSpeed = -1;
 
     /**
-     * @brief m_difficult The current difficulty. Units: device dependent
+     * @brief m_difficult The current difficulty gain. Units: device dependent
      */
     double m_difficult = 1.0;
 
     /**
-     * @brief m_difficult The current difficulty. Units: device dependent
+     * @brief m_difficult The current difficulty gain. Units: device dependent
      */
     double m_inclination_difficult = 1.0;
+
+    /**
+     * @brief m_difficult The current difficulty offset. Units: device dependent
+     */
+    double m_difficult_offset = 0.0;
+
+    /**
+     * @brief m_difficult The current difficulty offset. Units: device dependent
+     */
+    double m_inclination_difficult_offset = 0.0;
 
     /**
      * @brief m_jouls The number of joules expended in the current session. Unit: joules
@@ -459,7 +493,7 @@ class bluetoothdevice : public QObject {
     metric m_jouls;
 
     /**
-     * @brief elevationAcc The elevation gain. Units: ?
+     * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
 

@@ -6,18 +6,19 @@ treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
     m_lastRawSpeedRequested = speed;
-    qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult;
-    RequestedSpeed = speed * m_difficult;
+    qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset;
+    RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
-        requestSpeed = speed * m_difficult;
+        requestSpeed = (speed * m_difficult) + m_difficult_offset;
 }
 void treadmill::changeInclination(double grade, double inclination) {
     m_lastRawInclinationRequested = grade;
     Q_UNUSED(inclination);
-    qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult;
-    RequestedInclination = grade * m_inclination_difficult;
+    qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
+             << m_inclination_difficult_offset;
+    RequestedInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
     if (autoResistanceEnable) {
-        requestInclination = grade * m_inclination_difficult;
+        requestInclination = (grade * m_inclination_difficult) + m_inclination_difficult_offset;
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
@@ -36,7 +37,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
@@ -157,6 +159,8 @@ double treadmill::currentTargetSpeed() { return targetSpeed; }
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
-void treadmill::instantaneousStrideLengthSensor(double length) {InstantaneousStrideLengthCM.setValue(length);}
-void treadmill::groundContactSensor(double groundContact) {GroundContactMS.setValue(groundContact);}
-void treadmill::verticalOscillationSensor(double verticalOscillation) {VerticalOscillationMM.setValue(verticalOscillation);}
+void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
+void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
+void treadmill::verticalOscillationSensor(double verticalOscillation) {
+    VerticalOscillationMM.setValue(verticalOscillation);
+}

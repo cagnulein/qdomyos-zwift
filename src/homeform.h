@@ -358,7 +358,6 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
-    bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
@@ -626,7 +625,7 @@ class homeform : public QObject {
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
-    quint64 cryptoKeySettingsProfiles();
+    static quint64 cryptoKeySettingsProfiles();
 
     int16_t fanOverride = 0;
 
@@ -657,10 +656,11 @@ class homeform : public QObject {
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
-    void loadSettings(const QUrl &filename);
+    static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
     void saveProfile(QString profilename);
     void restart();
+    bool pelotonAskStart() { return m_pelotonAskStart; }
 
   private slots:
     void Start();
@@ -710,7 +710,7 @@ class homeform : public QObject {
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
-    int pelotonOffset() {return (trainProgram?trainProgram->offsetElapsedTime():0);}
+    int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
