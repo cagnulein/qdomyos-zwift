@@ -4833,6 +4833,20 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.fitshow_truetimer = checked
                         }
+                        SwitchDelegate {
+                            id: fitshowMilesDelegate
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_miles = checked
+                        }
                         RowLayout {
                             spacing: 10
                             Label {
