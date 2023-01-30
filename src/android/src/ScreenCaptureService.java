@@ -132,7 +132,7 @@ public class ScreenCaptureService extends Service {
 
 							  TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
-							  InputImage image = InputImage.fromByteArray(
+							  InputImage inputImage = InputImage.fromByteArray(
 							  buffer,
 							  /* image width */mWidth + rowPadding / pixelStride,
 							  /* image height */mHeight,
@@ -141,7 +141,7 @@ public class ScreenCaptureService extends Service {
 							  );
 
 							  Task<Text> result =
-							  recognizer.process(image)
+							  recognizer.process(inputImage)
 							  .addOnSuccessListener(new OnSuccessListener<Text>() {
 								  @Override
 								  public void onSuccess(Text visionText) {
