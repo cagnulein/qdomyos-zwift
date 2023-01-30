@@ -29,9 +29,16 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
+import com.google.android.play.core.tasks.Task;
+
+import android.graphics.Rect;
+import android.graphics.Point;
 
 import androidx.core.util.Pair;
 
@@ -169,7 +176,7 @@ public class ScreenCaptureService extends Service {
 							  .addOnFailureListener(
 							  new OnFailureListener() {
 								  @Override
-								  public void onFailure(@NonNull Exception e) {
+								  public void onFailure(Exception e) {
 									  // Task failed with an exception
 									  isRunning = false;
 									  }
