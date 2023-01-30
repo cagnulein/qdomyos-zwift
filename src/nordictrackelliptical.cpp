@@ -456,14 +456,16 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     const double miles = 1.60934;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C && !proform_hybrid_trainer_xt) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C &&
+        !proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -482,8 +484,10 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
 
-        if(proform_hybrid_trainer_xt) {
+        if (proform_hybrid_trainer_xt && !disable_hr_frommachinery) {
             heart = newValue.at(3);
+            Heart = heart;
+            emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
         }
 
     } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
@@ -502,7 +506,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     // wattage = newValue.at(12)
 
-    if(proform_hybrid_trainer_xt) {
+    if (proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(18);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -533,26 +537,25 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if(!disable_hr_frommachinery && heart > 0) {
-        Heart = heart;
-    } else
+    if (disable_hr_frommachinery) {
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+            }
         }
     }
 
@@ -563,7 +566,6 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
