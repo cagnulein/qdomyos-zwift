@@ -1,5 +1,6 @@
 #ifndef ANDROIDACTIVITYRESULTRECEIVER_H
 #define ANDROIDACTIVITYRESULTRECEIVER_H
+#include <QDebug>
 #ifdef Q_OS_ANDROID
 #include <QtAndroidExtras/QAndroidActivityResultReceiver>
 #include <QtAndroidExtras/QAndroidJniEnvironment>
