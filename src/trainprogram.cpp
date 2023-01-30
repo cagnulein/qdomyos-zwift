@@ -432,9 +432,9 @@ void trainprogram::scheduler() {
     QSettings settings;
 
 #ifdef Q_OS_ANDROID
-    qDebug() << "ScreenCaptureService::getLastText"
-             << QAndroidJniObject::callStaticMethod<jstring>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
-                                                             "getLastText", "()Ljava/lang/String;");
+    QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+    qDebug() << "ScreenCaptureService::getLastText" << text.toString();
 #endif
 
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
