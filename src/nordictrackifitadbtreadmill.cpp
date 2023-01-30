@@ -103,39 +103,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 
     while (1) {
-        QString file = runAdbCommand("shell ls -l /sdcard/.wolflogs/");
-        QStringList files = file.split("\r\r\n");
-        QList<adbfile> adbFiles;
-
-        foreach (QString f, files) {
-            QStringList d = f.split(" ", Qt::SkipEmptyParts);
-            qDebug() << f << d.count();
-            if (d.count() > 6) {
-                QString dateS = d[4];
-                QString timeS = d[5];
-                QString name = d[6];
-
-                if (name.contains("logs") && name.contains(".txt")) {
-                    QDate date =
-                        QDate(dateS.split("-")[0].toUInt(), dateS.split("-")[1].toUInt(), dateS.split("-")[2].toUInt());
-                    QTime time = QTime(timeS.split(":")[0].toUInt(), timeS.split(":")[1].toUInt(), 0);
-                    adbfile a;
-                    a.date = QDateTime(date, time);
-                    a.name = name;
-                    adbFiles.append(a);
-                }
-            }
-        }
-
-        if (adbFiles.count() == 0) {
-            qDebug() << "no log file found";
-        } else {
-            qSort(adbFiles.begin(), adbFiles.end(), dtcomp);
-            qDebug() << adbFiles.first().name;
-
-            file = "/sdcard/.wolflogs/" + adbFiles.first().name;
-            runAdbTailCommand("shell \"while true; do cat; sleep 1; done < " + file + "\"");
-        }
+        runAdbTailCommand("logcat");
     }
 }
 
