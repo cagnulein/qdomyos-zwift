@@ -34,8 +34,10 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
-
-import com.google.android.play.core.tasks.Task;
+import android.media.ImageReader.OnImageAvailableListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import android.graphics.Rect;
 import android.graphics.Point;
@@ -114,11 +116,10 @@ public class ScreenCaptureService extends Service {
                     int rowStride = planes[0].getRowStride();
                     int rowPadding = rowStride - pixelStride * mWidth;						  
 
-						  /*
                     // create bitmap
                     bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                     bitmap.copyPixelsFromBuffer(buffer);
-
+                    /*
                     // write bitmap to a file
                     fos = new FileOutputStream(mStoreDir + "/myscreen.png");
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
@@ -132,19 +133,13 @@ public class ScreenCaptureService extends Service {
 
 							  TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
-							  InputImage inputImage = InputImage.fromByteArray(
-							  buffer,
-							  /* image width */mWidth + rowPadding / pixelStride,
-							  /* image height */mHeight,
-							  0,
-							  InputImage.FLEX_RGBA_8888 // or IMAGE_FORMAT_YV12
-							  );
+                                                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
 
 							  Task<Text> result =
 							  recognizer.process(inputImage)
 							  .addOnSuccessListener(new OnSuccessListener<Text>() {
 								  @Override
-								  public void onSuccess(Text visionText) {
+                                                                  public void onSuccess(Text result) {
 									  // Task completed successfully
 
 									  String resultText = result.getText();
