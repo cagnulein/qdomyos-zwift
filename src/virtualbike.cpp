@@ -668,13 +668,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply3[14] = ((uint16_t)(speed * 100.0)) >> 8;   // speed (h)
             reply3[15] = t & 0xff;
             reply3[16] = t >> 8;
-            reply4[3] = ((uint16_t)calories);  // KCal
+            reply4[3] = ((uint16_t)calories);         // KCal
             reply4[4] = (((uint16_t)calories) >> 8);  // KCal
-            reply4[10] = ((uint16_t)calories); // KCal estimated
-            reply4[11] = (((uint16_t)calories) >> 8);  // KCal
-            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply4[4] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
-                         (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) - (reply3[12]) -
-                         (reply3[16]) - (reply2[15]) - (reply2[16]);
+            reply4[10] = ((uint16_t)calories);        // KCal estimated
+            reply4[11] = (((uint16_t)calories) >> 8); // KCal
+            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply4[4] * 2) - (reply2[18]) - (reply2[11]) -
+                         (reply2[12]) - (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) -
+                         (reply3[12]) - (reply3[16]) - (reply2[15]) - (reply2[16]);
             reply4[19] = reply3[19];
 
             /*static uint64_t time = 0;
@@ -1212,12 +1212,12 @@ void virtualbike::echelonWriteStatus() {
     value.append(0xf0);
     value.append(0xd1);
     value.append(0x09);
-    value.append((char)0x00);                                            // elapsed
-    value.append((char)0x00);                                            // elapsed
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 24)); // distance
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 16)); // distance
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8));  // distance
-    value.append((uint8_t)(Bike->odometer() * 100));                     // distance
+    value.append((char)0x00);                                                      // elapsed
+    value.append((char)0x00);                                                      // elapsed
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 24)); // distance
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 16)); // distance
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 8));  // distance
+    value.append((uint8_t)(Bike->odometer() * 1.60934 * 100));                     // distance
     value.append((char)0x00);
     value.append(Bike->currentCadence().value());
     value.append((uint8_t)Bike->currentHeart().value());
