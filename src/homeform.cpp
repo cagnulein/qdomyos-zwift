@@ -2939,12 +2939,16 @@ void homeform::Start_inner(bool send_event_to_device) {
 
 void homeform::StartRequested() {
     Start();
+    m_stopRequested = false;
     m_startRequested = true;
+    emit stopRequestedChanged(m_stopRequested);
     emit startRequestedChanged(m_startRequested);
 }
 
 void homeform::StopRequested() {
+    m_startRequested = false;
     m_stopRequested = true;
+    emit startRequestedChanged(m_startRequested);
     emit stopRequestedChanged(m_stopRequested);
 }
 
