@@ -108,8 +108,7 @@ public class ScreenCaptureService extends Service {
         @Override
         public void onImageAvailable(ImageReader reader) {
 
-            FileOutputStream fos = null;
-            Bitmap bitmap = null;
+            FileOutputStream fos = null;            
             try (Image image = mImageReader.acquireLatestImage()) {
                 if (image != null) {
                     if(!isRunning) {
@@ -118,13 +117,13 @@ public class ScreenCaptureService extends Service {
                         int pixelStride = planes[0].getPixelStride();
                         int rowStride = planes[0].getRowStride();
                         int rowPadding = rowStride - pixelStride * mWidth;
-                        Log.e(TAG, "Image reviewing");
+                        //Log.e(TAG, "Image reviewing");
 
                           isRunning = true;
 
                           // create bitmap
-                          //bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                          //bitmap.copyPixelsFromBuffer(buffer);
+                          final Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                          bitmap.copyPixelsFromBuffer(buffer);
 /*
                           // write bitmap to a file
                           fos = new FileOutputStream(mStoreDir + "/myscreen.png");
@@ -134,12 +133,12 @@ public class ScreenCaptureService extends Service {
                           Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
 */
 
-                          //InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
-                          InputImage inputImage = InputImage.fromByteBuffer(buffer,
+                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+                          /*InputImage inputImage = InputImage.fromByteBuffer(buffer,
                                   mWidth + rowPadding / pixelStride, mHeight,
                                   0,
                                   InputImage.IMAGE_FORMAT_NV21 // or IMAGE_FORMAT_YV12
-                          );
+                          );*/
 
                           Task<Text> result =
                           recognizer.process(inputImage)
@@ -148,7 +147,7 @@ public class ScreenCaptureService extends Service {
                                   public void onSuccess(Text result) {
                                           // Task completed successfully
 
-                                          Log.e(TAG, "Image done!");
+                                          //Log.e(TAG, "Image done!");
 
                                           String resultText = result.getText();
                                           lastText = resultText;
@@ -173,7 +172,7 @@ public class ScreenCaptureService extends Service {
                                                                  }
                                                         }
                                           }*/
-
+                                     bitmap.recycle();
                                      isRunning = false;
                                           }
                                   })
@@ -182,29 +181,16 @@ public class ScreenCaptureService extends Service {
                                   @Override
                                   public void onFailure(Exception e) {
                                           // Task failed with an exception
-                                          Log.e(TAG, "Image fail");
+                                          //Log.e(TAG, "Image fail");
                                           isRunning = false;
                                           }
                                   });
                           } else {
-                            Log.e(TAG, "Image ignored");
+                            //Log.e(TAG, "Image ignored");
                           }
                       }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-
-                if (bitmap != null) {
-                    bitmap.recycle();
-                }
-
             }
         }
     }
