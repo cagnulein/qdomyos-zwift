@@ -68,6 +68,8 @@ public class ScreenCaptureService extends Service {
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
 
+    private TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
 	 private static String lastText = "";
 	 private static boolean isRunning = false;
 
@@ -116,25 +118,28 @@ public class ScreenCaptureService extends Service {
                         int pixelStride = planes[0].getPixelStride();
                         int rowStride = planes[0].getRowStride();
                         int rowPadding = rowStride - pixelStride * mWidth;
+                        Log.e(TAG, "Image reviewing");
 
                           isRunning = true;
 
                           // create bitmap
-                          bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                          bitmap.copyPixelsFromBuffer(buffer);
-
+                          //bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                          //bitmap.copyPixelsFromBuffer(buffer);
+/*
                           // write bitmap to a file
                           fos = new FileOutputStream(mStoreDir + "/myscreen.png");
                           bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
                           IMAGES_PRODUCED++;
                           Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
+*/
 
-
-
-                          TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
-                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+                          //InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+                          InputImage inputImage = InputImage.fromByteBuffer(buffer,
+                                  mWidth + rowPadding / pixelStride, mHeight,
+                                  0,
+                                  InputImage.IMAGE_FORMAT_NV21 // or IMAGE_FORMAT_YV12
+                          );
 
                           Task<Text> result =
                           recognizer.process(inputImage)
@@ -142,6 +147,8 @@ public class ScreenCaptureService extends Service {
                                   @Override
                                   public void onSuccess(Text result) {
                                           // Task completed successfully
+
+                                          Log.e(TAG, "Image done!");
 
                                           String resultText = result.getText();
                                           lastText = resultText;
@@ -175,11 +182,14 @@ public class ScreenCaptureService extends Service {
                                   @Override
                                   public void onFailure(Exception e) {
                                           // Task failed with an exception
+                                          Log.e(TAG, "Image fail");
                                           isRunning = false;
                                           }
                                   });
+                          } else {
+                            Log.e(TAG, "Image ignored");
                           }
-                  }
+                      }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
