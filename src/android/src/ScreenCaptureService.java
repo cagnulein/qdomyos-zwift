@@ -110,74 +110,76 @@ public class ScreenCaptureService extends Service {
             Bitmap bitmap = null;
             try (Image image = mImageReader.acquireLatestImage()) {
                 if (image != null) {
-                    Image.Plane[] planes = image.getPlanes();
-                    ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * mWidth;						  
+                    if(!isRunning) {
+                        Image.Plane[] planes = image.getPlanes();
+                        ByteBuffer buffer = planes[0].getBuffer();
+                        int pixelStride = planes[0].getPixelStride();
+                        int rowStride = planes[0].getRowStride();
+                        int rowPadding = rowStride - pixelStride * mWidth;
 
-                    // create bitmap
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(buffer);
-                    /*
-                    // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/myscreen.png");
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                          isRunning = true;
 
-                    IMAGES_PRODUCED++;
-                    Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-						  */
+                          // create bitmap
+                          bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+                          bitmap.copyPixelsFromBuffer(buffer);
 
-						  if(!isRunning) {
-							  isRunning = true;
+                          // write bitmap to a file
+                          fos = new FileOutputStream(mStoreDir + "/myscreen.png");
+                          bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
-							  TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+                          IMAGES_PRODUCED++;
+                          Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
 
-                                                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
 
-							  Task<Text> result =
-							  recognizer.process(inputImage)
-							  .addOnSuccessListener(new OnSuccessListener<Text>() {
-								  @Override
-                                                                  public void onSuccess(Text result) {
-									  // Task completed successfully
 
-									  String resultText = result.getText();
-									  lastText = resultText;
-									  for (Text.TextBlock block : result.getTextBlocks()) {
-										   String blockText = block.getText();
-											Point[] blockCornerPoints = block.getCornerPoints();
-											Rect blockFrame = block.getBoundingBox();
-											for (Text.Line line : block.getLines()) {
-												 String lineText = line.getText();
-												 Point[] lineCornerPoints = line.getCornerPoints();
-												 Rect lineFrame = line.getBoundingBox();
-												 for (Text.Element element : line.getElements()) {
-													  String elementText = element.getText();
-													  Point[] elementCornerPoints = element.getCornerPoints();
-													  Rect elementFrame = element.getBoundingBox();
-													  for (Text.Symbol symbol : element.getSymbols()) {
-														   String symbolText = symbol.getText();
-															Point[] symbolCornerPoints = symbol.getCornerPoints();
-															Rect symbolFrame = symbol.getBoundingBox();
-															}
-												 }
-											}
-									  }
+                          TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
-								     isRunning = false;
-									  }
-								  })
-							  .addOnFailureListener(
-							  new OnFailureListener() {
-								  @Override
-								  public void onFailure(Exception e) {
-									  // Task failed with an exception
-									  isRunning = false;
-									  }
-								  });
-							  }
-						  }
+                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+
+                          Task<Text> result =
+                          recognizer.process(inputImage)
+                          .addOnSuccessListener(new OnSuccessListener<Text>() {
+                                  @Override
+                                  public void onSuccess(Text result) {
+                                          // Task completed successfully
+
+                                          String resultText = result.getText();
+                                          lastText = resultText;
+                                          /*
+                                          for (Text.TextBlock block : result.getTextBlocks()) {
+                                                   String blockText = block.getText();
+                                                        Point[] blockCornerPoints = block.getCornerPoints();
+                                                        Rect blockFrame = block.getBoundingBox();
+                                                        for (Text.Line line : block.getLines()) {
+                                                                 String lineText = line.getText();
+                                                                 Point[] lineCornerPoints = line.getCornerPoints();
+                                                                 Rect lineFrame = line.getBoundingBox();
+                                                                 for (Text.Element element : line.getElements()) {
+                                                                          String elementText = element.getText();
+                                                                          Point[] elementCornerPoints = element.getCornerPoints();
+                                                                          Rect elementFrame = element.getBoundingBox();
+                                                                          for (Text.Symbol symbol : element.getSymbols()) {
+                                                                                   String symbolText = symbol.getText();
+                                                                                        Point[] symbolCornerPoints = symbol.getCornerPoints();
+                                                                                        Rect symbolFrame = symbol.getBoundingBox();
+                                                                                        }
+                                                                 }
+                                                        }
+                                          }*/
+
+                                     isRunning = false;
+                                          }
+                                  })
+                          .addOnFailureListener(
+                          new OnFailureListener() {
+                                  @Override
+                                  public void onFailure(Exception e) {
+                                          // Task failed with an exception
+                                          isRunning = false;
+                                          }
+                                  });
+                          }
+                  }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
