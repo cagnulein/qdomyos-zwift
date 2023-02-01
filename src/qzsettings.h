@@ -1672,6 +1672,9 @@ class QZSettings {
     static const QString peloton_workout_ocr;
     static constexpr bool default_peloton_workout_ocr = false;
 
+    static const QString peloton_bike_ocr;
+    static constexpr bool default_peloton_bike_ocr = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
