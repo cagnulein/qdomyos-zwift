@@ -58,16 +58,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     return;
 #endif
 
-#ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
-        pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
-        emit deviceConnected(QBluetoothDeviceInfo());
-        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-        connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
-        this->startTemplateManagers(pelotonBike);
-    }
-#endif
-
     if (!startDiscovery) {
         this->discoveryAgent = nullptr;
         return;
@@ -609,6 +599,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(fakeElliptical);
+            } else if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+                pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->startTemplateManagers(pelotonBike);
             } else if (fakedevice_treadmill && !fakeTreadmill) {
                 this->stopDiscovery();
                 fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
@@ -1895,6 +1894,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void bluetooth::connectedAndDiscovered() {
+
+    qDebug() << "bluetooth::connectedAndDiscovered()";
 
     static bool firstConnected = true;
     QSettings settings;

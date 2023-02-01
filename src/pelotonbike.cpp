@@ -22,7 +22,7 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &pelotonbike::update);
-    refresh->start(200ms);
+    refresh->start(200ms);    
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualBike) {
@@ -47,11 +47,16 @@ void pelotonbike::update() {
     QSettings settings;
     update_metrics(false, 0);
 
+    if(!initDone) {
+        initDone = true;
+        emit connectedAndDiscovered();
+    }
+
 #ifdef Q_OS_ANDROID
     QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
         "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
     QString t = text.toString();
-    qDebug() << t;
+    qDebug() << "OCR" << t;
 #endif
 
     QString heartRateBeltName =

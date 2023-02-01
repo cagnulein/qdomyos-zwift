@@ -65,7 +65,6 @@ class pelotonbike : public bike {
 
   private slots:
 
-    void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
 
     void update();

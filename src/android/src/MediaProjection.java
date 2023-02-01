@@ -13,6 +13,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.app.AppOpsManager;
 import android.util.Log;
+import android.annotation.TargetApi;
 
 import com.rvalerio.fgchecker.AppChecker;
 
