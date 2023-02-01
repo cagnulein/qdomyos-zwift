@@ -37,7 +37,7 @@ public class MediaProjection  {
 
  static boolean isLandscape(){
 	  boolean landscape = false;
-	  DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+	  DisplayMetrics metrics = _context.getResources().getDisplayMetrics();
 	  int width = metrics.widthPixels;
 	  int height = metrics.heightPixels;
 
