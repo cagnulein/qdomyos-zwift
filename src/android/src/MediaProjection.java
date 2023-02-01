@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.util.DisplayMetrics;
+import android.os.Build;
+import android.provider.Settings;
+import android.app.AppOpsManager;
+import android.util.Log;
 
 import com.rvalerio.fgchecker.AppChecker;
 
@@ -31,12 +35,11 @@ public class MediaProjection  {
         }
     }
 
- public boolean isLandscape(Context context){
-	  bool landscape = false;
-	  DisplayMetrics displaymetrics = new DisplayMetrics();
-	  context.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-	  int width = displaymetrics.widthPixels;
-	  int height = displaymetrics.heightPixels;
+ static boolean isLandscape(){
+	  boolean landscape = false;
+	  DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+	  int width = metrics.widthPixels;
+	  int height = metrics.heightPixels;
 
 	  if(width<height){
 		   landscape = false;
@@ -44,19 +47,18 @@ public class MediaProjection  {
 	      landscape = true;
 	  }
 
-      return landscape;
-
+     return landscape;
  }
 
- void requestUsageStatsPermission() {
+ static void requestUsageStatsPermission() {
 	 if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-	 && !hasUsageStatsPermission(this)) {
-		 startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+	 && !hasUsageStatsPermission(_context)) {
+		 _context.startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
 		 }
 	 }
 
  @TargetApi(Build.VERSION_CODES.KITKAT)
- boolean hasUsageStatsPermission(Context context) {
+ static boolean hasUsageStatsPermission(Context context) {
 	 AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
 	 int mode = appOps.checkOpNoThrow("android:get_usage_stats",
 	 android.os.Process.myUid(), context.getPackageName());
@@ -65,7 +67,7 @@ public class MediaProjection  {
 	 }
 
     public static void startService(Context context, int resultCode, Intent data) {
-		  final Context _context = context;
+		  _context = context;
 		  requestUsageStatsPermission();
         context.startService(org.cagnulen.qdomyoszwift.ScreenCaptureService.getStartIntent(context, resultCode, data));
 
@@ -75,7 +77,7 @@ public class MediaProjection  {
 					 @Override
 					 public void onForeground(String packageName) {
 						  Log.e("MediaProjection", packageName);
-						  if(isLandscape(_context))
+						  if(isLandscape())
 						     Log.e("MediaProjection", "Landscape");
 						  else
 						     Log.e("MediaProjection", "Portrait");
