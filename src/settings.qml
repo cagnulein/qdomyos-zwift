@@ -653,6 +653,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.52
             property bool proform_cycle_trainer_400: false
+
+            // from version 2.12.58
+            property bool peloton_workout_ocr: false
         }
 
         function paddingZeros(text, limit) {
@@ -3520,6 +3523,34 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        id: pelotonWorkoutOCRDelegate
+                        text: qsTr("Peloton Auto Sync (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_workout_ocr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8

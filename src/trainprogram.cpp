@@ -431,12 +431,6 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
-#ifdef Q_OS_ANDROID
-    QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
-        "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
-    qDebug() << "ScreenCaptureService::getLastText" << text.toString();
-#endif
-
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -444,6 +438,37 @@ void trainprogram::scheduler() {
 
         return;
     }
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        qDebug() << QStringLiteral("PELOTON OCR") << t;
+        QRegularExpression re("\\d\\d:\\d\\d");
+        QRegularExpressionMatch match = re.match(t.left(5));
+        if (t.contains(QStringLiteral("INTRO"))) {
+            qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+            restart();
+        } else if (match.hasMatch()) {
+            int minutes = t.left(2).toInt();
+            int seconds = t.left(5).right(2).toInt();
+            seconds -= 2; //(due to the OCR delay)
+            seconds += minutes * 60;
+            QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
+            QTime currentRemaining = remainingTime();
+            qDebug() << QStringLiteral("PELOTON OCR: ocrRemaining") << ocrRemaining
+                     << QStringLiteral("currentRemaining") << currentRemaining;
+            if (ocrRemaining.secsTo(currentRemaining) < 120) {
+                // applying the differences
+                if (ocrRemaining > currentRemaining)
+                    decreaseElapsedTime(ocrRemaining.secsTo(currentRemaining));
+                else
+                    increaseElapsedTime(ocrRemaining.secsTo(currentRemaining));
+            }
+        }
+    }
+#endif
 
     ticks++;
 

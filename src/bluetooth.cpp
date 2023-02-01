@@ -1089,10 +1089,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS                        
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||                           // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||                           // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||                         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||             // FTMS
@@ -1232,9 +1232,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
-                        (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
-                        (b.name().toUpper().startsWith("FLXCY-")) ||  // Pro FlexBike
-                        (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) ||  // SOLE SB700
+                        (b.name().toUpper().startsWith("HAMMER ")) ||                        // HAMMER 64123
+                        (b.name().toUpper().startsWith("FLXCY-")) ||                         // Pro FlexBike
+                        (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
@@ -2154,13 +2154,15 @@ void bluetooth::connectedAndDiscovered() {
 #endif
 
 #ifdef Q_OS_ANDROID
-    AndroidActivityResultReceiver* a = new AndroidActivityResultReceiver();
-    QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
-        "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-        QAndroidJniObject::fromString("media_projection").object<jstring>());
-    QAndroidJniObject intent =
-        MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
-    QtAndroid::startActivity(intent, 100, a);
+    if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
+        AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
+        QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
+            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
+            QAndroidJniObject::fromString("media_projection").object<jstring>());
+        QAndroidJniObject intent =
+            MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
+        QtAndroid::startActivity(intent, 100, a);
+    }
 #endif
 
 #ifdef Q_OS_IOS

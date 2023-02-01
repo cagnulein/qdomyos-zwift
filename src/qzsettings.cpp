@@ -585,8 +585,9 @@ const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_l
 const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("treadmill_difficulty_gain_or_offset");
 const QString QZSettings::pafers_treadmill_bh_iboxster_plus = QStringLiteral("pafers_treadmill_bh_iboxster_plus");
 const QString QZSettings::proform_cycle_trainer_400 = QStringLiteral("proform_cycle_trainer_400");
+const QString QZSettings::peloton_workout_ocr = QStringLiteral("peloton_workout_ocr");
 
-const uint32_t allSettingsCount = 481;
+const uint32_t allSettingsCount = 482;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1072,6 +1073,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_difficulty_gain_or_offset, QZSettings::default_treadmill_difficulty_gain_or_offset},
     {QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus},
     {QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400},
+    {QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

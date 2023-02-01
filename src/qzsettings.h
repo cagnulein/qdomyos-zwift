@@ -1669,6 +1669,9 @@ class QZSettings {
     static const QString proform_cycle_trainer_400;
     static constexpr bool default_proform_cycle_trainer_400 = false;
 
+    static const QString peloton_workout_ocr;
+    static constexpr bool default_peloton_workout_ocr = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
