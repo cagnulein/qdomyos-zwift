@@ -80,7 +80,7 @@ public class MediaProjection  {
 						  else
 						     Log.e("MediaProjection", "Portrait");
 						}
-				)
+				})
 				.timeout(1000)
 				.start(this);
     }
