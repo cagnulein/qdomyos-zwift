@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.util.DisplayMetrics;
 
 import com.rvalerio.fgchecker.AppChecker;
 
@@ -30,6 +31,23 @@ public class MediaProjection  {
         }
     }
 
+ public boolean isLandscape(Context context){
+	  bool landscape = false;
+	  DisplayMetrics displaymetrics = new DisplayMetrics();
+	  context.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+	  int width = displaymetrics.widthPixels;
+	  int height = displaymetrics.heightPixels;
+
+	  if(width<height){
+		   landscape = false;
+	  } else {
+	      landscape = true;
+	  }
+
+      return landscape;
+
+ }
+
  void requestUsageStatsPermission() {
 	 if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
 	 && !hasUsageStatsPermission(this)) {
@@ -47,6 +65,7 @@ public class MediaProjection  {
 	 }
 
     public static void startService(Context context, int resultCode, Intent data) {
+		  final Context _context = context;
 		  requestUsageStatsPermission();
         context.startService(org.cagnulen.qdomyoszwift.ScreenCaptureService.getStartIntent(context, resultCode, data));
 
@@ -56,6 +75,10 @@ public class MediaProjection  {
 					 @Override
 					 public void onForeground(String packageName) {
 						  Log.e("MediaProjection", packageName);
+						  if(isLandscape(_context))
+						     Log.e("MediaProjection", "Landscape");
+						  else
+						     Log.e("MediaProjection", "Portrait");
 						}
 				)
 				.timeout(1000)
