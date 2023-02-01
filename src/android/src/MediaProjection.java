@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.rvalerio.fgchecker.AppChecker;
+
 public class MediaProjection  {
     private static final int REQUEST_CODE = 100;
     private static Context _context;
@@ -28,8 +30,36 @@ public class MediaProjection  {
         }
     }
 
+ void requestUsageStatsPermission() {
+	 if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+	 && !hasUsageStatsPermission(this)) {
+		 startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+		 }
+	 }
+
+ @TargetApi(Build.VERSION_CODES.KITKAT)
+ boolean hasUsageStatsPermission(Context context) {
+	 AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+	 int mode = appOps.checkOpNoThrow("android:get_usage_stats",
+	 android.os.Process.myUid(), context.getPackageName());
+	 boolean granted = mode == AppOpsManager.MODE_ALLOWED;
+	 return granted;
+	 }
+
     public static void startService(Context context, int resultCode, Intent data) {
+		  requestUsageStatsPermission();
         context.startService(org.cagnulen.qdomyoszwift.ScreenCaptureService.getStartIntent(context, resultCode, data));
+
+		  AppChecker appChecker = new AppChecker();
+		  appChecker
+		      .whenAny(new AppChecker.Listener() {
+					 @Override
+					 public void onForeground(String packageName) {
+						  Log.e("MediaProjection", packageName);
+						}
+				)
+				.timeout(1000)
+				.start(this);
     }
 
     public void startProjection(Context context) {
