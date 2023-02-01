@@ -84,7 +84,7 @@ public class MediaProjection  {
 						}
 				})
 				.timeout(1000)
-				.start(this);
+				.start(context);
     }
 
     public void startProjection(Context context) {
