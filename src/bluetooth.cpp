@@ -51,6 +51,17 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.setValue(sKey + QStringLiteral("enabled"), false);
     }
 
+    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+        pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->startTemplateManagers(pelotonBike);
+    }
+
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     this->startTemplateManagers(schwinnIC4Bike);
@@ -599,15 +610,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(fakeElliptical);
-            } else if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
-                pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
-                emit deviceConnected(b);
-                connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-                connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
-                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                this->startTemplateManagers(pelotonBike);
             } else if (fakedevice_treadmill && !fakeTreadmill) {
                 this->stopDiscovery();
                 fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);

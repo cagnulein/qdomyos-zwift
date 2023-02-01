@@ -523,6 +523,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
+
+    if(settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+        QBluetoothDeviceInfo b;
+        deviceConnected(b);
+    }
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
