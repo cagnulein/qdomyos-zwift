@@ -2098,6 +2098,18 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text
                             }
                         }
+                        Label {
+                            text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: 8
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
+                        }
                     }
                 }
                 AccordionElement {
