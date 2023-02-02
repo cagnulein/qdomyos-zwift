@@ -1675,6 +1675,9 @@ class QZSettings {
     static const QString proform_hybrid_trainer_PFEL03815;
     static constexpr bool default_proform_hybrid_trainer_PFEL03815 = false;
 
+    static const QString schwinn_resistance_smooth;
+    static constexpr int default_schwinn_resistance_smooth = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

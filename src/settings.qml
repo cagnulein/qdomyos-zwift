@@ -657,6 +657,7 @@ import Qt.labs.settings 1.0
             // from version 2.12.58
             property bool fitshow_treadmill_miles: false
             property bool proform_hybrid_trainer_PFEL03815: false
+            property int schwinn_resistance_smooth: 0
         }
 
         function paddingZeros(text, limit) {
@@ -2072,6 +2073,30 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelSchwinnResistancSmoothing
+                                text: qsTr("Resistance Smoothing:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: scwhinnResistanceSmoothTextField
+                                text: settings.schwinn_resistance_smooth
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.schwinn_resistance_smooth = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okschwinnResistanceSmoothButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text
+                            }
                         }
                     }
                 }
