@@ -37,6 +37,7 @@ class trainrow {
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
     int8_t maxSpeed = -1;
+    int8_t maxResistance = -1;
     int32_t power = -1;
     int32_t mets = -1;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long

@@ -436,11 +436,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_abort_workout, this,
             &homeform::peloton_abort_workout);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Start, this,
-            &homeform::Start);
+            &homeform::StartRequested);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Pause, this,
             &homeform::Start);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::Stop, this,
-            &homeform::Stop);
+            &homeform::StopRequested);
     connect(this, &homeform::workoutNameChanged, this->innerTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, this->innerTemplateManager,
@@ -2964,6 +2964,21 @@ void homeform::Start_inner(bool send_event_to_device) {
     }
 }
 
+void homeform::StartRequested() {
+    Start();
+    m_stopRequested = false;
+    m_startRequested = true;
+    emit stopRequestedChanged(m_stopRequested);
+    emit startRequestedChanged(m_startRequested);
+}
+
+void homeform::StopRequested() {
+    m_startRequested = false;
+    m_stopRequested = true;
+    emit startRequestedChanged(m_startRequested);
+    emit stopRequestedChanged(m_stopRequested);
+}
+
 void homeform::Stop() {
     QSettings settings;
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
@@ -4157,6 +4172,7 @@ void homeform::update() {
             uint8_t delta = 10;
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR > 0;
             int8_t maxSpeed = 30;
+            int8_t maxResistance = 100;
 
             if (fromTrainProgram) {
                 delta = trainProgram->currentRow().loopTimeHR;
@@ -4179,6 +4195,9 @@ void homeform::update() {
                     }
                     if (trainProgram->currentRow().maxSpeed > 0) {
                         maxSpeed = trainProgram->currentRow().maxSpeed;
+                    }
+                    if (trainProgram->currentRow().maxResistance > 0) {
+                        maxResistance = trainProgram->currentRow().maxResistance;
                     }
                 }
 
@@ -4219,7 +4238,7 @@ void homeform::update() {
                         if (zone < ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > ((uint8_t)currentHRZone)) {
+                        } else if (zone > ((uint8_t)currentHRZone) && maxResistance >= currentResistance + step) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }

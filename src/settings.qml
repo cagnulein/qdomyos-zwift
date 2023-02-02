@@ -653,6 +653,11 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.52
             property bool proform_cycle_trainer_400: false
+
+            // from version 2.12.58
+            property bool fitshow_treadmill_miles: false
+            property bool proform_hybrid_trainer_PFEL03815: false
+            property int schwinn_resistance_smooth: 0
         }
 
         function paddingZeros(text, limit) {
@@ -2068,6 +2073,42 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelSchwinnResistancSmoothing
+                                text: qsTr("Resistance Smoothing:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: scwhinnResistanceSmoothTextField
+                                text: settings.schwinn_resistance_smooth
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.schwinn_resistance_smooth = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okschwinnResistanceSmoothButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text
+                            }
+                        }
+                        Label {
+                            text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: 8
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
                         }
                     }
                 }
@@ -4833,6 +4874,20 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.fitshow_truetimer = checked
                         }
+                        SwitchDelegate {
+                            id: fitshowMilesDelegate
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitshow_treadmill_miles = checked
+                        }
                         RowLayout {
                             spacing: 10
                             Label {
@@ -5376,7 +5431,21 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_hybrid_trainer_xt = checked
                         }
-                    }
+                        SwitchDelegate {
+                            id: proformHybridPFEL03815Delegate
+                            text: qsTr("Proform Hybrid Trainer PFEL03815")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_hybrid_trainer_PFEL03815
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                        }
+                    }                    
 
                     AccordionElement {
                         id: soleEllipticalAccordion

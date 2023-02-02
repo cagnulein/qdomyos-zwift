@@ -121,6 +121,12 @@ bool fitshowtreadmill::writePayload(const uint8_t *array, uint8_t size, const QS
 
 void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
     if (MAX_SPEED > 0) {
+        QSettings settings;
+        // the treadmill send the speed in miles always
+        double miles = 1;
+        if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool())
+            miles = 1.60934;
+        requestSpeed /= miles;
         requestSpeed *= 10.0;
         if (requestSpeed >= MAX_SPEED) {
             requestSpeed = MAX_SPEED;
@@ -464,7 +470,13 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastStop = 0;
                 }
 
-                Speed = speed;
+                // the treadmill send the speed in miles always
+                double miles = 1;
+                if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles)
+                        .toBool())
+                    miles = 1.60934;
+
+                Speed = speed * miles;
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }

@@ -1063,12 +1063,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("WINFITA")) || // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||                           // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||                           // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||                         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||           // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||             // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||            // FTMS
@@ -1207,17 +1207,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
-                        (b.name().toUpper().startsWith("HAMMER ")) || // HAMMER 64123
-                        (b.name().toUpper().startsWith("FLXCY-")) ||  // Pro FlexBike
-                        (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) ||  // SOLE SB700
+                        (b.name().toUpper().startsWith("HAMMER ")) ||                        // HAMMER 64123
+                        (b.name().toUpper().startsWith("FLXCY-")) ||                         // Pro FlexBike
+                        (b.name().toUpper().startsWith("XBR55")) ||                          // Sprint XBR555
+                        (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
-                        (b.name().toUpper().startsWith("WAHOO KICKR")) ||
-                        (b.name().toUpper().startsWith("KICKR CORE")) || (b.name().toUpper().startsWith("B94")) ||
-                        (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
-                        (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
-                        (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
+                        (b.name().toUpper().startsWith("KICKR CORE")) ||
+                        (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
+                        (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
+                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1")) ||
+                        (b.name().toUpper().startsWith("INRIDE"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1229,7 +1230,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(ftmsBike);
             } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
-                        b.name().toUpper().startsWith("KICKR ROLLR")) &&
+                        b.name().toUpper().startsWith("KICKR ROLLR" ||
+                                                      (b.name().toUpper().startsWith("WAHOO KICKR")))) &&
                        !wahooKickrSnapBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1794,6 +1796,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(fitPlusBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

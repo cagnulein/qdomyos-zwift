@@ -342,6 +342,11 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
+    bool proform_hybrid_trainer_PFEL03815 =
+        settings
+            .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
+            .toBool();
+
     if (proform_hybrid_trainer_xt) {
         switch (r) {
         case 0:
@@ -384,6 +389,46 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
             return 14;
         case 0x23:
             return 15;
+        case 0x24:
+            return 15;
+        case 0x27:
+            return 16;
+        }
+    } else if (proform_hybrid_trainer_PFEL03815) {
+        switch (r) {
+        case 0:
+            return 0;
+        case 2:
+            return 1;
+        case 4:
+            return 2;
+        case 7:
+        case 8:
+            return 3;
+        case 9:
+            return 4;
+        case 0xb:
+        case 0xc:
+            return 5;
+        case 0xe:
+            return 6;
+        case 0x10:
+        case 0x11:
+            return 7;
+        case 0x13:
+            return 8;
+        case 0x15:
+            return 9;
+        case 0x18:
+            return 10;
+        case 0x1a:
+            return 11;
+        case 0x1d:
+            return 12;
+        case 0x1f:
+            return 13;
+        case 0x22:
+            return 14;
         case 0x24:
             return 15;
         case 0x27:
@@ -456,12 +501,16 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     const double miles = 1.60934;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C && !proform_hybrid_trainer_xt) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C &&
+        !proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -479,6 +528,13 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
+
+        if (proform_hybrid_trainer_xt && !disable_hr_frommachinery) {
+            heart = newValue.at(3);
+            Heart = heart;
+            emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
+        }
+
     } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
         Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -495,7 +551,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     // wattage = newValue.at(12)
 
-    if(proform_hybrid_trainer_xt) {
+    if (proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(18);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -526,23 +582,25 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    if (disable_hr_frommachinery) {
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+            }
         }
     }
 
@@ -552,6 +610,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

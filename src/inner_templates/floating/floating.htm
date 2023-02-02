@@ -30,10 +30,37 @@
   .values {
    min-width: 80px; max-width: 80px; font-size: 24px;
   }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+	 background: rgba(0, 0, 0, 1);
+    z-index: 2;
+  }
+
+  .confirm-box {
+    position: absolute;
+	 width: 100%;
+	 height: 100%;
+	 top: 0%;
+	 left: 0%;
+    text-align: center;
+  }
   </style>
 </head>
   <body class="transparency" style="background-color: #000000; opacity: 0.8">
-         <table class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
+    <div class="overlay" id="overlay" hidden>
+      <div class="confirm-box">
+		  <h2 style="color: #FFFFFF; font-family: sans-serif">Peloton Workout in progress!</h2>
+		  <p style="color: #FFFFFF; font-family: sans-serif">Do you want to follow the resistance?</p>
+        <button onclick="isConfirm(true)">Yes</button>
+        <button onclick="isConfirm(false)">No</button>
+      </div>
+    </div>    
+	      <table id="maintable" class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
          <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value values"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
          <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value values"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
          <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value values"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
@@ -44,10 +71,25 @@
          <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
          <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
 			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
-         <tr><td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Start()">▶/⏸</button></td><td><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td><td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
+				<tr><td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Start()">▶/⏸</button></td><td><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td><td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
          </table>
 
          <script>
+      function closeConfirmBox() {
+        document.getElementById("overlay").hidden = true;
+		  document.getElementById("maintable").hidden = false;
+      }          
+      function isConfirm(answer) {
+        if (answer) {
+          peloton_ask_already_running = false;
+          peloton_start_workout();
+        } else {
+          peloton_ask_already_running = false;
+          peloton_abort_workout();
+        }
+        closeConfirmBox();
+      }
+
 			function PelotonOffsetPlus() {
 			    let el = new MainWSQueueElement({
 				     msg: 'pelotonoffset_plus',
@@ -358,13 +400,8 @@
             $('.speed-value').css('color', msg.content[key]);
           } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
             peloton_ask_already_running = true;
-            if (confirm("Peloton Workout in progress! Do you want to follow the resistance?")) {
-              peloton_ask_already_running = false;
-              peloton_start_workout();
-            } else {
-              peloton_ask_already_running = false;
-              peloton_abort_workout();
-            }
+            document.getElementById("overlay").hidden = false;
+				document.getElementById("maintable").hidden = true;
           }
 				}
         $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");

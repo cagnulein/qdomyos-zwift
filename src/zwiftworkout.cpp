@@ -112,36 +112,55 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         PowerLow = va_arg(args, double);
         PowerHigh = va_arg(args, double);
         Pace = va_arg(args, int);
-        for (uint32_t i = 0; i < Duration; i++) {
-            trainrow row;
-            if (!durationAsDistance(sportType, durationType)) {
-                row.duration = QTime(0, 0, 1, 0);
-                row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
-            } else {
-                row.distance = 0.001;
-            }
-            if (PowerHigh > PowerLow) {
-                if (sportType.toLower().contains(QStringLiteral("run"))) {
-                    row.forcespeed = 1;
-                    double speed = speedFromPace(Pace);
-                    row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
+        if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
+            double speed = speedFromPace(Pace);
+            int speedDelta = qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10) + 1;
+            int durationStep = Duration / speedDelta;
+            int spareSeconds = Duration - (durationStep * speedDelta);
+            int spareSum = 0;
+            for (int i = 0; i < speedDelta; i++) {
+                trainrow row;
+                int spare = 0;
+                if (spareSeconds)
+                    spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                spareSum += spare;
+                row.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
+                row.rampDuration = QTime(0, 0, 0, 0).addSecs(Duration - (durationStep * i) - spareSum);
+                row.forcespeed = 1;
+                if (!qstricmp(tag, "Ramp") || !qstricmp(tag, "Warmup")) {
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) + (0.1 * i)) * 10.0) / 10.0;
                 } else {
-                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow)) - (0.1 * i)) * 10.0) / 10.0;
                 }
-            } else {
-                if (sportType.toLower().contains(QStringLiteral("run"))) {
-                    row.forcespeed = 1;
-                    double speed = speedFromPace(Pace);
-                    row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
-                } else {
-                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
-                }
+                qDebug() << "TrainRow" << row.toString();
+                list.append(row);
             }
-            qDebug() << "TrainRow" << row.toString();
-            list.append(row);
+
+        } else {
+            for (uint32_t i = 0; i < Duration; i++) {
+                trainrow row;
+                if (!durationAsDistance(sportType, durationType)) {
+                    row.duration = QTime(0, 0, 1, 0);
+                    row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                    row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                } else {
+                    row.distance = 0.001;
+                }
+                if (PowerHigh > PowerLow) {
+                    if (!sportType.toLower().contains(QStringLiteral("run"))) {
+                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                    settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    }
+                } else {
+                    if (!sportType.toLower().contains(QStringLiteral("run"))) {
+                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                    settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    }
+                }
+                qDebug() << "TrainRow" << row.toString();
+                list.append(row);
+            }
         }
     } else if (!qstricmp(tag, "FreeRide")) {
         uint32_t Duration = 1;
