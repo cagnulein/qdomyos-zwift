@@ -124,7 +124,7 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
         QSettings settings;
         // the treadmill send the speed in miles always
         double miles = 1;
-        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+        if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool())
             miles = 1.60934;
         requestSpeed /= miles;
         requestSpeed *= 10.0;
@@ -472,7 +472,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                 // the treadmill send the speed in miles always
                 double miles = 1;
-                if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+                if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles)
+                        .toBool())
                     miles = 1.60934;
 
                 Speed = speed * miles;

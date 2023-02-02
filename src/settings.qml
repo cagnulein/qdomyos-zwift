@@ -653,6 +653,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.52
             property bool proform_cycle_trainer_400: false
+
+            // from version 2.12.58
+            property bool fitshow_treadmill_miles: false
         }
 
         function paddingZeros(text, limit) {
@@ -4842,10 +4845,10 @@ import Qt.labs.settings 1.0
                             rightPadding: 0
                             leftPadding: 0
                             clip: false
-                            checked: settings.sole_treadmill_miles
+                            checked: settings.fitshow_treadmill_miles
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_treadmill_miles = checked
+                            onClicked: settings.fitshow_treadmill_miles = checked
                         }
                         RowLayout {
                             spacing: 10
