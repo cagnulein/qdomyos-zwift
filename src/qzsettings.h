@@ -1672,6 +1672,9 @@ class QZSettings {
     static const QString fitshow_treadmill_miles;
     static constexpr bool default_fitshow_treadmill_miles = false;
 
+    static const QString proform_hybrid_trainer_PFEL03815;
+    static constexpr bool default_proform_hybrid_trainer_PFEL03815 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

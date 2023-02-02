@@ -656,6 +656,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.58
             property bool fitshow_treadmill_miles: false
+            property bool proform_hybrid_trainer_PFEL03815: false
         }
 
         function paddingZeros(text, limit) {
@@ -5393,7 +5394,21 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_hybrid_trainer_xt = checked
                         }
-                    }
+                        SwitchDelegate {
+                            id: proformHybridPFEL03815Delegate
+                            text: qsTr("Proform Hybrid Trainer PFEL03815")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_hybrid_trainer_PFEL03815
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                        }
+                    }                    
 
                     AccordionElement {
                         id: soleEllipticalAccordion
