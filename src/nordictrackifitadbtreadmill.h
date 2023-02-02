@@ -80,6 +80,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     void *VirtualTreadmill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
     void forceIncline(double incline);

@@ -419,11 +419,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::peloton_abort_workout, this,
             &homeform::peloton_abort_workout);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Start, this,
-            &homeform::Start);
+            &homeform::StartRequested);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Pause, this,
             &homeform::Start);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Stop, this,
-            &homeform::Stop);
+            &homeform::StopRequested);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
@@ -2935,6 +2935,21 @@ void homeform::Start_inner(bool send_event_to_device) {
     if (bluetoothManager->device()) {
         bluetoothManager->device()->setPaused(paused | stopped);
     }
+}
+
+void homeform::StartRequested() {
+    Start();
+    m_stopRequested = false;
+    m_startRequested = true;
+    emit stopRequestedChanged(m_stopRequested);
+    emit startRequestedChanged(m_startRequested);
+}
+
+void homeform::StopRequested() {
+    m_startRequested = false;
+    m_stopRequested = true;
+    emit startRequestedChanged(m_startRequested);
+    emit stopRequestedChanged(m_stopRequested);
 }
 
 void homeform::Stop() {
