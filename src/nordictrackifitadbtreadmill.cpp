@@ -13,88 +13,6 @@
 
 using namespace std::chrono_literals;
 
-nordictrackifitadbtreadmillAdbThread::nordictrackifitadbtreadmillAdbThread(QString s) { Q_UNUSED(s) }
-
-void nordictrackifitadbtreadmillAdbThread::run() {
-    QSettings settings;
-    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
-    runAdbCommand("connect " + ip);
-
-    while (1) {
-        QString file = runAdbCommand("shell ls -l /sdcard/.wolflogs/");
-
-        QStringList files = file.split("\r\r\n");
-        QList<adbfile> adbFiles;
-
-        foreach (QString f, files) {
-            QStringList d = f.split(" ", Qt::SkipEmptyParts);
-            qDebug() << f << d.count();
-            if (d.count() > 6) {
-                QString dateS = d[4];
-                QString timeS = d[5];
-                QString name = d[6];
-
-                if (name.contains("logs") && name.contains(".txt")) {
-                    QDate date =
-                        QDate(dateS.split("-")[0].toUInt(), dateS.split("-")[1].toUInt(), dateS.split("-")[2].toUInt());
-                    QTime time = QTime(timeS.split(":")[0].toUInt(), timeS.split(":")[1].toUInt(), 0);
-                    adbfile a;
-                    a.date = QDateTime(date, time);
-                    a.name = name;
-                    adbFiles.append(a);
-                }
-            }
-        }
-
-        if (adbFiles.count() == 0) {
-            qDebug() << "no log file found";
-        } else {
-            qSort(adbFiles.begin(), adbFiles.end(), dtcomp);
-            qDebug() << adbFiles.first().name;
-
-            file = "/sdcard/.wolflogs/" + adbFiles.first().name;
-            QString out = runAdbCommand("pull " + file + " " + adbFiles.first().name);
-            if (QFile::exists(adbFiles.first().name)) {
-                QStringList stringList;
-                QFile textFile(adbFiles.first().name);
-                textFile.open(QIODevice::ReadOnly);
-                QTextStream textStream(&textFile);
-                double speed = 0;
-                double inclination = 0;
-                while (!textStream.atEnd()) {
-                    QString line = textStream.readLine();
-                    if (line.contains("Changed KPH")) {
-                        qDebug() << line;
-                        speed = line.split(' ').last().toDouble();
-                    } else if (line.contains("Changed Grade")) {
-                        qDebug() << line;
-                        inclination = line.split(' ').last().toDouble();
-                    }
-                }
-                emit onSpeedInclination(speed, inclination);
-                textFile.close();
-            } else {
-                qDebug() << adbFiles.first().name << "doesn't exist!";
-            }
-        }
-    }
-}
-
-QString nordictrackifitadbtreadmillAdbThread::runAdbCommand(QString command) {
-    QProcess process;
-    qDebug() << "adb >> " << command;
-    process.start("adb/adb.exe", QStringList(command.split(' ')));
-    process.waitForFinished(-1); // will wait forever until finished
-
-    QString out = process.readAllStandardOutput();
-    QString err = process.readAllStandardError();
-
-    qDebug() << "adb << OUT" << out;
-    qDebug() << "adb << ERR" << err;
-
-    return out;
-}
-
 nordictrackifitadbtreadmillLogcatAdbThread::nordictrackifitadbtreadmillLogcatAdbThread(QString s) { Q_UNUSED(s) }
 
 void nordictrackifitadbtreadmillLogcatAdbThread::run() {
@@ -125,8 +43,19 @@ QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString comman
 void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString command) {
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
-        auto output = process->readAllStandardOutput();
+        QString output = process->readAllStandardOutput();
         qDebug() << "adbLogCat STDOUT << " << output;
+        QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
+        foreach (QString line, lines) {
+            if (line.contains("Changed KPH")) {
+                qDebug() << line;
+                speed = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Grade")) {
+                qDebug() << line;
+                inclination = line.split(' ').last().toDouble();
+            }
+        }
+        emit onSpeedInclination(speed, inclination);
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
@@ -164,11 +93,6 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     }
 #ifdef Q_OS_WIN32
     else {
-        adbThread = new nordictrackifitadbtreadmillAdbThread("adbThread");
-        connect(adbThread, &nordictrackifitadbtreadmillAdbThread::onSpeedInclination, this,
-                &nordictrackifitadbtreadmill::onSpeedInclination);
-        adbThread->start();
-
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
