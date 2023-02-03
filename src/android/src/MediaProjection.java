@@ -20,6 +20,7 @@ import com.rvalerio.fgchecker.AppChecker;
 public class MediaProjection  {
     private static final int REQUEST_CODE = 100;
     private static Context _context;
+    private static String _packageName = "";
     /*private static MediaProjection m_instance;
 
     public MediaProjection() {
@@ -67,6 +68,10 @@ public class MediaProjection  {
 	 return granted;
 	 }
 
+    public static String getPackageName() {
+        return _packageName;
+    }
+
     public static void startService(Context context, int resultCode, Intent data) {
 		  _context = context;
 		  requestUsageStatsPermission();
@@ -77,11 +82,12 @@ public class MediaProjection  {
 		      .whenAny(new AppChecker.Listener() {
 					 @Override
 					 public void onForeground(String packageName) {
-						  Log.e("MediaProjection", packageName);
+                                            _packageName = packageName;
+                                                  /*Log.e("MediaProjection", packageName);
 						  if(isLandscape())
 						     Log.e("MediaProjection", "Landscape");
 						  else
-						     Log.e("MediaProjection", "Portrait");
+                                                     Log.e("MediaProjection", "Portrait");*/
 						}
 				})
 				.timeout(1000)

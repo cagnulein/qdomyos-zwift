@@ -431,20 +431,16 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
-    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
-        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
-        bluetoothManager->device()->isPaused()) {
-
-        return;
-    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
         QString t = text.toString();
-        qDebug() << QStringLiteral("PELOTON OCR") << t;
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaPojection", "getPackageName");
+        QString packageName = packageNameJava.toString(); //com.onepeloton.callisto
+        qDebug() << QStringLiteral("PELOTON OCR") << packageName << t;
         QRegularExpression re("\\d\\d:\\d\\d");
         QRegularExpressionMatch match = re.match(t.left(5));
         if (t.contains(QStringLiteral("INTRO"))) {
@@ -459,7 +455,7 @@ void trainprogram::scheduler() {
             QTime currentRemaining = remainingTime();
             qDebug() << QStringLiteral("PELOTON OCR: ocrRemaining") << ocrRemaining
                      << QStringLiteral("currentRemaining") << currentRemaining;
-            if (ocrRemaining.secsTo(currentRemaining) < 120) {
+            if (qAbs(ocrRemaining.secsTo(currentRemaining)) < 120) {
                 // applying the differences
                 if (ocrRemaining > currentRemaining)
                     decreaseElapsedTime(ocrRemaining.secsTo(currentRemaining));
@@ -469,6 +465,14 @@ void trainprogram::scheduler() {
         }
     }
 #endif
+
+    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
+        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
+        bluetoothManager->device()->isPaused()) {
+
+        return;
+    }
 
     ticks++;
 
