@@ -587,8 +587,11 @@ const QString QZSettings::pafers_treadmill_bh_iboxster_plus = QStringLiteral("pa
 const QString QZSettings::proform_cycle_trainer_400 = QStringLiteral("proform_cycle_trainer_400");
 const QString QZSettings::peloton_workout_ocr = QStringLiteral("peloton_workout_ocr");
 const QString QZSettings::peloton_bike_ocr = QStringLiteral("peloton_bike_ocr");
+const QString QZSettings::fitshow_treadmill_miles = QStringLiteral("fitshow_treadmill_miles");
+const QString QZSettings::proform_hybrid_trainer_PFEL03815 = QStringLiteral("proform_hybrid_trainer_PFEL03815");
+const QString QZSettings::schwinn_resistance_smooth = QStringLiteral("schwinn_resistance_smooth");
 
-const uint32_t allSettingsCount = 483;
+const uint32_t allSettingsCount = 486;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1076,6 +1079,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_cycle_trainer_400, QZSettings::default_proform_cycle_trainer_400},
     {QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr},
     {QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr},
+    {QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles},
+    {QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815},
+    {QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

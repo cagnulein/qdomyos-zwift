@@ -120,7 +120,9 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             int spareSum = 0;
             for (int i = 0; i < speedDelta; i++) {
                 trainrow row;
-                int spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                int spare = 0;
+                if (spareSeconds)
+                    spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
                 spareSum += spare;
                 row.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
                 row.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
