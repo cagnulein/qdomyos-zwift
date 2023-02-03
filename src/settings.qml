@@ -658,6 +658,10 @@ import Qt.labs.settings 1.0
             property bool fitshow_treadmill_miles: false
             property bool proform_hybrid_trainer_PFEL03815: false
             property int schwinn_resistance_smooth: 0
+
+            // from version 2.12.59
+            property bool peloton_workout_ocr: false
+            property bool peloton_bike_ocr: false
         }
 
         function paddingZeros(text, limit) {
@@ -3561,6 +3565,62 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Turn this on if you want QZ to capture a link to the Peloton class and display it in Strava.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        id: pelotonWorkoutOCRDelegate
+                        text: qsTr("Peloton Auto Sync (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_workout_ocr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        id: pelotonBikeOCRDelegate
+                        text: qsTr("Peloton Bike/Bike+ (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_bike_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_bike_ocr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8

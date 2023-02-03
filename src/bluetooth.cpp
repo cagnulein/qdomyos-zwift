@@ -7,6 +7,7 @@
 
 #include <QtXml>
 #ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
@@ -48,6 +49,17 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
     } else {
         settings.setValue(sKey + QStringLiteral("enabled"), false);
+    }
+
+    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
+        pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(pelotonBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+        connect(pelotonBike, &pelotonbike::debug, this, &bluetooth::debug);
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->startTemplateManagers(pelotonBike);
     }
 
 #ifdef TEST
@@ -1887,6 +1899,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 void bluetooth::connectedAndDiscovered() {
 
+    qDebug() << "bluetooth::connectedAndDiscovered()";
+
     static bool firstConnected = true;
     QSettings settings;
     QString heartRateBeltName =
@@ -2152,6 +2166,19 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject::callStaticMethod<void>(
             "org/cagnulen/qdomyoszwift/NotificationClient", "notify", "(Landroid/content/Context;Ljava/lang/String;)V",
             QtAndroid::androidContext().object(), javaNotification.object<jstring>());
+    }
+#endif
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool() ||
+        settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+        AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
+        QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
+            "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
+            QAndroidJniObject::fromString("media_projection").object<jstring>());
+        QAndroidJniObject intent =
+            MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
+        QtAndroid::startActivity(intent, 100, a);
     }
 #endif
 
@@ -2542,6 +2569,11 @@ void bluetooth::restart() {
         delete sportsPlusBike;
         sportsPlusBike = nullptr;
     }
+    if (pelotonBike) {
+
+        delete pelotonBike;
+        pelotonBike = nullptr;
+    }
     if (inspireBike) {
 
         delete inspireBike;
@@ -2808,6 +2840,8 @@ bluetoothdevice *bluetooth::device() {
         return pafersBike;
     } else if (fitPlusBike) {
         return fitPlusBike;
+    } else if (pelotonBike) {
+        return pelotonBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
 #ifndef Q_OS_IOS

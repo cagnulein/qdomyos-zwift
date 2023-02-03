@@ -522,6 +522,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
+
+    if(settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+        QBluetoothDeviceInfo b;
+        deviceConnected(b);
+    }
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -4529,8 +4534,10 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
+            if (previewTrainProgram) {
+                delete previewTrainProgram;
+            }
             if (trainProgram) {
-
                 delete trainProgram;
             }
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
@@ -4548,7 +4555,6 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     if (!file.fileName().isEmpty()) {
         {
             if (previewTrainProgram) {
-
                 delete previewTrainProgram;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
