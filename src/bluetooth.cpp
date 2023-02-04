@@ -1267,8 +1267,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 this->startTemplateManagers(ftmsBike);
             } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
-                        b.name().toUpper().startsWith("KICKR ROLLR" ||
-                                                      (b.name().toUpper().startsWith("WAHOO KICKR")))) &&
+                        b.name().toUpper().startsWith("KICKR ROLLR") ||
+                       (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
