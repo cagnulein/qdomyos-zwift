@@ -67,5 +67,8 @@ class fitmetria_fanfit : public bluetoothdevice {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+protected:
+    void doPelotonWorkaround() override {}
 };
 #endif // FITMETRIA_FANFIT_H

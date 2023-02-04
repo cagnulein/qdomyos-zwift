@@ -29,10 +29,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class fitplusbike : public bike {
     Q_OBJECT
   public:
@@ -78,10 +74,6 @@ class fitplusbike : public bike {
     bool noHeartService = false;
 
     bool merach_MRK = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

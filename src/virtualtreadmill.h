@@ -70,7 +70,9 @@ class virtualtreadmill : public QObject {
     lockscreen *h = 0;
 #endif
 
-  signals:
+    bool configureLockScreen();
+    bool doLockscreenUpdate();
+signals:
     void debug(QString string);
     void changeInclination(double grade, double percentage);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

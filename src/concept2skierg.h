@@ -29,9 +29,6 @@
 #include "rower.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 
 class concept2skierg : public rower {
     Q_OBJECT
@@ -68,10 +65,6 @@ class concept2skierg : public rower {
     bool noHeartService = false;
 
     bool isActive = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

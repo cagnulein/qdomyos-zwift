@@ -1,6 +1,5 @@
 #include "shuaa5treadmill.h"
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -329,17 +328,7 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            this->updateLockscreenEnergyDistanceHeartRate();
         } else {
 
             Heart = heart;
@@ -434,13 +423,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
+    if (!firstStateChanged && !virtualTreadmill && !h) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

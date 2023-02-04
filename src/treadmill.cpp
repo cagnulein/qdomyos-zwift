@@ -164,3 +164,19 @@ void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setV
 void treadmill::verticalOscillationSensor(double verticalOscillation) {
     VerticalOscillationMM.setValue(verticalOscillation);
 }
+
+void treadmill::updateLockscreenStepCadence() {
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+    {
+        lockscreen h;
+        long appleWatchCadence = h.stepCadence();
+        this->Cadence = appleWatchCadence;
+    }
+#endif
+#endif
+}

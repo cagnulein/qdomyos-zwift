@@ -32,10 +32,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class kingsmithr2treadmill : public treadmill {
 
     Q_OBJECT
@@ -91,10 +87,6 @@ class kingsmithr2treadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

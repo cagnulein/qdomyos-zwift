@@ -198,30 +198,11 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
+    this->doPelotonWorkaround();
 
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -264,13 +245,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 &chronobike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            && !h
-#endif
-#endif
-        ) {
+        if (!firstStateChanged && !virtualBike && !h) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

@@ -23,6 +23,7 @@
 #include <QtBluetooth/qlowenergyservicedata.h>
 
 #if defined(Q_OS_IOS)
+#include "ios/lockscreen.h"
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
@@ -50,6 +51,9 @@ class bluetoothdevice : public QObject {
     Q_OBJECT
   public:
     bluetoothdevice();
+
+    ~bluetoothdevice() override;
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -388,6 +392,16 @@ class bluetoothdevice : public QObject {
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
     virtual resistance_t maxResistance();
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#else
+    bool h = false;
+#endif
+
+    bool updateLockscreenHeartRate();
+    bool updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate=0);
+    virtual void doPelotonWorkaround()=0;
 
   public Q_SLOTS:
     virtual void start();

@@ -32,10 +32,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class technogymmyruntreadmill : public treadmill {
     Q_OBJECT
   public:
@@ -84,10 +80,6 @@ class technogymmyruntreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

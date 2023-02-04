@@ -31,10 +31,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class truetreadmill : public treadmill {
 
     Q_OBJECT
@@ -68,11 +64,7 @@ class truetreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
-  Q_SIGNALS:
+Q_SIGNALS:
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);

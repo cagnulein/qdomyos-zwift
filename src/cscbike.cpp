@@ -1,5 +1,5 @@
 #include "cscbike.h"
-#include "ios/lockscreen.h"
+
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -68,16 +68,7 @@ void cscbike::update() {
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
 
@@ -293,18 +284,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (!noVirtualDevice) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-        }
-#endif
-#endif
+        this->doPelotonWorkaround();
     }
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
@@ -397,30 +377,12 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
+    if (!firstStateChanged && !virtualBike && !noVirtualDevice && !h) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualbike_ios();
-        } else
-#endif
-#endif
-            if (virtual_device_enabled) {
+
+        if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);

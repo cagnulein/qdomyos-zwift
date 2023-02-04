@@ -30,10 +30,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class echelonstride : public treadmill {
     Q_OBJECT
   public:
@@ -85,10 +81,6 @@ class echelonstride : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

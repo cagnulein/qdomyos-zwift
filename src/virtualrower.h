@@ -58,7 +58,9 @@ class virtualrower : public QObject {
     lockscreen *h = 0;
 #endif
 
-  signals:
+    bool configureLockscreen();
+    bool doLockscreenUpdate();
+signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     
   private slots:

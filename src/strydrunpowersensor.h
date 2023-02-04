@@ -29,10 +29,6 @@
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class strydrunpowersensor : public treadmill {
     Q_OBJECT
   public:
@@ -72,10 +68,6 @@ class strydrunpowersensor : public treadmill {
     uint16_t oldCrankRevs = 0;
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

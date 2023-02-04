@@ -1,5 +1,4 @@
 #include "m3ibike.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -320,10 +319,6 @@ m3ibike::~m3ibike() {
         delete discoveryAgent;
     }
 #if defined(Q_OS_IOS)
-#if !defined(IO_UNDER_QT)
-    if (h)
-        delete h;
-#endif
     if (m3iIOS) {
         m3iIOS->stopScan();
         delete m3iIOS;
@@ -616,22 +611,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
-            if (!virtualBike
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                && !h
-#endif
-                ) {
+            if (!virtualBike && !h) {
                 bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                h = new lockscreen();
-                bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-                bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-                if (ios_peloton_workaround && cadence) {
-                    qDebug() << "ios_peloton_workaround activated!";
-                    h->virtualbike_ios();
-                } else
-#endif
-                    if (virtual_device_enabled) {
+
+                if (virtual_device_enabled) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
                     virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
@@ -720,29 +703,12 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #endif
         {
             if (heartRateBeltDisabled) {
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                long appleWatchHeartRate = h->heartRate();
-                h->setKcal(KCal.value());
-                h->setDistance(Distance.value());
-                if (appleWatchHeartRate == 0)
-                    Heart = k3.pulse;
-                else
-                    Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
-                Heart = k3.pulse;
-#endif
+                if(!this->updateLockscreenEnergyDistanceHeartRate(k3.pulse))
+                    this->Heart = k3.pulse;
             }
         }
 
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-        }
-#endif
+        this->doPelotonWorkaround();
 
         emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

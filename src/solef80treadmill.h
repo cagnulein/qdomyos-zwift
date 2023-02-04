@@ -31,10 +31,6 @@
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class solef80treadmill : public treadmill {
     Q_OBJECT
   public:
@@ -86,11 +82,7 @@ class solef80treadmill : public treadmill {
     } TYPE;
     volatile TYPE treadmill_type = F80;
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
-  signals:
+ signals:
     void disconnected();
     void debug(QString string);
     void packetReceived();

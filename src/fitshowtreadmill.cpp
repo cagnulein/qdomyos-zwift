@@ -26,9 +26,6 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     if (forceInitInclination > 0) {
         lastInclination = forceInitInclination;
     }
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-    h = new lockscreen();
-#endif
 
     refresh = new QTimer(this);
     initDone = false;
@@ -47,10 +44,6 @@ fitshowtreadmill::~fitshowtreadmill() {
     if (virtualTreadMill) {
         delete virtualTreadMill;
     }
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-    if (h)
-        delete h;
-#endif
 }
 
 void fitshowtreadmill::scheduleWrite(const uint8_t *data, uint8_t data_len, const QString &info) {

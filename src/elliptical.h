@@ -56,6 +56,8 @@ class elliptical : public bluetoothdevice {
     double CrankRevs = 0;
     int8_t m_gears = 0;
     resistance_t lastRawRequestedResistanceValue = -1;
+
+    void doPelotonWorkaround() override;
 };
 
 #endif // ELLIPTICAL_H

@@ -31,10 +31,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class kingsmithr1protreadmill : public treadmill {
 
     Q_OBJECT
@@ -90,10 +86,6 @@ class kingsmithr1protreadmill : public treadmill {
     double lastTargetSpeed = -1;
     bool targetSpeedMatchesSpeed = false;
     double lastTargetSpeedMatchesSpeed = -1;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

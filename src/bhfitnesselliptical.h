@@ -30,10 +30,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class bhfitnesselliptical : public elliptical {
     Q_OBJECT
   public:
@@ -73,10 +69,6 @@ class bhfitnesselliptical : public elliptical {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

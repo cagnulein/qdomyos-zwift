@@ -33,10 +33,6 @@
 #include "ftmsbike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class smartspin2k : public bike {
 
     Q_OBJECT
@@ -91,10 +87,6 @@ class smartspin2k : public bike {
     double intercept = 0.0;
 
     bike *parentDevice = nullptr;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

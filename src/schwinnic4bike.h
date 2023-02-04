@@ -31,10 +31,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class schwinnic4bike : public bike {
     Q_OBJECT
   public:
@@ -74,10 +70,6 @@ class schwinnic4bike : public bike {
     const resistance_t max_resistance = 100;
 
     metric ResistanceFromFTMSAccessory;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

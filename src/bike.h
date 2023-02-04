@@ -84,6 +84,8 @@ class bike : public bluetoothdevice {
     metric m_steeringAngle;
 
     double m_speedLimit = 0;
+
+    void doPelotonWorkaround() override;
 };
 
 #endif // BIKE_H

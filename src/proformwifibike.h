@@ -36,10 +36,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class proformwifibike : public bike {
     Q_OBJECT
   public:
@@ -92,10 +88,6 @@ class proformwifibike : public bike {
     bool noHeartService = false;
 
     bool tdf2 = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

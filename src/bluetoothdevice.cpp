@@ -6,6 +6,14 @@
 
 bluetoothdevice::bluetoothdevice() {}
 
+bluetoothdevice::~bluetoothdevice() {
+
+#ifdef Q_OS_IOS
+    if(this->h)
+        delete this->h;
+#endif
+}
+
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; }
 void bluetoothdevice::stop(bool pause) {
@@ -278,11 +286,37 @@ QStringList bluetoothdevice::metrics() {
 
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
+bool bluetoothdevice::updateLockscreenHeartRate() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen h;
+    long appleWatchHeartRate = h.heartRate();
+    this->Heart = appleWatchHeartRate;
+    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+}
+
+bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen h;
+    long appleWatchHeartRate = h.heartRate();
+    h.setKcal(KCal.value());
+    h.setDistance(Distance.value());
+    Heart = appleWatchHeartRate!=0 ? appleWatchHeartRate:defaultHeartRate;
+    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+    return true;
+#endif
+#endif
+    return false;
+}
+
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
+            settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {

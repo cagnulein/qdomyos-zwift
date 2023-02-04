@@ -29,10 +29,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 enum FtmsControlPointCommand {
     FTMS_REQUEST_CONTROL = 0x00,
     FTMS_RESET,
@@ -106,10 +102,6 @@ class ftmsbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

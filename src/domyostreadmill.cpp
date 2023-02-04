@@ -1,5 +1,4 @@
 #include "domyostreadmill.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -550,35 +549,14 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
             uint8_t heart = ((uint8_t)value.at(18));
             if (heart == 0 || disable_hr_frommachinery) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+                this->updateLockscreenEnergyDistanceHeartRate();
             } else
 
                 Heart = heart;
         }
     }
     
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled")))
-    {
-        lockscreen h;
-        long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-    }
-#endif
-#endif
+    this->updateLockscreenStepCadence();
     
     FanSpeed = value.at(23);
 

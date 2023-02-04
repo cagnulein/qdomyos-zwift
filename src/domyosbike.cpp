@@ -182,27 +182,11 @@ void domyosbike::update() {
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            && !h
-#endif
-#endif
-        ) {
+        if (!firstStateChanged && !virtualBike && !h) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-            if (ios_peloton_workaround && cadence) {
-                qDebug() << "ios_peloton_workaround activated!";
-                h = new lockscreen();
-                h->virtualbike_ios();
-            } else
-#endif
-#endif
-                if (virtual_device_enabled) {
+
+            if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -378,16 +362,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             uint8_t heart = ((uint8_t)value.at(18));
             if (heart == 0 || disable_hr_frommachinery) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                this->updateLockscreenEnergyDistanceHeartRate();
             } else
                 Heart = heart;
         }
@@ -399,16 +374,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
+    this->doPelotonWorkaround();
 
     qDebug() << QStringLiteral("Current speed: ") + QString::number(speed);
     qDebug() << QStringLiteral("Current cadence: ") + QString::number(Cadence.value());

@@ -29,10 +29,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class pafersbike : public bike {
     Q_OBJECT
   public:
@@ -80,10 +76,6 @@ class pafersbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   Q_SIGNALS:
     void disconnected();

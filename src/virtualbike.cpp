@@ -9,6 +9,25 @@
 
 using namespace std::chrono_literals;
 
+bool virtualbike::configureLockscreen(){
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QSettings settings;
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualbike_zwift_ios();
+        return true;
+    }
+
+#endif
+#endif
+    return false;
+}
+
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
     Bike = t;
@@ -49,19 +68,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     Q_UNUSED(noWriteResistance)
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
-
-        qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualbike_zwift_ios();
-    } else
-
-#endif
-#endif
+    if(!configureLockscreen())
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -982,28 +989,12 @@ void virtualbike::reconnect() {
     leController->startAdvertising(pars, advertisingData, advertisingData);
 }
 
-void virtualbike::bikeProvider() {
-
-    QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
-    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
-    bool heart_only =
-        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
-    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-
-    double normalizeWattage = Bike->wattsMetric().value();
-    if (normalizeWattage < 0)
-        normalizeWattage = 0;
-
-    uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
-
+bool virtualbike::doLockscreenUpdate() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
+        uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
+
         // really connected to a device
         if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
                                       (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
@@ -1032,9 +1023,30 @@ void virtualbike::bikeProvider() {
         return;
     }
 #endif
-#else
-    Q_UNUSED(erg_mode);
 #endif
+}
+
+void virtualbike::bikeProvider() {
+
+    QSettings settings;
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
+
+
+    double normalizeWattage = Bike->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
+    if(this->doLockscreenUpdate())
+        return;
+
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     qDebug() << QStringLiteral("bikeProvider") << whenLastFTMSFrameReceived()
              << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << erg_mode;

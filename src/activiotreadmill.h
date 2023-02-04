@@ -78,10 +78,6 @@ class activiotreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

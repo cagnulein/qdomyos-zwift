@@ -29,10 +29,6 @@
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 #define FITSHOW_PKT_HEADER 2
 #define FITSHOW_PKT_FOOTER 3
 
@@ -152,9 +148,6 @@ class fitshowtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

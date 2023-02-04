@@ -10,6 +10,24 @@
 
 using namespace std::chrono_literals;
 
+bool virtualrower::configureLockscreen() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && !heart_only) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualrower_ios();
+        return true;
+    }
+
+#endif
+#endif
+    return false;
+}
+
 virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
     Rower = t;
 
@@ -21,19 +39,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     Q_UNUSED(noWriteResistance)
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !heart_only) {
-
-        qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualrower_ios();
-    } else
-
-#endif
-#endif
+    if(!this->configureLockscreen())
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -277,6 +283,10 @@ void virtualrower::writeCharacteristic(QLowEnergyService *service, const QLowEne
     }
 }
 
+void virtualrower::doLockscreenUpdate() {
+
+}
+
 void virtualrower::reconnect() {
 
     QSettings settings;
@@ -302,21 +312,12 @@ void virtualrower::reconnect() {
     leController->startAdvertising(pars, advertisingData, advertisingData);
 }
 
-void virtualrower::rowerProvider() {
-
-    QSettings settings;
-    bool heart_only =
-        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-
-    double normalizeWattage = Rower->wattsMetric().value();
-    if (normalizeWattage < 0)
-        normalizeWattage = 0;
-
-    uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
-
+bool virtualrower::doLockscreenUpdate() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
+        uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+
         // really connected to a device
         if (h->virtualrower_updateFTMS(
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
@@ -343,10 +344,26 @@ void virtualrower::rowerProvider() {
                  }*/
             }
         }
-        return;
+        return true;
     }
 #endif
 #endif
+
+    return false;
+}
+
+void virtualrower::rowerProvider() {
+
+    QSettings settings;
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+
+    double normalizeWattage = Rower->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;    
+
+    if(this->doLockscreenUpdate())
+        return;
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual rower not connected");

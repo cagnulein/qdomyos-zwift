@@ -70,6 +70,8 @@ class rower : public bluetoothdevice {
     };
 
     QList<rowerSpeedDistance*> speedLast500mValues;
+
+    void doPelotonWorkaround();
 };
 
 #endif // ROWER_H

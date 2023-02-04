@@ -1,5 +1,4 @@
 #include "elitesterzosmart.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>

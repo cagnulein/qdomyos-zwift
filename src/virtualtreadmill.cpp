@@ -7,6 +7,25 @@
 
 using namespace std::chrono_literals;
 
+bool virtualtreadmill::configureLockScreen() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualtreadmill_zwift_ios();
+
+        return true;
+    }
+#endif
+#endif
+
+    return false;
+}
+
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
@@ -32,18 +51,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(slopeChanged()), this, SLOT(slopeChanged()));
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround) {
-
-        qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualtreadmill_zwift_ios();
-    } else
-#endif
-#endif
+    if(!this->configureLockScreen())
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -325,15 +333,10 @@ void virtualtreadmill::reconnect() {
     }
 }
 
-void virtualtreadmill::treadmillProvider() {
-    const uint64_t slopeTimeoutSecs = 30;
-    QSettings settings;
-
-    if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
-        m_autoInclinationEnabled = false;
-
+bool virtualtreadmill::doLockscreenUpdate() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+    QSettings settings;
     bool double_cadence = settings
                               .value(QZSettings::powr_sensor_running_cadence_double,
                                      QZSettings::default_powr_sensor_running_cadence_double)
@@ -353,10 +356,22 @@ void virtualtreadmill::treadmillProvider() {
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
                 writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
-        return;
+        return true;
     }
 #endif
 #endif
+    return false;
+}
+
+void virtualtreadmill::treadmillProvider() {
+    const uint64_t slopeTimeoutSecs = 30;
+    QSettings settings;
+
+    if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
+        m_autoInclinationEnabled = false;
+
+    if(this->doLockscreenUpdate())
+        return;
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtualtreadmill connection error");

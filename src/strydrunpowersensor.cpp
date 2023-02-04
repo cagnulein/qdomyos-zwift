@@ -1,5 +1,4 @@
 #include "strydrunpowersensor.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -272,32 +271,13 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
 
+
     if (!noVirtualDevice) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence =
-            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-        }
-#endif
-#endif
+        this->doPelotonWorkaround();
     }
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -379,13 +359,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
+    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice && !h ) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
