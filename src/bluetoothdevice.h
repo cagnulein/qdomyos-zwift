@@ -394,13 +394,34 @@ class bluetoothdevice : public QObject {
     virtual resistance_t maxResistance();
 
 #ifdef Q_OS_IOS
-    lockscreen *h = 0;
+    /**
+     * @brief A lockscreen instance used for a Peloton workaround in IOS.
+     * Used to indicate if the Peloton workaround is active.
+     */
+    lockscreen *lockScreen = nullptr;
 #else
-    bool h = false;
+    /**
+     * @brief Placeholder for the Peloton workaround in non-IOS.
+     */
+    bool lockScreen = false;
 #endif
 
+    /**
+     * @brief Update this object's Heart metric using a value from the lockscreen, in IOS.
+     * @return True if the update happened, false if not (e.g. if it's not running in IOS)
+     */
     bool updateLockscreenHeartRate();
+
+    /**
+     * @brief Update the energy spent and distance travelled on the lockscreen and update this object's
+     * Heart metric using a value from the lockscreen, in IOS.
+     * @return True if the update happened, false if not (e.g. if it's not running in IOS)
+     */
     bool updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate=0);
+
+    /**
+     * @brief In IOS, perform the peloton workaround update to the lockscreen for this type of device.
+     */
     virtual void doPelotonWorkaround()=0;
 
   public Q_SLOTS:
@@ -431,8 +452,24 @@ class bluetoothdevice : public QObject {
     void groundContactChanged(double groundContact);
     void verticalOscillationChanged(double verticalOscillation);
 
+  private:
+
+    bool virtualDeviceSetupDone = false;
+
   protected:
     QLowEnergyController *m_control = nullptr;
+
+    /**
+     * @brief Flags that the virtual device setup has been done (optionally: or not).
+     */
+    void setVirtualDeviceSetUp(bool done=true) { this->virtualDeviceSetupDone = done; }
+
+    /**
+     * @brief Indicates if the virtual device setup has been done.
+     * @return True if the virtual device setup has been run, false if not.
+     * The virtual device setup process may not have actually created the virtual device.
+     */
+    bool isVirtualDeviceSetUp() { return this->virtualDeviceSetupDone;}
 
     /**
      * @brief elapsed A metric object to get and set the elapsed time for the session. Units: seconds

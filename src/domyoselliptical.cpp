@@ -170,7 +170,7 @@ void domyoselliptical::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -187,7 +187,7 @@ void domyoselliptical::update() {
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
                 }
-                firstVirtual = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

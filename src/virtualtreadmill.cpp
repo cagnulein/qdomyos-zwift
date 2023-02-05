@@ -10,13 +10,14 @@ using namespace std::chrono_literals;
 bool virtualtreadmill::configureLockScreen() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+    QSettings settings;
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround) {
 
         qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualtreadmill_zwift_ios();
+        this->lockScreen = new lockscreen();
+        this->lockScreen->virtualtreadmill_zwift_ios();
 
         return true;
     }
@@ -345,16 +346,16 @@ bool virtualtreadmill::doLockscreenUpdate() {
     if (double_cadence)
         cadence_multiplier = 1.0;
 
-    if (h) {
+    if (this->lockScreen) {
         uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         // really connected to a device
-        if (h->virtualtreadmill_updateFTMS(
+        if (this->lockScreen->virtualtreadmill_updateFTMS(
                 normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
                 (uint16_t)((treadmill *)treadMill)->wattsMetric().value(), treadMill->currentInclination().value() * 10)) {
-            h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-            lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
+            this->lockScreen->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
+            lastSlopeChanged = this->lockScreen->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
-                writeP2AD9->changeSlope(h->virtualtreadmill_getCurrentSlope(), 0, 0);
+                writeP2AD9->changeSlope(this->lockScreen->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
         return true;
     }

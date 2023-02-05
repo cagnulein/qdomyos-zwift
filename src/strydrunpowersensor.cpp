@@ -359,7 +359,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice && !h ) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !noVirtualDevice && !this->lockScreen ) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -371,7 +371,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                     &strydrunpowersensor::inclinationChanged);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

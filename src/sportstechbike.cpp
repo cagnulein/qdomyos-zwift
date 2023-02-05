@@ -275,7 +275,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &sportstechbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtualBike && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -285,7 +285,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualBike, &virtualbike::changeInclination, this, &sportstechbike::changeInclination);
             }
         }
-        firstVirtualBike = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

@@ -69,6 +69,8 @@ class treadmill : public bluetoothdevice {
 
     void updateLockscreenStepCadence();
 
+    void doPelotonWorkaround() override;
+
 };
 
 #endif // TREADMILL_H

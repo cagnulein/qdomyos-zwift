@@ -105,7 +105,6 @@ class fitshowtreadmill : public treadmill {
     bool truetimer = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
-    uint8_t firstInit = 0;
     double DistanceCalculated = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;

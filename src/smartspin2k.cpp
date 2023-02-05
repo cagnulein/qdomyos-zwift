@@ -397,7 +397,7 @@ void smartspin2k::stateChanged(QLowEnergyService::ServiceState state) {
                 SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
 
         QByteArray descriptor;
         descriptor.append((char)0x02);

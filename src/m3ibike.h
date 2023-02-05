@@ -174,8 +174,6 @@ class m3ibike : public bike {
 
     bool firstUpdate = true;
 
-    bool initDone = false;
-
     bool noWriteResistance = false;
     bool noHeartService = false;
 #if defined(Q_OS_ANDROID)

@@ -65,7 +65,7 @@ class computrainerbike : public bike {
     uint8_t sec1Update = 0;
     QString lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    
     metric target_watts;
 
     bool initDone = false;

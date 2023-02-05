@@ -811,7 +811,7 @@ void horizontreadmill::update() {
         return;
     }
 
-    if (initRequest && firstStateChanged) {
+    if (initRequest && this->isVirtualDeviceSetUp()) {
         btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
@@ -1715,7 +1715,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled =
@@ -1737,7 +1737,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                         &horizontreadmill::changeInclinationRequested);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
     }
 }
@@ -1778,7 +1778,7 @@ void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
-    firstStateChanged = 0;
+    this->setVirtualDeviceSetUp(false);
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {

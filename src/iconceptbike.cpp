@@ -78,7 +78,7 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -87,7 +87,7 @@ void iconceptbike::update() {
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
 
         // ********************************************************************************************************
 

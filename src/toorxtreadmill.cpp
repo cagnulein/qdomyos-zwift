@@ -79,6 +79,9 @@ void toorxtreadmill::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
+
+        // TODO: determine why no checking if this has been done before
+
         if (!virtualTreadMill) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

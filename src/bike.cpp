@@ -8,6 +8,7 @@ bike::bike() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+    QSettings settings;
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
@@ -40,7 +41,7 @@ void bike::changeInclination(double grade, double percentage) {
 }
 
 void bike::doPelotonWorkaround() {
-    if(!h) return;
+    if(!this->lockScreen) return;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

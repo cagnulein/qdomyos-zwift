@@ -66,7 +66,7 @@ class proformrower : public rower {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    
     uint16_t m_watts = 0;
 
     bool initDone = false;

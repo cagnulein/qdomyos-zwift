@@ -72,7 +72,7 @@ class nordictrackelliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastSpeedChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    
     uint16_t m_watts = 0;
 
     bool initDone = false;

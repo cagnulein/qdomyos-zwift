@@ -31,10 +31,6 @@
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class activiotreadmill : public treadmill {
 
     Q_OBJECT
@@ -61,7 +57,6 @@ class activiotreadmill : public treadmill {
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;

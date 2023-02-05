@@ -767,7 +767,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &trxappgateusbbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtualBike && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike) {
 
             QSettings settings;
             bool virtual_device_enabled =
@@ -781,7 +781,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::changeInclination);
             }
         }
-        firstVirtualBike = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

@@ -60,7 +60,6 @@ class domyoselliptical : public elliptical {
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
-    uint8_t firstVirtual = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

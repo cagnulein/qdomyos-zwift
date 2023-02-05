@@ -154,7 +154,7 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -164,7 +164,7 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
 
-                firstInit = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

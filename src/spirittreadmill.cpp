@@ -443,7 +443,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !virtualTreadMill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -465,7 +465,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
             }
         }
-        firstVirtualTreadmill = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

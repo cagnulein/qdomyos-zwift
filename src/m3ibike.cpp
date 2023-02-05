@@ -609,9 +609,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
     if (parse_data(data, &k3)) {
         QSettings settings;
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
-        if (!initDone) {
-            initDone = true;
-            if (!virtualBike && !h) {
+        if (!this->isVirtualDeviceSetUp()) {
+            this->setVirtualDeviceSetUp();
+
+            if (!virtualBike && !this->lockScreen) {
                 bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
                 if (virtual_device_enabled) {
@@ -725,11 +726,11 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 
 void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
-    initDone = false;
+    this->setVirtualDeviceSetUp(false);
     disconnecting = false;
 }
 
-bool m3ibike::connected() { return initDone; }
+bool m3ibike::connected() { return this->isVirtualDeviceSetUp(); }
 
 void *m3ibike::VirtualBike() { return virtualBike; }
 

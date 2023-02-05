@@ -426,7 +426,7 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->lockScreen) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -438,7 +438,7 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::changeInclination, this, &stagesbike::inclinationChanged);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

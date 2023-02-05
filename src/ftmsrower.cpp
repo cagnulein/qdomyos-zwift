@@ -428,7 +428,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled =
@@ -441,7 +441,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

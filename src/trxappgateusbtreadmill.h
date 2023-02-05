@@ -58,7 +58,6 @@ class trxappgateusbtreadmill : public treadmill {
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
 
-    uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
     QTime lastTimeCharChanged;
     uint8_t sec1update = 0;

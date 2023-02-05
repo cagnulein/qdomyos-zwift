@@ -7,6 +7,7 @@ rower::rower() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+        QSettings settings;
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
@@ -56,14 +57,15 @@ void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 
 void rower::doPelotonWorkaround() {
-    if(!h) return;
+    if(!this->lockScreen || !this->isVirtualDeviceSetUp()) return;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+    QSettings settings;
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-    if (ios_peloton_workaround && cadence && !virtual_device_rower && h && firstStateChanged) {
+    if (ios_peloton_workaround && cadence && !virtual_device_rower) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }

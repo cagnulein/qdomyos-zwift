@@ -359,7 +359,7 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
@@ -371,7 +371,7 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &snodebike::ftmsCharacteristicChanged);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

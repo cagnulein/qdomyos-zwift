@@ -30,9 +30,6 @@
 #include "virtualbike.h"
 #include "virtualrower.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
 
 class echelonrower : public rower {
     Q_OBJECT
@@ -75,7 +72,6 @@ class echelonrower : public rower {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
     int8_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;

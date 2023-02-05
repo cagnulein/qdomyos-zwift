@@ -55,7 +55,7 @@ class strydrunpowersensor : public treadmill {
     QDateTime lastRefreshCadenceChanged = QDateTime::currentDateTime();
     QDateTime lastRefreshPowerChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    
 
     bool initDone = false;
     bool initRequest = false;

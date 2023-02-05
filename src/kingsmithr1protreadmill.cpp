@@ -103,7 +103,7 @@ void kingsmithr1protreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -117,7 +117,7 @@ void kingsmithr1protreadmill::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr1protreadmill::changeInclinationRequested);
                 }
-                firstInit = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

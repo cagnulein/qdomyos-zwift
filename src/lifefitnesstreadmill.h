@@ -73,7 +73,6 @@ class lifefitnesstreadmill : public treadmill {
     QByteArray lastPacketComplete;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     bool firstDistanceCalculated = false;
-    uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
     int64_t lastStart = 0;

@@ -141,7 +141,7 @@ void technogymmyruntreadmill::update() {
         return;
     }
 
-    if (initRequest && firstStateChanged) {
+    if (initRequest && this->isVirtualDeviceSetUp()) {
         btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
@@ -546,7 +546,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -565,7 +565,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
                         &technogymmyruntreadmill::changeInclinationRequested);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
     }
 }

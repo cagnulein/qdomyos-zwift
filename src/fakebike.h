@@ -30,10 +30,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class fakebike : public bike {
     Q_OBJECT
   public:
@@ -51,7 +47,6 @@ class fakebike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -62,10 +57,6 @@ class fakebike : public bike {
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();

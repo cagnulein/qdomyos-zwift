@@ -65,7 +65,6 @@ class kingsmithr1protreadmill : public treadmill {
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;

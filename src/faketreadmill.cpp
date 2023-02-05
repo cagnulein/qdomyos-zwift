@@ -51,7 +51,7 @@ void faketreadmill::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -70,9 +70,9 @@ void faketreadmill::update() {
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
             }
         }
-        if (!firstStateChanged)
+        if (!this->isVirtualDeviceSetUp())
             emit connectedAndDiscovered();
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
     }
     // ********************************************************************************************************
 

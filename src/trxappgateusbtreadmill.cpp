@@ -522,7 +522,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 &trxappgateusbtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -533,7 +533,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                         &trxappgateusbtreadmill::changeInclinationRequested);
             }
         }
-        firstVirtualTreadmill = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

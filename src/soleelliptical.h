@@ -58,7 +58,6 @@ class soleelliptical : public elliptical {
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = 0;
-    uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

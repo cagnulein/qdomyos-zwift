@@ -40,7 +40,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     initRequest = true;    
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadMill && !virtualBike) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         if (virtual_device_enabled) {
@@ -56,7 +56,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
             }
-            firstStateChanged = 1;
+            this->setVirtualDeviceSetUp();
         }
     }
     // ********************************************************************************************************

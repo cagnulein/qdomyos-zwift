@@ -62,7 +62,6 @@ class domyosbike : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
     uint8_t firstVirtual = 0;
-    uint8_t firstStateChanged = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

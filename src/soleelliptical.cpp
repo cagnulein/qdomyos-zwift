@@ -144,7 +144,7 @@ void soleelliptical::update() {
                 .toBool();
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -163,7 +163,7 @@ void soleelliptical::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
                 }
-                firstVirtual = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

@@ -60,7 +60,7 @@ class shuaa5treadmill : public treadmill {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    
     double lastSpeed = 0.0;
     double lastInclination = 0;
 

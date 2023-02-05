@@ -324,7 +324,7 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &smartrowrower::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike && !h) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
@@ -335,7 +335,7 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
                 // connect(virtualBike,&virtualbike::debug ,this,&smartrowrower::debug);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

@@ -336,7 +336,7 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -350,7 +350,7 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
             //        &domyostreadmill::changeInclinationRequested);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

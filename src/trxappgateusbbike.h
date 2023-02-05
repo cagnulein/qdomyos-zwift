@@ -62,8 +62,6 @@ class trxappgateusbbike : public bike {
     double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-    uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;
     QTime lastTimeCharChanged;
     uint8_t sec1update = 0;

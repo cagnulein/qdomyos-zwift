@@ -61,7 +61,6 @@ class sportsplusbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    uint8_t firstVirtualBike = 0;
     bool firstCharChanged = true;
     QDateTime lastTimeCharChanged;
     uint8_t sec1update = 0;

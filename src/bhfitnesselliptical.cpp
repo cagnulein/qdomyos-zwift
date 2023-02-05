@@ -420,7 +420,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !h) {
+    if (!this->isVirtualDeviceSetUp() && !this->lockScreen) {
         QSettings settings;
         if (!virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =
@@ -448,7 +448,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
             }
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

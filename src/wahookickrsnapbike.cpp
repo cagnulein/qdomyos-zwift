@@ -558,7 +558,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -571,7 +571,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
     initRequest = true; // here because it can't be in the descriptorWritten event since it will be called several times
 }

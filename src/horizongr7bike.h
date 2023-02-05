@@ -62,7 +62,6 @@ class horizongr7bike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 

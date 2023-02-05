@@ -1,6 +1,4 @@
 #include "activiotreadmill.h"
-
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -167,7 +165,7 @@ void activiotreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -183,7 +181,7 @@ void activiotreadmill::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
                 }
-                firstInit = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

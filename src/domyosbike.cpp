@@ -182,7 +182,7 @@ void domyosbike::update() {
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike && !h) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
@@ -194,7 +194,7 @@ void domyosbike::update() {
                 connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::changeInclination);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         // updating the treadmill console every second

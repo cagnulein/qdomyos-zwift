@@ -112,7 +112,7 @@ void paferstreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -121,7 +121,7 @@ void paferstreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &paferstreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &paferstreadmill::changeInclinationRequested);
-                firstInit = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

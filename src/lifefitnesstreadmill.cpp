@@ -117,7 +117,7 @@ void lifefitnesstreadmill::update() {
         return;
     }
 
-    if (initRequest && firstStateChanged) {
+    if (initRequest && this->isVirtualDeviceSetUp()) {
         btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
@@ -679,7 +679,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled =
@@ -701,7 +701,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                         &lifefitnesstreadmill::changeInclinationRequested);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
     }
 
@@ -738,7 +738,7 @@ void lifefitnesstreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
-    firstStateChanged = 0;
+    this->setVirtualDeviceSetUp(false);
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));

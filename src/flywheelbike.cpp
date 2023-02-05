@@ -339,7 +339,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &flywheelbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike && !h) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
@@ -350,7 +350,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualBike, &virtualbike::changeInclination, this, &flywheelbike::changeInclination);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

@@ -513,7 +513,7 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-        if (!firstStateChanged && !virtualTreadmill && !virtualBike && !virtualRower) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !virtualRower) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -533,7 +533,7 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformrower::changeInclinationRequested);
                 }
-                firstStateChanged = 1;
+                this->setVirtualDeviceSetUp();
             }
         }
         // ********************************************************************************************************

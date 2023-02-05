@@ -9,8 +9,8 @@ bluetoothdevice::bluetoothdevice() {}
 bluetoothdevice::~bluetoothdevice() {
 
 #ifdef Q_OS_IOS
-    if(this->h)
-        delete this->h;
+    if(this->lockScreen)
+        delete this->lockScreen;
 #endif
 }
 

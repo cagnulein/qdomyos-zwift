@@ -1,5 +1,4 @@
 #include "fakebike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -53,7 +52,7 @@ void fakebike::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->lockScreen) {
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
         if (virtual_device_enabled) {
@@ -63,9 +62,9 @@ void fakebike::update() {
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
         }
     }
-    if (!firstStateChanged)
+    if (!this->isVirtualDeviceSetUp())
         emit connectedAndDiscovered();
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 
     if (!noVirtualDevice) {

@@ -75,7 +75,7 @@ void shuaa5treadmill::update() {
         return;
     }
 
-    if (initRequest && firstStateChanged) {
+    if (initRequest && this->isVirtualDeviceSetUp()) {
         uint8_t initData01[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         initRequest = false;
@@ -423,7 +423,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !h) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->lockScreen) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -436,7 +436,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     &shuaa5treadmill::changeInclinationRequested);
         }
     }
-    firstStateChanged = 1;
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 
@@ -471,7 +471,7 @@ void shuaa5treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
-    firstStateChanged = 0;
+    this->setVirtualDeviceSetUp(false);
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
