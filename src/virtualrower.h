@@ -55,7 +55,7 @@ class virtualrower : public QObject {
                              const QByteArray &value);
 
 #ifdef Q_OS_IOS
-    lockscreen *h = 0;
+    lockscreen *lockScreen = 0;
 #endif
 
     bool configureLockscreen();

@@ -29,8 +29,8 @@ bool virtualbike::configureLockscreen(){
     if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
 
         qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        this->lockScreen = new lockscreen();
+        this->lockScreen->virtualbike_zwift_ios();
         return true;
     }
 

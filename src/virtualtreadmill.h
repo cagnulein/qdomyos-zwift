@@ -67,7 +67,7 @@ class virtualtreadmill : public QObject {
     bool RSCEnable();
 
 #ifdef Q_OS_IOS
-    lockscreen *h = 0;
+    lockscreen *lockScreen = 0;
 #endif
 
     bool configureLockScreen();
