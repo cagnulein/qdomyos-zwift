@@ -262,7 +262,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
-    initDone = false;
+    this->setVirtualDeviceSetUp(false);
     detectDisc = new QTimer(this);
     elapsedTimer = new QTimer(this);
     elapsedTimer->setSingleShot(false);
@@ -272,7 +272,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
         Q_UNUSED(this);
         emit disconnected();
         emit debug(QStringLiteral("M3i detected disconnection"));
-        initDone = false;
+        this->setVirtualDeviceSetUp(false);
         detectDisc->stop();
         elapsedTimer->stop();
         lastTimerRestart = -1;
@@ -349,7 +349,7 @@ void m3ibike::disconnectBluetooth() {
     }
     emit disconnected();
     emit debug(QStringLiteral("M3i detected disconnection"));
-    initDone = false;
+    this->setVirtualDeviceSetUp(false);
 }
 
 #if defined(Q_OS_ANDROID)
