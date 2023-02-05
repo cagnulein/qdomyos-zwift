@@ -1,4 +1,3 @@
-
 #include "treadmill.h"
 #include <QSettings>
 

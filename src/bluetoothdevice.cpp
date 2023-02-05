@@ -287,14 +287,17 @@ QStringList bluetoothdevice::metrics() {
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 bool bluetoothdevice::updateLockscreenHeartRate() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
     long appleWatchHeartRate = h.heartRate();
     this->Heart = appleWatchHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+    qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
+    return true;
 #endif
 #endif
+    return false;
 }
 
 bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate) {
@@ -304,8 +307,8 @@ bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartR
     long appleWatchHeartRate = h.heartRate();
     h.setKcal(KCal.value());
     h.setDistance(Distance.value());
-    Heart = appleWatchHeartRate!=0 ? appleWatchHeartRate:defaultHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+    this->Heart = appleWatchHeartRate!=0 ? appleWatchHeartRate:defaultHeartRate;
+    qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
     return true;
 #endif
 #endif

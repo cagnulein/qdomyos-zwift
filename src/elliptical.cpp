@@ -3,14 +3,16 @@
 #include <QSettings>
 
 elliptical::elliptical() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+        QSettings settings;
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualbike_ios();
+            this->lockScreen = new lockscreen();
+            this->lockScreen->virtualbike_ios();
         }
 #endif
 #endif
@@ -147,7 +149,8 @@ int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pe
 void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 
-void elliptical::doPelotonWorkaround() {    
+void elliptical::doPelotonWorkaround() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
@@ -156,8 +159,8 @@ void elliptical::doPelotonWorkaround() {
     QZSettings::default_ios_peloton_workaround).toBool();
 
     if (ios_peloton_workaround && cadence && h &&firstStateChanged) {
-        h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
+        this->lockScreen->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        this->lockScreen->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
 #endif

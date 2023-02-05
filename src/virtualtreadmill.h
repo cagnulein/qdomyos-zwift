@@ -37,6 +37,8 @@ class virtualtreadmill : public QObject {
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:
+    static constexpr uint64_t slopeTimeoutSecs = 30;
+
     QLowEnergyController *leController = nullptr;
     QLowEnergyService *serviceFTMS = nullptr;
     QLowEnergyService *serviceRSC = nullptr;

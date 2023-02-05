@@ -58,7 +58,6 @@ bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::RO
 
 void rower::doPelotonWorkaround() {
 
-
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if(!this->lockScreen || !this->isVirtualDeviceSetUp()) return;

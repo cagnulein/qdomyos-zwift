@@ -10,6 +10,7 @@
 using namespace std::chrono_literals;
 
 bool virtualbike::configureLockscreen(){
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
@@ -1003,9 +1004,14 @@ void virtualbike::reconnect() {
 }
 
 bool virtualbike::doLockscreenUpdate() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (this->lockScreen) {
+
+        double normalizeWattage = this->Bike->wattsMetric().value();
+        if (normalizeWattage < 0)
+            normalizeWattage = 0;
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
         // really connected to a device
@@ -1024,6 +1030,9 @@ bool virtualbike::doLockscreenUpdate() {
             }
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
             if (lastFTMSFrameReceived > 0) {
+                QSettings settings;
+                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+
                 if (!erg_mode)
                     writeP2AD9->changeSlope(this->lockScreen->virtualbike_getCurrentSlope(),
                                             this->lockScreen->virtualbike_getCurrentCRR(),
@@ -1052,11 +1061,6 @@ void virtualbike::bikeProvider() {
     bool echelon =
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
-
-
-    double normalizeWattage = Bike->wattsMetric().value();
-    if (normalizeWattage < 0)
-        normalizeWattage = 0;
 
     if(this->doLockscreenUpdate())
         return;

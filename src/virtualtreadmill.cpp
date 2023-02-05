@@ -8,6 +8,7 @@
 using namespace std::chrono_literals;
 
 bool virtualtreadmill::configureLockScreen() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
@@ -335,6 +336,7 @@ void virtualtreadmill::reconnect() {
 }
 
 bool virtualtreadmill::doLockscreenUpdate() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
@@ -354,7 +356,7 @@ bool virtualtreadmill::doLockscreenUpdate() {
                 (uint16_t)((treadmill *)treadMill)->wattsMetric().value(), treadMill->currentInclination().value() * 10)) {
             this->lockScreen->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = this->lockScreen->virtualtreadmill_lastChangeCurrentSlope();
-            if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
+            if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + virtualtreadmill::slopeTimeoutSecs)
                 writeP2AD9->changeSlope(this->lockScreen->virtualtreadmill_getCurrentSlope(), 0, 0);
         }
         return true;
@@ -364,11 +366,9 @@ bool virtualtreadmill::doLockscreenUpdate() {
     return false;
 }
 
-void virtualtreadmill::treadmillProvider() {
-    const uint64_t slopeTimeoutSecs = 30;
-    QSettings settings;
+void virtualtreadmill::treadmillProvider() {    
 
-    if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
+    if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + virtualtreadmill::slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
 
     if(this->doLockscreenUpdate())

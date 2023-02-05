@@ -11,10 +11,13 @@
 using namespace std::chrono_literals;
 
 bool virtualrower::configureLockscreen() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
 
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && !heart_only) {
@@ -36,13 +39,15 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
 
     QSettings settings;
-    bool heart_only =
-        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+
 
     Q_UNUSED(noWriteResistance)
 
     if(!this->configureLockscreen())
     {
+        bool heart_only =
+            settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
@@ -311,9 +316,13 @@ void virtualrower::reconnect() {
 }
 
 bool virtualrower::doLockscreenUpdate() {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (this->lockScreen) {
+        double normalizeWattage = Rower->wattsMetric().value();
+        if (normalizeWattage < 0)
+            normalizeWattage = 0;
         uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
 
         // really connected to a device
@@ -355,10 +364,6 @@ void virtualrower::rowerProvider() {
     QSettings settings;
     bool heart_only =
         settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-
-    double normalizeWattage = Rower->wattsMetric().value();
-    if (normalizeWattage < 0)
-        normalizeWattage = 0;    
 
     if(this->doLockscreenUpdate())
         return;
