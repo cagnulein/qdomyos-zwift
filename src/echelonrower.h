@@ -80,10 +80,6 @@ class echelonrower : public rower {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
   Q_SIGNALS:
     void disconnected();
 
