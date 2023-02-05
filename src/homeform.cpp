@@ -4536,6 +4536,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
+                previewTrainProgram = 0;
             }
             if (trainProgram) {
                 delete trainProgram;
@@ -4556,6 +4557,7 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
+                previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
             emit previewWorkoutPointsChanged(preview_workout_points());
