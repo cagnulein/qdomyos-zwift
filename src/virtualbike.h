@@ -22,6 +22,9 @@
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 #include "bike.h"
 #include "dirconmanager.h"
 
