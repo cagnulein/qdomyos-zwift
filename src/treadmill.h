@@ -63,6 +63,7 @@ class treadmill : public bluetoothdevice {
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
     metric VerticalOscillationMM;
+    metric StepCount;
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
 };
