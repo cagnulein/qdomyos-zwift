@@ -235,6 +235,11 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     firstCharacteristicChanged = false;
+
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        this->updateLockscreenEnergyDistanceHeartRate();
+    }
+    this->doPelotonWorkaround();
 }
 
 double bowflextreadmill::GetSpeedFromPacket(const QByteArray &packet) {

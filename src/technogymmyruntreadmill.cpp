@@ -440,6 +440,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
             Heart = heart;
         }
     }
+    this->doPelotonWorkaround();
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

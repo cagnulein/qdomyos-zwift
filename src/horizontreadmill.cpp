@@ -1608,6 +1608,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    this->doPelotonWorkaround();
+
     if (Speed.value() > 0)
         lastStart = 0;
     else

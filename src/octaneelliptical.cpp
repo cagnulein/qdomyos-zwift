@@ -260,7 +260,7 @@ void octaneelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !this->lockScreen) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -361,9 +361,13 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        /*
+        if(heartRateBeltName.startsWith("Disabled"))
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = value.at(18);*/
     }
+    this->doPelotonWorkaround();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
     if (Speed.value() != speed) {

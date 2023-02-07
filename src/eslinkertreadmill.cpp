@@ -305,8 +305,10 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
             {
                 if (heartRateBeltName.startsWith("Disabled"))
-                    Heart = heart;
+                    if(!this->updateLockscreenHeartRate())
+                        this->Heart = heart;
             }
+            this->doPelotonWorkaround();
             emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
         }
     }
@@ -326,9 +328,14 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         else
 #endif
         {
-            /*if(heartRateBeltName.startsWith("Disabled"))
-            Heart = value.at(18);*/
+          /*
+            if(heartRateBeltName.startsWith("Disabled"))
+                if(!this->updateLockscreenHeartRate())
+                    this->Heart = value.at(18);
+                    */
         }
+        this->doPelotonWorkaround();
+
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));

@@ -204,9 +204,15 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            // Heart = value.at(18);
+            this->updateLockscreenEnergyDistanceHeartRate();
+        }
     }
+
+    this->doPelotonWorkaround();
+
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));

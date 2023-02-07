@@ -235,9 +235,11 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(8));
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = ((uint8_t)newValue.at(8));
         }
     }
+    this->doPelotonWorkaround();
     FanSpeed = 0;
 
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
@@ -357,7 +359,7 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &sportsplusbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {

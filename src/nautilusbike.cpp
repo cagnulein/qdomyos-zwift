@@ -152,9 +152,12 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
-                Heart = heart;
+                if(!this->updateLockscreenEnergyDistanceHeartRate())
+                    this->Heart = heart;
             }
         }
+
+        this->doPelotonWorkaround();
 
         Resistance = newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

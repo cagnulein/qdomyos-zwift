@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QThread>
 #include <chrono>
+#include "qzsettings.h"
 
 using namespace std::chrono_literals;
 
@@ -78,7 +79,7 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -175,6 +176,13 @@ void iconceptbike::readSocket() {
             Speed = GetSpeedFromPacket(line);
             Cadence = (uint8_t)line.at(13);
             // Heart = GetHeartRateFromPacket(line);
+
+            QSettings settings;
+            QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                    this->updateLockscreenEnergyDistanceHeartRate();
+            }
+            this->doPelotonWorkaround();
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));

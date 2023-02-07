@@ -258,10 +258,14 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     else
 #endif
     {
-        /*if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(18));
-        }*/
+        /*
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = ((uint8_t)newValue.at(18));
+        }
+        */
     }
+    this->doPelotonWorkaround();
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
 
@@ -443,7 +447,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

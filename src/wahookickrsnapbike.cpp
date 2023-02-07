@@ -459,6 +459,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         }
     }
 
+    this->doPelotonWorkaround();
+
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

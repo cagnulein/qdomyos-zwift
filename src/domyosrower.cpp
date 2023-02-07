@@ -170,7 +170,7 @@ void domyosrower::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -317,9 +317,11 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(18));
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = ((uint8_t)newValue.at(18));
         }
     }
+    this->doPelotonWorkaround();
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

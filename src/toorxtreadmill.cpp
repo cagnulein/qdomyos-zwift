@@ -79,10 +79,7 @@ void toorxtreadmill::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-
-        // TODO: determine why no checking if this has been done before
-
-        if (!virtualTreadMill) {
+        if (this->isVirtualDeviceSetUp() && !virtualTreadMill && this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -91,6 +88,7 @@ void toorxtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &toorxtreadmill::debug);
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         if (requestSpeed != -1) {
@@ -299,8 +297,17 @@ void toorxtreadmill::readSocket() {
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
             Speed = GetSpeedFromPacket(line);
-            Inclination = GetInclinationFromPacket(line);
+            Inclination = GetInclinationFromPacket(line);            
             Heart = GetHeartRateFromPacket(line);
+
+            QSettings settings;
+            QString heartRateBeltName =
+                settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                this->updateLockscreenHeartRate();
+            }
+            this->doPelotonWorkaround();
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));

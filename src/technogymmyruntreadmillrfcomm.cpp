@@ -104,9 +104,7 @@ void technogymmyruntreadmillrfcomm::update() {
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
 
-        // TODO: determine why no checking if this has been done before
-
-        if (!virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !this->lockScreen) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -117,6 +115,7 @@ void technogymmyruntreadmillrfcomm::update() {
                         &technogymmyruntreadmillrfcomm::changeInclinationRequested);
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         if (requestSpeed != -1) {
@@ -218,6 +217,15 @@ void technogymmyruntreadmillrfcomm::readSocket() {
             QStringList values = QString(line).split(QStringLiteral(","));
             Speed = values.at(2).toDouble();
             Inclination = values.at(3).toDouble();
+
+            QSettings settings;
+            QString heartRateBeltName =
+                settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                this->updateLockscreenHeartRate();
+            }
+            this->doPelotonWorkaround();
 
             qDebug() << values;
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));

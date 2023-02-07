@@ -327,9 +327,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         this->updateLockscreenEnergyDistanceHeartRate();
     }
 
-    /*
-      this->doPelotonWorkaround();
-      */
+    this->doPelotonWorkaround();
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

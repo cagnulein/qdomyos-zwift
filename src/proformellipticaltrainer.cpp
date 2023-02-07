@@ -412,6 +412,8 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
         }
     }
 
+    this->doPelotonWorkaround();
+
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -557,7 +559,7 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
