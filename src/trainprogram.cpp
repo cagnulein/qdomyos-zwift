@@ -448,7 +448,7 @@ void trainprogram::scheduler() {
         QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
         QString packageName = packageNameJava.toString();
-        if(packageName.contains("com.onepeloton.callisto")) {
+        if (packageName.contains("com.onepeloton.callisto")) {
             qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
             QRegularExpression re("\\d\\d:\\d\\d");
             QRegularExpressionMatch match = re.match(t.left(5));
@@ -789,6 +789,15 @@ void trainprogram::scheduler() {
         }
         sameIteration++;
     } while (distanceEvaluation);
+}
+
+bool trainprogram::overridePowerForCurrentRow(double power) {
+    if (started && currentStep < rows.length() && currentRow().power != -1) {
+        qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
+        rows[currentStep].power = power;
+        return true;
+    }
+    return false;
 }
 
 void trainprogram::increaseElapsedTime(uint32_t i) {

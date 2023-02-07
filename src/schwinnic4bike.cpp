@@ -315,22 +315,26 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
          settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
         settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
-    if (isnan(res))
-        m_pelotonResistance = 0;
-    else
-        m_pelotonResistance = res;
-
     double resistance;
     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
         resistance = pelotonToBikeResistance(m_pelotonResistance.value());
     else
         resistance = m_pelotonResistance.value();
-    if (qFabs(resistance - Resistance.value()) >
+    if (qFabs(resistance - Resistance.value()) >=
         (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
-            .toInt())
+            .toInt()) {
         Resistance = resistance;
-    else
+        if (isnan(res))
+            m_pelotonResistance = 0;
+        else
+            m_pelotonResistance = res;
+    } else {
+        // to calculate correctly the averages
+        Resistance = Resistance.value();
+        m_pelotonResistance = m_pelotonResistance.value();
+
         qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
+    }
     emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

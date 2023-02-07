@@ -723,6 +723,10 @@ DISTFILES += \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
+win32: DISTFILES += \
+   $$PWD/adb/AdbWinApi.dll \
+	$$PWD/adb/AdbWinUsbApi.dll \
+	$$PWD/adb/adb.exe \
 
 
 ios {
@@ -760,4 +764,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.59
+VERSION = 2.12.60

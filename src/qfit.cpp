@@ -22,8 +22,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
-    bool powr_sensor_running_cadence_half_on_strava = settings.value(QZSettings::powr_sensor_running_cadence_half_on_strava,
-                                                                     QZSettings::default_powr_sensor_running_cadence_half_on_strava).toBool();
+    bool powr_sensor_running_cadence_half_on_strava =
+        settings
+            .value(QZSettings::powr_sensor_running_cadence_half_on_strava,
+                   QZSettings::default_powr_sensor_running_cadence_half_on_strava)
+            .toBool();
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -211,6 +214,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     }
 
     uint32_t lastLapTimer = 0;
+    double lastLapOdometer = startingDistanceOffset;
     for (int i = firstRealIndex; i < session.length(); i++) {
 
         fit::RecordMesg newRecord;
@@ -218,7 +222,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
         uint8_t cad = sl.cadence;
-        if(powr_sensor_running_cadence_half_on_strava)
+        if (powr_sensor_running_cadence_half_on_strava)
             cad = cad / 2;
         newRecord.SetCadence(cad);
         newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); // meters
@@ -254,9 +258,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
         if (sl.lapTrigger) {
 
+            lapMesg.SetTotalDistance((sl.distance - lastLapOdometer) * 1000.0); // meters
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
             lastLapTimer = sl.elapsedTime;
+            lastLapOdometer = sl.distance;
 
             encode.Write(lapMesg);
 
