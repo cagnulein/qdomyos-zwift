@@ -1,7 +1,10 @@
 #include "treadmill.h"
 #include <QSettings>
 
-treadmill::treadmill() {}
+treadmill::treadmill() {
+
+
+}
 
 void treadmill::changeSpeed(double speed) {
     m_lastRawSpeedRequested = speed;

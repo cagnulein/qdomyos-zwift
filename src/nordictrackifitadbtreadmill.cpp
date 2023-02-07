@@ -34,7 +34,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initRequest = true;
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -168,6 +168,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 this->updateLockscreenEnergyDistanceHeartRate();
             }
         }
+        this->doPelotonWorkaround();
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

@@ -32,7 +32,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
@@ -183,6 +183,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 this->updateLockscreenEnergyDistanceHeartRate();
             }
         }
+        this->doPelotonWorkaround();
 
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

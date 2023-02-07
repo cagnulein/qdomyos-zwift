@@ -131,7 +131,7 @@ void echelonstride::update() {
                gattNotify2Characteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -309,6 +309,8 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
             }
         }
     }
+
+    this->doPelotonWorkaround();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

@@ -594,6 +594,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
+    this->doPelotonWorkaround();
+
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -797,7 +799,7 @@ void nordictrackelliptical::stateChanged(QLowEnergyService::ServiceState state) 
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =

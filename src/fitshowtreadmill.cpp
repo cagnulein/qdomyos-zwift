@@ -154,7 +154,7 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill && !this->lockScreen) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
@@ -163,8 +163,6 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-
-
             }
 
             // inside the outer if in case !searchStopped
@@ -492,17 +490,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
                 {
                     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                        long appleWatchHeartRate = h->heartRate();
-                        h->setKcal(KCal.value());
-                        h->setDistance(Distance.value());
-                        Heart = appleWatchHeartRate;
-                        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
-                        Heart = heart;
-#endif
+                        if(!this->updateLockscreenEnergyDistanceHeartRate())
+                            this->Heart = heart;
                     }
                 }
+                this->doPelotonWorkaround();
 
                 if (speed > 0) {
                     lastSpeed = speed;

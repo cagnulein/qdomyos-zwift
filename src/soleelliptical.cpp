@@ -144,7 +144,7 @@ void soleelliptical::update() {
                 .toBool();
 
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -330,6 +330,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
+    this->doPelotonWorkaround();
 
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

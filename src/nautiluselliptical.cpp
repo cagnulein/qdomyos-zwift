@@ -122,7 +122,7 @@ void nautiluselliptical::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !this->lockScreen) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
@@ -239,9 +239,12 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
-                Heart = heart;
+                if(!this->updateLockscreenEnergyDistanceHeartRate())
+                    this->Heart = heart;
             }
         }
+
+        this->doPelotonWorkaround();
 
         Resistance = newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
