@@ -188,9 +188,14 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        /*
+        if(heartRateBeltName.startsWith("Disabled"))
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = value.at(18);
+        */
     }
+    this->doPelotonWorkaround();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
@@ -235,11 +240,6 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     firstCharacteristicChanged = false;
-
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        this->updateLockscreenEnergyDistanceHeartRate();
-    }
-    this->doPelotonWorkaround();
 }
 
 double bowflextreadmill::GetSpeedFromPacket(const QByteArray &packet) {
