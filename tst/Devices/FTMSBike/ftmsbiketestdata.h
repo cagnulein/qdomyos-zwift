@@ -49,8 +49,7 @@ public:
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MAGNUS ", comparison::StartsWithIgnoreCase); // Saris Trainer
-        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
-        this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
         this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);

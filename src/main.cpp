@@ -26,7 +26,7 @@
 #endif
 
 #ifdef Q_OS_ANDROID
-
+#include "androidadblog.h"
 #include "keepawakehelper.h"
 #include <QtAndroid>
 #endif
@@ -280,6 +280,8 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_ANDROID
     qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+    androidadblog* adb = new androidadblog();
+    adb->start();
 #endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");

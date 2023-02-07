@@ -838,10 +838,11 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            qDebug() << "requestSpeed=" << requestSpeed;
-            if (requestSpeed != currentSpeed().value() &&
-                fabs(requestSpeed - currentSpeed().value()) > minStepSpeed() && requestSpeed >= 0 &&
-                requestSpeed <= 22 && checkIfForceSpeedNeeding(requestSpeed)) {
+            bool minSpeed = fabs(requestSpeed - currentSpeed().value()) >= minStepSpeed();
+            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed;
+            if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
@@ -1070,17 +1071,17 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
+                            false);
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+                            false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
-        writeS[2] = ((uint16_t)requestSpeed * 100) >> 8;
+        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
+        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceSpeed"), false, true);
+                            QStringLiteral("forceSpeed"), false, false);
     }
 }
 
@@ -1131,17 +1132,17 @@ void horizontreadmill::forceIncline(double requestIncline) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
+                            false);
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+                            false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)requestIncline * 10) & 0xFF;
-        writeS[2] = ((int16_t)requestIncline * 10) >> 8;
+        writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+        writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceIncline"), false, true);
+                            QStringLiteral("forceIncline"), false, false);
     }
 }
 

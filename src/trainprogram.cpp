@@ -4,6 +4,11 @@
 #include <QMutexLocker>
 #include <QtXml/QtXml>
 #include <chrono>
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
 
 using namespace std::chrono_literals;
 
@@ -79,6 +84,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" loopTimeHR = %1").arg(loopTimeHR);
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
     rv += QStringLiteral(" latitude = %1").arg(latitude);
@@ -425,6 +431,7 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -432,6 +439,46 @@ void trainprogram::scheduler() {
 
         return;
     }
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+        QString packageName = packageNameJava.toString();
+        if (packageName.contains("com.onepeloton.callisto")) {
+            qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
+            QRegularExpression re("\\d\\d:\\d\\d");
+            QRegularExpressionMatch match = re.match(t.left(5));
+            if (t.contains(QStringLiteral("INTRO"))) {
+                qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+                restart();
+            } else if (match.hasMatch()) {
+                int minutes = t.left(2).toInt();
+                int seconds = t.left(5).right(2).toInt();
+                seconds -= 1; //(due to the OCR delay)
+                seconds += minutes * 60;
+                QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
+                QTime currentRemaining = remainingTime();
+                qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
+                         << QStringLiteral("currentRemaining") << currentRemaining;
+                uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
+                if (abs < 120) {
+                    qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
+                    // applying the differences
+                    if (ocrRemaining > currentRemaining)
+                        decreaseElapsedTime(abs);
+                    else
+                        increaseElapsedTime(abs);
+                }
+            }
+        } else {
+            qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
+        }
+    }
+#endif
 
     ticks++;
 
@@ -744,6 +791,15 @@ void trainprogram::scheduler() {
     } while (distanceEvaluation);
 }
 
+bool trainprogram::overridePowerForCurrentRow(double power) {
+    if (started && currentStep < rows.length() && currentRow().power != -1) {
+        qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
+        rows[currentStep].power = power;
+        return true;
+    }
+    return false;
+}
+
 void trainprogram::increaseElapsedTime(uint32_t i) {
 
     offset += i;
@@ -842,6 +898,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             }
             if (row.maxSpeed >= 0) {
                 stream.writeAttribute(QStringLiteral("maxspeed"), QString::number(row.maxSpeed));
+            }
+            if (row.maxResistance >= 0) {
+                stream.writeAttribute(QStringLiteral("maxresistance"), QString::number(row.maxResistance));
             }
             if (row.zoneHR >= 0) {
                 stream.writeAttribute(QStringLiteral("zonehr"), QString::number(row.zoneHR));
@@ -948,6 +1007,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
                 row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
+                row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("zonehr"))) {
                 row.zoneHR = atts.value(QStringLiteral("zonehr")).toInt();
