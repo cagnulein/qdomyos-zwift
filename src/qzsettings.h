@@ -1669,6 +1669,11 @@ class QZSettings {
     static const QString proform_cycle_trainer_400;
     static constexpr bool default_proform_cycle_trainer_400 = false;
 
+    static const QString peloton_workout_ocr;
+    static constexpr bool default_peloton_workout_ocr = false;
+
+    static const QString peloton_bike_ocr;
+    static constexpr bool default_peloton_bike_ocr = false;
     static const QString fitshow_treadmill_miles;
     static constexpr bool default_fitshow_treadmill_miles = false;
 
@@ -1677,6 +1682,69 @@ class QZSettings {
 
     static const QString schwinn_resistance_smooth;
     static constexpr int default_schwinn_resistance_smooth = 0;
+
+    static const QString treadmill_inclination_override_0;
+    static constexpr double default_treadmill_inclination_override_0 = 0;
+    static const QString treadmill_inclination_override_05;
+    static constexpr double default_treadmill_inclination_override_05 = 0.5;
+    static const QString treadmill_inclination_override_10;
+    static constexpr double default_treadmill_inclination_override_10 = 1.0;
+    static const QString treadmill_inclination_override_15;
+    static constexpr double default_treadmill_inclination_override_15 = 1.5;
+    static const QString treadmill_inclination_override_20;
+    static constexpr double default_treadmill_inclination_override_20 = 2.0;
+    static const QString treadmill_inclination_override_25;
+    static constexpr double default_treadmill_inclination_override_25 = 2.5;
+    static const QString treadmill_inclination_override_30;
+    static constexpr double default_treadmill_inclination_override_30 = 3.0;
+    static const QString treadmill_inclination_override_35;
+    static constexpr double default_treadmill_inclination_override_35 = 3.5;
+    static const QString treadmill_inclination_override_40;
+    static constexpr double default_treadmill_inclination_override_40 = 4.0;
+    static const QString treadmill_inclination_override_45;
+    static constexpr double default_treadmill_inclination_override_45 = 4.5;
+    static const QString treadmill_inclination_override_50;
+    static constexpr double default_treadmill_inclination_override_50 = 5.0;
+    static const QString treadmill_inclination_override_55;
+    static constexpr double default_treadmill_inclination_override_55 = 5.5;
+    static const QString treadmill_inclination_override_60;
+    static constexpr double default_treadmill_inclination_override_60 = 6.0;
+    static const QString treadmill_inclination_override_65;
+    static constexpr double default_treadmill_inclination_override_65 = 6.5;
+    static const QString treadmill_inclination_override_70;
+    static constexpr double default_treadmill_inclination_override_70 = 7.0;
+    static const QString treadmill_inclination_override_75;
+    static constexpr double default_treadmill_inclination_override_75 = 7.5;
+    static const QString treadmill_inclination_override_80;
+    static constexpr double default_treadmill_inclination_override_80 = 8.0;
+    static const QString treadmill_inclination_override_85;
+    static constexpr double default_treadmill_inclination_override_85 = 8.5;
+    static const QString treadmill_inclination_override_90;
+    static constexpr double default_treadmill_inclination_override_90 = 9.0;
+    static const QString treadmill_inclination_override_95;
+    static constexpr double default_treadmill_inclination_override_95 = 9.5;
+    static const QString treadmill_inclination_override_100;
+    static constexpr double default_treadmill_inclination_override_100 = 10.0;
+    static const QString treadmill_inclination_override_105;
+    static constexpr double default_treadmill_inclination_override_105 = 10.5;
+    static const QString treadmill_inclination_override_110;
+    static constexpr double default_treadmill_inclination_override_110 = 11.0;
+    static const QString treadmill_inclination_override_115;
+    static constexpr double default_treadmill_inclination_override_115 = 11.5;
+    static const QString treadmill_inclination_override_120;
+    static constexpr double default_treadmill_inclination_override_120 = 12.0;
+    static const QString treadmill_inclination_override_125;
+    static constexpr double default_treadmill_inclination_override_125 = 12.5;
+    static const QString treadmill_inclination_override_130;
+    static constexpr double default_treadmill_inclination_override_130 = 13.0;
+    static const QString treadmill_inclination_override_135;
+    static constexpr double default_treadmill_inclination_override_135 = 13.5;
+    static const QString treadmill_inclination_override_140;
+    static constexpr double default_treadmill_inclination_override_140 = 14.0;
+    static const QString treadmill_inclination_override_145;
+    static constexpr double default_treadmill_inclination_override_145 = 14.5;
+    static const QString treadmill_inclination_override_150;
+    static constexpr double default_treadmill_inclination_override_150 = 15.0;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

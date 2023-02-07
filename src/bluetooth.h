@@ -17,8 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
-#include "qzsettings.h"
 #include "discoveryoptions.h"
+#include "qzsettings.h"
 
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
@@ -74,6 +74,7 @@
 #include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
+#include "pelotonbike.h"
 #include "proformbike.h"
 #include "proformelliptical.h"
 #include "proformellipticaltrainer.h"
@@ -165,6 +166,7 @@ private:
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
+    pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
@@ -270,7 +272,7 @@ private:
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
     void signalBluetoothDeviceConnected(bluetoothdevice *b);
-signals:
+  signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
@@ -281,7 +283,7 @@ signals:
   public slots:
     void restart();
     void debug(const QString &string);
-    void heartRate(uint8_t heart);  
+    void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))

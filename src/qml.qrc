@@ -91,5 +91,6 @@
         <file>inner_templates/floating/jquery-3.6.0.min.js</file>
         <file>inner_templates/floating/main_ws_manager.js</file>
         <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-treadmill-inclination-override.qml</file>
     </qresource>
 </RCC>

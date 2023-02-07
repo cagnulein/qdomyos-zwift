@@ -114,7 +114,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         Pace = va_arg(args, int);
         if (sportType.toLower().contains(QStringLiteral("run")) && !durationAsDistance(sportType, durationType)) {
             double speed = speedFromPace(Pace);
-            int speedDelta = qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10) + 1;
+            int speedDelta = qAbs(qCeil((((60.0 / speed) * 60.0) * (PowerHigh - PowerLow)) * 10)) + 1;
             int durationStep = Duration / speedDelta;
             int spareSeconds = Duration - (durationStep * speedDelta);
             int spareSum = 0;
