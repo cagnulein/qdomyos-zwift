@@ -701,9 +701,10 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                         &lifefitnesstreadmill::changeInclinationRequested);
             }
         }
-        this->setVirtualDeviceSetUp();
-        // ********************************************************************************************************
+
     }
+    this->setVirtualDeviceSetUp();
+    // ********************************************************************************************************
 
     initRequest = true;
     emit connectedAndDiscovered();

@@ -121,9 +121,9 @@ void paferstreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &paferstreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &paferstreadmill::changeInclinationRequested);
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));

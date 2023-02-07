@@ -53,9 +53,9 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
             }
-            this->setVirtualDeviceSetUp();
         }
     }
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 
 #ifdef Q_OS_ANDROID

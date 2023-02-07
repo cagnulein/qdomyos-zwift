@@ -574,9 +574,9 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

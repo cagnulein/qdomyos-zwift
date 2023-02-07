@@ -187,8 +187,9 @@ void domyosrower::update() {
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
                 }
-                this->setVirtualDeviceSetUp();
             }
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
         // ********************************************************************************************************
 

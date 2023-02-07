@@ -40,9 +40,9 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
             virtualBike = new virtualbike(this);
             connect(virtualBike, &virtualbike::changeInclination, this,
                     &nordictrackifitadbbike::changeInclinationRequested);
-            this->setVirtualDeviceSetUp();
         }
     }
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 
 #ifdef Q_OS_ANDROID

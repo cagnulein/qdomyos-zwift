@@ -281,8 +281,10 @@ void domyostreadmill::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyostreadmill::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
+
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
         // ********************************************************************************************************
 

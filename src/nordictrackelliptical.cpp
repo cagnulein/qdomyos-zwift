@@ -817,9 +817,9 @@ void nordictrackelliptical::stateChanged(QLowEnergyService::ServiceState state) 
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &nordictrackelliptical::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

@@ -164,9 +164,13 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
 
-                this->setVirtualDeviceSetUp();
+
             }
+
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
+
         // ********************************************************************************************************
 
         emit debug(QStringLiteral("fitshow Treadmill RSSI ") + QString::number(bluetoothDevice.rssi()));

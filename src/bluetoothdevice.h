@@ -461,13 +461,16 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief Flags that the virtual device setup has been done (optionally: or not).
+     * It is not sufficient to just check the virtual device storage itself, as the virtual device
+     * may be disabled in the settings.
      */
     void setVirtualDeviceSetUp(bool done=true) { this->virtualDeviceSetupDone = done; }
 
     /**
      * @brief Indicates if the virtual device setup has been done.
      * @return True if the virtual device setup has been run, false if not.
-     * The virtual device setup process may not have actually created the virtual device.
+     * The virtual device setup process may not have actually created the virtual device,
+     * for various reasons, e.g. the virtual device is disabled, or a lockscreen is active.
      */
     bool isVirtualDeviceSetUp() { return this->virtualDeviceSetupDone;}
 

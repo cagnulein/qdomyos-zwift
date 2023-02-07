@@ -117,9 +117,9 @@ void kingsmithr1protreadmill::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr1protreadmill::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));

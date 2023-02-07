@@ -565,9 +565,9 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
                         &technogymmyruntreadmill::changeInclinationRequested);
             }
         }
-        this->setVirtualDeviceSetUp();
-        // ********************************************************************************************************
     }
+    this->setVirtualDeviceSetUp();
+    // ********************************************************************************************************
 }
 
 void technogymmyruntreadmill::changeInclinationRequested(double grade, double percentage) {

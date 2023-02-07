@@ -187,8 +187,10 @@ void domyoselliptical::update() {
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
                 }
-                this->setVirtualDeviceSetUp();
             }
+
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
         // ********************************************************************************************************
 

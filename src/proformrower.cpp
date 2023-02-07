@@ -533,9 +533,9 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformrower::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         QByteArray descriptor;

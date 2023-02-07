@@ -163,9 +163,12 @@ void soleelliptical::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
+
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
+
         // ********************************************************************************************************
 
         // updating the treadmill console every second

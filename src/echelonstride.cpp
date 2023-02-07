@@ -147,9 +147,9 @@ void echelonstride::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));

@@ -31,9 +31,9 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
             debug("creating virtual bike interface...");
             virtualBike = new virtualbike(this);
             connect(virtualBike, &virtualbike::changeInclination, this, &pelotonbike::changeInclinationRequested);
-            this->setVirtualDeviceSetUp();
         }
     }
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

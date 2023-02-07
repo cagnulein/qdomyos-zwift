@@ -99,9 +99,10 @@ void bowflext216treadmill::update() {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &bowflext216treadmill::debug);
-                this->setVirtualDeviceSetUp();
+
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));

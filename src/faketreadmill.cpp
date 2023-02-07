@@ -74,6 +74,7 @@ void faketreadmill::update() {
             emit connectedAndDiscovered();
         this->setVirtualDeviceSetUp();
     }
+
     // ********************************************************************************************************
 
     if (!noVirtualDevice) {

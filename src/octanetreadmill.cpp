@@ -274,9 +274,9 @@ void octanetreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octanetreadmill::changeInclinationRequested);
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));

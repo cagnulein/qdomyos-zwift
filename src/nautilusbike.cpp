@@ -97,9 +97,9 @@ void nautilusbike::update() {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         // updating the treadmill console every second

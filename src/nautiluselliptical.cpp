@@ -138,9 +138,12 @@ void nautiluselliptical::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &nautiluselliptical::changeInclinationRequested);
                 }
-                this->setVirtualDeviceSetUp();
             }
+
+            // inside the outer if in case !searchStopped
+            this->setVirtualDeviceSetUp();
         }
+
         // ********************************************************************************************************
 
         // updating the treadmill console every second

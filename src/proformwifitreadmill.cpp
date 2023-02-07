@@ -56,9 +56,9 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
             }
-            this->setVirtualDeviceSetUp();
         }
     }
+    this->setVirtualDeviceSetUp();
     // ********************************************************************************************************
 }
 

@@ -269,9 +269,9 @@ void octaneelliptical::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octaneelliptical::changeInclinationRequested);
-                this->setVirtualDeviceSetUp();
             }
         }
+        this->setVirtualDeviceSetUp();
         // ********************************************************************************************************
 
         update_metrics(true, watts());
