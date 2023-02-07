@@ -26,6 +26,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
 }
 
 QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString command) {
+#ifdef Q_OS_WINDOWS
     QProcess process;
     qDebug() << "adb >> " << command;
     process.start("adb/adb.exe", QStringList(command.split(' ')));
@@ -36,11 +37,14 @@ QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString comman
 
     qDebug() << "adb << OUT" << out;
     qDebug() << "adb << ERR" << err;
-
+#else
+    QString out;
+#endif
     return out;
 }
 
 void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString command) {
+#ifdef Q_OS_WINDOWS
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
@@ -64,6 +68,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
     qDebug() << "adbLogCat >> " << command;
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
+#endif
 }
 
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {

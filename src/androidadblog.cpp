@@ -9,6 +9,7 @@ void androidadblog::run() {
 }
 
 void androidadblog::runAdbTailCommand(QString command) {
+#ifdef Q_OS_ANDROID
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
@@ -22,4 +23,5 @@ void androidadblog::runAdbTailCommand(QString command) {
     arguments.append("*:e");
     process->start("logcat", arguments);
     process->waitForFinished(-1);
+#endif
 }
