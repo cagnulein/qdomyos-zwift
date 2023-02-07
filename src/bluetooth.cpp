@@ -698,7 +698,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->startTemplateManagers(nordictrackifitadbBike);
-            } else if (csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter) {
+            } else if (((csc_as_bike && b.name().startsWith(cscName)) ||
+                        b.name().toUpper().startsWith(QStringLiteral("JOROTO-BK-"))) &&
+                       !cscBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 cscBike = new cscbike(noWriteResistance, noHeartService, false);
