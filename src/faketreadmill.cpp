@@ -70,8 +70,13 @@ void faketreadmill::update() {
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
             }
         }
-        if (!this->isVirtualDeviceSetUp())
-            emit connectedAndDiscovered();
+    }
+    if (!this->isVirtualDeviceSetUp()) {
+        // signal that it's connected and discovered because it's not a real device for which this happens
+        // when a descriptor is written.
+        emit connectedAndDiscovered();
+
+        // flag that virtual device setup has been done
         this->setVirtualDeviceSetUp();
     }
 

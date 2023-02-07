@@ -62,9 +62,14 @@ void fakebike::update() {
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
         }
     }
-    if (!this->isVirtualDeviceSetUp())
+    if (!this->isVirtualDeviceSetUp()) {
+        // signal that it's connected and discovered because it's not a real device for which this happens
+        // when a descriptor is written.
         emit connectedAndDiscovered();
-    this->setVirtualDeviceSetUp();
+
+        // flag that virtual device setup has been done
+        this->setVirtualDeviceSetUp();
+    }
     // ********************************************************************************************************
 
     if (!noVirtualDevice) {
