@@ -38,6 +38,7 @@ class treadmill : public bluetoothdevice {
     virtual void setLastInclination(double inclination);
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
+    static double treadmillInclinationOverride(double Inclination);
 
   public slots:
     virtual void changeSpeed(double speed);
