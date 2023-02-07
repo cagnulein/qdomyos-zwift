@@ -51,6 +51,9 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.setValue(sKey + QStringLiteral("enabled"), false);
     }
 
+    QString nordictrack_2950_ip =
+        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+
     if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() && !pelotonBike) {
         pelotonBike = new pelotonbike(noWriteResistance, noHeartService);
         emit deviceConnected(QBluetoothDeviceInfo());
@@ -162,14 +165,22 @@ void bluetooth::stopTemplateManagers() {
 void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
 
+    QSettings settings;
 #ifdef Q_OS_WIN
+    QString nordictrack_2950_ip =
+        settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    // wifi devices on windows
+    if (!nordictrack_2950_ip.isEmpty()) {
+        // faking a bluetooth device
+        deviceDiscovered(QBluetoothDeviceInfo());
+    }
+
     if (device()) {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
         return;
     }
 #endif
 
-    QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =

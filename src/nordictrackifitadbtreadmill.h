@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QUdpSocket>
 
 #include "treadmill.h"
@@ -25,6 +26,30 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
+
+    void run();
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+
+  private:
+    double speed = 0;
+    double inclination = 0;
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    QString runAdbCommand(QString command);
+    void runAdbTailCommand(QString command);
+};
 
 class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
@@ -58,6 +83,8 @@ class nordictrackifitadbtreadmill : public treadmill {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
+    nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -71,6 +98,8 @@ class nordictrackifitadbtreadmill : public treadmill {
     void debug(QString string);
 
   private slots:
+
+    void onSpeedInclination(double speed, double inclination);
 
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);

@@ -723,6 +723,10 @@ DISTFILES += \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
+win32: DISTFILES += \
+   $$PWD/adb/AdbWinApi.dll \
+	$$PWD/adb/AdbWinUsbApi.dll \
+	$$PWD/adb/adb.exe \
 
 
 ios {
