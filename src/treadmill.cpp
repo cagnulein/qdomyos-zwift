@@ -3,7 +3,18 @@
 
 treadmill::treadmill() {
 
-
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        QSettings settings;
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadence) {
+            qDebug() << "ios_peloton_workaround activated!";
+            this->lockScreen = new lockscreen();
+            this->lockScreen->virtualbike_ios();
+        }
+#endif
+#endif
 }
 
 void treadmill::changeSpeed(double speed) {
