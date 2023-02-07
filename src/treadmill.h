@@ -22,6 +22,7 @@ class treadmill : public bluetoothdevice {
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
+    metric currentStepCount() { return StepCount; }
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
