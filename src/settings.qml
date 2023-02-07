@@ -4403,6 +4403,19 @@ import Qt.labs.settings 1.0
                 }
 
                 Label {
+                    text: qsTr("Overrides the default inclination values sent from the treadmill")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                Label {
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
                     font.italic: true
