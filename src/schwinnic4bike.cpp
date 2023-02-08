@@ -316,18 +316,18 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
     double resistance;
+    if (isnan(res)) {
+        res = 0;
+    }
     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
-        resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+        resistance = pelotonToBikeResistance(res);
     else
-        resistance = m_pelotonResistance.value();
+        resistance = res;
     if (qFabs(resistance - Resistance.value()) >=
         (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
             .toInt()) {
         Resistance = resistance;
-        if (isnan(res))
-            m_pelotonResistance = 0;
-        else
-            m_pelotonResistance = res;
+        m_pelotonResistance = res;
     } else {
         // to calculate correctly the averages
         Resistance = Resistance.value();
