@@ -1749,6 +1749,9 @@ class QZSettings {
     static const QString sole_elliptical_e55;
     static constexpr bool default_sole_elliptical_e55 = false;
 
+    static const QString horizon_treadmill_force_ftms;
+    static constexpr bool default_horizon_treadmill_force_ftms = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

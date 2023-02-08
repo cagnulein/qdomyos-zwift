@@ -696,8 +696,9 @@ import Qt.labs.settings 1.0
             property double treadmill_inclination_override_145: 14.5
             property double treadmill_inclination_override_150: 15.0
 
-            // from version 2.12.61+
+            // from version 2.12.61
             property bool sole_elliptical_e55: false
+            property bool horizon_treadmill_force_ftms: false
         }
 
         function paddingZeros(text, limit) {
@@ -5091,6 +5092,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_paragon_x = checked
+                        }
+                        SwitchDelegate {
+                            id: horizonFTMSTreadmillCadenzaDelegate
+                            text: qsTr("Force Using FTMS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_force_ftms
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_force_ftms = checked
                         }
                         SwitchDelegate {
                             id: horizon78TreadmillDelegate
