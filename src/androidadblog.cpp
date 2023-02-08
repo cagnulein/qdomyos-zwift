@@ -13,9 +13,9 @@ void androidadblog::runAdbTailCommand(QString command) {
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
-        QStringList olist = output.split('\n');
+        QStringList olist = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         foreach(QString o, olist) {
-            if(!o.contains("qDomyos-Zwift")) {
+            if(!o.contains("qDomyos-Zwift") && !o.contains("libqdomyos-zwift")) {
                 qDebug() << "adbLogCat STDOUT << " << o;
                 if(o.contains("V1Callback")) {
                     QStringList ooList = o.split(' ', Qt::SplitBehaviorFlags::SkipEmptyParts);
