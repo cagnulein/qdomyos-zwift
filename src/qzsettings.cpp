@@ -621,8 +621,9 @@ const QString QZSettings::treadmill_inclination_override_135 = QStringLiteral("t
 const QString QZSettings::treadmill_inclination_override_140 = QStringLiteral("treadmill_inclination_override_140");
 const QString QZSettings::treadmill_inclination_override_145 = QStringLiteral("treadmill_inclination_override_145");
 const QString QZSettings::treadmill_inclination_override_150 = QStringLiteral("treadmill_inclination_override_150");
+const QString QZSettings::sole_elliptical_e55 = QStringLiteral("sole_elliptical_e55");
 
-const uint32_t allSettingsCount = 517;
+const uint32_t allSettingsCount = 518;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1144,6 +1145,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_inclination_override_140, QZSettings::default_treadmill_inclination_override_140},
     {QZSettings::treadmill_inclination_override_145, QZSettings::default_treadmill_inclination_override_145},
     {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150},
+    {QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

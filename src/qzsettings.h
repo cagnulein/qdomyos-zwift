@@ -1746,6 +1746,9 @@ class QZSettings {
     static const QString treadmill_inclination_override_150;
     static constexpr double default_treadmill_inclination_override_150 = 15.0;
 
+    static const QString sole_elliptical_e55;
+    static constexpr bool default_sole_elliptical_e55 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
