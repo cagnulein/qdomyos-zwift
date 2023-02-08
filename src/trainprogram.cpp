@@ -432,14 +432,6 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
-    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
-        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
-        bluetoothManager->device()->isPaused()) {
-
-        return;
-    }
-
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
         QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
@@ -448,7 +440,9 @@ void trainprogram::scheduler() {
         QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
             "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
         QString packageName = packageNameJava.toString();
-        if (packageName.contains("com.onepeloton.callisto")) {
+        // com.zwift.zwiftgame
+        //  "com.zwift.zwiftgame" "123..\n6.5.2 4.78 35:199\n-37\nGuardando C.Shin\nN\n9:1.5\nSTEPS/MIN\nKM\nSPLIT KM\nZwifter nelle vicinanze\nO:00o:00\nR.Kirchsteiger\n7:27/km 5.0M\nALane\nA.Lopez\n15:32/Mm 0.0xoM\n-1:02\nCorsa di oggi\nJ.Napper O.o\nAndatura media-\n-1-02\nM.Melo\nO.OxM\n-1:01\nS.Huang9\n20:00 km0.0NM\no:53\nViola CAuto Inclina\n-km O.0K\nG.Omarsson\nm 14.9M\nC.Shin\n9:15 /km\n4.7xo\n1TORNAA ME\n5498 in piü"
+        if(1) {
             qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
             QRegularExpression re("\\d\\d:\\d\\d");
             QRegularExpressionMatch match = re.match(t.left(5));
@@ -479,6 +473,14 @@ void trainprogram::scheduler() {
         }
     }
 #endif
+
+    if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
+        (bluetoothManager->device()->currentSpeed().value() <= 0 &&
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
+        bluetoothManager->device()->isPaused()) {
+
+        return;
+    }
 
     ticks++;
 
