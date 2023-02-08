@@ -13,14 +13,25 @@ void androidadblog::runAdbTailCommand(QString command) {
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
-        qDebug() << "adbLogCat STDOUT << " << output;
+        QStringList olist = output.split('\n');
+        foreach(QString o, olist) {
+            if(!o.contains("qDomyos-Zwift")) {
+                qDebug() << "adbLogCat STDOUT << " << o;
+                if(o.contains("V1Callback")) {
+                    QStringList ooList = o.split(' ', Qt::SplitBehaviorFlags::SkipEmptyParts);
+                    foreach(QString oo, ooList) {
+                        qDebug() << oo;
+                    }
+                }
+            }
+        }
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
         qDebug() << "adbLogCat ERROR << " << output;
     });
     QStringList arguments;
-    arguments.append("*:e");
+    //arguments.append("*:e");
     process->start("logcat", arguments);
     process->waitForFinished(-1);
 #endif

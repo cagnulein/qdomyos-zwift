@@ -21,6 +21,8 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#define PELOTONBIKE
+
 class DataObject : public QObject {
 
     Q_OBJECT
@@ -653,7 +655,7 @@ class homeform : public QObject {
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(PELOTONBIKE)
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
     void licenseRequest();
@@ -728,7 +730,7 @@ class homeform : public QObject {
     void pelotonOffset_Minus();
     int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || defined(PELOTONBIKE)
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif
