@@ -85,10 +85,6 @@
                                     android:name=".ScreenCaptureService"
                                     android:foregroundServiceType="mediaProjection" />
 
-                                <meta-data
-                                    android:name="com.google.mlkit.vision.DEPENDENCIES"
-                                    android:value="ocr" />
-
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
