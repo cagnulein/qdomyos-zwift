@@ -199,10 +199,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
-            }
-            requestSpeed = -1;
-
-            if (requestInclination != -100) {
+                requestSpeed = -1;
+            } else if (requestInclination != -100) {
                 int x1 = 75;
                 int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
                 // set speed slider to target position
@@ -214,14 +212,16 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
-            }
-            requestInclination = -100;
+                requestInclination = -100;
+            }            
         }
 #endif
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
-        requestSpeed = -1;
-        requestInclination = -100;
+        // we have to separate the 2 commands
+        if(requestSpeed == -1)
+            requestInclination = -100;
+        requestSpeed = -1;                
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
