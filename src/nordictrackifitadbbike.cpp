@@ -108,13 +108,13 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
-                    // Cadence = cadence;
+                    Resistance = gear;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     resistance = getDouble(aValues.last());
-                    Resistance = resistance;
+                    //Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
                 QStringList aValues = line.split(" ");

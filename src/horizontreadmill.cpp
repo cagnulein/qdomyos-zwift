@@ -1627,6 +1627,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
+    QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
@@ -1677,7 +1678,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattFTMSService = s;
                 }
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService) {
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
+                        !settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms).toBool()) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharCustomService = c;
                     gattCustomService = s;

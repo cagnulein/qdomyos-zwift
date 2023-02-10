@@ -440,6 +440,50 @@ ScrollView {
         RowLayout {
             spacing: 10
             Label {
+                text: qsTr("Override 8.5%:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverride85TextField
+                text: settings.treadmill_inclination_override_85
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_override_85 = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: settings.treadmill_inclination_override_85 = treadmillOverride85TextField.text
+            }
+        }
+        RowLayout {
+            spacing: 10
+            Label {
+                text: qsTr("Override 9.0%:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverride90TextField
+                text: settings.treadmill_inclination_override_90
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_override_90 = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: settings.treadmill_inclination_override_90 = treadmillOverride90TextField.text
+            }
+        }
+        RowLayout {
+            spacing: 10
+            Label {
                 text: qsTr("Override 9.5%:")
                 Layout.fillWidth: true
             }
