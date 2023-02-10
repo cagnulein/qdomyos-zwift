@@ -218,7 +218,7 @@ void wahookickrsnapbike::update() {
             if (requestResistance != currentResistance().value() &&
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                QByteArray a = setResistanceMode(requestResistance);
+                QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
@@ -302,7 +302,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid();
 
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -371,7 +371,11 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (cadence >= 0) {
-                        Cadence = cadence / 2.0;
+                        if(WAHOO_KICKR) {
+                            Cadence = cadence / 4.0;
+                        } else {
+                            Cadence = cadence / 2.0;
+                        }
                     }
                     lastGoodCadence = QDateTime::currentDateTime();
                 } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
@@ -445,6 +449,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     {
@@ -464,9 +470,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    }    
 
     this->doPelotonWorkaround();
 
@@ -636,6 +640,11 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(device.name().toUpper().startsWith("WAHOO KICKR")) {
+            WAHOO_KICKR = true;
+            qDebug() << "WAHOO KICKR workaround activated";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);

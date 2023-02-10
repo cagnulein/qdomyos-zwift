@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password"))) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
 
             qDebug() << s << settings.value(s);
         }
