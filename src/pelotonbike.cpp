@@ -86,6 +86,17 @@ void pelotonbike::update() {
            Speed = l.split(" ").first().toDouble();
        }
     }
+
+    QAndroidJniObject adb = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/ShellRuntime", "lastOutput");
+    QString tAdb = adb.toString();
+    qDebug() << "ADB lastOutput" << tAdb;
+
+    QString command = "logcat -d | grep \"V1Callback\"";
+    QAndroidJniObject commandString = QAndroidJniObject::fromString(command);
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/ShellRuntime", "execAndGetOutput","(Ljava/lang/String;)V", commandString.object<jstring>());
+
 #endif
 
     QString heartRateBeltName =

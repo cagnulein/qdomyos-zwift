@@ -4,10 +4,9 @@
 #include <QDebug>
 #include <QProcess>
 #include <QThread>
-#include <QDateTime>
 
 class androidadblog : public QThread
-{   
+{
     Q_OBJECT
 
   public:
@@ -17,7 +16,6 @@ class androidadblog : public QThread
 
   private:
     void runAdbTailCommand(QString command);
-    bool found = false;
 };
 
 #endif // ANDROIDADBLOG_H
