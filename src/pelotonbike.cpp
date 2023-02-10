@@ -57,6 +57,35 @@ void pelotonbike::update() {
         "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
     QString t = text.toString();
     qDebug() << "OCR" << t;
+
+    QStringList list = t.split('\n');
+    bool waitCadence = false;
+    bool waitPower = false;
+    bool waitResistance = false;
+    bool waitSpeed = false;
+    foreach(QString l, list) {
+       if(l.startsWith("CADENCE")) {
+           waitCadence = true;
+       } else if(l.startsWith("RESISTANCE")) {
+           waitResistance = true;
+       } else if(l.startsWith("OUTPUT")) {
+           waitPower = true;
+       } else if(l.startsWith("SPEED")) {
+           waitSpeed = true;
+       } else if(waitCadence) {
+           waitCadence = false;
+           Cadence = l.toInt();
+       } else if(waitPower) {
+           waitPower = false;
+           m_watt = l.toInt();
+       } else if(waitResistance) {
+           waitResistance = false;
+           Resistance = l.toInt();
+       } else if(waitSpeed) {
+           waitSpeed = false;
+           Speed = l.split(" ").first().toDouble();
+       }
+    }
 #endif
 
     QString heartRateBeltName =
