@@ -450,6 +450,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     {
@@ -476,9 +478,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    }    
 
     {
 #ifdef Q_OS_IOS
