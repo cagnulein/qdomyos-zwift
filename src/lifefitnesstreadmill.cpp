@@ -679,7 +679,7 @@ void lifefitnesstreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->isPelotonWorkaroundActive()) {
 
         QSettings settings;
         bool virtual_device_enabled =

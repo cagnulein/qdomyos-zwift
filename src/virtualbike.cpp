@@ -11,33 +11,10 @@ using namespace std::chrono_literals;
 
 bool virtualbike::configureLockscreen(){
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    QSettings settings;
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    this->lockscreenFunctions = QZLockscreenFunctions::create();
+    this->lockscreenFunctions->setVirtualBike(true);
+    return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
-    if(!ios_peloton_workaround) return false;
-
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
-    bool heart_only =
-        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool echelon =
-        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
-    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
-
-    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
-
-        qDebug() << "ios_zwift_workaround activated!";
-        this->lockScreen = new lockscreen();
-        this->lockScreen->virtualbike_zwift_ios();
-        return true;
-    }
-
-#endif
-#endif
-    return false;
 }
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
@@ -1005,49 +982,47 @@ void virtualbike::reconnect() {
 
 bool virtualbike::doLockscreenUpdate() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if (this->lockScreen) {
+    if(!this->lockscreenFunctions->isPelotonWorkaroundActive())
+        return false;
 
-        double normalizeWattage = this->Bike->wattsMetric().value();
-        if (normalizeWattage < 0)
-            normalizeWattage = 0;
-        uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
+    double normalizeWattage = this->Bike->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+    uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
-        // really connected to a device
-        if (this->lockScreen->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
-                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
-                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
-            this->lockScreen->virtualbike_setHeartRate(Bike->currentHeart().value());
+    QZLockscreen * lockscreen = this->lockscreenFunctions->getLockscreen();
 
-            uint8_t ftms_message[255];
-            int ret = this->lockScreen->virtualbike_getLastFTMSMessage(ftms_message);
-            if (ret > 0) {
-                lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
-                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
-                                               QByteArray::fromRawData((char *)ftms_message, ret));
-            }
-            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
-            if (lastFTMSFrameReceived > 0) {
-                QSettings settings;
-                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+    // really connected to a device
+    if (lockscreen->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
+                                                 (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
+                                                 Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
+        lockscreen->virtualbike_setHeartRate(Bike->currentHeart().value());
 
-                if (!erg_mode)
-                    writeP2AD9->changeSlope(this->lockScreen->virtualbike_getCurrentSlope(),
-                                            this->lockScreen->virtualbike_getCurrentCRR(),
-                                            this->lockScreen->virtualbike_getCurrentCW());
-                else {
-                    qDebug() << "ios workaround power changed request" << this->lockScreen->virtualbike_getPowerRequested();
-                    writeP2AD9->changePower(this->lockScreen->virtualbike_getPowerRequested());
-                }
+        uint8_t ftms_message[255];
+        int ret = lockscreen->virtualbike_getLastFTMSMessage(ftms_message);
+        if (ret > 0) {
+            lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+            qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
+            emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                           QByteArray::fromRawData((char *)ftms_message, ret));
+        }
+        qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+        if (lastFTMSFrameReceived > 0) {
+            QSettings settings;
+            bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+
+            if (!erg_mode)
+                writeP2AD9->changeSlope(lockscreen->virtualbike_getCurrentSlope(),
+                                        lockscreen->virtualbike_getCurrentCRR(),
+                                        lockscreen->virtualbike_getCurrentCW());
+            else {
+                qDebug() << "ios workaround power changed request" << lockscreen->virtualbike_getPowerRequested();
+                writeP2AD9->changePower(lockscreen->virtualbike_getPowerRequested());
             }
         }
-        return true;
     }
-#endif
-#endif
-    return false;
+    return true;
+
 }
 
 void virtualbike::bikeProvider() {

@@ -767,7 +767,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &trxappgateusbbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
 
             QSettings settings;
             bool virtual_device_enabled =

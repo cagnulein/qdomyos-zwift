@@ -418,7 +418,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !this->isPelotonWorkaroundActive()) {
         QSettings settings;
         if (!virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =

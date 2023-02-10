@@ -170,7 +170,7 @@ void domyosrower::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !this->isPelotonWorkaroundActive()) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {

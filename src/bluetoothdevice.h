@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
+#include "lockscreen/qzlockscreenfunctions.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -23,7 +24,6 @@
 #include <QtBluetooth/qlowenergyservicedata.h>
 
 #if defined(Q_OS_IOS)
-#include "ios/lockscreen.h"
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
@@ -393,19 +393,6 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
-#ifdef Q_OS_IOS
-    /**
-     * @brief A lockscreen instance used for a Peloton workaround in IOS.
-     * Used to indicate if the Peloton workaround is active.
-     */
-    lockscreen *lockScreen = nullptr;
-#else
-    /**
-     * @brief Placeholder for the Peloton workaround in non-IOS.
-     */
-    bool lockScreen = false;
-#endif
-
     /**
      * @brief Update this object's Heart metric using a value from the lockscreen, in IOS.
      * @return True if the update happened, false if not (e.g. if it's not running in IOS)
@@ -424,6 +411,16 @@ class bluetoothdevice : public QObject {
      */
     virtual void doPelotonWorkaround()=0;
 
+    /**
+     * @brief Calls the lockscreen instance to determine if the Peloton workaround is active.
+     */
+    bool isPelotonWorkaroundActive() const;
+
+
+    /**
+     * @brief Access the lockscreen object.
+     */
+    QZLockscreenFunctions * getLockscreenFunctions() const { return this->lockscreenFunctions; }
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);
@@ -455,6 +452,11 @@ class bluetoothdevice : public QObject {
   private:
 
     bool virtualDeviceSetupDone = false;
+
+    /**
+     * @brief The lockscreen functions interface that is called by the various lockscreen functions.
+     */
+    QZLockscreenFunctions * lockscreenFunctions = nullptr;
 
   protected:
     QLowEnergyController *m_control = nullptr;

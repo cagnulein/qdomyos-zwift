@@ -24,7 +24,7 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     refresh->start(200ms);    
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {

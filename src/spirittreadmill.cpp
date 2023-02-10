@@ -447,7 +447,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

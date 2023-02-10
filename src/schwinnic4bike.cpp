@@ -389,7 +389,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike &!this->lockScreen ) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike &!this->isPelotonWorkaroundActive() ) {
 
         QSettings settings;
         bool virtual_device_enabled =
