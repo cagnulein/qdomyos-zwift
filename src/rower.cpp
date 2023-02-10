@@ -60,7 +60,7 @@ void rower::doPelotonWorkaround() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(!this->lockScreen || !this->isVirtualDeviceSetUp()) return;
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp()) return;
 
     QSettings settings;
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

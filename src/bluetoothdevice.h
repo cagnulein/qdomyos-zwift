@@ -407,6 +407,11 @@ class bluetoothdevice : public QObject {
 #endif
 
     /**
+     * @brief Indicates if the Peloton lockscreen workaround is active.
+    */
+    bool isPelotonWorkaroundActive();
+
+    /**
      * @brief Update this object's Heart metric using a value from the lockscreen, in IOS.
      * @return True if the update happened, false if not (e.g. if it's not running in IOS)
      */

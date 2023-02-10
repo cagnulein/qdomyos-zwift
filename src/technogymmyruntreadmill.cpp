@@ -547,7 +547,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->isPelotonWorkaroundActive()) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

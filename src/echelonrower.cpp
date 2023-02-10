@@ -348,7 +348,7 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonrower::descriptorWritten);
 
         // ******************************************* virtual bike/rower init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !virtualRower && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !virtualRower && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();

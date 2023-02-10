@@ -52,7 +52,7 @@ void fakebike::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->isPelotonWorkaroundActive()) {
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
         if (virtual_device_enabled) {

@@ -377,7 +377,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->lockScreen) {
+    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->isPelotonWorkaroundActive()) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();

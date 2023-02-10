@@ -339,7 +339,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &flywheelbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 

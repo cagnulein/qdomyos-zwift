@@ -265,7 +265,7 @@ void domyostreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill && !virtualBike && !this->lockScreen) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill && !virtualBike && !this->isPelotonWorkaroundActive()) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {

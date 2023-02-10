@@ -612,7 +612,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         if (!this->isVirtualDeviceSetUp()) {
             this->setVirtualDeviceSetUp();
 
-            if (!virtualBike && !this->lockScreen) {
+            if (!virtualBike && !this->isPelotonWorkaroundActive()) {
                 bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
                 if (virtual_device_enabled) {

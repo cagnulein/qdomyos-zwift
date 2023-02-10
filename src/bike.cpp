@@ -43,7 +43,7 @@ void bike::changeInclination(double grade, double percentage) {
 void bike::doPelotonWorkaround() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if(!this->lockScreen || !this->isVirtualDeviceSetUp())
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
         return;
 
     QSettings settings;
