@@ -286,7 +286,14 @@ QStringList bluetoothdevice::metrics() {
 
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
-bool bluetoothdevice::isPelotonWorkaroundActive() { return this->lockScreen!=0; }
+bool bluetoothdevice::isPelotonWorkaroundActive() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    return this->lockScreen!=0;
+#endif
+#endif
+    return false;
+}
 
 bool bluetoothdevice::updateLockscreenHeartRate() {
 

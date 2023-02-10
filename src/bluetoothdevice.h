@@ -399,11 +399,6 @@ class bluetoothdevice : public QObject {
      * Used to indicate if the Peloton workaround is active.
      */
     lockscreen *lockScreen = nullptr;
-#else
-    /**
-     * @brief Placeholder for the Peloton workaround in non-IOS.
-     */
-    bool lockScreen = false;
 #endif
 
     /**
