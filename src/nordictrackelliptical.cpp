@@ -342,10 +342,6 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
-    bool proform_hybrid_trainer_PFEL03815 =
-        settings
-            .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
-            .toBool();
 
     if (proform_hybrid_trainer_xt) {
         switch (r) {
@@ -389,46 +385,6 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
             return 14;
         case 0x23:
             return 15;
-        case 0x24:
-            return 15;
-        case 0x27:
-            return 16;
-        }
-    } else if (proform_hybrid_trainer_PFEL03815) {
-        switch (r) {
-        case 0:
-            return 0;
-        case 2:
-            return 1;
-        case 4:
-            return 2;
-        case 7:
-        case 8:
-            return 3;
-        case 9:
-            return 4;
-        case 0xb:
-        case 0xc:
-            return 5;
-        case 0xe:
-            return 6;
-        case 0x10:
-        case 0x11:
-            return 7;
-        case 0x13:
-            return 8;
-        case 0x15:
-            return 9;
-        case 0x18:
-            return 10;
-        case 0x1a:
-            return 11;
-        case 0x1d:
-            return 12;
-        case 0x1f:
-            return 13;
-        case 0x22:
-            return 14;
         case 0x24:
             return 15;
         case 0x27:
