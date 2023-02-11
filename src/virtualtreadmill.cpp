@@ -10,6 +10,9 @@ using namespace std::chrono_literals;
 bool virtualtreadmill::configureLockScreen() {
 
     this->lockscreenFunctions = QZLockscreenFunctions::create();
+    if(!this->lockscreenFunctions)
+        return false;
+
     this->lockscreenFunctions->setVirtualTreadmill(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
