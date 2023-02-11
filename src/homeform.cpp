@@ -3602,6 +3602,7 @@ void homeform::update() {
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
+            this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
             this->target_speed->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
 
