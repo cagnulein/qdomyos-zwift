@@ -287,14 +287,19 @@ QStringList bluetoothdevice::metrics() {
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 bool bluetoothdevice::updateLockscreenHeartRate() {
-    return this->getLockscreenFunctions()->updateHeartRate(this->Heart);
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->updateHeartRate(this->Heart);
 }
 
 bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate) {
-    return this->getLockscreenFunctions()->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
 }
 
-bool bluetoothdevice::isPelotonWorkaroundActive() const { return this->getLockscreenFunctions()->isPelotonWorkaroundActive(); }
+bool bluetoothdevice::isPelotonWorkaroundActive() const {
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->isPelotonWorkaroundActive();
+}
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 

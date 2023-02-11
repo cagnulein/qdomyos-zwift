@@ -421,6 +421,7 @@ class bluetoothdevice : public QObject {
      * @brief Access the lockscreen object.
      */
     QZLockscreenFunctions * getLockscreenFunctions() const { return this->lockscreenFunctions; }
+
   public Q_SLOTS:
     virtual void start();
     virtual void stop(bool pause);

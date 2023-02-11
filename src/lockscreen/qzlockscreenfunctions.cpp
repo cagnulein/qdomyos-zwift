@@ -1,8 +1,6 @@
 
 #include <qglobal.h>
 #include "lockscreen/qzlockscreenfunctions.h"
-#include "defaultlockscreenfunctions.h"
-
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -18,5 +16,5 @@ QZLockscreenFunctions *QZLockscreenFunctions::create(){
     return new IOSLockscreenFunctions();
 #endif
 #endif
-    return new DefaultLockscreenFunctions();
+    return nullptr;
 }

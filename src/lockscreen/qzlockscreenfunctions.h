@@ -90,6 +90,10 @@ public:
      */
     virtual void pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
 
+    /**
+     * @brief Tries to create a QZLockscreen object.
+     * @return nullptr if there is no lockscreen to update, in implementation of QZLockscreenFunctions otherwise.
+     */
     static QZLockscreenFunctions * create();
 };
 

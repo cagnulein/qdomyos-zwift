@@ -27,7 +27,7 @@ void bike::changeInclination(double grade, double percentage) {
 }
 
 void bike::doPelotonWorkaround() {
-    if(!this->isVirtualDeviceSetUp())
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
         return;
 
     this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());

@@ -315,11 +315,15 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::updateLockscreenStepCadence() {
-    this->getLockscreenFunctions()->updateStepCadence(this->Cadence);
+
+    auto functions = this->getLockscreenFunctions();
+
+    if(functions)
+        functions->updateStepCadence(this->Cadence);
 }
 
 void treadmill::doPelotonWorkaround() {
-    if(!this->isVirtualDeviceSetUp())
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
         return;
 
     this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(), (uint8_t)this->metrics_override_heartrate());

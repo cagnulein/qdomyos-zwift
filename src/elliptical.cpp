@@ -138,7 +138,7 @@ void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 
 void elliptical::doPelotonWorkaround() {
-    if(!this->isPelotonWorkaroundActive())
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
         return;
 
     this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->LastCrankEventTime, (uint8_t)metrics_override_heartrate());
