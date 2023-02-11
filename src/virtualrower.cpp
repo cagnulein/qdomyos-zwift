@@ -13,8 +13,13 @@ using namespace std::chrono_literals;
 bool virtualrower::configureLockscreen() {
 
     this->lockscreenFunctions = QZLockscreenFunctions::create();
+
+    if(!this->lockscreenFunctions)
+        return false;
+
     this->lockscreenFunctions->setVirtualRower(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
+
 }
 
 virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
@@ -301,7 +306,7 @@ void virtualrower::reconnect() {
 
 bool virtualrower::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions->isPelotonWorkaroundActive())
+    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = Rower->wattsMetric().value();

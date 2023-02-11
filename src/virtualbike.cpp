@@ -12,6 +12,10 @@ using namespace std::chrono_literals;
 bool virtualbike::configureLockscreen(){
 
     this->lockscreenFunctions = QZLockscreenFunctions::create();
+
+    if(!this->lockscreenFunctions)
+        return false;
+
     this->lockscreenFunctions->setVirtualBike(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
@@ -982,7 +986,7 @@ void virtualbike::reconnect() {
 
 bool virtualbike::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions->isPelotonWorkaroundActive())
+    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = this->Bike->wattsMetric().value();
