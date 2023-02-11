@@ -5,7 +5,10 @@
 
 bike::bike() {
     elapsed.setType(metric::METRIC_ELAPSED);
-    this->getLockscreenFunctions()->setVirtualBike(false);
+}
+
+void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+    if(functions) functions->setVirtualBike(false);
 }
 
 void bike::changeResistance(resistance_t resistance) {
@@ -32,6 +35,8 @@ void bike::doPelotonWorkaround() {
 
     this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
+
+
 
 // originally made for renphobike, but i guess it could be very generic
 uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {

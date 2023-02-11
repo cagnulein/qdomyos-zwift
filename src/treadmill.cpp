@@ -2,7 +2,11 @@
 #include <QSettings>
 
 treadmill::treadmill() {
-    this->getLockscreenFunctions()->setVirtualTreadmill(false);
+
+}
+
+void treadmill::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+    if(functions) functions->setVirtualTreadmill(false);
 }
 
 void treadmill::changeSpeed(double speed) {
@@ -328,3 +332,5 @@ void treadmill::doPelotonWorkaround() {
 
     this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(), (uint8_t)this->metrics_override_heartrate());
 }
+
+

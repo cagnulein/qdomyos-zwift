@@ -6,6 +6,9 @@
 
 bluetoothdevice::bluetoothdevice() {
     this->lockscreenFunctions = QZLockscreenFunctions::create();
+
+    if(this->lockscreenFunctions)
+        this->configureLockscreenFunctions(this->lockscreenFunctions);
 }
 
 bluetoothdevice::~bluetoothdevice() {

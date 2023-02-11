@@ -4,7 +4,11 @@
 #include <QSettings>
 
 rower::rower() {
-    this->getLockscreenFunctions()->setVirtualRower(false);
+
+}
+
+void rower::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+    if(functions) functions->setVirtualRower(false);
 }
 
 void rower::changeResistance(resistance_t resistance) {
@@ -47,6 +51,8 @@ void rower::doPelotonWorkaround() {
 
     this->getLockscreenFunctions()->pelotonRowerUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(),(uint8_t)metrics_override_heartrate());
 }
+
+
 
 void rower::clearStats() {
 

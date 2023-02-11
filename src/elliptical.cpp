@@ -3,7 +3,11 @@
 #include <QSettings>
 
 elliptical::elliptical() {
-    this->getLockscreenFunctions()->setVirtualBike(false);
+
+}
+
+void elliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+    if(functions) functions->setVirtualBike(false);
 }
 
 void elliptical::update_metrics(bool watt_calc, const double watts) {

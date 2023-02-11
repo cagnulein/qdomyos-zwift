@@ -463,6 +463,13 @@ class bluetoothdevice : public QObject {
     QLowEnergyController *m_control = nullptr;
 
     /**
+     * @brief If a lock screen interface is available for this device on this platform, it will be passd
+     * to this function for configuration by a subclass. The argument should never be nullptr.
+     * @param functions The lock screen interface object. Should not be nullptr.
+     */
+    virtual void configureLockscreenFunctions(QZLockscreenFunctions * functions) = 0;
+
+    /**
      * @brief Flags that the virtual device setup has been done (optionally: or not).
      * It is not sufficient to just check the virtual device storage itself, as the virtual device
      * may be disabled in the settings.
