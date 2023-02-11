@@ -5,7 +5,7 @@ treadmill::treadmill() {
 
 }
 
-void treadmill::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+void treadmill::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     if(functions) functions->setVirtualTreadmill(false);
 }
 

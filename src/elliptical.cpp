@@ -6,7 +6,7 @@ elliptical::elliptical() {
 
 }
 
-void elliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+void elliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     if(functions) functions->setVirtualBike(false);
 }
 

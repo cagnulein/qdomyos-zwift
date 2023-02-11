@@ -420,7 +420,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief Access the lockscreen object.
      */
-    QZLockscreenFunctions * getLockscreenFunctions() const { return this->lockscreenFunctions; }
+    QZLockscreenFunctions * getLockscreenFunctions() const;
 
   public Q_SLOTS:
     virtual void start();
@@ -452,12 +452,21 @@ class bluetoothdevice : public QObject {
 
   private:
 
+    /**
+     * @brief Indeicates if the setu pof the virtual devices has been done.
+     */
     bool virtualDeviceSetupDone = false;
 
     /**
      * @brief The lockscreen functions interface that is called by the various lockscreen functions.
      */
     QZLockscreenFunctions * lockscreenFunctions = nullptr;
+
+    /**
+     * @brief Indicates if the lockscreen function object configuration has been done.
+     * This can be ture when the lockscreenFunctions object is nullptr, in that case the configuration is a non-operation.
+     */
+    mutable bool lockscreenFunctionsConfigured = false;
 
   protected:
     QLowEnergyController *m_control = nullptr;
@@ -467,7 +476,7 @@ class bluetoothdevice : public QObject {
      * to this function for configuration by a subclass. The argument should never be nullptr.
      * @param functions The lock screen interface object. Should not be nullptr.
      */
-    virtual void configureLockscreenFunctions(QZLockscreenFunctions * functions) = 0;
+    virtual void configureLockscreenFunctions(QZLockscreenFunctions * functions) const =0;
 
     /**
      * @brief Flags that the virtual device setup has been done (optionally: or not).

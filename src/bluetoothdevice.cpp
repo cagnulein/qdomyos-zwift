@@ -6,9 +6,6 @@
 
 bluetoothdevice::bluetoothdevice() {
     this->lockscreenFunctions = QZLockscreenFunctions::create();
-
-    if(this->lockscreenFunctions)
-        this->configureLockscreenFunctions(this->lockscreenFunctions);
 }
 
 bluetoothdevice::~bluetoothdevice() {
@@ -302,6 +299,19 @@ bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartR
 bool bluetoothdevice::isPelotonWorkaroundActive() const {
     auto functions = this->getLockscreenFunctions();
     return functions && functions->isPelotonWorkaroundActive();
+}
+
+QZLockscreenFunctions *bluetoothdevice::getLockscreenFunctions() const {
+
+    if(!this->lockscreenFunctionsConfigured)    {
+        if(this->lockscreenFunctions)
+            this->configureLockscreenFunctions(this->lockscreenFunctions);
+
+        // this is why it was marked mutable
+        this->lockscreenFunctionsConfigured = true;
+    }
+
+    return this->lockscreenFunctions;
 }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {

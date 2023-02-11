@@ -7,7 +7,7 @@ rower::rower() {
 
 }
 
-void rower::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+void rower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     if(functions) functions->setVirtualRower(false);
 }
 

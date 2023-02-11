@@ -7,7 +7,7 @@ bike::bike() {
     elapsed.setType(metric::METRIC_ELAPSED);
 }
 
-void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) {
+void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     if(functions) functions->setVirtualBike(false);
 }
 
