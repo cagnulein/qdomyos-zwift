@@ -1,5 +1,4 @@
 #include "fitshowtreadmill.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>

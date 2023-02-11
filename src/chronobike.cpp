@@ -1,5 +1,4 @@
 #include "chronobike.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
