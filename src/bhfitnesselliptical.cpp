@@ -1,6 +1,5 @@
 #include "bhfitnesselliptical.h"
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
