@@ -67,6 +67,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     bool gps_data = false;
     double max_alt = 0;
     double min_alt = 99999;
+    double speed_acc = 0;
+    int speed_count = 0;
+    double speed_avg = 0;
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -86,6 +89,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             if (max_alt < session.at(i).elevationGain)
                 max_alt = session.at(i).elevationGain;
         }
+
+        if (session.at(i).speed > 0) {
+            speed_count++;
+            speed_acc += session.at(i).speed;
+        }
+    }
+
+    if (speed_count > 0) {
+        speed_avg = speed_acc / ((double)speed_count);
+        qDebug() << "average speed from the fit file" << speed_avg;
     }
 
     fit::SessionMesg sessionMesg;
@@ -111,15 +124,27 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         qDebug() << "overriding FIT sport " << overrideSport;
     } else if (type == bluetoothdevice::TREADMILL) {
 
-        sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        if (speed_avg == 0 || speed_avg > 6.5)
+            sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        else
+            sessionMesg.SetSport(FIT_SPORT_WALKING);
+
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
-        sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        if (speed_avg == 0 || speed_avg > 6.5)
+            sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        else
+            sessionMesg.SetSport(FIT_SPORT_WALKING);
+
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
         }
     } else if (type == bluetoothdevice::ROWING) {
 
