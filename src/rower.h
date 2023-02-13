@@ -72,6 +72,7 @@ class rower : public bluetoothdevice {
     QList<rowerSpeedDistance*> speedLast500mValues;
 
     void doPelotonWorkaround();
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 };
 
 #endif // ROWER_H

@@ -5,21 +5,10 @@
 
 rower::rower() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        QSettings settings;
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-        if (ios_peloton_workaround && cadence && !virtual_device_rower) {
+}
 
-            qDebug() << "ios_peloton_workaround activated!";
-            this->lockScreen = new lockscreen();
-            this->lockScreen->virtualbike_ios();
-        } else
-
-#endif
-#endif
+void rower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    if(functions) functions->setVirtualRower(false);
 }
 
 void rower::changeResistance(resistance_t resistance) {
@@ -57,22 +46,13 @@ void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 
 void rower::doPelotonWorkaround() {
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
+        return;
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp()) return;
-
-    QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-    if (ios_peloton_workaround && cadence && !virtual_device_rower) {
-        this->lockScreen->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        this->lockScreen->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
+    this->getLockscreenFunctions()->pelotonRowerUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(),(uint8_t)metrics_override_heartrate());
 }
+
+
 
 void rower::clearStats() {
 

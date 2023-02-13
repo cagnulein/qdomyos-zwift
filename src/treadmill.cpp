@@ -3,18 +3,10 @@
 
 treadmill::treadmill() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        QSettings settings;
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            this->lockScreen = new lockscreen();
-            this->lockScreen->virtualbike_ios();
-        }
-#endif
-#endif
+}
+
+void treadmill::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    if(functions) functions->setVirtualTreadmill(false);
 }
 
 void treadmill::changeSpeed(double speed) {
@@ -328,35 +320,17 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 
 void treadmill::updateLockscreenStepCadence() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    QSettings settings;
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled")))
-    {
-        lockscreen h;
-        long appleWatchCadence = h.stepCadence();
-        this->Cadence = appleWatchCadence;
-    }
-#endif
-#endif
+    auto functions = this->getLockscreenFunctions();
+
+    if(functions)
+        functions->updateStepCadence(this->Cadence);
 }
 
 void treadmill::doPelotonWorkaround() {
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
+        return;
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp()) return;
-
-    QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround =
-            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && cadence) {
-        this->lockScreen->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        this->lockScreen->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
+    this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(), (uint8_t)this->metrics_override_heartrate());
 }
+
+

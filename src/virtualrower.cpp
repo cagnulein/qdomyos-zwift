@@ -12,25 +12,14 @@ using namespace std::chrono_literals;
 
 bool virtualrower::configureLockscreen() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    QSettings settings;
+    this->lockscreenFunctions = QZLockscreenFunctions::create();
 
-    bool heart_only =
-        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
-    bool ios_peloton_workaround =
-        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if (ios_peloton_workaround && !heart_only) {
+    if(!this->lockscreenFunctions)
+        return false;
 
-        qDebug() << "ios_zwift_workaround activated!";
-        this->lockScreen = new lockscreen();
-        this->lockScreen->virtualrower_ios();
-        return true;
-    }
+    this->lockscreenFunctions->setVirtualRower(true);
+    return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
-#endif
-#endif
-    return false;
 }
 
 virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
@@ -317,46 +306,42 @@ void virtualrower::reconnect() {
 
 bool virtualrower::doLockscreenUpdate() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if (this->lockScreen) {
-        double normalizeWattage = Rower->wattsMetric().value();
-        if (normalizeWattage < 0)
-            normalizeWattage = 0;
-        uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
+        return false;
 
-        // really connected to a device
-        if (this->lockScreen->virtualrower_updateFTMS(
+    double normalizeWattage = Rower->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+    uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+
+    QZLockscreen * lockscreen = this->lockscreenFunctions->getLockscreen();
+    // really connected to a device
+    if (lockscreen->virtualrower_updateFTMS(
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
                 (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
                 ((rower *)Rower)->currentStrokesCount().value(), Rower->odometer() * 1000, Rower->calories().value(),
                 QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()))) {
-            this->lockScreen->virtualrower_setHeartRate(Rower->currentHeart().value());
+        lockscreen->virtualrower_setHeartRate(Rower->currentHeart().value());
 
-            uint8_t ftms_message[255];
-            int ret = this->lockScreen->virtualrower_getLastFTMSMessage(ftms_message);
-            if (ret > 0) {
-                lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
-                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
-                                               QByteArray::fromRawData((char *)ftms_message, ret));
-            }
-            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
-            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) { /*
+        uint8_t ftms_message[255];
+        int ret = lockscreen->virtualrower_getLastFTMSMessage(ftms_message);
+        if (ret > 0) {
+            lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+            qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
+            emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                           QByteArray::fromRawData((char *)ftms_message, ret));
+        }
+        qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+        if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) { /*
                  if (!erg_mode)
                      writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), 0, 0);
                  else {
                      qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                      writeP2AD9->changePower(this->lockScreen->virtualbike_getPowerRequested());
                  }*/
-            }
         }
-        return true;
     }
-#endif
-#endif
-
-    return false;
+    return true;
 }
 
 void virtualrower::rowerProvider() {

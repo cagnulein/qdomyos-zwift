@@ -4,18 +4,10 @@
 
 elliptical::elliptical() {
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        QSettings settings;
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            this->lockScreen = new lockscreen();
-            this->lockScreen->virtualbike_ios();
-        }
-#endif
-#endif
+}
+
+void elliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    if(functions) functions->setVirtualBike(false);
 }
 
 void elliptical::update_metrics(bool watt_calc, const double watts) {
@@ -150,21 +142,12 @@ void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 
 void elliptical::doPelotonWorkaround() {
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
+        return;
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround,
-    QZSettings::default_ios_peloton_workaround).toBool();
-
-    if (ios_peloton_workaround && cadence && h &&firstStateChanged) {
-        this->lockScreen->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        this->lockScreen->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
-#endif
-#endif
+    this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
+
 double elliptical::requestedSpeed() { return requestSpeed; }
 void elliptical::changeSpeed(double speed) {
     RequestedSpeed = speed;

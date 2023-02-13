@@ -58,6 +58,7 @@ class elliptical : public bluetoothdevice {
     resistance_t lastRawRequestedResistanceValue = -1;
 
     void doPelotonWorkaround() override;
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 };
 
 #endif // ELLIPTICAL_H

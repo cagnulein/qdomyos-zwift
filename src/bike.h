@@ -83,9 +83,10 @@ class bike : public bluetoothdevice {
 
     metric m_steeringAngle;
 
-    double m_speedLimit = 0;
+    double m_speedLimit;
 
     void doPelotonWorkaround() override;
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 };
 
 #endif // BIKE_H

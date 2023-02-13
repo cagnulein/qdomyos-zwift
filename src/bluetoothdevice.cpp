@@ -4,14 +4,14 @@
 #include <QSettings>
 #include <QTime>
 
-bluetoothdevice::bluetoothdevice() {}
+bluetoothdevice::bluetoothdevice() {
+    this->lockscreenFunctions = QZLockscreenFunctions::create();
+}
 
 bluetoothdevice::~bluetoothdevice() {
 
-#ifdef Q_OS_IOS
-    if(this->lockScreen)
-        delete this->lockScreen;
-#endif
+    if(this->lockscreenFunctions)
+        delete this->lockscreenFunctions;
 }
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
@@ -296,32 +296,31 @@ bool bluetoothdevice::isPelotonWorkaroundActive() {
 }
 
 bool bluetoothdevice::updateLockscreenHeartRate() {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    this->Heart = appleWatchHeartRate;
-    qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
-    return true;
-#endif
-#endif
-    return false;
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->updateHeartRate(this->Heart);
 }
 
 bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    h.setKcal(KCal.value());
-    h.setDistance(Distance.value());
-    this->Heart = appleWatchHeartRate!=0 ? appleWatchHeartRate:defaultHeartRate;
-    qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
-    return true;
-#endif
-#endif
-    return false;
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
+}
+
+bool bluetoothdevice::isPelotonWorkaroundActive() const {
+    auto functions = this->getLockscreenFunctions();
+    return functions && functions->isPelotonWorkaroundActive();
+}
+
+QZLockscreenFunctions *bluetoothdevice::getLockscreenFunctions() const {
+
+    if(!this->lockscreenFunctionsConfigured)    {
+        if(this->lockscreenFunctions)
+            this->configureLockscreenFunctions(this->lockscreenFunctions);
+
+        // this is why it was marked mutable
+        this->lockscreenFunctionsConfigured = true;
+    }
+
+    return this->lockscreenFunctions;
 }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
