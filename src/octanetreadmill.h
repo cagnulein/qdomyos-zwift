@@ -38,6 +38,8 @@ class octanetreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
+    virtual bool canStartStop() { return false; }
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);
     void forceSpeed(double requestSpeed);

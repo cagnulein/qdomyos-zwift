@@ -119,6 +119,12 @@ bool fitshowtreadmill::writePayload(const uint8_t *array, uint8_t size, const QS
 
 void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
     if (MAX_SPEED > 0) {
+        QSettings settings;
+        // the treadmill send the speed in miles always
+        double miles = 1;
+        if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool())
+            miles = 1.60934;
+        requestSpeed /= miles;
         requestSpeed *= 10.0;
         if (requestSpeed >= MAX_SPEED) {
             requestSpeed = MAX_SPEED;
@@ -441,6 +447,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
+                StepCount = step_count;
+
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
                 emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
@@ -462,11 +470,17 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastStop = 0;
                 }
 
-                Speed = speed;
+                // the treadmill send the speed in miles always
+                double miles = 1;
+                if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles)
+                        .toBool())
+                    miles = 1.60934;
+
+                Speed = speed * miles;
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
-                Inclination = incline;
+                Inclination = treadmillInclinationOverride(incline);
                 if (Inclination.value() != incline) {
                     emit inclinationChanged(0, incline);
                 }
@@ -570,6 +584,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 uint16_t seconds_elapsed = array[2] | array[3] << 8;
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
+
+                StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));

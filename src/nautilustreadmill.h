@@ -36,6 +36,7 @@ class nautilustreadmill : public treadmill {
     double minStepInclination() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    virtual bool canStartStop() { return false; }
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);

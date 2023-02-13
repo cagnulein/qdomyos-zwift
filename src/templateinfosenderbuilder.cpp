@@ -65,6 +65,7 @@ bool TemplateInfoSenderBuilder::validFileTemplateType(const QString &tp) const {
 
 void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo, const QString &folder,
                                                           QStringList &dirTemplates) {
+    QSettings settings;
     QDirIterator it(folder);
     QString content, templateId;
     // QString tempType; // NOTE: clazy-unused-non-triviak-variable
@@ -118,6 +119,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo,
 }
 
 void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &folders) {
+    QSettings settings;
     stop();
     masterId = idInfo;
     foldersToLook = folders;
@@ -213,6 +215,7 @@ QStringList TemplateInfoSenderBuilder::templateIdList() const { return templateF
 
 void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInfoSender *tempSender) {
     QJsonObject outObj;
+    QSettings settings;
     QStringList keys = settings.allKeys();
     QJsonValue keys_req;
     QJsonArray keys_arr;
@@ -377,6 +380,7 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     QVariant valConv;
     QVariant settingVal;
     QJsonObject outObj;
+    QSettings settings;
     for (auto &key : keys) {
         if (settings.contains(key)) {
             val = obj[key];
@@ -517,15 +521,7 @@ void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *t
 }
 
 void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->clearStats();
-        device->start();
-        emit workoutEventStateChanged(bluetoothdevice::STARTED);
-    } else {
-        device->start();
-        device->setPaused(false);
-        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
-    }
+    emit Start();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_start");
     QJsonDocument out(main);
@@ -533,11 +529,7 @@ void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->stop(true);
-        device->setPaused(true);
-        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
-    }
+    emit Pause();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_pause");
     QJsonDocument out(main);
@@ -545,10 +537,7 @@ void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
-    device->stop(false);
-    device->setPaused(true);
-    device->clearStats();
-    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
+    emit Stop();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_stop");
     QJsonDocument out(main);
@@ -629,6 +618,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
 }
 
 void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit lap();
     main[QStringLiteral("msg")] = QStringLiteral("R_lap");
@@ -637,6 +627,7 @@ void TemplateInfoSenderBuilder::onLap(const QJsonValue &msgContent, TemplateInfo
 }
 
 void TemplateInfoSenderBuilder::onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit pelotonOffset_Plus();
     main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_plus");
@@ -645,6 +636,7 @@ void TemplateInfoSenderBuilder::onPelotonOffsetPlus(const QJsonValue &msgContent
 }
 
 void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit pelotonOffset_Minus();
     main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_minus");
@@ -652,7 +644,26 @@ void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgConten
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit peloton_start_workout();
+    main[QStringLiteral("msg")] = QStringLiteral("R_peloton_start_workout");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit peloton_abort_workout();
+    main[QStringLiteral("msg")] = QStringLiteral("R_peloton_abort_workout");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
     QJsonObject main, outObj;
     emit floatingClose();
     main[QStringLiteral("msg")] = QStringLiteral("R_floating_close");
@@ -754,6 +765,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("pelotonoffset_minus")) {
                     onPelotonOffsetMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("peloton_start_workout")) {
+                    onPelotonStartWorkout(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("peloton_abort_workout")) {
+                    onPelotonAbortWorkout(jsonObject[QStringLiteral("content")], sender);
+                    return;
                 } else if (msg == QStringLiteral("floating_close")) {
                     onFloatingClose(jsonObject[QStringLiteral("content")], sender);
                     return;
@@ -782,6 +799,8 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
 void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue glob = engine->globalObject();
     QJSValue obj;
+    QSettings settings;
+
     if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
         glob.setProperty(QStringLiteral("workout"), obj);
@@ -891,6 +910,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
+        obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())

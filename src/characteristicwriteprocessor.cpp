@@ -74,13 +74,15 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
         emit changeInclination(((iresistance / 100.0) * gain) + offset,
                                ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
     } else if (dt == bluetoothdevice::ELLIPTICAL) {
+        bool inclinationAvailableByHardware = ((elliptical *)Bike)->inclinationAvailableByHardware();
+        qDebug() << "inclinationAvailableByHardware" << inclinationAvailableByHardware << "erg_mode" << erg_mode;
         emit changeInclination(((iresistance / 100.0) * gain) + offset,
                                ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
 
-        if (!((elliptical *)Bike)->inclinationAvailableByHardware()) {
+        if (!inclinationAvailableByHardware) {
             if (force_resistance && !erg_mode) {
                 // same on the training program
-                Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
+                ((elliptical *)Bike)->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
                                        1 + CRR_offset + CW_offset); // resistance start from 1
             }
         }

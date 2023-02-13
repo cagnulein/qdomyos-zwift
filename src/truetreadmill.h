@@ -41,6 +41,7 @@ class truetreadmill : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
 
+    virtual bool canStartStop() { return false; }
 
   private:
     void startDiscover();

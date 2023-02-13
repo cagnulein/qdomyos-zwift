@@ -48,8 +48,8 @@ public:
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike
-        this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MAGNUS ", comparison::StartsWithIgnoreCase); // Saris Trainer
+        this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
         this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);
@@ -58,6 +58,15 @@ public:
         this->addDeviceName("DIRETO XR", comparison::StartsWithIgnoreCase);
         this->addDeviceName("SMB1", comparison::StartsWithIgnoreCase);
         this->addDeviceName("INRIDE", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("XBR55", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("HAMMER ", comparison::StartsWithIgnoreCase); // HAMMER 64123
+
+
+        // Starts with DT- and is 14+ characters long.
+        // TODO: update once addDeviceName can generate valid and invalid names for variable length patterns
+        this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
+        this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
+        this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
      }
 };
 

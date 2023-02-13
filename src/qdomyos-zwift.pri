@@ -63,7 +63,10 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
-    virtualdevice.cpp \
+    $$PWD/virtualdevice.cpp \
+    $$PWD/androidactivityresultreceiver.cpp \
+    $$PWD/androidadblog.cpp \
+   $$PWD/pelotonbike.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -254,8 +257,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
-    discoveryoptions.h \
     virtualdevice.h \
+    $$PWD/androidactivityresultreceiver.h \
+    $$PWD/androidadblog.h \
+    $$PWD/discoveryoptions.h \
+   $$PWD/pelotonbike.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
@@ -666,6 +672,9 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/src/MediaProjection.java \
+    $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/ScreenCaptureService.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -716,6 +725,10 @@ DISTFILES += \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
+win32: DISTFILES += \
+   $$PWD/adb/AdbWinApi.dll \
+	$$PWD/adb/AdbWinUsbApi.dll \
+	$$PWD/adb/adb.exe \
 
 
 ios {
@@ -753,4 +766,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.42
+VERSION = 2.12.62

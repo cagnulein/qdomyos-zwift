@@ -46,6 +46,8 @@ class proformwifitreadmill : public treadmill {
                          double bikeResistanceGain);
     bool connected() override;
 
+    virtual bool canStartStop() { return false; }
+
   private:
     QWebSocket websocket;
     void connectToDevice();

@@ -10,6 +10,7 @@ public:
         this->addDeviceName("KICKR SNAP", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KICKR BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KICKR ROLLR", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::WahooKickrSnapBike; }

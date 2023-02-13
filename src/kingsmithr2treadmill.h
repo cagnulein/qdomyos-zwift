@@ -42,6 +42,7 @@ class kingsmithr2treadmill : public treadmill {
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
 
+    virtual bool canStartStop() { return false; }
   private:
     const QByteArray PLAINTEXT_TABLE =
         QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();

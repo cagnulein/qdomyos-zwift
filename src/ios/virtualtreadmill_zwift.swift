@@ -36,12 +36,13 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16) -> Bool
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
         peripheralManager.CurrentResistance = currentResistance
         peripheralManager.CurrentWatt = currentWatt
+        peripheralManager.CurrentInclination = currentInclination
 
         return peripheralManager.connected;
     }
@@ -68,6 +69,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    public var CurrentInclination: UInt16! = 0
     public var lastCurrentSlope: UInt64! = 0;
     
     public var serviceToggle: UInt8 = 0
@@ -316,8 +318,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         let flags1:UInt8 = 0x01
       
         var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                                      // TODO: add the incline from C++
-                                      0x00, 0x00, 0x00, 0x00,
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       self.heartRate]
       let treadmillDataData = Data(bytes: &treadmillData, count: 10)
       return treadmillDataData
