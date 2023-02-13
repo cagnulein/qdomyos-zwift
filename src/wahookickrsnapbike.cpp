@@ -18,6 +18,8 @@ using namespace std::chrono_literals;
 
 wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                        double bikeResistanceGain) {
+    ergModeSupported = true; // IMPORTANT, only for this bike
+
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -193,6 +195,20 @@ void wahookickrsnapbike::update() {
             // updateDisplay(elapsed);
         }
 
+        if (requestPower != -1) {
+            debug("writing power request " + QString::number(requestPower));
+            QSettings settings;
+            bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                     .toString()
+                                     .startsWith(QStringLiteral("Disabled"));
+            QByteArray a = setErgMode(requestPower);
+            uint8_t b[20];
+            memcpy(b, a.constData(), a.length());
+            writeCharacteristic(b, a.length(), "setErgMode", false, true);
+            requestPower = -1;
+            requestResistance = -1;
+        }
+
         if (requestResistance != -1) {
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -203,7 +219,7 @@ void wahookickrsnapbike::update() {
             if (requestResistance != currentResistance().value() &&
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                QByteArray a = setResistanceMode(requestResistance);
+                QByteArray a = setResistanceMode(((double)requestResistance) / 100.0);
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
@@ -232,7 +248,8 @@ void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
-    bool schwinn_bike_resistance_v2 = settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    bool schwinn_bike_resistance_v2 =
+        settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
@@ -286,7 +303,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid();
 
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -355,7 +372,11 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (cadence >= 0) {
-                        Cadence = cadence / 2.0;
+                        if(WAHOO_KICKR) {
+                            Cadence = cadence / 4.0;
+                        } else {
+                            Cadence = cadence / 2.0;
+                        }
                     }
                     lastGoodCadence = QDateTime::currentDateTime();
                 } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
@@ -369,9 +390,14 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
             oldCrankRevs = CrankRevs;
 
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+                Speed = Cadence.value() * settings
+                                              .value(QZSettings::cadence_sensor_speed_ratio,
+                                                     QZSettings::default_cadence_sensor_speed_ratio)
+                                              .toDouble();
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -404,7 +430,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 else
                     m_pelotonResistance = res;
 
-                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
+                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                        .toBool())
                     Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
                 else
                     Resistance = m_pelotonResistance;
@@ -415,14 +442,16 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 
             if (watts())
                 KCal +=
-                    ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                       3.5) /
+                    ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                     QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     {
@@ -449,15 +478,15 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    }    
 
     {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -564,11 +593,14 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -647,6 +679,11 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(device.name().toUpper().startsWith("WAHOO KICKR")) {
+            WAHOO_KICKR = true;
+            qDebug() << "WAHOO KICKR workaround activated";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &wahookickrsnapbike::serviceDiscovered);

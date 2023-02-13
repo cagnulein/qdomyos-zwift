@@ -38,6 +38,7 @@ class nordictrackifitadbbike : public bike {
   private:
     void forceResistance(double resistance);
     uint16_t watts();
+    double getDouble(QString v);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

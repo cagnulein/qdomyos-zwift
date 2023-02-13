@@ -27,8 +27,6 @@ import android.webkit.WebViewClient;
 import android.util.Log;
 import android.content.SharedPreferences;
 
-import androidx.annotation.Nullable;
-
 public class FloatingWindowGFG extends Service {
 
 	 // The reference variables for the
@@ -49,7 +47,6 @@ public class FloatingWindowGFG extends Service {
 
 	 // As FloatingWindowGFG inherits Service class,
 	 // it actually overrides the onBind method
-	 @Nullable
 	 @Override
 	 public IBinder onBind(Intent intent) {
 		  return null;

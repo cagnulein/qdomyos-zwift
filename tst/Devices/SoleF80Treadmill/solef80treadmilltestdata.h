@@ -11,6 +11,7 @@ public:
         this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F63", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ST90", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
     }
 
