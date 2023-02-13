@@ -699,6 +699,10 @@ import Qt.labs.settings 1.0
             // from version 2.12.61
             property bool sole_elliptical_e55: false
             property bool horizon_treadmill_force_ftms: false
+
+            // from version 2.12.64
+            property int treadmill_pid_heart_min: 0
+            property int treadmill_pid_heart_max: 0
         }
 
         function paddingZeros(text, limit) {
@@ -3741,6 +3745,63 @@ import Qt.labs.settings 1.0
 
                 Label {
                     text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("PID on HR min:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRminTextField
+                        text: settings.treadmill_pid_heart_min
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text }
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("PID on HR max:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRmaxTextField
+                        text: settings.treadmill_pid_heart_max
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text }
+                    }
+                }
+
+                Label {
+                    text: qsTr("Alternatevely to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 8

@@ -153,7 +153,13 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                      (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         lastRefreshPowerChanged = QDateTime::currentDateTime();
+    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+        if (newValue.length() > 1) {
+            Heart = (uint8_t)newValue[1];
+            emit onHeartRate((uint8_t)Heart.value());
+        }
 
+        emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);

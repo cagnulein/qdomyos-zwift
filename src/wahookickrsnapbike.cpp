@@ -371,11 +371,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (cadence >= 0) {
-                        if(WAHOO_KICKR) {
-                            Cadence = cadence / 4.0;
-                        } else {
-                            Cadence = cadence / 2.0;
-                        }
+                        Cadence = cadence / 2.0;
                     }
                     lastGoodCadence = QDateTime::currentDateTime();
                 } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
@@ -383,7 +379,8 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 }
             }
 
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
 
             oldLastCrankEventTime = LastCrankEventTime;
             oldCrankRevs = CrankRevs;
@@ -470,7 +467,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }    
+    }
 
     this->doPelotonWorkaround();
 
@@ -641,7 +638,7 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if(device.name().toUpper().startsWith("WAHOO KICKR")) {
+        if (device.name().toUpper().startsWith("WAHOO KICKR")) {
             WAHOO_KICKR = true;
             qDebug() << "WAHOO KICKR workaround activated";
         }
