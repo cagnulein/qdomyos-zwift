@@ -163,7 +163,9 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -249,8 +251,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                   3.5) /
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -313,15 +315,26 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
          settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
         settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 
-    if (isnan(res))
-        m_pelotonResistance = 0;
-    else
-        m_pelotonResistance = res;
-
+    double resistance;
+    if (isnan(res)) {
+        res = 0;
+    }
     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
-        Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+        resistance = pelotonToBikeResistance(res);
     else
-        Resistance = m_pelotonResistance;
+        resistance = res;
+    if (qFabs(resistance - Resistance.value()) >=
+        (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
+            .toInt()) {
+        Resistance = resistance;
+        m_pelotonResistance = res;
+    } else {
+        // to calculate correctly the averages
+        Resistance = Resistance.value();
+        m_pelotonResistance = m_pelotonResistance.value();
+
+        qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
+    }
     emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -348,7 +361,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
 
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
@@ -403,11 +417,14 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     ) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
 
             qDebug() << "ios_peloton_workaround activated!";
@@ -420,8 +437,11 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            uint8_t bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
-            double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
+            uint8_t bikeResistanceOffset =
+                settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+            double bikeResistanceGain =
+                settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
+                    .toDouble();
             virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
@@ -546,7 +566,8 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
 
 resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
-    bool schwinn_bike_resistance_v2 = settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    bool schwinn_bike_resistance_v2 =
+        settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;

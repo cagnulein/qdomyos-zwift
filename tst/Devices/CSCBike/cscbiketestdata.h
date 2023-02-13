@@ -16,6 +16,7 @@ public:
     CSCBikeTestData() : BluetoothDeviceTestData("CSC Bike") {
         this->cscBikeName = "CyclingSpeedCadenceBike-";
 
+        this->addDeviceName(QStringLiteral("JOROTO-BK-"), comparison::StartsWith);
         this->addDeviceName(this->cscBikeName, comparison::StartsWith);
         this->addInvalidDeviceName("X"+this->cscBikeName, comparison::Exact);
     }

@@ -342,6 +342,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     QSettings settings;
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
+
     if (proform_hybrid_trainer_xt) {
         switch (r) {
         case 0:

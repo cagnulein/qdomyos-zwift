@@ -214,7 +214,7 @@ void domyoselliptical::update() {
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
-        } else if (requestInclination != -100) {
+        } else if (requestInclination != -100 && inclinationAvailableByHardware()) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {

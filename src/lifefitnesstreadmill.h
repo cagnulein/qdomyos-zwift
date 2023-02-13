@@ -48,6 +48,7 @@ class lifefitnesstreadmill : public treadmill {
 
     void *VirtualTreadmill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,

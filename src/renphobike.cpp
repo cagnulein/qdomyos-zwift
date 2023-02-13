@@ -72,7 +72,7 @@ void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 
-    write[1] = ((uint8_t)(requestResistance * 2));
+    write[1] = ((uint8_t)(requestResistance));
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
@@ -692,6 +692,8 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
     bool renpho_peloton_conversion_v2 =
         settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
             .toBool();
+
+    resistance = resistance / 2.0;
 
     if (!renpho_peloton_conversion_v2) {
         // 0,0069x2 + 0,3538x + 24,207

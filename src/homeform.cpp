@@ -419,11 +419,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::peloton_abort_workout, this,
             &homeform::peloton_abort_workout);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Start, this,
-            &homeform::Start);
-    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Pause, this,
-            &homeform::Start);
+            &homeform::StartRequested);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Pause, this, &homeform::Start);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::Stop, this,
-            &homeform::Stop);
+            &homeform::StopRequested);
     connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
@@ -523,6 +522,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
+
+    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+        QBluetoothDeviceInfo b;
+        deviceConnected(b);
+    }
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -2607,6 +2611,10 @@ void homeform::Plus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -2827,6 +2835,10 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -2935,6 +2947,21 @@ void homeform::Start_inner(bool send_event_to_device) {
     if (bluetoothManager->device()) {
         bluetoothManager->device()->setPaused(paused | stopped);
     }
+}
+
+void homeform::StartRequested() {
+    Start();
+    m_stopRequested = false;
+    m_startRequested = true;
+    emit stopRequestedChanged(m_stopRequested);
+    emit startRequestedChanged(m_startRequested);
+}
+
+void homeform::StopRequested() {
+    m_startRequested = false;
+    m_stopRequested = true;
+    emit startRequestedChanged(m_startRequested);
+    emit stopRequestedChanged(m_stopRequested);
 }
 
 void homeform::Stop() {
@@ -3575,6 +3602,7 @@ void homeform::update() {
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
+            this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
             this->target_speed->setValue(QString::number(
                 ((elliptical *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
 
@@ -4130,6 +4158,7 @@ void homeform::update() {
             uint8_t delta = 10;
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR > 0;
             int8_t maxSpeed = 30;
+            int8_t maxResistance = 100;
 
             if (fromTrainProgram) {
                 delta = trainProgram->currentRow().loopTimeHR;
@@ -4152,6 +4181,9 @@ void homeform::update() {
                     }
                     if (trainProgram->currentRow().maxSpeed > 0) {
                         maxSpeed = trainProgram->currentRow().maxSpeed;
+                    }
+                    if (trainProgram->currentRow().maxResistance > 0) {
+                        maxResistance = trainProgram->currentRow().maxResistance;
                     }
                 }
 
@@ -4192,7 +4224,7 @@ void homeform::update() {
                         if (zone < ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > ((uint8_t)currentHRZone)) {
+                        } else if (zone > ((uint8_t)currentHRZone) && maxResistance >= currentResistance + step) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -4511,8 +4543,11 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
+            if (previewTrainProgram) {
+                delete previewTrainProgram;
+                previewTrainProgram = 0;
+            }
             if (trainProgram) {
-
                 delete trainProgram;
             }
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
@@ -4530,8 +4565,8 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     if (!file.fileName().isEmpty()) {
         {
             if (previewTrainProgram) {
-
                 delete previewTrainProgram;
+                previewTrainProgram = 0;
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
             emit previewWorkoutPointsChanged(preview_workout_points());
