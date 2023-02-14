@@ -703,6 +703,9 @@ import Qt.labs.settings 1.0
             // from version 2.12.64
             property int treadmill_pid_heart_min: 0
             property int treadmill_pid_heart_max: 0
+
+            // from version 2.12.65
+            property bool nordictrack_elliptical_c7_5: false
         }
 
         function paddingZeros(text, limit) {
@@ -5605,7 +5608,7 @@ import Qt.labs.settings 1.0
                     }
                     AccordionElement {
                         id: proformEllipticalAccordion
-                        title: qsTr("Proform Elliptical Options")
+                        title: qsTr("Proform/Nordictrack Elliptical Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5637,6 +5640,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack C7.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_elliptical_c7_5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_elliptical_c7_5 = checked
                         }
                     }                    
 
