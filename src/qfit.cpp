@@ -286,6 +286,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             lapMesg.SetTotalDistance((sl.distance - lastLapOdometer) * 1000.0); // meters
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
+            lapMesg.SetEventType(FIT_EVENT_LAP);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
