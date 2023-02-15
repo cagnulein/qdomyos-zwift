@@ -59,6 +59,10 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
             m_jouls += (m_watt.value() * deltaTime);
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+
+            if(Cadence.value() > 0 && InstantaneousStrideLengthCM.value() == 0) {
+                InstantaneousStrideLengthCM = ((Speed.value() / 60.0) * 100000) / Cadence.value();
+            }
         } else if (m_watt.value() > 0) {
             m_watt = 0;
             WattKg = 0;
@@ -163,4 +167,148 @@ void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousSt
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
 void treadmill::verticalOscillationSensor(double verticalOscillation) {
     VerticalOscillationMM.setValue(verticalOscillation);
+}
+
+double treadmill::treadmillInclinationOverride(double Inclination) {
+    QSettings settings;
+    int inc = Inclination * 10;
+    qDebug() << "treadmillInclinationOverride" << Inclination << inc;
+    switch (inc) {
+    case 0:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_0, QZSettings::default_treadmill_inclination_override_0)
+            .toDouble();
+    case 5:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_05, QZSettings::default_treadmill_inclination_override_05)
+            .toDouble();
+    case 10:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_10, QZSettings::default_treadmill_inclination_override_10)
+            .toDouble();
+    case 15:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_15, QZSettings::default_treadmill_inclination_override_15)
+            .toDouble();
+    case 20:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_20, QZSettings::default_treadmill_inclination_override_20)
+            .toDouble();
+    case 25:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_25, QZSettings::default_treadmill_inclination_override_25)
+            .toDouble();
+    case 30:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_30, QZSettings::default_treadmill_inclination_override_30)
+            .toDouble();
+    case 35:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_35, QZSettings::default_treadmill_inclination_override_35)
+            .toDouble();
+    case 40:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_40, QZSettings::default_treadmill_inclination_override_40)
+            .toDouble();
+    case 45:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_45, QZSettings::default_treadmill_inclination_override_45)
+            .toDouble();
+    case 50:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_50, QZSettings::default_treadmill_inclination_override_50)
+            .toDouble();
+    case 55:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_55, QZSettings::default_treadmill_inclination_override_55)
+            .toDouble();
+    case 60:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_60, QZSettings::default_treadmill_inclination_override_60)
+            .toDouble();
+    case 65:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_65, QZSettings::default_treadmill_inclination_override_65)
+            .toDouble();
+    case 70:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_70, QZSettings::default_treadmill_inclination_override_70)
+            .toDouble();
+    case 75:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_75, QZSettings::default_treadmill_inclination_override_75)
+            .toDouble();
+    case 80:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_80, QZSettings::default_treadmill_inclination_override_80)
+            .toDouble();
+    case 85:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_85, QZSettings::default_treadmill_inclination_override_85)
+            .toDouble();
+    case 90:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_90, QZSettings::default_treadmill_inclination_override_90)
+            .toDouble();
+    case 95:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_95, QZSettings::default_treadmill_inclination_override_95)
+            .toDouble();
+    case 100:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_100,
+                   QZSettings::default_treadmill_inclination_override_100)
+            .toDouble();
+    case 105:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_105,
+                   QZSettings::default_treadmill_inclination_override_105)
+            .toDouble();
+    case 110:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_110,
+                   QZSettings::default_treadmill_inclination_override_110)
+            .toDouble();
+    case 115:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_115,
+                   QZSettings::default_treadmill_inclination_override_115)
+            .toDouble();
+    case 120:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_120,
+                   QZSettings::default_treadmill_inclination_override_120)
+            .toDouble();
+    case 125:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_125,
+                   QZSettings::default_treadmill_inclination_override_125)
+            .toDouble();
+    case 130:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_130,
+                   QZSettings::default_treadmill_inclination_override_130)
+            .toDouble();
+    case 135:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_135,
+                   QZSettings::default_treadmill_inclination_override_135)
+            .toDouble();
+    case 140:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_140,
+                   QZSettings::default_treadmill_inclination_override_140)
+            .toDouble();
+    case 145:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_145,
+                   QZSettings::default_treadmill_inclination_override_145)
+            .toDouble();
+    case 150:
+        return settings
+            .value(QZSettings::treadmill_inclination_override_150,
+                   QZSettings::default_treadmill_inclination_override_150)
+            .toDouble();
+    }
+    return Inclination;
 }

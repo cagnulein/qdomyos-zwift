@@ -29,6 +29,12 @@ class TemplateInfoSenderBuilder : public QObject {
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
     int pelotonOffset();
+    bool pelotonAskStart();
+    void peloton_start_workout();
+    void peloton_abort_workout();
+    void Start();
+    void Pause();
+    void Stop();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -61,6 +67,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

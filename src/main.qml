@@ -664,7 +664,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.12.50"
+                text: "version 2.12.64"
                 width: parent.width
             }
 				FileDialog {

@@ -650,6 +650,62 @@ import Qt.labs.settings 1.0
             // from version 2.12.51
             property bool treadmill_difficulty_gain_or_offset: false
             property bool pafers_treadmill_bh_iboxster_plus: false
+
+            // from version 2.12.52
+            property bool proform_cycle_trainer_400: false
+
+            // from version 2.12.58
+            property bool fitshow_treadmill_miles: false
+            property bool proform_hybrid_trainer_PFEL03815: false
+            property int schwinn_resistance_smooth: 0
+
+            // from version 2.12.59
+            property bool peloton_workout_ocr: false
+            property bool peloton_bike_ocr: false
+
+            // from version 2.12.60
+            property double treadmill_inclination_override_0: 0.0
+            property double treadmill_inclination_override_05: 0.5
+            property double treadmill_inclination_override_10: 1.0
+            property double treadmill_inclination_override_15: 1.5
+            property double treadmill_inclination_override_20: 2.0
+            property double treadmill_inclination_override_25: 2.5
+            property double treadmill_inclination_override_30: 3.0
+            property double treadmill_inclination_override_35: 3.5
+            property double treadmill_inclination_override_40: 4.0
+            property double treadmill_inclination_override_45: 4.5
+            property double treadmill_inclination_override_50: 5.0
+            property double treadmill_inclination_override_55: 5.5
+            property double treadmill_inclination_override_60: 6.0
+            property double treadmill_inclination_override_65: 6.5
+            property double treadmill_inclination_override_70: 7.0
+            property double treadmill_inclination_override_75: 7.5
+            property double treadmill_inclination_override_80: 8.0
+            property double treadmill_inclination_override_85: 8.5
+            property double treadmill_inclination_override_90: 9.0
+            property double treadmill_inclination_override_95: 9.5
+            property double treadmill_inclination_override_100: 10.0
+            property double treadmill_inclination_override_105: 10.5
+            property double treadmill_inclination_override_110: 11.0
+            property double treadmill_inclination_override_115: 11.5
+            property double treadmill_inclination_override_120: 12.0
+            property double treadmill_inclination_override_125: 12.5
+            property double treadmill_inclination_override_130: 13.0
+            property double treadmill_inclination_override_135: 13.5
+            property double treadmill_inclination_override_140: 14.0
+            property double treadmill_inclination_override_145: 14.5
+            property double treadmill_inclination_override_150: 15.0
+
+            // from version 2.12.61
+            property bool sole_elliptical_e55: false
+            property bool horizon_treadmill_force_ftms: false
+
+            // from version 2.12.64
+            property int treadmill_pid_heart_min: 0
+            property int treadmill_pid_heart_max: 0
+
+            // from version 2.12.65
+            property bool nordictrack_elliptical_c7_5: false
         }
 
         function paddingZeros(text, limit) {
@@ -2066,6 +2122,42 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
                         }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelSchwinnResistancSmoothing
+                                text: qsTr("Resistance Smoothing:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: scwhinnResistanceSmoothTextField
+                                text: settings.schwinn_resistance_smooth
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.schwinn_resistance_smooth = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okschwinnResistanceSmoothButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text
+                            }
+                        }
+                        Label {
+                            text: qsTr("Since this bike doesn't send resistance over bluetooth, QZ is calculating it using cadence and wattage. The result could be a little 'jumpy' and so, with this setting, you can filter the resistance tile value. The unit is a pure resistance level, so putting 5 means that you will see a resistance changes only when the resistance is changing by 5 levels.")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: 8
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
+                        }
                     }
                 }
                 AccordionElement {
@@ -2594,6 +2686,21 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
                     }
+                    SwitchDelegate {
+                        id: proformCycleTrainerdelegate
+                        text: qsTr("Cycle Trainer 400")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_cycle_trainer_400
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_cycle_trainer_400 = checked
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3512,6 +3619,62 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    SwitchDelegate {
+                        id: pelotonWorkoutOCRDelegate
+                        text: qsTr("Peloton Auto Sync (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_workout_ocr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        id: pelotonBikeOCRDelegate
+                        text: qsTr("Peloton Bike/Bike+ (Experimental)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_bike_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_bike_ocr = checked
+                    }
+
+                    Label {
+                        text: qsTr("Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                 }
             }
 
@@ -3585,6 +3748,63 @@ import Qt.labs.settings 1.0
 
                 Label {
                     text: qsTr("QZ controls your treadmill or bike to keep you within a chosen Heart Rate Zone. Turn on, set a target heart rate (HR) zone in which to train and click OK. For example, enter 2 to train in HR zone 2 and the treadmill will auto adjust the speed (or resistance on a bike) to maintain your heart rate in zone 2. QZ gradually increases or decreases your speed (or bike resistance) in small increments every 40 seconds to reach and maintain your target HR zone. During a workout, you can display and use the ‘+’ and ‘-’ button on the PID HR Zone tile to change the target HR zone.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("PID on HR min:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRminTextField
+                        text: settings.treadmill_pid_heart_min
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text }
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("PID on HR max:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRmaxTextField
+                        text: settings.treadmill_pid_heart_max
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text }
+                    }
+                }
+
+                Label {
+                    text: qsTr("Alternatevely to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 8
@@ -4242,6 +4462,27 @@ import Qt.labs.settings 1.0
                     color: Material.color(Material.Lime)
                 }
 
+                NewPageElement {
+                    title: qsTr("Inclination Overrides")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Grey)
+                    color: Material.backgroundColor
+                    accordionContent: "settings-treadmill-inclination-override.qml"
+                }
+
+                Label {
+                    text: qsTr("Overrides the default inclination values sent from the treadmill")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 Label {
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
@@ -4815,6 +5056,20 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.fitshow_truetimer = checked
                         }
+                        SwitchDelegate {
+                            id: fitshowMilesDelegate
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitshow_treadmill_miles = checked
+                        }
                         RowLayout {
                             spacing: 10
                             Label {
@@ -4901,6 +5156,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_paragon_x = checked
+                        }
+                        SwitchDelegate {
+                            id: horizonFTMSTreadmillCadenzaDelegate
+                            text: qsTr("Force Using FTMS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_force_ftms
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_force_ftms = checked
                         }
                         SwitchDelegate {
                             id: horizon78TreadmillDelegate
@@ -5339,7 +5608,7 @@ import Qt.labs.settings 1.0
                     }
                     AccordionElement {
                         id: proformEllipticalAccordion
-                        title: qsTr("Proform Elliptical Options")
+                        title: qsTr("Proform/Nordictrack Elliptical Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5358,7 +5627,34 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_hybrid_trainer_xt = checked
                         }
-                    }
+                        SwitchDelegate {
+                            id: proformHybridPFEL03815Delegate
+                            text: qsTr("Proform Hybrid Trainer PFEL03815")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_hybrid_trainer_PFEL03815
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack C7.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_elliptical_c7_5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_elliptical_c7_5 = checked
+                        }
+                    }                    
 
                     AccordionElement {
                         id: soleEllipticalAccordion
@@ -5380,6 +5676,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_elliptical_inclination = checked
+                        }
+                        SwitchDelegate {
+                            id: soleEllipticalE55Delegate
+                            text: qsTr("E55 elliptical")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_elliptical_e55
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_elliptical_e55 = checked
                         }
                     }
                 }

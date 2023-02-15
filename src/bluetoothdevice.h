@@ -493,7 +493,7 @@ class bluetoothdevice : public QObject {
     metric m_jouls;
 
     /**
-     * @brief elevationAcc The elevation gain. Units: ?
+     * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
 

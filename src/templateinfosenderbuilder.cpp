@@ -438,6 +438,8 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
             item[QStringLiteral("forcespeed")] = row.forcespeed;
             item[QStringLiteral("loopTimeHR")] = row.loopTimeHR;
             item[QStringLiteral("zoneHR")] = row.zoneHR;
+            item[QStringLiteral("HRmin")] = row.HRmin;
+            item[QStringLiteral("HRmax")] = row.HRmax;
             item[QStringLiteral("maxSpeed")] = row.maxSpeed;
             item[QStringLiteral("latitude")] = row.latitude;
             item[QStringLiteral("longitude")] = row.longitude;
@@ -521,15 +523,7 @@ void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *t
 }
 
 void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->clearStats();
-        device->start();
-        emit workoutEventStateChanged(bluetoothdevice::STARTED);
-    } else {
-        device->start();
-        device->setPaused(false);
-        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
-    }
+    emit Start();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_start");
     QJsonDocument out(main);
@@ -537,11 +531,7 @@ void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
-    if (!device->isPaused()) {
-        device->stop(true);
-        device->setPaused(true);
-        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
-    }
+    emit Pause();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_pause");
     QJsonDocument out(main);
@@ -549,10 +539,7 @@ void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
-    device->stop(false);
-    device->setPaused(true);
-    device->clearStats();
-    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
+    emit Stop();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_stop");
     QJsonDocument out(main);
@@ -601,6 +588,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("zoneHR"))) {
                 tR.zoneHR = row[QStringLiteral("zoneHR")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRmin"))) {
+                tR.HRmin = row[QStringLiteral("HRmin")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRmax"))) {
+                tR.HRmax = row[QStringLiteral("HRmax")].toInt();
             }
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toInt();
@@ -655,6 +648,24 @@ void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgConten
     QJsonObject main, outObj;
     emit pelotonOffset_Minus();
     main[QStringLiteral("msg")] = QStringLiteral("R_pelotonoffset_minus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit peloton_start_workout();
+    main[QStringLiteral("msg")] = QStringLiteral("R_peloton_start_workout");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit peloton_abort_workout();
+    main[QStringLiteral("msg")] = QStringLiteral("R_peloton_abort_workout");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -761,6 +772,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("pelotonoffset_minus")) {
                     onPelotonOffsetMinus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("peloton_start_workout")) {
+                    onPelotonStartWorkout(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("peloton_abort_workout")) {
+                    onPelotonAbortWorkout(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("floating_close")) {
                     onFloatingClose(jsonObject[QStringLiteral("content")], sender);
@@ -901,6 +918,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
+        obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())
