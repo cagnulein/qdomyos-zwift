@@ -92,7 +92,7 @@ void proformwifitreadmill::forceIncline(double requestIncline) {
 }
 
 void proformwifitreadmill::update() {
-    //qDebug() << "websocket.state()" << websocket.state();
+    qDebug() << "websocket.state()" << websocket.state();
 
     if (initRequest) {
         initRequest = false;
