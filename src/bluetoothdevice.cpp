@@ -115,6 +115,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
 }
 bool bluetoothdevice::connected() { return false; }
 metric bluetoothdevice::elevationGain() { return elevationAcc; }
+metric bluetoothdevice::negativeElevationGain() { return negativeElevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {

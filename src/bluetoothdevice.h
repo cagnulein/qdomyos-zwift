@@ -212,9 +212,14 @@ class bluetoothdevice : public QObject {
     virtual bool changeFanSpeed(uint8_t speed);
 
     /**
-     * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: ?
+     * @brief elevationGain Gets a metric object to get and set the elevation gain. Units: meter
      */
     virtual metric elevationGain();
+
+    /**
+     * @brief negativeElevationGain Gets a metric object to get and set the negative elevation gain. Units: meter
+     */
+    virtual metric negativeElevationGain();
 
     /**
      * @brief clearStats Clear the statistics.
@@ -496,6 +501,11 @@ class bluetoothdevice : public QObject {
      * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
+
+    /**
+     * @brief NegativeElevationAcc The negative elevation gain. Units: meters
+     */
+    metric negativeElevationAcc;
 
     /**
      * @brief m_watt Metric to get and set the power expended in the session. Unit: watts

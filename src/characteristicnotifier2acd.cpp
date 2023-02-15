@@ -8,7 +8,7 @@ CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QO
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
-        value.append(0x08);       // Inclination available
+        value.append(0x18);       // Inclination available and elevation gain
         value.append((char)0x01); // heart rate available
 
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
@@ -35,11 +35,35 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         rampBytes.append(b);
         rampBytes.append(a);
 
+        QByteArray positiveElevationGainBytes;
+        ramp = 0;
+        if (dt == bluetoothdevice::TREADMILL)
+            ramp = ((treadmill *)Bike)->elevationGain().value();
+        normalizeRamp = (int32_t)qRound(ramp * 10);
+        a = (normalizeRamp >> 8) & 0XFF;
+        b = normalizeRamp & 0XFF;
+        positiveElevationGainBytes.append(b);
+        positiveElevationGainBytes.append(a);
+
+        QByteArray negativeElevationGainBytes;
+        ramp = 0;
+        if (dt == bluetoothdevice::TREADMILL)
+            ramp = ((treadmill *)Bike)->negativeElevationGain().value();
+        normalizeRamp = (int32_t)qRound(ramp * 10);
+        a = (normalizeRamp >> 8) & 0XFF;
+        b = normalizeRamp & 0XFF;
+        negativeElevationGainBytes.append(b);
+        negativeElevationGainBytes.append(a);
+
         value.append(speedBytes); // Actual value.
 
         value.append(inclineBytes); // incline
 
         value.append(rampBytes); // ramp angle
+
+        value.append(positiveElevationGainBytes); // positiveElevationGain angle
+
+        value.append(negativeElevationGainBytes); // negativeElevationGain angle
 
         value.append(Bike->currentHeart().value()); // current heart rate
         return CN_OK;
