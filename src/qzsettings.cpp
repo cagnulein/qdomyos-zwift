@@ -626,8 +626,9 @@ const QString QZSettings::horizon_treadmill_force_ftms = QStringLiteral("horizon
 const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
 const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
+const QString QZSettings::treadmill_speed_average = QStringLiteral("treadmill_speed_average");
 
-const uint32_t allSettingsCount = 522;
+const uint32_t allSettingsCount = 523;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1154,6 +1155,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
     {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
+    {QZSettings::treadmill_speed_average, QZSettings::default_treadmill_speed_average},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

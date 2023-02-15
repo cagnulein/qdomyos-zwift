@@ -26,6 +26,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformwifitreadmill::update);
     refresh->start(200ms);
+    initspeed();
 
     bool ok =
         connect(&websocket, &QWebSocket::binaryMessageReceived, this, &proformwifitreadmill::binaryMessageReceived);
@@ -156,6 +157,10 @@ void proformwifitreadmill::initspeed() {
     }
 }
 double proformwifitreadmill::averagespeed(double kph) {
+    QSettings settings;
+    bool treadmill_speed_average = settings.value(QZSettings::treadmill_speed_average, QZSettings::default_treadmill_speed_average).toBool();
+    if(!treadmill_speed_average) return kph;
+
     if (kph==0.0) initspeed();
     else {
         for (int i=MAXPOINTS-1; i>0; i--) {

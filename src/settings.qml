@@ -706,6 +706,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.65
             property bool nordictrack_elliptical_c7_5: false
+            property bool treadmill_speed_average: false
         }
 
         function paddingZeros(text, limit) {
@@ -4693,6 +4694,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_ifit_adb_remote = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Speed Averaging")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.treadmill_speed_average
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.treadmill_speed_average = checked
                         }
                         SwitchDelegate {
                             id: proform90IDelegate
