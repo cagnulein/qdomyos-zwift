@@ -185,9 +185,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
+    fit::EventMesg eventMesg;
+    eventMesg.SetEvent(FIT_EVENT_TIMER);
+    eventMesg.SetEventType(FIT_EVENT_TYPE_START);
+    eventMesg.SetData(0);
+    eventMesg.SetEventGroup(0);
+    eventMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
+    encode.Write(eventMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
 
@@ -286,6 +294,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             lapMesg.SetTotalDistance((sl.distance - lastLapOdometer) * 1000.0); // meters
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
+            lapMesg.SetEventType(FIT_EVENT_LAP);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 

@@ -436,6 +436,9 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 Resistance = ResistanceFromFTMSAccessory.value();
             }
 
+            qDebug() << QStringLiteral("Current Resistance: ") << Resistance.value();
+            qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value();
+
             if (watts())
                 KCal +=
                     ((((0.048 * ((double)watts()) + 1.19) *
