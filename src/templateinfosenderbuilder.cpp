@@ -438,6 +438,8 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
             item[QStringLiteral("forcespeed")] = row.forcespeed;
             item[QStringLiteral("loopTimeHR")] = row.loopTimeHR;
             item[QStringLiteral("zoneHR")] = row.zoneHR;
+            item[QStringLiteral("HRmin")] = row.HRmin;
+            item[QStringLiteral("HRmax")] = row.HRmax;
             item[QStringLiteral("maxSpeed")] = row.maxSpeed;
             item[QStringLiteral("latitude")] = row.latitude;
             item[QStringLiteral("longitude")] = row.longitude;
@@ -586,6 +588,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("zoneHR"))) {
                 tR.zoneHR = row[QStringLiteral("zoneHR")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRmin"))) {
+                tR.HRmin = row[QStringLiteral("HRmin")].toInt();
+            }
+            if (row.contains(QStringLiteral("HRmax"))) {
+                tR.HRmax = row[QStringLiteral("HRmax")].toInt();
             }
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toInt();

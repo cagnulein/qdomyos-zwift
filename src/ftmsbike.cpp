@@ -81,7 +81,7 @@ void ftmsbike::forcePower(int16_t requestPower) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
-    if(!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -90,11 +90,13 @@ void ftmsbike::forceResistance(resistance_t requestResistance) {
         write[3] = ((uint16_t)requestResistance * 10) & 0xFF;
         write[4] = ((uint16_t)requestResistance * 10) >> 8;
 
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        writeCharacteristic(write, sizeof(write),
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
     } else {
         uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
         write[1] = ((uint8_t)(requestResistance));
-        writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        writeCharacteristic(write, sizeof(write),
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance));
     }
 }
 
@@ -736,6 +738,13 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
+    if (!autoResistance()) {
+        qDebug() << "ignoring routing FTMS packet to the bike from virtualbike because of auto resistance OFF"
+                 << characteristic.uuid() << newValue.toHex(' ');
+        return;
+    }
+
     QByteArray b = newValue;
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');

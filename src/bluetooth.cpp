@@ -1099,7 +1099,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||            // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||          // FTMS
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
-                          (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) && !toorx_ftms && toorx_ftms_treadmill) ||
+                          (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
+                         !toorx_ftms && toorx_ftms_treadmill) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
@@ -1524,7 +1525,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(proformBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 proformBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(proformBike);
-            } else if ((b.name().startsWith(QStringLiteral("I_TL"))) && !proformTreadmill && filter) {
+            } else if ((b.name().startsWith(QStringLiteral("I_TL")) || b.name().startsWith(QStringLiteral("I_IT"))) &&
+                       !proformTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 proformTreadmill = new proformtreadmill(noWriteResistance, noHeartService);
@@ -2075,6 +2077,8 @@ void bluetooth::connectedAndDiscovered() {
                     powerSensorRun = new strydrunpowersensor(false, false, true);
                     // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
+                    connect(powerSensorRun, &strydrunpowersensor::onHeartRate, this->device(),
+                            &bluetoothdevice::heartRate);
                     connect(powerSensorRun, &strydrunpowersensor::debug, this, &bluetooth::debug);
                     connect(powerSensorRun, &bluetoothdevice::powerChanged, this->device(),
                             &bluetoothdevice::powerSensor);

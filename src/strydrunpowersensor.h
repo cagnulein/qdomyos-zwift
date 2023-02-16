@@ -80,6 +80,7 @@ class strydrunpowersensor : public treadmill {
   signals:
     void disconnected();
     void debug(QString string);
+    void onHeartRate(uint8_t heart);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
