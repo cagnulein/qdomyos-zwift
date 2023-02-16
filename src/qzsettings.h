@@ -1752,6 +1752,15 @@ class QZSettings {
     static const QString horizon_treadmill_force_ftms;
     static constexpr bool default_horizon_treadmill_force_ftms = false;
 
+    static const QString treadmill_pid_heart_min;
+    static constexpr int default_treadmill_pid_heart_min = 0;
+
+    static const QString treadmill_pid_heart_max;
+    static constexpr int default_treadmill_pid_heart_max = 0;
+
+    static const QString nordictrack_elliptical_c7_5;
+    static constexpr bool default_nordictrack_elliptical_c7_5 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
