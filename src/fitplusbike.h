@@ -57,8 +57,10 @@ class fitplusbike : public bike {
     virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattCommunicationChannelServiceFTMS = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotifyFTMSCharacteristic;
 
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

@@ -57,6 +57,14 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
 bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
 
+double nordictrackifitadbbike::getDouble(QString v) {
+    QChar d = QLocale().decimalPoint();
+    if(d == ',') {
+        v = v.replace('.', ',');
+    }
+    return QLocale().toDouble(v);
+}
+
 void nordictrackifitadbbike::processPendingDatagrams() {
     qDebug() << "in !";
     QHostAddress sender;
@@ -88,37 +96,37 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = QLocale().toDouble(aValues.last());
+                    speed = getDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed RPM"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    cadence = QLocale().toDouble(aValues.last());
+                    cadence = getDouble(aValues.last());
                     Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    gear = QLocale().toDouble(aValues.last());
-                    // Cadence = cadence;
+                    gear = getDouble(aValues.last());
+                    Resistance = gear;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    resistance = QLocale().toDouble(aValues.last());
-                    Resistance = resistance;
+                    resistance = getDouble(aValues.last());
+                    //Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    watt = QLocale().toDouble(aValues.last());
+                    watt = getDouble(aValues.last());
                     m_watt = watt;
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    grade = QLocale().toDouble(aValues.last());
+                    grade = getDouble(aValues.last());
                     Inclination = grade;
                 }
             }

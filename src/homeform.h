@@ -71,7 +71,7 @@ class DataObject : public QObject {
     QString identificator() { return m_id; }
     bool largeButton() { return m_largeButton; }
     QString largeButtonLabel() { return m_largeButtonLabel; }
-    QString largeButtonColor() { return m_largeButtonColor; }
+    QString largeButtonColor() { return m_largeButtonColor; }    
 
     QString m_id;
     QString m_name;
@@ -104,7 +104,7 @@ class DataObject : public QObject {
     void identificatorChanged(QString value);
     void largeButtonChanged(bool value);
     void largeButtonLabelChanged(QString value);
-    void largeButtonColorChanged(QString value);
+    void largeButtonColorChanged(QString value);    
 };
 
 class homeform : public QObject {
@@ -151,6 +151,8 @@ class homeform : public QObject {
     Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
+    Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
+    Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -324,6 +326,8 @@ class homeform : public QObject {
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
+    bool stopRequested() { return m_stopRequested; }
+    bool startRequested() { return m_startRequested; }
     QString info() { return m_info; }
     QString signal();
     QString startText();
@@ -358,7 +362,6 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
-    bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
@@ -387,6 +390,14 @@ class homeform : public QObject {
         if (bluetoothManager->device()) {
             bluetoothManager->device()->setAutoResistance(value);
         }
+    }
+    void setStopRequestedChanged(bool value) {
+        m_stopRequested = value;
+        emit stopRequestedChanged(value);
+    }
+    void setStartRequestedChanged(bool value) {
+        m_startRequested = value;
+        emit startRequestedChanged(value);
     }
     void setLicensePopupVisible(bool value);
     void setVideoIconVisible(bool value);
@@ -553,6 +564,8 @@ class homeform : public QObject {
     QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;
+    bool m_stopRequested = false;
+    bool m_startRequested = false;
 
     DataObject *speed;
     DataObject *inclination;
@@ -613,6 +626,7 @@ class homeform : public QObject {
     DataObject *preset_inclination_3;
     DataObject *preset_inclination_4;
     DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -625,7 +639,7 @@ class homeform : public QObject {
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
-    quint64 cryptoKeySettingsProfiles();
+    static quint64 cryptoKeySettingsProfiles();
 
     int16_t fanOverride = 0;
 
@@ -656,14 +670,17 @@ class homeform : public QObject {
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
-    void loadSettings(const QUrl &filename);
+    static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
     void saveProfile(QString profilename);
     void restart();
+    bool pelotonAskStart() { return m_pelotonAskStart; }
 
   private slots:
     void Start();
     void Stop();
+    void StartRequested();
+    void StopRequested();
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
@@ -709,7 +726,7 @@ class homeform : public QObject {
     void changeTimestamp(QTime source, QTime actual);
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
-    int pelotonOffset() {return (trainProgram?trainProgram->offsetElapsedTime():0);}
+    int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
@@ -749,6 +766,8 @@ class homeform : public QObject {
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
+    void startRequestedChanged(bool value);
+    void stopRequestedChanged(bool value);
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);

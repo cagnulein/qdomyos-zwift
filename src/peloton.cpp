@@ -284,7 +284,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
-    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+    QString difficulty =
+        settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
     QJsonObject segments = ride[QStringLiteral("segments")].toObject();
     QJsonArray segments_segment_list = segments[QStringLiteral("segment_list")].toArray();
 
@@ -294,7 +295,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonObject resistance_range = instructor_cue[QStringLiteral("resistance_range")].toObject();
         QJsonObject cadence_range = instructor_cue[QStringLiteral("cadence_range")].toObject();
 
-        if(resistance_range.count() == 0 && cadence_range.count() == 0) {
+        if (resistance_range.count() == 0 && cadence_range.count() == 0) {
             qDebug() << "no resistance and cadence found!";
             continue;
         }
@@ -372,7 +373,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     trainrow r;
                     QString zone = s["display_name"].toString();
                     int len = s["length"].toInt();
-                    if (!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
+                    if (!zone.toUpper().compare(QStringLiteral("SPIN UPS")) ||
+                        !zone.toUpper().compare(QStringLiteral("SPIN-UPS"))) {
                         uint32_t Duration = len;
                         double PowerLow = 0.5;
                         double PowerHigh = 0.83;
@@ -515,7 +517,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
     QSettings settings;
-    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+    QString difficulty =
+        settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -531,7 +534,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
-        bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
+        bool treadmill_force_speed =
+            settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
@@ -581,7 +585,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset)
                         .toDouble();
                 double gain =
-                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain)
+                        .toDouble();
                 r.inclination *= gain;
                 r.inclination += offset;
                 r.lower_inclination *= gain;
@@ -599,7 +604,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.upper_inclination = inc_upper;
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
-            } else if(segment_type.contains("floor")) {
+            } else if (segment_type.contains("floor")) {
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
                 trainrow r;
@@ -638,7 +643,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
         if (!PZP->searchWorkout(current_ride_id)) {
             current_api = homefitnessbuddy_api;
-            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration);
+            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration,
+                               current_ride_id);
         } else {
             current_api = powerzonepack_api;
         }

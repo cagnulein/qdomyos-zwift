@@ -24,6 +24,8 @@ public:
         this->addDeviceName("TRX4500", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }

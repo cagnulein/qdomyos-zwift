@@ -17,8 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
-#include "qzsettings.h"
 #include "discoveryoptions.h"
+#include "qzsettings.h"
 
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
@@ -74,6 +74,7 @@
 #include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
+#include "pelotonbike.h"
 #include "proformbike.h"
 #include "proformelliptical.h"
 #include "proformellipticaltrainer.h"
@@ -124,7 +125,7 @@ class bluetooth : public QObject, public SignalHandler {
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
-                       bool createTemplateManagers=true, bool startDiscovery=true);
+                       bool createTemplateManagers = true, bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
@@ -134,10 +135,9 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 
-
-private:
+  private:
     bool useDiscovery = false;
-    bool createTemplateManagers =false;
+    bool createTemplateManagers = false;
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
@@ -171,6 +171,7 @@ private:
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
+    pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
@@ -277,7 +278,7 @@ private:
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
     void startTemplateManagers(bluetoothdevice *b);
     void stopTemplateManagers();
-signals:
+  signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
@@ -286,7 +287,7 @@ signals:
   public slots:
     void restart();
     void debug(const QString &string);
-    void heartRate(uint8_t heart);  
+    void heartRate(uint8_t heart);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
   private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
