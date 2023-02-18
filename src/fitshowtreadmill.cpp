@@ -297,6 +297,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -490,7 +491,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
                         if(!this->updateLockscreenEnergyDistanceHeartRate())
                             this->Heart = heart;
                     }

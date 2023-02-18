@@ -99,6 +99,8 @@ class wahookickrsnapbike : public bike {
     uint16_t oldCrankRevs = 0;
 
     bool WAHOO_KICKR = false;
+
+    resistance_t lastForcedResistance = -1;
   signals:
     void disconnected();
     void debug(QString string);
