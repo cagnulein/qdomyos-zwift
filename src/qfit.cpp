@@ -196,8 +196,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
     encode.Write(eventMesg);
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
 
     fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
 
@@ -312,6 +310,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     encode.Write(lapMesg);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
 
     if (!encode.Close()) {
 
