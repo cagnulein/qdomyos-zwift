@@ -24,7 +24,7 @@ public:
 
 class FitshowTreadmillFSTestData : public FitshowTreadmillTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
 
         if(enable){

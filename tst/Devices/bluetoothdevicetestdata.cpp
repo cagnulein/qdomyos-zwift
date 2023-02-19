@@ -53,7 +53,7 @@ void BluetoothDeviceTestData::addDifferentCasings(const QStringList& names, QStr
     }
 }
 
-void BluetoothDeviceTestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const { }
+void BluetoothDeviceTestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const { }
 
 bool BluetoothDeviceTestData::configureSettings(DeviceDiscoveryInfo &info, bool enable) const { return false;}
 

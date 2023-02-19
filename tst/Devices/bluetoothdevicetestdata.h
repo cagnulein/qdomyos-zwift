@@ -169,7 +169,7 @@ protected:
      * @param enable
      * @param configurations The variations of the provided object to test.
      */
-    virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const;
+    virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
 
     /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
