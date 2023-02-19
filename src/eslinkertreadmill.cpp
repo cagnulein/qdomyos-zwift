@@ -305,7 +305,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
             {
                 if (heartRateBeltName.startsWith("Disabled"))
-                    if(!this->updateLockscreenHeartRate())
+                    if(!this->updateLockscreenEnergyDistanceHeartRate())
                         this->Heart = heart;
             }
             this->doPelotonWorkaround();
@@ -330,7 +330,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         {
           /*
             if(heartRateBeltName.startsWith("Disabled"))
-                if(!this->updateLockscreenHeartRate())
+                if(!this->updateLockscreenEnergyDistanceHeartRate())
                     this->Heart = value.at(18);
                     */
         }
