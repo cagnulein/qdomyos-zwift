@@ -3634,9 +3634,9 @@ void homeform::update() {
                     .toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                } else if (((int8_t)peloton_resistance) < lower_requested_peloton_resistance) {
+                } else if (((int8_t)qRound(peloton_resistance)) < lower_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
-                } else if (((int8_t)peloton_resistance) <= upper_requested_peloton_resistance) {
+                } else if (((int8_t)qRound(peloton_resistance)) <= upper_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
                 } else {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
