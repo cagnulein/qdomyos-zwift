@@ -235,9 +235,13 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = 0;
+
+            if(!this->updateLockscreenEnergyDistanceHeartRate())
+                this->Heart = 0;
         }
     }
+
+    this->doPelotonWorkaround();
 
     if (Cadence.value() > 0) {
         CrankRevs++;
