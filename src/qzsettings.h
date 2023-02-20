@@ -1764,6 +1764,9 @@ class QZSettings {
     static const QString renpho_bike_double_resistance;
     static constexpr bool default_renpho_bike_double_resistance = false;
 
+    static const QString nordictrack_incline_trainer_x7i;
+    static constexpr bool default_nordictrack_incline_trainer_x7i = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

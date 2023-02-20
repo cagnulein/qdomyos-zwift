@@ -1095,7 +1095,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||                         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||           // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||             // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||            // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||          // FTMS
@@ -1825,6 +1824,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 fitPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(fitPlusBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
+                        b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')')) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS

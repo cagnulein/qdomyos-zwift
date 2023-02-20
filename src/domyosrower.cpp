@@ -168,13 +168,18 @@ void domyosrower::update() {
 
         update_metrics(true, watts());
 
-        // ******************************************* virtual bike init *************************************
+        // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        if (!firstVirtual && !virtualTreadmill && !virtualBike && !virtualRower) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
-                if (!virtual_device_force_bike) {
+                if (virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
                     virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);

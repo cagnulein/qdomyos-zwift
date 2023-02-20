@@ -58,6 +58,7 @@ public:
         this->addDeviceName("SW345678901234", comparison::Exact);
         this->addDeviceName("SWFOURTEENCHAR", comparison::Exact);
         this->addDeviceName("WINFITA", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("NOBLEPRO CONNECT", comparison::StartsWithIgnoreCase);
 
         // too long and too short
         this->addInvalidDeviceName("SW3456789012345", comparison::Exact);
