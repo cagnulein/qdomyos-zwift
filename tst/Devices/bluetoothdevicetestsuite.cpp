@@ -19,6 +19,24 @@ void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt,
 }
 
 template<typename T>
+std::string BluetoothDeviceTestSuite<T>::getTypeName(bluetoothdevice *b) const {
+    if(!b) return "nullptr";
+    QString name = typeid(*b).name();
+
+    int length = name.length();
+    int sum = 0, i=0;
+    while(i<length && name[i].isDigit() && sum!=length-i) {
+        sum = sum * 10 + name[i].toLatin1()-(char)'0';
+        i++;
+    }
+
+    if(sum==length-i)
+        return name.right(length-i).toStdString();
+
+    return name.toStdString();
+}
+
+template<typename T>
 void BluetoothDeviceTestSuite<T>::testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth &bt,
                                                   const QBluetoothDeviceInfo &deviceInfo,
                                                   bool expectMatch,
@@ -160,10 +178,14 @@ template<typename T>
 void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
     BluetoothDeviceTestData& testData = this->typeParam;
 
+    auto exclusions = testData.get_exclusions();
+
+    if(exclusions.size()==0)
+        GTEST_SKIP() << "No exclusions defined for this device: " << testData.get_testName();
+
     bluetooth bt(this->defaultDiscoveryOptions);
 
     // Test that it doesn't detect this device if its higher priority "namesakes" are already detected.
-    auto exclusions = testData.get_exclusions();
     for(auto exclusion : exclusions) {
         for(DeviceDiscoveryInfo enablingDiscoveryInfo : enablingConfigurations) {
             DeviceDiscoveryInfo discoveryInfo(enablingDiscoveryInfo);

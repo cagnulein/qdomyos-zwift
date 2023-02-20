@@ -68,6 +68,13 @@ protected:
      */
     void testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const std::string& failMessage) const;
 
+
+    /**
+     * @brief Gets the type name for the specified device object. Attempts to strip metadata from typeid result.
+     * @param b
+     * @return
+     */
+    std::string getTypeName(bluetoothdevice *b) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
