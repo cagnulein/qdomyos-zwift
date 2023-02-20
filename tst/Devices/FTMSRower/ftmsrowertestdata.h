@@ -17,6 +17,7 @@ public:
         this->addDeviceName("PM5XROW", comparison::IgnoreCase);
         this->addDeviceName("PM5XROWX", comparison::IgnoreCase);
         this->addDeviceName("PM5ROWX", comparison::IgnoreCase);
+        this->addDeviceName("SF-RW", comparison::IgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::FTMSRower; }
