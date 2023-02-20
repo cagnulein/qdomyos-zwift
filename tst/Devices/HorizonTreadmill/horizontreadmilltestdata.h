@@ -16,8 +16,7 @@ public:
         this->addDeviceName("T318_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("T218_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("NOBLEPRO CONNECT", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);        
         this->addDeviceName("JFTM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("CT800", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX4500", comparison::StartsWithIgnoreCase);
