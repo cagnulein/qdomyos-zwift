@@ -75,6 +75,14 @@ protected:
      * @return
      */
     std::string getTypeName(bluetoothdevice *b) const;
+
+    /**
+     * @brief Replaces {typeName} in the format string with the type name of the provided object
+     * @param format The format string. The text "{typeName}" will be replaced with type name of the provided object.
+     * @param b
+     * @return
+     */
+    std::string formatString(std::string format, bluetoothdevice *b) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
