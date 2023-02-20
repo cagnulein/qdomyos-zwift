@@ -11,7 +11,6 @@ public:
         this->addDeviceName("HORIZON", comparison::StartsWithIgnoreCase);
         this->addDeviceName("AFG SPORT", comparison::StartsWithIgnoreCase);
         this->addDeviceName("WLT2541", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
 
         // FTMS
         this->addDeviceName("T318_", comparison::StartsWithIgnoreCase);
