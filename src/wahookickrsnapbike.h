@@ -104,6 +104,8 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
 
+    resistance_t lastForcedResistance = -1;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

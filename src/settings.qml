@@ -706,6 +706,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.65
             property bool nordictrack_elliptical_c7_5: false
+
+            // from version 2.12.66
+            property bool renpho_bike_double_resistance: false
         }
 
         function paddingZeros(text, limit) {
@@ -2340,6 +2343,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.renpho_peloton_conversion_v2 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Use 0.5 resistance lvls")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.renpho_bike_double_resistance
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.renpho_bike_double_resistance = checked
                         }
                     }
                 }
