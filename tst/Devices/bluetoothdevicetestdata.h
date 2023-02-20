@@ -169,7 +169,7 @@ protected:
      * @param enable
      * @param configurations The variations of the provided object to test.
      */
-    virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const;
+    virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
 
     /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
@@ -181,7 +181,7 @@ protected:
 
     /**
      * @brief Constructor
-     * @param testName A user-friendly name for the test, e.g. the device name: "SupaDupa Treadmill"
+     * @param testName A user-friendly name for the tested device, e.g. "SupaDupa Treadmill"
      */
     BluetoothDeviceTestData(std::string testName);
 public:
