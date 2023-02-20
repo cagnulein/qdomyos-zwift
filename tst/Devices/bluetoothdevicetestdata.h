@@ -181,7 +181,7 @@ protected:
 
     /**
      * @brief Constructor
-     * @param testName A user-friendly name for the test, e.g. the device name: "SupaDupa Treadmill"
+     * @param testName A user-friendly name for the tested device, e.g. "SupaDupa Treadmill"
      */
     BluetoothDeviceTestData(std::string testName);
 public:

@@ -58,16 +58,7 @@ void BluetoothDeviceTestData::configureSettings(const DeviceDiscoveryInfo &info,
 bool BluetoothDeviceTestData::configureSettings(DeviceDiscoveryInfo &info, bool enable) const { return false;}
 
 BluetoothDeviceTestData::BluetoothDeviceTestData(std::string testName) {
-    std::string output;
-    output.reserve(testName.size());
-
-    // Strip the invalid characters
-    for(auto c : testName) {
-        if(isalpha(c) || (output.size()>0 && isdigit(c)))
-            output += c;
-    }
-
-    this->testName = output;
+    this->testName = testName;
 }
 
 BluetoothDeviceTestData::~BluetoothDeviceTestData() {}
