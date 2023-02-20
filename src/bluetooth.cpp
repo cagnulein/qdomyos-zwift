@@ -1114,7 +1114,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) ||                           // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||                           // FTMS
