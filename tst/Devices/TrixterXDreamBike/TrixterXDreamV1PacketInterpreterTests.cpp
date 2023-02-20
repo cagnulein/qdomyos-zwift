@@ -1,4 +1,4 @@
-#include "trixterxdreamv1packetinterpretertests.h"
+#include "TrixterXDreamV1PacketInterpreterTests.h"
 
 uint32_t TrixterXDreamV1PacketInterpreterTests::getTime()
 {
