@@ -5099,14 +5099,22 @@ void homeform::onStravaGranted() {
 void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
 
     // ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
     stravaAuthUrl = url.toString();
     emit stravaAuthUrlChanged(stravaAuthUrl);
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
-    QDesktopServices::openUrl(url);
-#else
-    stravaAuthWebVisible = true;
-    stravaWebVisibleChanged(stravaAuthWebVisible);
-#endif
+
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        stravaAuthWebVisible = true;
+        stravaWebVisibleChanged(stravaAuthWebVisible);
+    }
 }
 
 void homeform::replyDataReceived(const QByteArray &v) {
