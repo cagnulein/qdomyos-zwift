@@ -85,9 +85,8 @@ ApplicationWindow {
     }
 
     WebView {
-        anchors.top: loadButton.bottom
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.fill: parent
+        height: parent.height
         width: parent.width
         visible: rootItem.stravaWebVisible
 
