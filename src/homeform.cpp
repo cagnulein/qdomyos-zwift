@@ -146,6 +146,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 #endif
 
     stravaAuthWebVisible = false;
+    stravaWebVisibleChanged(stravaAuthWebVisible);
 
     speed = new DataObject(QStringLiteral("Speed (") + unit + QStringLiteral("/h)"),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
@@ -5085,6 +5086,7 @@ void homeform::writeFileCompleted() {
 void homeform::onStravaGranted() {
 
     stravaAuthWebVisible = false;
+    stravaWebVisibleChanged(stravaAuthWebVisible);
     QSettings settings;
     settings.setValue(QZSettings::strava_accesstoken, strava->token());
     settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
@@ -5098,10 +5100,12 @@ void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
 
     // ui->textBrowser->append(tr("Open with browser:") + url.toString());
     stravaAuthUrl = url.toString();
+    emit stravaAuthUrlChanged(stravaAuthUrl);
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QDesktopServices::openUrl(url);
 #else
     stravaAuthWebVisible = true;
+    stravaWebVisibleChanged(stravaAuthWebVisible);
 #endif
 }
 

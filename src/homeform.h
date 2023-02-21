@@ -162,6 +162,9 @@ class homeform : public QObject {
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
 
+    Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
+    Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
+
   public:
     Q_INVOKABLE void save_screenshot() {
 
@@ -420,11 +423,6 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
 
-    QString stravaAuthUrl;
-    bool stravaAuthWebVisible;
-    Q_INVOKABLE QString getStravaAuthUrl() { return stravaAuthUrl; }
-    Q_INVOKABLE bool stravaWebVisible() { return stravaAuthWebVisible; }
-
     double wattMaxChart() {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
@@ -517,6 +515,9 @@ class homeform : public QObject {
         }
         return false;
     }
+
+    QString getStravaAuthUrl() { return stravaAuthUrl; }
+    bool stravaWebVisible() { return stravaAuthWebVisible; }
 
   private:
     QList<QObject *> dataList;
@@ -643,6 +644,8 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    QString stravaAuthUrl;
+    bool stravaAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -777,6 +780,8 @@ class homeform : public QObject {
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
+    void stravaAuthUrlChanged(QString value);
+    void stravaWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };
