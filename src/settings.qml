@@ -700,6 +700,19 @@ import Qt.labs.settings 1.0
             property bool sole_elliptical_e55: false
             property bool horizon_treadmill_force_ftms: false
 
+            // from version 2.12.64
+            property int treadmill_pid_heart_min: 0
+            property int treadmill_pid_heart_max: 0
+
+            // from version 2.12.65
+            property bool nordictrack_elliptical_c7_5: false
+
+            // from version 2.12.66
+            property bool renpho_bike_double_resistance: false
+
+            // from version 2.12.69
+            property bool nordictrack_incline_trainer_x7i: false
+
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -2346,6 +2359,19 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.renpho_peloton_conversion_v2 = checked
                         }
+                        SwitchDelegate {
+                            text: qsTr("Use 0.5 resistance lvls")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.renpho_bike_double_resistance
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.renpho_bike_double_resistance = checked
+                        }
                     }
                 }
 
@@ -3925,6 +3951,63 @@ import Qt.labs.settings 1.0
                 RowLayout {
                     spacing: 10
                     Label {
+                        text: qsTr("PID on HR min:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRminTextField
+                        text: settings.treadmill_pid_heart_min
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text }
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("PID on HR max:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillPidHRmaxTextField
+                        text: settings.treadmill_pid_heart_max
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text }
+                    }
+                }
+
+                Label {
+                    text: qsTr("Alternatevely to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
                         id: labelTrainProgramPace1mile
                         text: qsTr("1 mile pace (total time):")
                         Layout.fillWidth: true
@@ -4623,6 +4706,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.norditrack_s25i_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack Incline Trainer x7i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_incline_trainer_x7i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_incline_trainer_x7i = checked
                         }
                         SwitchDelegate {
                             id: nordictrack10Delegate
@@ -5714,7 +5810,7 @@ import Qt.labs.settings 1.0
                     }
                     AccordionElement {
                         id: proformEllipticalAccordion
-                        title: qsTr("Proform Elliptical Options")
+                        title: qsTr("Proform/Nordictrack Elliptical Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
                         color: Material.backgroundColor
@@ -5746,6 +5842,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack C7.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_elliptical_c7_5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_elliptical_c7_5 = checked
                         }
                     }                    
 

@@ -623,8 +623,13 @@ const QString QZSettings::treadmill_inclination_override_145 = QStringLiteral("t
 const QString QZSettings::treadmill_inclination_override_150 = QStringLiteral("treadmill_inclination_override_150");
 const QString QZSettings::sole_elliptical_e55 = QStringLiteral("sole_elliptical_e55");
 const QString QZSettings::horizon_treadmill_force_ftms = QStringLiteral("horizon_treadmill_force_ftms");
+const QString QZSettings::treadmill_pid_heart_min = QStringLiteral("treadmill_pid_heart_min");
+const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pid_heart_max");
+const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
+const QString QZSettings::renpho_bike_double_resistance = QStringLiteral("renpho_bike_double_resistance");
+const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nordictrack_incline_trainer_x7i");
 
-const uint32_t allSettingsCount = 519;
+const uint32_t allSettingsCount = 524;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1148,6 +1153,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_inclination_override_150, QZSettings::default_treadmill_inclination_override_150},
     {QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55},
     {QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms},
+    {QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min},
+    {QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max},
+    {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
+    {QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance},
+    {QZSettings::nordictrack_incline_trainer_x7i, QZSettings::default_nordictrack_incline_trainer_x7i},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

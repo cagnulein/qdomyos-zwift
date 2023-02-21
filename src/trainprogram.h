@@ -36,6 +36,8 @@ class trainrow {
     bool forcespeed = false;
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
+    int16_t HRmin = -1;
+    int16_t HRmax = -1;
     int8_t maxSpeed = -1;
     int8_t maxResistance = -1;
     int32_t power = -1;
