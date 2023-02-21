@@ -277,9 +277,10 @@ void fitshowtreadmill::removeFromBuffer() {
 
 void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     uint32_t servRepr = gatt.toUInt32();
+    QBluetoothUuid nobleproconnect(QStringLiteral("0000ae00-0000-1000-8000-00805f9b34fb"));
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString() + QStringLiteral(" ") +
                QString::number(servRepr));
-    if (servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+    if (gatt == nobleproconnect || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
 }
@@ -665,9 +666,9 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                 qDebug() << QStringLiteral("d -> ") << d.uuid();
             }
-            if (id32 == 0xffe1 || id32 == 0xfff2) {
+            if (id32 == 0xffe1 || id32 == 0xfff2 || id32 == 0xae01) {
                 gattWriteCharacteristic = c;
-            } else if (id32 == 0xffe4 || id32 == 0xfff1) {
+            } else if (id32 == 0xffe4 || id32 == 0xfff1 || id32 == 0xae02) {
                 gattNotifyCharacteristic = c;
             }
         }
@@ -717,6 +718,10 @@ void fitshowtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
+    if(!gattCommunicationChannelService) {
+        qDebug() << "service not valid";
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);
 #ifdef _MSC_VER
     // QTBluetooth bug on Win10 (https://bugreports.qt.io/browse/QTBUG-78488)
