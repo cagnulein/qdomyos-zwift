@@ -331,7 +331,7 @@ void virtualtreadmill::reconnect() {
 
 bool virtualtreadmill::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
+    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
         return false;
 
     QSettings settings;

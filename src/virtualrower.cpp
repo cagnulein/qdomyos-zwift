@@ -306,7 +306,7 @@ void virtualrower::reconnect() {
 
 bool virtualrower::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
+    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = Rower->wattsMetric().value();

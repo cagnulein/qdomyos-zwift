@@ -986,7 +986,7 @@ void virtualbike::reconnect() {
 
 bool virtualbike::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions && this->lockscreenFunctions->isPelotonWorkaroundActive())
+    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = this->Bike->wattsMetric().value();
