@@ -18,7 +18,7 @@ Item {
         anchors.fill: parent
         height: parent.height
         width: parent.width
-        visible: true
+        visible: !rootItem.generalPopupVisible
         url: rootItem.getStravaAuthUrl
     }
 
