@@ -709,6 +709,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.66
             property bool renpho_bike_double_resistance: false
+
+            // from version 2.12.69
+            property bool nordictrack_incline_trainer_x7i: false
         }
 
         function paddingZeros(text, limit) {
@@ -4533,6 +4536,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.norditrack_s25i_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack Incline Trainer x7i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_incline_trainer_x7i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_incline_trainer_x7i = checked
                         }
                         SwitchDelegate {
                             id: nordictrack10Delegate

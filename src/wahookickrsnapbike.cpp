@@ -342,15 +342,16 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         {
             cadence_present = true;
             wheel_revs = true;
+        }
 
-        } else if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+        if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
         {
             cadence_present = true;
             crank_rev_present = true;
         }
 
         if (cadence_present) {
-            if(wheel_revs && !crank_rev_present) {
+            if (wheel_revs && !crank_rev_present) {
                 time_division = 2048;
                 CrankRevs =
                     (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
@@ -363,7 +364,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
 
                 index += 2; // wheel event time
 
-            } else if(wheel_revs && crank_rev_present) {
+            } else if (wheel_revs && crank_rev_present) {
                 index += 4; // wheel revs
                 index += 2; // wheel event time
             }
@@ -444,14 +445,15 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 else
                     m_pelotonResistance = res;
 
-                if(lastForcedResistance == -1) {
+                if (lastForcedResistance == -1) {
                     if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
                             .toBool())
                         Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
                     else
                         Resistance = m_pelotonResistance;
                 } else {
-                    // since I can't read the actual value of the resistance of the trainer, I'm using the last one sent as the actual value in resistance mode
+                    // since I can't read the actual value of the resistance of the trainer, I'm using the last one sent
+                    // as the actual value in resistance mode
                     Resistance = lastForcedResistance;
                 }
                 emit resistanceRead(Resistance.value());
