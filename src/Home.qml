@@ -34,17 +34,6 @@ HomeForm{
         visible: rootItem.pelotonAskStart
     }
 
-    WebView {
-        anchors.fill: parent
-        height: parent.height
-        width: parent.width
-        visible: rootItem.stravaWebVisible
-
-        onVisibleChanged: {
-            url: rootItem.getStravaAuthUrl
-        }
-    }
-
     Popup {
         id: popupLap
          parent: Overlay.overlay

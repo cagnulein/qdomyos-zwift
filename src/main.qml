@@ -84,17 +84,6 @@ ApplicationWindow {
         }
     }
 
-    WebView {
-        anchors.fill: parent
-        height: parent.height
-        width: parent.width
-        visible: rootItem.stravaWebVisible
-
-        onVisibleChanged: {
-            url: rootItem.getStravaAuthUrl
-        }
-    }
-
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
@@ -634,6 +623,7 @@ ApplicationWindow {
                 text: qsTr("Connect to Strava")
                 width: parent.width
                 onClicked: {
+                    stackView.push("WebStravaAuth.qml")
                     strava_connect_clicked()
                     drawer.close()
                 }
