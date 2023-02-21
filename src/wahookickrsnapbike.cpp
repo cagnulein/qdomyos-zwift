@@ -390,8 +390,10 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    if(!crank_rev_present)
+                        cadence = cadence / 2; // I really don't like this, there is no releationship between wheel rev and crank rev
                     if (cadence >= 0) {
-                        Cadence = cadence / 2.0;
+                        Cadence = cadence;
                     }
                     lastGoodCadence = QDateTime::currentDateTime();
                 } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
