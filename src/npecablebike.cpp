@@ -411,7 +411,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

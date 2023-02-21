@@ -297,7 +297,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

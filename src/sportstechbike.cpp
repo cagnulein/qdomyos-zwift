@@ -141,7 +141,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 this->Heart = ((uint8_t)newValue.at(11));
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
     FanSpeed = 0;
 
     if (!firstCharChanged) {

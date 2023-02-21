@@ -208,7 +208,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

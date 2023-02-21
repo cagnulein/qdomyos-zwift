@@ -1136,7 +1136,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

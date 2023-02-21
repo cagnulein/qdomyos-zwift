@@ -1609,7 +1609,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     if (Speed.value() > 0)
         lastStart = 0;

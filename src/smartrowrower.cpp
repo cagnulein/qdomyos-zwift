@@ -262,7 +262,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current Local elapsed: ") + localTime.toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());

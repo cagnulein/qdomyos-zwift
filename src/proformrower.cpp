@@ -373,7 +373,7 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
             this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));

@@ -84,7 +84,7 @@ void pelotonbike::update() {
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

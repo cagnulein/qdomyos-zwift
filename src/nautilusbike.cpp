@@ -157,7 +157,7 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             }
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         Resistance = newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

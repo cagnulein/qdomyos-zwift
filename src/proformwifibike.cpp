@@ -496,7 +496,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     /*
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

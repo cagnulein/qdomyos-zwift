@@ -559,7 +559,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
     
     this->updateLockscreenStepCadence();
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
     
     FanSpeed = value.at(23);
 

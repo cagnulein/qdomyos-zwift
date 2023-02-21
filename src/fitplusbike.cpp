@@ -663,7 +663,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

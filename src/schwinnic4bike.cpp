@@ -350,7 +350,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Calculated Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));

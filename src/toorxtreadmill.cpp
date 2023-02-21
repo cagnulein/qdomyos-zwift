@@ -307,7 +307,7 @@ void toorxtreadmill::readSocket() {
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
                 this->updateLockscreenEnergyDistanceHeartRate();
             }
-            this->doPelotonWorkaround();
+            this->doLockscreenUpdate();
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));

@@ -241,7 +241,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     if (Cadence.value() > 0) {
         CrankRevs++;

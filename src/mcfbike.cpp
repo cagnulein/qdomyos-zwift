@@ -244,7 +244,7 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);

@@ -163,7 +163,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     }
 
     this->updateLockscreenStepCadence();
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     double speed = 0;
 

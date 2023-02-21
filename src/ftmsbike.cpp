@@ -569,7 +569,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         this->updateLockscreenEnergyDistanceHeartRate();
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

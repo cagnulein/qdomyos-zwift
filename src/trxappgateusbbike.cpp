@@ -307,7 +307,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     FanSpeed = 0;
 

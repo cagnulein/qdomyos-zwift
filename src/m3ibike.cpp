@@ -709,7 +709,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             }
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

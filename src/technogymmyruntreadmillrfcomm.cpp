@@ -225,7 +225,7 @@ void technogymmyruntreadmillrfcomm::readSocket() {
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
                 this->updateLockscreenEnergyDistanceHeartRate();
             }
-            this->doPelotonWorkaround();
+            this->doLockscreenUpdate();
 
             qDebug() << values;
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));

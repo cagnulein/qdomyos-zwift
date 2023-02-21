@@ -1081,7 +1081,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 this->updateLockscreenEnergyDistanceHeartRate();
             }
         }
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

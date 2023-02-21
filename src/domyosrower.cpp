@@ -325,7 +325,7 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
                 this->Heart = ((uint8_t)newValue.at(18));
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

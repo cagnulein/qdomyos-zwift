@@ -373,7 +373,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current speed: ") + QString::number(speed);
     qDebug() << QStringLiteral("Current cadence: ") + QString::number(Cadence.value());

@@ -497,7 +497,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                             this->Heart = heart;
                     }
                 }
-                this->doPelotonWorkaround();
+                this->doLockscreenUpdate();
 
                 if (speed > 0) {
                     lastSpeed = speed;

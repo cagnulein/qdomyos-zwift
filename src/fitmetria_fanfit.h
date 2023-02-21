@@ -70,6 +70,7 @@ class fitmetria_fanfit : public bluetoothdevice {
 
 protected:
     void doPelotonWorkaround() override {}
-    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override {}
+    void doLockscreenUpdate() override {}
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override {  }
 };
 #endif // FITMETRIA_FANFIT_H

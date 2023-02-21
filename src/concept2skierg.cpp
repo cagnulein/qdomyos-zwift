@@ -235,7 +235,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
         this->updateLockscreenEnergyDistanceHeartRate();
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

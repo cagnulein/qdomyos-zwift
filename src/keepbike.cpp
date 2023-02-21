@@ -244,7 +244,7 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
     // echelon just send the resistance values when it changes

@@ -52,6 +52,10 @@ void rower::doPelotonWorkaround() {
     this->getLockscreenFunctions()->pelotonRowerUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(),(uint8_t)metrics_override_heartrate());
 }
 
+void rower::doLockscreenUpdate(){
+    // do nothing
+}
+
 
 
 void rower::clearStats() {

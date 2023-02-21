@@ -36,6 +36,10 @@ void bike::doPelotonWorkaround() {
     this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
 
+void bike::doLockscreenUpdate() {
+    this->doPelotonWorkaround();
+}
+
 
 
 // originally made for renphobike, but i guess it could be very generic

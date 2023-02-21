@@ -351,7 +351,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         this->updateLockscreenEnergyDistanceHeartRate();
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));

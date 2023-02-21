@@ -309,7 +309,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

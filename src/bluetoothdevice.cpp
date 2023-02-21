@@ -323,6 +323,8 @@ QZLockscreenFunctions *bluetoothdevice::getLockscreenFunctions() const {
     return this->lockscreenFunctions;
 }
 
+
+
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;

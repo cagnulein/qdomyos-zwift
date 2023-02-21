@@ -944,7 +944,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));

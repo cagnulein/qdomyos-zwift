@@ -194,7 +194,7 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 this->Heart = value.at(18);
         */
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));

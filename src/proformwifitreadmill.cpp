@@ -240,7 +240,7 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
             this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     /*
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

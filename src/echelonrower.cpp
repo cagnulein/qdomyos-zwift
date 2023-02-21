@@ -259,7 +259,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
 
     qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(lastPacket).toString();

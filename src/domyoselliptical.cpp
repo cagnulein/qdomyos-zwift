@@ -335,7 +335,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

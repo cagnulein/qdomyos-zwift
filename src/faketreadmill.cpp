@@ -93,7 +93,7 @@ void faketreadmill::update() {
             this->updateLockscreenEnergyDistanceHeartRate();
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
     }
 
     if (Heart.value()) {

@@ -284,7 +284,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (!noVirtualDevice) {
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
     }
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));

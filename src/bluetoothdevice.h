@@ -421,11 +421,15 @@ class bluetoothdevice : public QObject {
      */
     bool isPelotonWorkaroundActive() const;
 
-
     /**
      * @brief Access the lockscreen object.
      */
     QZLockscreenFunctions * getLockscreenFunctions() const;
+
+    /**
+     * @brief Override in subclasses to define general lockscreen updates that happen during an update from the device.
+     */
+    virtual void doLockscreenUpdate() = 0;
 
   public Q_SLOTS:
     virtual void start();

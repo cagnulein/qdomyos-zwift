@@ -210,7 +210,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));

@@ -265,7 +265,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         }
         */
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
 

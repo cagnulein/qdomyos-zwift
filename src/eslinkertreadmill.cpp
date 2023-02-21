@@ -308,7 +308,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                     if(!this->updateLockscreenEnergyDistanceHeartRate())
                         this->Heart = heart;
             }
-            this->doPelotonWorkaround();
+            this->doLockscreenUpdate();
             emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
         }
     }
@@ -334,7 +334,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                     this->Heart = value.at(18);
                     */
         }
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         emit debug(QStringLiteral("Current incline: ") + QString::number(incline));

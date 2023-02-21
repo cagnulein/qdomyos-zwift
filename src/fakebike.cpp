@@ -83,7 +83,7 @@ void fakebike::update() {
             this->updateLockscreenEnergyDistanceHeartRate();
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
     }
 
     if (Heart.value()) {

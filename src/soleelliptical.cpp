@@ -368,7 +368,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             this->updateLockscreenEnergyDistanceHeartRate();
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

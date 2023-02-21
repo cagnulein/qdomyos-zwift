@@ -148,6 +148,10 @@ void elliptical::doPelotonWorkaround() {
     this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
 
+void elliptical::doLockscreenUpdate() {
+    // Don't call the base, so as to avoid the inherited call to doPelotonWorkaround()
+}
+
 double elliptical::requestedSpeed() { return requestSpeed; }
 void elliptical::changeSpeed(double speed) {
     RequestedSpeed = speed;

@@ -244,7 +244,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
             }
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         Resistance = newValue.at(18);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

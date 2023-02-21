@@ -239,7 +239,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 this->Heart = ((uint8_t)newValue.at(8));
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
     FanSpeed = 0;
 
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));

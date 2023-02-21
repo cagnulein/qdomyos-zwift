@@ -86,7 +86,9 @@ class bike : public bluetoothdevice {
     double m_speedLimit;
 
     void doPelotonWorkaround() override;
+    void doLockscreenUpdate() override;
     void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
+
 };
 
 #endif // BIKE_H

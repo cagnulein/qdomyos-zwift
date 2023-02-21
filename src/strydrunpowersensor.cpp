@@ -425,7 +425,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
 
     if (!noVirtualDevice) {
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
     }
 
     if (m_control->error() != QLowEnergyController::NoError) {

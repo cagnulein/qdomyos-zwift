@@ -366,7 +366,7 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
             if(!this->updateLockscreenEnergyDistanceHeartRate())
                 this->Heart = value.at(18);*/
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 

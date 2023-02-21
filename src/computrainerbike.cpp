@@ -266,7 +266,7 @@ void computrainerbike::update() {
             }
         }
 
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         /*
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));

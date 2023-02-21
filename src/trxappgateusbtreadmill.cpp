@@ -228,7 +228,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
                 this->Heart = 0;
         }
     }
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
     FanSpeed = 0;
 
     QTime now = QTime::currentTime();

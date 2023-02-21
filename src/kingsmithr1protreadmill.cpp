@@ -312,7 +312,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         }
     }
 
-    this->doPelotonWorkaround();
+    this->doLockscreenUpdate();
 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))

@@ -188,7 +188,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             */
 
         }
-        this->doPelotonWorkaround();
+        this->doLockscreenUpdate();
 
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         // debug("Current Distance: " + QString::number(distance));

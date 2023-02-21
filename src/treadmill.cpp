@@ -333,4 +333,9 @@ void treadmill::doPelotonWorkaround() {
     this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(), (uint8_t)this->metrics_override_heartrate());
 }
 
+void treadmill::doLockscreenUpdate() {
+    // Don't call the base to do the Peloton workaround
+    this->updateLockscreenStepCadence();
+}
+
 
