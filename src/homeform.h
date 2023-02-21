@@ -708,8 +708,8 @@ class homeform : public QObject {
     void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
-    void onStravaGranted();
-    void onStravaAuthorizeWithBrowser(const QUrl &url);
+    static void onStravaGranted();
+    static void onStravaAuthorizeWithBrowser(const QUrl &url);
     void replyDataReceived(const QByteArray &v);
     void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
     void networkRequestFinished(QNetworkReply *reply);

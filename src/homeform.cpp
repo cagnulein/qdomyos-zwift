@@ -5084,6 +5084,7 @@ void homeform::writeFileCompleted() {
 
 void homeform::onStravaGranted() {
 
+    stravaAuthWebVisible = false;
     QSettings settings;
     settings.setValue(QZSettings::strava_accesstoken, strava->token());
     settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
