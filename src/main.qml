@@ -84,6 +84,18 @@ ApplicationWindow {
         }
     }
 
+    WebView {
+        anchors.top: loadButton.bottom
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
+        visible: rootItem.stravaWebVisible
+
+        onVisibleChanged: {
+            url: rootItem.getStravaAuthUrl
+        }
+    }
+
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
