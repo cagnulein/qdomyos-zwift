@@ -25,6 +25,9 @@ SOURCES += \
         Tools/testsettings.cpp \
         main.cpp
 
+# Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
+# to produce a large number of classes.
+win32:QMAKE_CXXFLAGS += -Wa,-mbig-obj
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdomyos-zwift
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
