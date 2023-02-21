@@ -259,8 +259,7 @@ jobs:
       - name: Test
         run: | 
           cd tst
-          ls > $GITHUB_OUTPUT
-          GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests -V
+			 GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests
           cd ..
 
       - name: Upload test results
