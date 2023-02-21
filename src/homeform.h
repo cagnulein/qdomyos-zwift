@@ -420,10 +420,10 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
 
-    static QString stravaAuthUrl;
-    static bool stravaAuthWebVisible;
-    Q_INVOKABLE static QString getStravaAuthUrl() { return stravaAuthUrl; }
-    Q_INVOKABLE static bool stravaWebVisible() { return stravaAuthWebVisible; }
+    QString stravaAuthUrl;
+    bool stravaAuthWebVisible;
+    Q_INVOKABLE QString getStravaAuthUrl() { return stravaAuthUrl; }
+    Q_INVOKABLE bool stravaWebVisible() { return stravaAuthWebVisible; }
 
     double wattMaxChart() {
         QSettings settings;
@@ -708,8 +708,8 @@ class homeform : public QObject {
     void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
-    static void onStravaGranted();
-    static void onStravaAuthorizeWithBrowser(const QUrl &url);
+    void onStravaGranted();
+    void onStravaAuthorizeWithBrowser(const QUrl &url);
     void replyDataReceived(const QByteArray &v);
     void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
     void networkRequestFinished(QNetworkReply *reply);
