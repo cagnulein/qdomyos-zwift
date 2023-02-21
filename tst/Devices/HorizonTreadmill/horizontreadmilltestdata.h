@@ -11,14 +11,12 @@ public:
         this->addDeviceName("HORIZON", comparison::StartsWithIgnoreCase);
         this->addDeviceName("AFG SPORT", comparison::StartsWithIgnoreCase);
         this->addDeviceName("WLT2541", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
 
         // FTMS
         this->addDeviceName("T318_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("T218_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("NOBLEPRO CONNECT", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);        
         this->addDeviceName("JFTM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("CT800", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX4500", comparison::StartsWithIgnoreCase);
@@ -36,7 +34,7 @@ public:
 };
 
 class HorizonTreadmillToorxTestData : public BluetoothDeviceTestData {
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
 
         if(enable){

@@ -23,7 +23,7 @@ public:
 
 class TrxAppGateUSBBike1TestData : public TrxAppGateUSBBikeTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         // This particular case of TrxAppGateUSBBike is independant of the setting
 
         DeviceDiscoveryInfo config(info);
@@ -45,7 +45,7 @@ public:
 class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
 protected:
 
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
 
         if(enable) {
