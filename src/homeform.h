@@ -71,7 +71,7 @@ class DataObject : public QObject {
     QString identificator() { return m_id; }
     bool largeButton() { return m_largeButton; }
     QString largeButtonLabel() { return m_largeButtonLabel; }
-    QString largeButtonColor() { return m_largeButtonColor; }    
+    QString largeButtonColor() { return m_largeButtonColor; }
 
     QString m_id;
     QString m_name;
@@ -104,7 +104,7 @@ class DataObject : public QObject {
     void identificatorChanged(QString value);
     void largeButtonChanged(bool value);
     void largeButtonLabelChanged(QString value);
-    void largeButtonColorChanged(QString value);    
+    void largeButtonColorChanged(QString value);
 };
 
 class homeform : public QObject {
@@ -419,6 +419,11 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getWritableAppDir();
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
+
+    static QString stravaAuthUrl;
+    static bool stravaAuthWebVisible;
+    Q_INVOKABLE static QString getStravaAuthUrl() { return stravaAuthUrl; }
+    Q_INVOKABLE static bool stravaWebVisible() { return stravaAuthWebVisible; }
 
     double wattMaxChart() {
         QSettings settings;

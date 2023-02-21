@@ -6,6 +6,7 @@ import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtMultimedia 5.15
+import QtWebView 1.1
 
 HomeForm{
     objectName: "home"
@@ -31,6 +32,18 @@ HomeForm{
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
         visible: rootItem.pelotonAskStart
+    }
+
+    WebView {
+        anchors.top: loadButton.bottom
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
+        visible: rootItem.stravaWebVisible()
+
+        onVisibleChanged: {
+            url: rootItem.getStravaAuthUrl()
+        }
     }
 
     Popup {
