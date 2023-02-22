@@ -321,6 +321,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            instantaneousStrideLengthCMAvailableFromDevice = true;
             InstantaneousStrideLengthCM =
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
