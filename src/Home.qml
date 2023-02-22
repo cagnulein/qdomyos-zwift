@@ -265,7 +265,7 @@ HomeForm{
 						      color: largeButtonColor
 								radius: 20
 								}
-                    font.pointSize: 16 * settings.ui_zoom / 100
+                    font.pointSize: 20 * settings.ui_zoom / 100
                     //width: 48 * settings.ui_zoom / 100
                     //height: 48 * settings.ui_zoom / 100
                 }

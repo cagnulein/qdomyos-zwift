@@ -731,11 +731,20 @@ void nordictrackelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
+    uint16_t r = ((uint16_t)(packet.at(10))) + ((uint16_t)(packet.at(11)) << 8);
+    return ((double)r) / 100.0;
+}
+
 double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
-    uint8_t r = (uint8_t)(packet.at(11));
     QSettings settings;
+    bool nordictrack_elliptical_c7_5 =
+        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
+            .toBool();
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
+
+    uint8_t r = (uint8_t)(packet.at(11));
 
     if (proform_hybrid_trainer_xt) {
         switch (r) {
@@ -853,6 +862,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool nordictrack_elliptical_c7_5 =
+        settings.value(QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5)
+            .toBool();
     uint8_t heart = 0;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -891,7 +903,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30) ||
+        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
@@ -913,6 +925,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
     }
+
+    if(nordictrack_elliptical_c7_5)
+        Inclination = GetInclinationFromPacket(newValue);
 
     Resistance = GetResistanceFromPacket(newValue);
 

@@ -760,6 +760,12 @@ void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     /*if (device.name().startsWith(QStringLiteral("FS-")) ||
         (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
+
+    if(device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+        qDebug() << "NOBLEPRO FIX!";
+        minStepInclinationValue = 0.5;
+    }
+
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -833,7 +839,7 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return false;
 }
 
-double fitshowtreadmill::minStepInclination() { return 1.0; }
+double fitshowtreadmill::minStepInclination() { return minStepInclinationValue; }
 
 void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)

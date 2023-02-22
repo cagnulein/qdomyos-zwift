@@ -18,16 +18,21 @@ repositories {
 
 apply plugin: 'com.android.application'
 
+def amazon = System.getenv('AMAZON')
+println(amazon)
+
 dependencies {
     compile 'com.rvalerio:fgchecker:1.1.0'
     implementation "androidx.core:core-ktx:+"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
 
-    // google play store
-    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
-
-    // amazon app store
-    // implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+    if(amazon == "1") {
+        // amazon app store
+        implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+    } else {
+        // google play store
+        implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
+    }
 
     implementation 'com.google.android.play:core:1.8.2'
 
