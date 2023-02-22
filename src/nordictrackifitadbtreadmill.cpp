@@ -73,6 +73,14 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 #endif
 }
 
+double nordictrackifitadbtreadmill::getDouble(QString v) {
+    QChar d = QLocale().decimalPoint();
+    if (d == ',') {
+        v = v.replace('.', ',');
+    }
+    return QLocale().toDouble(v);
+}
+
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
@@ -174,13 +182,13 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = QLocale().toDouble(aValues.last());
+                    speed = getDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    incline = QLocale().toDouble(aValues.last());
+                    incline = getDouble(aValues.last());
                     Inclination = incline;
                 }
             }
@@ -217,15 +225,15 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
                 requestInclination = -100;
-            }            
+            }
         }
 #endif
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
         // we have to separate the 2 commands
-        if(requestSpeed == -1)
+        if (requestSpeed == -1)
             requestInclination = -100;
-        requestSpeed = -1;                
+        requestSpeed = -1;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
@@ -261,10 +269,24 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+        {
+            lockscreen h;
+            long appleWatchCadence = h.stepCadence();
+            Cadence = appleWatchCadence;
+        }
+#endif
+#endif
+
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
     }
 }

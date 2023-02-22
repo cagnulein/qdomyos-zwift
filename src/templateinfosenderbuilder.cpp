@@ -967,6 +967,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else if (tp == bluetoothdevice::TREADMILL) {
+            obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());
+            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
             obj.setProperty(QStringLiteral("stridelength"),
@@ -976,6 +979,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("verticaloscillation"),
                             (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
         } else if (tp == bluetoothdevice::ELLIPTICAL) {
+            obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
+            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
+            obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("inclination"),
                             (dep = ((elliptical *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());

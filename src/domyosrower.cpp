@@ -5,6 +5,7 @@
 #endif
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
+#include "virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -168,13 +169,19 @@ void domyosrower::update() {
 
         update_metrics(true, watts());
 
-        // ******************************************* virtual bike init *************************************
+        // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
+            bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
-                if (!virtual_device_force_bike) {
+                if (virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, true);
+                } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);
@@ -187,7 +194,7 @@ void domyosrower::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
-                    this->setVirtualDevice(virtualBike, false);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstVirtual = 1;
             }

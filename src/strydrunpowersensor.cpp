@@ -229,8 +229,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination = treadmillInclinationOverride(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+            Inclination = treadmillInclinationOverride(((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) |
+                                                                 (int16_t)((uint8_t)newValue.at(index)))) /
                                                        10.0);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
@@ -322,6 +322,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            instantaneousStrideLengthCMAvailableFromDevice = true;
             InstantaneousStrideLengthCM =
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());

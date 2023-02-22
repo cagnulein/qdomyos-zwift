@@ -148,6 +148,9 @@ class fitshowtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    double minStepInclinationValue = 1.0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
