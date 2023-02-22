@@ -68,6 +68,7 @@ class treadmill : public bluetoothdevice {
     metric StepCount;
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
+    bool instantaneousStrideLengthCMAvailableFromDevice = false;
 
 
     void updateLockscreenStepCadence();

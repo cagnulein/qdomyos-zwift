@@ -65,7 +65,7 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
-            if(Cadence.value() > 0 && InstantaneousStrideLengthCM.value() == 0) {
+            if(Cadence.value() > 0 && instantaneousStrideLengthCMAvailableFromDevice == false) {
                 InstantaneousStrideLengthCM = ((Speed.value() / 60.0) * 100000) / Cadence.value();
             }
         } else if (m_watt.value() > 0) {

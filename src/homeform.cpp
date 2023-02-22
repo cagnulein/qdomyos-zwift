@@ -144,6 +144,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     const int valueElapsedFontSize = 30;
     const int valueTimeFontSize = 22;
 #endif
+
+    stravaAuthWebVisible = false;
+    stravaWebVisibleChanged(stravaAuthWebVisible);
+
     speed = new DataObject(QStringLiteral("Speed (") + unit + QStringLiteral("/h)"),
                            QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), true,
                            QStringLiteral("speed"), 48, labelFontSize);
@@ -3319,8 +3323,11 @@ void homeform::update() {
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-            this->pace->setValue(
-                ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            if(((treadmill *)bluetoothManager->device())->currentSpeed().value() > 1)
+                this->pace->setValue(
+                    ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            else
+                this->pace->setValue("N/A");
             this->pace->setSecondLine(
                 QStringLiteral("AVG: ") +
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
@@ -5081,6 +5088,8 @@ void homeform::writeFileCompleted() {
 
 void homeform::onStravaGranted() {
 
+    stravaAuthWebVisible = false;
+    stravaWebVisibleChanged(stravaAuthWebVisible);
     QSettings settings;
     settings.setValue(QZSettings::strava_accesstoken, strava->token());
     settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
@@ -5093,7 +5102,22 @@ void homeform::onStravaGranted() {
 void homeform::onStravaAuthorizeWithBrowser(const QUrl &url) {
 
     // ui->textBrowser->append(tr("Open with browser:") + url.toString());
-    QDesktopServices::openUrl(url);
+    QSettings settings;
+    bool strava_auth_external_webbrowser =
+        settings.value(QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser)
+            .toBool();
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    strava_auth_external_webbrowser = true;
+#endif
+    stravaAuthUrl = url.toString();
+    emit stravaAuthUrlChanged(stravaAuthUrl);
+
+    if (strava_auth_external_webbrowser)
+        QDesktopServices::openUrl(url);
+    else {
+        stravaAuthWebVisible = true;
+        stravaWebVisibleChanged(stravaAuthWebVisible);
+    }
 }
 
 void homeform::replyDataReceived(const QByteArray &v) {
@@ -5772,7 +5796,7 @@ void homeform::licenseRequest() {
     });
 }
 
-void homeform::licenseTimeout() { setLicensePopupVisible(true);}
+void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
