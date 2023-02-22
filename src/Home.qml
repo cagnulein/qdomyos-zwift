@@ -6,7 +6,6 @@ import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtMultimedia 5.15
-import QtWebView 1.1
 
 HomeForm{
     objectName: "home"
