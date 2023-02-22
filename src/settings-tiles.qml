@@ -2278,7 +2278,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance1.visible = true
 								}
 						  }
 						  Button {
@@ -2387,7 +2387,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance2.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance2.visible = true
 								}
 						  }
 						  Button {
@@ -2496,7 +2496,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance3.visible = true
 								}
 						  }
 						  Button {
@@ -2605,7 +2605,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance4.visible = true
 								}
 						  }
 						  Button {
@@ -2714,7 +2714,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance5.visible = true
 								}
 						  }
 						  Button {
@@ -2823,7 +2823,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed1.visible = true
 								}
 						  }
 						  Button {
@@ -2932,7 +2932,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed2.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed2.visible = true
 								}
 						  }
 						  Button {
@@ -3041,7 +3041,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed3.visible = true
 								}
 						  }
 						  Button {
@@ -3150,7 +3150,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed4.visible = true
 								}
 						  }
 						  Button {
@@ -3259,7 +3259,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed5.visible = true
 								}
 						  }
 						  Button {
@@ -3368,7 +3368,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination1.visible = true
 								}
 						  }
 						  Button {
@@ -3478,7 +3478,7 @@ ScrollView {
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 						  onPressed: {
-						      colorPresetInclination2.visible = true
+                              if(OS_VERSION !== "Android") colorPresetInclination2.visible = true
 						  }
 						}
 					 Button {
@@ -3586,7 +3586,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination3.visible = true
 								}
 						  }
 						  Button {
@@ -3695,7 +3695,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination4.visible = true
 								}
 						  }
 						  Button {
@@ -3804,7 +3804,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination5.visible = true
 								}
 						  }
 						  Button {
