@@ -623,6 +623,7 @@ ApplicationWindow {
                 text: qsTr("Connect to Strava")
                 width: parent.width
                 onClicked: {
+                    stackView.push("WebStravaAuth.qml")
                     strava_connect_clicked()
                     drawer.close()
                 }
