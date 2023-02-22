@@ -839,7 +839,7 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return false;
 }
 
-double fitshowtreadmill::minStepInclination() { return 1.0; }
+double fitshowtreadmill::minStepInclination() { return minStepInclinationValue; }
 
 void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
