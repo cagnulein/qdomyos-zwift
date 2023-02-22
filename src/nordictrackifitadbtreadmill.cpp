@@ -265,10 +265,24 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+        {
+            lockscreen h;
+            long appleWatchCadence = h.stepCadence();
+            Cadence = appleWatchCadence;
+        }
+#endif
+#endif
+
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
     }
 }

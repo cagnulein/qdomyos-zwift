@@ -603,6 +603,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     emit debug(QStringLiteral("Current KCal from the machine: ") + QString::number(kcal));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
