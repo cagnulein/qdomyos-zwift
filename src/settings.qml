@@ -712,6 +712,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.69
             property bool nordictrack_incline_trainer_x7i: false
+
+            // from version 2.12.71
+            property bool strava_auth_external_webbrowser: false
         }
 
         function paddingZeros(text, limit) {
@@ -6049,6 +6052,33 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Default is “QZ.” Please leave this set to default so that other Strava users will see the QZ; a tiny bit of advertising that helps promote the app and support its development. If you choose to remove it, please consider contributing to the developer’s Patreon or Buy Me a Coffee accounts or just subscribe to the Swag bag in the left side bar to allow me to continue developing and supporting the app.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Strava External Browser Auth")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_auth_external_webbrowser
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_auth_external_webbrowser = checked
+                    }
+
+                    Label {
+                        text: qsTr("QZ can open a external browser in order to auth strava to QZ. Default: disabled.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8
