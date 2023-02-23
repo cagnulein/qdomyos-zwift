@@ -185,6 +185,7 @@ ScrollView {
 		  property int tile_avg_watt_lap_order: 48
         property bool tile_pace_last500m_enabled: true
         property int  tile_pace_last500m_order: 49
+        property bool target_metrics_range_peloton: false
     }
 
 
@@ -1187,6 +1188,33 @@ ScrollView {
 
         Label {
             text: qsTr("Resistance of your bike converted to the Peloton bike scale of 1 to 100.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        SwitchDelegate {
+            text: qsTr("Show Target Ranges")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.target_metrics_range_peloton
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.target_metrics_range_peloton = checked
+        }
+
+        Label {
+            text: qsTr("QZ by default will show the cadence/resistance/power number that you have to follow. With this setting enabled, QZ will show you the range instead.")
             font.bold: true
             font.italic: true
             font.pixelSize: 8

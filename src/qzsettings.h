@@ -1773,6 +1773,9 @@ class QZSettings {
     static const QString gears_from_bike;
     static constexpr bool default_gears_from_bike = false;
 
+    static const QString target_metrics_range_peloton;
+    static constexpr bool default_target_metrics_range_peloton = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

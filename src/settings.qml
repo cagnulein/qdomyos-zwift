@@ -718,6 +718,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.72
             property bool gears_from_bike: false
+            property bool target_metrics_range_peloton: false
         }
 
         function paddingZeros(text, limit) {
