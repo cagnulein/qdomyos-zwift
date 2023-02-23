@@ -39,7 +39,7 @@ class nordictrackelliptical : public elliptical {
                           double bikeResistanceGain);
     bool connected() override;
 
-	int pelotonToEllipticalResistance(int pelotonResistance) override    
+    int pelotonToEllipticalResistance(int pelotonResistance) override;
 	bool inclinationAvailableByHardware() { return false; }
 
     ;
