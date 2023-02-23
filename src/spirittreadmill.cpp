@@ -265,11 +265,10 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         }
         */
     }
-    this->doLockscreenUpdate();
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
 
-    cadenceFromAppleWatch();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));

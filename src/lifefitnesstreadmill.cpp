@@ -476,7 +476,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
             index += 2;
             index += 2;
         } else {
-            cadenceFromAppleWatch();
+            this->doLockscreenUpdate();
         }
 
         if (Flags.strideCount) {

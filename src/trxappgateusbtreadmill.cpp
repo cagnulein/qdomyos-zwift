@@ -228,7 +228,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
                 this->Heart = 0;
         }
     }
-    this->doLockscreenUpdate();
+
     FanSpeed = 0;
 
     QTime now = QTime::currentTime();
@@ -237,7 +237,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     }
     lastTimeCharChanged = now;
 
-    cadenceFromAppleWatch();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));

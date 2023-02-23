@@ -312,8 +312,6 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         }
     }
 
-    this->doLockscreenUpdate();
-
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
@@ -330,7 +328,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
-    cadenceFromAppleWatch();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));

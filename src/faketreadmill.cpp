@@ -46,7 +46,7 @@ void faketreadmill::update() {
         requestInclination = -100;
     }
 
-    cadenceFromAppleWatch();
+    this->doLockscreenUpdate();
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
@@ -94,8 +94,6 @@ void faketreadmill::update() {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             this->updateLockscreenEnergyDistanceHeartRate();
         }
-
-        this->doLockscreenUpdate();
     }
 
     if (Heart.value()) {

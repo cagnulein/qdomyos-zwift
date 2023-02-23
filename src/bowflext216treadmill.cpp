@@ -210,9 +210,6 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
     }
 
-    this->doLockscreenUpdate();
-
-
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
@@ -250,7 +247,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
-    cadenceFromAppleWatch();
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
