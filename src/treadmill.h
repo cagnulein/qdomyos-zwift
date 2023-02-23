@@ -39,7 +39,6 @@ class treadmill : public bluetoothdevice {
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
     static double treadmillInclinationOverride(double Inclination);
-    void cadenceFromAppleWatch();
 
   public slots:
     virtual void changeSpeed(double speed);
@@ -70,7 +69,6 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
-
 
     void updateLockscreenStepCadence();
 
