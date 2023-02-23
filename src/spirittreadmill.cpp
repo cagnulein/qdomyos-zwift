@@ -265,6 +265,8 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
 
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));

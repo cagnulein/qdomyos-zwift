@@ -1,5 +1,5 @@
-
 #include "treadmill.h"
+#include "ios/lockscreen.h"
 #include <QSettings>
 
 treadmill::treadmill() {}
@@ -60,7 +60,7 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
-            if(Cadence.value() > 0 && instantaneousStrideLengthCMAvailableFromDevice == false) {
+            if (Cadence.value() > 0 && instantaneousStrideLengthCMAvailableFromDevice == false) {
                 InstantaneousStrideLengthCM = ((Speed.value() / 60.0) * 100000) / Cadence.value();
             }
         } else if (m_watt.value() > 0) {
@@ -311,4 +311,20 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
             .toDouble();
     }
     return Inclination;
+}
+
+void treadmill::cadenceFromAppleWatch() {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    QSettings settings;
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        lockscreen h;
+        long appleWatchCadence = h.stepCadence();
+        Cadence = appleWatchCadence;
+        qDeubg() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
+    }
+#endif
+#endif
 }

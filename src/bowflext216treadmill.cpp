@@ -243,6 +243,8 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
