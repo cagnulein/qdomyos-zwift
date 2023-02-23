@@ -872,7 +872,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     lastPacket = newValue;
 
     if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C &&
-        !proform_hybrid_trainer_xt) {
+        !proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -891,7 +891,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
 
-        if (proform_hybrid_trainer_xt && !disable_hr_frommachinery) {
+        if ((proform_hybrid_trainer_xt || nordictrack_elliptical_c7_5) && !disable_hr_frommachinery) {
             heart = newValue.at(3);
             Heart = heart;
             emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
@@ -903,7 +903,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
+        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
+        (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
@@ -913,7 +914,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     // wattage = newValue.at(12)
 
-    if (proform_hybrid_trainer_xt) {
+    if (proform_hybrid_trainer_xt || nordictrack_elliptical_c7_5) {
         uint8_t c = newValue.at(18);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -926,7 +927,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    if(nordictrack_elliptical_c7_5)
+    if (nordictrack_elliptical_c7_5)
         Inclination = GetInclinationFromPacket(newValue);
 
     Resistance = GetResistanceFromPacket(newValue);
