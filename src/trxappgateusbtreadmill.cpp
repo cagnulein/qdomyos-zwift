@@ -248,6 +248,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     }
     lastTimeCharChanged = now;
 
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
