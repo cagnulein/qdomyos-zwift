@@ -11,9 +11,5 @@ unix {
 }
 !isEmpty(target.path): INSTALLS += target
 
-HEADERS += \
-    virtualdevice.h
 
-SOURCES += \
-    virtualdevice.cpp
 

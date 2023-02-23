@@ -1,6 +1,7 @@
 #include "domyostreadmill.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
+#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
