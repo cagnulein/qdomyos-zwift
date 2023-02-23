@@ -140,7 +140,7 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
         }
 
         uint8_t writeIncline[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_TARGET_OR_RUN, (uint8_t)(requestSpeed + 0.5),
-                                  (uint8_t)requestIncline};
+                                  (uint8_t)(requestIncline * (noblepro_connected ? 2.0 : 1.0))};
         scheduleWrite(writeIncline, sizeof(writeIncline),
                       QStringLiteral("forceSpeedOrIncline speed=") + QString::number(requestSpeed) +
                           QStringLiteral(" incline=") + QString::number(requestIncline));
@@ -304,7 +304,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -730,7 +731,7 @@ void fitshowtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
-    if(!gattCommunicationChannelService) {
+    if (!gattCommunicationChannelService) {
         qDebug() << "service not valid";
         return;
     }
@@ -761,9 +762,10 @@ void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     /*if (device.name().startsWith(QStringLiteral("FS-")) ||
         (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
 
-    if(device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+    if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
         qDebug() << "NOBLEPRO FIX!";
         minStepInclinationValue = 0.5;
+        noblepro_connected = true;
     }
 
     {
