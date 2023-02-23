@@ -715,6 +715,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.12.71
             property bool strava_auth_external_webbrowser: false
+
+            // from version 2.12.72
+            property bool gears_from_bike: false
         }
 
         function paddingZeros(text, limit) {
@@ -2285,6 +2288,19 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text
                             }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Change gears using knob")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.gears_from_bike
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.gears_from_bike = checked
                         }
                     }
                 }

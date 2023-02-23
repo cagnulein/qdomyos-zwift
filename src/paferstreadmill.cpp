@@ -207,6 +207,9 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         /*if(heartRateBeltName.startsWith("Disabled"))
         Heart = value.at(18);*/
     }
+
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
 

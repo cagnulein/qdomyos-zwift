@@ -1,9 +1,7 @@
 // THIS MODULE IS UNUSED RIGHT NOW
 
 #include "bowflextreadmill.h"
-#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -97,7 +95,8 @@ void bowflextreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !this->hasVirtualDevice()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -129,7 +128,7 @@ void bowflextreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -219,7 +218,8 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -229,6 +229,8 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Distance += ((Speed.value() / 3600.0) /
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
+
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 

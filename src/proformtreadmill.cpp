@@ -1094,6 +1094,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
+        cadenceFromAppleWatch();
+
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
