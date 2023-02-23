@@ -267,7 +267,8 @@ void octanetreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !this->isPelotonWorkaroundActive()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -344,7 +345,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
         return;
 
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
@@ -373,7 +374,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                 this->Heart = value.at(18);
         */
     }
-    this->doLockscreenUpdate();
+    
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
     if (Speed.value() != speed) {
@@ -395,7 +396,8 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -405,6 +407,8 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         Distance += ((Speed.value() / 3600.0) /
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
+
+    this->doLockscreenUpdate();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));

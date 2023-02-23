@@ -55,8 +55,11 @@ void truetreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->isPelotonWorkaroundActive()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -139,7 +142,8 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
     QByteArray avalue = newValue;
 
@@ -162,7 +166,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
         }
     }
 
-    this->updateLockscreenStepCadence();
+    
     this->doLockscreenUpdate();
 
     double speed = 0;
@@ -196,7 +200,8 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(

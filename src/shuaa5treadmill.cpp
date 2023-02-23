@@ -105,7 +105,7 @@ void shuaa5treadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -280,13 +280,16 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             index += 1;
         } else {
             if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -327,13 +330,16 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+        if (heart == 0.0 ||
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
             this->updateLockscreenEnergyDistanceHeartRate();
         } else {
 
             Heart = heart;
         }
     }
+
+    this->doLockscreenUpdate();
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -426,7 +432,8 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->isPelotonWorkaroundActive()) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 

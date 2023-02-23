@@ -1679,7 +1679,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
-                        !settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms).toBool()) {
+                    !settings
+                         .value(QZSettings::horizon_treadmill_force_ftms,
+                                QZSettings::default_horizon_treadmill_force_ftms)
+                         .toBool()) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharCustomService = c;
                     gattCustomService = s;

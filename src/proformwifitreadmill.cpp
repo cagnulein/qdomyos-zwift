@@ -37,12 +37,15 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
 
     connectToDevice();
 
-    initRequest = true;    
+    initRequest = true;
 
     // ******************************************* virtual bike init *************************************
     if (!this->isVirtualDeviceSetUp() && !virtualTreadMill && !virtualBike && !this->isPelotonWorkaroundActive()) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -73,7 +76,9 @@ void proformwifitreadmill::changeInclinationRequested(double grade, double perce
 void proformwifitreadmill::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString() + "/control"));
+    websocket.open(QUrl(
+        "ws://" + settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString() +
+        "/control"));
 }
 
 void proformwifitreadmill::forceSpeed(double requestSpeed) {
@@ -151,7 +156,8 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue);
 
@@ -212,7 +218,8 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg

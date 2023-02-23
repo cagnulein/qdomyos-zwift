@@ -45,7 +45,8 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     QEventLoop loop;
     QTimer timeout;
     QSettings settings;
-    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
+    bool inclination =
+        settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     if (!inclination) {
         qDebug() << "inclination support disabled";
@@ -446,7 +447,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
@@ -490,12 +492,14 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-            KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                             // kg * 3.5) / 200 ) / 60
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                         // kg * 3.5) / 200 ) / 60
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         lastRefreshCharacteristicChanged = now;
@@ -602,13 +606,16 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             index += 1;
         } else {
             if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -651,13 +658,16 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+        if (heart == 0.0 ||
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
             this->updateLockscreenEnergyDistanceHeartRate();
         } else {
 
             Heart = heart;
         }
     }
+
+    this->doLockscreenUpdate();
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -667,7 +677,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QSettings settings;
-    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
+    bool inclination =
+        settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -751,7 +762,8 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->isPelotonWorkaroundActive()) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 

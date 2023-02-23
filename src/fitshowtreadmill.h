@@ -148,6 +148,8 @@ class fitshowtreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
     double minStepInclinationValue = 1.0;
+    bool noblepro_connected = false;
+
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

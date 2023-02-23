@@ -330,6 +330,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));

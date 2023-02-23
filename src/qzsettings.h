@@ -1770,6 +1770,9 @@ class QZSettings {
     static const QString strava_auth_external_webbrowser;
     static constexpr bool default_strava_auth_external_webbrowser = false;
 
+    static const QString gears_from_bike;
+    static constexpr bool default_gears_from_bike = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
