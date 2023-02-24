@@ -99,6 +99,10 @@ class echelonrower : public rower {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+  protected:
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
+    void doPelotonWorkaround() override;
+
 };
 
 #endif // ECHELONROWER_H

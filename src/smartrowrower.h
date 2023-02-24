@@ -40,7 +40,9 @@ class smartrowrower : public rower {
 
     void *VirtualBike();
     void *VirtualDevice();
-
+  protected:
+    void configureLockscreenFunctions(QZLockscreenFunctions *functions) const override;
+    void doPelotonWorkaround() override;
   private:
     const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);

@@ -15,22 +15,22 @@ public:
     virtual ~QZLockscreenFunctions() {}
 
     /**
-     * @brief Perform configuration for a bike.
+     * @brief Perform configuration for a bike. Determines if the Peloton workaround should be active.
      * @param zwiftMode Indicates if the Zwift interface should be used.
      */
-    virtual void setVirtualBike(bool zwiftMode)=0;
+    virtual void setVirtualBikePelotonWorkaround(bool zwiftMode)=0;
 
     /**
-     * @brief Perform configuration for a treadmill.
+     * @brief Perform configuration for a treadmill. Determines if the Peloton workaround should be active.
      * @param zwiftMode Indicates if the Zwift interface should be used.
      */
-    virtual void setVirtualTreadmill(bool zwiftMode)=0;
+    virtual void setVirtualTreadmillPelotonWorkaround(bool zwiftMode)=0;
 
     /**
-     * @brief Perform configuration for a rower.
+     * @brief Perform configuration for a rower. Determines if the Peloton workaround should be active.
      * @param isVirtualDevice Indicates if this is for a virtual device.
      */
-    virtual void setVirtualRower(bool isVirtualDevice)=0;
+    virtual void setVirtualRowerPelotonWorkaround(bool isVirtualDevice)=0;
 
     /**
      * @brief Gets the implementation of QZLockscreen for accessing lockscreen functions directly.

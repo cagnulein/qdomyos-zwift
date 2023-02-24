@@ -428,8 +428,9 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief Override in subclasses to define general lockscreen updates that happen during an update from the device.
+     * Calls doPelotonWorkaround() by default.
      */
-    virtual void doLockscreenUpdate() = 0;
+    virtual void doLockscreenUpdate();
 
   public Q_SLOTS:
     virtual void start();

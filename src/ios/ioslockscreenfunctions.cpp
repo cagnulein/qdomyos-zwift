@@ -23,7 +23,7 @@ IOSLockscreenFunctions::IOSLockscreenFunctions() : QZLockscreenFunctions() {
 QZLockscreen *IOSLockscreenFunctions::getLockscreen() const { return this->lockscreen; }
 
 
-void IOSLockscreenFunctions::setVirtualBike(bool zwiftMode) {
+void IOSLockscreenFunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -54,11 +54,12 @@ void IOSLockscreenFunctions::setVirtualBike(bool zwiftMode) {
             qDebug() << "ios_zwift_workaround activated!";
 
             this->getLockscreen()->virtualbike_zwift_ios();
+            this->pelotonWorkaroundActive = true;
         }
     }
 }
 
-void IOSLockscreenFunctions::setVirtualTreadmill(bool zwiftMode) {
+void IOSLockscreenFunctions::setVirtualTreadmillPelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -78,7 +79,7 @@ void IOSLockscreenFunctions::setVirtualTreadmill(bool zwiftMode) {
     }
 }
 
-void IOSLockscreenFunctions::setVirtualRower(bool zwiftMode) {
+void IOSLockscreenFunctions::setVirtualRowerPelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -89,8 +90,6 @@ void IOSLockscreenFunctions::setVirtualRower(bool zwiftMode) {
     if(!ios_peloton_workaround)
         return;
 
-
-
     if(!zwiftMode) {
 
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -99,6 +98,7 @@ void IOSLockscreenFunctions::setVirtualRower(bool zwiftMode) {
         if (ios_peloton_workaround && cadence && !virtual_device_rower) {
             qDebug() << "ios_peloton_workaround activated!";
             this->getLockscreen()->virtualbike_ios();
+            this->pelotonWorkaroundActive = true;
         }
     } else {
 
@@ -111,7 +111,7 @@ void IOSLockscreenFunctions::setVirtualRower(bool zwiftMode) {
             qDebug() << "ios_zwift_workaround activated!";
 
             this->getLockscreen()->virtualrower_ios();
-
+            this->pelotonWorkaroundActive = true;
         }
     }
 

@@ -27,6 +27,19 @@ fakeelliptical::fakeelliptical(bool noWriteResistance, bool noHeartService, bool
     refresh->start(200ms);
 }
 
+void fakeelliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    // this particular elliptical always emulates a bike and uses the bike Peloton workaround conditions
+    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+}
+
+void fakeelliptical::doPelotonWorkaround() {
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
+        return;
+
+    // this rower does the bike update
+    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+}
+
 void fakeelliptical::update() {
     QSettings settings;
     QString heartRateBeltName =

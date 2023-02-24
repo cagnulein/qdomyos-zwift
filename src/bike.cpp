@@ -8,7 +8,7 @@ bike::bike() {
 }
 
 void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
-    if(functions) functions->setVirtualBike(false);
+    if(functions) functions->setVirtualBikePelotonWorkaround(false);
 }
 
 void bike::changeResistance(resistance_t resistance) {
@@ -34,10 +34,6 @@ void bike::doPelotonWorkaround() {
         return;
 
     this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
-}
-
-void bike::doLockscreenUpdate() {
-    this->doPelotonWorkaround();
 }
 
 

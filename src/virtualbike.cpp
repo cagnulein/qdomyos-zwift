@@ -16,7 +16,7 @@ bool virtualbike::configureLockscreen(){
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualBike(true);
+    this->lockscreenFunctions->setVirtualBikePelotonWorkaround(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

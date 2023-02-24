@@ -7,7 +7,13 @@ treadmill::treadmill() {
 }
 
 void treadmill::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
-    if(functions) functions->setVirtualTreadmill(false);
+    // Generally treadmills are not doing the Peloton workaround themselves,
+    // but relying on the virtual device.
+    //if(functions) functions->setVirtualTreadmillPelotonWorkaround(false);
+}
+
+void treadmill::doPelotonWorkaround() {
+    // currently, treadmills generally are not doing the Peloton workaround directly, this is left to the virtual device.
 }
 
 void treadmill::changeSpeed(double speed) {
@@ -327,16 +333,8 @@ void treadmill::updateLockscreenStepCadence() {
         functions->updateStepCadence(this->Cadence);
 }
 
-void treadmill::doPelotonWorkaround() {
-    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
-        return;
 
-    this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(), (uint8_t)this->metrics_override_heartrate());
-}
 
-void treadmill::doLockscreenUpdate() {
-    // Don't call the base to do the Peloton workaround
-    this->updateLockscreenStepCadence();
-}
+
 
 

@@ -7,7 +7,13 @@ elliptical::elliptical() {
 }
 
 void elliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
-    if(functions) functions->setVirtualBike(false);
+    // Generally ellipticals are not doing the Peloton workaround themselves,
+    // but relying on the virtual device.
+    //if(functions) functions->setVirtualBike(false);
+}
+
+void elliptical::doPelotonWorkaround() {
+    // currently, ellipticals generally are not doing the Peloton workaround directly, this is left to the virtual device.
 }
 
 void elliptical::update_metrics(bool watt_calc, const double watts) {
@@ -140,17 +146,6 @@ void elliptical::setLap() {
 int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pelotonResistance; }
 void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
-
-void elliptical::doPelotonWorkaround() {
-    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
-        return;
-
-    this->getLockscreenFunctions()->pelotonTreadmillUpdateCHR(this->currentCrankRevolutions(), this->LastCrankEventTime, (uint8_t)metrics_override_heartrate());
-}
-
-void elliptical::doLockscreenUpdate() {
-    // Don't call the base, so as to avoid the inherited call to doPelotonWorkaround()
-}
 
 double elliptical::requestedSpeed() { return requestSpeed; }
 void elliptical::changeSpeed(double speed) {

@@ -32,6 +32,19 @@ echelonrower::echelonrower(bool noWriteResistance, bool noHeartService, uint8_t 
     refresh->start(200ms);
 }
 
+void echelonrower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    // this specific rower does the Peloton workaround sometimes, but with rower-specific conditions
+    if(functions) functions->setVirtualRowerPelotonWorkaround(false);
+}
+
+void echelonrower::doPelotonWorkaround() {
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
+        return;
+
+    // this rower does the bike update
+    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+}
+
 void echelonrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                        bool wait_for_response) {
     QEventLoop loop;

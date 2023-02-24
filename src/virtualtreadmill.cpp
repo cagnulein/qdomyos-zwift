@@ -13,7 +13,7 @@ bool virtualtreadmill::configureLockScreen() {
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualTreadmill(true);
+    this->lockscreenFunctions->setVirtualTreadmillPelotonWorkaround(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

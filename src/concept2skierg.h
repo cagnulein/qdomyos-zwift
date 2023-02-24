@@ -68,6 +68,9 @@ class concept2skierg : public rower {
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);
+  protected:
+    void doPelotonWorkaround() override;
+    void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

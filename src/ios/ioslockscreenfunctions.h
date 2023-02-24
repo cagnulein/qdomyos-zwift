@@ -14,9 +14,9 @@ public:
 
     QZLockscreen * getLockscreen() const override;
 
-    void setVirtualBike(bool zwiftMode) override;
-    void setVirtualTreadmill(bool zwiftMode) override;
-    void setVirtualRower(bool isVirtualDevice) override;
+    void setVirtualBikePelotonWorkaround(bool zwiftMode) override;
+    void setVirtualTreadmillPelotonWorkaround(bool zwiftMode) override;
+    void setVirtualRowerPelotonWorkaround(bool isVirtualDevice) override;
 
     bool isPelotonWorkaroundActive() const override;
     bool updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, const int defaultHeartRate) override;

@@ -32,6 +32,19 @@ smartrowrower::smartrowrower(bool noWriteResistance, bool noHeartService, uint8_
     refresh->start(200ms);
 }
 
+void smartrowrower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    // this particular rower always emulates a bike and uses the bike Peloton workaround conditions
+    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+}
+
+void smartrowrower::doPelotonWorkaround() {
+    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
+        return;
+
+    // this rower does the bike update
+    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+}
+
 void smartrowrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                         bool wait_for_response) {
     QEventLoop loop;

@@ -8,7 +8,13 @@ rower::rower() {
 }
 
 void rower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
-    if(functions) functions->setVirtualRower(false);
+    // currently rowers are generally not doing the Peloton workaround themselves,
+    // relying on the virtual device.
+    // if(functions) functions->setVirtualRowerPelotonWorkaround(false);
+}
+
+void rower::doPelotonWorkaround() {
+    // currently, rowers generally are not doing the Peloton workaround directly, this is left to the virtual device.
 }
 
 void rower::changeResistance(resistance_t resistance) {
@@ -44,19 +50,6 @@ void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
-
-void rower::doPelotonWorkaround() {
-    if(!this->isPelotonWorkaroundActive() || !this->isVirtualDeviceSetUp())
-        return;
-
-    this->getLockscreenFunctions()->pelotonRowerUpdateCHR(this->currentCrankRevolutions(), this->lastCrankEventTime(),(uint8_t)metrics_override_heartrate());
-}
-
-void rower::doLockscreenUpdate(){
-    // do nothing
-}
-
-
 
 void rower::clearStats() {
 

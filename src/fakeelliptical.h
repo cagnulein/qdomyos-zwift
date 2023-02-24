@@ -38,6 +38,9 @@ class fakeelliptical : public elliptical {
     void *VirtualBike();
     void *VirtualDevice();
 
+protected:
+    void configureLockscreenFunctions(QZLockscreenFunctions *functions) const override;
+    void doPelotonWorkaround() override;
   private:
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -61,7 +64,7 @@ class fakeelliptical : public elliptical {
     void disconnected();
     void debug(QString string);
 
-  private slots:
+private slots:
     void changeInclinationRequested(double grade, double percentage);
     void update();
 

@@ -15,11 +15,11 @@ private:
 public:
     qdebuglockscreenfunctions(bool pelotonWorkaroundActive);
 
-    void setVirtualBike(bool zwiftMode) override;
+    void setVirtualBikePelotonWorkaround(bool zwiftMode) override;
 
-    void setVirtualTreadmill(bool zwiftMode) override;
+    void setVirtualTreadmillPelotonWorkaround(bool zwiftMode) override;
 
-    void setVirtualRower(bool isVirtualDevice) override;
+    void setVirtualRowerPelotonWorkaround(bool isVirtualDevice) override;
 
     QZLockscreen * getLockscreen() const override;
 

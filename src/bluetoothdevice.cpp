@@ -323,6 +323,9 @@ QZLockscreenFunctions *bluetoothdevice::getLockscreenFunctions() const {
     return this->lockscreenFunctions;
 }
 
+void bluetoothdevice::doLockscreenUpdate() {
+    this->doPelotonWorkaround();
+}
 
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {

@@ -12,17 +12,17 @@ void qdebuglockscreenfunctions::checkConfigured() {
     }
 }
 
-void qdebuglockscreenfunctions::setVirtualBike(bool zwiftMode) {
+void qdebuglockscreenfunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
     qDebug() << "Configuring qdebug lockscreen for virtual bike. Zwift mode: " << zwiftMode;
     this->configuredFor = configurationType::BIKE;
 }
 
-void qdebuglockscreenfunctions::setVirtualTreadmill(bool zwiftMode) {
+void qdebuglockscreenfunctions::setVirtualTreadmillPelotonWorkaround(bool zwiftMode) {
     qDebug() << "Configuring qdebug lockscreen for virtual treadmill. Zwift mode: " << zwiftMode;
     this->configuredFor = configurationType::TREADMILL;
 }
 
-void qdebuglockscreenfunctions::setVirtualRower(bool isVirtualDevice) {
+void qdebuglockscreenfunctions::setVirtualRowerPelotonWorkaround(bool isVirtualDevice) {
     qDebug() << "Configuring qdebug lockscreen for virtual rower. isVirtualDevice: " << isVirtualDevice;
     this->configuredFor = configurationType::ROWER;
 }

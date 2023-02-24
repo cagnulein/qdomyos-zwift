@@ -17,7 +17,7 @@ bool virtualrower::configureLockscreen() {
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualRower(true);
+    this->lockscreenFunctions->setVirtualRowerPelotonWorkaround(true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

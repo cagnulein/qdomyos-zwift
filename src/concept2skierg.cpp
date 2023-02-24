@@ -29,6 +29,19 @@ concept2skierg::concept2skierg(bool noWriteResistance, bool noHeartService) {
     refresh->start(200ms);
 }
 
+void concept2skierg::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
+    // This specific device emulates a bike when the Peloton workaround is required.
+    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+}
+
+void concept2skierg::doPelotonWorkaround() {
+    // This specific device emulates a bike when the Peloton workaround is required.
+    if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
+        return;
+
+    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+}
+
 void concept2skierg::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
     QEventLoop loop;
