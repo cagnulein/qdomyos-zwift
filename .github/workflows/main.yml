@@ -82,9 +82,10 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
-          
+
       - name: Build qthttpserver
         run: |
+            mkdir qthttpserver/src/3rdparty/http-parser
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
             cd qthttpserver            
