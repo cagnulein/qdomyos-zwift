@@ -796,7 +796,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
                 return 22;
             default:
             case 0:
-                return 0;
+                return 1;
             }
         } else {
             return Resistance.value();
@@ -941,12 +941,12 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true && !nordictrack_elliptical_c7_5) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
 
-        if ((proform_hybrid_trainer_xt || nordictrack_elliptical_c7_5) && !disable_hr_frommachinery) {
+        if (proform_hybrid_trainer_xt && !disable_hr_frommachinery) {
             heart = newValue.at(3);
             Heart = heart;
             emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
@@ -969,7 +969,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     // wattage = newValue.at(12)
 
-    if (proform_hybrid_trainer_xt || nordictrack_elliptical_c7_5) {
+    if (proform_hybrid_trainer_xt || (nordictrack_elliptical_c7_5 && newValue.at(5) == 0x30)) {
         uint8_t c = newValue.at(18);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -979,6 +979,12 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+        if(nordictrack_elliptical_c7_5) {
+            Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            lastSpeedChanged = QDateTime::currentDateTime();
         }
     }
 
