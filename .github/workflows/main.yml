@@ -39,6 +39,13 @@ jobs:
           ref: "zwift"
 
       - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "qthttpserver"   
+
+      - uses: actions/checkout@v2
       - name: Checkout submodule repo
         uses: actions/checkout@v2
         with:
@@ -75,6 +82,24 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
+
+      - name: wget files from qthttpserver
+        uses: wei/wget@v1
+        with:
+          args: -O qthttpserver/src/3rdparty/http-parser/http_parser.h https://github.com/nodejs/http-parser/raw/main/http_parser.h
+
+      - name: wget files from qthttpserver
+        uses: wei/wget@v1
+        with:
+          args: -O qthttpserver/src/3rdparty/http-parser/http_parser.c https://github.com/nodejs/http-parser/raw/main/http_parser.c
+
+      - name: Build qthttpserver
+        run: |
+            cd qthttpserver            
+            qmake
+            make -j8
+            make install
+            cd ..
 
       - name: Build
         run: |
