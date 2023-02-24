@@ -82,19 +82,11 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
-
-      - name: wget files from qthttpserver
-        uses: wei/wget@v1
-        with:
-          args: -O qthttpserver/src/3rdparty/http-parser/http_parser.h https://github.com/nodejs/http-parser/raw/main/http_parser.h
-
-      - name: wget files from qthttpserver
-        uses: wei/wget@v1
-        with:
-          args: -O qthttpserver/src/3rdparty/http-parser/http_parser.c https://github.com/nodejs/http-parser/raw/main/http_parser.c
-
+          
       - name: Build qthttpserver
         run: |
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.h"
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
             cd qthttpserver            
             qmake
             make -j8
