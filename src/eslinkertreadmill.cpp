@@ -89,6 +89,18 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+    } else if (treadmill_type == YPOO_MINI_CHANGE) {
+        // 0x0d: a901010da4
+        // 0x0e: a901010ea7
+        // CheckSum 8 Xor
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0e, 0x00};
+        display[3] = requestSpeed * 10;
+        for (int i = 0; i < 4; i++) {
+            display[4] = display[4] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     }
 }
 
