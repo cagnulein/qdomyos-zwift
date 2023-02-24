@@ -88,7 +88,7 @@ jobs:
             mkdir qthttpserver/src/3rdparty/http-parser
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
-            cd qthttpserver            
+            cd D:\a\qdomyos-zwift\qdomyos-zwift\qthttpserver
             qmake
             make -j8
             make install
