@@ -83,11 +83,14 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
 
-      - name: Build qthttpserver
+      - name: download 3rd party files for qthttpserver
         run: |
             mkdir qthttpserver/src/3rdparty/http-parser
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
+
+      - name: Build qthttpserver
+        run: |
             cd D:\a\qdomyos-zwift\qdomyos-zwift\qthttpserver
             qmake
             make -j8
