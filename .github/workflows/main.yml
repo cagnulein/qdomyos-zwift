@@ -90,12 +90,12 @@ jobs:
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
       - name: Build qthttpserver
-        working-directory: src/qthttpserver
         run: |
+            cd src/qthttpserver
             qmake
             make -j8
             make install
-            cd ..
+            cd ../..
 
       - name: Build
         run: |
