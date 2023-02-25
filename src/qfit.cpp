@@ -197,12 +197,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(devIdMesg);
     encode.Write(eventMesg);
 
-    FIT_UINT32 date = session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L;
+    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
 
     fit::LapMesg lapMesg;
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
-    lapMesg.SetStartTime(date);
-    lapMesg.SetTimestamp(date);
+    lapMesg.SetStartTime(date.GetTimeStamp() + firstRealIndex);
+    lapMesg.SetTimestamp(date.GetTimeStamp() + firstRealIndex);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
@@ -284,7 +284,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         // using just the start point as reference in order to avoid pause time
         // strava ignore the elapsed field
         // this workaround could leads an accuracy issue.
-        newRecord.SetTimestamp(date + i);
+        newRecord.SetTimestamp(date.GetTimeStamp() + i);
         encode.Write(newRecord);
 
         if (sl.lapTrigger) {
@@ -298,8 +298,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
             encode.Write(lapMesg);
 
-            lapMesg.SetStartTime(date + i);
-            lapMesg.SetTimestamp(date + i);
+            lapMesg.SetStartTime(date.GetTimeStamp() + i);
+            lapMesg.SetTimestamp(date.GetTimeStamp() + i);
             lapMesg.SetEvent(FIT_EVENT_WORKOUT);
             lapMesg.SetEventType(FIT_EVENT_LAP);
         }
