@@ -47,8 +47,8 @@ jobs:
 
       - name: debug qthttpserver
         run: |
-            dir >> "$GITHUB_OUTPUT"          
-            dir qthttpserver >> "$GITHUB_OUTPUT"
+            dir >> $env:GITHUB_OUTPUT 
+            dir qthttpserver >> $env:GITHUB_OUTPUT 
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
