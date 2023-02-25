@@ -45,6 +45,11 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "qthttpserver"   
 
+      - name: debug qthttpserver
+        run: |
+            dir >> "$GITHUB_OUTPUT"          
+            dir qthttpserver >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
         uses: actions/checkout@v2
