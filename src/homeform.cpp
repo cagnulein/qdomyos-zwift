@@ -3351,7 +3351,7 @@ void homeform::update() {
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-            if(((treadmill *)bluetoothManager->device())->currentSpeed().value() > 1)
+            if(((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
                 this->pace->setValue(
                     ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             else
