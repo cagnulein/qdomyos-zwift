@@ -45,11 +45,6 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "qthttpserver"   
 
-      - name: debug qthttpserver
-        run: |
-            dir >> $env:GITHUB_OUTPUT 
-            dir qthttpserver >> $env:GITHUB_OUTPUT 
-
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
         uses: actions/checkout@v2
@@ -95,8 +90,8 @@ jobs:
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
       - name: Build qthttpserver
+        working-directory: qthttpserver
         run: |
-            cd D:\a\qdomyos-zwift\qdomyos-zwift\qthttpserver
             qmake
             make -j8
             make install
