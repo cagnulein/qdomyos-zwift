@@ -73,7 +73,6 @@ class treadmill : public bluetoothdevice {
     void updateLockscreenStepCadence();
 
     void doPelotonWorkaround() override;
-    void doLockscreenUpdate() override;
     void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 
 };
