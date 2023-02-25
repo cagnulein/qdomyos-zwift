@@ -19,7 +19,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
-    runs-on: self-hosted
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -91,8 +91,7 @@ jobs:
 
       - name: Build qthttpserver
         run: |
-            cd src/qthttpserver
-            qmake
+            cd D:\a\qdomyos-zwift\qdomyos-zwift\src\qthttpserver; qmake
             make -j8
             make install
             cd ../..
