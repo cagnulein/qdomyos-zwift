@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: qt-labs/qthttpserver
-          path: "qthttpserver"   
+          path: "src/qthttpserver"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -85,12 +85,12 @@ jobs:
 
       - name: download 3rd party files for qthttpserver
         run: |
-            mkdir qthttpserver/src/3rdparty/http-parser
-            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.h"
-            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "qthttpserver/src/3rdparty/http-parser/http_parser.c"
+            mkdir src/qthttpserver/src/3rdparty/http-parser
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.h"
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
       - name: Build qthttpserver
-        working-directory: qthttpserver
+        working-directory: src/qthttpserver
         run: |
             qmake
             make -j8
