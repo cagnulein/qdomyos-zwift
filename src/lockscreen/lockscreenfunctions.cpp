@@ -1,29 +1,39 @@
-#include "ioslockscreenfunctions.h"
+#include "lockscreenfunctions.h"
 #include "qzsettings.h"
 #include <QSettings>
+#include "objectfactory.h"
 
-#undef IOS_ENABLED
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-#include "ios/lockscreen.h"
-#define IOS_ENABLED 1
-#endif
-#endif
 
-IOSLockscreenFunctions::IOSLockscreenFunctions() : QZLockscreenFunctions() {
-
-    // prevent instantiation on the wrong platform
-#ifndef IOS_ENABLED
-    throw "Not supported on this platform";
-#else
-    this->lockscreen = new lockscreen();
-#endif
+LockscreenFunctions::LockscreenFunctions() : QZLockscreenFunctions() {
+    this->lockscreen = ObjectFactory::createLockscreen();
+    this->pelotonWorkaroundActive = false;
 }
 
-QZLockscreen *IOSLockscreenFunctions::getLockscreen() const { return this->lockscreen; }
+QZLockscreen *LockscreenFunctions::getLockscreen() const { return this->lockscreen; }
+
+bool LockscreenFunctions::tryConfigurePelotonWorkaround(configurationType configType, bool zwiftMode) {
+    this->pelotonWorkaroundActive = false;
+
+    if(configType==configurationType::BIKE)
+        this->setVirtualBikePelotonWorkaround(zwiftMode);
+    else if (configType==configurationType::TREADMILL)
+        this->setVirtualTreadmillPelotonWorkaround(zwiftMode);
+    else if (configType==configurationType::ROWER)
+        this->setVirtualRowerPelotonWorkaround(zwiftMode);
+    else if (configType!=configurationType::NONE)
+        throw "Unrecognised configuration type.";
+
+    this->configType = configType;
+
+    return this->pelotonWorkaroundActive;
+}
+
+QZLockscreenFunctions::configurationType LockscreenFunctions::getConfigurationType() const {
+    return this->configType;
+}
 
 
-void IOSLockscreenFunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
+void LockscreenFunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -59,7 +69,7 @@ void IOSLockscreenFunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
     }
 }
 
-void IOSLockscreenFunctions::setVirtualTreadmillPelotonWorkaround(bool zwiftMode) {
+void LockscreenFunctions::setVirtualTreadmillPelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -79,7 +89,7 @@ void IOSLockscreenFunctions::setVirtualTreadmillPelotonWorkaround(bool zwiftMode
     }
 }
 
-void IOSLockscreenFunctions::setVirtualRowerPelotonWorkaround(bool zwiftMode) {
+void LockscreenFunctions::setVirtualRowerPelotonWorkaround(bool zwiftMode) {
 
     this->pelotonWorkaroundActive = false;
 
@@ -118,14 +128,16 @@ void IOSLockscreenFunctions::setVirtualRowerPelotonWorkaround(bool zwiftMode) {
 }
 
 
-bool IOSLockscreenFunctions::isPelotonWorkaroundActive() const {
+bool LockscreenFunctions::isPelotonWorkaroundActive() const {
     return this->pelotonWorkaroundActive;
 }
 
-bool IOSLockscreenFunctions::updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, int defaultHeartRate) {
+bool LockscreenFunctions::updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, int defaultHeartRate) {
 
     long appleWatchHeartRate = 0;
     QZLockscreen * ls = this->getLockscreen();
+    if(!ls)
+        return false;
 
     appleWatchHeartRate = ls->heartRate();
     ls->setKcal(kcal.value());
@@ -142,10 +154,14 @@ bool IOSLockscreenFunctions::updateEnergyDistanceHeartRate(metric kcal, metric d
     return true;
 }
 
-bool IOSLockscreenFunctions::updateHeartRate(metric &heart) {
+bool LockscreenFunctions::updateHeartRate(metric &heart) {
     long appleWatchHeartRate = 0;
 
-    appleWatchHeartRate = this->getLockscreen()->heartRate();
+    QZLockscreen * ls = this->getLockscreen();
+    if(!ls)
+        return false;
+
+    appleWatchHeartRate = ls->heartRate();
 
     heart = appleWatchHeartRate;
 
@@ -155,30 +171,34 @@ bool IOSLockscreenFunctions::updateHeartRate(metric &heart) {
     return true;
 }
 
-void IOSLockscreenFunctions::updateStepCadence(metric &cadence) {
+void LockscreenFunctions::updateStepCadence(metric &cadence) {
 
     QSettings settings;
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled")))
     {
-        long appleWatchCadence = this->getLockscreen()->stepCadence();
+        QZLockscreen * ls = this->getLockscreen();
+        if(!ls) return;
+        long appleWatchCadence = ls->stepCadence();
         cadence = appleWatchCadence;
     }
 
 }
 
-void IOSLockscreenFunctions::pelotonBikeUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+void LockscreenFunctions::pelotonBikeUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
 
     if(!this->isPelotonWorkaroundActive())
         return;
+
+    // assuming that because the Peloton workaround is active, there is a lockscreen object.
 
     this->getLockscreen()->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
     this->getLockscreen()->virtualbike_setHeartRate(heartRate);
 
 }
 
-void IOSLockscreenFunctions::pelotonTreadmillUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+void LockscreenFunctions::pelotonTreadmillUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
 
     return pelotonBikeUpdateCHR(crankRevolutions, lastCrankEventTime, heartRate);
 
@@ -192,7 +212,7 @@ void IOSLockscreenFunctions::pelotonTreadmillUpdateCHR(const double crankRevolut
 
 }
 
-void IOSLockscreenFunctions::pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+void LockscreenFunctions::pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
 
     if(!this->isPelotonWorkaroundActive())
         return;

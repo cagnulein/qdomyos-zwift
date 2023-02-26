@@ -3,11 +3,14 @@
 #include "gtest/gtest.h"
 #include "devices.h"
 #include "bluetooth.h"
+#include "Tools/testlockscreen.h"
 
 #include "Tools/testsettings.h"
 
 template <typename T>
 class BluetoothDeviceTestSuite : public testing::Test {
+private:
+    std::map<QZLockscreenFunctions::configurationType, std::string> configTypeNames;
 protected:
     T typeParam;
 
@@ -37,6 +40,11 @@ protected:
     TestSettings testSettings;
 
     /**
+     * @brief The mock lockscreen object.
+     */
+    TestLockscreen * testLockscreen = nullptr;
+
+    /**
      * @brief Call bt.deviceDiscovered on the deviceInfo to try to detect and create the bluetoothdevice object for it.
      * If an exception is thrown, the test is failed with a call to FAIL().
      * Bascially replaces EXPECT_NO_THROW, for ease of breakpoint placement.
@@ -51,14 +59,23 @@ protected:
      * @return
      */
     std::string getTypeName(bluetoothdevice *b) const;
+
+
+    /**
+     * @brief Gets a display name for a configuration type.
+     * @param configType
+     * @return
+     */
+    std::string getConfigurationTypeName(QZLockscreenFunctions::configurationType configType);
+
 public:
-    BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
+    BluetoothDeviceTestSuite();
 
     // Sets up the test fixture.
     void SetUp() override;
 
     // Tears down the test fixture.
-    // virtual void TearDown();
+    void TearDown() override;
 
 
     /**
@@ -91,6 +108,13 @@ public:
      */
     void test_deviceDetection_invalidNames_enabled();
 
+    /**
+     * @brief Test that the Peloton workaround is activated if the settings are as required by the device,
+     * or not if not.
+     */
+    void test_lockscreenConfiguration();
+
+
 };
 
 
@@ -114,4 +138,8 @@ TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedInvalidNamesSettingsEn
 
 TYPED_TEST(BluetoothDeviceTestSuite, TestDeviceNotDetectedValidNamesInvalidBluetoothDeviceInfo) {
     this->test_deviceDetection_validNames_invalidBluetoothDeviceInfo();
+}
+
+TYPED_TEST(BluetoothDeviceTestSuite, TestLockscreenConfiguration) {
+    this->test_lockscreenConfiguration();
 }

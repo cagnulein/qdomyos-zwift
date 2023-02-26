@@ -34,7 +34,7 @@ echelonrower::echelonrower(bool noWriteResistance, bool noHeartService, uint8_t 
 
 void echelonrower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     // this specific rower does the Peloton workaround sometimes, but with rower-specific conditions
-    if(functions) functions->setVirtualRowerPelotonWorkaround(false);
+    if(functions) functions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::ROWER,false);
 }
 
 void echelonrower::doPelotonWorkaround() {

@@ -55,6 +55,10 @@ void BluetoothDeviceTestData::addDifferentCasings(const QStringList& names, QStr
 
 void BluetoothDeviceTestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const { }
 
+void BluetoothDeviceTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const {
+
+}
+
 bool BluetoothDeviceTestData::configureSettings(DeviceDiscoveryInfo &info, bool enable) const { return false;}
 
 BluetoothDeviceTestData::BluetoothDeviceTestData(std::string testName) {
@@ -107,6 +111,16 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::get_configurations(con
         result.push_back(newInfo);
 
     this->configureSettings(info, enable, result);
+
+    return result;
+}
+
+std::vector<LockscreenFunctionsTestData> BluetoothDeviceTestData::get_pelotonWorkaroundConfigurations(const DeviceDiscoveryInfo &info) {
+    std::vector<LockscreenFunctionsTestData> result;
+
+    DeviceDiscoveryInfo newInfo(info);
+
+    this->configureLockscreenSettings(info, result);
 
     return result;
 }

@@ -1,20 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "domyosrower.h"
+#include "Devices/Rower/rowertestdata.h"
 
-class DomyosRowerTestData : public BluetoothDeviceTestData {
+class DomyosRowerTestData : public RowerTestData {
 
 public:
-    DomyosRowerTestData() : BluetoothDeviceTestData("Domyos Rower") {
-        this->addDeviceName("DOMYOS-ROW", comparison::StartsWithIgnoreCase);
-        this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);
-    }
+    DomyosRowerTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::DomyosRower; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<domyosrower*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -1,24 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "computrainerbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class CompuTrainerTestData : public BluetoothDeviceTestData {
+
+class CompuTrainerTestData : public BikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.computrainer_serial_port = enable ? "X":QString();
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    CompuTrainerTestData() : BluetoothDeviceTestData("CompuTrainer Bike") {
-        // any name
-        this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
+    CompuTrainerTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::CompuTrainerBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<computrainerbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

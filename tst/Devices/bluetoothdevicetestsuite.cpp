@@ -1,6 +1,8 @@
 #include "bluetoothdevicetestsuite.h"
+#include "Tools/testlockscreen.h"
 #include "discoveryoptions.h"
 #include "bluetooth.h"
+#include "objectfactory.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
 QBluetoothUuid uuid{testUUID};
@@ -36,10 +38,25 @@ std::string BluetoothDeviceTestSuite<T>::getTypeName(bluetoothdevice *b) const {
 }
 
 template<typename T>
+std::string BluetoothDeviceTestSuite<T>::getConfigurationTypeName(QZLockscreenFunctions::configurationType configType) {
+    return this->configTypeNames.at(configType);
+}
+
+template<typename T>
+BluetoothDeviceTestSuite<T>::BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
+
+}
+
+template<typename T>
 void BluetoothDeviceTestSuite<T>::SetUp() {
 
     if(this->typeParam.get_isAbstract())
         GTEST_SKIP() << "Device is abstract: " << this->typeParam.get_testName();
+
+    this->configTypeNames[QZLockscreenFunctions::configurationType::NONE] = "NONE";
+    this->configTypeNames[QZLockscreenFunctions::configurationType::BIKE] = "BIKE";
+    this->configTypeNames[QZLockscreenFunctions::configurationType::TREADMILL] = "TREADMILL";
+    this->configTypeNames[QZLockscreenFunctions::configurationType::ROWER] = "ROWER";
 
     DeviceDiscoveryInfo defaultDiscoveryInfo(true);
     this->enablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, true);
@@ -58,6 +75,16 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
     EXPECT_GT(this->names.size(), 0) << "No bluetooth names configured for test";
 
     this->testSettings.activate();
+
+    // Override the lockscreen
+    this->testLockscreen = new TestLockscreen();
+    auto thisObject = this;
+    ObjectFactory::lockscreenFactory = [thisObject]()->QZLockscreen*{ return thisObject->testLockscreen; };
+}
+
+template<typename T>
+void BluetoothDeviceTestSuite<T>::TearDown() {
+    ObjectFactory::lockscreenFactory = nullptr;
 }
 
 template<typename T>
@@ -251,4 +278,68 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
     }
 }
 
+template<typename T>
+void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
+    BluetoothDeviceTestData& testData = this->typeParam;
 
+    bluetooth bt(this->defaultDiscoveryOptions);
+
+    auto enablingConfig = this->enablingConfigurations[0];
+    auto deviceName = this->names[0];
+
+    // get configuraitons that enable the Peloton workaround
+    auto pelotonWorkaroundConfigs = testData.get_pelotonWorkaroundConfigurations(enablingConfig);
+
+    if(pelotonWorkaroundConfigs.size()==0)
+        GTEST_SKIP() << "No Peloton workaround configurations defined for this device:" << testData.get_testName();
+
+    for(LockscreenFunctionsTestData lsfTestData : pelotonWorkaroundConfigs) {
+
+        this->testLockscreen->reset();
+
+        this->testSettings.loadFrom(lsfTestData.get_settings());
+
+        QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+
+        // try to create the device
+        this->tryDetectDevice(bt, deviceInfo);
+        auto detectedDevice = bt.device();
+        EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice))
+                << "Failed to detect device for " << testData.get_testName() <<  " using name: " << deviceName.toStdString()
+                << ",  got a " << this->getTypeName(detectedDevice) << " instead";
+
+
+        QZLockscreenFunctions *lockscreenFunctions = detectedDevice->getLockscreenFunctions();
+
+        EXPECT_NE(nullptr, lockscreenFunctions) << "A lockscreen functions object should have been created";
+        if(!lockscreenFunctions) return;
+
+        EXPECT_EQ(lsfTestData.get_isPelotonActive(), lockscreenFunctions->isPelotonWorkaroundActive())
+                << "Unexpected Peloton worakround activity, expected "
+                << lsfTestData.get_isPelotonActive()
+                << " got "
+                << lockscreenFunctions->isPelotonWorkaroundActive();
+
+        EXPECT_EQ(lsfTestData.get_configType(), lockscreenFunctions->getConfigurationType())
+                << "Unexpected Peloton lockscreen functions configuration type. Expected "
+                << this->getConfigurationTypeName(lsfTestData.get_configType())
+                << " got "
+                << this->getConfigurationTypeName(lockscreenFunctions->getConfigurationType());
+
+        QZLockscreenFunctions::configurationType expectedLockscreenConfig = QZLockscreenFunctions::configurationType::NONE;
+        if(lsfTestData.get_isPelotonActive())
+            expectedLockscreenConfig = lsfTestData.get_configType();
+
+        EXPECT_EQ(expectedLockscreenConfig, this->testLockscreen->get_virtualDeviceType())
+                << "Unexpected Peloton workaround configuration type in lockscreen object. Expected "
+                << this->getConfigurationTypeName(expectedLockscreenConfig)
+                << " got "
+                << this->getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
+
+
+        // restart the bluetooth manager to clear the device
+        bt.restart();
+
+
+    }
+}

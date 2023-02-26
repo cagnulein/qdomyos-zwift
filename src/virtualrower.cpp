@@ -1,6 +1,7 @@
 #include "virtualrower.h"
-#include "ftmsrower.h"
+#include "rower.h"
 #include "qsettings.h"
+#include "objectfactory.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -12,12 +13,12 @@ using namespace std::chrono_literals;
 
 bool virtualrower::configureLockscreen() {
 
-    this->lockscreenFunctions = QZLockscreenFunctions::create();
+    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
 
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualRowerPelotonWorkaround(true);
+    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::ROWER,true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

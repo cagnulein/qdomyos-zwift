@@ -1,19 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "nautiluselliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class NautilusEllipticalTestData : public BluetoothDeviceTestData {
+class NautilusEllipticalTestData : public EllipticalTestData {
 
 public:
-    NautilusEllipticalTestData(): BluetoothDeviceTestData("Nautilus Elliptical") {
-        this->addDeviceName("NAUTILUS E", comparison::StartsWithIgnoreCase);
-    }
+    NautilusEllipticalTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::NautilusElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<nautiluselliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

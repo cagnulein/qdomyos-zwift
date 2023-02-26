@@ -1,6 +1,7 @@
 #include "virtualtreadmill.h"
 #include "elliptical.h"
 #include "ftmsbike.h"
+#include "objectfactory.h"
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
@@ -9,11 +10,11 @@ using namespace std::chrono_literals;
 
 bool virtualtreadmill::configureLockScreen() {
 
-    this->lockscreenFunctions = QZLockscreenFunctions::create();
+    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualTreadmillPelotonWorkaround(true);
+    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::TREADMILL,true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

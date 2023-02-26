@@ -1,22 +1,30 @@
-#ifndef IOSLOCKSCREENFUNCTIONS_H
-#define IOSLOCKSCREENFUNCTIONS_H
+#ifndef LOCKSCREENFUNCTIONS_H
+#define LOCKSCREENFUNCTIONS_H
 
 #include <qglobal.h>
 
 #include "lockscreen/qzlockscreenfunctions.h"
 
-class IOSLockscreenFunctions : public QZLockscreenFunctions {
+/**
+ * @brief Logic for lockscreen functionality and Peloton workaround.
+ */
+class LockscreenFunctions : public QZLockscreenFunctions {
 private:
     bool pelotonWorkaroundActive = false;
     QZLockscreen * lockscreen = nullptr;
+    configurationType configType = configurationType::NONE;
+
+    void setVirtualBikePelotonWorkaround(bool zwiftMode);
+    void setVirtualTreadmillPelotonWorkaround(bool zwiftMode);
+    void setVirtualRowerPelotonWorkaround(bool isVirtualDevice);
 public:
-    explicit IOSLockscreenFunctions();
+    explicit LockscreenFunctions();
 
     QZLockscreen * getLockscreen() const override;
 
-    void setVirtualBikePelotonWorkaround(bool zwiftMode) override;
-    void setVirtualTreadmillPelotonWorkaround(bool zwiftMode) override;
-    void setVirtualRowerPelotonWorkaround(bool isVirtualDevice) override;
+    bool tryConfigurePelotonWorkaround(configurationType configType, bool zwiftMode) override;
+
+    configurationType getConfigurationType() const override;
 
     bool isPelotonWorkaroundActive() const override;
     bool updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, const int defaultHeartRate) override;
@@ -28,4 +36,4 @@ public:
 };
 
 
-#endif // IOSLOCKSCREENFUNCTIONS_H
+#endif // LOCKSCREENFUNCTIONS_H

@@ -1,79 +1,30 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "cscbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class CSCBikeTestData : public BluetoothDeviceTestData {
+
+class CSCBikeTestData : public BikeTestData {
 protected:
     QString cscBikeName;
 public:
-    CSCBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
-        this->cscBikeName = "CyclingSpeedCadenceBike-";
-    }
+    CSCBikeTestData(std::string testName);
 
-    deviceType get_expectedDeviceType() const override { return deviceType::CSCBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<cscbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
 class CSCBike1TestData : public CSCBikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-       info.cscName = enable ? this->cscBikeName : "Disabled";
-       info.csc_as_bike = enable;
-       return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    CSCBike1TestData() : CSCBikeTestData("CSC Bike (Named)") {
-
-        // Test for cases where success means the csc_as_bike setting has to be enabled.
-
-        this->addDeviceName(this->cscBikeName, comparison::StartsWith);
-        this->addInvalidDeviceName("X"+this->cscBikeName, comparison::Exact);
-    }
+    CSCBike1TestData();
 };
 
 
 class CSCBike2TestData : public CSCBikeTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        DeviceDiscoveryInfo config(info);
-
-        if(enable) {
-            // If the Bluetooth name doesn't match the one being tested, but if csc_as_bike is enabled in the settings,
-            // and the bluetooth name does match the cscName in the settings, the device will be detected anyway,
-            // so prevent this by not including that specific configuration
-            //
-            // In order for the search to actually happen, the cscName has to be "Disabled" or csc_as_bike must be true.
-            /*
-            config.csc_as_bike = true;
-            config.cscName = this->cscBikeName;
-            configurations.push_back(config);
-            */
-
-            config.cscName = "Disabled";
-            config.csc_as_bike = true;
-            configurations.push_back(config);
-
-            config.cscName = "Disabled";
-            config.csc_as_bike = false;
-            configurations.push_back(config);
-
-            config.csc_as_bike = true;
-            config.cscName = "NOT "+this->cscBikeName;
-            configurations.push_back(config);
-        }
-        else  {
-            // prevent the search
-            config.csc_as_bike = false;
-            config.cscName = "NOT "+this->cscBikeName;
-            configurations.push_back(config);
-        }
-    }
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override;
 public:
-    CSCBike2TestData() : CSCBikeTestData("CSC Bike (Unnamed)") {
-        this->addDeviceName(QStringLiteral("JOROTO-BK-"), comparison::StartsWithIgnoreCase);
-    }
+    CSCBike2TestData();
 };

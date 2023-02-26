@@ -34,7 +34,7 @@ smartrowrower::smartrowrower(bool noWriteResistance, bool noHeartService, uint8_
 
 void smartrowrower::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     // this particular rower always emulates a bike and uses the bike Peloton workaround conditions
-    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+    if(functions) functions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,false);
 }
 
 void smartrowrower::doPelotonWorkaround() {

@@ -48,6 +48,12 @@ public :
 
     bool pafers_treadmill_bh_iboxster_plus = false;
 
+    bool ios_peloton_workaround =false;
+    bool virtual_device_rower = false;
+    bool bike_cadence_sensor = false;
+
+
+
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.

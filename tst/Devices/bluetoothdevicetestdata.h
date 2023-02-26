@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "devicediscoveryinfo.h"
+#include "lockscreenfunctionstestdata.h"
 
 /**
  * @brief Device type supported by the application.
@@ -172,6 +173,13 @@ protected:
     virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
 
     /**
+     * @brief Configure multiple devicediscoveryinfo objects to either enable or disable the Pelton workaround in multiple ways.
+     * @param info
+     * @param configurations The variations of the provided object to test.
+     */
+    virtual void configureLockscreenSettings(const DeviceDiscoveryInfo& info, std::vector<LockscreenFunctionsTestData>& configurations) const;
+
+    /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
      * Used for where there is only 1 scenario.
      * @param info
@@ -224,6 +232,15 @@ public:
      * @param info
      */
     virtual std::vector<DeviceDiscoveryInfo> get_configurations(const DeviceDiscoveryInfo& info, bool enable);
+
+
+    /**
+     * @brief get_pelotonWorkaroundConfigurations Gets combinations of configurations for enabling/disabilng the
+     * the Peloton workaround beginning with the specified object.
+     * @param info
+     */
+    virtual std::vector<LockscreenFunctionsTestData> get_pelotonWorkaroundConfigurations(const DeviceDiscoveryInfo& info);
+
 
     /**
      * @brief Gets the expected device type enumeration value to be detected for this device.

@@ -1,19 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "chronobike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class ChronobikeTestData : public BluetoothDeviceTestData {
+
+class ChronobikeTestData : public BikeTestData {
 
 public:
-    ChronobikeTestData() : BluetoothDeviceTestData("Chronobike") {
-        this->addDeviceName("CHRONO ", comparison::StartsWithIgnoreCase);
-    }
+    ChronobikeTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ChronoBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<chronobike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -1,13 +1,17 @@
 #pragma once
 
 #include <stdint.h>
+#include <functional>
 
+/**
+ * @brief An interface for interacting with a smartwatch lockscreen API.
+ */
 class QZLockscreen {
 protected:
     explicit QZLockscreen() {}
-    QZLockscreen(const QZLockscreen& other) {}
+    QZLockscreen(const QZLockscreen&) {}
 public:
-  virtual ~QZLockscreen()=0;
+    virtual ~QZLockscreen() {};
 
   virtual void setTimerDisabled() = 0;
   virtual void request() = 0;

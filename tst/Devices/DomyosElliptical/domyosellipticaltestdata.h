@@ -1,21 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "domyoselliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class DomyosEllipticalTestData : public BluetoothDeviceTestData {
+class DomyosEllipticalTestData : public EllipticalTestData {
 
 public:
-    DomyosEllipticalTestData() : BluetoothDeviceTestData("Domyos Elliptical") {
-        this->addDeviceName("Domyos-EL", comparison::StartsWith);
-        this->addInvalidDeviceName("DomyosBridge",comparison::StartsWith);
-    }
+    DomyosEllipticalTestData();
 
 
-    deviceType get_expectedDeviceType() const override { return deviceType::DomyosElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<domyoselliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -1,44 +1,31 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "Devices/FTMSBike/ftmsbiketestdata.h"
+#include "Devices/Bike/biketestdata.h"
 
-#include "stagesbike.h"
 
-class StagesBikeTestData : public BluetoothDeviceTestData {
+class StagesBikeTestData : public BikeTestData {
 protected:
-    StagesBikeTestData(std::string testName): BluetoothDeviceTestData(testName) {
-    }
+    StagesBikeTestData(std::string testName);
 
     void configureExclusions() override;
 public:
 
-    deviceType get_expectedDeviceType() const override { return deviceType::StagesBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<stagesbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
 class StagesBike1TestData : public StagesBikeTestData {
 
 public:
-    StagesBike1TestData() : StagesBikeTestData("Stages Bike") {
-        this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
-    }
+    StagesBike1TestData();
 
 };
 
 
 class StagesBike2TestData : public StagesBikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.powerSensorName = enable ? "Disabled":"Roberto";
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    StagesBike2TestData() : StagesBikeTestData("Stages Bike (Assioma / Power Sensor disabled") {
-
-        this->addDeviceName("ASSIOMA", comparison::StartsWithIgnoreCase);
-    }
+    StagesBike2TestData();
 };

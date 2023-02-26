@@ -8,7 +8,7 @@ bike::bike() {
 }
 
 void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
-    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+    if(functions) functions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,false);
 }
 
 void bike::changeResistance(resistance_t resistance) {

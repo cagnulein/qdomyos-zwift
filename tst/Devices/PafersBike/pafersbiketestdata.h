@@ -1,24 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "pafersbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class PafersBikeTestData : public BluetoothDeviceTestData {
+
+class PafersBikeTestData : public BikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        // the treadmill is given priority
-        info.pafers_treadmill = !enable;
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    PafersBikeTestData() : BluetoothDeviceTestData("Pafers Bike") {
-        this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
-    }
+    PafersBikeTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::PafersBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<pafersbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

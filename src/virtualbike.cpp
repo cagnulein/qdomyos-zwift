@@ -1,5 +1,5 @@
 #include "virtualbike.h"
-#include "ftmsbike.h"
+#include "objectfactory.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -11,12 +11,12 @@ using namespace std::chrono_literals;
 
 bool virtualbike::configureLockscreen(){
 
-    this->lockscreenFunctions = QZLockscreenFunctions::create();
+    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
 
     if(!this->lockscreenFunctions)
         return false;
 
-    this->lockscreenFunctions->setVirtualBikePelotonWorkaround(true);
+    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,true);
     return this->lockscreenFunctions->isPelotonWorkaroundActive();
 
 }

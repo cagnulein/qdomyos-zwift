@@ -1,19 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "mcfbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class MCFBikeTestData : public BluetoothDeviceTestData {
+
+class MCFBikeTestData : public BikeTestData {
 
 public:
-    MCFBikeTestData() : BluetoothDeviceTestData("MCF Bike") {
-        this->addDeviceName("MCF-", comparison::StartsWithIgnoreCase);
-    }
+    MCFBikeTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::MCFBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<mcfbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -1,40 +1,28 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "fitplusbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class FitPlusBikeFSTestData : public BluetoothDeviceTestData {
+
+class FitPlusBikeFSTestData : public BikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.fitplus_bike = enable;
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    FitPlusBikeFSTestData() : BluetoothDeviceTestData("FitPlus Bike"){
-        this->addDeviceName("FS-", comparison::StartsWith);
-    }
+    FitPlusBikeFSTestData();
 
 
-    deviceType get_expectedDeviceType() const override { return deviceType::FitPlusBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<fitplusbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
-class FitPlusBikeMRKTestData : public BluetoothDeviceTestData {
+class FitPlusBikeMRKTestData : public BikeTestData {
 
 public:
-    FitPlusBikeMRKTestData() : BluetoothDeviceTestData("FitPlus Bike (MRK, no settings)"){
-
-        this->addDeviceName("MRK-", comparison::StartsWith);
-    }
+    FitPlusBikeMRKTestData();
 
     void configureExclusions() override;
 
-    deviceType get_expectedDeviceType() const override { return deviceType::FitPlusBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<fitplusbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };

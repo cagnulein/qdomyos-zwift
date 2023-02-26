@@ -1,24 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformwifitreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class ProFormWiFiTreadmillTestData : public BluetoothDeviceTestData {
+
+class ProFormWiFiTreadmillTestData : public TreadmillTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.proformtreadmillip = enable ? this->get_testIP():QString();
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    ProFormWiFiTreadmillTestData() : BluetoothDeviceTestData("ProForm WiFi Treadmill") {
-        // any name
-        this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }
+    ProFormWiFiTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProformWifiTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<proformwifitreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

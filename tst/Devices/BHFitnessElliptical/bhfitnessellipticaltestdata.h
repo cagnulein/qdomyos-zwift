@@ -1,18 +1,13 @@
 #pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "bhfitnesselliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class BHFitnessEllipticalTestData : public BluetoothDeviceTestData {
+class BHFitnessEllipticalTestData : public EllipticalTestData {
 
 public:
-    BHFitnessEllipticalTestData() : BluetoothDeviceTestData("BH Fitness Elliptical") {
-        this->addDeviceName("B01_", comparison::StartsWithIgnoreCase);
-    }
+    BHFitnessEllipticalTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::BHFitnessElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-          return dynamic_cast<bhfitnesselliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };

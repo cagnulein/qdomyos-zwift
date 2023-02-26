@@ -12,30 +12,31 @@ class QZLockscreenFunctions {
 protected:
     QZLockscreenFunctions() {}
 public:
+
+    enum configurationType {
+        NONE, BIKE, TREADMILL, ROWER
+    };
+
     virtual ~QZLockscreenFunctions() {}
 
     /**
-     * @brief Perform configuration for a bike. Determines if the Peloton workaround should be active.
+     * @brief Try to configure the Peloton workaround using the conditions for the specified configuratipn type.
+     * Determines if the Peloton workaround should be active.
+     * @param configType The type of device to configure for.
      * @param zwiftMode Indicates if the Zwift interface should be used.
      */
-    virtual void setVirtualBikePelotonWorkaround(bool zwiftMode)=0;
-
-    /**
-     * @brief Perform configuration for a treadmill. Determines if the Peloton workaround should be active.
-     * @param zwiftMode Indicates if the Zwift interface should be used.
-     */
-    virtual void setVirtualTreadmillPelotonWorkaround(bool zwiftMode)=0;
-
-    /**
-     * @brief Perform configuration for a rower. Determines if the Peloton workaround should be active.
-     * @param isVirtualDevice Indicates if this is for a virtual device.
-     */
-    virtual void setVirtualRowerPelotonWorkaround(bool isVirtualDevice)=0;
+    virtual bool tryConfigurePelotonWorkaround(configurationType configType, bool zwiftMode) = 0;
 
     /**
      * @brief Gets the implementation of QZLockscreen for accessing lockscreen functions directly.
      */
     virtual QZLockscreen * getLockscreen() const =0;
+
+    /**
+     * @brief Gets the configuration type for the Peloton workaround.
+     * @return
+     */
+    virtual configurationType getConfigurationType() const =0;
 
     /**
      * @brief Updates the kcal and distance on the lockscreen, and gets the heart rate from it.
@@ -89,12 +90,6 @@ public:
      * @param heartRate
      */
     virtual void pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
-
-    /**
-     * @brief Tries to create a QZLockscreen object.
-     * @return nullptr if there is no lockscreen to update, in implementation of QZLockscreenFunctions otherwise.
-     */
-    static QZLockscreenFunctions * create();
 };
 
 #endif // QZLOCKSCREENFUNCTIONS_H

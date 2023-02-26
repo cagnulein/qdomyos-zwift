@@ -1,40 +1,29 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "flywheelbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class FlywheelBikeTestData : public BluetoothDeviceTestData {
+
+class FlywheelBikeTestData : public BikeTestData {
 
 protected:
-    FlywheelBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
-    }
+    FlywheelBikeTestData(std::string testName);
 public:
-    deviceType get_expectedDeviceType() const override { return deviceType::FlywheelBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<flywheelbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
 
 class FlywheelBike1TestData : public FlywheelBikeTestData {
 
 public:
-    FlywheelBike1TestData() : FlywheelBikeTestData("Flywheel Bike") {
-        this->addDeviceName("Flywheel", comparison::StartsWith);
-    }
+    FlywheelBike1TestData();
 
 };
 
 class FlywheelBike2TestData : public FlywheelBikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.flywheel_life_fitness_ic8 = enable;
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    FlywheelBike2TestData() : FlywheelBikeTestData("Flywheel Life Fitness IC8") {
-        // BIKE 1, BIKE 2, BIKE 3...
-        this->addDeviceName("BIKE", comparison::StartsWithIgnoreCase, 6);
-    }
+    FlywheelBike2TestData();
 };

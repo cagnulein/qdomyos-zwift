@@ -1,23 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "faketreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class FakeTreadmillTestData : public BluetoothDeviceTestData {
+class FakeTreadmillTestData : public TreadmillTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.fakedevice_treadmill = enable;
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    FakeTreadmillTestData(): BluetoothDeviceTestData("Fake Treadmill") {
-        this->addDeviceName("", comparison::StartsWithIgnoreCase);
-    }   
+    FakeTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::FakeTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<faketreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

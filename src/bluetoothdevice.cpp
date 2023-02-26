@@ -1,11 +1,12 @@
 #include "bluetoothdevice.h"
+#include "objectfactory.h"
 
 #include <QFile>
 #include <QSettings>
 #include <QTime>
 
 bluetoothdevice::bluetoothdevice() {
-    this->lockscreenFunctions = QZLockscreenFunctions::create();
+    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
 }
 
 bluetoothdevice::~bluetoothdevice() {

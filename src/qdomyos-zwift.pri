@@ -65,10 +65,10 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
-    $$PWD/ios/ioslockscreenfunctions.cpp \
-    $$PWD/lockscreen/qdebuglockscreenfunctions.cpp \
+    $$PWD/lockscreen/lockscreenfunctions.cpp \
     $$PWD/lockscreen/qzlockscreen.cpp \
     $$PWD/lockscreen/qzlockscreenfunctions.cpp \
+    $$PWD/objectfactory.cpp \
    $$PWD/pelotonbike.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -263,10 +263,10 @@ HEADERS += \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
     $$PWD/discoveryoptions.h \
-    $$PWD/ios/ioslockscreenfunctions.h \
-    $$PWD/lockscreen/qdebuglockscreenfunctions.h \
+    $$PWD/lockscreen/lockscreenfunctions.h \
     $$PWD/lockscreen/qzlockscreen.h \
     $$PWD/lockscreen/qzlockscreenfunctions.h \
+    $$PWD/objectfactory.h \
    $$PWD/pelotonbike.h \
    Computrainer.h \
    PathController.h \

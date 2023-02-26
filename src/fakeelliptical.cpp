@@ -29,7 +29,7 @@ fakeelliptical::fakeelliptical(bool noWriteResistance, bool noHeartService, bool
 
 void fakeelliptical::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     // this particular elliptical always emulates a bike and uses the bike Peloton workaround conditions
-    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+    if(functions) functions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,false);
 }
 
 void fakeelliptical::doPelotonWorkaround() {

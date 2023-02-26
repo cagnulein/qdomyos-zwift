@@ -31,7 +31,7 @@ concept2skierg::concept2skierg(bool noWriteResistance, bool noHeartService) {
 
 void concept2skierg::configureLockscreenFunctions(QZLockscreenFunctions *functions) const {
     // This specific device emulates a bike when the Peloton workaround is required.
-    if(functions) functions->setVirtualBikePelotonWorkaround(false);
+    if(functions) functions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,false);
 }
 
 void concept2skierg::doPelotonWorkaround() {

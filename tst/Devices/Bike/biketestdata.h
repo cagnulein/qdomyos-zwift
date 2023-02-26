@@ -1,27 +1,18 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "bike.h"
 
 class BikeTestData : public BluetoothDeviceTestData {
+protected:
+    void configureLockscreenSettings(const DeviceDiscoveryInfo& info,
+                                            std::vector<LockscreenFunctionsTestData>& configurations) const override;
 
 public:
-    BikeTestData() : BluetoothDeviceTestData("Bike (Abstract)") {}
+    BikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {}
 
-    bool get_isAbstract() const override { return true; }
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
 
-        return result;
-    }
-
-    deviceType get_expectedDeviceType() const override {
-        return deviceType::None; // abstract
-    }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<bike*>(detectedDevice)!=nullptr;
-    }
 };
+
+
 

@@ -1,6 +1,7 @@
 #include <QByteArray>
 
 #include "m3ibiketestdata.h"
+#include "m3ibike.h"
 
 /**
  * @brief hex2bytes Converts a hexadecimal string to bytes, 2 characters at a time.
@@ -17,6 +18,18 @@ static QByteArray hex2bytes(const std::string& s)
         v.append(value);
     }
     return v;
+}
+
+M3IBikeTestData::M3IBikeTestData() : BikeTestData("M3I Bike") {
+    this->testInvalidBluetoothDeviceInfo = true;
+
+    this->addDeviceName("M3", comparison::StartsWith);
+}
+
+deviceType M3IBikeTestData::get_expectedDeviceType() const { return deviceType::M3IBike; }
+
+bool M3IBikeTestData::get_isExpectedDevice(bluetoothdevice *detectedDevice) const {
+    return dynamic_cast<m3ibike*>(detectedDevice)!=nullptr;
 }
 
 QBluetoothDeviceInfo M3IBikeTestData::get_bluetoothDeviceInfo(const QBluetoothUuid &uuid, const QString &name, bool valid) {
