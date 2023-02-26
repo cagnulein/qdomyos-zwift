@@ -10,13 +10,14 @@ EchelonRowerTestData::EchelonRowerTestData() : RowerTestData("Echelon Rower") {
 
 void EchelonRowerTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const {
     DeviceDiscoveryInfo config(info);
-    auto virtualDevice = QZLockscreenFunctions::configurationType::BIKE;
+    auto virtualDevice = QZLockscreenFunctions::configurationType::ROWER;
 
     for(int i=0; i<8; i++) {
         config.ios_peloton_workaround = i&1;
         config.bike_cadence_sensor = i&2;
         config.virtual_device_rower = i&4;
-        configurations.push_back(LockscreenFunctionsTestData(virtualDevice, config.ios_peloton_workaround && config.bike_cadence_sensor && !config.virtual_device_rower, config));
+        bool pelotonActive = config.ios_peloton_workaround && config.bike_cadence_sensor && !config.virtual_device_rower;
+        configurations.push_back(LockscreenFunctionsTestData(virtualDevice, pelotonActive, config));
     }
 }
 

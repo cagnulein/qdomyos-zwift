@@ -4,6 +4,7 @@
 
 class FakeEllipticalTestData : public EllipticalTestData {
 protected:
+    void configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const override;
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
     FakeEllipticalTestData();

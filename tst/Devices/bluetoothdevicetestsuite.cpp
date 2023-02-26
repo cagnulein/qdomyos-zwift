@@ -314,29 +314,33 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
         if(!lockscreenFunctions) return;
 
         EXPECT_EQ(lsfTestData.get_isPelotonActive(), lockscreenFunctions->isPelotonWorkaroundActive())
-                << "Unexpected Peloton worakround activity, expected "
+                << testData.get_testName()
+                << " : Unexpected Peloton worakround activity, expected "
                 << lsfTestData.get_isPelotonActive()
                 << " got "
                 << lockscreenFunctions->isPelotonWorkaroundActive();
 
-        EXPECT_EQ(lsfTestData.get_configType(), lockscreenFunctions->getConfigurationType())
-                << "Unexpected Peloton lockscreen functions configuration type. Expected "
-                << this->getConfigurationTypeName(lsfTestData.get_configType())
+        EXPECT_EQ(lsfTestData.get_lockscreenFunctionsConfigType(), lockscreenFunctions->getConfigurationType())
+                << testData.get_testName()
+                << " : Unexpected Peloton lockscreen functions configuration type. Expected "
+                << this->getConfigurationTypeName(lsfTestData.get_lockscreenFunctionsConfigType())
                 << " got "
                 << this->getConfigurationTypeName(lockscreenFunctions->getConfigurationType());
 
         QZLockscreenFunctions::configurationType expectedLockscreenConfig = QZLockscreenFunctions::configurationType::NONE;
         if(lsfTestData.get_isPelotonActive())
-            expectedLockscreenConfig = lsfTestData.get_configType();
+            expectedLockscreenConfig = lsfTestData.get_lockscreenConfigType();
 
         EXPECT_EQ(expectedLockscreenConfig, this->testLockscreen->get_virtualDeviceType())
-                << "Unexpected Peloton workaround configuration type in lockscreen object. Expected "
+                << testData.get_testName()
+                << " : Unexpected Peloton workaround configuration type in lockscreen object. Expected "
                 << this->getConfigurationTypeName(expectedLockscreenConfig)
                 << " got "
                 << this->getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
 
         EXPECT_FALSE(this->testLockscreen->get_zwiftMode())
-                << "Peloton workaround in lockscreen object unexpectedly in Zwift mode";
+                << testData.get_testName()
+                << " : Peloton workaround in lockscreen object unexpectedly in Zwift mode";
 
         // restart the bluetooth manager to clear the device
         bt.restart();

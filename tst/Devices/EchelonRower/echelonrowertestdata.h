@@ -4,7 +4,7 @@
 
 class EchelonRowerTestData : public RowerTestData {
 protected:
-    void configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const;
+    void configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const override;
 public:
     EchelonRowerTestData();
 
