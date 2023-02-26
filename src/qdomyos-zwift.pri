@@ -70,6 +70,7 @@ SOURCES += \
     $$PWD/lockscreen/qzlockscreenfunctions.cpp \
     $$PWD/objectfactory.cpp \
    $$PWD/pelotonbike.cpp \
+    $$PWD/virtualdevice.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -268,6 +269,7 @@ HEADERS += \
     $$PWD/lockscreen/qzlockscreenfunctions.h \
     $$PWD/objectfactory.h \
    $$PWD/pelotonbike.h \
+    $$PWD/virtualdevice.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \

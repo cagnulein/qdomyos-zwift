@@ -1,5 +1,4 @@
 #include "virtualbike.h"
-#include "objectfactory.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -10,19 +9,18 @@
 using namespace std::chrono_literals;
 
 bool virtualbike::configureLockscreen(){
+   const auto lsf = this->getLockscreenFunctions();
 
-    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
-
-    if(!this->lockscreenFunctions)
+    if(!lsf)
         return false;
 
-    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,true);
-    return this->lockscreenFunctions->isPelotonWorkaroundActive();
+    lsf->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::BIKE,true);
+    return lsf->isPelotonWorkaroundActive();
 
 }
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                         double bikeResistanceGain) {
+                         double bikeResistanceGain) : virtualdevice() {
     Bike = t;
 
     this->noHeartService = noHeartService;
@@ -986,7 +984,8 @@ void virtualbike::reconnect() {
 
 bool virtualbike::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
+    const auto lsf = this->getLockscreenFunctions();
+    if(!lsf || !lsf->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = this->Bike->wattsMetric().value();
@@ -994,7 +993,7 @@ bool virtualbike::doLockscreenUpdate() {
         normalizeWattage = 0;
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
-    QZLockscreen * lockscreen = this->lockscreenFunctions->getLockscreen();
+    QZLockscreen * lockscreen = lsf->getLockscreen();
 
     // really connected to a device
     if (lockscreen->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),

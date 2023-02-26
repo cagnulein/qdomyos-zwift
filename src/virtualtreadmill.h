@@ -25,13 +25,13 @@
 #include <QtCore/qtimer.h>
 
 #include "dirconmanager.h"
-#include "lockscreen/qzlockscreenfunctions.h"
+#include "virtualdevice.h"
 
-class virtualtreadmill : public QObject {
+class virtualtreadmill : public virtualdevice {
     Q_OBJECT
   public:
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
-    bool connected();
+    bool connected() override;
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:
@@ -66,16 +66,10 @@ class virtualtreadmill : public QObject {
     bool ftmsTreadmillEnable();
     bool RSCEnable();
 
-
-    QZLockscreenFunctions * lockscreenFunctions = 0;
-
-
     bool configureLockScreen();
     bool doLockscreenUpdate();
 signals:
-    void debug(QString string);
     void changeInclination(double grade, double percentage);
-    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

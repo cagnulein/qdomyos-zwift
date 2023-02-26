@@ -23,15 +23,15 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-#include "bike.h"
-#include "lockscreen/qzlockscreenfunctions.h"
+#include "bluetoothdevice.h"
+#include "virtualdevice.h"
 
-class virtualrower : public QObject {
+class virtualrower : public virtualdevice {
 
     Q_OBJECT
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
-    bool connected();
+    bool connected() override;
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -53,13 +53,10 @@ class virtualrower : public QObject {
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
 
-    QZLockscreenFunctions * lockscreenFunctions = 0;
-
     bool configureLockscreen();
     bool doLockscreenUpdate();
 signals:
-    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    
+
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void rowerProvider();

@@ -10,16 +10,17 @@ using namespace std::chrono_literals;
 
 bool virtualtreadmill::configureLockScreen() {
 
-    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
-    if(!this->lockscreenFunctions)
+    const auto lsf = this->getLockscreenFunctions();
+
+    if(!lsf)
         return false;
 
-    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::TREADMILL,true);
-    return this->lockscreenFunctions->isPelotonWorkaroundActive();
+    lsf->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::TREADMILL,true);
+    return lsf->isPelotonWorkaroundActive();
 
 }
 
-virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
+virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) : virtualdevice() {
     QSettings settings;
     treadMill = t;
 
@@ -332,7 +333,8 @@ void virtualtreadmill::reconnect() {
 
 bool virtualtreadmill::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
+    const auto lsf = this->getLockscreenFunctions();
+    if(!lsf || !lsf->isPelotonWorkaroundActive())
         return false;
 
     QSettings settings;
@@ -343,7 +345,7 @@ bool virtualtreadmill::doLockscreenUpdate() {
     if (double_cadence)
         cadence_multiplier = 1.0;
 
-    QZLockscreen * lockscreen = this->lockscreenFunctions->getLockscreen();
+    QZLockscreen * lockscreen = lsf->getLockscreen();
     treadmill * t = static_cast<treadmill*>(this->treadMill);
     uint16_t normalizeSpeed = (uint16_t)qRound(t->currentSpeed().value() * 100);
     // really connected to a device

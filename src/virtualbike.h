@@ -24,14 +24,15 @@
 #include <QtCore/qtimer.h>
 #include "dirconmanager.h"
 #include "lockscreen/qzlockscreenfunctions.h"
+#include "virtualdevice.h"
 
-class virtualbike : public QObject {
+class virtualbike : public virtualdevice {
 
     Q_OBJECT
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    bool connected();
+    bool connected() override;
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
         if (lastFTMSFrameReceived != 0)
@@ -83,14 +84,10 @@ class virtualbike : public QObject {
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
 
-    QZLockscreenFunctions * lockscreenFunctions = 0;
-
     bool doLockscreenUpdate();
     bool configureLockscreen();
 signals:
     void changeInclination(double grade, double percentage);
-
-    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
     void dirconFtmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

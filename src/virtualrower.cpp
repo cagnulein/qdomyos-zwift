@@ -12,18 +12,17 @@
 using namespace std::chrono_literals;
 
 bool virtualrower::configureLockscreen() {
+    const auto lsf = this->getLockscreenFunctions();
 
-    this->lockscreenFunctions = ObjectFactory::createLockscreenFunctions();
-
-    if(!this->lockscreenFunctions)
+    if(!lsf)
         return false;
 
-    this->lockscreenFunctions->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::ROWER,true);
-    return this->lockscreenFunctions->isPelotonWorkaroundActive();
+    lsf->tryConfigurePelotonWorkaround(QZLockscreenFunctions::configurationType::ROWER,true);
+    return lsf->isPelotonWorkaroundActive();
 
 }
 
-virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
+virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) : virtualdevice() {
     Rower = t;
 
     this->noHeartService = noHeartService;
@@ -307,7 +306,8 @@ void virtualrower::reconnect() {
 
 bool virtualrower::doLockscreenUpdate() {
 
-    if(!this->lockscreenFunctions || !this->lockscreenFunctions->isPelotonWorkaroundActive())
+    const auto lsf = this->getLockscreenFunctions();
+    if(!lsf || !lsf->isPelotonWorkaroundActive())
         return false;
 
     double normalizeWattage = Rower->wattsMetric().value();
@@ -315,7 +315,7 @@ bool virtualrower::doLockscreenUpdate() {
         normalizeWattage = 0;
     uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
 
-    QZLockscreen * lockscreen = this->lockscreenFunctions->getLockscreen();
+    QZLockscreen * lockscreen = lsf->getLockscreen();
     // really connected to a device
     if (lockscreen->virtualrower_updateFTMS(
                 normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
