@@ -36,22 +36,6 @@ computrainerbike::computrainerbike(bool noWriteResistance, bool noHeartService, 
     ergModeSupported = true; // IMPORTANT, only for this bike
 
     initRequest = true;
-
-    // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
-        QSettings settings;
-        bool virtual_device_enabled =
-            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-
-        if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            // connect(virtualBike,&virtualbike::debug ,this,& computrainerbike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &computrainerbike::changeInclination);
-        }
-    }
-    this->setVirtualDeviceSetUp();
-    // ********************************************************************************************************
 }
 
 resistance_t computrainerbike::resistanceFromPowerRequest(uint16_t power) {
@@ -202,6 +186,22 @@ void computrainerbike::update() {
         initRequest = false;
         btinit();
         emit connectedAndDiscovered();
+
+        // ******************************************* virtual bike init *************************************
+        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+            QSettings settings;
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+
+            if (virtual_device_enabled) {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // connect(virtualBike,&virtualbike::debug ,this,& computrainerbike::debug);
+                connect(virtualBike, &virtualbike::changeInclination, this, &computrainerbike::changeInclination);
+            }
+        }
+        this->setVirtualDeviceSetUp();
+        // ********************************************************************************************************
     } else {
 
         QSettings settings;

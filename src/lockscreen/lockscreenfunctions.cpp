@@ -186,43 +186,38 @@ void LockscreenFunctions::updateStepCadence(metric &cadence) {
 
 }
 
-void LockscreenFunctions::pelotonBikeUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+
+void LockscreenFunctions::pelotonUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
 
     if(!this->isPelotonWorkaroundActive())
         return;
 
     // assuming that because the Peloton workaround is active, there is a lockscreen object.
 
-    this->getLockscreen()->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
-    this->getLockscreen()->virtualbike_setHeartRate(heartRate);
+    QZLockscreen * lockscreen = this->getLockscreen();
+    auto configType = this->getConfigurationType();
 
-}
+    if(configType==QZLockscreenFunctions::configurationType::BIKE) {
+        lockscreen->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
+        lockscreen->virtualbike_setHeartRate(heartRate);
+    } else if (configType==QZLockscreenFunctions::configurationType::TREADMILL) {
+        lockscreen->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
+        lockscreen->virtualbike_setHeartRate(heartRate);
 
-void LockscreenFunctions::pelotonTreadmillUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+        // lockscreen->virtualTreadmill_setCadence(currentCrankRevolutions, lastCrankEventTime);
+        // lockscreen->virtualTreadmill_setHeartRate(heartRate);
 
-    return pelotonBikeUpdateCHR(crankRevolutions, lastCrankEventTime, heartRate);
-
-/*
-    if(!this->isPelotonWorkaroundActive())
-        return;
-
-    this->getLockscreen()->virtualTreadmill_setCadence(currentCrankRevolutions, lastCrankEventTime);
-    this->getLockscreen()->virtualTreadmill_setHeartRate(heartRate);
-    */
-
-}
-
-void LockscreenFunctions::pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
-
-    if(!this->isPelotonWorkaroundActive())
-        return;
-
-    QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-    if (cadence && !virtual_device_rower) {
-        this->getLockscreen()->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
-        this->getLockscreen()->virtualbike_setHeartRate(heartRate);
+    } else if (configType==QZLockscreenFunctions::configurationType::ROWER) {
+        QSettings settings;
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        if (cadence && !virtual_device_rower) {
+            lockscreen->virtualbike_setCadence(crankRevolutions, lastCrankEventTime);
+            lockscreen->virtualbike_setHeartRate(heartRate);
+        }
+    } else {
+        qDebug() << "pelotonUpdateCHR called on unconfigured lockscreen functions object";
     }
 
 }
+

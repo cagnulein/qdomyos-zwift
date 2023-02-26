@@ -146,6 +146,12 @@ void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
+void bluetoothdevice::configureLockscreenFunctions(QZLockscreenFunctions *) const {
+    // ideally this would be abstract, but an implementation is provided to avoid unhelpful segmentation fault errors
+    qDebug() << "unimplemented configureLockscreenFunctions called";
+    throw "This implementation should never be called. Has it not been overridden, or called from a constructor?";
+}
+
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
 // keiser m3i has a separate management of this, so please check it

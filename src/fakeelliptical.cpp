@@ -37,7 +37,7 @@ void fakeelliptical::doPelotonWorkaround() {
         return;
 
     // this rower does the bike update
-    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+    this->getLockscreenFunctions()->pelotonUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
 
 void fakeelliptical::update() {

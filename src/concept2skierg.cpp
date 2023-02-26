@@ -39,7 +39,7 @@ void concept2skierg::doPelotonWorkaround() {
     if(!this->isVirtualDeviceSetUp() || !this->isPelotonWorkaroundActive())
         return;
 
-    this->getLockscreenFunctions()->pelotonBikeUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+    this->getLockscreenFunctions()->pelotonUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
 
 void concept2skierg::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,

@@ -481,7 +481,7 @@ class bluetoothdevice : public QObject {
      * to this function for configuration by a subclass. The argument should never be nullptr.
      * @param functions The lock screen interface object. Should not be nullptr.
      */
-    virtual void configureLockscreenFunctions(QZLockscreenFunctions * functions) const =0;
+    virtual void configureLockscreenFunctions(QZLockscreenFunctions * functions) const;
 
     /**
      * @brief Flags that the virtual device setup has been done (optionally: or not).

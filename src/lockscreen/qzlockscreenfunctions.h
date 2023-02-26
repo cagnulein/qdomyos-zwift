@@ -68,28 +68,13 @@ public:
     virtual bool isPelotonWorkaroundActive() const;
 
     /**
-     * @brief Update the crank and heart rate for a bike on the lockscreen if the Peloton workaround is active.
+     * @brief Update the crank and heart rate on the lockscreen if the Peloton workaround is active.
      * @param crankRevolutions
      * @param lastCrankEventTime
      * @param heartRate
      */
-    virtual void pelotonBikeUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
+    virtual void pelotonUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
 
-    /**
-     * @brief Update the crank and heart rate for a treadmill on the lockscreen if the Peloton workaround is active.
-     * @param crankRevolutions
-     * @param lastCrankEventTime
-     * @param heartRate
-     */
-    virtual void pelotonTreadmillUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
-
-    /**
-     * @brief Update the crank and heart rate for a rower on the lockscreen if the Peloton workaround is active.
-     * @param crankRevolutions
-     * @param lastCrankEventTime
-     * @param heartRate
-     */
-    virtual void pelotonRowerUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
 };
 
 #endif // QZLOCKSCREENFUNCTIONS_H
