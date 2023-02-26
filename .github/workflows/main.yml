@@ -90,7 +90,8 @@ jobs:
 
       - name: Build qthttpserver
         run: |
-            cd D:\a\qdomyos-zwift\qdomyos-zwift\src\qthttpserver; qmake D:\a\qdomyos-zwift\qdomyos-zwift\src\qthttpserver\qthttpserver.pro
+            cd src\qthttpserver 
+            qmake
             make -j8
             make install
             cd ../..
