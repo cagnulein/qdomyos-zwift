@@ -9,7 +9,9 @@ QZLockscreenFunctions::configurationType TestLockscreen::get_virtualDeviceType()
 
 bool TestLockscreen::get_zwiftMode() { return this->zwiftMode; }
 
-TestLockscreen::TestLockscreen() {}
+TestLockscreen::TestLockscreen() {
+    this->reset();
+}
 
 TestLockscreen::~TestLockscreen() {}
 

@@ -6,7 +6,7 @@
 class TestLockscreen : public QZLockscreen
 {
     QZLockscreenFunctions::configurationType  configType;
-    bool zwiftMode;    
+    bool zwiftMode;
 
 public:
     void reset();

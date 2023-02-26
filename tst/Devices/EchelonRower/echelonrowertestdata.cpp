@@ -7,6 +7,19 @@ EchelonRowerTestData::EchelonRowerTestData() : RowerTestData("Echelon Rower") {
     this->addDeviceName("ROW-S", comparison::StartsWith);
 }
 
+
+void EchelonRowerTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const {
+    DeviceDiscoveryInfo config(info);
+    auto virtualDevice = QZLockscreenFunctions::configurationType::BIKE;
+
+    for(int i=0; i<8; i++) {
+        config.ios_peloton_workaround = i&1;
+        config.bike_cadence_sensor = i&2;
+        config.virtual_device_rower = i&4;
+        configurations.push_back(LockscreenFunctionsTestData(virtualDevice, config.ios_peloton_workaround && config.bike_cadence_sensor && !config.virtual_device_rower, config));
+    }
+}
+
 deviceType EchelonRowerTestData::get_expectedDeviceType() const { return deviceType::EchelonRower; }
 
 bool EchelonRowerTestData::get_isExpectedDevice(bluetoothdevice *detectedDevice) const {

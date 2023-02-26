@@ -3,7 +3,8 @@
 #include "Devices/Rower/rowertestdata.h"
 
 class EchelonRowerTestData : public RowerTestData {
-
+protected:
+    void configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const;
 public:
     EchelonRowerTestData();
 
