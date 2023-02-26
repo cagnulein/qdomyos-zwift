@@ -23,7 +23,6 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 #include "dirconmanager.h"
-#include "lockscreen/qzlockscreenfunctions.h"
 #include "virtualdevice.h"
 
 class virtualbike : public virtualdevice {

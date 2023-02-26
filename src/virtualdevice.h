@@ -19,9 +19,6 @@ public:
     explicit virtualdevice(QObject *parent = nullptr);
     ~virtualdevice() override;
     virtual bool connected()=0;
-
-
-
 };
 
 #endif // VIRTUALDEVICE_H
