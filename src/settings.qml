@@ -2290,7 +2290,7 @@ import Qt.labs.settings 1.0
                             }
                         }
                         SwitchDelegate {
-                            text: qsTr("Change gears using knob")
+                            text: qsTr("Change gears using knob (Experimental)")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
