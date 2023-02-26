@@ -36,14 +36,7 @@ jobs:
         with:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
-          ref: "zwift"
-
-      - uses: actions/checkout@v2
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"   
+          ref: "zwift"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -82,6 +75,13 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
 
       - name: download 3rd party files for qthttpserver
         run: |
