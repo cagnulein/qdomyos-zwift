@@ -54,6 +54,13 @@ jobs:
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
 
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
       - uses: msys2/setup-msys2@v2
         with:
           install: mingw-w64-x86_64-toolchain
@@ -75,13 +82,6 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
-
-      - uses: actions/checkout@v2
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
 
       - name: download 3rd party files for qthttpserver
         run: |
