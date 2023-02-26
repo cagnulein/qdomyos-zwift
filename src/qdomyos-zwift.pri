@@ -36,6 +36,7 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
