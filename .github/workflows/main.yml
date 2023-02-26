@@ -85,7 +85,6 @@ jobs:
 
       - name: download 3rd party files for qthttpserver
         run: |
-            mkdir src/qthttpserver/src/3rdparty/http-parser
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
