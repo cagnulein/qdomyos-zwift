@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
 
-class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
+class StrydeRunPowerSensorTestData : public TreadmillTestData {
 private:
     QString powerSensorName;
 protected:
@@ -16,7 +16,7 @@ public:
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
-class ZwiftRunpodTestData : public BluetoothDeviceTestData {
+class ZwiftRunpodTestData : public TreadmillTestData {
 private:
     QString powerSensorName;
 protected:

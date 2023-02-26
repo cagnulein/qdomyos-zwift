@@ -3,7 +3,7 @@
 #include "Devices/Bike/biketestdata.h"
 
 
-class WahooKickrSnapBikeTestData : public BluetoothDeviceTestData {
+class WahooKickrSnapBikeTestData : public BikeTestData {
 
 public:
     WahooKickrSnapBikeTestData();

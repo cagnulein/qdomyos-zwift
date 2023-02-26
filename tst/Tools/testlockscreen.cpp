@@ -2,7 +2,7 @@
 
 void TestLockscreen::reset() {
     this->configType = QZLockscreenFunctions::configurationType::NONE;
-
+    this->zwiftMode = false;
 }
 
 QZLockscreenFunctions::configurationType TestLockscreen::get_virtualDeviceType() const { return this->configType; }

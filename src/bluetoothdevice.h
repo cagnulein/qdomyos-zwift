@@ -394,11 +394,6 @@ class bluetoothdevice : public QObject {
     virtual resistance_t maxResistance();
 
     /**
-     * @brief Indicates if the Peloton lockscreen workaround is active.
-    */
-    bool isPelotonWorkaroundActive();
-
-    /**
      * @brief Update this object's Heart metric using a value from the lockscreen, in IOS.
      * @return True if the update happened, false if not (e.g. if it's not running in IOS)
      */
@@ -417,7 +412,7 @@ class bluetoothdevice : public QObject {
     virtual void doPelotonWorkaround()=0;
 
     /**
-     * @brief Calls the lockscreen instance to determine if the Peloton workaround is active.
+     * @brief Calls the lockscreen functions instance to determine if the Peloton workaround is active.
      */
     bool isPelotonWorkaroundActive() const;
 

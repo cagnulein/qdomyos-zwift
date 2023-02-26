@@ -27,7 +27,7 @@ void StrydeRunPowerSensorTestData::configureSettings(const DeviceDiscoveryInfo &
     }
 }
 
-StrydeRunPowerSensorTestData::StrydeRunPowerSensorTestData() : BluetoothDeviceTestData("Stryderun Treadmill / Power Sensor") {
+StrydeRunPowerSensorTestData::StrydeRunPowerSensorTestData() : TreadmillTestData("Stryderun Treadmill / Power Sensor") {
     this->powerSensorName = "WattsItCalled-";
     this->addDeviceName(this->powerSensorName, comparison::StartsWith);
 }
@@ -71,7 +71,7 @@ void ZwiftRunpodTestData::configureSettings(const DeviceDiscoveryInfo &info, boo
     }
 }
 
-ZwiftRunpodTestData::ZwiftRunpodTestData() : BluetoothDeviceTestData("Zwift Runpod") {
+ZwiftRunpodTestData::ZwiftRunpodTestData() : TreadmillTestData("Zwift Runpod") {
     this->powerSensorName = "WattsItCalled-";
     this->addDeviceName("ZWIFT RUNPOD", comparison::StartsWithIgnoreCase);
 }

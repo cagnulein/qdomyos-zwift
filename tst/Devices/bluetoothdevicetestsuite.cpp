@@ -287,13 +287,13 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
     auto enablingConfig = this->enablingConfigurations[0];
     auto deviceName = this->names[0];
 
-    // get configuraitons that enable the Peloton workaround
-    auto pelotonWorkaroundConfigs = testData.get_pelotonWorkaroundConfigurations(enablingConfig);
+    // get configurations that enable the Peloton workaround
+    auto lockscreenConfigs = testData.get_lockscreenConfigurations(enablingConfig);
 
-    if(pelotonWorkaroundConfigs.size()==0)
+    if(lockscreenConfigs.size()==0)
         GTEST_SKIP() << "No Peloton workaround configurations defined for this device:" << testData.get_testName();
 
-    for(LockscreenFunctionsTestData lsfTestData : pelotonWorkaroundConfigs) {
+    for(LockscreenFunctionsTestData lsfTestData : lockscreenConfigs) {
 
         this->testLockscreen->reset();
 
@@ -307,7 +307,6 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
         EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice))
                 << "Failed to detect device for " << testData.get_testName() <<  " using name: " << deviceName.toStdString()
                 << ",  got a " << this->getTypeName(detectedDevice) << " instead";
-
 
         QZLockscreenFunctions *lockscreenFunctions = detectedDevice->getLockscreenFunctions();
 
@@ -336,6 +335,8 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
                 << " got "
                 << this->getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
 
+        EXPECT_FALSE(this->testLockscreen->get_zwiftMode())
+                << "Peloton workaround in lockscreen object unexpectedly in Zwift mode";
 
         // restart the bluetooth manager to clear the device
         bt.restart();

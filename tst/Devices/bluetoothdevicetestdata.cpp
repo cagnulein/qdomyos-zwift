@@ -115,7 +115,7 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::get_configurations(con
     return result;
 }
 
-std::vector<LockscreenFunctionsTestData> BluetoothDeviceTestData::get_pelotonWorkaroundConfigurations(const DeviceDiscoveryInfo &info) {
+std::vector<LockscreenFunctionsTestData> BluetoothDeviceTestData::get_lockscreenConfigurations(const DeviceDiscoveryInfo &info) {
     std::vector<LockscreenFunctionsTestData> result;
 
     DeviceDiscoveryInfo newInfo(info);

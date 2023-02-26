@@ -228,18 +228,18 @@ public:
     virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions();
 
     /**
-     * @brief get_configurations Gets combinations of configurations beginning with the specified object.
+     * @brief Gets combinations of configurations beginning with the specified object.
      * @param info
      */
     virtual std::vector<DeviceDiscoveryInfo> get_configurations(const DeviceDiscoveryInfo& info, bool enable);
 
 
     /**
-     * @brief get_pelotonWorkaroundConfigurations Gets combinations of configurations for enabling/disabilng the
+     * @brief Gets combinations of configurations for enabling/disabilng the
      * the Peloton workaround beginning with the specified object.
      * @param info
      */
-    virtual std::vector<LockscreenFunctionsTestData> get_pelotonWorkaroundConfigurations(const DeviceDiscoveryInfo& info);
+    virtual std::vector<LockscreenFunctionsTestData> get_lockscreenConfigurations(const DeviceDiscoveryInfo& info);
 
 
     /**
