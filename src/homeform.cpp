@@ -3140,6 +3140,8 @@ void homeform::update() {
                 .toString();
         if (!treadmill_pid_heart_zone_string.compare(QStringLiteral("Disabled")))
             treadmill_pid_heart_zone = 0;
+        if (trainProgram && trainProgram->currentRow().zoneHR > 0)
+            treadmill_pid_heart_zone = trainProgram->currentRow().zoneHR;
 
         if (miles) {
             unit_conversion = 0.621371;
@@ -3323,7 +3325,7 @@ void homeform::update() {
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-            if(((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
+            if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
                 this->pace->setValue(
                     ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             else
