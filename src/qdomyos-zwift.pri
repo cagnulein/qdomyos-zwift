@@ -19,8 +19,7 @@ qtHaveModule(httpserver) {
         DEFINES += CHARTJS
     }
 	 win32: {
-	     QT+= webview
-		  DEFINES += CHARTJS
+	     DEFINES += CHARTJS
 		}
 }
 
@@ -28,8 +27,8 @@ CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
 
-win32: CONFIG: webengine
-unix:!android: CONFIG: webengine
+win32: CONFIG += webengine
+unix:!android: CONFIG += webengine
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
