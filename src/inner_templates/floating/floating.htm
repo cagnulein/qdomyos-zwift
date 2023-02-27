@@ -79,6 +79,15 @@
       <td><small>MAX</small></td>
       <td class="speed-max">0.0</td>
     </tr>
+    <tr class="inclination">
+      <td class="icon">📐</td>
+      <td style="text-align: left">INCLINE</td>
+      <td><small>AVG</small></td>
+      <td class="inclination-avg">0.0</td>
+      <td class="inclination-value values"><b>0.0</b></td>
+      <td><small>MAX</small></td>
+      <td class="inclination-max">0.0</td>
+    </tr>    
     <tr class="cadence">
       <td class="icon">🚴</td>
       <td style="text-align: left">CADENCE</td>
@@ -298,13 +307,15 @@
       tile_target_peloton_resistance_enabled = false;
       tile_target_cadence_enabled = false;
       tile_target_speed_enabled = false;
+      tile_target_inclination_enabled = false;
       tile_target_power_enabled = false;
       miles_unit = false;
       miles_conversion = 1.0;
 
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
-        'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled']
+        'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
+        'tile_target_incline_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -318,6 +329,10 @@
             if (key === 'tile_speed_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".speed").hide();
+              }
+            } else if (key === 'tile_inclination_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".inclination").hide();
               }
             } else if (key === 'tile_cadence_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
@@ -365,6 +380,8 @@
               tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_speed_enabled') {
               tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');              
+            } else if (key === 'tile_target_incline_enabled') {
+              tile_target_inclination_enabled = (msg.content[key] === true || msg.content[key] === 'true');                            
             } else if (key === 'tile_target_power_enabled') {
               tile_target_power_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_peloton_offset_enabled') {
@@ -384,11 +401,16 @@
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed']
+        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
+        'inclination_lapmax', 'target_inclination']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
           var speed_lapavg = 0;
+          var speed_lapmax = 0;                    
+          var inclination = 0;
+          var inclination_lapavg = 0;
+          var inclination_lapmax = 0;
           var cadence = 0;
           var cadence_lapavg = 0;
           var hr = 0;
@@ -404,7 +426,6 @@
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
           var peloton_resistance_lapavg = 0;
-          var speed_lapmax = 0;
           var cadence_lapmax = 0;
           var hr_lapmax = 0;
           var watt_lapmax = 0;
@@ -414,6 +435,7 @@
           var target_peloton_resistance = 0;
           var target_cadence = 0;
           var target_speed = 0;
+          var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
           var peloton_ask_already_running = false;
@@ -427,6 +449,12 @@
               speed_lapavg = msg.content[key] * miles_conversion;
             } else if (key === 'speed_lapmax') {
               speed_lapmax = msg.content[key] * miles_conversion;
+            } else if (key === 'inclination') {
+              inclination = msg.content[key];
+            } else if (key === 'inclination_lapavg') {
+              inclination_lapavg = msg.content[key];
+            } else if (key === 'inclination_lapmax') {
+              inclination_lapmax = msg.content[key];
             } else if (key === 'cadence') {
               cadence = msg.content[key];
             } else if (key === 'cadence_lapavg') {
@@ -474,7 +502,9 @@
             } else if (key === 'target_cadence') {
               target_cadence = msg.content[key];
             } else if (key === 'target_speed') {
-              target_speed = msg.content[key];              
+              target_speed = msg.content[key];  
+            } else if (key === 'target_inclination') {
+              target_inclination = msg.content[key];                            
             } else if (key === 'target_power') {
               target_power = msg.content[key];
             } else if (key === 'peloton_offset') {
@@ -496,11 +526,17 @@
             }
           }
           if (tile_target_speed_enabled)
-            $('.speed-value').html("<b>" + speed.toFixed(0) + "/" + target_speed.toFixed(0) + "</b>");
+            $('.speed-value').html("<b>" + speed.toFixed(1) + "/" + target_speed.toFixed(1) + "</b>");
           else
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           $('.speed-avg').html(speed_lapavg.toFixed(1));
           $('.speed-max').html(speed_lapmax.toFixed(1));
+          if (tile_target_inclination_enabled)
+            $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
+          else
+            $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
+          $('.inclination-avg').html(inclination_lapavg.toFixed(1));
+          $('.inclination-max').html(inclination_lapmax.toFixed(1));          
           if (tile_target_cadence_enabled)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
           else
