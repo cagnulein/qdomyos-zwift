@@ -4170,7 +4170,8 @@ void homeform::update() {
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
             uint8_t delta = 10;
             bool fromTrainProgram = trainProgram && trainProgram->currentRow().zoneHR > 0;
-            int8_t maxSpeed = 30;
+            double maxSpeed = 30;
+            double minSpeed = 0;
             int8_t maxResistance = 100;
 
             if (fromTrainProgram) {
@@ -4195,6 +4196,9 @@ void homeform::update() {
                     if (trainProgram->currentRow().maxSpeed > 0) {
                         maxSpeed = trainProgram->currentRow().maxSpeed;
                     }
+                    if (trainProgram->currentRow().minSpeed > 0) {
+                        minSpeed = trainProgram->currentRow().minSpeed;
+                    }
                     if (trainProgram->currentRow().maxResistance > 0) {
                         maxResistance = trainProgram->currentRow().maxResistance;
                     }
@@ -4206,7 +4210,7 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < ((uint8_t)currentHRZone)) {
+                        if (zone < ((uint8_t)currentHRZone) && minSpeed <= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
@@ -4219,7 +4223,7 @@ void homeform::update() {
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else {
+                        } else if (maxSpeed >= currentSpeed + step) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > 6) {
                                 ((treadmill *)bluetoothManager->device())
@@ -4269,7 +4273,8 @@ void homeform::update() {
             uint8_t delta = 10;
             bool fromTrainProgram =
                 trainProgram && trainProgram->currentRow().HRmin > 0 && trainProgram->currentRow().HRmax > 0;
-            int8_t maxSpeed = 30;
+            double maxSpeed = 30;
+            double minSpeed = 30;
             int8_t maxResistance = 100;
 
             if (fromTrainProgram) {
@@ -4292,6 +4297,9 @@ void homeform::update() {
                     if (trainProgram->currentRow().maxSpeed > 0) {
                         maxSpeed = trainProgram->currentRow().maxSpeed;
                     }
+                    if (trainProgram->currentRow().minSpeed > 0) {
+                        minSpeed = trainProgram->currentRow().minSpeed;
+                    }
                     if (trainProgram->currentRow().maxResistance > 0) {
                         maxResistance = trainProgram->currentRow().maxResistance;
                     }
@@ -4303,7 +4311,8 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().value()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().value() &&
+                            minSpeed <= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
@@ -4317,7 +4326,7 @@ void homeform::update() {
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else {
+                        } else if (maxSpeed >= currentSpeed + step) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > 6) {
                                 ((treadmill *)bluetoothManager->device())
