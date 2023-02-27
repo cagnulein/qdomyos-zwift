@@ -18,6 +18,10 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
+	 win32: {
+	     QT+= webview
+		  DEFINES += CHARTJS
+		}
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
