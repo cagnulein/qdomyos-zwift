@@ -25,7 +25,7 @@ CONFIG += c++17 console app_bundle optimize_full ltcg
 CONFIG += qmltypes
 
 win32: CONFIG: webengine
-unix: CONFIG: webengine
+unix:!android: CONFIG: webengine
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
