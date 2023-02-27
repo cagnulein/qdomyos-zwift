@@ -18,10 +18,6 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
-	 win32: {
-	    QMAKE_LFLAGS_DEBUG += -static-Qt5HttpServer -static-qt5httpserver -static-libQt5HttpServer -static-libqt5httpserver
-		 QMAKE_LFLAGS_RELEASE += -static-Qt5HttpServer -static-qt5httpserver -static-libQt5HttpServer -static-libqt5httpserver
-	 }
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
