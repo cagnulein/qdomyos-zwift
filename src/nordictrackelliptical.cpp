@@ -612,7 +612,7 @@ void nordictrackelliptical::update() {
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData4[] = {0xfe, 0x02, 0x0d, 0x02};
             uint8_t noOpData5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x00,
-                                   0x03, 0x80, 0x08, 0x40, 0xdc, 0x00, 0x00, 0x00, 0x00, 0x00};
+                                   0x03, 0xb6, 0x98, 0x70, 0xd2, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             switch (counterPoll) {
             case 0:
@@ -941,7 +941,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true && !nordictrack_elliptical_c7_5) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true &&
+        !nordictrack_elliptical_c7_5) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
@@ -981,8 +982,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        if(nordictrack_elliptical_c7_5) {
-            Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+        if (nordictrack_elliptical_c7_5) {
+            Speed =
+                (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             lastSpeedChanged = QDateTime::currentDateTime();
         }
