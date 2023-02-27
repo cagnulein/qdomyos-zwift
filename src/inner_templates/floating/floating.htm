@@ -1,4 +1,5 @@
 <!doctype html>
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,445 +8,530 @@
   <script src="globals.js"></script>
   <script src="main_ws_manager.js"></script>
   <style>
-  td {
-    text-align: center;
-    vertical-align: middle;
-    border-right: 5px solid #000000;
-  }
-  canvas{
+    td {
+      text-align: center;
+      vertical-align: middle;
+      border-right: 5px solid #000000;
+    }
+
+    canvas {
       -moz-user-select: none;
       -webkit-user-select: none;
       -ms-user-select: none;
-  }
-  @font-face {
+    }
+
+    @font-face {
       font-family: "Radikal";
       src: url("radikalmedium.otf") format("opentype");
-  }
-  table.customfont {
+    }
+
+    table.customfont {
       font-family: "Radikal", Verdana, Tahoma;
-  }
-  .icon {
-   font-size: 24px
-  }
-  .values {
-   min-width: 80px; max-width: 80px; font-size: 24px;
-  }
+    }
 
-  .overlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-	 background: rgba(0, 0, 0, 1);
-    z-index: 2;
-  }
+    .icon {
+      font-size: 24px
+    }
 
-  .confirm-box {
-    position: absolute;
-	 width: 100%;
-	 height: 100%;
-	 top: 0%;
-	 left: 0%;
-    text-align: center;
-  }
+    .values {
+      min-width: 80px;
+      max-width: 80px;
+      font-size: 24px;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 1);
+      z-index: 2;
+    }
+
+    .confirm-box {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0%;
+      left: 0%;
+      text-align: center;
+    }
   </style>
 </head>
-  <body class="transparency" style="background-color: #000000; opacity: 0.8">
-    <div class="overlay" id="overlay" hidden>
-      <div class="confirm-box">
-		  <h2 style="color: #FFFFFF; font-family: sans-serif">Peloton Workout in progress!</h2>
-		  <p style="color: #FFFFFF; font-family: sans-serif">Do you want to follow the resistance?</p>
-        <button onclick="isConfirm(true)">Yes</button>
-        <button onclick="isConfirm(false)">No</button>
-      </div>
-    </div>    
-	      <table id="maintable" class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
-         <tr class="speed"><td class="icon">🏃</td><td style="text-align: left">SPEED</td><td><small>AVG</small></td><td class="speed-avg">0.0</td><td class="speed-value values"><b>0.0</b></td><td><small>MAX</small></td><td class="speed-max">0.0</td></tr>
-         <tr class="cadence"><td class="icon">🚴</td><td style="text-align: left">CADENCE</td><td><small>AVG</small></td><td class="cadence-avg">0</td><td class="cadence-value values"><b>0</b></td><td><small>MAX</small></td><td class="cadence-max">0</td></tr>
-         <tr class="heart"><td class="icon">💓</td><td style="text-align: left">PULSE</td><td><small>AVG</small></td><td class="heart-avg">0</td><td class="heart-value values"><b>0</b></td><td><small>MAX</small></td><td class="heart-max">0</td></tr>
-         <tr class="watt"><td class="icon">⚡</td><td style="text-align: left">POWER</td><td><small>AVG</small></td><td class="watt-avg">0</td><td class="watt-value values"><b>0</b></td><td><small>MAX</small></td><td class="watt-max">0</td></tr>
-         <tr class="resistance"><td class="icon">🆁</td><td style="text-align: left">RESISTANCE</td><td><small>AVG</small></td><td class="resistance-avg">1</td><td class="resistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="resistance-max">1</td></tr>
-         <tr class="pelotonresistance"><td class="icon">🅿</td><td style="text-align: left">P.RESISTANCE</td><td><small>AVG</small></td><td class="pelotonresistance-avg">1</td><td class="pelotonresistance-value values"><b>1</b></td><td><small>MAX</small></td><td class="pelotonresistance-max">1</td></tr>
-         <tr class="calories"><td class="icon">🔥</td><td style="text-align: left">CALORIES</td><td class="calories-value values" colspan="5"><b>0</b></td></tr>
-         <tr class="distance"><td class="icon">📏</td><td style="text-align: left">DISTANCE</td><td class="distance-value values" colspan="5"><b>0.00</b></td></tr>
-         <tr class="elapsed"><td class="icon">⏲️</td><td style="text-align: left">ELAPSED</td><td class="elapsed-value values" colspan="5"><b>0:00:00</b></td></tr>
-			   <tr class="pelotonoffset"><td class="icon">⏰</td><td style="text-align: left">P.OFFSET</td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetMinus()">-</button></td><td class="pelotonoffset-value values"><b>0</b></td><td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF" onclick="PelotonOffsetPlus()">+</button></td></tr>
-				<tr><td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Lap()">CLEAR</button></td><td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Start()">▶/⏸</button></td><td><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td><td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF" onclick="Close()">CLOSE</button></td></tr>
-         </table>
 
-         <script>
-      function closeConfirmBox() {
-        document.getElementById("overlay").hidden = true;
-		  document.getElementById("maintable").hidden = false;
-      }          
-      function isConfirm(answer) {
-        if (answer) {
-          peloton_ask_already_running = false;
-          peloton_start_workout();
-        } else {
-          peloton_ask_already_running = false;
-          peloton_abort_workout();
-        }
-        closeConfirmBox();
-      }
+<body class="transparency" style="background-color: #000000; opacity: 0.8">
+  <div class="overlay" id="overlay" hidden>
+    <div class="confirm-box">
+      <h2 style="color: #FFFFFF; font-family: sans-serif">Peloton Workout in progress!</h2>
+      <p style="color: #FFFFFF; font-family: sans-serif">Do you want to follow the resistance?</p>
+      <button onclick="isConfirm(true)">Yes</button>
+      <button onclick="isConfirm(false)">No</button>
+    </div>
+  </div>
+  <table id="maintable" class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
+    <tr class="speed">
+      <td class="icon">🏃</td>
+      <td style="text-align: left">SPEED</td>
+      <td><small>AVG</small></td>
+      <td class="speed-avg">0.0</td>
+      <td class="speed-value values"><b>0.0</b></td>
+      <td><small>MAX</small></td>
+      <td class="speed-max">0.0</td>
+    </tr>
+    <tr class="cadence">
+      <td class="icon">🚴</td>
+      <td style="text-align: left">CADENCE</td>
+      <td><small>AVG</small></td>
+      <td class="cadence-avg">0</td>
+      <td class="cadence-value values"><b>0</b></td>
+      <td><small>MAX</small></td>
+      <td class="cadence-max">0</td>
+    </tr>
+    <tr class="heart">
+      <td class="icon">💓</td>
+      <td style="text-align: left">PULSE</td>
+      <td><small>AVG</small></td>
+      <td class="heart-avg">0</td>
+      <td class="heart-value values"><b>0</b></td>
+      <td><small>MAX</small></td>
+      <td class="heart-max">0</td>
+    </tr>
+    <tr class="watt">
+      <td class="icon">⚡</td>
+      <td style="text-align: left">POWER</td>
+      <td><small>AVG</small></td>
+      <td class="watt-avg">0</td>
+      <td class="watt-value values"><b>0</b></td>
+      <td><small>MAX</small></td>
+      <td class="watt-max">0</td>
+    </tr>
+    <tr class="resistance">
+      <td class="icon">🆁</td>
+      <td style="text-align: left">RESISTANCE</td>
+      <td><small>AVG</small></td>
+      <td class="resistance-avg">1</td>
+      <td class="resistance-value values"><b>1</b></td>
+      <td><small>MAX</small></td>
+      <td class="resistance-max">1</td>
+    </tr>
+    <tr class="pelotonresistance">
+      <td class="icon">🅿</td>
+      <td style="text-align: left">P.RESISTANCE</td>
+      <td><small>AVG</small></td>
+      <td class="pelotonresistance-avg">1</td>
+      <td class="pelotonresistance-value values"><b>1</b></td>
+      <td><small>MAX</small></td>
+      <td class="pelotonresistance-max">1</td>
+    </tr>
+    <tr class="calories">
+      <td class="icon">🔥</td>
+      <td style="text-align: left">CALORIES</td>
+      <td class="calories-value values" colspan="5"><b>0</b></td>
+    </tr>
+    <tr class="distance">
+      <td class="icon">📏</td>
+      <td style="text-align: left">DISTANCE</td>
+      <td class="distance-value values" colspan="5"><b>0.00</b></td>
+    </tr>
+    <tr class="elapsed">
+      <td class="icon">⏲️</td>
+      <td style="text-align: left">ELAPSED</td>
+      <td class="elapsed-value values" colspan="5"><b>0:00:00</b></td>
+    </tr>
+    <tr class="pelotonoffset">
+      <td class="icon">⏰</td>
+      <td style="text-align: left">P.OFFSET</td>
+      <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="PelotonOffsetMinus()">-</button></td>
+      <td class="pelotonoffset-value values"><b>0</b></td>
+      <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="PelotonOffsetPlus()">+</button></td>
+    </tr>
+    <tr>
+      <td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="Lap()">CLEAR</button></td>
+      <td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF"
+          onclick="Start()">▶/⏸</button></td>
+      <td><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td>
+      <td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="Close()">CLOSE</button></td>
+    </tr>
+  </table>
 
-			function PelotonOffsetPlus() {
-			    let el = new MainWSQueueElement({
-				     msg: 'pelotonoffset_plus',
-					}, function(msg) {
-					  if (msg.msg === 'R_pelotonoffset_plus') {
-					      return msg.content;
-							}
-					  return null;
-					}, 15000, 1);
-				 el.enqueue().catch(function(err) {
-				     console.error('Error is ' + err);
-					});
-				}
-
-         function PelotonOffsetMinus() {
-			    let el = new MainWSQueueElement({
-				     msg: 'pelotonoffset_minus',
-					}, function(msg) {
-					  if (msg.msg === 'R_pelotonoffset_minus') {
-					      return msg.content;
-							}
-					  return null;
-					}, 15000, 1);
-				 el.enqueue().catch(function(err) {
-				     console.error('Error is ' + err);
-					});
-				}
-
-         function Lap() {
-             let el = new MainWSQueueElement({
-                 msg: 'lap',
-             }, function(msg) {
-                 if (msg.msg === 'R_lap') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-
-         function Close() {
-             let el = new MainWSQueueElement({
-                 msg: 'floating_close',
-             }, function(msg) {
-                 if (msg.msg === 'R_floating_close') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-
-         function peloton_start_workout() {
-          let el = new MainWSQueueElement({
-                 msg: 'peloton_start_workout',
-             }, function(msg) {
-                 if (msg.msg === 'R_peloton_start_workout') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-
-         function peloton_abort_workout() {
-          let el = new MainWSQueueElement({
-                 msg: 'peloton_abort_workout',
-             }, function(msg) {
-                 if (msg.msg === 'R_peloton_abort_workout') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-
-         function Start() {
-          let el = new MainWSQueueElement({
-                 msg: 'start',
-             }, function(msg) {
-                 if (msg.msg === 'R_start') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-
-         function Stop() {
-          let el = new MainWSQueueElement({
-                 msg: 'stop',
-             }, function(msg) {
-                 if (msg.msg === 'R_stop') {
-                     return msg.content;
-                 }
-                 return null;
-             }, 15000, 1);
-             el.enqueue().catch(function(err) {
-                 console.error('Error is ' + err);
-             });
-         }
-         </script>
-
-
-    <script type="text/javascript">
-    function a() {
-    onSettingsOK = false;
-    onWorkout = false;
-
-    tile_target_resistance_enabled = false;
-	 tile_target_peloton_resistance_enabled = false;
-	 tile_target_cadence_enabled = false;
-	 tile_target_power_enabled = false;
-         miles_unit = false;
-    miles_conversion = 1.0;
-
-    settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
-	 'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
-         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled' , 'miles_unit']
-    let el = new MainWSQueueElement({
-            msg: 'getsettings',
-            content: {
-                keys: settings_arr
-            }
-        }, function(msg) {
-            if (msg.msg === 'R_getsettings') {
-                for (let key of settings_arr) {
-                    if (msg.content[key] === undefined)
-                        return null;
-                    if (key === 'tile_speed_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".speed").hide();
-                        }
-                    } else if (key === 'tile_cadence_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".cadence").hide();
-                        }
-                    } else if (key === 'tile_calories_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".calories").hide();
-                        }
-                    } else if (key === 'tile_odometer_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".distance").hide();
-                        }
-                    } else if (key === 'tile_resistance_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".resistance").hide();
-                        }
-                    } else if (key === 'tile_watt_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".watt").hide();
-                        }
-                    } else if (key === 'tile_heart_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".heart").hide();
-                        }
-                    } else if (key === 'tile_elapsed_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".elapsed").hide();
-                        }
-                    } else if (key === 'tile_peloton_resistance_enabled') {
-                        if(msg.content[key] === false || msg.content[key] === 'false') {
-                            $(".pelotonresistance").hide();
-                        }
-                    } else if (key === 'miles_unit') {
-                        miles_unit = (msg.content[key] === true || msg.content[key] === 'true');
-                        if(miles_unit)
-                            miles_conversion = 0.621371;
-                    } else if (key === 'floating_transparency') {
-                        $(".transparency").css("opacity", msg.content[key] / 100.0);
-						  } else if (key === 'tile_target_resistance_enabled') {
-                                                      tile_target_resistance_enabled = (msg.content[key] === true || msg.content[key] === 'true');
-						  } else if (key === 'tile_target_peloton_resistance_enabled') {
-                                                      tile_target_peloton_resistance_enabled = (msg.content[key] === true || msg.content[key] === 'true');
-						  } else if (key === 'tile_target_cadence_enabled') {
-                                                      tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
-						  } else if (key === 'tile_target_power_enabled') {
-                                                      tile_target_power_enabled = (msg.content[key] === true || msg.content[key] === 'true');
-						  } else if (key === 'tile_peloton_offset_enabled') {
-                                                      if(msg.content[key] === false || msg.content[key] === 'false') {
-								   $(".pelotonoffset").hide();
-								}
-						  }
-                }
-                return msg.content;
-            }
-            return null;
-        }, 5000, 3);
-    el.enqueue().then(onSettingsOK).catch(function(err) {
-            console.error('Error is ' + err);
-    })
-    keys_arr = ['speed', 'speed_lapavg','cadence','cadence_lapavg', 'heart','heart_lapavg', 'calories', 'distance', 'watts','watts_lapavg',
-                'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance','resistance_lapavg', 'peloton_resistance','peloton_resistance_lapavg',
-                'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
-					 'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-                                         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start']
-         let ell = new MainWSQueueElement(null, function(msg) {
-		  if (msg.msg === 'workout') {
-        var speed = 0;
-        var speed_lapavg = 0;
-        var cadence = 0;
-        var cadence_lapavg = 0;
-        var hr = 0;
-        var hr_lapavg = 0;
-        var calories = 0;
-        var odometer = 0;
-        var watt = 0;
-        var watt_lapavg = 0;
-        var elapsed_h = 0;
-        var elapsed_m = 0;
-        var elapsed_s = 0;
-        var resistance = 0;
-        var resistance_lapavg = 0;
-        var peloton_resistance = 0;
-        var peloton_resistance_lapavg = 0;
-        var speed_lapmax = 0;
-        var cadence_lapmax = 0;
-        var hr_lapmax = 0;
-        var watt_lapmax = 0;
-        var resistance_lapmax = 0;
-        var peloton_resistance_lapmax = 0;
-        var target_resistance = 0;
-        var target_peloton_resistance = 0;
-        var target_cadence = 0;
-        var target_power = 0;
-        var peloton_offset = 0;
-        var peloton_ask_already_running = false;
-
-				for (let key of keys_arr) {
-				  if (msg.content[key] === undefined)
-            continue;
-          if (key === 'speed') {
-            speed = msg.content[key] * miles_conversion;
-          } else if (key === 'speed_lapavg') {
-            speed_lapavg = msg.content[key] * miles_conversion;
-          } else if (key === 'speed_lapmax') {
-            speed_lapmax = msg.content[key] * miles_conversion;
-          } else if (key === 'cadence') {
-          cadence = msg.content[key];
-          } else if (key === 'cadence_lapavg') {
-            cadence_lapavg = msg.content[key];
-          } else if (key === 'cadence_lapmax') {
-            cadence_lapmax = msg.content[key];
-          } else if (key === 'heart') {
-            hr = msg.content[key];
-          } else if (key === 'heart_lapavg') {
-            hr_lapavg = msg.content[key];
-          } else if (key === 'heart_lapmax') {
-            hr_lapmax = msg.content[key];
-          } else if (key === 'calories') {
-            calories = msg.content[key];
-          } else if (key === 'distance') {
-            odometer = msg.content[key] * miles_conversion;
-          } else if (key === 'watts') {
-            watt = msg.content[key];
-          } else if (key === 'watts_lapavg') {
-            watt_lapavg = msg.content[key];
-          } else if (key === 'watts_lapmax') {
-            watt_lapmax = msg.content[key];
-          } else if (key === 'elapsed_h') {
-            elapsed_h = msg.content[key];
-          } else if (key === 'elapsed_m') {
-            elapsed_m = msg.content[key];
-          } else if (key === 'elapsed_s') {
-            elapsed_s = msg.content[key];
-          } else if (key === 'resistance') {
-            resistance = msg.content[key];
-          } else if (key === 'resistance_lapavg') {
-            resistance_lapavg = msg.content[key];
-          } else if (key === 'resistance_lapmax') {
-            resistance_lapmax = msg.content[key];
-          } else if (key === 'peloton_resistance') {
-            peloton_resistance = msg.content[key];
-          } else if (key === 'peloton_resistance_lapavg') {
-            peloton_resistance_lapavg = msg.content[key];
-          } else if (key === 'peloton_resistance_lapmax') {
-            peloton_resistance_lapmax = msg.content[key];
-          } else if (key === 'target_resistance') {
-            target_resistance = msg.content[key];            
-          } else if (key === 'target_peloton_resistance') {
-            target_peloton_resistance = msg.content[key];            
-          } else if (key === 'target_cadence') {
-            target_cadence = msg.content[key];            
-          } else if (key === 'target_power') {
-            target_power = msg.content[key];                                                
-          } else if (key === 'peloton_offset') {
-            peloton_offset = msg.content[key];
-          } else if (key === 'peloton_resistance_color') {
-            $('.peloton_resistance-value').css('color', msg.content[key]);
-          } else if (key === 'heart_color') {
-            $('.heart-value').css('color', msg.content[key]);
-          } else if (key === 'cadence_color') {
-            $('.cadence-value').css('color', msg.content[key]);
-          } else if (key === 'watts_color') {
-            $('.watt-value').css('color', msg.content[key]);
-          } else if (key === 'speed_color') {
-            $('.speed-value').css('color', msg.content[key]);
-          } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
-            peloton_ask_already_running = true;
-            document.getElementById("overlay").hidden = false;
-				document.getElementById("maintable").hidden = true;
-          }
-				}
-        $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
-        $('.speed-avg').html(speed_lapavg.toFixed(1));
-        $('.speed-max').html(speed_lapmax.toFixed(1));
-        if(tile_target_cadence_enabled)
-          $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
-        else
-          $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
-        $('.cadence-avg').html(cadence_lapavg.toFixed(0));
-        $('.cadence-max').html(cadence_lapmax.toFixed(0));
-        $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
-        $('.heart-avg').html(hr_lapavg.toFixed(0));
-        $('.heart-max').html(hr_lapmax.toFixed(0));
-        if(tile_target_power_enabled)
-          $('.watt-value').html("<b>" + watt.toFixed(0) + "/" + target_power.toFixed(0) + "</b>");
-        else
-          $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
-        $('.watt-avg').html(watt_lapavg.toFixed(0));
-        $('.watt-max').html(watt_lapmax.toFixed(0));
-        if(tile_target_resistance_enabled)
-          $('.resistance-value').html("<b>" + resistance.toFixed(0) + "/" + target_resistance.toFixed(0) + "</b>");
-        else
-          $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
-        $('.resistance-avg').html(resistance_lapavg.toFixed(0));
-        $('.resistance-max').html(resistance_lapmax.toFixed(0));
-        if(tile_target_peloton_resistance_enabled)
-          $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "/" + target_peloton_resistance.toFixed(0) + "</b>");
-        else
-          $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
-        $('.pelotonresistance-avg').html(peloton_resistance_lapavg.toFixed(0));
-        $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
-        $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
-        $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "</b>");
-        $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
-        $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
-		  }
-		  return null;
-		}, 15000, 3);
-         ell.enqueue().then(onWorkout).catch(function(err) {
-             console.error('Error is ' + err);
-                });
+  <script>
+    function closeConfirmBox() {
+      document.getElementById("overlay").hidden = true;
+      document.getElementById("maintable").hidden = false;
     }
-      setTimeout(a,0);
-    </script>
-  </body>
+    function isConfirm(answer) {
+      if (answer) {
+        peloton_ask_already_running = false;
+        peloton_start_workout();
+      } else {
+        peloton_ask_already_running = false;
+        peloton_abort_workout();
+      }
+      closeConfirmBox();
+    }
+
+    function PelotonOffsetPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'pelotonoffset_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_pelotonoffset_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function PelotonOffsetMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'pelotonoffset_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_pelotonoffset_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function Lap() {
+      let el = new MainWSQueueElement({
+        msg: 'lap',
+      }, function (msg) {
+        if (msg.msg === 'R_lap') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function Close() {
+      let el = new MainWSQueueElement({
+        msg: 'floating_close',
+      }, function (msg) {
+        if (msg.msg === 'R_floating_close') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function peloton_start_workout() {
+      let el = new MainWSQueueElement({
+        msg: 'peloton_start_workout',
+      }, function (msg) {
+        if (msg.msg === 'R_peloton_start_workout') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function peloton_abort_workout() {
+      let el = new MainWSQueueElement({
+        msg: 'peloton_abort_workout',
+      }, function (msg) {
+        if (msg.msg === 'R_peloton_abort_workout') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function Start() {
+      let el = new MainWSQueueElement({
+        msg: 'start',
+      }, function (msg) {
+        if (msg.msg === 'R_start') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function Stop() {
+      let el = new MainWSQueueElement({
+        msg: 'stop',
+      }, function (msg) {
+        if (msg.msg === 'R_stop') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+  </script>
+
+
+  <script type="text/javascript">
+    function a() {
+      onSettingsOK = false;
+      onWorkout = false;
+
+      tile_target_resistance_enabled = false;
+      tile_target_peloton_resistance_enabled = false;
+      tile_target_cadence_enabled = false;
+      tile_target_power_enabled = false;
+      miles_unit = false;
+      miles_conversion = 1.0;
+
+      settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
+        'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
+        'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit']
+      let el = new MainWSQueueElement({
+        msg: 'getsettings',
+        content: {
+          keys: settings_arr
+        }
+      }, function (msg) {
+        if (msg.msg === 'R_getsettings') {
+          for (let key of settings_arr) {
+            if (msg.content[key] === undefined)
+              return null;
+            if (key === 'tile_speed_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".speed").hide();
+              }
+            } else if (key === 'tile_cadence_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".cadence").hide();
+              }
+            } else if (key === 'tile_calories_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".calories").hide();
+              }
+            } else if (key === 'tile_odometer_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".distance").hide();
+              }
+            } else if (key === 'tile_resistance_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".resistance").hide();
+              }
+            } else if (key === 'tile_watt_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".watt").hide();
+              }
+            } else if (key === 'tile_heart_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".heart").hide();
+              }
+            } else if (key === 'tile_elapsed_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".elapsed").hide();
+              }
+            } else if (key === 'tile_peloton_resistance_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".pelotonresistance").hide();
+              }
+            } else if (key === 'miles_unit') {
+              miles_unit = (msg.content[key] === true || msg.content[key] === 'true');
+              if (miles_unit)
+                miles_conversion = 0.621371;
+            } else if (key === 'floating_transparency') {
+              $(".transparency").css("opacity", msg.content[key] / 100.0);
+            } else if (key === 'tile_target_resistance_enabled') {
+              tile_target_resistance_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+            } else if (key === 'tile_target_peloton_resistance_enabled') {
+              tile_target_peloton_resistance_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+            } else if (key === 'tile_target_cadence_enabled') {
+              tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+            } else if (key === 'tile_target_power_enabled') {
+              tile_target_power_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+            } else if (key === 'tile_peloton_offset_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".pelotonoffset").hide();
+              }
+            }
+          }
+          return msg.content;
+        }
+        return null;
+      }, 5000, 3);
+      el.enqueue().then(onSettingsOK).catch(function (err) {
+        console.error('Error is ' + err);
+      })
+      keys_arr = ['speed', 'speed_lapavg', 'cadence', 'cadence_lapavg', 'heart', 'heart_lapavg', 'calories', 'distance', 'watts', 'watts_lapavg',
+        'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
+        'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
+        'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
+        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start']
+      let ell = new MainWSQueueElement(null, function (msg) {
+        if (msg.msg === 'workout') {
+          var speed = 0;
+          var speed_lapavg = 0;
+          var cadence = 0;
+          var cadence_lapavg = 0;
+          var hr = 0;
+          var hr_lapavg = 0;
+          var calories = 0;
+          var odometer = 0;
+          var watt = 0;
+          var watt_lapavg = 0;
+          var elapsed_h = 0;
+          var elapsed_m = 0;
+          var elapsed_s = 0;
+          var resistance = 0;
+          var resistance_lapavg = 0;
+          var peloton_resistance = 0;
+          var peloton_resistance_lapavg = 0;
+          var speed_lapmax = 0;
+          var cadence_lapmax = 0;
+          var hr_lapmax = 0;
+          var watt_lapmax = 0;
+          var resistance_lapmax = 0;
+          var peloton_resistance_lapmax = 0;
+          var target_resistance = 0;
+          var target_peloton_resistance = 0;
+          var target_cadence = 0;
+          var target_power = 0;
+          var peloton_offset = 0;
+          var peloton_ask_already_running = false;
+
+          for (let key of keys_arr) {
+            if (msg.content[key] === undefined)
+              continue;
+            if (key === 'speed') {
+              speed = msg.content[key] * miles_conversion;
+            } else if (key === 'speed_lapavg') {
+              speed_lapavg = msg.content[key] * miles_conversion;
+            } else if (key === 'speed_lapmax') {
+              speed_lapmax = msg.content[key] * miles_conversion;
+            } else if (key === 'cadence') {
+              cadence = msg.content[key];
+            } else if (key === 'cadence_lapavg') {
+              cadence_lapavg = msg.content[key];
+            } else if (key === 'cadence_lapmax') {
+              cadence_lapmax = msg.content[key];
+            } else if (key === 'heart') {
+              hr = msg.content[key];
+            } else if (key === 'heart_lapavg') {
+              hr_lapavg = msg.content[key];
+            } else if (key === 'heart_lapmax') {
+              hr_lapmax = msg.content[key];
+            } else if (key === 'calories') {
+              calories = msg.content[key];
+            } else if (key === 'distance') {
+              odometer = msg.content[key] * miles_conversion;
+            } else if (key === 'watts') {
+              watt = msg.content[key];
+            } else if (key === 'watts_lapavg') {
+              watt_lapavg = msg.content[key];
+            } else if (key === 'watts_lapmax') {
+              watt_lapmax = msg.content[key];
+            } else if (key === 'elapsed_h') {
+              elapsed_h = msg.content[key];
+            } else if (key === 'elapsed_m') {
+              elapsed_m = msg.content[key];
+            } else if (key === 'elapsed_s') {
+              elapsed_s = msg.content[key];
+            } else if (key === 'resistance') {
+              resistance = msg.content[key];
+            } else if (key === 'resistance_lapavg') {
+              resistance_lapavg = msg.content[key];
+            } else if (key === 'resistance_lapmax') {
+              resistance_lapmax = msg.content[key];
+            } else if (key === 'peloton_resistance') {
+              peloton_resistance = msg.content[key];
+            } else if (key === 'peloton_resistance_lapavg') {
+              peloton_resistance_lapavg = msg.content[key];
+            } else if (key === 'peloton_resistance_lapmax') {
+              peloton_resistance_lapmax = msg.content[key];
+            } else if (key === 'target_resistance') {
+              target_resistance = msg.content[key];
+            } else if (key === 'target_peloton_resistance') {
+              target_peloton_resistance = msg.content[key];
+            } else if (key === 'target_cadence') {
+              target_cadence = msg.content[key];
+            } else if (key === 'target_power') {
+              target_power = msg.content[key];
+            } else if (key === 'peloton_offset') {
+              peloton_offset = msg.content[key];
+            } else if (key === 'peloton_resistance_color') {
+              $('.peloton_resistance-value').css('color', msg.content[key]);
+            } else if (key === 'heart_color') {
+              $('.heart-value').css('color', msg.content[key]);
+            } else if (key === 'cadence_color') {
+              $('.cadence-value').css('color', msg.content[key]);
+            } else if (key === 'watts_color') {
+              $('.watt-value').css('color', msg.content[key]);
+            } else if (key === 'speed_color') {
+              $('.speed-value').css('color', msg.content[key]);
+            } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
+              peloton_ask_already_running = true;
+              document.getElementById("overlay").hidden = false;
+              document.getElementById("maintable").hidden = true;
+            }
+          }
+          $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
+          $('.speed-avg').html(speed_lapavg.toFixed(1));
+          $('.speed-max').html(speed_lapmax.toFixed(1));
+          if (tile_target_cadence_enabled)
+            $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
+          else
+            $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
+          $('.cadence-avg').html(cadence_lapavg.toFixed(0));
+          $('.cadence-max').html(cadence_lapmax.toFixed(0));
+          $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
+          $('.heart-avg').html(hr_lapavg.toFixed(0));
+          $('.heart-max').html(hr_lapmax.toFixed(0));
+          if (tile_target_power_enabled)
+            $('.watt-value').html("<b>" + watt.toFixed(0) + "/" + target_power.toFixed(0) + "</b>");
+          else
+            $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
+          $('.watt-avg').html(watt_lapavg.toFixed(0));
+          $('.watt-max').html(watt_lapmax.toFixed(0));
+          if (tile_target_resistance_enabled)
+            $('.resistance-value').html("<b>" + resistance.toFixed(0) + "/" + target_resistance.toFixed(0) + "</b>");
+          else
+            $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
+          $('.resistance-avg').html(resistance_lapavg.toFixed(0));
+          $('.resistance-max').html(resistance_lapmax.toFixed(0));
+          if (tile_target_peloton_resistance_enabled)
+            $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "/" + target_peloton_resistance.toFixed(0) + "</b>");
+          else
+            $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
+          $('.pelotonresistance-avg').html(peloton_resistance_lapavg.toFixed(0));
+          $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
+          $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
+          $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
+          $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
+          $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
+        }
+        return null;
+      }, 15000, 3);
+      ell.enqueue().then(onWorkout).catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+    setTimeout(a, 0);
+  </script>
+</body>
+
 </html>
