@@ -18,6 +18,10 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
+	 win32: {
+	    QMAKE_LFLAGS_DEBUG += -static-Qt5HttpServer -static-qt5httpserver -static-libQt5HttpServer -static-libqt5httpserver
+		 QMAKE_LFLAGS_RELEASE += -static-Qt5HttpServer -static-qt5httpserver -static-libQt5HttpServer -static-libqt5httpserver
+	 }
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
@@ -34,6 +38,9 @@ QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
+
+win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
