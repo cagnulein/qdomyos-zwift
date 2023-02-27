@@ -970,6 +970,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else if (tp == bluetoothdevice::TREADMILL) {
+            obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
+            obj.setProperty(QStringLiteral("target_inclination"),
+                            ((treadmill *)device)->lastRequestedInclination().value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_color"), dep.color());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
@@ -977,6 +980,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+            obj.setProperty(QStringLiteral("inclination_lapavg"), dep.lapAverage());
+            obj.setProperty(QStringLiteral("inclination_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("stridelength"),
                             (dep = ((treadmill *)device)->currentStrideLength()).value());
             obj.setProperty(QStringLiteral("groundcontact"),

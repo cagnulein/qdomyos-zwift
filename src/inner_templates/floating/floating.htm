@@ -297,13 +297,14 @@
       tile_target_resistance_enabled = false;
       tile_target_peloton_resistance_enabled = false;
       tile_target_cadence_enabled = false;
+      tile_target_speed_enabled = false;
       tile_target_power_enabled = false;
       miles_unit = false;
       miles_conversion = 1.0;
 
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
-        'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit']
+        'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -362,6 +363,8 @@
               tile_target_peloton_resistance_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_cadence_enabled') {
               tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
+            } else if (key === 'tile_target_speed_enabled') {
+              tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');              
             } else if (key === 'tile_target_power_enabled') {
               tile_target_power_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_peloton_offset_enabled') {
@@ -381,7 +384,7 @@
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start']
+        'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -410,6 +413,7 @@
           var target_resistance = 0;
           var target_peloton_resistance = 0;
           var target_cadence = 0;
+          var target_speed = 0;
           var target_power = 0;
           var peloton_offset = 0;
           var peloton_ask_already_running = false;
@@ -469,6 +473,8 @@
               target_peloton_resistance = msg.content[key];
             } else if (key === 'target_cadence') {
               target_cadence = msg.content[key];
+            } else if (key === 'target_speed') {
+              target_speed = msg.content[key];              
             } else if (key === 'target_power') {
               target_power = msg.content[key];
             } else if (key === 'peloton_offset') {
@@ -489,7 +495,10 @@
               document.getElementById("maintable").hidden = true;
             }
           }
-          $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
+          if (tile_target_speed_enabled)
+            $('.speed-value').html("<b>" + speed.toFixed(0) + "/" + target_speed.toFixed(0) + "</b>");
+          else
+            $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           $('.speed-avg').html(speed_lapavg.toFixed(1));
           $('.speed-max').html(speed_lapmax.toFixed(1));
           if (tile_target_cadence_enabled)
