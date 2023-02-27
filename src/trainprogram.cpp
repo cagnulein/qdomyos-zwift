@@ -86,6 +86,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" HRmin = %1").arg(HRmin);
     rv += QStringLiteral(" HRmax = %1").arg(HRmax);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
@@ -842,6 +843,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
             }
+            if (row.minSpeed >= 0) {
+                stream.writeAttribute(QStringLiteral("minspeed"), QString::number(row.minSpeed));
+            }
             if (row.inclination >= -50) {
                 stream.writeAttribute(QStringLiteral("inclination"), QString::number(row.inclination));
             }
@@ -960,6 +964,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
             }
+            if (atts.hasAttribute(QStringLiteral("minspeed"))) {
+                row.minSpeed = atts.value(QStringLiteral("minspeed")).toDouble();
+            }
             if (atts.hasAttribute(QStringLiteral("fanspeed"))) {
                 row.fanspeed = atts.value(QStringLiteral("fanspeed")).toDouble();
             }
@@ -1014,7 +1021,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
-                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
                 row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();

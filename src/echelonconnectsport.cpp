@@ -208,7 +208,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
         resistance_t res = newValue.at(3);
         if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
-            if (res != qRound(Resistance.value()) && lastRawRequestedResistanceValue != res) {
+            if (res != qRound(Resistance.value()) &&
+                    lastRawRequestedResistanceValue != res &&
+                    lastRawRequestedResistanceValue != -1 &&
+                    qRound(Resistance.value()) > 1 &&
+                    qAbs(res - qRound(Resistance.value())) < 6) {
                 int8_t g = gears();
                 g += (res - qRound(Resistance.value()));
                 qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears() << g;
