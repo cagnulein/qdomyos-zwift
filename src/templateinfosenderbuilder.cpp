@@ -931,6 +931,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             ((bike *)device)->lastRequestedPelotonResistance().value());
             obj.setProperty(QStringLiteral("target_cadence"), ((bike *)device)->lastRequestedCadence().value());
             obj.setProperty(QStringLiteral("target_power"), ((bike *)device)->lastRequestedPower().value());
+            obj.setProperty(QStringLiteral("power_zone"), ((bike *)device)->currentPowerZone().value());
+            obj.setProperty(QStringLiteral("power_zone_lapavg"), ((bike *)device)->currentPowerZone().lapAverage());
+            obj.setProperty(QStringLiteral("power_zone_lapmax"), ((bike *)device)->currentPowerZone().lapMax());
+            obj.setProperty(QStringLiteral("target_power_zone"), ((bike *)device)->targetPowerZone().value());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -959,7 +963,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((rower *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((rower *)device)->currentCadence()).value());
+            obj.setProperty(QStringLiteral("cadence_color"), dep.color());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
+            obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
@@ -967,11 +974,18 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else if (tp == bluetoothdevice::TREADMILL) {
+            obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
+            obj.setProperty(QStringLiteral("target_inclination"),
+                            ((treadmill *)device)->lastRequestedInclination().value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_color"), dep.color());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
+            obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+            obj.setProperty(QStringLiteral("inclination_lapavg"), dep.lapAverage());
+            obj.setProperty(QStringLiteral("inclination_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("stridelength"),
                             (dep = ((treadmill *)device)->currentStrideLength()).value());
             obj.setProperty(QStringLiteral("groundcontact"),
@@ -982,6 +996,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cadence"), (dep = ((elliptical *)device)->currentCadence()).value());
             obj.setProperty(QStringLiteral("cadence_color"), dep.color());
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
+            obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
             obj.setProperty(QStringLiteral("inclination"),
                             (dep = ((elliptical *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());

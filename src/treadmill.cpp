@@ -323,7 +323,7 @@ void treadmill::cadenceFromAppleWatch() {
         lockscreen h;
         long appleWatchCadence = h.stepCadence();
         Cadence = appleWatchCadence;
-        qDeubg() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
+        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
     }
 #endif
 #endif
