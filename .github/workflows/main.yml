@@ -58,7 +58,7 @@ jobs:
       - name: Checkout qHttpServer
         uses: actions/checkout@v2
         with:
-          repository: qt-labs/qthttpserver
+          repository: cagnulein/qthttpserver
           path: "src/qthttpserver"
 
       - uses: msys2/setup-msys2@v2
