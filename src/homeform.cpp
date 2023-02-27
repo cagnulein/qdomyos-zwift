@@ -3848,6 +3848,7 @@ void homeform::update() {
 
                 target_zone->setValueFontColor(QStringLiteral("red"));
             }
+            bluetoothManager->device()->setTargetPowerZone(requestedZone);
             target_zone->setValue(QStringLiteral("Z") + QString::number(requestedZone, 'f', 1));
             target_zone->setSecondLine(requestedMinW + QStringLiteral("-") + requestedMaxW + QStringLiteral("W ") +
                                        QString::number(requestedPerc, 'f', 0) + QStringLiteral("%"));

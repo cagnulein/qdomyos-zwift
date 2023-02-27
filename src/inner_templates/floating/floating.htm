@@ -115,6 +115,15 @@
       <td><small>MAX</small></td>
       <td class="watt-max">0</td>
     </tr>
+    <tr class="powerzone">
+      <td class="icon">🚥</td>
+      <td style="text-align: left">P.ZONE</td>
+      <td><small>AVG</small></td>
+      <td class="powerzone-avg">0.0</td>
+      <td class="powerzone-value values"><b>0.0</b></td>
+      <td><small>MAX</small></td>
+      <td class="powerzone-max">0.0</td>
+    </tr>    
     <tr class="resistance">
       <td class="icon">🆁</td>
       <td style="text-align: left">RESISTANCE</td>
@@ -307,6 +316,7 @@
       tile_target_peloton_resistance_enabled = false;
       tile_target_cadence_enabled = false;
       tile_target_speed_enabled = false;
+      tile_target_zone_enabled = false;
       tile_target_inclination_enabled = false;
       tile_target_power_enabled = false;
       miles_unit = false;
@@ -315,7 +325,7 @@
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -330,6 +340,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".speed").hide();
               }
+            } else if (key === 'tile_ftp_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".powerzone").hide();
+              }              
             } else if (key === 'tile_inclination_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".inclination").hide();
@@ -380,6 +394,8 @@
               tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_speed_enabled') {
               tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');              
+            } else if (key === 'tile_target_zone_enabled') {
+              tile_target_zone_enabled = (msg.content[key] === true || msg.content[key] === 'true');                            
             } else if (key === 'tile_target_incline_enabled') {
               tile_target_inclination_enabled = (msg.content[key] === true || msg.content[key] === 'true');                            
             } else if (key === 'tile_target_power_enabled') {
@@ -402,12 +418,15 @@
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
-        'inclination_lapmax', 'target_inclination']
+        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
           var speed_lapavg = 0;
-          var speed_lapmax = 0;                    
+          var speed_lapmax = 0;       
+          var powerzone = 0;
+          var powerzone_lapavg = 0;
+          var powerzone_lapmax = 0;                              
           var inclination = 0;
           var inclination_lapavg = 0;
           var inclination_lapmax = 0;
@@ -435,6 +454,7 @@
           var target_peloton_resistance = 0;
           var target_cadence = 0;
           var target_speed = 0;
+          var target_power_zone = 0;
           var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
@@ -455,6 +475,12 @@
               inclination_lapavg = msg.content[key];
             } else if (key === 'inclination_lapmax') {
               inclination_lapmax = msg.content[key];
+            } else if (key === 'power_zone') {
+              powerzone = msg.content[key];
+            } else if (key === 'power_zone_lapavg') {
+              powerzone_lapavg = msg.content[key];
+            } else if (key === 'power_zone_lapmax') {
+              powerzone_lapmax = msg.content[key];              
             } else if (key === 'cadence') {
               cadence = msg.content[key];
             } else if (key === 'cadence_lapavg') {
@@ -502,7 +528,9 @@
             } else if (key === 'target_cadence') {
               target_cadence = msg.content[key];
             } else if (key === 'target_speed') {
-              target_speed = msg.content[key];  
+              target_speed = msg.content[key] * miles_conversion;  
+            } else if (key === 'target_power_zone') {
+              target_power_zone = msg.content[key];                
             } else if (key === 'target_inclination') {
               target_inclination = msg.content[key];                            
             } else if (key === 'target_power') {
@@ -568,6 +596,12 @@
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
+          if (tile_target_zone_enabled)
+            $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
+          else
+            $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+          $('.powerzone-avg').html(powerzone_lapavg.toFixed(1));
+          $('.spepowerzoneed-max').html(powerzone_lapmax.toFixed(1));
         }
         return null;
       }, 15000, 3);
