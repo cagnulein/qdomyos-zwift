@@ -147,6 +147,11 @@
       <td style="text-align: left">CALORIES</td>
       <td class="calories-value values" colspan="5"><b>0</b></td>
     </tr>
+    <tr class="jouls">
+      <td class="icon">🔥</td>
+      <td style="text-align: left">TOT.OUTPUT</td>
+      <td class="jouls-value values" colspan="5"><b>0</b></td>
+    </tr>    
     <tr class="distance">
       <td class="icon">📏</td>
       <td style="text-align: left">DISTANCE</td>
@@ -325,7 +330,7 @@
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -356,6 +361,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".calories").hide();
               }
+            } else if (key === 'tile_jouls_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".jouls").hide();
+              }              
             } else if (key === 'tile_odometer_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".distance").hide();
@@ -418,7 +427,7 @@
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
-        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone']
+        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -435,6 +444,7 @@
           var hr = 0;
           var hr_lapavg = 0;
           var calories = 0;
+          var jouls = 0;
           var odometer = 0;
           var watt = 0;
           var watt_lapavg = 0;
@@ -495,6 +505,8 @@
               hr_lapmax = msg.content[key];
             } else if (key === 'calories') {
               calories = msg.content[key];
+            } else if (key === 'jouls') {
+              jouls = msg.content[key];              
             } else if (key === 'distance') {
               odometer = msg.content[key] * miles_conversion;
             } else if (key === 'watts') {
@@ -595,6 +607,7 @@
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
+          $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
           if (tile_target_zone_enabled && target_power_zone > 0)
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
