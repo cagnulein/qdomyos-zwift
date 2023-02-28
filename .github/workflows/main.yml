@@ -80,7 +80,7 @@ jobs:
       - name: Build qthttpserver
         run: |
             cd src\qthttpserver 
-            PATH=$PATH:C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/
+            $current_PATH = [Environment]::GetEnvironmentVariable("PATH", "USER");[Environment]::SetEnvironmentVariable("PATH", "$current_PATH;C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;", "USER")
             qmake
             make -j8
             make install
@@ -88,7 +88,7 @@ jobs:
 
       - name: Build
         run: |
-            PATH=$PATH:C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/
+            $current_PATH = [Environment]::GetEnvironmentVariable("PATH", "USER");[Environment]::SetEnvironmentVariable("PATH", "$current_PATH;C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;", "USER")
             qmake
             cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
