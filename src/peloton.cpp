@@ -424,6 +424,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
+                    } else if (!zone.toUpper().compare(QStringLiteral("SWEET SPOT"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.91;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("INTERVALS"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.75;
