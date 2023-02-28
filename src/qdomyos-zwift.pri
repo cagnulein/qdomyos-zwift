@@ -65,6 +65,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
+   $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -258,6 +259,7 @@ INCLUDEPATH += fit-sdk/
 HEADERS += \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
+   $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
    $$PWD/pelotonbike.h \
    Computrainer.h \
