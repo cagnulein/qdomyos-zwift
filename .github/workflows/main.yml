@@ -66,6 +66,7 @@ jobs:
           install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-qt5-networkauth mingw-w64-x86_64-qt5-charts mingw-w64-x86_64-qt5-location mingw-w64-x86_64-qt5-multimedia mingw-w64-x86_64-qt5-serialport mingw-w64-x86_64-qt5-websockets mingw-w64-x86_64-qt5-connectivity mingw-w64-x86_64-qt5-base mingw-w64-x86_64-qt5-tools
           msystem: mingw64
           release: false
+          path-type: inherit
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
@@ -80,7 +81,7 @@ jobs:
       - name: Build qthttpserver
         run: |
             cd src\qthttpserver 
-            $current_PATH = [Environment]::GetEnvironmentVariable("PATH", "USER");[Environment]::SetEnvironmentVariable("PATH", "$current_PATH;C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;", "USER")
+            $env:Path += ";C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;"
             qmake
             make -j8
             make install
@@ -88,7 +89,7 @@ jobs:
 
       - name: Build
         run: |
-            $current_PATH = [Environment]::GetEnvironmentVariable("PATH", "USER");[Environment]::SetEnvironmentVariable("PATH", "$current_PATH;C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;", "USER")
+            $env:Path += ";C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;"
             qmake
             cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
