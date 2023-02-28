@@ -119,9 +119,7 @@ void DataObject::setVisible(bool visible) {
 }
 
 homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
-
-    trainProgram = nullptr;
-
+    m_singleton = this;
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     QString unit = QStringLiteral("km");
@@ -412,6 +410,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::floatingClose, this,
             &homeform::floatingOpen);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::autoResistance, this,
+            &homeform::toggleAutoResistance);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Plus, this,
             &homeform::pelotonOffset_Plus);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,

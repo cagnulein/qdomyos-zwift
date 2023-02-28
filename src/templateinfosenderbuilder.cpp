@@ -919,8 +919,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
-        if (homeform::trainProgram) {
-            el = homeform::trainProgram->currentRowRemainingTime();
+        obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
+        if (homeform::singleton()->trainingProgram()) {
+            el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
             obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
             obj.setProperty(QStringLiteral("row_remaining_time_m"), el.minute());
             obj.setProperty(QStringLiteral("row_remaining_time_h"), el.hour());

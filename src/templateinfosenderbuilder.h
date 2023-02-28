@@ -35,6 +35,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void Start();
     void Pause();
     void Stop();
+    void autoResistance();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
