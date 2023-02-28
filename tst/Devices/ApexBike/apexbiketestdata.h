@@ -6,7 +6,7 @@
 class ApexBikeTestData : public BluetoothDeviceTestData {
 
 public:
-    EchelonConnectSportBikeTestData() : BluetoothDeviceTestData("Apex Bike") {
+    ApexBikeTestData() : BluetoothDeviceTestData("Apex Bike") {
         this->addDeviceName("WLT8266BM", comparison::StartsWith);
     }
 

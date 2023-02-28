@@ -37,9 +37,6 @@ class apexbike : public bike {
     Q_OBJECT
   public:
     apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t maxResistance() { return max_resistance; }
-    resistance_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
 
     void *VirtualBike();
@@ -47,8 +44,6 @@ class apexbike : public bike {
 
   private:
     const resistance_t max_resistance = 32;
-    double bikeResistanceToPeloton(double resistance);
-    uint16_t wattsFromResistance(double resistance);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
