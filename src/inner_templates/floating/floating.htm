@@ -553,19 +553,19 @@
               document.getElementById("maintable").hidden = true;
             }
           }
-          if (tile_target_speed_enabled)
+          if (tile_target_speed_enabled && target_speed > 0)
             $('.speed-value').html("<b>" + speed.toFixed(1) + "/" + target_speed.toFixed(1) + "</b>");
           else
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           $('.speed-avg').html(speed_lapavg.toFixed(1));
           $('.speed-max').html(speed_lapmax.toFixed(1));
-          if (tile_target_inclination_enabled)
+          if (tile_target_inclination_enabled && target_inclination > 0)
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
           else
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
           $('.inclination-avg').html(inclination_lapavg.toFixed(1));
           $('.inclination-max').html(inclination_lapmax.toFixed(1));          
-          if (tile_target_cadence_enabled)
+          if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
           else
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
@@ -574,19 +574,19 @@
           $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
           $('.heart-avg').html(hr_lapavg.toFixed(0));
           $('.heart-max').html(hr_lapmax.toFixed(0));
-          if (tile_target_power_enabled)
+          if (tile_target_power_enabled && target_power > 0)
             $('.watt-value').html("<b>" + watt.toFixed(0) + "/" + target_power.toFixed(0) + "</b>");
           else
             $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
           $('.watt-avg').html(watt_lapavg.toFixed(0));
           $('.watt-max').html(watt_lapmax.toFixed(0));
-          if (tile_target_resistance_enabled)
+          if (tile_target_resistance_enabled && target_resistance > 0)
             $('.resistance-value').html("<b>" + resistance.toFixed(0) + "/" + target_resistance.toFixed(0) + "</b>");
           else
             $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
           $('.resistance-avg').html(resistance_lapavg.toFixed(0));
           $('.resistance-max').html(resistance_lapmax.toFixed(0));
-          if (tile_target_peloton_resistance_enabled)
+          if (tile_target_peloton_resistance_enabled && target_peloton_resistance > 0)
             $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "/" + target_peloton_resistance.toFixed(0) + "</b>");
           else
             $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
@@ -596,7 +596,7 @@
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
-          if (tile_target_zone_enabled)
+          if (tile_target_zone_enabled && target_power_zone > 0)
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
           else
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "</b>");
