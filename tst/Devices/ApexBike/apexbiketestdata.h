@@ -7,7 +7,7 @@ class ApexBikeTestData : public BluetoothDeviceTestData {
 
 public:
     ApexBikeTestData() : BluetoothDeviceTestData("Apex Bike") {
-        this->addDeviceName("WLT8266BM", comparison::StartsWith);
+        this->addDeviceName("WLT8266BM", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::ApexBike; }
