@@ -282,6 +282,9 @@ template<typename T>
 void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
     BluetoothDeviceTestData& testData = this->typeParam;
 
+    if(testData.get_expectedDeviceType()==deviceType::CompuTrainerBike)
+        GTEST_SKIP() << "Computrainer bike crashes the test app";
+
     bluetooth bt(this->defaultDiscoveryOptions);
 
     auto enablingConfig = this->enablingConfigurations[0];
