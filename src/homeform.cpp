@@ -120,6 +120,8 @@ void DataObject::setVisible(bool visible) {
 
 homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
+    trainProgram = nullptr;
+
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     QString unit = QStringLiteral("km");

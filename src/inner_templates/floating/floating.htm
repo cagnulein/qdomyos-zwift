@@ -162,6 +162,11 @@
       <td style="text-align: left">ELAPSED</td>
       <td class="elapsed-value values" colspan="5"><b>0:00:00</b></td>
     </tr>
+    <tr class="rowremainingtime">
+      <td class="icon">⏲️</td>
+      <td style="text-align: left">REM.TIME</td>
+      <td class="rowremainingtime-value values" colspan="5"><b>0:00:00</b></td>
+    </tr>
     <tr class="pelotonoffset">
       <td class="icon">⏰</td>
       <td style="text-align: left">P.OFFSET</td>
@@ -330,7 +335,7 @@
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -385,6 +390,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".elapsed").hide();
               }
+            } else if (key === 'tile_remainingtimetrainprogramrow_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".rowremainingtime").hide();
+              }              
             } else if (key === 'tile_peloton_resistance_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pelotonresistance").hide();
@@ -427,7 +436,8 @@
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
-        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls']
+        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -451,6 +461,9 @@
           var elapsed_h = 0;
           var elapsed_m = 0;
           var elapsed_s = 0;
+          var row_remaining_time_s = 0;
+          var row_remaining_time_m = 0;
+          row_remaining_time_h = 0;
           var resistance = 0;
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
@@ -521,6 +534,12 @@
               elapsed_m = msg.content[key];
             } else if (key === 'elapsed_s') {
               elapsed_s = msg.content[key];
+            } else if (key === 'row_remaining_time_h') {
+              row_remaining_time_h = msg.content[key];
+            } else if (key === 'row_remaining_time_m') {
+              row_remaining_time_m = msg.content[key];
+            } else if (key === 'row_remaining_time_s') {
+              row_remaining_time_s = msg.content[key];              
             } else if (key === 'resistance') {
               resistance = msg.content[key];
             } else if (key === 'resistance_lapavg') {
@@ -605,6 +624,7 @@
           $('.pelotonresistance-avg').html(peloton_resistance_lapavg.toFixed(0));
           $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
+          $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");

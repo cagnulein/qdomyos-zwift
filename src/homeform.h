@@ -518,13 +518,13 @@ class homeform : public QObject {
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
+    static trainprogram *trainProgram;
 
   private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
-    trainprogram *trainProgram = nullptr;
     trainprogram *previewTrainProgram = nullptr;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +

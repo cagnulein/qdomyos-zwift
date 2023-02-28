@@ -919,6 +919,16 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
+        if (homeform::trainProgram) {
+            el = homeform::trainProgram->currentRowRemainingTime();
+            obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
+            obj.setProperty(QStringLiteral("row_remaining_time_m"), el.minute());
+            obj.setProperty(QStringLiteral("row_remaining_time_h"), el.hour());
+        } else {
+            obj.setProperty(QStringLiteral("row_remaining_time_s"), 0);
+            obj.setProperty(QStringLiteral("row_remaining_time_m"), 0);
+            obj.setProperty(QStringLiteral("row_remaining_time_h"), 0);
+        }
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())
