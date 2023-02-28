@@ -63,7 +63,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-qt5-networkauth mingw-w64-qt5-charts mingw-w64-qt5-location mingw-w64-qt5-multimedia mingw-w64-qt5-serialport mingw-w64-qt5-websockets mingw-w64-qt5-connectivity mingw-w64-qt5-base mingw-w64-qt5-tools
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-qt5-networkauth mingw-w64-x86_64-qt5-charts mingw-w64-x86_64-qt5-location mingw-w64-x86_64-qt5-multimedia mingw-w64-x86_64-qt5-serialport mingw-w64-x86_64-qt5-websockets mingw-w64-x86_64-qt5-connectivity mingw-w64-x86_64-qt5-base mingw-w64-x86_64-qt5-tools
           msystem: mingw64
           release: false
 
