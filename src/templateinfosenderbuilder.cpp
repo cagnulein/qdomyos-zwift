@@ -809,8 +809,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue obj;
     QSettings settings;
 
-    if (!homeform::singleton())
+    if (!homeform::singleton()) {
+        qDebug() << QStringLiteral("homeform::singleton() not available. You should never see this!");
         return;
+    }
 
     if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
