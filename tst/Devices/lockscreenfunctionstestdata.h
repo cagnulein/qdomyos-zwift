@@ -37,5 +37,15 @@ public:
      * @return
      */
     bool get_isPelotonActive() const;   
+
+private:
+    static std::map<QZLockscreenFunctions::configurationType, std::string> configTypeNames;
+public:
+    /**
+     * @brief Gets a display name for a configuration type.
+     * @param configType
+     * @return
+     */
+    static std::string getConfigurationTypeName(QZLockscreenFunctions::configurationType configType);
 };
 

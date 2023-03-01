@@ -38,6 +38,7 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::ios_peloton_workaround, this->ios_peloton_workaround);
     settings.setValue(QZSettings::virtual_device_rower, this->virtual_device_rower);
     settings.setValue(QZSettings::bike_cadence_sensor, this->bike_cadence_sensor);
+    settings.setValue(QZSettings::dircon_yes, this->dircon_yes);
 }
 
 void DeviceDiscoveryInfo::getValues(QSettings &settings){
@@ -70,6 +71,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     this->virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
     this->bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    this->dircon_yes = settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool();
 }
 
 void DeviceDiscoveryInfo::loadDefaultValues() {

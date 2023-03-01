@@ -52,7 +52,7 @@ public :
     bool virtual_device_rower = false;
     bool bike_cadence_sensor = false;
 
-
+    bool dircon_yes = false;
 
     /**
      * @brief Constructor.

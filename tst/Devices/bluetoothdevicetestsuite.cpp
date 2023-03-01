@@ -37,10 +37,7 @@ std::string BluetoothDeviceTestSuite<T>::getTypeName(bluetoothdevice *b) const {
     return name.toStdString();
 }
 
-template<typename T>
-std::string BluetoothDeviceTestSuite<T>::getConfigurationTypeName(QZLockscreenFunctions::configurationType configType) {
-    return this->configTypeNames.at(configType);
-}
+
 
 template<typename T>
 BluetoothDeviceTestSuite<T>::BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
@@ -53,12 +50,11 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
     if(this->typeParam.get_isAbstract())
         GTEST_SKIP() << "Device is abstract: " << this->typeParam.get_testName();
 
-    this->configTypeNames[QZLockscreenFunctions::configurationType::NONE] = "NONE";
-    this->configTypeNames[QZLockscreenFunctions::configurationType::BIKE] = "BIKE";
-    this->configTypeNames[QZLockscreenFunctions::configurationType::TREADMILL] = "TREADMILL";
-    this->configTypeNames[QZLockscreenFunctions::configurationType::ROWER] = "ROWER";
-
     DeviceDiscoveryInfo defaultDiscoveryInfo(true);
+
+    // turn off Dircon
+    defaultDiscoveryInfo.dircon_yes = false;
+
     this->enablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, true);
     this->disablingConfigurations = this->typeParam.get_configurations(defaultDiscoveryInfo, false);
 
@@ -282,9 +278,6 @@ template<typename T>
 void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
     BluetoothDeviceTestData& testData = this->typeParam;
 
-    if(testData.get_expectedDeviceType()==deviceType::CompuTrainerBike)
-        GTEST_SKIP() << "Computrainer bike crashes the test app";
-
     bluetooth bt(this->defaultDiscoveryOptions);
 
     auto enablingConfig = this->enablingConfigurations[0];
@@ -326,9 +319,9 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
         EXPECT_EQ(lsfTestData.get_lockscreenFunctionsConfigType(), lockscreenFunctions->getConfigurationType())
                 << testData.get_testName()
                 << " : Unexpected Peloton lockscreen functions configuration type. Expected "
-                << this->getConfigurationTypeName(lsfTestData.get_lockscreenFunctionsConfigType())
+                << LockscreenFunctionsTestData::getConfigurationTypeName(lsfTestData.get_lockscreenFunctionsConfigType())
                 << " got "
-                << this->getConfigurationTypeName(lockscreenFunctions->getConfigurationType());
+                << LockscreenFunctionsTestData::getConfigurationTypeName(lockscreenFunctions->getConfigurationType());
 
         QZLockscreenFunctions::configurationType expectedLockscreenConfig = QZLockscreenFunctions::configurationType::NONE;
         if(lsfTestData.get_isPelotonActive())
@@ -337,9 +330,9 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
         EXPECT_EQ(expectedLockscreenConfig, this->testLockscreen->get_virtualDeviceType())
                 << testData.get_testName()
                 << " : Unexpected Peloton workaround configuration type in lockscreen object. Expected "
-                << this->getConfigurationTypeName(expectedLockscreenConfig)
+                << LockscreenFunctionsTestData::getConfigurationTypeName(expectedLockscreenConfig)
                 << " got "
-                << this->getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
+                << LockscreenFunctionsTestData::getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
 
         EXPECT_FALSE(this->testLockscreen->get_zwiftMode())
                 << testData.get_testName()

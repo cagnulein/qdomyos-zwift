@@ -9,8 +9,6 @@
 
 template <typename T>
 class BluetoothDeviceTestSuite : public testing::Test {
-private:
-    std::map<QZLockscreenFunctions::configurationType, std::string> configTypeNames;
 protected:
     T typeParam;
 
@@ -59,14 +57,6 @@ protected:
      * @return
      */
     std::string getTypeName(bluetoothdevice *b) const;
-
-
-    /**
-     * @brief Gets a display name for a configuration type.
-     * @param configType
-     * @return
-     */
-    std::string getConfigurationTypeName(QZLockscreenFunctions::configurationType configType);
 
 public:
     BluetoothDeviceTestSuite();

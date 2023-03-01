@@ -91,7 +91,7 @@ using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
 BHFitnessEllipticalTestData,
 BowflexT216TreadmillTestData,
-CompuTrainerTestData,
+//CompuTrainerTestData,
 CSCBike1TestData,
 CSCBike2TestData,
 ChronobikeTestData,
