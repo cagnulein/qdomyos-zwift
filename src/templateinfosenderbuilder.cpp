@@ -679,6 +679,15 @@ void TemplateInfoSenderBuilder::onFloatingClose(const QJsonValue &msgContent, Te
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit autoResistance();
+    main[QStringLiteral("msg")] = QStringLiteral("R_autoresistance");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString filename;
     QString image;
@@ -781,6 +790,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("floating_close")) {
                     onFloatingClose(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("autoresistance")) {
+                    onAutoresistance(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
