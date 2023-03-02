@@ -1095,10 +1095,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||           // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||             // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||            // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||          // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||  // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
@@ -1434,6 +1435,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(echelonConnectSport);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("WLT8266BM")) && !apexBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                apexBike = new apexbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                apexBike->deviceDiscovered(b);
+                this->startTemplateManagers(apexBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2301,6 +2311,10 @@ void bluetooth::restart() {
         delete domyosRower;
         domyosRower = nullptr;
     }
+    if (apexBike) {
+        delete apexBike;
+        apexBike = nullptr;
+    }
     if (domyosElliptical) {
 
         delete domyosElliptical;
@@ -2744,6 +2758,8 @@ bluetoothdevice *bluetooth::device() {
         return soleBike;
     } else if (keepBike) {
         return keepBike;
+    } else if (apexBike) {
+        return apexBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
     } else if (horizonTreadmill) {

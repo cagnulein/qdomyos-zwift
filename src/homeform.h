@@ -166,6 +166,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
   public:
+    static homeform *singleton() { return m_singleton; }
+
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -518,8 +520,10 @@ class homeform : public QObject {
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
+    trainprogram *trainingProgram() { return trainProgram; }
 
   private:
+    static homeform *m_singleton;
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
@@ -744,6 +748,8 @@ class homeform : public QObject {
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif
+
+    void toggleAutoResistance() { setAutoResistance(!autoResistance()); }
 
   signals:
 

@@ -21,6 +21,7 @@
 #include "qzsettings.h"
 
 #include "activiotreadmill.h"
+#include "apexbike.h"
 #include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
 #include "bowflext216treadmill.h"
@@ -137,6 +138,7 @@ private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    apexbike *apexBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;

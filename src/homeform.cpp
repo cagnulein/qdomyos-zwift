@@ -29,6 +29,7 @@
 #include <QUrlQuery>
 #include <chrono>
 
+homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
 #ifdef Q_OS_ANDROID
@@ -119,7 +120,7 @@ void DataObject::setVisible(bool visible) {
 }
 
 homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
-
+    m_singleton = this;
     QSettings settings;
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     QString unit = QStringLiteral("km");
@@ -426,13 +427,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::chartSaved);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::lap, this, &homeform::Lap);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::floatingClose, this,
-            &homeform::floatingOpen);
+          &homeform::floatingOpen);
+    connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::autoResistance, this,
+          &homeform::toggleAutoResistance);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset_Plus, this,
-            &homeform::pelotonOffset_Plus);
+          &homeform::pelotonOffset_Plus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
-            &homeform::pelotonOffset_Minus);
+          &homeform::pelotonOffset_Minus);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonOffset, this,
-            &homeform::pelotonOffset);
+          &homeform::pelotonOffset);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::pelotonAskStart, this,
             &homeform::pelotonAskStart);
     connect(this->innerTemplateManager, &TemplateInfoSenderBuilder::peloton_start_workout, this,
@@ -2999,6 +3002,11 @@ void homeform::StopRequested() {
 void homeform::Stop() {
     QSettings settings;
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+
+    if (stopped) {
+        qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
+        return;
+    }
 
 #ifdef Q_OS_IOS
     // due to #857

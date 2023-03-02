@@ -87,7 +87,7 @@
       <td class="inclination-value values"><b>0.0</b></td>
       <td><small>MAX</small></td>
       <td class="inclination-max">0.0</td>
-    </tr>    
+    </tr>
     <tr class="cadence">
       <td class="icon">🚴</td>
       <td style="text-align: left">CADENCE</td>
@@ -123,7 +123,7 @@
       <td class="powerzone-value values"><b>0.0</b></td>
       <td><small>MAX</small></td>
       <td class="powerzone-max">0.0</td>
-    </tr>    
+    </tr>
     <tr class="resistance">
       <td class="icon">🆁</td>
       <td style="text-align: left">RESISTANCE</td>
@@ -147,6 +147,11 @@
       <td style="text-align: left">CALORIES</td>
       <td class="calories-value values" colspan="5"><b>0</b></td>
     </tr>
+    <tr class="jouls">
+      <td class="icon">🔥</td>
+      <td style="text-align: left">TOT.OUTPUT</td>
+      <td class="jouls-value values" colspan="5"><b>0</b></td>
+    </tr>
     <tr class="distance">
       <td class="icon">📏</td>
       <td style="text-align: left">DISTANCE</td>
@@ -156,6 +161,11 @@
       <td class="icon">⏲️</td>
       <td style="text-align: left">ELAPSED</td>
       <td class="elapsed-value values" colspan="5"><b>0:00:00</b></td>
+    </tr>
+    <tr class="rowremainingtime">
+      <td class="icon">⏲️</td>
+      <td style="text-align: left">REM.TIME</td>
+      <td class="rowremainingtime-value values" colspan="5"><b>0:00:00</b></td>
     </tr>
     <tr class="pelotonoffset">
       <td class="icon">⏰</td>
@@ -167,13 +177,16 @@
           onclick="PelotonOffsetPlus()">+</button></td>
     </tr>
     <tr>
-      <td colspan=2 style="text-align:left"><button style="font-size: 24px; color: white; background-color:#4C70BF"
+      <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Lap()">CLEAR</button></td>
       <td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Start()">▶/⏸</button></td>
       <td><button style="font-size: 16px; color: white; background-color:#4C70BF" onclick="Stop()">⏹</button></td>
-      <td colspan=3 style="text-align:right"><button style="font-size: 24px; color: white; background-color:#4C70BF"
-          onclick="Close()">CLOSE</button></td>
+      <td colspan=3 style="text-align:right">
+        <button class="autoresistance" style="font-size: 16px; color: white; background-color:#4C70BF"
+          onclick="AutoResistance()">🧲</button>
+        <button style="font-size: 16px; color: red; background-color:#4C70BF" onclick="Close()">🗙</button>
+      </td>
     </tr>
   </table>
 
@@ -191,6 +204,20 @@
         peloton_abort_workout();
       }
       closeConfirmBox();
+    }
+
+    function AutoResistance() {
+      let el = new MainWSQueueElement({
+        msg: 'autoresistance',
+      }, function (msg) {
+        if (msg.msg === 'R_autoresistance') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
     }
 
     function PelotonOffsetPlus() {
@@ -325,7 +352,7 @@
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -343,7 +370,7 @@
             } else if (key === 'tile_ftp_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".powerzone").hide();
-              }              
+              }
             } else if (key === 'tile_inclination_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".inclination").hide();
@@ -355,6 +382,10 @@
             } else if (key === 'tile_calories_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".calories").hide();
+              }
+            } else if (key === 'tile_jouls_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".jouls").hide();
               }
             } else if (key === 'tile_odometer_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
@@ -376,6 +407,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".elapsed").hide();
               }
+            } else if (key === 'tile_remainingtimetrainprogramrow_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".rowremainingtime").hide();
+              }
             } else if (key === 'tile_peloton_resistance_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pelotonresistance").hide();
@@ -393,11 +428,11 @@
             } else if (key === 'tile_target_cadence_enabled') {
               tile_target_cadence_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_speed_enabled') {
-              tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');              
+              tile_target_speed_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_zone_enabled') {
-              tile_target_zone_enabled = (msg.content[key] === true || msg.content[key] === 'true');                            
+              tile_target_zone_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_incline_enabled') {
-              tile_target_inclination_enabled = (msg.content[key] === true || msg.content[key] === 'true');                            
+              tile_target_inclination_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_target_power_enabled') {
               tile_target_power_enabled = (msg.content[key] === true || msg.content[key] === 'true');
             } else if (key === 'tile_peloton_offset_enabled') {
@@ -418,15 +453,16 @@
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
-        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone']
+        'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
           var speed_lapavg = 0;
-          var speed_lapmax = 0;       
+          var speed_lapmax = 0;
           var powerzone = 0;
           var powerzone_lapavg = 0;
-          var powerzone_lapmax = 0;                              
+          var powerzone_lapmax = 0;
           var inclination = 0;
           var inclination_lapavg = 0;
           var inclination_lapmax = 0;
@@ -435,12 +471,16 @@
           var hr = 0;
           var hr_lapavg = 0;
           var calories = 0;
+          var jouls = 0;
           var odometer = 0;
           var watt = 0;
           var watt_lapavg = 0;
           var elapsed_h = 0;
           var elapsed_m = 0;
           var elapsed_s = 0;
+          var row_remaining_time_s = 0;
+          var row_remaining_time_m = 0;
+          row_remaining_time_h = 0;
           var resistance = 0;
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
@@ -480,7 +520,7 @@
             } else if (key === 'power_zone_lapavg') {
               powerzone_lapavg = msg.content[key];
             } else if (key === 'power_zone_lapmax') {
-              powerzone_lapmax = msg.content[key];              
+              powerzone_lapmax = msg.content[key];
             } else if (key === 'cadence') {
               cadence = msg.content[key];
             } else if (key === 'cadence_lapavg') {
@@ -495,6 +535,8 @@
               hr_lapmax = msg.content[key];
             } else if (key === 'calories') {
               calories = msg.content[key];
+            } else if (key === 'jouls') {
+              jouls = msg.content[key];
             } else if (key === 'distance') {
               odometer = msg.content[key] * miles_conversion;
             } else if (key === 'watts') {
@@ -509,6 +551,12 @@
               elapsed_m = msg.content[key];
             } else if (key === 'elapsed_s') {
               elapsed_s = msg.content[key];
+            } else if (key === 'row_remaining_time_h') {
+              row_remaining_time_h = msg.content[key];
+            } else if (key === 'row_remaining_time_m') {
+              row_remaining_time_m = msg.content[key];
+            } else if (key === 'row_remaining_time_s') {
+              row_remaining_time_s = msg.content[key];
             } else if (key === 'resistance') {
               resistance = msg.content[key];
             } else if (key === 'resistance_lapavg') {
@@ -528,11 +576,11 @@
             } else if (key === 'target_cadence') {
               target_cadence = msg.content[key];
             } else if (key === 'target_speed') {
-              target_speed = msg.content[key] * miles_conversion;  
+              target_speed = msg.content[key] * miles_conversion;
             } else if (key === 'target_power_zone') {
-              target_power_zone = msg.content[key];                
+              target_power_zone = msg.content[key];
             } else if (key === 'target_inclination') {
-              target_inclination = msg.content[key];                            
+              target_inclination = msg.content[key];
             } else if (key === 'target_power') {
               target_power = msg.content[key];
             } else if (key === 'peloton_offset') {
@@ -551,21 +599,26 @@
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;
               document.getElementById("maintable").hidden = true;
+            } else if (key === 'autoresistance') {
+              if((msg.content[key] === true || msg.content[key] === 'true'))
+                $(".autoresistance").html('🧲');
+              else
+                $(".autoresistance").html('⊘')
             }
           }
-          if (tile_target_speed_enabled)
+          if (tile_target_speed_enabled && target_speed > 0)
             $('.speed-value').html("<b>" + speed.toFixed(1) + "/" + target_speed.toFixed(1) + "</b>");
           else
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
           $('.speed-avg').html(speed_lapavg.toFixed(1));
           $('.speed-max').html(speed_lapmax.toFixed(1));
-          if (tile_target_inclination_enabled)
+          if (tile_target_inclination_enabled && target_inclination > 0)
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "/" + target_inclination.toFixed(1) + "</b>");
           else
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
           $('.inclination-avg').html(inclination_lapavg.toFixed(1));
-          $('.inclination-max').html(inclination_lapmax.toFixed(1));          
-          if (tile_target_cadence_enabled)
+          $('.inclination-max').html(inclination_lapmax.toFixed(1));
+          if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
           else
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "</b>");
@@ -574,29 +627,31 @@
           $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
           $('.heart-avg').html(hr_lapavg.toFixed(0));
           $('.heart-max').html(hr_lapmax.toFixed(0));
-          if (tile_target_power_enabled)
+          if (tile_target_power_enabled && target_power > 0)
             $('.watt-value').html("<b>" + watt.toFixed(0) + "/" + target_power.toFixed(0) + "</b>");
           else
             $('.watt-value').html("<b>" + watt.toFixed(0) + "</b>");
           $('.watt-avg').html(watt_lapavg.toFixed(0));
           $('.watt-max').html(watt_lapmax.toFixed(0));
-          if (tile_target_resistance_enabled)
+          if (tile_target_resistance_enabled && target_resistance > 0)
             $('.resistance-value').html("<b>" + resistance.toFixed(0) + "/" + target_resistance.toFixed(0) + "</b>");
           else
             $('.resistance-value').html("<b>" + resistance.toFixed(0) + "</b>");
           $('.resistance-avg').html(resistance_lapavg.toFixed(0));
           $('.resistance-max').html(resistance_lapmax.toFixed(0));
-          if (tile_target_peloton_resistance_enabled)
+          if (tile_target_peloton_resistance_enabled && target_peloton_resistance > 0)
             $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "/" + target_peloton_resistance.toFixed(0) + "</b>");
           else
             $('.pelotonresistance-value').html("<b>" + peloton_resistance.toFixed(0) + "</b>");
           $('.pelotonresistance-avg').html(peloton_resistance_lapavg.toFixed(0));
           $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
+          $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
+          $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
-          if (tile_target_zone_enabled)
+          if (tile_target_zone_enabled && target_power_zone > 0)
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
           else
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "</b>");
