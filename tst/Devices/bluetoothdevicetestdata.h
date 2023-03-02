@@ -16,6 +16,7 @@
  */
 enum deviceType {
     None,
+    ApexBike,
     M3IBike,
     FakeBike,
     FakeElliptical,

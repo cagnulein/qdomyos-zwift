@@ -243,7 +243,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = value;
 
-    if (newValue.length() != 20) {
+    if (newValue.length() != 20 || ignoreFirstPackage) {
+        ignoreFirstPackage = false;
         emit debug(QStringLiteral("packet ignored"));
         return;
     }
@@ -442,6 +443,8 @@ void kingsmithr1protreadmill::characteristicWritten(const QLowEnergyCharacterist
 void kingsmithr1protreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFE00);
     emit debug(QStringLiteral("serviceScanDone"));
+
+    ignoreFirstPackage = true;
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,

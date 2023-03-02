@@ -1788,35 +1788,7 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
-
-                    SwitchDelegate {
-                        id: zwiftNegativeIncliantionX2Delegate
-                        text: qsTr("Double Negative Inclination")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.zwift_negative_inclination_x2
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.zwift_negative_inclination_x2 = checked
-                    }
-
-                    Label {
-                        text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: 8
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
+                    }                    
 
                     RowLayout {
                         spacing: 10
@@ -6207,6 +6179,34 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Enables the calculation of watts, even while in Pause mode. Default is off.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        id: zwiftNegativeIncliantionX2Delegate
+                        text: qsTr("Double Negative Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_negative_inclination_x2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.zwift_negative_inclination_x2 = checked
+                    }
+
+                    Label {
+                        text: qsTr("Turn this on if you have a bike with inclination capabilities to fix Zwift’s bug that sends half-negative downhill inclination")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 8

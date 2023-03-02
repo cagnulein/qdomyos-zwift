@@ -809,6 +809,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue obj;
     QSettings settings;
 
+    if (!homeform::singleton())
+        return;
+
     if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
         glob.setProperty(QStringLiteral("workout"), obj);
@@ -919,6 +922,17 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(QStringLiteral("peloton_offset"), pelotonOffset());
         obj.setProperty(QStringLiteral("peloton_ask_start"), pelotonAskStart());
+        obj.setProperty(QStringLiteral("autoresistance"), homeform::singleton()->autoResistance());
+        if (homeform::singleton()->trainingProgram()) {
+            el = homeform::singleton()->trainingProgram()->currentRowRemainingTime();
+            obj.setProperty(QStringLiteral("row_remaining_time_s"), el.second());
+            obj.setProperty(QStringLiteral("row_remaining_time_m"), el.minute());
+            obj.setProperty(QStringLiteral("row_remaining_time_h"), el.hour());
+        } else {
+            obj.setProperty(QStringLiteral("row_remaining_time_s"), 0);
+            obj.setProperty(QStringLiteral("row_remaining_time_m"), 0);
+            obj.setProperty(QStringLiteral("row_remaining_time_h"), 0);
+        }
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())

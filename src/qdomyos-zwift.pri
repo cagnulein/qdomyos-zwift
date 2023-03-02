@@ -69,6 +69,7 @@ SOURCES += \
     $$PWD/lockscreen/qzlockscreen.cpp \
     $$PWD/lockscreen/qzlockscreenfunctions.cpp \
     $$PWD/objectfactory.cpp \
+   $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
     $$PWD/virtualdevice.cpp \
    Computrainer.cpp \
@@ -263,6 +264,7 @@ INCLUDEPATH += fit-sdk/
 HEADERS += \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
+   $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
     $$PWD/lockscreen/lockscreenfunctions.h \
     $$PWD/lockscreen/qzlockscreen.h \
