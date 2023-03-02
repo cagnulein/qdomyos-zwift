@@ -71,6 +71,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

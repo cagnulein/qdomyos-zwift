@@ -1124,6 +1124,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||

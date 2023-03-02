@@ -2975,6 +2975,11 @@ void homeform::Stop() {
     QSettings settings;
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
+    if (stopped) {
+        qDebug() << QStringLiteral("Stop pressed - already pressed, ignoring...");
+        return;
+    }
+
 #ifdef Q_OS_IOS
     // due to #857
     bluetoothManager->getInnerTemplateManager()->reinit();

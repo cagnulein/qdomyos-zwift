@@ -19,6 +19,7 @@ HorizonTreadmillTestData::HorizonTreadmillTestData() : TreadmillTestData("Horizo
     this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
     this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
     this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
+	this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
 }
 
 deviceType HorizonTreadmillTestData::get_expectedDeviceType() const { return deviceType::HorizonTreadmill; }

@@ -679,6 +679,15 @@ void TemplateInfoSenderBuilder::onFloatingClose(const QJsonValue &msgContent, Te
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit autoResistance();
+    main[QStringLiteral("msg")] = QStringLiteral("R_autoresistance");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString filename;
     QString image;
@@ -782,6 +791,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("floating_close")) {
                     onFloatingClose(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("autoresistance")) {
+                    onAutoresistance(jsonObject[QStringLiteral("content")], sender);
+                    return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
@@ -809,8 +821,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue obj;
     QSettings settings;
 
-    if (!homeform::singleton())
+    if (!homeform::singleton()) {
+        qDebug() << QStringLiteral("homeform::singleton() not available. You should never see this!");
         return;
+    }
 
     if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
