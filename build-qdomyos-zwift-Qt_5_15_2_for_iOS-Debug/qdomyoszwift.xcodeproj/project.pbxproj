@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -238,6 +238,8 @@
 		873CD22D27EF8E4B000131BC /* iosinapppurchaseproduct.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22927EF8E4B000131BC /* iosinapppurchaseproduct.mm */; };
 		873CD22F27EF8EC1000131BC /* StoreKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873CD22E27EF8EC1000131BC /* StoreKit.framework */; };
 		873CD23027EF8EF5000131BC /* iosinapppurchasetransaction.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22727EF8E4B000131BC /* iosinapppurchasetransaction.mm */; };
+		873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; };
+		873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		873F022F274BE471002D0349 /* mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F022D274BE471002D0349 /* mcfbike.cpp */; };
 		873F0231274BE47D002D0349 /* moc_mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F0230274BE47D002D0349 /* moc_mcfbike.cpp */; };
 		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
@@ -582,6 +584,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -960,6 +963,7 @@
 		873CD22927EF8E4B000131BC /* iosinapppurchaseproduct.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iosinapppurchaseproduct.mm; path = ../src/purchasing/ios/iosinapppurchaseproduct.mm; sourceTree = "<group>"; };
 		873CD22A27EF8E4B000131BC /* iosinapppurchasetransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iosinapppurchasetransaction.h; path = ../src/purchasing/ios/iosinapppurchasetransaction.h; sourceTree = "<group>"; };
 		873CD22E27EF8EC1000131BC /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		873D388A29B0D744006A2611 /* ConnectIQ.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ConnectIQ.xcframework; path = ../src/ConnectIQ/iOS/ConnectIQ.xcframework; sourceTree = "<group>"; };
 		873F022D274BE471002D0349 /* mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mcfbike.cpp; path = ../src/mcfbike.cpp; sourceTree = "<group>"; };
 		873F022E274BE471002D0349 /* mcfbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mcfbike.h; path = ../src/mcfbike.h; sourceTree = "<group>"; };
 		873F0230274BE47D002D0349 /* moc_mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mcfbike.cpp; sourceTree = "<group>"; };
@@ -1592,6 +1596,7 @@
 				023642106C14651D2E1F4D5D /* dialogplugin in Link Binary With Libraries */,
 				133CA0345CD2BFB03079A655 /* qmlfolderlistmodelplugin in Link Binary With Libraries */,
 				4AAA7380490CBDBAA8587CFA /* qmlsettingsplugin in Link Binary With Libraries */,
+				873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */,
 				3BD5A5F95DF5239184791B58 /* dialogsprivateplugin in Link Binary With Libraries */,
 				EF98F8C34BE322582E9B73D7 /* qtquickcontrolsplugin in Link Binary With Libraries */,
 				7C8D236C48F2964061C3457C /* widgetsplugin in Link Binary With Libraries */,
@@ -2250,6 +2255,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				873D388A29B0D744006A2611 /* ConnectIQ.xcframework */,
 				879F74142893D732009A64C8 /* CoreMedia.framework */,
 				879F74122893D705009A64C8 /* CoreVideo.framework */,
 				879F74102893D5B7009A64C8 /* libqavfcamera.a */,
@@ -3948,7 +3954,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4036,7 +4046,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4057,8 +4071,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "watchkit-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
@@ -4147,7 +4162,11 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4253,7 +4272,11 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4274,7 +4297,8 @@
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
