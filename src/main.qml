@@ -338,9 +338,9 @@ ApplicationWindow {
         ToolButton {
             id: toolButtonFloating
             icon.source: "icons/icons/mini-display.png"
-            onClicked: { console.log("floating!"); floatingOpen(); }
+            onClicked: { if(OS_VERSION === "Android") { console.log("floating!"); floatingOpen(); } else { stackView.push("iOSFloating.qml"); } }
             anchors.left: toolButton.right
-            visible: OS_VERSION === "Android" ? true : false
+            visible: true
         }
 
         Popup {

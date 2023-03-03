@@ -93,5 +93,6 @@
         <file>inner_templates/floating/radikalmedium.otf</file>
         <file>settings-treadmill-inclination-override.qml</file>
         <file>WebStravaAuth.qml</file>
+        <file>iOSFloating.qml</file>
     </qresource>
 </RCC>
