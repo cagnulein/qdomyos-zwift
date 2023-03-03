@@ -536,7 +536,7 @@
             } else if (key === 'calories') {
               calories = msg.content[key];
             } else if (key === 'jouls') {
-              jouls = msg.content[key];
+              jouls = msg.content[key] / 1000.0;
             } else if (key === 'distance') {
               odometer = msg.content[key] * miles_conversion;
             } else if (key === 'watts') {
