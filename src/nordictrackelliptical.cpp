@@ -1026,7 +1026,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     // wattage = newValue.at(12)
 
-    if (proform_hybrid_trainer_xt)) {
+    if (proform_hybrid_trainer_xt) {
         uint8_t c = newValue.at(18);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
