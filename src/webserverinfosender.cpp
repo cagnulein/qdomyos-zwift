@@ -78,8 +78,15 @@ bool WebServerInfoSender::init() {
         port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
         if (!ok)
             port = 6666;
-        if (!httpServer)
+        if (!httpServer) {
             httpServer = new QHttpServer(this);
+
+            // certificates to remove, just put this to test this
+            // https://travistidwell.com/jsencrypt/demo/
+            QSslCertificate certificate("MIIC8DCCAdigAwIBAgIUDexmFCL5/l7ELI710o4vdRqTAjEwDQYJKoZIhvcNAQELBQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIzMDMwMzE1NDgxOVoXDTIzMDQwMjE1NDgxOVowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1F83nkl+Ais8BBg5MjQcufoZ1+sdWJ/+YWzAexFcVfN1pNzmTQfJrpJdIcTc0XlflqdW0sO42BJ7i/sh4a3oc8BbCdxLc6CMXbdn8YmD8Oqj97fZ7m21xJsweZhhlNGrawLMfir6cQKoZ+wQrXlnVYsFnY44eb4bSjewTHixPF1K+yTBQGnDQhpxjgVsvuW3iDMmA1V5pT6ruFGMAIm4bYfXgFW79e/dv0vtti2RPhhX7nZ9K+tQe5QtRJXFRdIhGpOeAKxFXS+/sMAxzcib9viROrBIoA1f2Qgyp81/s0uMcHcx3lzzWdQRmZcforDNxcHNhSkL90alzYMJWvJPkQIDAQABozowODAUBgNVHREEDTALgglsb2NhbGhvc3QwCwYDVR0PBAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMBMA0GCSqGSIb3DQEBCwUAA4IBAQAe/txddQtVf9CTykaCujuT+3DdbqaM/+XxKrBlxZrGLPCpWZkbRcJ1w+ci/XfMQEAneeToVltuK46BA8pIyfjCfceGYpzVC6QBKDX0Te9XN+xIJKAtFZWvVCihZENdQuv49TE09JSq8pFLfPF4okwYTY3smJf+IhFCR3bi3tVB/FkM3ZBafahDMiAwbcNbFC0JW6Meynw74iaFRAjgmMbcqHYMIlJAPZrSBtBA+BLb1y9EaDZSYLZ6qCSw6dEtntdypMpu6pJS4TaPzRPvp2BG9x6i49H3zfZcl10mVcjnF02KECzWvjP5RG/oPC9119jk7RCSaEuyca+Sxnht9hpf");
+            QSslKey privatekey("MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDUXzeeSX4CKzwEGDkyNBy5+hnX6x1Yn/5hbMB7EVxV83Wk3OZNB8mukl0hxNzReV+Wp1bSw7jYEnuL+yHhrehzwFsJ3EtzoIxdt2fxiYPw6qP3t9nubbXEmzB5mGGU0atrAsx+KvpxAqhn7BCteWdViwWdjjh5vhtKN7BMeLE8XUr7JMFAacNCGnGOBWy+5beIMyYDVXmlPqu4UYwAibhth9eAVbv1792/S+22LZE+GFfudn0r61B7lC1ElcVF0iEak54ArEVdL7+wwDHNyJv2+JE6sEigDV/ZCDKnzX+zS4xwdzHeXPNZ1BGZlx+isM3Fwc2FKQv3RqXNgwla8k+RAgMBAAECggEAA0/Q0DkZK/N8phuymKPTZtsNmB5kgMNN9jr57XFh3T1EsmN3e/AJJx3FMged4e5gnTrS0cqXkVcIcjBiYOCTZWq0gLzcuFrilXuMtWmNky41jGFjlqJDWWOKJ/tGWknCwJJ0mesVqLl/4s79m5bvE5htZ/2Vx+A9ELU5nJetO+G5SegH+ydeYwj6SPcerb3dg/KF0DzFRBuU2ciZYcDVZfProLDgXli9xoBXarzLc/ndjwQX45Jh5GBvpcQPIlIAhH3lz0zTWOUTaVc52nmnPG/wkNrHRP74XXdhZoqT5AmBUYDoGQUhV7WvXQ8DRM+Oue9jClxy58P5pzj2fqbEAQKBgQDp5g+0cZBanQsSRex0EapnWKeIu83j27G8OVO9iS07v58H7HoAD5kXJYu5sPVE+Py0aWbtLY+/FrxeZG87psM2AKsSIM2q061xJVhUjaV+A5veubFQ2I5fy3Ln8w5cu66e5Xr6hn9qB17nrVlyKAhtNkhrm+bZ53yxa0emIdh+cQKBgQDocG5AnOoOXhSNYsxpLlkOmr7GK1Qb1FwZvL/k7AkJQd5lN41Q4o3aVBXkGDQ+DKsI/2L/y7DeWr3AS+80XCTAZPN+DEwn4hODiz78YtQI4wlImTUK33unRUFpSQqtFVJxjG6KBeX2UzPEifRz6Sq/X1oT0ldrntkhK/jUCjGzIQKBgQCse+yu62RBfjfw5MGnInPgPF9nlN8THirmm/vl9Kf3vKqBBGE/dEE38Ycli5qDn31zaZruYr/zcce9cCEbAzJHu5xsBObGB82Kd7i4ubAFypGCYLui29+6QuTcqb+4oOr34FCdONvzC7Zv8MTaSy1TpEkpmdFWdb/dcjhnCeSF8QKBgQCLwAVZzb4fs0ryEuPJnXcoA7wN08E3Fj/lrYlGbu+j5Dl9a6AIcJ5PFV0wDaljYSR4PWxdVS9bEP2jH0SLm5bxIgEP2P70v8Vxwoe1IQpQ6YgMYSj2B5YF5OrGDYdgt0AhSwiu7YrsxeuLEFKsWhU8iGzVHBM5foEXo6NwgUyOYQKBgQDARvLvsfoZYgH43Qyf198GhnhGnsVtxFTxGQEz4QUwuqzA3j1hPmCK8FFKFYV07ArO9xw/cf+Da4X7KVLJhnYVWVzrJ29nelWfD1Hd1IMdhaqppV/Xvw1H5Hv4umN+qoaw+n8s5416qd62bqzHymXxEAEQVCpTSF21wmxH5/p8Bg==", QSsl::Rsa, QSsl::Pem);
+            httpServer->sslSetup(certificate, privatekey);
+        }
         relative2Absolute.clear();
         for (auto fld : folders) {
             idx = fld.lastIndexOf('/');

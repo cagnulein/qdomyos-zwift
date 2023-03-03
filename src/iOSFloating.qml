@@ -28,15 +28,43 @@ Item {
             if (loadRequest.status == WebView.LoadSucceededStatus) {
                 console.error("Procedo");
                 let loadScr = `
-                    var iframe = document.createElement("iframe");
+                    var iframeContainer = document.createElement("iframe");
 
-                    iframe.src = "https://www.example.com";
-                    iframe.width = "640";
-                    iframe.height = "480";
-                    iframe.frameBorder = "0";
+                    iframeContainer.src = "http://localhost:` + settings.value("template_inner_QZWS_port") + `/floating/floating.htm";
+                    iframeContainer.width = "640";
+                    iframeContainer.height = "480";
+                    iframeContainer.frameBorder = "0";
+                    iframeContainer.style.cssText = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;";
 
-                    document.body.appendChild(iframe);
+                    document.body.appendChild(iframeContainer);
+
+                    var moveButton = document.createElement("button");
+                    var buttonText = document.createTextNode("Move");
+                    moveButton.appendChild(buttonText);
+                    moveButton.style.cssText = "z-index: 1; position: absolute; bottom: 20px; right: 20px; background-color: white; color: black; border: none; padding: 10px; border-radius: 5px; cursor: pointer;";
+                    document.body.appendChild(moveButton);
+
+                    var isMoving = false;
+                    var offsetX, offsetY;
+
+                    moveButton.addEventListener('mousedown', function (event) {
+                       isMoving = true;
+                       offsetX = event.clientX - iframeContainer.offsetLeft;
+                       offsetY = event.clientY - iframeContainer.offsetTop;
+                        });
+
+                    moveButton.addEventListener('mouseup', function () {
+                        isMoving = false;
+                    });
+
+                    document.addEventListener('mousemove', function (event) {
+                        if (isMoving) {
+                          iframeContainer.style.left = event.clientX - offsetX + 'px';
+                          iframeContainer.style.top = event.clientY - offsetY + 'px';
+                        }
+                    });
                 `;
+                console.error(loadScr);
                 webView.runJavaScript(loadScr, function(res) {
                 });
             }
