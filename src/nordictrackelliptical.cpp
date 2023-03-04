@@ -397,7 +397,91 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res22, sizeof(res22), QStringLiteral("resistance22"), false, true);
             break;
         }
-    } else if (!proform_hybrid_trainer_xt) {
+    } else if (proform_hybrid_trainer_xt) {
+        const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x32, 0x02, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0xa3, 0x04, 0x00, 0xbd, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x14, 0x07, 0x00, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x85, 0x09, 0x00, 0xa4, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0xf6, 0x0b, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x67, 0x0e, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0xd8, 0x10, 0x00, 0xfe, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x2b, 0x12, 0x00, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                0x04, 0x9c, 0x13, 0x00, 0xcc, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0x0d, 0x18, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0x7e, 0x1a, 0x00, 0xb3, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0xef, 0x1b, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0x60, 0x1f, 0x00, 0x9a, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0xd1, 0x21, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0xd1, 0x24, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
+                                 0x04, 0xd1, 0x25, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        switch (requestResistance) {
+        case 1:
+            writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
+            break;
+        case 2:
+            writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
+            break;
+        case 3:
+            writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+            break;
+        case 4:
+            writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
+            break;
+        case 5:
+            writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
+            break;
+        case 6:
+            writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
+            break;
+        case 7:
+            writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
+            break;
+        case 8:
+            writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
+            break;
+        case 9:
+            writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
+            break;
+        case 10:
+            writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
+            break;
+        case 11:
+            writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
+            break;
+        case 12:
+            writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
+            break;
+        case 13:
+            writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
+            break;
+        case 14:
+            writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
+            break;
+        case 15:
+            writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
+            break;
+        case 16:
+            writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
+            break;
+        }
+    } else {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
                                 0x04, 0xc2, 0x01, 0x00, 0xd9, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
@@ -499,84 +583,6 @@ void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
             break;
         case 20:
             writeCharacteristic((uint8_t *)res20, sizeof(res20), QStringLiteral("resistance20"), false, true);
-            break;
-        }
-    } else {
-        const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x32, 0x02, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0xa3, 0x04, 0x00, 0xbd, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x14, 0x07, 0x00, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x85, 0x09, 0x00, 0xa4, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0xf6, 0x0b, 0x00, 0x17, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x67, 0x0e, 0x00, 0x8b, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0xd8, 0x10, 0x00, 0xfe, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x2b, 0x12, 0x00, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                0x04, 0x9c, 0x13, 0x00, 0xcc, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0x0d, 0x18, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0x7e, 0x1a, 0x00, 0xb3, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0xef, 0x1b, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0x60, 0x1f, 0x00, 0x9a, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0xd1, 0x21, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0xd1, 0x24, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
-        const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x06, 0x09, 0x02, 0x01,
-                                 0x04, 0xd1, 0x25, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-        switch (requestResistance) {
-        case 1:
-            writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
-            break;
-        case 2:
-            writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
-            break;
-        case 3:
-            writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
-            break;
-        case 4:
-            writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
-            break;
-        case 5:
-            writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
-            break;
-        case 6:
-            writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
-            break;
-        case 7:
-            writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
-            break;
-        case 8:
-            writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
-            break;
-        case 9:
-            writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
-            break;
-        case 10:
-            writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
-            break;
-        case 11:
-            writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
-            break;
-        case 12:
-            writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
-            break;
-        case 13:
-            writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
-            break;
-        case 14:
-            writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
             break;
         }
     }
@@ -732,7 +738,7 @@ void nordictrackelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 double nordictrackelliptical::GetInclinationFromPacket(QByteArray packet) {
-    uint16_t r = ((uint16_t)(packet.at(10))) + ((uint16_t)(packet.at(11)) << 8);
+    uint16_t r = ((uint16_t)((uint8_t)packet.at(10))) + ((uint16_t)((uint8_t)packet.at(11)) << 8);
     return ((double)r) / 100.0;
 }
 
@@ -744,64 +750,81 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
 
-    uint8_t r = (uint8_t)(packet.at(11));
-
     if (nordictrack_elliptical_c7_5) {
-        if (packet.at(5) == 0x30) {
-            uint16_t r = ((uint16_t)(packet.at(12)) << 8) + ((uint16_t)(packet.at(13)));
-            switch (r) {
-            case 0x9801:
-                return 1;
-            case 0x5f03:
-                return 2;
-            case 0x2505:
-                return 3;
-            case 0xec06:
-                return 4;
-            case 0xb208:
-                return 5;
-            case 0x790a:
-                return 6;
-            case 0x3f0c:
-                return 7;
-            case 0x60e:
-                return 8;
-            case 0xcc0f:
-                return 9;
-            case 0x9311:
-                return 10;
-            case 0x5a13:
-                return 11;
-            case 0x2015:
-                return 12;
-            case 0xe716:
-                return 13;
-            case 0xad18:
-                return 14;
-            case 0x741a:
-                return 15;
-            case 0x3a1c:
-                return 16;
-            case 0x11e:
-                return 17;
-            case 0xc71f:
-                return 18;
-            case 0x8e21:
-                return 19;
-            case 0x5423:
-                return 20;
-            case 0x1b25:
-                return 21;
-            case 0xe226:
-                return 22;
-            default:
-            case 0:
-                return 1;
-            }
-        } else {
-            return Resistance.value();
+        uint16_t r = ((uint16_t)((uint8_t)packet.at(12)) << 8) + ((uint16_t)((uint8_t)packet.at(13)));
+        switch (r) {
+        case 0x9801:
+        case 0xc601:
+            return 1;
+        case 0x5f03:
+        case 0x8c03:
+            return 2;
+        case 0x2505:
+        case 0x5205:
+            return 3;
+        case 0xec06:
+        case 0x1807:
+            return 4;
+        case 0xb208:
+        case 0xde08:
+            return 5;
+        case 0x790a:
+        case 0xa40a:
+            return 6;
+        case 0x3f0c:
+        case 0x6a0c:
+            return 7;
+        case 0x060e:
+        case 0x300e:
+            return 8;
+        case 0xcc0f:
+        case 0xf60f:
+            return 9;
+        case 0x9311:
+        case 0xbc11:
+            return 10;
+        case 0x5a13:
+        case 0x8213:
+            return 11;
+        case 0x2015:
+        case 0x4815:
+            return 12;
+        case 0xe716:
+        case 0x0e17:
+            return 13;
+        case 0xad18:
+        case 0xd418:
+            return 14;
+        case 0x741a:
+        case 0x9a1a:
+            return 15;
+        case 0x3a1c:
+        case 0x601c:
+            return 16;
+        case 0x011e:
+        case 0x261e:
+            return 17;
+        case 0xc71f:
+        case 0xec1f:
+            return 18;
+        case 0x8e21:
+        case 0xb221:
+            return 19;
+        case 0x5423:
+        case 0x7823:
+            return 20;
+        case 0x1b25:
+        case 0x3e25:
+            return 21;
+        case 0xe226:
+        case 0x0427:
+            return 22;
+        default:
+        case 0:
+            return 1;
         }
     } else if (proform_hybrid_trainer_xt) {
+        uint8_t r = (uint8_t)(packet.at(11));
         switch (r) {
         case 0:
             return 0;
@@ -849,6 +872,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
             return 16;
         }
     } else {
+        uint8_t r = (uint8_t)(packet.at(11));
         switch (r) {
         case 1:
             return 1;
@@ -912,7 +936,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
-    const double miles = 1.60934;
+    //const double miles = 1.60934; //not used
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
     bool disable_hr_frommachinery =
@@ -926,8 +950,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C &&
-        !proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5) {
+    if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 &&
+        newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -941,8 +965,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true &&
-        !nordictrack_elliptical_c7_5) {
+    if (!nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+        initDone == true) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
@@ -958,20 +982,23 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
-    if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
-        (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
-        (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
-         ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
-         ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
-        return;
-    }
+    if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
+        newValue.at(4) == 0x46 && initDone == true &&
+        !(((uint8_t)newValue.at(4)) == 0xFF && ((uint8_t)newValue.at(5)) == 0xFF &&
+         ((uint8_t)newValue.at(6)) == 0xFF && ((uint8_t)newValue.at(7)) == 0xFF &&
+         ((uint8_t)newValue.at(8)) == 0xFF && ((uint8_t)newValue.at(9)) == 0xFF &&
+         ((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(11)) == 0xFF)) {   
+        Speed = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        lastSpeedChanged = QDateTime::currentDateTime();
 
-    // wattage = newValue.at(12)
+        if (!disable_hr_frommachinery) {
+            heart = newValue.at(5);
+            Heart = heart;
+            emit debug(QStringLiteral("Current Heart from machinery: ") + QString::number(heart));
+        }
 
-    if (proform_hybrid_trainer_xt || (nordictrack_elliptical_c7_5 && newValue.at(5) == 0x30)) {
-        uint8_t c = newValue.at(18);
+        uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
         else
@@ -982,18 +1009,42 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        if (nordictrack_elliptical_c7_5) {
-            Speed =
-                (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-            lastSpeedChanged = QDateTime::currentDateTime();
+    } else if (QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
+        Speed = 0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    }
+
+    if (newValue.length() != 20 || (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
+        newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 ||
+        (newValue.at(5) != 0x2e && newValue.at(5) != 0x30 && newValue.at(5) != 0x31) ||
+        (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
+         ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
+         ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
+        return;
+    }
+
+    // wattage = newValue.at(12)
+
+    if (proform_hybrid_trainer_xt) {
+        uint8_t c = newValue.at(18);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
     }
 
-    if (nordictrack_elliptical_c7_5)
+    if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 &&
+        newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
+        (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)){   
         Inclination = GetInclinationFromPacket(newValue);
-
-    Resistance = GetResistanceFromPacket(newValue);
+        Resistance = GetResistanceFromPacket(newValue);    
+    }
 
     uint16_t p = qCeil((Resistance.value() * 3.33) + 10.0);
     if (p > 100)
@@ -1197,41 +1248,7 @@ void nordictrackelliptical::btinit() {
             QThread::msleep(400);
             writeCharacteristic(noOpData10c, sizeof(noOpData10c), QStringLiteral("init"), false, false);
             QThread::msleep(400);
-        } else if (!proform_hybrid_trainer_xt) {
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-
-            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-
-            writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-        } else {
+        } else if (proform_hybrid_trainer_xt) {
             writeCharacteristic(initData10b, sizeof(initData10b), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(initData11b, sizeof(initData11b), QStringLiteral("init"), false, false);
@@ -1265,6 +1282,40 @@ void nordictrackelliptical::btinit() {
             writeCharacteristic(noOpData9b, sizeof(noOpData9b), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(noOpData10b, sizeof(noOpData10b), QStringLiteral("init"), false, false);
+            QThread::msleep(400);    
+        } else {
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+            writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         }
     }
