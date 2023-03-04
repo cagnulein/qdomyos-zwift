@@ -22,6 +22,9 @@ bool WebServerInfoSender::listen() {
         connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
     }
     if (!innerTcpServer->isListening()) {
+#ifdef Q_OS_IOS
+        port = 443;
+#endif
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
             if (!port) {
                 settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
@@ -81,11 +84,41 @@ bool WebServerInfoSender::init() {
         if (!httpServer) {
             httpServer = new QHttpServer(this);
 
-            // certificates to remove, just put this to test this
-            // https://travistidwell.com/jsencrypt/demo/
-            QSslCertificate certificate("MIIC8DCCAdigAwIBAgIUDexmFCL5/l7ELI710o4vdRqTAjEwDQYJKoZIhvcNAQELBQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIzMDMwMzE1NDgxOVoXDTIzMDQwMjE1NDgxOVowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1F83nkl+Ais8BBg5MjQcufoZ1+sdWJ/+YWzAexFcVfN1pNzmTQfJrpJdIcTc0XlflqdW0sO42BJ7i/sh4a3oc8BbCdxLc6CMXbdn8YmD8Oqj97fZ7m21xJsweZhhlNGrawLMfir6cQKoZ+wQrXlnVYsFnY44eb4bSjewTHixPF1K+yTBQGnDQhpxjgVsvuW3iDMmA1V5pT6ruFGMAIm4bYfXgFW79e/dv0vtti2RPhhX7nZ9K+tQe5QtRJXFRdIhGpOeAKxFXS+/sMAxzcib9viROrBIoA1f2Qgyp81/s0uMcHcx3lzzWdQRmZcforDNxcHNhSkL90alzYMJWvJPkQIDAQABozowODAUBgNVHREEDTALgglsb2NhbGhvc3QwCwYDVR0PBAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMBMA0GCSqGSIb3DQEBCwUAA4IBAQAe/txddQtVf9CTykaCujuT+3DdbqaM/+XxKrBlxZrGLPCpWZkbRcJ1w+ci/XfMQEAneeToVltuK46BA8pIyfjCfceGYpzVC6QBKDX0Te9XN+xIJKAtFZWvVCihZENdQuv49TE09JSq8pFLfPF4okwYTY3smJf+IhFCR3bi3tVB/FkM3ZBafahDMiAwbcNbFC0JW6Meynw74iaFRAjgmMbcqHYMIlJAPZrSBtBA+BLb1y9EaDZSYLZ6qCSw6dEtntdypMpu6pJS4TaPzRPvp2BG9x6i49H3zfZcl10mVcjnF02KECzWvjP5RG/oPC9119jk7RCSaEuyca+Sxnht9hpf");
-            QSslKey privatekey("MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDUXzeeSX4CKzwEGDkyNBy5+hnX6x1Yn/5hbMB7EVxV83Wk3OZNB8mukl0hxNzReV+Wp1bSw7jYEnuL+yHhrehzwFsJ3EtzoIxdt2fxiYPw6qP3t9nubbXEmzB5mGGU0atrAsx+KvpxAqhn7BCteWdViwWdjjh5vhtKN7BMeLE8XUr7JMFAacNCGnGOBWy+5beIMyYDVXmlPqu4UYwAibhth9eAVbv1792/S+22LZE+GFfudn0r61B7lC1ElcVF0iEak54ArEVdL7+wwDHNyJv2+JE6sEigDV/ZCDKnzX+zS4xwdzHeXPNZ1BGZlx+isM3Fwc2FKQv3RqXNgwla8k+RAgMBAAECggEAA0/Q0DkZK/N8phuymKPTZtsNmB5kgMNN9jr57XFh3T1EsmN3e/AJJx3FMged4e5gnTrS0cqXkVcIcjBiYOCTZWq0gLzcuFrilXuMtWmNky41jGFjlqJDWWOKJ/tGWknCwJJ0mesVqLl/4s79m5bvE5htZ/2Vx+A9ELU5nJetO+G5SegH+ydeYwj6SPcerb3dg/KF0DzFRBuU2ciZYcDVZfProLDgXli9xoBXarzLc/ndjwQX45Jh5GBvpcQPIlIAhH3lz0zTWOUTaVc52nmnPG/wkNrHRP74XXdhZoqT5AmBUYDoGQUhV7WvXQ8DRM+Oue9jClxy58P5pzj2fqbEAQKBgQDp5g+0cZBanQsSRex0EapnWKeIu83j27G8OVO9iS07v58H7HoAD5kXJYu5sPVE+Py0aWbtLY+/FrxeZG87psM2AKsSIM2q061xJVhUjaV+A5veubFQ2I5fy3Ln8w5cu66e5Xr6hn9qB17nrVlyKAhtNkhrm+bZ53yxa0emIdh+cQKBgQDocG5AnOoOXhSNYsxpLlkOmr7GK1Qb1FwZvL/k7AkJQd5lN41Q4o3aVBXkGDQ+DKsI/2L/y7DeWr3AS+80XCTAZPN+DEwn4hODiz78YtQI4wlImTUK33unRUFpSQqtFVJxjG6KBeX2UzPEifRz6Sq/X1oT0ldrntkhK/jUCjGzIQKBgQCse+yu62RBfjfw5MGnInPgPF9nlN8THirmm/vl9Kf3vKqBBGE/dEE38Ycli5qDn31zaZruYr/zcce9cCEbAzJHu5xsBObGB82Kd7i4ubAFypGCYLui29+6QuTcqb+4oOr34FCdONvzC7Zv8MTaSy1TpEkpmdFWdb/dcjhnCeSF8QKBgQCLwAVZzb4fs0ryEuPJnXcoA7wN08E3Fj/lrYlGbu+j5Dl9a6AIcJ5PFV0wDaljYSR4PWxdVS9bEP2jH0SLm5bxIgEP2P70v8Vxwoe1IQpQ6YgMYSj2B5YF5OrGDYdgt0AhSwiu7YrsxeuLEFKsWhU8iGzVHBM5foEXo6NwgUyOYQKBgQDARvLvsfoZYgH43Qyf198GhnhGnsVtxFTxGQEz4QUwuqzA3j1hPmCK8FFKFYV07ArO9xw/cf+Da4X7KVLJhnYVWVzrJ29nelWfD1Hd1IMdhaqppV/Xvw1H5Hv4umN+qoaw+n8s5416qd62bqzHymXxEAEQVCpTSF21wmxH5/p8Bg==", QSsl::Rsa, QSsl::Pem);
-            httpServer->sslSetup(certificate, privatekey);
+            static const char g_privateKey[] = R"(-----BEGIN RSA PRIVATE KEY-----
+            MIICXQIBAAKBgQDykG51ZjNJra8iS27g3DJojH1qG8C3Z+Avo5U6Qz6NkOsjvr22
+            gXqOS4uwVUXdCAKxsP0Wwn2zGz5vxGpLPVKtbAmaqHYZuipMG/Qun3t+QYBgR+9t
+            lmHdI8TNP2Om8stDO5uQyBH7DcMjPyIgpfc8fBoNLhCn4oC2n6JK9EMuhQIDAQAB
+            AoGAUHTLzrEJjgTINI3kxz0Ck18WMl3mPG9+Ew8lbl/jnb1V4VNhReoIpq40NVbz
+            h28ixaG5MRVt8Dy3Jwd1YmOCylHSujdFQ2u0pcHFmERgDS2bOMwMTRoFOj2qgMGS
+            9SM+iXlPY5AQY8nEg7rLjMSfaC/8Hq4RXpkj4PeHh6N7AzkCQQD++HzM3xBr+Gvh
+            zco9Kt8IiKNlfeiA5gUQq1UPJzcWIEgW1Tgr5UzMUOcZ0HfYwhqL3+wMhzN4sba+
+            1plB1QRXAkEA84sfM0jm9BRSqtYTPlhsYAmuPjeo24Pxel8ijEkToAu0ppEC6AQ3
+            zfwZD0ISgaWQ7af5TN/RCsoNVX79twP6gwJBANbtB+Z6shERm38ARdZB6Tf8ViAb
+            fn4JZ4OhqVXYrKrOE3aLzYnTBGXGXMh53kytcksuOoBlB5JZ274Kj63arokCQFPo
+            9xMAZzJpXiImJ/MvHAfqzfH501/ukeCLrqeO9ggKgG9zPwEZkvCRj0DGjwHEPa7k
+            VOy7oJaLDxUJ7/iCkmkCQQCtTLsvDbGH4tyFK5VIPJbUcccIib+dTzSTeONdUxKL
+            Yk+C6o7OpaUWX+ikp4Ow/6iHOAgXaeA2OolDer/NspUy
+            -----END RSA PRIVATE KEY-----)";
+
+            static const char g_certificate[] = R"(-----BEGIN CERTIFICATE-----
+            MIICrjCCAhegAwIBAgIUcuXjCSkJ2+v/Rqv/UHThTRGFlpswDQYJKoZIhvcNAQEL
+            BQAwaDELMAkGA1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIR3Jl
+            bm9ibGUxFjAUBgNVBAoMDVF0Q29udHJpYnV0b3IxHTAbBgNVBAMMFHFodHRwc3Nl
+            cnZlcnRlc3QuY29tMCAXDTE5MDkyNjA4NTc1MloYDzIyNTUwMzEzMDg1NzUyWjBo
+            MQswCQYDVQQGEwJGUjEPMA0GA1UECAwGRnJhbmNlMREwDwYDVQQHDAhHcmVub2Js
+            ZTEWMBQGA1UECgwNUXRDb250cmlidXRvcjEdMBsGA1UEAwwUcWh0dHBzc2VydmVy
+            dGVzdC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAPKQbnVmM0mtryJL
+            buDcMmiMfWobwLdn4C+jlTpDPo2Q6yO+vbaBeo5Li7BVRd0IArGw/RbCfbMbPm/E
+            aks9Uq1sCZqodhm6Kkwb9C6fe35BgGBH722WYd0jxM0/Y6byy0M7m5DIEfsNwyM/
+            IiCl9zx8Gg0uEKfigLafokr0Qy6FAgMBAAGjUzBRMB0GA1UdDgQWBBTDMYCcl2jz
+            UUWByEzTj5Ew/LWkeDAfBgNVHSMEGDAWgBTDMYCcl2jzUUWByEzTj5Ew/LWkeDAP
+            BgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAMNupAOXoBih6RvuAn3w
+            W8jOIZfkn5CMYdbUSndY/Wrt4p07M8r9uFPWG4bXSwG6n9Nzl75X9b0ka/jqPjQ3
+            X769simPygCblBp2xwE6w14aHEBx4kcF1p2QbC1vHynszJxyVLvHqUjuJwVAoPrM
+            Imy6LOiw2tRTHPsj7UH16M6C
+            -----END CERTIFICATE-----)";
+            httpServer->sslSetup(QSslCertificate(g_certificate),
+                                 QSslKey(g_privateKey, QSsl::Rsa));
         }
         relative2Absolute.clear();
         for (auto fld : folders) {
@@ -118,12 +151,17 @@ bool WebServerInfoSender::init() {
             qDebug() << QStringLiteral("WebServer listening on port") << port << QStringLiteral(" ")
                      << relative2Absolute;
             connect(httpServer, SIGNAL(newWebSocketConnection()), this, SLOT(onNewConnection()));
+            connect(httpServer, &QHttpServer::missingHandler, this, &WebServerInfoSender::missingHandler);
             return true;
         } else {
             reinit();
         }
     }
     return false;
+}
+
+void WebServerInfoSender::missingHandler(const QHttpServerRequest &request, QTcpSocket *socket) {
+    qDebug() << request << socket;
 }
 
 void WebServerInfoSender::watchdogEvent() {

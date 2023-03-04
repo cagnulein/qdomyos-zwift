@@ -42,6 +42,7 @@ class WebServerInfoSender : public TemplateInfoSender {
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
   private slots:
+    void missingHandler(const QHttpServerRequest &request, QTcpSocket *socket);
     void acceptError(QAbstractSocket::SocketError socketError);
     void watchdogEvent();
     void onNewConnection();
