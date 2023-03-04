@@ -18,18 +18,28 @@ class treadmill : public bluetoothdevice {
     virtual double requestedInclination();
     virtual double minStepInclination();
     virtual double minStepSpeed();
+    virtual bool canStartStop() { return true; }
     metric currentStrideLength() { return InstantaneousStrideLengthCM; }
     metric currentGroundContact() { return GroundContactMS; }
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
+    metric currentStepCount() { return StepCount; }
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setLap();
     void setPaused(bool p);
+    double lastRawSpeedRequested() {
+        return (m_lastRawSpeedRequested != -1 ? m_lastRawSpeedRequested : currentSpeed().value());
+    }
+    double lastRawInclinationRequested() {
+        return (m_lastRawInclinationRequested != -100 ? m_lastRawInclinationRequested : currentInclination().value());
+    }
     virtual void setLastSpeed(double speed);
     virtual void setLastInclination(double inclination);
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
+    static double treadmillInclinationOverride(double Inclination);
+    void cadenceFromAppleWatch();
 
   public slots:
     virtual void changeSpeed(double speed);
@@ -56,6 +66,10 @@ class treadmill : public bluetoothdevice {
     metric InstantaneousStrideLengthCM;
     metric GroundContactMS;
     metric VerticalOscillationMM;
+    metric StepCount;
+    double m_lastRawSpeedRequested = -1;
+    double m_lastRawInclinationRequested = -100;
+    bool instantaneousStrideLengthCMAvailableFromDevice = false;
 };
 
 #endif // TREADMILL_H

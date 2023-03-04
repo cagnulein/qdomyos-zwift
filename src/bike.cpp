@@ -66,8 +66,10 @@ void bike::changePower(int32_t power) {
 
 int8_t bike::gears() { return m_gears; }
 void bike::setGears(int8_t gears) {
+    QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
+    settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }

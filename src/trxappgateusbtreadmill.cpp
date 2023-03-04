@@ -57,7 +57,8 @@ void trxappgateusbtreadmill::changeInclinationRequested(double grade, double per
 
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
     QSettings settings;
-    bool reebok_fr30_treadmill = settings.value(QZSettings::reebok_fr30_treadmill, QZSettings::default_reebok_fr30_treadmill).toBool();
+    bool reebok_fr30_treadmill =
+        settings.value(QZSettings::reebok_fr30_treadmill, QZSettings::default_reebok_fr30_treadmill).toBool();
 
     if (requestIncline < 0)
         requestIncline = 0;
@@ -80,7 +81,9 @@ void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {}
 
 void trxappgateusbtreadmill::update() {
     QSettings settings;
-    bool jtx_fitness_sprint_treadmill = settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill).toBool();
+    bool jtx_fitness_sprint_treadmill =
+        settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
+            .toBool();
     // qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
@@ -132,6 +135,10 @@ void trxappgateusbtreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            // only 0.5 changes otherwise it beeps forever
+            if (jtx_fitness_sprint_treadmill)
+                requestInclination = qRound(requestInclination * 2.0) / 2.0;
+
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
@@ -193,7 +200,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
         return;
     }
 
-    if (treadmill_type == TYPE::IRUNNING) {
+    if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
         if (newValue.at(15) == 0x03 && newValue.at(16) == 0x02 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
@@ -235,9 +242,13 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     }
     FanSpeed = 0;
 
+    QTime now = QTime::currentTime();
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
+        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
     }
+    lastTimeCharChanged = now;
+
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
@@ -257,7 +268,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     KCal = kcal;
     Distance = distance;
 
-    lastTimeCharChanged = QTime::currentTime();
     firstCharChanged = false;
 }
 
@@ -279,7 +289,7 @@ double trxappgateusbtreadmill::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double trxappgateusbtreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = ((packet.at(6) - 1) << 8) | (packet.at(7) - 1);
+    uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7) - 1);
     double data = ((double)(convertedData)) / 100.0f;
     return data;
 }
@@ -305,7 +315,9 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape);
     QSettings settings;
     bool toorx30 = settings.value(QZSettings::toorx_3_0, QZSettings::default_toorx_3_0).toBool();
-    bool jtx_fitness_sprint_treadmill = settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill).toBool();
+    bool jtx_fitness_sprint_treadmill =
+        settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
+            .toBool();
 
     if (treadmill_type == TYPE::DKN) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
@@ -427,26 +439,26 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         const uint8_t initData7[] = {0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75};
 
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
-        if (treadmill_type == TYPE::IRUNNING || jtx_fitness_sprint_treadmill) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2 || jtx_fitness_sprint_treadmill) {
             writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
             QThread::msleep(400);
             writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
@@ -455,15 +467,15 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
             QThread::msleep(400);
         }
     } else {
@@ -531,7 +543,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtualTreadmill && !virtualTreadMill) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, false);
@@ -580,8 +593,21 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
     if (gattCommunicationChannelService == nullptr) {
-        qDebug() << QStringLiteral("invalid service") << uuid;
-        return;
+        if (treadmill_type == TYPE::IRUNNING) {
+            uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
+            QBluetoothUuid _gattCommunicationChannelServiceId2((QString)uuid);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
+            if (gattCommunicationChannelService == nullptr) {
+                qDebug() << QStringLiteral("invalid service") << uuid;
+                return;
+            } else {
+                treadmill_type = TYPE::IRUNNING_2;
+                qDebug() << QStringLiteral("treadmill_type IRUNNING_2");
+            }
+        } else {
+            qDebug() << QStringLiteral("invalid service") << uuid;
+            return;
+        }
     }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
@@ -606,7 +632,8 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
 
-    bool dkn_endurun_treadmill = settings.value(QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill).toBool();
+    bool dkn_endurun_treadmill =
+        settings.value(QZSettings::dkn_endurun_treadmill, QZSettings::default_dkn_endurun_treadmill).toBool();
 
     if (device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
         device.name().startsWith(QStringLiteral("FS-")) ||
@@ -616,6 +643,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("REEBOK")) ||
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
+        device.name().toUpper().startsWith(QStringLiteral("K80_")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {

@@ -284,7 +284,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
-    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+    QString difficulty =
+        settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
     QJsonObject segments = ride[QStringLiteral("segments")].toObject();
     QJsonArray segments_segment_list = segments[QStringLiteral("segment_list")].toArray();
 
@@ -294,7 +295,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         QJsonObject resistance_range = instructor_cue[QStringLiteral("resistance_range")].toObject();
         QJsonObject cadence_range = instructor_cue[QStringLiteral("cadence_range")].toObject();
 
-        if(resistance_range.count() == 0 && cadence_range.count() == 0) {
+        if (resistance_range.count() == 0 && cadence_range.count() == 0) {
             qDebug() << "no resistance and cadence found!";
             continue;
         }
@@ -372,26 +373,37 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     trainrow r;
                     QString zone = s["display_name"].toString();
                     int len = s["length"].toInt();
-                    if (!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
+                    if (!zone.toUpper().compare(QStringLiteral("SPIN UPS")) ||
+                        !zone.toUpper().compare(QStringLiteral("SPIN-UPS"))) {
+                        bool peloton_spinups_autoresistance = settings.value(QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance).toBool();
                         uint32_t Duration = len;
-                        double PowerLow = 0.5;
-                        double PowerHigh = 0.83;
-                        for (uint32_t i = 0; i < Duration; i++) {
-                            trainrow row;
-                            row.duration = QTime(0, 0, 1, 0);
-                            row.rampDuration =
-                                QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                            row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
-                            if (PowerHigh > PowerLow) {
-                                row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
-                            } else {
-                                row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                        if(peloton_spinups_autoresistance) {
+                            double PowerLow = 0.5;
+                            double PowerHigh = 0.83;
+                            for (uint32_t i = 0; i < Duration; i++) {
+                                trainrow row;
+                                row.duration = QTime(0, 0, 1, 0);
+                                row.rampDuration =
+                                    QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                                if (PowerHigh > PowerLow) {
+                                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                                } else {
+                                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                                }
+                                qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
+                                trainrows.append(row);
+                                atLeastOnePower = true;
                             }
-                            qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
-                            trainrows.append(row);
-                            atLeastOnePower = true;
+                        } else {
+                            r.duration = QTime(0, len / 60, len % 60, 0);
+                            r.power = -1;
+                            if (r.power != -1) {
+                                atLeastOnePower = true;
+                            }
+                            trainrows.append(r);
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
                         uint32_t Duration = len;
@@ -417,6 +429,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
+                    } else if (!zone.toUpper().compare(QStringLiteral("SWEET SPOT"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.91;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -515,7 +535,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
     QSettings settings;
-    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
+    QString difficulty =
+        settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -531,7 +552,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
-        bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
+        bool treadmill_force_speed =
+            settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
@@ -541,6 +563,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
             QJsonObject metrics = target_metrics.at(i).toObject();
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            QString segment_type = metrics[QStringLiteral("segment_type")].toString();
             if (metrics_ar.count() > 1 && !offset.isEmpty()) {
                 QJsonObject speed = metrics_ar.at(0).toObject();
                 double speed_lower = speed[QStringLiteral("lower")].toDouble();
@@ -580,7 +603,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset)
                         .toDouble();
                 double gain =
-                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain)
+                        .toDouble();
                 r.inclination *= gain;
                 r.inclination += offset;
                 r.lower_inclination *= gain;
@@ -596,6 +620,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.lower_inclination = inc_lower;
                 r.average_inclination = inc_average;
                 r.upper_inclination = inc_upper;
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.speed << r.inclination;
+            } else if (segment_type.contains("floor")) {
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }
@@ -629,7 +661,8 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
         if (!PZP->searchWorkout(current_ride_id)) {
             current_api = homefitnessbuddy_api;
-            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration);
+            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration,
+                               current_ride_id);
         } else {
             current_api = powerzonepack_api;
         }

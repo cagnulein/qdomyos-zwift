@@ -45,6 +45,7 @@ class truetreadmill : public treadmill {
 
     void *VirtualTreadMill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
     void startDiscover();

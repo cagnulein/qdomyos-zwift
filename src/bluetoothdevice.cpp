@@ -124,6 +124,12 @@ void bluetoothdevice::disconnectBluetooth() {
 metric bluetoothdevice::wattsMetric() { return m_watt; }
 void bluetoothdevice::setDifficult(double d) { m_difficult = d; }
 double bluetoothdevice::difficult() { return m_difficult; }
+void bluetoothdevice::setInclinationDifficult(double d) { m_inclination_difficult = d; }
+double bluetoothdevice::inclinationDifficult() { return m_inclination_difficult; }
+void bluetoothdevice::setDifficultOffset(double d) { m_difficult_offset = d; }
+double bluetoothdevice::difficultOffset() { return m_difficult_offset; }
+void bluetoothdevice::setInclinationDifficultOffset(double d) { m_inclination_difficult_offset = d; }
+double bluetoothdevice::inclinationDifficultOffset() { return m_inclination_difficult_offset; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }

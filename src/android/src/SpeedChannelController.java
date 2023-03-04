@@ -16,6 +16,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.dsi.ant.channel.AntChannel;
@@ -32,15 +33,17 @@ import java.util.Random;
 
 public class SpeedChannelController {
     // The device type and transmission type to be part of the channel ID message
-    private static final int CHANNEL_SPEED_DEVICE_TYPE = 0x7B;
+    private static final int CHANNEL_SPEED_DEVICE_TYPE = 0x79;
     private static final int CHANNEL_SPEED_TRANSMISSION_TYPE = 1;
 
     // The period and frequency values the channel will be configured to
-    private static final int CHANNEL_SPEED_PERIOD = 8118; // 1 Hz
+    private static final int CHANNEL_SPEED_PERIOD = 8086; // 1 Hz
     private static final int CHANNEL_SPEED_FREQUENCY = 57;
 
     private static final String TAG = SpeedChannelController.class.getSimpleName();
-    public static final int SPEED_SENSOR_ID = 0x9e3d4b65;
+    public static final int SPEED_SENSOR_ID = 0x9e3d4b33;
+
+    private static final double MILLISECOND_TO_1_1024_CONVERSION = 0.9765625;
 
     private AntChannel mAntChannel;
 
@@ -48,6 +51,7 @@ public class SpeedChannelController {
 
     private boolean mIsOpen;
     double speed = 0.0;
+    int cadence = 0;
 
     public SpeedChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -161,14 +165,14 @@ public class SpeedChannelController {
      * received and channel death events can be handled.
      */
     public class ChannelEventCallback implements IAntChannelEventHandler {
-        int revCounts = 0;
-        int ucMessageCount = 0;
-        byte ucPageChange = 0;
-        byte ucExtMesgType = 1;
         long lastTime = 0;
-        double way;
+        double totalWay = 0.0;
+        double totalRotations = 0.0;
+        long lastSpeedEventTime = 0;
+        long lastCadenceEventTime = 0;
+        long elapsedMillis = 0;
+        int rotations;
         int rev;
-        double remWay;
         double wheel = 0.1;
 
         @Override
@@ -202,58 +206,31 @@ public class SpeedChannelController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
-                            long unixTime = System.currentTimeMillis() / 1000L;
+                            long realtimeMillis = SystemClock.elapsedRealtime();
 
                             if (lastTime != 0) {
-                                way = speed * (unixTime - lastTime) / 3.6 + remWay;
-                                rev = (int) (way / wheel + 0.5);
-                                remWay = way - rev * wheel;
-                                revCounts += rev;
+                                elapsedMillis = realtimeMillis - lastTime;
+                                totalWay += speed * elapsedMillis / 3_600L;
+                                totalRotations += (double) cadence * elapsedMillis / 60_000L;
+                                rev = (int) (totalWay / wheel);
+                                rotations = (int) totalRotations;
+                                lastCadenceEventTime = realtimeMillis - (long) ((totalRotations - rotations) / cadence * 60_000);
+                                lastSpeedEventTime = realtimeMillis - (long) ((totalWay - (rev * wheel)) / speed * 3_600);
                             }
-                            lastTime = unixTime;
+                            lastTime = realtimeMillis;
 
-                            ucPageChange += 0x20;
-                            ucPageChange &= 0xF0;
-                            ucMessageCount += 1;
                             byte[] payload = new byte[8];
 
-                            if (ucMessageCount >= 65) {
-                                if (ucExtMesgType >= 4)
-                                    ucExtMesgType = 1;
-
-                                if (ucExtMesgType == 1) {
-                                    int halfunixTime = (int) (unixTime / 2L);
-                                    payload[0] = (byte) ((byte) 0x01 | (byte) (ucPageChange & (byte) 0x80));
-                                    payload[1] = (byte) (halfunixTime & 0xFF);
-                                    payload[2] = (byte) ((halfunixTime >> 8) & 0xFF);
-                                    payload[3] = (byte) ((halfunixTime >> 16) & 0xFF);
-                                } else if (ucExtMesgType == 2) {
-                                    payload[0] = (byte) ((byte) 0x02 | (byte) (ucPageChange & (byte) 0x80));
-                                    payload[1] = (byte) 0xFF;
-                                    payload[2] = (byte) ((SPEED_SENSOR_ID >> 16) & 0xFF);
-                                    payload[3] = (byte) ((SPEED_SENSOR_ID >> 24) & 0xFF);
-                                } else if (ucExtMesgType == 3) {
-                                    payload[0] = (byte) ((byte) 0x03 | (byte) (ucPageChange & (byte) 0x80));
-                                    payload[1] = (byte) 0x01;
-                                    payload[2] = (byte) 0x01;
-                                    payload[3] = (byte) 0x01;
-                                }
-                                if (ucMessageCount >= 68) {
-                                    ucMessageCount = 0;
-                                    ucExtMesgType += 1;
-                                }
-                            } else {
-                                payload[0] = (byte) (ucPageChange & 0x80);
-                                payload[1] = (byte) 0xFF;
-                                payload[2] = (byte) 0xFF;
-                                payload[3] = (byte) 0xFF;
-                            }
-
-                            int unixTime1024 = (int) (unixTime * 1024);
-                            payload[4] = (byte) (unixTime1024 & 0xFF);
-                            payload[5] = (byte) ((unixTime1024 >> 8) & 0xFF);
-                            payload[6] = (byte) (revCounts & 0xFF);
-                            payload[7] = (byte) ((revCounts >> 8) & 0xFF);
+                            int lastCadenceEventTime1024 = (int) ((double) lastCadenceEventTime / MILLISECOND_TO_1_1024_CONVERSION);
+                            int lastSpeedEventTime1024 = (int) ((double) lastSpeedEventTime / MILLISECOND_TO_1_1024_CONVERSION);
+                            payload[0] = (byte) (lastCadenceEventTime1024 & 0xFF);
+                            payload[1] = (byte) ((lastCadenceEventTime1024 >> 8) & 0xFF);
+                            payload[2] = (byte) (rotations & 0xFF);
+                            payload[3] = (byte) ((rotations >> 8) & 0xFF);
+                            payload[4] = (byte) (lastSpeedEventTime1024 & 0xFF);
+                            payload[5] = (byte) ((lastSpeedEventTime1024 >> 8) & 0xFF);
+                            payload[6] = (byte) (rev & 0xFF);
+                            payload[7] = (byte) ((rev >> 8) & 0xFF);
 
                             if (mIsOpen) {
                                 try {
@@ -265,9 +242,6 @@ public class SpeedChannelController {
                             }
                             break;
                         case CHANNEL_COLLISION:
-                            ucPageChange += 0x20;
-                            ucPageChange &= 0xF0;
-                            ucMessageCount += 1;
                             break;
                         case RX_SEARCH_TIMEOUT:
                             // TODO May want to keep searching

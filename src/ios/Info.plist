@@ -55,6 +55,8 @@
 	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app will need access to the local network for Discovery services (Wahoo Fitness Direct Connect).</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>NSMotionUsageDescription</key>

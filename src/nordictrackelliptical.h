@@ -1,7 +1,6 @@
 #ifndef NORDITRACKELLIPTICAL_H
 #define NORDITRACKELLIPTICAL_H
 
-
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -39,17 +38,19 @@ class nordictrackelliptical : public elliptical {
     Q_OBJECT
   public:
     nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                             double bikeResistanceGain);
+                          double bikeResistanceGain);
     bool connected();
 
     void *VirtualTreadmill();
     void *VirtualDevice();
     int pelotonToEllipticalResistance(int pelotonResistance);
+    bool inclinationAvailableByHardware() { return false; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     double GetResistanceFromPacket(QByteArray packet);
+    double GetInclinationFromPacket(QByteArray packet);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -70,7 +71,8 @@ class nordictrackelliptical : public elliptical {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    const resistance_t max_resistance = 20;
+    resistance_t max_resistance = 20;
+    double max_inclination = 0;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

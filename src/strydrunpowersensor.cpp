@@ -154,7 +154,155 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                      (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         lastRefreshPowerChanged = QDateTime::currentDateTime();
+    } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
+        if (newValue.length() > 1) {
+            Heart = (uint8_t)newValue[1];
+            emit onHeartRate((uint8_t)Heart.value());
+        }
 
+        emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        lastPacket = newValue;
+
+        // inclination for NPE RUNN
+
+        union flags {
+            struct {
+
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t totalDistance : 1;
+                uint16_t inclination : 1;
+                uint16_t elevation : 1;
+                uint16_t instantPace : 1;
+                uint16_t averagePace : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolic : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t forceBelt : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            /*Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) /
+                    100.0;*/
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.totalDistance) {
+            // ignoring the distance, because it's a total life odometer
+            // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+            // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+            index += 3;
+        }
+        // else
+        {
+            /*
+            if (firstDistanceCalculated)
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+            distanceEval = true;*/
+        }
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        if (Flags.inclination) {
+            Inclination = treadmillInclinationOverride(((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) |
+                                                                 (int16_t)((uint8_t)newValue.at(index)))) /
+                                                       10.0);
+            index += 4; // the ramo value is useless
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+        }
+
+        if (Flags.elevation) {
+            index += 4; // TODO
+        }
+
+        if (Flags.instantPace) {
+            index += 1; // TODO
+        }
+
+        if (Flags.averagePace) {
+            index += 1; // TODO
+        }
+
+        if (Flags.expEnergy) {
+            /*KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));*/
+            index += 2;
+
+            // energy per hour
+            index += 2;
+
+            // energy per minute
+            index += 1;
+        } else {
+            /*
+            if (firstDistanceCalculated &&
+                watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                    // kg * 3.5) / 200 ) / 60
+            distanceEval = true;
+*/
+        }
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+        if (Flags.heartRate) {
+            if (index < newValue.length()) {
+
+                double heart = ((double)((newValue.at(index))));
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
+            } else {
+                emit debug(QStringLiteral("Error on parsing heart!"));
+            }
+            // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+        }
+
+        if (Flags.metabolic) {
+            // todo
+        }
+
+        if (Flags.elapsedTime) {
+            // todo
+        }
+
+        if (Flags.remainingTime) {
+            // todo
+        }
+
+        if (Flags.forceBelt) {
+            // todo
+        }
     } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
@@ -173,6 +321,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            instantaneousStrideLengthCMAvailableFromDevice = true;
             InstantaneousStrideLengthCM =
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());

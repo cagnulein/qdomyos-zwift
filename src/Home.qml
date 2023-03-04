@@ -68,14 +68,24 @@ HomeForm{
         onTriggered: popupLap.close();
     }
 
-    start.onClicked: { start_clicked(); }
-    stop.onClicked: {
+    Timer {
+        id: checkStartStopFromWeb
+        interval: 200; running: true; repeat: true
+        onTriggered: {if(rootItem.stopRequested) {rootItem.stopRequested = false; inner_stop(); }}
+    }
+
+    function inner_stop() {
         stop_clicked();
         rootItem.save_screenshot();
         if(CHARTJS)
             stackView.push("ChartJsTest.qml")
         else
             stackView.push("ChartsEndWorkout.qml")
+    }
+
+    start.onClicked: { start_clicked(); }
+    stop.onClicked: {
+        inner_stop();
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
@@ -255,7 +265,7 @@ HomeForm{
 						      color: largeButtonColor
 								radius: 20
 								}
-                    font.pointSize: 16 * settings.ui_zoom / 100
+                    font.pointSize: 20 * settings.ui_zoom / 100
                     //width: 48 * settings.ui_zoom / 100
                     //height: 48 * settings.ui_zoom / 100
                 }

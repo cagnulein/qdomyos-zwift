@@ -171,8 +171,11 @@ void domyoselliptical::update() {
         // ******************************************* virtual bike init *************************************
         QSettings settings;
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -182,7 +185,8 @@ void domyoselliptical::update() {
                             &domyoselliptical::changeInclinationRequested);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                  bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
@@ -204,7 +208,7 @@ void domyoselliptical::update() {
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
-            } else if (requestResistance == 0) {
+            } else if (requestResistance <= 0) {
                 requestResistance = 1;
             }
 
@@ -214,7 +218,7 @@ void domyoselliptical::update() {
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
-        } else if (requestInclination != -100) {
+        } else if (requestInclination != -100 && inclinationAvailableByHardware()) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
@@ -287,10 +291,16 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
        inclination and speed status return;*/
 
     double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+        GetSpeedFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble();
     double kcal = GetKcalFromPacket(newValue);
-    double distance = GetDistanceFromPacket(newValue) *
-                      settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    double distance =
+        GetDistanceFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -316,9 +326,21 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        else {
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+        }
+#endif
+#endif
     }
 
     CrankRevs++;
@@ -589,10 +611,49 @@ uint16_t domyoselliptical::watts() {
         double VO2R = 210.0 / pace;
         double VO2A = (VO2R * weight) / 1000.0;
         double hwatts = 75 * VO2A;
-        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
-        watts = hwatts + vwatts;
+        double inc_res_ratio;
+        if (settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination)
+                .toBool()) {
+            inc_res_ratio = currentInclination().value() / 100.0;
+            double vwatts = ((9.8 * weight) * (inc_res_ratio));
+            watts = hwatts + vwatts;
+        } else {
+            if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
+                     .toBool() ||
+                currentResistance().value() < 8)
+                return ((10.39 + 1.45 * (currentResistance().value() - 1.0)) *
+                        (exp(0.028 * (currentCadence().value()))));
+            else {
+                switch ((int)currentResistance().value()) {
+                case 8:
+                    return (13.6 * Cadence.value()) / 9.5488;
+                case 9:
+                    return (15.3 * Cadence.value()) / 9.5488;
+                case 10:
+                    return (17.3 * Cadence.value()) / 9.5488;
+                case 11:
+                    return (19.8 * Cadence.value()) / 9.5488;
+                case 12:
+                    return (22.5 * Cadence.value()) / 9.5488;
+                case 13:
+                    return (25.6 * Cadence.value()) / 9.5488;
+                case 14:
+                    return (28.4 * Cadence.value()) / 9.5488;
+                case 15:
+                    return (35.9 * Cadence.value()) / 9.5488;
+                }
+                return ((10.39 + 1.45 * (currentResistance().value() - 1.0)) *
+                        (exp(0.028 * (currentCadence().value()))));
+            }
+        }
     }
     return watts;
+}
+
+bool domyoselliptical::inclinationAvailableByHardware() {
+    QSettings settings;
+    return settings.value(QZSettings::domyos_elliptical_inclination, QZSettings::default_domyos_elliptical_inclination)
+        .toBool();
 }
 
 void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {

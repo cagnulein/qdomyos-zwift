@@ -183,6 +183,8 @@ ScrollView {
 		  property string tile_preset_inclination_5_color: "grey"
 		  property bool tile_avg_watt_lap_enabled: false
 		  property int tile_avg_watt_lap_order: 48
+        property bool tile_pace_last500m_enabled: true
+        property int  tile_pace_last500m_order: 49
     }
 
 
@@ -220,6 +222,19 @@ ScrollView {
                     onClicked: settings.tile_speed_order = speedOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Speed in kilometers per hour. (To set your speed units to miles, go to Settings > General Options > Use Miles unit in UI).")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -274,6 +289,20 @@ ScrollView {
                     Layout.fillWidth: true
                     onClicked: settings.tile_cadence_color_enabled = checked
                 }
+
+                Label {
+                    text: qsTr("Bike pedal cadence changes color to indicate how your cadence compares to the cadence called out in Peloton classes. The tile displays the following colors: white if there is no target cadence in the program, red if your cadence is lower than the target, green if your cadence matches the target, and orange if your cadence is higher than the target.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 8
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -300,6 +329,19 @@ ScrollView {
                     }
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Bike pedal cadence in rotations per minute (RPM) or Treadmill cadence if a shoe-mounted cadence sensor or Apple Watch QZ app is used.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -332,7 +374,7 @@ ScrollView {
                     onClicked: settings.tile_elevation_order = elevationOrderTextField.displayText
                 }
             }
-        }
+        }            
 
         AccordionCheckElement {
             id: caloriesEnabledAccordion
@@ -364,6 +406,19 @@ ScrollView {
                     onClicked: settings.tile_calories_order = caloriesOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Estimated calories burned during session, calculated on weight, age, and watts.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -398,6 +453,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Estimated distance traveled during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: paceEnabledAccordion
             title: qsTr("Pace")
@@ -428,6 +496,19 @@ ScrollView {
                     onClicked: settings.tile_pace_order = paceOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Current pace per mile or kilometer (Treadmill, Elliptical and Rower)")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -462,6 +543,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Displays your bike’s resistance. The +/- buttons can be used to change resistance, if your bike is compatible.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: wattEnabledAccordion
             title: qsTr("Watt")
@@ -492,6 +586,19 @@ ScrollView {
                     onClicked: settings.tile_watt_order = wattOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Displays the watts generated by your current effort. Watt is also referred to as output (for example, in Peloton). If your equipment does not communicate watts, QZ will calculate watts using resistance and cadence.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -526,6 +633,20 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Estimation of weight loss during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+
         AccordionCheckElement {
             id: avgwattEnabledAccordion
             title: qsTr("AVG Watt")
@@ -557,6 +678,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Average watts produced for the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
 
         AccordionCheckElement {
 		      id: avgwattLapEnabledAccordion
@@ -620,6 +755,19 @@ ScrollView {
                     onClicked: settings.tile_ftp_order = ftpOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Percentage of current FTP and current FTP zone.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -686,6 +834,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Built-in treadmill fan speed (Treadmill only)")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: joulsEnabledAccordion
             title: qsTr("Jouls")
@@ -716,6 +877,19 @@ ScrollView {
                     onClicked: settings.tile_jouls_order = joulsOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Cumulative power produced during the session in kilojoules.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -750,6 +924,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Total time from start of the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: movingTimeEnabledAccordion
             title: qsTr("Moving Time")
@@ -780,6 +967,19 @@ ScrollView {
                     onClicked: settings.tile_moving_time_order = movingTimeOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Total time moving during the session.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -814,6 +1014,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Allows you to sync resistance and cadence target changes with the Peloton coach’s callouts. If the targets are changing in QZ after the coach’s callouts, use the ‘+’ button to add seconds (essentially speeding QZ up). Use the ‘-’ button to slow QZ down. Use this tile in conjunction with the Remaining Time/Row tile (see below).")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: pelotonRemainingEnabledAccordion
             title: qsTr("Peloton Remaining")
@@ -844,6 +1057,19 @@ ScrollView {
                     onClicked: settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Displays time remaining in Peloton class.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         /*
@@ -959,6 +1185,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Resistance of your bike converted to the Peloton bike scale of 1 to 100.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetResistanceEnabledAccordion
             title: qsTr("Target Resistance")
@@ -990,6 +1229,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Displays target resistance in your bike’s resistance scale. For example, during a Peloton class or Zwift session, you want the resistance displayed in this tile to match the Resistance Tile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
 
         AccordionCheckElement {
             id: targetPelotonResistanceEnabledAccordion
@@ -1023,6 +1276,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Displays target resistance converted to the Peloton bike scale of 1 to 100. For example, during a Peloton class, you want the resistance displayed in this tile to match the Peloton Resistance Tile.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetCadenceEnabledAccordion
             title: qsTr("Target Cadence")
@@ -1054,6 +1320,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Displays target cadence.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetPowerEnabledAccordion
             title: qsTr("Target Power")
@@ -1085,6 +1365,21 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Displays target output (watts) when this information is provided by third-party apps.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+
         AccordionCheckElement {
             id: targetZoneEnabledAccordion
             title: qsTr("Target Power Zone")
@@ -1116,6 +1411,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Displays the target power zone when this information is provided by third-party apps.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetSpeedEnabledAccordion
             title: qsTr("Target Speed")
@@ -1210,6 +1519,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Calculates your output (watts) divided by your weight. This is the primary metric used by Zwift and similar apps to calculate your virtual speed. NOTE: This is a much better metric to use than Output/Watts when comparing your effort to other users. This is why Peloton’s leaderboard, which uses only Output, is flawed.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: gearsEnabledAccordion
             title: qsTr("Gears")
@@ -1240,6 +1562,19 @@ ScrollView {
                     onClicked: settings.tile_gears_order = gearsOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Allows you to change resistance while in Auto-Follow Mode.This tile allows you override the target resistance sent by third-party apps. For example, you would use the Gears Tile to increase resistance and generate more watts for sprinting in Zwift.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -1274,6 +1609,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Displays the time remaining until the next cadence and/or resistance interval.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: nextRowsTrainingProgramRowEnabledAccordion
             title: qsTr("Next Rows")
@@ -1306,6 +1654,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("Displays the next Peloton interval with duration and FTP Zone (in Power Zone classes) or Peloton Resistance (non–Power Zone classes).")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: metsEnabledAccordion
             title: qsTr("METS")
@@ -1336,6 +1697,19 @@ ScrollView {
                     onClicked: settings.tile_mets_order = metsOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Displays metabolic equivalents (METs), a measurement of energy expenditure and amount of oxygen used by the body compared to the body at rest. (e.g., 4 METS requires the body to use 4 times as much oxygen than when at rest, which means it requires more energy and burns more calories).")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -1401,6 +1775,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("Displays the current time.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetStrokesCountAccordion
             title: qsTr("Strokes Count")
@@ -1432,6 +1820,20 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("(Rower only) Displays the number of strokes rowed.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetStrokesLengthAccordion
             title: qsTr("Strokes Length")
@@ -1462,6 +1864,19 @@ ScrollView {
                     onClicked: settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("(Rower only) Displays the stroke length.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -1496,6 +1911,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("(Elite Rizer only) Displays steering angle.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: targetPIDHrAccordion
             title: qsTr("PID HR Zone")
@@ -1526,6 +1954,19 @@ ScrollView {
                     onClicked: settings.tile_pid_hr_order = pidHROrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("Use this tile to display the target heart rate zone in which you’ve chosen to work out in Settings > Training Program Options.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -1560,6 +2001,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("(Elite Rizer only) Allows control of the incline of external inclination equipment.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: strideLength
             title: qsTr("Stride Length")
@@ -1590,6 +2044,19 @@ ScrollView {
                     onClicked: settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText
                 }
             }
+        }
+
+        Label {
+            text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays stride while walking or running.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
         }
 
         AccordionCheckElement {
@@ -1624,6 +2091,19 @@ ScrollView {
             }
         }
 
+        Label {
+            text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays time foot is on contact with ground while walking or running.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
         AccordionCheckElement {
             id: verticalOscillation
             title: qsTr("Vertical Oscillation")
@@ -1655,6 +2135,52 @@ ScrollView {
                 }
             }
         }
+
+        Label {
+            text: qsTr("(requires a compatible footpod with accelerometer; treadmill only) Displays the up and down movement while walking or running.")
+            font.bold: true
+            font.italic: true
+            font.pixelSize: 8
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            color: Material.color(Material.Lime)
+        }
+
+        AccordionCheckElement {
+            id: paceLast500mEnabledAccordion
+            title: qsTr("Pace Last 500m")
+            linkedBoolSetting: "tile_pace_last500m_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelPacelast500mOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: pacelast500mOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_pace_last500m_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = pacelast500mOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okPacelast500mOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText
+                }
+            }
+        }
+
         AccordionCheckElement {
             id: presetResistance1EnabledAccordion
             title: qsTr("Preset Resistance 1")
@@ -1752,7 +2278,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance1.visible = true
 								}
 						  }
 						  Button {
@@ -1861,7 +2387,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance2.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance2.visible = true
 								}
 						  }
 						  Button {
@@ -1970,7 +2496,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance3.visible = true
 								}
 						  }
 						  Button {
@@ -2079,7 +2605,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance4.visible = true
 								}
 						  }
 						  Button {
@@ -2188,7 +2714,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetResistance5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetResistance5.visible = true
 								}
 						  }
 						  Button {
@@ -2297,7 +2823,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed1.visible = true
 								}
 						  }
 						  Button {
@@ -2406,7 +2932,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed2.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed2.visible = true
 								}
 						  }
 						  Button {
@@ -2515,7 +3041,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed3.visible = true
 								}
 						  }
 						  Button {
@@ -2624,7 +3150,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed4.visible = true
 								}
 						  }
 						  Button {
@@ -2733,7 +3259,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetSpeed5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetSpeed5.visible = true
 								}
 						  }
 						  Button {
@@ -2842,7 +3368,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination1.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination1.visible = true
 								}
 						  }
 						  Button {
@@ -2952,7 +3478,7 @@ ScrollView {
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 						  onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 						  onPressed: {
-						      colorPresetInclination2.visible = true
+                              if(OS_VERSION !== "Android") colorPresetInclination2.visible = true
 						  }
 						}
 					 Button {
@@ -3060,7 +3586,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination3.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination3.visible = true
 								}
 						  }
 						  Button {
@@ -3169,7 +3695,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination4.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination4.visible = true
 								}
 						  }
 						  Button {
@@ -3278,7 +3804,7 @@ ScrollView {
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 								onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
 								onPressed: {
-								    colorPresetInclination5.visible = true
+                                    if(OS_VERSION !== "Android") colorPresetInclination5.visible = true
 								}
 						  }
 						  Button {

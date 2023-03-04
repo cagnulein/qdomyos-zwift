@@ -34,6 +34,7 @@ ApplicationWindow {
     signal volumeDown()
     signal keyMediaPrevious()
     signal keyMediaNext()
+    signal floatingOpen()
 
     property bool lockTiles: false
 
@@ -320,7 +321,7 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            text: stackView.depth > 1 ? "⏴" : "⏴"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
@@ -332,6 +333,14 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
+        }
+
+        ToolButton {
+            id: toolButtonFloating
+            icon.source: "icons/icons/mini-display.png"
+            onClicked: { console.log("floating!"); floatingOpen(); }
+            anchors.left: toolButton.right
+            visible: OS_VERSION === "Android" ? true : false
         }
 
         Popup {
@@ -614,6 +623,7 @@ ApplicationWindow {
                 text: qsTr("Connect to Strava")
                 width: parent.width
                 onClicked: {
+                    stackView.push("WebStravaAuth.qml")
                     strava_connect_clicked()
                     drawer.close()
                 }
@@ -655,7 +665,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.12.3"
+                text: "version 2.13.4"
                 width: parent.width
             }
 				FileDialog {

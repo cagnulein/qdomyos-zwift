@@ -36,7 +36,11 @@ class trainrow {
     bool forcespeed = false;
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
-    int8_t maxSpeed = -1;
+    int16_t HRmin = -1;
+    int16_t HRmax = -1;
+    double maxSpeed = -1;
+    double minSpeed = -1;
+    int8_t maxResistance = -1;
     int32_t power = -1;
     int32_t mets = -1;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
@@ -76,6 +80,7 @@ class trainprogram : public QObject {
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
     double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed);
     int TotalGPXSecs();
+    bool overridePowerForCurrentRow(double power);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded

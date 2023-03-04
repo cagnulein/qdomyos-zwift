@@ -663,7 +663,30 @@ resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
-    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    QSettings settings;
+    if(!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1).toBool() || resistance < 8)
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    else {
+        switch((int)resistance) {
+            case 8:
+                return (13.6 * Cadence.value()) / 9.5488;
+            case 9:
+                return (15.3 * Cadence.value()) / 9.5488;
+            case 10:
+                return (17.3 * Cadence.value()) / 9.5488;
+            case 11:
+                return (19.8 * Cadence.value()) / 9.5488;
+            case 12:
+                return (22.5 * Cadence.value()) / 9.5488;
+            case 13:
+                return (25.6 * Cadence.value()) / 9.5488;
+            case 14:
+                return (28.4 * Cadence.value()) / 9.5488;
+            case 15:
+                return (35.9 * Cadence.value()) / 9.5488;
+        }
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    }
 }
 
 uint16_t domyosbike::watts() {

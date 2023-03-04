@@ -113,7 +113,8 @@ void paferstreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -136,7 +137,7 @@ void paferstreadmill::update() {
             }
             requestSpeed = -1;
         } else if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -202,6 +203,9 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         /*if(heartRateBeltName.startsWith("Disabled"))
         Heart = value.at(18);*/
     }
+
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
 
@@ -229,7 +233,8 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -273,22 +278,34 @@ double paferstreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
 void paferstreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
+    QSettings settings;
+    bool pafers_treadmill_bh_iboxster_plus =
+        settings
+            .value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus)
+            .toBool();
     uint8_t initData1[] = {0x55, 0xbb, 0x01, 0xff};
     uint8_t initData2[] = {0x55, 0x0c, 0x01, 0xff};
     uint8_t initData3[] = {0x55, 0x1f, 0x01, 0xff};
+    uint8_t initData3b[] = {0x55, 0x0d, 0x0a, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     uint8_t initData4[] = {0x55, 0x0a, 0x01, 0x02};
     uint8_t initData5[] = {0x55, 0x01, 0x06, 0x39, 0x01, 0x32, 0x19, 0xa5, 0x32};
     uint8_t initData6[] = {0x55, 0x15, 0x01, 0x00};
     uint8_t initData7[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+    uint8_t initData7b[] = {0x55, 0x0f, 0x02, 0x00, 0x0a};
     uint8_t initData8[] = {0x55, 0x11, 0x01, 0x00};
     uint8_t initData9[] = {0x55, 0x08, 0x01, 0x01};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    if (pafers_treadmill_bh_iboxster_plus)
+        writeCharacteristic(initData3b, sizeof(initData3b), QStringLiteral("init"), false, true);
     writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
     writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
     writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+    if (pafers_treadmill_bh_iboxster_plus)
+        writeCharacteristic(initData7b, sizeof(initData7b), QStringLiteral("init"), false, true);
+    else
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
     writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
 

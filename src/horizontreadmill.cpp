@@ -54,7 +54,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
 
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(8000, &loop, SLOT(quit())); // 6 seconds are important
     } else {
         connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
         timeout.singleShot(3000, &loop, SLOT(quit()));
@@ -171,6 +171,9 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
 
+        init1:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -247,6 +250,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if (!initPacketRecv) {
+                qDebug() << "init 1 not received";
+                waitForAPacket();
+                goto init1;
+            }
+
+        init2:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_1, sizeof(initData7_1),
                                 QStringLiteral("init"), false, false);
@@ -325,6 +337,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if (!initPacketRecv) {
+                qDebug() << "init 2 not received";
+                waitForAPacket();
+                goto init2;
+            }
+
+        init3:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_2, sizeof(initData7_2),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -401,6 +422,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if (!initPacketRecv) {
+                qDebug() << "init 3 not received";
+                waitForAPacket();
+                goto init3;
+            }
+
+        init4:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_3, sizeof(initData7_3),
                                 QStringLiteral("init"), false, false);
@@ -479,6 +509,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if (!initPacketRecv) {
+                qDebug() << "init 4 not received";
+                waitForAPacket();
+                goto init4;
+            }
+
+        init5:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_4, sizeof(initData7_4),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -555,6 +594,15 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
+
+            if (!initPacketRecv) {
+                qDebug() << "init 5 not received";
+                waitForAPacket();
+                goto init5;
+            }
+
+        init6:
+            initPacketRecv = false;
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_5, sizeof(initData7_5),
                                 QStringLiteral("init"), false, false);
@@ -633,6 +681,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if (!initPacketRecv) {
+                qDebug() << "init 6 not received";
+                waitForAPacket();
+                goto init6;
+            }
+
+        init7:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_6, sizeof(initData7_6),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -710,6 +767,15 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
 
+            if (!initPacketRecv) {
+                qDebug() << "init 7 not received";
+                waitForAPacket();
+                goto init7;
+            }
+
+        init8:
+            initPacketRecv = false;
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03, sizeof(initData03),
@@ -726,6 +792,12 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
                                 QStringLiteral("init"), false, true);
+
+            if (!initPacketRecv) {
+                qDebug() << "init 8 not received";
+                waitForAPacket();
+                goto init8;
+            }
         }
         messageID = 0x10;
     }
@@ -766,10 +838,11 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            qDebug() << "requestSpeed=" << requestSpeed;
-            if (requestSpeed != currentSpeed().value() &&
-                fabs(requestSpeed - currentSpeed().value()) > minStepSpeed() && requestSpeed >= 0 &&
-                requestSpeed <= 22 && checkIfForceSpeedNeeding(requestSpeed)) {
+            bool minSpeed = fabs(requestSpeed - currentSpeed().value()) >= minStepSpeed();
+            bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed;
+            if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
+                forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
@@ -779,7 +852,7 @@ void horizontreadmill::update() {
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
-            else if(((int)requestInclination) != requestInclination) { // it has decimal
+            else if (((int)requestInclination) != requestInclination) { // it has decimal
                 // the treadmill accepts only .5 steps
                 requestInclination = floor(requestInclination) + 0.5;
             }
@@ -863,29 +936,39 @@ void horizontreadmill::update() {
 
             if (gattCustomService) {
                 if (!horizon_paragon_x) {
-                    if (horizon_treadmill_7_8) {
+                    /*if (horizon_treadmill_7_8)*/ {
                         // stop
                         if (requestPause == -1) {
-                            messageID++;
-                            uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x01, 0x14, 0x00, 0x00, 0x00, 0x00};
-                            write1[2] = messageID & 0xff;
-                            write1[3] = messageID >> 8;
-
-                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
-                                                QStringLiteral("requestStop"), false, true);
                             Speed = 0; // forcing the speed to be sure, maybe I could remove this
+                            if (!settings
+                                     .value(QZSettings::horizon_treadmill_disable_pause,
+                                            QZSettings::default_horizon_treadmill_disable_pause)
+                                     .toBool()) {
+                                messageID++;
+                                uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x01, 0x14, 0x00, 0x00, 0x00, 0x00};
+                                write1[2] = messageID & 0xff;
+                                write1[3] = messageID >> 8;
+
+                                writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1,
+                                                    sizeof(write1), QStringLiteral("requestStop"), false, true);
+                            }
                             // pause
                         } else {
                             requestPause = -1;
-                            messageID++;
-                            uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x03, 0x01, 0x00, 0xf0, 0xe1, 0x00};
-                            write1[2] = messageID & 0xff;
-                            write1[3] = messageID >> 8;
-
-                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
-                                                QStringLiteral("requestPause"), false, false);
                             Speed = 0; // forcing the speed to be sure, maybe I could remove this
-                            horizonPaused = true;
+                            if (!settings
+                                     .value(QZSettings::horizon_treadmill_disable_pause,
+                                            QZSettings::default_horizon_treadmill_disable_pause)
+                                     .toBool()) {
+                                messageID++;
+                                uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x03, 0x01, 0x00, 0xf0, 0xe1, 0x00};
+                                write1[2] = messageID & 0xff;
+                                write1[3] = messageID >> 8;
+
+                                writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1,
+                                                    sizeof(write1), QStringLiteral("requestPause"), false, false);
+                                horizonPaused = true;
+                            }
                         }
                     }
                 } else {
@@ -941,9 +1024,10 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         if (!horizon_paragon_x) {
             messageID++;
             uint8_t datas[4];
+            double s = qRound(requestSpeed * 0.621371 * 10);
             datas[0] = 0;
-            datas[1] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
-            datas[2] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+            datas[1] = (uint8_t)(s)&0xff;
+            datas[2] = (uint16_t)(s) >> 8;
             datas[3] = 0;
             int confirm = GenerateCRC_CCITT(datas, 4);
             uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -964,8 +1048,9 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             double miles_conversion = 1.0;
             if (miles)
                 miles_conversion = 0.621371;
-            datas[0] = (uint8_t)(requestSpeed * miles_conversion * 10) & 0xff;
-            datas[1] = (uint16_t)(requestSpeed * miles_conversion * 10) >> 8;
+            double s = qRound(requestSpeed * miles_conversion * 10);
+            datas[0] = (uint8_t)(s)&0xff;
+            datas[1] = (uint16_t)(s) >> 8;
             datas[2] = 0x01;
             uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x03, 0x00,
                                             0x00, 0x00, 0x6f, 0x00, 0x01, 0x0d, 0x0a};
@@ -986,17 +1071,17 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
+                            false);
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+                            false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
-        writeS[2] = ((uint16_t)requestSpeed * 100) >> 8;
+        writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
+        writeS[2] = ((uint16_t)(requestSpeed * 100)) >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceSpeed"), false, true);
+                            QStringLiteral("forceSpeed"), false, false);
     }
 }
 
@@ -1047,17 +1132,17 @@ void horizontreadmill::forceIncline(double requestIncline) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            true);
+                            false);
         write[0] = {FTMS_START_RESUME};
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, true);
+                            false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)requestIncline * 10) & 0xFF;
-        writeS[2] = ((int16_t)requestIncline * 10) >> 8;
+        writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+        writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("forceIncline"), false, true);
+                            QStringLiteral("forceIncline"), false, false);
     }
 }
 
@@ -1095,9 +1180,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (customRecv <= 0) {
             emit debug(QStringLiteral(" << FULL ") + " " + lastPacketComplete.toHex(' '));
             qDebug() << "full custom packet received";
+            initPacketRecv = true;
             customRecv = 0;
             emit packetReceived();
         }
+    }
+
+    if (isPaused() && settings
+                          .value(QZSettings::horizon_treadmill_suspend_stats_pause,
+                                 QZSettings::default_horizon_treadmill_suspend_stats_pause)
+                          .toBool()) {
+        qDebug() << "treadmill paused so I'm ignoring the new metrics";
+        return;
     }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
@@ -1525,6 +1619,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    cadenceFromAppleWatch();
+
     if (Speed.value() > 0)
         lastStart = 0;
     else
@@ -1541,6 +1637,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
+    QSettings settings;
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
@@ -1591,7 +1688,11 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     gattFTMSService = s;
                 }
 
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService) {
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService &&
+                    !settings
+                         .value(QZSettings::horizon_treadmill_force_ftms,
+                                QZSettings::default_horizon_treadmill_force_ftms)
+                         .toBool()) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharCustomService = c;
                     gattCustomService = s;
@@ -1736,6 +1837,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
+            mobvoi_treadmill = true;
+            qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
