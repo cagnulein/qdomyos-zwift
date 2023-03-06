@@ -114,9 +114,9 @@ bool WebServerInfoSender::init() {
             X769simPygCblBp2xwE6w14aHEBx4kcF1p2QbC1vHynszJxyVLvHqUjuJwVAoPrM
             Imy6LOiw2tRTHPsj7UH16M6C
             -----END CERTIFICATE-----)";
-            sslconf.setLocalCertificate(g_certificate);
-            sslconf.setPrivateKey(g_privateKey);
-            sslconf.setProtocol(QSsl::Rsa);
+            sslconf.setLocalCertificate(QSslCertificate(g_certificate));
+            sslconf.setPrivateKey(QSslKey(g_privateKey, QSsl::Rsa));
+            sslconf.setProtocol(QSsl::SecureProtocols);
 
             httpServer->sslSetup(sslconf);
         }
