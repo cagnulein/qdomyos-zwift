@@ -30,6 +30,7 @@ class WebServerInfoSender : public TemplateInfoSender {
     bool listen();
     void processFetcher(QWebSocket *sender, const QByteArray &data);
     QTimer watchdogTimer;
+    QSslConfiguration sslconf;
 
   protected:
     virtual void innerStop();

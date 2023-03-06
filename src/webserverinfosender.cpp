@@ -18,13 +18,10 @@ void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslE
 
 bool WebServerInfoSender::listen() {
     if (!innerTcpServer) {
-        innerTcpServer = new QTcpServer(this);
+        innerTcpServer = new QSslServer(sslconf, this);
         connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
     }
     if (!innerTcpServer->isListening()) {
-#ifdef Q_OS_IOS
-        port = 443;
-#endif
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
             if (!port) {
                 settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
@@ -117,8 +114,11 @@ bool WebServerInfoSender::init() {
             X769simPygCblBp2xwE6w14aHEBx4kcF1p2QbC1vHynszJxyVLvHqUjuJwVAoPrM
             Imy6LOiw2tRTHPsj7UH16M6C
             -----END CERTIFICATE-----)";
-            httpServer->sslSetup(QSslCertificate(g_certificate),
-                                 QSslKey(g_privateKey, QSsl::Rsa));
+            sslconf.setLocalCertificate(g_certificate);
+            sslconf.setPrivateKey(g_privateKey);
+            sslconf.setProtocol(QSsl::Rsa);
+
+            httpServer->sslSetup(sslconf);
         }
         relative2Absolute.clear();
         for (auto fld : folders) {
