@@ -482,4 +482,4 @@ jobs:
           dir: '${{ github.workspace }}/output/android/'
 
       - name: Build
-        run: cd src; qmake CONFIG+=release && make -j4
+        run: qmake CONFIG+=release && cd src && make -j4
