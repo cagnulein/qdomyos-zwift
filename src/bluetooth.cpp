@@ -1414,7 +1414,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                             &bluetooth::inclinationChanged);
                     octaneElliptical->deviceDiscovered(b);
                     this->startTemplateManagers(octaneElliptical);
-                } else if (((b.name().toUpper().startsWith(QLatin1String("ZR7"))  || b.name().toUpper().startsWith(QLatin1String("ZR8"))) && !octaneTreadmill && filter) {
+                }
+            else if ((b.name().toUpper().startsWith(QLatin1String("ZR7")) ||
+                      b.name().toUpper().startsWith(QLatin1String("ZR8"))) &&
+                     !octaneTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 octaneTreadmill = new octanetreadmill(this->pollDeviceTime, noConsole, noHeartService);
