@@ -17,7 +17,7 @@ ColumnLayout {
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/" + (settings.value("maps_type") === "3D" ? "googlemaps" : "maps2d") + "/maps.htm"
+        url: "https://localhost:" + settings.value("template_inner_QZWS_port") + "/" + (settings.value("maps_type") === "3D" ? "googlemaps" : "maps2d") + "/maps.htm"
         visible: true
         onLoadingChanged: {
             if (loadRequest.errorString)

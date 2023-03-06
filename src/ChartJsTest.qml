@@ -16,7 +16,7 @@ ColumnLayout {
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
+        url: "https://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
         visible: true
         onLoadingChanged: {
             if (loadRequest.errorString) {
