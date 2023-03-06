@@ -176,6 +176,15 @@
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
           onclick="PelotonOffsetPlus()">+</button></td>
     </tr>
+    <tr class="gears">
+      <td class="icon">⚙</td>
+      <td style="text-align: left">GEARS</td>
+      <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="GearsMinus()">-</button></td>
+      <td class="gears-value values"><b>0</b></td>
+      <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
+          onclick="GearsPlus()">+</button></td>
+    </tr>    
     <tr>
       <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Lap()">CLEAR</button></td>
@@ -239,6 +248,34 @@
         msg: 'pelotonoffset_minus',
       }, function (msg) {
         if (msg.msg === 'R_pelotonoffset_minus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function GearsPlus() {
+      let el = new MainWSQueueElement({
+        msg: 'gears_plus',
+      }, function (msg) {
+        if (msg.msg === 'R_gears_plus') {
+          return msg.content;
+        }
+        return null;
+      }, 15000, 1);
+      el.enqueue().catch(function (err) {
+        console.error('Error is ' + err);
+      });
+    }
+
+    function GearsMinus() {
+      let el = new MainWSQueueElement({
+        msg: 'gears_minus',
+      }, function (msg) {
+        if (msg.msg === 'R_gears_minus') {
           return msg.content;
         }
         return null;
@@ -352,7 +389,7 @@
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -439,6 +476,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".pelotonoffset").hide();
               }
+            } else if (key === 'tile_gears_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".gears").hide();
+              }              
             }
           }
           return msg.content;
@@ -454,7 +495,7 @@
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
-        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance']
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -498,6 +539,7 @@
           var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
+          var gears = 0;
           var peloton_ask_already_running = false;
 
           for (let key of keys_arr) {
@@ -585,6 +627,8 @@
               target_power = msg.content[key];
             } else if (key === 'peloton_offset') {
               peloton_offset = msg.content[key];
+            } else if (key === 'gears') {
+              gears = msg.content[key];              
             } else if (key === 'peloton_resistance_color') {
               $('.peloton_resistance-value').css('color', msg.content[key]);
             } else if (key === 'heart_color') {

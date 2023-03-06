@@ -652,6 +652,24 @@ void TemplateInfoSenderBuilder::onPelotonOffsetMinus(const QJsonValue &msgConten
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGearsPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit gears_Plus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_gears_plus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onGearsMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    Q_UNUSED(msgContent);
+    QJsonObject main, outObj;
+    emit gears_Minus();
+    main[QStringLiteral("msg")] = QStringLiteral("R_gears_minus");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     Q_UNUSED(msgContent);
     QJsonObject main, outObj;
@@ -781,6 +799,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("pelotonoffset_minus")) {
                     onPelotonOffsetMinus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("gears_plus")) {
+                    onGearsPlus(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("pelotonoffset_minus")) {
+                    onGearsMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("peloton_start_workout")) {
                     onPelotonStartWorkout(jsonObject[QStringLiteral("content")], sender);
@@ -954,6 +978,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
         if (tp == bluetoothdevice::BIKE) {
+            obj.setProperty(QStringLiteral("gears"), ((bike *)device)->gears());
             obj.setProperty(QStringLiteral("target_resistance"), ((bike *)device)->lastRequestedResistance().value());
             obj.setProperty(QStringLiteral("target_peloton_resistance"),
                             ((bike *)device)->lastRequestedPelotonResistance().value());

@@ -417,6 +417,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::pelotonOffset_Plus);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset_Minus, this,
             &homeform::pelotonOffset_Minus);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::gears_Plus, this,
+            &homeform::gearUp);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::gears_Minus, this,
+            &homeform::gearDown);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonOffset, this,
             &homeform::pelotonOffset);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::pelotonAskStart, this,
