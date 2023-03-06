@@ -479,7 +479,7 @@ jobs:
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
-          dir: '${{ github.workspace }}/output/android/'
+          dir: '${{ github.workspace }}/output/ios/'
 
       - name: Build
-        run: qmake CONFIG+=release && cd src && make -j4
+        run: qmake CONFIG+=release && make -j4
