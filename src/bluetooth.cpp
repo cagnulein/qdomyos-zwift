@@ -1126,6 +1126,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
@@ -1398,7 +1399,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStride, &echelonstride::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStride->deviceDiscovered(b);
                 this->startTemplateManagers(echelonStride);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("Q37"))) && !octaneElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("Q37")) || b.name().toUpper().startsWith(QLatin1String("ZR8"))) && !octaneElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 octaneElliptical = new octaneelliptical(this->pollDeviceTime, noConsole, noHeartService);

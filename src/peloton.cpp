@@ -375,25 +375,35 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     int len = s["length"].toInt();
                     if (!zone.toUpper().compare(QStringLiteral("SPIN UPS")) ||
                         !zone.toUpper().compare(QStringLiteral("SPIN-UPS"))) {
+                        bool peloton_spinups_autoresistance = settings.value(QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance).toBool();
                         uint32_t Duration = len;
-                        double PowerLow = 0.5;
-                        double PowerHigh = 0.83;
-                        for (uint32_t i = 0; i < Duration; i++) {
-                            trainrow row;
-                            row.duration = QTime(0, 0, 1, 0);
-                            row.rampDuration =
-                                QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                            row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
-                            if (PowerHigh > PowerLow) {
-                                row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
-                            } else {
-                                row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                        if(peloton_spinups_autoresistance) {
+                            double PowerLow = 0.5;
+                            double PowerHigh = 0.83;
+                            for (uint32_t i = 0; i < Duration; i++) {
+                                trainrow row;
+                                row.duration = QTime(0, 0, 1, 0);
+                                row.rampDuration =
+                                    QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                                if (PowerHigh > PowerLow) {
+                                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                                } else {
+                                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                                }
+                                qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
+                                trainrows.append(row);
+                                atLeastOnePower = true;
                             }
-                            qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
-                            trainrows.append(row);
-                            atLeastOnePower = true;
+                        } else {
+                            r.duration = QTime(0, len / 60, len % 60, 0);
+                            r.power = -1;
+                            if (r.power != -1) {
+                                atLeastOnePower = true;
+                            }
+                            trainrows.append(r);
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
                         uint32_t Duration = len;

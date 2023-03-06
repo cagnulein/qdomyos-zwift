@@ -197,7 +197,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(devIdMesg);
     encode.Write(eventMesg);
 
-    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+    fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
 
     fit::LapMesg lapMesg;
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
