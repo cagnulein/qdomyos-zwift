@@ -88,6 +88,11 @@
       <td><small>MAX</small></td>
       <td class="inclination-max">0.0</td>
     </tr>
+    <tr class="elevation">
+      <td class="icon">🚵</td>
+      <td style="text-align: left">ELEV.</td>
+      <td class="elevation-value values" colspan="5"><b>0.0</b></td>
+    </tr>    
     <tr class="cadence">
       <td class="icon">🚴</td>
       <td style="text-align: left">CADENCE</td>
@@ -385,11 +390,13 @@
       tile_target_power_enabled = false;
       miles_unit = false;
       miles_conversion = 1.0;
+      meter_conversion = 1.0;
 
       settings_arr = ['tile_speed_enabled', 'tile_cadence_enabled', 'tile_calories_enabled', 'tile_odometer_enabled', 'tile_resistance_enabled', 'tile_watt_enabled',
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
-        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled']
+        'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled', 
+        'tile_elevation_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -412,6 +419,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".inclination").hide();
               }
+            } else if (key === 'tile_elevation_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".elevation").hide();
+              }              
             } else if (key === 'tile_cadence_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".cadence").hide();
@@ -454,8 +465,10 @@
               }
             } else if (key === 'miles_unit') {
               miles_unit = (msg.content[key] === true || msg.content[key] === 'true');
-              if (miles_unit)
+              if (miles_unit) {
                 miles_conversion = 0.621371;
+                meter_conversion = 3.28084;
+              }
             } else if (key === 'floating_transparency') {
               $(".transparency").css("opacity", msg.content[key] / 100.0);
             } else if (key === 'tile_target_resistance_enabled') {
@@ -495,7 +508,7 @@
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
-        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears']
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -504,6 +517,7 @@
           var powerzone = 0;
           var powerzone_lapavg = 0;
           var powerzone_lapmax = 0;
+          var elevation = 0;
           var inclination = 0;
           var inclination_lapavg = 0;
           var inclination_lapmax = 0;
@@ -551,6 +565,8 @@
               speed_lapavg = msg.content[key] * miles_conversion;
             } else if (key === 'speed_lapmax') {
               speed_lapmax = msg.content[key] * miles_conversion;
+            } else if (key === 'elevation') {
+              elevation = msg.content[key] * meter_conversion;              
             } else if (key === 'inclination') {
               inclination = msg.content[key];
             } else if (key === 'inclination_lapavg') {
@@ -662,6 +678,7 @@
             $('.inclination-value').html("<b>" + inclination.toFixed(1) + "</b>");
           $('.inclination-avg').html(inclination_lapavg.toFixed(1));
           $('.inclination-max').html(inclination_lapmax.toFixed(1));
+          $('.elevation-value').html("<b>" + elevation.toFixed(1) + "</b>");
           if (tile_target_cadence_enabled && target_cadence > 0)
             $('.cadence-value').html("<b>" + cadence.toFixed(0) + "/" + target_cadence.toFixed(0) + "</b>");
           else
