@@ -411,6 +411,7 @@
 		87D269A325F535340076AA48 /* moc_skandikawiribike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */; };
 		87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A225F535300076AA48 /* moc_m3ibike.cpp */; };
 		87D44181269DE979003263D5 /* webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D44180269DE979003263D5 /* webserverinfosender.cpp */; };
+		87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D4693529B64D8100C9A382 /* ios_app_delegate.mm */; };
 		87D5DC402823047D008CCDE7 /* truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC3E2823047D008CCDE7 /* truetreadmill.cpp */; };
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
@@ -1224,6 +1225,7 @@
 		87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_skandikawiribike.cpp; sourceTree = "<group>"; };
 		87D269A225F535300076AA48 /* moc_m3ibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_m3ibike.cpp; sourceTree = "<group>"; };
 		87D44180269DE979003263D5 /* webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webserverinfosender.cpp; path = ../src/webserverinfosender.cpp; sourceTree = "<group>"; };
+		87D4693529B64D8100C9A382 /* ios_app_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_app_delegate.mm; path = ../src/ios/ios_app_delegate.mm; sourceTree = "<group>"; };
 		87D5DC3E2823047D008CCDE7 /* truetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = truetreadmill.cpp; path = ../src/truetreadmill.cpp; sourceTree = "<group>"; };
 		87D5DC3F2823047D008CCDE7 /* truetreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = truetreadmill.h; path = ../src/truetreadmill.h; sourceTree = "<group>"; };
 		87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_truetreadmill.cpp; sourceTree = "<group>"; };
@@ -1828,6 +1830,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87D4693529B64D8100C9A382 /* ios_app_delegate.mm */,
 				874D271E29AFA11F0007C079 /* apexbike.cpp */,
 				874D271F29AFA11F0007C079 /* apexbike.h */,
 				87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */,
@@ -2866,6 +2869,7 @@
 				87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
 				8738249827E646E3004F1B46 /* dirconmanager.cpp in Compile Sources */,
+				87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */,
 				87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */,
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,

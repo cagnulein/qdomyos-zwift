@@ -1,3 +1,4 @@
+#ifndef IO_UNDER_QT
 #import <ConnectIQ/ConnectIQ.h>
 #import "UIKit/UIKit.h"
 #import "UserNotifications/UserNotifications.h"
@@ -55,15 +56,15 @@
                 [[ConnectIQ sharedInstance] openAppRequest:app
                                                 completion:^(IQSendMessageResult result) {
                     switch(result) {
-                        case IQSendMessageResult_Success: NSLog(@”Popup was displayed”); break;
-                        case IQSendMessageResult_Failure_PromptNotDisplayed: NSLog(@”Popup was
-                                displayed”); break;
-                        case IQSendMessageResult_Failure_AppAlreadyRunning: NSLog(@”Popup was
-                                displayed”); break;
+                        case IQSendMessageResult_Success: NSLog(@"Popup was displayed"); break;
+                        case IQSendMessageResult_Failure_PromptNotDisplayed: NSLog(@"Popup was
+                                displayed"); break;
+                        case IQSendMessageResult_Failure_AppAlreadyRunning: NSLog(@"Popup was
+                                displayed"); break;
                     }
                 }];         
 
-                NSArray *message = @[@”hello pi”, @(3.14159)];
+                NSArray *message = @[@"hello pi", @(3.14159)];
                 [[ConnectIQ sharedInstance] sendMessage:message
                                                 toApp:app
                                             progress:^(uint32_t sent, uint32_t total) {
@@ -97,3 +98,4 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult result))comp
 {
 }
 @end
+#endif
