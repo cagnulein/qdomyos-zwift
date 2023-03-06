@@ -738,7 +738,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
-    OBJECTIVE_SOURCES = ios/ios_app_delegate.mm
+    OBJECTIVE_SOURCES += ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
