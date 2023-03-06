@@ -317,6 +317,8 @@ bool bluetooth::fitmetriaFanfitAvaiable() {
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
         if (!b.name().compare("FITFAN-", Qt::CaseInsensitive)) {
             return true;
+        } else if (b.name().toUpper().startsWith("HEADWIND ")) {
+            return true;
         }
     }
     return false;
@@ -2065,6 +2067,16 @@ void bluetooth::connectedAndDiscovered() {
                     f->deviceDiscovered(b);
                     fitmetriaFanfit.append(f);
                     break;
+                } else if (((b.name().toUpper().startsWith("HEADWIND "))) && !fitmetria_fanfit_isconnected(b.name())) {
+                    wahookickrheadwind *f = new wahookickrheadwind(this->device());
+
+                    connect(f, &wahookickrheadwind::debug, this, &bluetooth::debug);
+
+                    connect(this->device(), SIGNAL(fanSpeedChanged(uint8_t)), f, SLOT(fanSpeedRequest(uint8_t)));
+
+                    f->deviceDiscovered(b);
+                    wahookickrHeadWind.append(f);
+                    break;
                 }
             }
         }
@@ -2687,6 +2699,14 @@ void bluetooth::restart() {
         }
         fitmetriaFanfit.clear();
     }
+    if (wahookickrHeadWind.length()) {
+
+        foreach (wahookickrheadwind *f, wahookickrHeadWind) {
+            delete f;
+            f = nullptr;
+        }
+        wahookickrHeadWind.clear();
+    }
     if (cadenceSensor) {
 
         // heartRateBelt->disconnectBluetooth(); // to test
@@ -2994,6 +3014,10 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
 
 bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
     foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
+        if (!name.compare(f->bluetoothDevice.name()))
+            return true;
+    }
+    foreach (wahookickrheadwind *f, wahookickrHeadWind) {
         if (!name.compare(f->bluetoothDevice.name()))
             return true;
     }

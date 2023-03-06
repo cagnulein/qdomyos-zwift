@@ -115,6 +115,7 @@
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
 #include "ultrasportbike.h"
+#include "wahookickrheadwind.h"
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
 
@@ -235,6 +236,7 @@ class bluetooth : public QObject, public SignalHandler {
     fakeelliptical *fakeElliptical = nullptr;
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
+    QList<wahookickrheadwind *> wahookickrHeadWind;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;

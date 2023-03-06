@@ -67,6 +67,7 @@ SOURCES += \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
+   $$PWD/wahookickrheadwind.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -262,6 +263,7 @@ HEADERS += \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
    $$PWD/pelotonbike.h \
+   $$PWD/wahookickrheadwind.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
