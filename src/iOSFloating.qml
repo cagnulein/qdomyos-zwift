@@ -18,8 +18,7 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width
-        onCertificateError: error.ignoreCertificateError()
+        width: parent.width        
 
         url: "https://onepeloton.com"
         visible: true
