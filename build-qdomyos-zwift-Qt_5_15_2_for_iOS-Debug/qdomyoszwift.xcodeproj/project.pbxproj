@@ -340,6 +340,8 @@
 		879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */; };
 		879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74102893D5B7009A64C8 /* libqavfcamera.a */; };
 		879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74142893D732009A64C8 /* CoreMedia.framework */; };
+		87A0770C29B6217500A368BF /* libQt5SslServer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87A0770B29B6217400A368BF /* libQt5SslServer.a */; };
+		87A0770D29B6218700A368BF /* libQt5SslServer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87A0770B29B6217400A368BF /* libQt5SslServer.a */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -1113,6 +1115,7 @@
 		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera.a; sourceTree = "<group>"; };
 		879F74122893D705009A64C8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		879F74142893D732009A64C8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		87A0770B29B6217400A368BF /* libQt5SslServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5SslServer.a; path = ../qHttpServerBin/5.15.2/ios/lib/libQt5SslServer.a; sourceTree = "<group>"; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/cscbike.cpp; sourceTree = "<group>"; };
@@ -1551,6 +1554,7 @@
 				A48EFCF98552C67DAB8515FD /* Qt5ClipboardSupport in Link Binary With Libraries */,
 				4B457EBD757B30AEB87115EA /* qgif in Link Binary With Libraries */,
 				3CD4CA4EC80AF4F839D1019B /* qicns in Link Binary With Libraries */,
+				87A0770D29B6218700A368BF /* libQt5SslServer.a in Link Binary With Libraries */,
 				B714316583081A00BDF9C0F2 /* qico in Link Binary With Libraries */,
 				048796158C9224438A10BFB7 /* qjpeg in Link Binary With Libraries */,
 				E8C47E7768095E24910D0E38 /* qmacheif in Link Binary With Libraries */,
@@ -1628,6 +1632,7 @@
 				87F1179E26A5FBDE00541B3A /* libqtwebview_darwin.a in Link Binary With Libraries */,
 				A2512002BCC1BFB4FC6D60C1 /* Qt5Core in Link Binary With Libraries */,
 				F8B465CE34D8DF87AAE95913 /* CoreFoundation.framework in Link Binary With Libraries */,
+				87A0770C29B6217500A368BF /* libQt5SslServer.a in Link Binary With Libraries */,
 				F26454630C80841CBDCFE1CA /* Foundation.framework in Link Binary With Libraries */,
 				3407CACF00E4A0046255A968 /* qtpcre2 in Link Binary With Libraries */,
 				25732265709055CB968558D3 /* Qt5NetworkAuth in Link Binary With Libraries */,
@@ -2250,6 +2255,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87A0770B29B6217400A368BF /* libQt5SslServer.a */,
 				879F74142893D732009A64C8 /* CoreMedia.framework */,
 				879F74122893D705009A64C8 /* CoreVideo.framework */,
 				879F74102893D5B7009A64C8 /* libqavfcamera.a */,
