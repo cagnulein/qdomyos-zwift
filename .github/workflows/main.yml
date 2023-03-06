@@ -13,8 +13,8 @@ on:
     branches: [ master,  github-workflow-playground ]
   pull_request:
     branches: [ master ]
-#  schedule:
-#    - cron: "0 */12 * * *"
+  schedule:
+    - cron: "0 */12 * * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -266,14 +266,14 @@ jobs:
           name: test_results_xml
           path: tst/test-results/**/*.xml               
 
-#      - name: Test Peloton API
-#        if: github.event_name == 'push' || github.event_name == 'schedule'
-#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
-#        timeout-minutes: 2
+      - name: Test Peloton API
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+        timeout-minutes: 2
 
-#      - name: Test Home Fitness Buddy API
-#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
-#        timeout-minutes: 2
+      - name: Test Home Fitness Buddy API
+        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+        timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
 #        with:
