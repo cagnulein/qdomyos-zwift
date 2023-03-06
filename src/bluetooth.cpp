@@ -1122,10 +1122,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||  // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||     // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||       // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||      // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
@@ -1399,21 +1399,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStride, &echelonstride::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStride->deviceDiscovered(b);
                 this->startTemplateManagers(echelonStride);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("Q37")) || b.name().toUpper().startsWith(QLatin1String("ZR8"))) && !octaneElliptical && filter) {
-                this->setLastBluetoothDevice(b);
-                this->stopDiscovery();
-                octaneElliptical = new octaneelliptical(this->pollDeviceTime, noConsole, noHeartService);
-                // stateFileRead();
-                emit deviceConnected(b);
-                connect(octaneElliptical, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                // connect(octaneElliptical, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
-                connect(octaneElliptical, &octaneelliptical::debug, this, &bluetooth::debug);
-                connect(octaneElliptical, &octaneelliptical::speedChanged, this, &bluetooth::speedChanged);
-                connect(octaneElliptical, &octaneelliptical::inclinationChanged, this, &bluetooth::inclinationChanged);
-                octaneElliptical->deviceDiscovered(b);
-                this->startTemplateManagers(octaneElliptical);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("ZR7"))) && !octaneTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("Q37")))) && !octaneElliptical && filter) {
+                    this->setLastBluetoothDevice(b);
+                    this->stopDiscovery();
+                    octaneElliptical = new octaneelliptical(this->pollDeviceTime, noConsole, noHeartService);
+                    // stateFileRead();
+                    emit deviceConnected(b);
+                    connect(octaneElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                            &bluetooth::connectedAndDiscovered);
+                    // connect(octaneElliptical, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
+                    connect(octaneElliptical, &octaneelliptical::debug, this, &bluetooth::debug);
+                    connect(octaneElliptical, &octaneelliptical::speedChanged, this, &bluetooth::speedChanged);
+                    connect(octaneElliptical, &octaneelliptical::inclinationChanged, this,
+                            &bluetooth::inclinationChanged);
+                    octaneElliptical->deviceDiscovered(b);
+                    this->startTemplateManagers(octaneElliptical);
+                } else if (((b.name().toUpper().startsWith(QLatin1String("ZR7"))  || b.name().toUpper().startsWith(QLatin1String("ZR8"))) && !octaneTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 octaneTreadmill = new octanetreadmill(this->pollDeviceTime, noConsole, noHeartService);
