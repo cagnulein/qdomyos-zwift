@@ -81,5 +81,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>gcm-ciq</string>
+	</array>	
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
+			<key>CFBundleURLName</key>
+			<string>ConnectIQ URL Scheme</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>org.cagnulein.ConnectIQComms-ciq</string>
+			</array>
+		</dict>
+	</array>	
 </dict>
 </plist>
