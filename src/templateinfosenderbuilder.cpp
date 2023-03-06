@@ -923,6 +923,14 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
+        el = device->averagePace();
+        obj.setProperty(QStringLiteral("avgpace_s"), el.second());
+        obj.setProperty(QStringLiteral("avgpace_m"), el.minute());
+        obj.setProperty(QStringLiteral("avgpace_h"), el.hour());        
+        el = device->maxPace();
+        obj.setProperty(QStringLiteral("maxpace_s"), el.second());
+        obj.setProperty(QStringLiteral("maxpace_m"), el.minute());
+        obj.setProperty(QStringLiteral("maxpace_h"), el.hour());                
         el = device->movingTime();
         obj.setProperty(QStringLiteral("moving_s"), el.second());
         obj.setProperty(QStringLiteral("moving_m"), el.minute());

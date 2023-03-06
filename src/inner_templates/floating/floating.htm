@@ -88,6 +88,15 @@
       <td><small>MAX</small></td>
       <td class="inclination-max">0.0</td>
     </tr>
+    <tr class="pace">
+      <td class="icon">🏃</td>
+      <td style="text-align: left">PACE</td>
+      <td><small>AVG</small></td>
+      <td class="pace-avg">00:00</td>
+      <td class="pace-value values"><b>00:00</b></td>
+      <td><small>MAX</small></td>
+      <td class="pace-max">00:00</td>
+    </tr>    
     <tr class="elevation">
       <td class="icon">🚵</td>
       <td style="text-align: left">ELEV.</td>
@@ -396,7 +405,7 @@
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
         'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled', 
-        'tile_elevation_enabled']
+        'tile_elevation_enabled', 'tile_pace_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -415,6 +424,10 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".powerzone").hide();
               }
+            } else if (key === 'tile_pace_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                $(".pace").hide();
+              }              
             } else if (key === 'tile_inclination_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".inclination").hide();
@@ -508,7 +521,8 @@
         'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
         'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
-        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation']
+        'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
+        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m',]
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -533,6 +547,12 @@
           var elapsed_h = 0;
           var elapsed_m = 0;
           var elapsed_s = 0;
+          var pace_m = 0;
+          var pace_s = 0;          
+          var avgpace_m = 0;
+          var avgpace_s = 0;          
+          var maxpace_m = 0;
+          var maxpace_s = 0;                    
           var row_remaining_time_s = 0;
           var row_remaining_time_m = 0;
           row_remaining_time_h = 0;
@@ -609,6 +629,18 @@
               elapsed_m = msg.content[key];
             } else if (key === 'elapsed_s') {
               elapsed_s = msg.content[key];
+            } else if (key === 'pace_m') {
+              pace_m = msg.content[key];
+            } else if (key === 'pace_s') {
+              pace_s = msg.content[key];              
+            } else if (key === 'avgpace_m') {
+              avgpace_m = msg.content[key];
+            } else if (key === 'avgpace_s') {
+              avgpace_s = msg.content[key];              
+            } else if (key === 'maxpace_m') {
+              maxpace_m = msg.content[key];
+            } else if (key === 'maxpace_s') {
+              maxpace_s = msg.content[key];                                          
             } else if (key === 'row_remaining_time_h') {
               row_remaining_time_h = msg.content[key];
             } else if (key === 'row_remaining_time_m') {
@@ -709,6 +741,9 @@
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
+          $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
+          $('.pace-avg').html("<b>" + avgpace_m.toString().padStart(2, "0") + ":" + avgpace_s.toString().padStart(2, "0") + "</b>");
+          $('.pace-max').html("<b>" + maxpace_m.toString().padStart(2, "0") + ":" + maxpace_s.toString().padStart(2, "0") + "</b>");
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
