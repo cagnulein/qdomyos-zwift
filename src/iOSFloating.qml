@@ -30,7 +30,7 @@ Item {
                 let loadScr = `
                     var iframeContainer = document.createElement("iframe");
 
-                    iframeContainer.src = "https://localhost:` + settings.value("template_inner_QZWS_port") + `/floating/floating.htm";
+                    iframeContainer.src = "https://localhost.direct:` + settings.value("template_inner_QZWS_port") + `/floating/floating.htm";
                     iframeContainer.width = "640";
                     iframeContainer.height = "480";
                     iframeContainer.frameBorder = "0";
