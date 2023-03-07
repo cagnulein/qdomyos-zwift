@@ -741,9 +741,20 @@
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
-          $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
-          $('.pace-avg').html("<b>" + avgpace_m.toString().padStart(2, "0") + ":" + avgpace_s.toString().padStart(2, "0") + "</b>");
-          $('.pace-max').html("<b>" + maxpace_m.toString().padStart(2, "0") + ":" + maxpace_s.toString().padStart(2, "0") + "</b>");
+          
+          if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
+            $('.pace-value').html("<b>N/A</b>");
+          else
+            $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
+          if(avgpace_s.toString() === "-1" || (avgpace_s.toString() === "0" && avgpace_m.toString() === "0"))
+            $('.pace-avg').html("<b>N/A</b>");
+          else
+            $('.pace-avg').html("<b>" + avgpace_m.toString().padStart(2, "0") + ":" + avgpace_s.toString().padStart(2, "0") + "</b>");
+          if(maxpace_s.toString() === "-1" || (maxpace_s.toString() === "0" && maxpace_m.toString() === "0"))
+            $('.pace-max').html("<b>N/A</b>");
+          else
+            $('.pace-max').html("<b>" + maxpace_m.toString().padStart(2, "0") + ":" + maxpace_s.toString().padStart(2, "0") + "</b>");
+          
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
