@@ -359,7 +359,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if (i >= newValue.length())
             return;
 
-        Cadence = ((uint8_t)packet.at(i));
+        Cadence = ((uint8_t)newValue.at(i));
     }
 
     if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
