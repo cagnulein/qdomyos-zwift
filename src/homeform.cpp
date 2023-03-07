@@ -778,6 +778,9 @@ void homeform::aboutToQuit() {
         floatingOpen();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
+
+    fit_save_clicked();
+
     if (bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();
 }
@@ -3218,7 +3221,7 @@ void homeform::update() {
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.inclination != -1)
                     nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));                                       
+                                       next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
