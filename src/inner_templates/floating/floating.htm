@@ -756,7 +756,7 @@
             $('.pace-max').html("<b>" + maxpace_m.toString().padStart(2, "0") + ":" + maxpace_s.toString().padStart(2, "0") + "</b>");
           
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
-          $('.jouls-value').html("<b>" + jouls.toFixed(0) + "</b>");
+          $('.jouls-value').html("<b>" + jouls.toFixed(1) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
           if (tile_target_zone_enabled && target_power_zone > 0)
             $('.powerzone-value').html("<b>" + powerzone.toFixed(1) + "/" + target_power_zone.toFixed(1) + "</b>");
