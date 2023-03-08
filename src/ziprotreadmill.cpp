@@ -1,157 +1,4 @@
-/*
- *
-    ACKNOWLEDGE(2),
-    AGE(20),
-    BOOSTER_ENABLES(80),
-    BOOSTER_INTERVAL_TIME(82),
-    BOOSTER_LEVEL_OFFSET(48),
-    BOOSTER_REVS(83),
-    BOOSTER_SETTINGS(84),
-    BOOSTER_STATUS(81),
-    CALORIES(13),
-    CALORIES_HOUR(14),
-    CHECK_SUM(1),
-    CONSOLE_SERIAL_NUMBER(121),
-    CONTROL_AUTO_STATUS(90),
-    CONTROL_CONSOLE_ACTIVITY(95),
-    CONTROL_COOL_DOWN(86),
-    CONTROL_FAN(88),
-    CONTROL_GO(89),
-    CONTROL_QUICK_START(87),
-    CONTROL_MIDDLE_BOARD_RESET(94),
-    CONTROL_NEXT_SELECTION(96),
-    CONTROL_PAUSE(93),
-    CONTROL_RESUME(91),
-    CONTROL_TERMINATE_WORKOUT(92),
-    CROSS_CIRCUIT_FREE_STATUS(75),
-    CROSS_CIRCUIT_TIME_STATUS(76),
-    DISTANCE(11),
-    DISTANCE_REVS(12),
-    ERROR(4),
-    EXERTION(37),
-    GOAL_SETUP(73),
-    GOAL_STATUS(74),
-    USERS_HEART_RATE(17),
-    HEART_RATE_AVG(18),
-    HEART_RATE_MAX(19),
-    DESIRED_HEART_RATE_TARGET(24),
-    HEART_RATE_TARGET_STATUS(79),
-    INCLINE_CONTROL(31),
-    INCLINE_GET(36),
-    INTERVAL_SETUP(65),
-    INTERVAL_STATUS(66),
-    LEVEL(9),
-    LEVEL_CONTROL(27),
-    LEVEL_TABLE(64),
-    MACHINE_BASE_SERIAL(120),
-    MACHINE_CONSOLE_SERIAL(121),
-    MACHINE_PREFS(112),
-    METS(16),
-    METS_AVERAGE(29),
-    METS_TARGET(45),
-    MMA_SETUP(77),
-    MMA_STATUS(78),
-    MODEL_AND_VERSION(5),
-    NONE(0),
-    PROGRAM(22),
-    SMART_STRIDE_DATA(85),
-    SPEED(7),
-    SPEED_AVERAGE(8),
-    STATE(3),
-    STRIDE(10),
-    STRIDE_CONTROL(30),
-    THIRTY_THIRTY_AVERAGES(72),
-    THIRTY_THIRTY_STATUS(67),
-    THIRTY_THIRTY_GROUP_DATA(69),
-    THIRTY_THIRTY_INTERMISSION_TIME(70),
-    THIRTY_THIRTY_INTERVAL_DATA(68),
-    THRITY_THIRTY_INTERVAL_TIME(71),
-    TIME(6),
-    TIME_IN_ZONE(26),
-    UNITS(23),
-    WATTS(15),
-    WATTS_AVERAGE(28),
-    WATTS_TARGET(44),
-    WEIGHT(21),
-    WORKOUT_TIME(25),
-    ZR_AVERAGE_PACE(36),
-    ZR_AVERAGE_PACE_HOTH(61),
-    ZR_PACE(35),
-    ZR_LEFT_STEP_DIMENSION(32),
-    ZR_LEFT_STRIDE_COORDS(34),
-    ZR_LEFT_STEP_AVERAGE_DIMENSION(59),
-    ZR_RIGHT_STEP_DIMENSION(57),
-    ZR_RIGHT_STRIDE_COORDS(56),
-    ZR_RIGHT_STEP_AVERAGE_DIMENSION(60),
-    ZR_CADENCE(58),
-    ZR_RUN_PLUS(33),
-    DIAGNOSTICS_BRAKE_TEST(-110),
-    DIAGNOSTICS_CONSOLE_BOARD_DATA_RESET(-79),
-    DIAGNOSTICS_CONSOLE_BOARD_DATA(-80),
-    DIAGNOSTICS_DIAGNOSTIC_KEY(-105),
-    DIAGNOSTICS_DEBUG_INFO(-64),
-    DIAGNOSTICS_ENTER_EXIT(128),
-    DIAGNOSTICS_MACHINE_DISTANCE(-100),
-    DIAGNOSTICS_HEART_RATE_STATUS(-125),
-    DIAGNOSTICS_HOTH_CALIBRATION_DATA(-87),
-    DIAGNOSTICS_HOTH_CALIBRATION_MODE(-88),
-    DIAGNOSTICS_HOTH_LEVEL_POSITION(-99),
-    DIAGNOSTICS_HOTH_SENSOR_DATA(-86),
-    DIAGNOSTICS_INCLINE_ERRORS(-101),
-    DIAGNOSTICS_INCLINE_POSITION(-104),
-    DIAGNOSTICS_INCLINE_STARTS(-102),
-    DIAGNOSTICS_INCLINE_TEST(-108),
-    DIAGNOSTICS_INCLINE_TIME(-103),
-    DIAGNOSTICS_LEFT_STRIDE_POSITION(-123),
-    DIAGNOSTICS_LEFT_STRIDE_ERRORS(-117),
-    DIAGNOSTICS_LEFT_STRIDE_STARTS(-118),
-    DIAGNOSTICS_LEFT_STRIDE_TIME(-119),
-    DIAGNOSTICS_LEVEL(-124),
-    DIAGNOSTICS_MACHINE_TIME(-121),
-    DIAGNOSTICS_MACHINE_REVS(-120),
-    DIAGNOSTICS_PAC_BOARD_VERSION(-127),
-    DIAGNOSTICS_PAC_POWER_DATA(-113),
-    DIAGNOSTICS_PAC_RESET(-112),
-    DIAGNOSTICS_PAC_SERIAL_NUMBER(-96),
-    DIAGNOSTICS_PORTS_TEST(-106),
-    DIAGNOSTICS_RADIO_TEST(-107),
-    DIAGNOSTICS_RIGHT_STRIDE_POSITION(-122),
-    DIAGNOSTICS_RIGHT_STRIDE_ERRORS(-114),
-    DIAGNOSTICS_RIGHT_STRIDE_STARTS(-115),
-    DIAGNOSTICS_RIGHT_STRIDE_TIME(-116),
-    DIAGNOSTICS_RPM_STATUS(-126),
-    DIAGNOSTICS_STRIDE_TEST(-109),
-    DIAGNOSTICS_TEST_STATUS(-111),
-    DIAGNOSTICS_UPDATE_FIRMWARE_CONTROL(-48),
-    DIAGNOSTICS_UPDATE_FIRMWARE_DATA(-47),
-    TV_SETUP(115),
-    TV_PVS_CHANNEL_LIST(116),
-    TV_PVS_CONTROL(117),
-    TV_PVS_DEFAULT(118),
-    TV_900_MHZ_CONTROL(119),
-    TV_AUTO_STATUS(122),
-    SELECT_USB(-39),
-    PCB_REVISION(-46),
-    FITLINXX_STATE(41),
-    FITLINXX_USER_ID(42),
-    FITLINXX_ANT_PRESET(43),
-    HOTH_OPTIONAL_DATA_BYTE(46),
-    HOTH_OPTIONAL_DATA_WORD(47),
-    PROGRAM_TIME(49),
-    CONTROL_TARGET_HEART_RATE(97),
-    CONTROL_TARGET_WATTS(98),
-    CONTROL_TARGET_METS(99),
-    SALES_MODE(113),
-    SIM_MODE(114),
-    BTLE_RADIO_ID(TransportMediator.KEYCODE_MEDIA_PLAY),
-    UPDATE_FIRMWARE_CONTROL_SMART_VERSION_NEW(-44),
-    UPDATE_FIRMWARE_DATA_SMART(-43),
-    SET_MAINTENANCE_MODE(-40),
-    SET_COM_PORT(-36),
-    ERASE_STORAGE_MEMORY(-34);
-*/
-
-#include "octanetreadmill.h"
+#include "ziprotreadmill.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -163,20 +10,8 @@
 
 using namespace std::chrono_literals;
 
-octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
-                                 double forceInitInclination) {
-
-    actualPaceSign.clear();
-    actualPace2Sign.clear();
-
-    // ZR_PACE
-    actualPaceSign.append(0x02);
-    actualPaceSign.append(0x23);
-    actualPace2Sign.append(0x01);
-    actualPace2Sign.append(0x23);
-    cadenceSign.append(0x2c);
-    cadenceSign.append(0x01);
-    cadenceSign.append(0x3A);
+ziprotreadmill::ziprotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
+                               double forceInitInclination) {
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -191,17 +26,17 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
 
     refresh = new QTimer(this);
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &octanetreadmill::update);
+    connect(refresh, &QTimer::timeout, this, &ziprotreadmill::update);
     refresh->start(500ms);
 }
 
-void octanetreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                          bool wait_for_response) {
+void ziprotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                         bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(this, &octanetreadmill::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &ziprotreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
@@ -225,35 +60,35 @@ void octanetreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
     }
 }
 
-void octanetreadmill::updateDisplay(uint16_t elapsed) {
+void ziprotreadmill::updateDisplay(uint16_t elapsed) {
     Q_UNUSED(elapsed);
     // uint8_t noOpData[] = {0x55, 0x0d, 0x0a, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
     // writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"));
 }
 
-void octanetreadmill::forceIncline(double requestIncline) {
+void ziprotreadmill::forceIncline(double requestIncline) {
     // uint8_t incline[] = {0x55, 0x11, 0x01, 0x06};
     // incline[3] = (uint8_t)requestIncline;
     // writeCharacteristic(incline, sizeof(incline), QStringLiteral("forceIncline ") + QString::number(requestIncline));
 }
 
-double octanetreadmill::minStepInclination() { return 1.0; }
-double octanetreadmill::minStepSpeed() { return 1.0; }
+double ziprotreadmill::minStepInclination() { return 1.0; }
+double ziprotreadmill::minStepSpeed() { return 0.1; }
 
-void octanetreadmill::forceSpeed(double requestSpeed) {
+void ziprotreadmill::forceSpeed(double requestSpeed) {
     // uint8_t speed[] = {0x55, 0x0f, 0x02, 0x08, 0x00};
     // speed[3] = (uint8_t)requestSpeed;
     // writeCharacteristic(speed, sizeof(speed), QStringLiteral("forceSpeed ") + QString::number(requestSpeed));
 }
 
-void octanetreadmill::changeInclinationRequested(double grade, double percentage) {
+void ziprotreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
     changeInclination(grade, percentage);
 }
 
-void octanetreadmill::update() {
+void ziprotreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -275,9 +110,9 @@ void octanetreadmill::update() {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
+                connect(virtualTreadMill, &virtualtreadmill::debug, this, &ziprotreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
-                        &octanetreadmill::changeInclinationRequested);
+                        &ziprotreadmill::changeInclinationRequested);
                 firstInit = 1;
             }
         }
@@ -285,28 +120,24 @@ void octanetreadmill::update() {
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
+        uint8_t noop[] = {0xfb, 0x07, 0xa1, 0x02, 0x00, 0x00, 0x00, 0xaa, 0xfc};
         if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
-            }
-            requestSpeed = -1;
-        } else if (requestInclination != -100) {
-            if (requestInclination < 0)
-                requestInclination = 0;
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
-            }
-            requestInclination = -100;
-        } else if (requestStart != -1) {
+            noop[5] = (uint8_t)(requestSpeed * 10.0);
+            emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+        }
+        if (requestInclination != -100) {
+            noop[6] = (uint8_t)(requestInclination);
+            emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+        }
+        noop[7] += noop[5] + noop[6];
+        writeCharacteristic(noop, sizeof(noop), "noop", false, false);
+
+        if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             lastStart = QDateTime::currentMSecsSinceEpoch();
-            // uint8_t start[] = {0x55, 0x0a, 0x01, 0x01};
-            // writeCharacteristic(start, sizeof(start), "start", false, true);
+            requestSpeed = 0.8;
             if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
+                lastSpeed = 0.8;
             }
             requestStart = -1;
             emit tapeStarted();
@@ -314,6 +145,7 @@ void octanetreadmill::update() {
             emit debug(QStringLiteral("stopping..."));
             // uint8_t stop[] = {0x55, 0x0a, 0x01, 0x02};
             // writeCharacteristic(stop, sizeof(stop), "stop", false, true);
+            requestSpeed = 0;
             requestStop = -1;
             lastStop = QDateTime::currentMSecsSinceEpoch();
         } else if (sec1Update++ >= (400 / refresh->interval())) {
@@ -323,12 +155,11 @@ void octanetreadmill::update() {
     }
 }
 
-void octanetreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
+void ziprotreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                            const QByteArray &newValue) {
+void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -340,43 +171,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit packetReceived();
 
-    if (ZR8 == false && lastTimeCharacteristicChanged.secsTo(QDateTime::currentDateTime()) > 5) {
-        emit debug(QStringLiteral("resetting speed"));
-        Speed = 0;
-        Cadence = 0;
-    } else if(ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 && Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
-        emit debug(QStringLiteral("resetting speed"));
-        Speed = 0;
-        Cadence = 0;
-    }
-
-    if ((newValue.length() != 20))
-        return;
-
-    if(ZR8 && newValue.contains(cadenceSign)) {
-        int16_t i = newValue.indexOf(cadenceSign) + 3;
-
-        if (i >= newValue.length())
-            return;
-
-        Cadence = ((uint8_t)newValue.at(i));
-    }
-
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
-        return;
-
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
-        return;
-
-    int16_t i = newValue.indexOf(actualPaceSign) + 2;
-    if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 2;
-
-    if (i + 1 >= newValue.length())
-        return;
-
-    double speed = GetSpeedFromPacket(value, i);
-    if (isinf(speed))
+    if ((newValue.length() != 18))
         return;
 
 #ifdef Q_OS_ANDROID
@@ -396,7 +191,12 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 #endif
 #endif
     }
+
+    double speed = ((double)newValue.at(5)) / 10.0;
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+
+    Inclination = ((double)newValue.at(6));
+    emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
     if (Speed.value() != speed) {
         emit speedChanged(speed);
@@ -429,9 +229,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
-    // ZR8 has builtin cadence sensor
-    if(!ZR8)
-        cadenceFromAppleWatch();
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -444,27 +242,31 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     firstCharacteristicChanged = false;
 }
 
-double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet, int index) {
-    uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
-    return (1.0 / ((double)convertedData)) * 3600.0;
-}
-
-void octanetreadmill::btinit(bool startTape) {
+void ziprotreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    uint8_t initData1[] = {0xa5, 0x04, 0x21, 0x05, 0x01, 0xd9};
-    uint8_t initData2[] = {0xa5, 0x04, 0x21, 0x70, 0x01, 0x6e};
+    uint8_t initData1[] = {0xfb, 0x05, 0xa0, 0x00, 0x01, 0xa6, 0xfc};
+    uint8_t initData2[] = {0xfb, 0x05, 0xa0, 0x01, 0x01, 0xa7, 0xfc};
+    uint8_t initData3[] = {0xfb, 0x05, 0xa0, 0x02, 0x01, 0xa8, 0xfc};
+    uint8_t initData4[] = {0xfb, 0x05, 0xa0, 0x03, 0x01, 0xa9, 0xfc};
+    uint8_t initData5[] = {0xfb, 0x05, 0xa1, 0x00, 0x01, 0xa7, 0xfc};
+    uint8_t initData6[] = {0xfb, 0x06, 0xa1, 0x00, 0x00, 0x00, 0xa7, 0xfc};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
 
     initDone = true;
 }
 
-void octanetreadmill::stateChanged(QLowEnergyService::ServiceState state) {
+void ziprotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
-        QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("96dc867f-7a83-4c22-b6be-6381d727aeda"));
-        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("96dc867e-7a83-4c22-b6be-6381d727aeda"));
+        QBluetoothUuid _gattWriteCharacteristicId((quint16)0xfff2);
+        QBluetoothUuid _gattNotify1CharacteristicId((quint16)0xfff1);
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -475,14 +277,14 @@ void octanetreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-                &octanetreadmill::characteristicChanged);
+                &ziprotreadmill::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
-                &octanetreadmill::characteristicWritten);
+                &ziprotreadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
                 static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &octanetreadmill::errorService);
+                this, &ziprotreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
-                &octanetreadmill::descriptorWritten);
+                &ziprotreadmill::descriptorWritten);
 
         QByteArray descriptor;
         descriptor.append((char)0x01);
@@ -492,58 +294,52 @@ void octanetreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 }
 
-void octanetreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void ziprotreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void octanetreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                            const QByteArray &newValue) {
+void ziprotreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void octanetreadmill::serviceScanDone(void) {
+void ziprotreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("96dc867d-7a83-4c22-b6be-6381d727aeda"));
+    QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &octanetreadmill::stateChanged);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &ziprotreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
-void octanetreadmill::errorService(QLowEnergyService::ServiceError err) {
+void ziprotreadmill::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("octanetreadmill::errorService ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("ziprotreadmill::errorService ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void octanetreadmill::error(QLowEnergyController::Error err) {
+void ziprotreadmill::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("octanetreadmill::error ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("ziprotreadmill::error ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void octanetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void ziprotreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
-        if(device.name().toUpper().startsWith(QLatin1String("ZR8"))) {
-            ZR8 = true;
-            qDebug() << "ZR8 workaround activated";
-        }
-
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &octanetreadmill::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &octanetreadmill::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ziprotreadmill::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &ziprotreadmill::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &octanetreadmill::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &octanetreadmill::controllerStateChanged);
+                this, &ziprotreadmill::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &ziprotreadmill::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -570,7 +366,7 @@ void octanetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-void octanetreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void ziprotreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
@@ -579,25 +375,25 @@ void octanetreadmill::controllerStateChanged(QLowEnergyController::ControllerSta
     }
 }
 
-bool octanetreadmill::connected() {
+bool ziprotreadmill::connected() {
     if (!m_control) {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *octanetreadmill::VirtualTreadMill() { return virtualTreadMill; }
+void *ziprotreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
-void *octanetreadmill::VirtualDevice() { return VirtualTreadMill(); }
+void *ziprotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-bool octanetreadmill::autoPauseWhenSpeedIsZero() {
+bool ziprotreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
         return false;
 }
 
-bool octanetreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+bool ziprotreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
         return true;
     else

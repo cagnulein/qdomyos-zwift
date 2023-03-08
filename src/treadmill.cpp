@@ -169,6 +169,22 @@ void treadmill::verticalOscillationSensor(double verticalOscillation) {
     VerticalOscillationMM.setValue(verticalOscillation);
 }
 
+double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
+    for (int i = 0; i <= 15 * 2; i++) {
+        if (treadmillInclinationOverride(((double)(i)) / 2.0) <= Inclination &&
+            treadmillInclinationOverride(((double)(i + 1)) / 2.0) >= Inclination) {
+            qDebug() << QStringLiteral("treadmillInclinationOverrideReverse")
+                     << treadmillInclinationOverride(((double)(i)) / 2.0)
+                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination;
+            return i;
+        }
+    }
+    if (Inclination < treadmillInclinationOverride(0))
+        return 0;
+    else
+        return 15;
+}
+
 double treadmill::treadmillInclinationOverride(double Inclination) {
     QSettings settings;
     int inc = Inclination * 10;

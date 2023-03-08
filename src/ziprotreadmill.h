@@ -1,5 +1,5 @@
-#ifndef OCTANETREADMILL_H
-#define OCTANETREADMILL_H
+#ifndef ZIPROTREADMILL_H
+#define ZIPROTREADMILL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -28,11 +28,11 @@
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
-class octanetreadmill : public treadmill {
+class ziprotreadmill : public treadmill {
     Q_OBJECT
   public:
-    octanetreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                    double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    ziprotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     double minStepInclination();
     double minStepSpeed();
@@ -44,7 +44,6 @@ class octanetreadmill : public treadmill {
     virtual bool canStartStop() { return false; }
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet, int index);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
@@ -64,10 +63,6 @@ class octanetreadmill : public treadmill {
     int64_t lastStart = 0;
     int64_t lastStop = 0;
 
-    QByteArray actualPaceSign;
-    QByteArray actualPace2Sign;
-    QByteArray cadenceSign;
-
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
 
@@ -77,8 +72,6 @@ class octanetreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
-
-    bool ZR8 = false;
 
   Q_SIGNALS:
     void disconnected();
@@ -106,4 +99,4 @@ class octanetreadmill : public treadmill {
     void changeInclinationRequested(double grade, double percentage);
 };
 
-#endif // OCTANETREADMILL_H
+#endif // ZIPROTREADMILL_H
