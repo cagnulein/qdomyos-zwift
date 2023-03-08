@@ -4297,7 +4297,7 @@ void homeform::update() {
             bool fromTrainProgram =
                 trainProgram && trainProgram->currentRow().HRmin > 0 && trainProgram->currentRow().HRmax > 0;
             double maxSpeed = 30;
-            double minSpeed = 30;
+            double minSpeed = 0;
             int8_t maxResistance = 100;
 
             if (fromTrainProgram) {
@@ -4328,20 +4328,23 @@ void homeform::update() {
                     }
                 }
 
+                if(hrmax == 0 || hrmax == -1)
+                    hrmax = 220;
+
                 if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() &&
                     bluetoothManager->device()->currentSpeed().value() > 0.0f) {
                     if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().value() &&
+                        if (hrmax < bluetoothManager->device()->currentHeart().average5s() &&
                             minSpeed <= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().value() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
                                    maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
@@ -4349,7 +4352,7 @@ void homeform::update() {
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step) {
+                        } else if (maxSpeed >= currentSpeed + step && hrmax < bluetoothManager->device()->currentHeart().average5s()) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > 6) {
                                 ((treadmill *)bluetoothManager->device())
@@ -4364,10 +4367,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().value()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().value() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
                                    maxResistance >= currentResistance + step) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
@@ -4377,10 +4380,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().value()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().value()) {
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
