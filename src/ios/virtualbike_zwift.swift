@@ -321,6 +321,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         request.value = self.calculateIndoorBike()
         self.peripheralManager.respond(to: request, withResult: .success)
         print("Responded successfully to a read request")
+    } else if request.characteristic == self.PowerMeasurementCharacteristic {
+        request.value = self.calculatePower()
+        self.peripheralManager.respond(to: request, withResult: .success)
+        print("Responded successfully to a read request")
     }
   }
   
