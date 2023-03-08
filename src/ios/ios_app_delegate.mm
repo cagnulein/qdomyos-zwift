@@ -3,13 +3,16 @@
 #import "UIKit/UIKit.h"
 #import "UserNotifications/UserNotifications.h"
 
-@interface QIOSApplicationDelegate <IQAppMessageDelegate>
+@interface QIOSApplicationDelegate <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
 
-@interface QIOSApplicationDelegate (QZApplicationDelegate) <IQAppMessageDelegate>
+@interface QIOSApplicationDelegate (QZApplicationDelegate) <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
 
 @implementation QIOSApplicationDelegate (QZApplicationDelegate)
+
+static NSArray *Devices = nil;
+static IQApp *app = nil;
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -32,24 +35,24 @@
             openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication
          annotation:(id)annotation {
-    if ([url.scheme isEqualToString:ReturnURLScheme] &&
+    if ([url.scheme isEqualToString:@"org.cagnulein.ConnectIQComms-ciq"] &&
         [sourceApplication isEqualToString:IQGCMBundle]) {
 
         NSArray *devices = [[ConnectIQ sharedInstance]
                              parseDeviceSelectionResponseFromURL:url];
         if (devices != nil) {
-            [self.devices removeAllObjects];
+            [Devices removeAllObjects];
             for (IQDevice *device in devices) {
-                self.devices[device.uuid] = device;
+                //Devices[device.uuid] = device;
                 [[ConnectIQ sharedInstance] registerForDeviceEvents:device
                                            delegate:self];                
                 NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:@"feec8674-2795-4e03-a283-0b69a0a291e3"];
-                IQApp *app = [IQApp appWithUUID:uuid device:device];
+                app = [IQApp appWithUUID:uuid device:device];
 
                 [[ConnectIQ sharedInstance] getAppStatus:app
                                             completion:^(IQAppStatus *appStatus) {
                     if (appStatus != nil && appStatus.isInstalled) {
-                        NSLog(@”App is installed! Version: %d”, appStatus.version);
+                        NSLog(@"App is installed! Version: %d", appStatus.version);
                     }
                 }];  
 
@@ -57,10 +60,8 @@
                                                 completion:^(IQSendMessageResult result) {
                     switch(result) {
                         case IQSendMessageResult_Success: NSLog(@"Popup was displayed"); break;
-                        case IQSendMessageResult_Failure_PromptNotDisplayed: NSLog(@"Popup was
-                                displayed"); break;
-                        case IQSendMessageResult_Failure_AppAlreadyRunning: NSLog(@"Popup was
-                                displayed"); break;
+                        case IQSendMessageResult_Failure_PromptNotDisplayed: NSLog(@"Popup was displayed"); break;
+                        case IQSendMessageResult_Failure_AppAlreadyRunning: NSLog(@"Popup was displayed"); break;
                     }
                 }];         
 
@@ -71,8 +72,8 @@
                     float percent = 100 * sent / (float)total;
                     NSLog(@"%02.2f%% - %u/%u", percent, sent, total);
                 } completion:^(IQSendMessageResult result) {
-                    NSLog(@"Send message finished with result %@",
-                        NSStringFromSendMessageResult(result));
+                    /*NSLog(@"Send message finished with result %@",
+                        NSStringFromSendMessageResult(result));*/
                 }];                                     
             }
             return YES;
@@ -82,7 +83,7 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [[ConnectIQ sharedInstance] registerForAppMessages:self.app delegate:self];
+    [[ConnectIQ sharedInstance] registerForAppMessages:app delegate:self];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
