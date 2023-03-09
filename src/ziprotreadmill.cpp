@@ -165,6 +165,8 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
@@ -180,16 +182,22 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     else
 #endif
     {
+        uint8_t heart = ((uint8_t)value.at(15));
+        if (heart == 0 || disable_hr_frommachinery) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+        }
+        else {
+            Heart = heart;
+        }
     }
 
     double speed = ((double)newValue.at(5)) / 10.0;
