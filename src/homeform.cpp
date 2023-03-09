@@ -4308,10 +4308,10 @@ void homeform::update() {
 
                 last_seconds_pid_heart_zone = seconds;
 
-                uint8_t hrmin =
+                int16_t hrmin =
                     settings.value(QZSettings::treadmill_pid_heart_min, QZSettings::default_treadmill_pid_heart_min)
                         .toInt();
-                uint8_t hrmax =
+                int16_t hrmax =
                     settings.value(QZSettings::treadmill_pid_heart_max, QZSettings::default_treadmill_pid_heart_max)
                         .toInt();
                 if (fromTrainProgram) {
@@ -4338,7 +4338,7 @@ void homeform::update() {
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
                         if (hrmax < bluetoothManager->device()->currentHeart().average5s() &&
-                            minSpeed <= currentSpeed + step) {
+                            minSpeed <= currentSpeed - step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
