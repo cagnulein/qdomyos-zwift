@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public override init() {
+    @objc public init(disable_hr: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift()
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -61,6 +61,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
+    private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
@@ -107,8 +108,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  override init() {
+  init(disable_hr: Bool) {
     super.init()
+    self.disable_hr = disable_hr
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -258,11 +260,19 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       print("Failed to add service with error: \(uwError.localizedDescription)")
       return
     }
+        
+      if(disable_hr) {
+          // useful in order to hide HR from Garmin devices
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                    CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
     
-    peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
   

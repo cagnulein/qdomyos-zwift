@@ -57,7 +57,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualbike_zwift_ios(settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool());
     } else
 
 #endif
