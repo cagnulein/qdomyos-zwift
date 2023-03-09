@@ -121,15 +121,19 @@ void ziprotreadmill::update() {
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         uint8_t noop[] = {0xfb, 0x07, 0xa1, 0x02, 0x00, 0x00, 0x00, 0xaa, 0xfc};        
+        noop[5] = (uint8_t)(Speed.value() * 10.0);
         if (requestSpeed != -1) {
             noop[4] = 1; // force speed and inclination
             noop[5] = (uint8_t)(requestSpeed * 10.0);
             emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+            requestSpeed = -1;
         }
+        noop[6] = (uint8_t)(Inclination.value());
         if (requestInclination != -100) {
             noop[4] = 1; // force speed and inclination
             noop[6] = (uint8_t)(requestInclination);
             emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            requestInclination = -1;
         }
         noop[7] += noop[5] + noop[6] + noop[4];
         writeCharacteristic(noop, sizeof(noop), "noop", false, false);
