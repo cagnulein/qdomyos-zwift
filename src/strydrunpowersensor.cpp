@@ -98,7 +98,7 @@ void strydrunpowersensor::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                 const QByteArray &newValue) {
-    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
+    qDebug() << "<<" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     bool power_as_treadmill =
@@ -116,6 +116,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         uint8_t index = 4;
 
         if (newValue.length() > 3) {
+            powerReceived = true;
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
@@ -346,6 +347,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                          ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+            if(powerReceived == false) {
+                m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), Speed.value(), Inclination.value());
+                emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+            }
         }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
         lastRefreshCadenceChanged = QDateTime::currentDateTime();
