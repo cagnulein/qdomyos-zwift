@@ -20,7 +20,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width        
 
-        url: "https://onepeloton.com"
+        url: "https://youtube.com"
         visible: true
         onLoadingChanged: {
             if (loadRequest.errorString)
@@ -31,17 +31,17 @@ Item {
                     var iframeContainer = document.createElement("iframe");
 
                     iframeContainer.src = "https://localhost.direct:` + settings.value("template_inner_QZWS_port") + `/floating/floating.htm";
-                    iframeContainer.width = "640";
-                    iframeContainer.height = "480";
+                    iframeContainer.width = ` + settings.value("floating_width") + `;
+                    iframeContainer.height = ` + settings.value("floating_height") + `;
                     iframeContainer.frameBorder = "0";
-                    iframeContainer.style.cssText = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;";
+                    iframeContainer.style.cssText = "position: absolute; bottom: 20px; right: 20px; transform: translate(-50%, -50%); z-index: 1; opacity: ` + settings.value("floating_transparency") / 100.0 + `;";
 
                     document.body.appendChild(iframeContainer);
 
                     var moveButton = document.createElement("button");
                     var buttonText = document.createTextNode("Move");
                     moveButton.appendChild(buttonText);
-                    moveButton.style.cssText = "z-index: 1; position: absolute; bottom: 20px; right: 20px; background-color: white; color: black; border: none; padding: 10px; border-radius: 5px; cursor: pointer;";
+                    moveButton.style.cssText = "z-index: 1; position: absolute; bottom: 20px; right: 20px; background-color: white; color: black; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 50px; height: 50px";
                     document.body.appendChild(moveButton);
 
                     var isMoving = false;
