@@ -141,7 +141,9 @@ void ziprotreadmill::update() {
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             lastStart = QDateTime::currentMSecsSinceEpoch();
-            requestSpeed = 0.8;
+            uint8_t start[] = {0xfb, 0x05, 0xa2, 0x01, 0x01, 0xa9, 0xfc};
+            writeCharacteristic(start, sizeof(start), "start", false, true);
+            writeCharacteristic(start, sizeof(start), "start", false, true);
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.8;
             }
@@ -149,9 +151,9 @@ void ziprotreadmill::update() {
             emit tapeStarted();
         } else if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-            // uint8_t stop[] = {0x55, 0x0a, 0x01, 0x02};
-            // writeCharacteristic(stop, sizeof(stop), "stop", false, true);
-            requestSpeed = 0;
+            uint8_t stop[] = {0xfb, 0x05, 0xa1, 0x04, 0x00, 0xaa, 0xfc};
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             requestStop = -1;
             lastStop = QDateTime::currentMSecsSinceEpoch();
         } else if (sec1Update++ >= (400 / refresh->interval())) {
