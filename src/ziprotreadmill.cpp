@@ -133,7 +133,7 @@ void ziprotreadmill::update() {
             noop[4] = 1; // force speed and inclination
             noop[6] = (uint8_t)(requestInclination);
             emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-            requestInclination = -1;
+            requestInclination = -100;
         }
         noop[7] += noop[5] + noop[6] + noop[4];
         writeCharacteristic(noop, sizeof(noop), "noop", false, false);
@@ -151,7 +151,8 @@ void ziprotreadmill::update() {
             emit tapeStarted();
         } else if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-            uint8_t stop[] = {0xfb, 0x05, 0xa1, 0x04, 0x00, 0xaa, 0xfc};
+            uint8_t stop[] = {0xfb, 0x05, 0xa2, 0x04, 0x01, 0xac, 0xfc};
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             requestStop = -1;
