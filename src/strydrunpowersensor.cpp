@@ -532,27 +532,45 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
-    // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
+    // ******************************************* virtual treadmill/bike init *************************************
+    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+        #ifdef Q_OS_IOS
+        #ifndef IO_UNDER_QT
+                && !h
+        #endif
+        #endif
+            ) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual treadmill interface..."));
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
-            // connect(virtualBike,&virtualbike::debug ,this,&strydrunpowersensor::debug);
-            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-                    &strydrunpowersensor::inclinationChanged);
+            if (!virtual_device_force_bike) {
+                debug("creating virtual treadmill interface...");
+                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &strydrunpowersensor::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                        &strydrunpowersensor::changeInclinationRequested);
+            } else {
+                debug("creating virtual bike interface...");
+                virtualBike = new virtualbike(this);
+                connect(virtualBike, &virtualbike::changeInclination, this,
+                        &strydrunpowersensor::changeInclinationRequested);
+            }
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void strydrunpowersensor::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    if (grade < 0)
+        grade = 0;
+    changeInclination(grade, percentage);
 }
 
 void strydrunpowersensor::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
