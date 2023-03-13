@@ -1418,7 +1418,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(ziproTreadmill, &ziprotreadmill::speedChanged, this, &bluetooth::speedChanged);
                 connect(ziproTreadmill, &ziprotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 ziproTreadmill->deviceDiscovered(b);
-                this->startTemplateManagers(ziproTreadmill);
+                this->signalBluetoothDeviceConnected(ziproTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ROWSPORT-")) ||
                         b.name().startsWith(QStringLiteral("ROW-S"))) &&
