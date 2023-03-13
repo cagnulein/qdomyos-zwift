@@ -229,9 +229,12 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination = treadmillInclinationOverride(((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) |
-                                                                 (int16_t)((uint8_t)newValue.at(index)))) /
-                                                       10.0);
+            double inc =
+                ((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) | (int16_t)((uint8_t)newValue.at(index)))) /
+                10.0;
+            // steps of 0.5 only to send to the Inclination override function
+            inc = qRound(inc * 2.0) / 2.0;
+            Inclination = treadmillInclinationOverride(inc);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -347,8 +350,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                          ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
-            if(powerReceived == false) {
-                m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), Speed.value(), Inclination.value());
+            if (powerReceived == false) {
+                m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                   Speed.value(), Inclination.value());
                 emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
             }
         }
@@ -534,12 +538,12 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
 
     // ******************************************* virtual treadmill/bike init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike
-        #ifdef Q_OS_IOS
-        #ifndef IO_UNDER_QT
-                && !h
-        #endif
-        #endif
-            ) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        && !h
+#endif
+#endif
+    ) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
