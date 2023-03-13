@@ -13,6 +13,7 @@ KingsmithR1ProTreadmillTestData::KingsmithR1ProTreadmillTestData() : TreadmillTe
     this->addDeviceName("KINGSMITH", comparison::StartsWithIgnoreCase);
     this->addDeviceName("KS-H", comparison::StartsWithIgnoreCase);
     this->addDeviceName("DYNAMAX", comparison::StartsWithIgnoreCase);
+    this->addDeviceName("WALKINGPAD", comparison::StartsWithIgnoreCase);
 }
 
 deviceType KingsmithR1ProTreadmillTestData::get_expectedDeviceType() const { return deviceType::KingsmithR1ProTreadmill; }
