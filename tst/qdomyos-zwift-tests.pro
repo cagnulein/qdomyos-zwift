@@ -90,6 +90,7 @@ SOURCES += \
         Devices/UltrasportBike/ultrasportbiketestdata.cpp \
         Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.cpp \
         Devices/YesoulBike/yesoulbiketestdata.cpp \
+        Devices/ZiproTreadmill/ziprotreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/devicediscoveryinfo.cpp \

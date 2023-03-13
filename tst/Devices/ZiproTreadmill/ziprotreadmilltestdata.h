@@ -1,19 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "ziprotreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class ZiproTreadmillTestData : public BluetoothDeviceTestData {
+class ZiproTreadmillTestData : public TreadmillTestData {
 
 public:
-    ZiproTreadmillTestData() : BluetoothDeviceTestData("Zipro Treadmill") {
-        this->addDeviceName("RZ_TREADMIL", comparison::StartsWithIgnoreCase);
-    }
+    ZiproTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ZiproTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<ziprotreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
