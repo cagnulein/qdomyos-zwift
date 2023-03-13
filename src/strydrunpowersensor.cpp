@@ -98,7 +98,7 @@ void strydrunpowersensor::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                 const QByteArray &newValue) {
-    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
+    qDebug() << "<<" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     bool power_as_treadmill =
@@ -116,6 +116,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         uint8_t index = 4;
 
         if (newValue.length() > 3) {
+            powerReceived = true;
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
@@ -228,9 +229,12 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination = treadmillInclinationOverride(((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) |
-                                                                 (int16_t)((uint8_t)newValue.at(index)))) /
-                                                       10.0);
+            double inc =
+                ((double)(((int16_t)((int8_t)newValue.at(index + 1)) << 8) | (int16_t)((uint8_t)newValue.at(index)))) /
+                10.0;
+            // steps of 0.5 only to send to the Inclination override function
+            inc = qRound(inc * 2.0) / 2.0;
+            Inclination = treadmillInclinationOverride(inc);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -346,6 +350,11 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                          ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+            if (powerReceived == false) {
+                m_watt = wattsCalc(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(),
+                                   Speed.value(), Inclination.value());
+                emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+            }
         }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
         lastRefreshCadenceChanged = QDateTime::currentDateTime();
@@ -527,8 +536,8 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
-    // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice
+    // ******************************************* virtual treadmill/bike init *************************************
+    if (!firstStateChanged && !virtualTreadmill && !virtualBike
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -538,16 +547,34 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual treadmill interface..."));
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
-            // connect(virtualBike,&virtualbike::debug ,this,&strydrunpowersensor::debug);
-            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-                    &strydrunpowersensor::inclinationChanged);
+            if (!virtual_device_force_bike) {
+                debug("creating virtual treadmill interface...");
+                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &strydrunpowersensor::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                        &strydrunpowersensor::changeInclinationRequested);
+            } else {
+                debug("creating virtual bike interface...");
+                virtualBike = new virtualbike(this);
+                connect(virtualBike, &virtualbike::changeInclination, this,
+                        &strydrunpowersensor::changeInclinationRequested);
+            }
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void strydrunpowersensor::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    if (grade < 0)
+        grade = 0;
+    changeInclination(grade, percentage);
 }
 
 void strydrunpowersensor::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
