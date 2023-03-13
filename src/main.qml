@@ -623,6 +623,7 @@ ApplicationWindow {
                 text: qsTr("Connect to Strava")
                 width: parent.width
                 onClicked: {
+                    stackView.push("WebStravaAuth.qml")
                     strava_connect_clicked()
                     drawer.close()
                 }
@@ -664,7 +665,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.12.70"
+                text: "version 2.13.10"
                 width: parent.width
             }
 				FileDialog {

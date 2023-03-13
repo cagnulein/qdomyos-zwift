@@ -65,11 +65,14 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
+   $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
     trixterxdreamv1bike.cpp \
     trixterxdreamv1client.cpp \
     trixterxdreamv1serial.cpp \
     trixterxdreamv1settings.cpp \
+   $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -266,7 +269,11 @@ HEADERS += \
     trixterxdreamv1bike.h \
     trixterxdreamv1serial.h \
     trixterxdreamv1settings.h \
+   $$PWD/apexbike.h \
+    $$PWD/discoveryoptions.h \
    $$PWD/pelotonbike.h \
+   $$PWD/wahookickrheadwind.h \
+   $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
@@ -771,4 +778,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.70
+VERSION = 2.13.10

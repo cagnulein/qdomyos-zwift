@@ -628,8 +628,11 @@ const QString QZSettings::treadmill_pid_heart_max = QStringLiteral("treadmill_pi
 const QString QZSettings::nordictrack_elliptical_c7_5 = QStringLiteral("nordictrack_elliptical_c7_5");
 const QString QZSettings::renpho_bike_double_resistance = QStringLiteral("renpho_bike_double_resistance");
 const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nordictrack_incline_trainer_x7i");
+const QString QZSettings::strava_auth_external_webbrowser = QStringLiteral("strava_auth_external_webbrowser");
+const QString QZSettings::gears_from_bike = QStringLiteral("gears_from_bike");
+const QString QZSettings::peloton_spinups_autoresistance = QStringLiteral("peloton_spinups_autoresistance");
 
-const uint32_t allSettingsCount = 524;
+const uint32_t allSettingsCount = 527;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1158,6 +1161,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_elliptical_c7_5, QZSettings::default_nordictrack_elliptical_c7_5},
     {QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance},
     {QZSettings::nordictrack_incline_trainer_x7i, QZSettings::default_nordictrack_incline_trainer_x7i},
+    {QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser},
+    {QZSettings::gears_from_bike, QZSettings::default_gears_from_bike},
+    {QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

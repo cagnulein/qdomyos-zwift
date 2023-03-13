@@ -8,6 +8,7 @@ class OctaneTreadmillTestData : public BluetoothDeviceTestData {
 public:
     OctaneTreadmillTestData() : BluetoothDeviceTestData("Octane Treadmill") {
         this->addDeviceName("ZR7", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ZR8", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::OctaneTreadmill; }

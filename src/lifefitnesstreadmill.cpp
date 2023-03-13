@@ -476,6 +476,8 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
             index += 2;
             index += 2;
+        } else {
+            cadenceFromAppleWatch();
         }
 
         if (Flags.strideCount) {

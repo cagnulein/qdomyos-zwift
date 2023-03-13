@@ -1,5 +1,5 @@
-#ifndef NORDITRACKELLIPTICAL_H
-#define NORDITRACKELLIPTICAL_H
+#ifndef APEXBIKE_H
+#define APEXBIKE_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -26,59 +26,47 @@
 #include <QObject>
 #include <QString>
 
-#include "elliptical.h"
+#include "bike.h"
 #include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class nordictrackelliptical : public elliptical {
+class apexbike : public bike {
     Q_OBJECT
   public:
-    nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                          double bikeResistanceGain);
+    apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
 
-    void *VirtualTreadmill();
+    void *VirtualBike();
     void *VirtualDevice();
-    int pelotonToEllipticalResistance(int pelotonResistance);
-    bool inclinationAvailableByHardware() { return false; }
 
   private:
-    double GetDistanceFromPacket(QByteArray packet);
-    QTime GetElapsedFromPacket(QByteArray packet);
-    double GetResistanceFromPacket(QByteArray packet);
-    double GetInclinationFromPacket(QByteArray packet);
+    const resistance_t max_resistance = 32;
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
-    void forceResistance(resistance_t requestResistance);
     void startDiscover();
+    void forceResistance(resistance_t requestResistance);
     void sendPoll();
-    void forceIncline(double incline);
-    void forceSpeed(double speed);
+    uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
-    uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
-    double bikeResistanceGain = 1.0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    resistance_t max_resistance = 20;
-    double max_inclination = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+    uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    QDateTime lastSpeedChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint16_t m_watts = 0;
+    resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;
@@ -90,9 +78,8 @@ class nordictrackelliptical : public elliptical {
     lockscreen *h = 0;
 #endif
 
-  signals:
+  Q_SIGNALS:
     void disconnected();
-    void debug(QString string);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -104,7 +91,6 @@ class nordictrackelliptical : public elliptical {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -113,4 +99,4 @@ class nordictrackelliptical : public elliptical {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // NORDITRACKELLIPTICAL_H
+#endif // APEXBIKE_H

@@ -140,7 +140,7 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
         }
 
         uint8_t writeIncline[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_TARGET_OR_RUN, (uint8_t)(requestSpeed + 0.5),
-                                  (uint8_t)requestIncline};
+                                  (uint8_t)(requestIncline * (noblepro_connected ? 2.0 : 1.0))};
         scheduleWrite(writeIncline, sizeof(writeIncline),
                       QStringLiteral("forceSpeedOrIncline speed=") + QString::number(requestSpeed) +
                           QStringLiteral(" incline=") + QString::number(requestIncline));
@@ -183,18 +183,11 @@ void fitshowtreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                double inc = currentInclination().value();
+                double inc = rawInclination.value();
                 if (requestInclination != -100) {
-                    int diffInc = (int)(requestInclination - inc);
-                    if (!diffInc) {
-                        if (requestInclination > inc) {
-                            inc += 1.0;
-                        } else if (requestInclination < inc) {
-                            inc -= 1.0;
-                        }
-                    } else {
-                        inc = (int)requestInclination;
-                    }
+                    // only 0.5 or 1 changes otherwise it beeps forever
+                    double a = 1.0 / minStepInclination();
+                    inc = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
                     requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
@@ -203,19 +196,13 @@ void fitshowtreadmill::update() {
         }
 
         if (requestInclination != -100) {
-            double inc = currentInclination().value();
+            double inc = rawInclination.value();
+            // only 0.5 or 1 changes otherwise it beeps forever
+            double a = 1.0 / minStepInclination();
+            requestInclination = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                int diffInc = (int)(requestInclination - inc);
-                if (!diffInc) {
-                    if (requestInclination > inc) {
-                        inc += 1.0;
-                    } else if (requestInclination < inc) {
-                        inc -= 1.0;
-                    }
-                } else {
-                    inc = (int)requestInclination;
-                }
+                inc = requestInclination;
                 double speed = currentSpeed().value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
@@ -304,7 +291,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -484,6 +472,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
+
+                if (noblepro_connected)
+                    incline /= 2;
+
+                rawInclination = incline;
                 Inclination = treadmillInclinationOverride(incline);
                 if (Inclination.value() != incline) {
                     emit inclinationChanged(0, incline);
@@ -730,7 +723,7 @@ void fitshowtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
-    if(!gattCommunicationChannelService) {
+    if (!gattCommunicationChannelService) {
         qDebug() << "service not valid";
         return;
     }
@@ -760,6 +753,13 @@ void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     /*if (device.name().startsWith(QStringLiteral("FS-")) ||
         (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
+
+    if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+        qDebug() << "NOBLEPRO FIX!";
+        minStepInclinationValue = 0.5;
+        noblepro_connected = true;
+    }
+
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -833,7 +833,7 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return false;
 }
 
-double fitshowtreadmill::minStepInclination() { return 1.0; }
+double fitshowtreadmill::minStepInclination() { return minStepInclinationValue; }
 
 void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)

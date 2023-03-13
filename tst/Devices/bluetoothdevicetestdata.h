@@ -15,6 +15,7 @@
  */
 enum deviceType {
     None,
+    ApexBike,
     M3IBike,
     FakeBike,
     FakeElliptical,
@@ -92,7 +93,8 @@ enum deviceType {
     MepanelBike,
     LifeFitnessTreadmill,
     CompuTrainerBike,
-    TrixterXDreamV1Bike
+    TrixterXDreamV1Bike,
+    ZiproTreadmill
 };
 
 class BluetoothDeviceTestData;

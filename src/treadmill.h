@@ -24,6 +24,7 @@ class treadmill : public bluetoothdevice {
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
     metric currentStepCount() { return StepCount; }
     uint16_t watts(double weight);
+    static uint16_t wattsCalc(double weight, double speed, double inclination);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setLap();
@@ -39,6 +40,8 @@ class treadmill : public bluetoothdevice {
     virtual bool autoPauseWhenSpeedIsZero();
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
     static double treadmillInclinationOverride(double Inclination);
+    static double treadmillInclinationOverrideReverse(double Inclination);
+    void cadenceFromAppleWatch();
 
   public slots:
     virtual void changeSpeed(double speed);
@@ -68,6 +71,7 @@ class treadmill : public bluetoothdevice {
     metric StepCount;
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
+    bool instantaneousStrideLengthCMAvailableFromDevice = false;
 };
 
 #endif // TREADMILL_H
