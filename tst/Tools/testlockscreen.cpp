@@ -9,6 +9,8 @@ QZLockscreenFunctions::configurationType TestLockscreen::get_virtualDeviceType()
 
 bool TestLockscreen::get_zwiftMode() { return this->zwiftMode; }
 
+bool TestLockscreen::get_disableHeartRate() { return this->disableHeartRate; }
+
 TestLockscreen::TestLockscreen() {
     this->reset();
 }
@@ -33,7 +35,11 @@ void TestLockscreen::virtualbike_setHeartRate(unsigned char heartRate) {}
 
 void TestLockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime) {}
 
-void TestLockscreen::virtualbike_zwift_ios(bool disableHeartRate) {this->configType = QZLockscreenFunctions::BIKE; this->zwiftMode = true;}
+void TestLockscreen::virtualbike_zwift_ios(bool disableHeartRate) {
+    this->configType = QZLockscreenFunctions::BIKE;
+    this->zwiftMode = true;
+    this->disableHeartRate = disableHeartRate;
+}
 
 double TestLockscreen::virtualbike_getCurrentSlope() { return 0.0;}
 

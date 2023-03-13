@@ -7,12 +7,13 @@ class TestLockscreen : public QZLockscreen
 {
     QZLockscreenFunctions::configurationType  configType;
     bool zwiftMode;
+    bool disableHeartRate;
 
 public:
     void reset();
     QZLockscreenFunctions::configurationType  get_virtualDeviceType() const;
     bool get_zwiftMode();
-
+    bool get_disableHeartRate();
 
   explicit TestLockscreen();
   ~TestLockscreen() override;

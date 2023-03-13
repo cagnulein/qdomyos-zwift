@@ -338,6 +338,10 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
                 << testData.get_testName()
                 << " : Peloton workaround in lockscreen object unexpectedly in Zwift mode";
 
+        EXPECT_FALSE(this->testLockscreen->get_disableHeartRate())
+                << testData.get_testName()
+                << " : heart rate unexpectedly disabled";
+
         // restart the bluetooth manager to clear the device
         bt.restart();
 
