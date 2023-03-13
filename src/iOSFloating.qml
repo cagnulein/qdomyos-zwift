@@ -7,13 +7,17 @@ import QtWebView 1.1
 
 Item {
     id: column1
-    // vedi trainprogram_open_clicked
+    signal iOSFloatingWebView_loaded()
     Settings {
         id: settings
     }
 
+    Component.onCompleted: {
+        iOSFloatingWebView_loaded();
+    }
+
     WebView {
-        id: webView
+        id: iOSFloatingWebView
         property var rr;
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -65,7 +69,7 @@ Item {
                     });
                 `;
                 console.error(loadScr);
-                webView.runJavaScript(loadScr, function(res) {
+                iOSFloatingWebView.runJavaScript(loadScr, function(res) {
                 });
             }
         }

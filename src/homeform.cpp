@@ -29,6 +29,11 @@
 #include <QUrlQuery>
 #include <chrono>
 
+#ifdef Q_OS_IOS
+#include "persistentcookiejar.h"
+#include <QWebView>
+#endif
+
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -458,6 +463,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     engine->rootContext()->setContextProperty("pathController", &pathController);
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
+#ifdef Q_OS_IOS
+    QObject::connect(stack, SIGNAL(iOSFloatingWebView_loaded()), this, SLOT(iOSFloatingWebView_loaded()));
+#endif
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
@@ -4664,6 +4672,29 @@ bool homeform::getLap() {
     }
     return true;
 }
+
+#ifdef Q_OS_IOS
+
+void homeform::iOSFloatingWebView_loaded() {
+    QObject *rootObject = engine->rootObjects().constFirst();
+    QObject *iOSFloatingWebView = rootObject->findChild<QObject *>(QStringLiteral("iOSFloatingWebView"));
+    QWebView *vw = iOSFloatingWebView;
+    connect(vw->page()->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)), this,
+            SLOT(sslErrorHandler(QNetworkReply *, const QList<QSslError> &)));
+    PersistenCookieJar *jar = new PersistenCookieJar(this);
+    vw->page()->networkAccessManager()->setCookieJar(jar); // the jar is reparented to the page
+    jar->setParent(this); // reparent to main widget to avoid destruction together with the page
+}
+
+void homeform::sslErrorHandler(QNetworkReply *qnr, const QList<QSslError> &errlist) {
+    qDebug() << "sslErrorHandler::sslErrorHandler: ";
+    // show list of all ssl errors
+    foreach (QSslError err, errlist)
+        qDebug() << "ssl error: " << err;
+    qnr->ignoreSslErrors();
+}
+
+#endif
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
