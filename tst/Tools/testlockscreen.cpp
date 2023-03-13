@@ -33,7 +33,7 @@ void TestLockscreen::virtualbike_setHeartRate(unsigned char heartRate) {}
 
 void TestLockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime) {}
 
-void TestLockscreen::virtualbike_zwift_ios() {this->configType = QZLockscreenFunctions::BIKE; this->zwiftMode = true;}
+void TestLockscreen::virtualbike_zwift_ios(bool disableHeartRate) {this->configType = QZLockscreenFunctions::BIKE; this->zwiftMode = true;}
 
 double TestLockscreen::virtualbike_getCurrentSlope() { return 0.0;}
 

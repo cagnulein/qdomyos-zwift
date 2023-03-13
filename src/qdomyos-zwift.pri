@@ -72,6 +72,8 @@ SOURCES += \
    $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
     $$PWD/virtualdevice.cpp \
+   $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -272,6 +274,8 @@ HEADERS += \
     $$PWD/objectfactory.h \
    $$PWD/pelotonbike.h \
     $$PWD/virtualdevice.h \
+   $$PWD/wahookickrheadwind.h \
+   $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
@@ -776,4 +780,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.4
+VERSION = 2.13.10

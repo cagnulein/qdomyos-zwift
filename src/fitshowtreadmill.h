@@ -150,6 +150,7 @@ class fitshowtreadmill : public treadmill {
     double minStepInclinationValue = 1.0;
     bool noblepro_connected = false;
 
+    metric rawInclination;
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

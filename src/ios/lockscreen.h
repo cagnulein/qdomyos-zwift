@@ -19,7 +19,7 @@ public:
     void virtualbike_setHeartRate(unsigned char heartRate) override;
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime) override;
 
-    void virtualbike_zwift_ios() override;
+    void virtualbike_zwift_ios(bool disableHeartRate) override;
     double virtualbike_getCurrentSlope() override;
     double virtualbike_getCurrentCRR() override;
     double virtualbike_getCurrentCW() override;

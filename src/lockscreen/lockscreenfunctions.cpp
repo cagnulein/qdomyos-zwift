@@ -63,7 +63,8 @@ void LockscreenFunctions::setVirtualBikePelotonWorkaround(bool zwiftMode) {
 
             qDebug() << "ios_zwift_workaround activated!";
 
-            this->getLockscreen()->virtualbike_zwift_ios();
+            bool useBikeHeartRateService = settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool();
+            this->getLockscreen()->virtualbike_zwift_ios(useBikeHeartRateService);
             this->pelotonWorkaroundActive = true;
         }
     }

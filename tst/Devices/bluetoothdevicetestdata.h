@@ -93,6 +93,7 @@ enum deviceType {
     ChronoBike,
     MepanelBike,
     LifeFitnessTreadmill,
+    ZiproTreadmill,
     CompuTrainerBike
 };
 

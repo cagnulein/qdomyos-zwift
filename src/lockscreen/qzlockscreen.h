@@ -25,7 +25,7 @@ public:
   virtual void virtualbike_setHeartRate(unsigned char heartRate) = 0;
   virtual void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime) = 0;
 
-  virtual void virtualbike_zwift_ios() = 0;
+  virtual void virtualbike_zwift_ios(bool disableHeartRate) = 0;
   virtual double virtualbike_getCurrentSlope() = 0;
   virtual double virtualbike_getCurrentCRR() = 0;
   virtual double virtualbike_getCurrentCW() = 0;
