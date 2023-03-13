@@ -28,6 +28,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void floatingClose();
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
+    void gears_Plus();
+    void gears_Minus();
     int pelotonOffset();
     bool pelotonAskStart();
     void peloton_start_workout();
@@ -35,6 +37,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void Start();
     void Pause();
     void Stop();
+    void autoResistance();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -67,9 +70,12 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

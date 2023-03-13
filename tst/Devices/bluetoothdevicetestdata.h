@@ -15,6 +15,7 @@
  */
 enum deviceType {
     None,
+    ApexBike,
     M3IBike,
     FakeBike,
     FakeElliptical,
@@ -91,6 +92,7 @@ enum deviceType {
     ChronoBike,
     MepanelBike,
     LifeFitnessTreadmill,
+    ZiproTreadmill,
     CompuTrainerBike
 };
 

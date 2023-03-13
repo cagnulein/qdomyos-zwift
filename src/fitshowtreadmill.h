@@ -152,6 +152,8 @@ class fitshowtreadmill : public treadmill {
     double minStepInclinationValue = 1.0;
     bool noblepro_connected = false;
 
+    metric rawInclination;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

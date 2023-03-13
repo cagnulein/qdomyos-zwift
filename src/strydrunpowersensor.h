@@ -68,6 +68,8 @@ class strydrunpowersensor : public treadmill {
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;
 
+    bool powerReceived = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -95,5 +97,7 @@ class strydrunpowersensor : public treadmill {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void changeInclinationRequested(double grade, double percentage);
 };
 #endif // STRYDRUNPOWERSENSOR_H

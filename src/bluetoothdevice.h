@@ -351,6 +351,13 @@ class bluetoothdevice : public QObject {
     metric currentPowerZone() { return PowerZone; }
 
     /**
+     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
+     * implementation.
+     * @return
+     */
+    metric targetPowerZone() { return TargetPowerZone; }
+
+    /**
      * @brief setGPXFile Sets the file for GPS data exchange.
      * @param filename The file path.
      */
@@ -376,6 +383,13 @@ class bluetoothdevice : public QObject {
      * @param pz The power zone. Unit: depends on implementation.
      */
     void setPowerZone(double pz) { PowerZone = pz; }
+
+    /**
+     * @brief setTargetPowerZone Set the target power zone.
+     * This is equivalent to targetPowerZone().setvalue(pz)
+     * @param pz The power zone. Unit: depends on implementation.
+     */
+    void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
@@ -602,6 +616,11 @@ class bluetoothdevice : public QObject {
      * @brief PowerZone A metric to get and set the current power zone. Unit: depends on implementation
      */
     metric PowerZone;
+
+    /**
+     * @brief TargetPowerZone A metric to get and set the target power zone. Unit: depends on implementation
+     */
+    metric TargetPowerZone;
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 

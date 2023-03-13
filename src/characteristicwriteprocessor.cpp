@@ -32,6 +32,11 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
     qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
 
     double grade = ((iresistance / 100.0) * gain) + offset;
+    double percentage = ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset;
+    if (zwift_negative_inclination_x2 && iresistance < 0) {
+        grade = (((iresistance / 100.0) * 2.0) * gain) + offset;
+        percentage = (((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * 2.0) * gain) + offset;
+    }
 
     /*
     Surface	Road Crr	MTB Crr	Gravel Crr (Namebrand)	Zwift Gravel Crr
@@ -59,11 +64,7 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
         if (!((bike *)Bike)->inclinationAvailableByHardware())
             Bike->setInclination(grade + CRR_offset + CW_offset);
 
-        if (iresistance >= 0 || !zwift_negative_inclination_x2)
-            emit changeInclination(grade, ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
-        else
-            emit changeInclination((((iresistance / 100.0) * 2.0) * gain) + offset,
-                                   (((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * 2.0) * gain) + offset);
+        emit changeInclination(grade, percentage);
 
         if (force_resistance && !erg_mode) {
             // same on the training program
@@ -71,18 +72,17 @@ void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr,
                                    CRR_offset + CW_offset); // resistance start from 1
         }
     } else if (dt == bluetoothdevice::TREADMILL) {
-        emit changeInclination(((iresistance / 100.0) * gain) + offset,
-                               ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
+        emit changeInclination(grade, percentage);
     } else if (dt == bluetoothdevice::ELLIPTICAL) {
         bool inclinationAvailableByHardware = ((elliptical *)Bike)->inclinationAvailableByHardware();
         qDebug() << "inclinationAvailableByHardware" << inclinationAvailableByHardware << "erg_mode" << erg_mode;
-        emit changeInclination(((iresistance / 100.0) * gain) + offset,
-                               ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
+        emit changeInclination(grade, percentage);
 
         if (!inclinationAvailableByHardware) {
             if (force_resistance && !erg_mode) {
                 // same on the training program
-                ((elliptical *)Bike)->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
+                ((elliptical *)Bike)
+                    ->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
                                        1 + CRR_offset + CW_offset); // resistance start from 1
             }
         }

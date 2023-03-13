@@ -122,6 +122,7 @@ HEADERS += \
     Devices/UltrasportBike/ultrasportbiketestdata.h \
     Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.h \
     Devices/YesoulBike/yesoulbiketestdata.h \
+    Devices/ZiproTreadmill/ziprotreadmilltestdata.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestsuite.h \
     Devices/devicediscoveryinfo.h \

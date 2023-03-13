@@ -102,8 +102,12 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 if (dt == bluetoothdevice::TREADMILL)
                     ((treadmill *)Bike)->changeInclination(requestIncline, requestIncline);
                 // Resistance as incline on Sole E95s Elliptical #419
-                else if (dt == bluetoothdevice::ELLIPTICAL)
-                    ((elliptical *)Bike)->changeInclination(requestIncline, requestIncline);
+                else if (dt == bluetoothdevice::ELLIPTICAL) {
+                    if(((elliptical *)Bike)->inclinationAvailableByHardware())
+                        ((elliptical *)Bike)->changeInclination(requestIncline, requestIncline);
+                    else
+                        changeSlope(requestIncline * 100.0, 33, 34);
+                }
                 qDebug() << "new requested incline " + QString::number(requestIncline);
             } else if ((char)data.at(0) == 0x07) // Start request
             {

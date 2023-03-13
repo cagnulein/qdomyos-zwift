@@ -216,8 +216,10 @@ void eslinkertreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE)
-                btinit(true);
+            if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) {
+                uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
+                writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+            }
             requestSpeed = 1.0;
             requestStart = -1;
             emit tapeStarted();
@@ -446,7 +448,7 @@ void eslinkertreadmill::btinit(bool startTape) {
     uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
     uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
-    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
+    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};    
 
     if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);

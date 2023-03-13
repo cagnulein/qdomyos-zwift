@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 #include "bluetoothdevicetestdata.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
+#include "ApexBike/apexbiketestdata.h"
 #include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
 #include "Bike/biketestdata.h"
 #include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
@@ -86,9 +87,11 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
+ApexBikeTestData,
 BHFitnessEllipticalTestData,
 BikeTestData,
 BowflexT216TreadmillTestData,
@@ -180,6 +183,7 @@ UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
 ZwiftRunpodTestData,
+ZiproTreadmillTestData,
 iConceptBikeTestData>;
 
 #endif
