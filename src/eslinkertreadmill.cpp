@@ -170,6 +170,9 @@ void eslinkertreadmill::update() {
                 }
                 requestInclination = -100;
             }
+        } else if (treadmill_type == COSTAWAY) {
+            uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("noop"), false, true);
         } else {
             if (requestVar2) {
                 uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
@@ -433,23 +436,69 @@ double eslinkertreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
 void eslinkertreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    // set speed and incline to 0
-    uint8_t initData1[] = {0x08, 0x01, 0x86};
-    uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x86, 0x26};
-    uint8_t initData3[] = {0xa9, 0x80, 0x05, 0x05, 0xb0, 0x04, 0x52, 0xa9, 0x66};
-    uint8_t initData4[] = {0xa9, 0x08, 0x04, 0xb2, 0x51, 0x03, 0x52, 0x17};
-    uint8_t initData5[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
-    uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x01, 0xa3};
-    uint8_t initData7[] = {0xa9, 0xf0, 0x01, 0x01, 0x59};
-    uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0xff, 0x00, 0x00, 0xf5};
-    uint8_t initData9[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
-    uint8_t initData10[] = {0xa9, 0xa0, 0x03, 0x01, 0x00, 0x00, 0x0b};
-    uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
-    uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
-    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};    
+    if (treadmill_type == COSTAWAY) {
+        uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
-    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x39, 0x99};
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+
+        uint8_t initData3[] = {0xa9, 0x08, 0x04, 0x1b, 0xb4, 0x0c, 0x0f, 0x09};
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+
+        uint8_t initData4[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+
+        uint8_t initData5[] = {0xa9, 0xa0, 0x03, 0x00, 0x10, 0x00, 0x1a};
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+
+        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x52, 0xf0};
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+        uint8_t initData7[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+
+        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+
+        uint8_t initData9[] = {0xa9, 0x01, 0x01, 0x11, 0xb8};
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+
+        uint8_t initData10[] = {0xa9, 0x01, 0x01, 0x12, 0xbb};
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+
+        uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
+
+        uint8_t initData12[] = {0xa9, 0x01, 0x01, 0x13, 0xba};
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+
+        uint8_t initData13[] = {0xa9, 0x01, 0x01, 0x14, 0xbd};
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
+
+        uint8_t initData14[] = {0xa9, 0x01, 0x01, 0x15, 0xbc};
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
+
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+
+        uint8_t initData15[] = {0xa9, 0x01, 0x01, 0x16, 0xbf};
+        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, true);
+    } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+        // set speed and incline to 0
+        uint8_t initData1[] = {0x08, 0x01, 0x86};
+        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x86, 0x26};
+        uint8_t initData3[] = {0xa9, 0x80, 0x05, 0x05, 0xb0, 0x04, 0x52, 0xa9, 0x66};
+        uint8_t initData4[] = {0xa9, 0x08, 0x04, 0xb2, 0x51, 0x03, 0x52, 0x17};
+        uint8_t initData5[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
+        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x01, 0xa3};
+        uint8_t initData7[] = {0xa9, 0xf0, 0x01, 0x01, 0x59};
+        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0xff, 0x00, 0x00, 0xf5};
+        uint8_t initData9[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
+        uint8_t initData10[] = {0xa9, 0xa0, 0x03, 0x01, 0x00, 0x00, 0x0b};
+        uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
+        uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
+
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
@@ -467,6 +516,7 @@ void eslinkertreadmill::btinit(bool startTape) {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
     } else {
+        uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
         writeCharacteristic(initData2_CADENZA, sizeof(initData2_CADENZA), QStringLiteral("init"), false, true);
     }
 
@@ -576,10 +626,14 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bool eslinker_cadenza =
             settings.value(QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza).toBool();
         bool eslinker_ypoo = settings.value(QZSettings::eslinker_ypoo, QZSettings::default_eslinker_ypoo).toBool();
+        bool eslinker_costaway =
+            settings.value(QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway).toBool();
         if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
         } else if (eslinker_ypoo) {
             treadmill_type = YPOO_MINI_CHANGE;
+        } else if (eslinker_costaway) {
+            treadmill_type = COSTAWAY;
         } else
             treadmill_type = RHYTHM_FUN;
 
