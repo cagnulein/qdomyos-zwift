@@ -54,6 +54,12 @@ public :
 
     bool dircon_yes = false;
 
+    bool virtual_device_onlyheart = false;
+
+    bool bike_power_sensor = false;
+    bool virtual_device_echelon = false;
+    bool virtual_device_ifit = false;
+
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.

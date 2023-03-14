@@ -13,22 +13,19 @@ std::string LockscreenFunctionsTestData::getConfigurationTypeName(QZLockscreenFu
 }
 
 LockscreenFunctionsTestData::LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType configType,
-                                                         bool pelotonWorkaroundActive,
+                                                         bool pelotonWorkaroundActive, bool zwiftMode,
                                                          const DeviceDiscoveryInfo &settings) {
     this->configType = configType;
     this->settings = settings;
     this->pelotonWorkaroundActive = pelotonWorkaroundActive;
+    this->zwiftMode = zwiftMode;
 }
 
 QZLockscreenFunctions::configurationType LockscreenFunctionsTestData::get_lockscreenConfigType() const {
-    // Once testing of virtualdevices is implemented, this will need to consider the case where zwiftMode is true.
-    bool zwiftMode = false;
-
-    auto result = this->get_lockscreenFunctionsConfigType();
-    if(this->get_lockscreenFunctionsConfigType()==QZLockscreenFunctions::configurationType::ROWER && !zwiftMode)
-        return QZLockscreenFunctions::configurationType::BIKE;
-    return result;
+    return this->get_lockscreenFunctionsConfigType();
 }
+
+bool LockscreenFunctionsTestData::get_lockscreenZwiftMode() const {return this->zwiftMode;}
 
 QZLockscreenFunctions::configurationType LockscreenFunctionsTestData::get_lockscreenFunctionsConfigType() const { return this->configType; }
 

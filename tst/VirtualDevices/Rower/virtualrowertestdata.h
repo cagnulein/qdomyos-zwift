@@ -3,12 +3,10 @@
 #include "VirtualDevices/virtualdevicetestdata.h"
 
 class VirtualRowerTestData : public VirtualDeviceTestData {
+protected:
+    void configureLockscreenSettings(const DeviceDiscoveryInfo& info, std::vector<LockscreenFunctionsTestData>& configurations) const override;
 public:
     VirtualRowerTestData();
-
-    QZLockscreenFunctions::configurationType get_expectedLockscreenConfigurationType() const override  {
-        return QZLockscreenFunctions::configurationType::ROWER;
-    }
 
     virtualdevice * createDevice(bluetoothdevice * device) override;
 };

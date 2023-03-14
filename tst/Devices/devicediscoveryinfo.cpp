@@ -39,6 +39,10 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::virtual_device_rower, this->virtual_device_rower);
     settings.setValue(QZSettings::bike_cadence_sensor, this->bike_cadence_sensor);
     settings.setValue(QZSettings::dircon_yes, this->dircon_yes);
+    settings.setValue(QZSettings::virtual_device_onlyheart, this->virtual_device_onlyheart);
+    settings.setValue(QZSettings::bike_power_sensor, this->bike_power_sensor);
+    settings.setValue(QZSettings::virtual_device_echelon, this->virtual_device_echelon);
+    settings.setValue(QZSettings::virtual_device_ifit, this->virtual_device_ifit);
 }
 
 void DeviceDiscoveryInfo::getValues(QSettings &settings){
@@ -72,6 +76,10 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
     this->bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     this->dircon_yes = settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool();
+    this->virtual_device_onlyheart = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    this->bike_power_sensor = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
+    this->virtual_device_echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    this->virtual_device_ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 }
 
 void DeviceDiscoveryInfo::loadDefaultValues() {

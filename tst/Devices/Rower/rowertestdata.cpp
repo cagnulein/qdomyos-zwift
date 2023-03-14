@@ -6,12 +6,13 @@ RowerTestData::RowerTestData(std::string testName) : BluetoothDeviceTestData(tes
 void RowerTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info, std::vector<LockscreenFunctionsTestData> &configurations) const {
     DeviceDiscoveryInfo config(info);
     auto none = QZLockscreenFunctions::configurationType::NONE;
+    auto bike = QZLockscreenFunctions::configurationType::BIKE;
 
-    // Disabling
     for(int i=0; i<8; i++) {
         config.ios_peloton_workaround = i&1;
         config.bike_cadence_sensor = i&2;
         config.virtual_device_rower = i&4;
-        configurations.push_back(LockscreenFunctionsTestData(none, false, config));
+        bool enabled = config.ios_peloton_workaround && config.bike_cadence_sensor && !config.virtual_device_rower;
+        configurations.push_back(LockscreenFunctionsTestData(enabled ? bike:none, enabled, false, config));
     }
 }

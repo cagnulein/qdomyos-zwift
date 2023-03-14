@@ -9,7 +9,7 @@ void EllipticalTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &
     for(int i=0; i<4; i++) {
         config.ios_peloton_workaround = i&1;
         config.bike_cadence_sensor = i&2;
-        configurations.push_back(LockscreenFunctionsTestData(none, false, config));
+        configurations.push_back(LockscreenFunctionsTestData(none, false, false, config));
     }
 }
 

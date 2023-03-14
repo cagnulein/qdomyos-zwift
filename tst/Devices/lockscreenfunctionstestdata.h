@@ -7,8 +7,12 @@ class LockscreenFunctionsTestData
     QZLockscreenFunctions::configurationType configType;
     DeviceDiscoveryInfo settings;
     bool pelotonWorkaroundActive = false;
+    bool zwiftMode = false;
 public:
-    LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType configType, bool pelotonWorkaroundActive, const DeviceDiscoveryInfo& settings);
+    LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType configType,
+                                bool pelotonWorkaroundActive,
+                                bool zwiftMode,
+                                const DeviceDiscoveryInfo& settings);
 
     /**
      * @brief Gets the expected configuration type for the lockscreen functions. This can be different to the
@@ -25,6 +29,12 @@ public:
      * @return
      */
     QZLockscreenFunctions::configurationType get_lockscreenConfigType() const;
+
+    /**
+     * @brief Gets the Zwift mode the lockscreen object is expected to be in.
+     * @return
+     */
+    bool get_lockscreenZwiftMode() const;
 
     /**
      * @brief The settings required to discover the device and get the expected lockscreen configuration.

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gtest/gtest.h"
-#include "bluetooth.h"
 #include "Tools/testlockscreen.h"
 #include "Tools/testsettings.h"
 
