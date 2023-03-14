@@ -116,6 +116,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     resistance = getDouble(aValues.last());
+                    m_pelotonResistance = (100 / 32) * resistance;
+                    qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value() << resistance;
                     //Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
@@ -196,7 +198,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         }
 
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));        
         emit debug(QStringLiteral("Current Gear: ") + QString::number(gear));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -204,6 +206,58 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
     }
+}
+
+resistance_t nordictrackifitadbbike::pelotonToBikeResistance(int pelotonResistance) {
+    if (pelotonResistance <= 10) {
+        return 1;
+    }
+    if (pelotonResistance <= 20) {
+        return 2;
+    }
+    if (pelotonResistance <= 25) {
+        return 3;
+    }
+    if (pelotonResistance <= 30) {
+        return 4;
+    }
+    if (pelotonResistance <= 35) {
+        return 5;
+    }
+    if (pelotonResistance <= 40) {
+        return 6;
+    }
+    if (pelotonResistance <= 45) {
+        return 7;
+    }
+    if (pelotonResistance <= 50) {
+        return 8;
+    }
+    if (pelotonResistance <= 55) {
+        return 9;
+    }
+    if (pelotonResistance <= 60) {
+        return 10;
+    }
+    if (pelotonResistance <= 65) {
+        return 11;
+    }
+    if (pelotonResistance <= 70) {
+        return 12;
+    }
+    if (pelotonResistance <= 75) {
+        return 13;
+    }
+    if (pelotonResistance <= 80) {
+        return 14;
+    }
+    if (pelotonResistance <= 85) {
+        return 15;
+    }
+    if (pelotonResistance <= 100) {
+        return 16;
+    }
+    return Resistance.value();
 }
 
 void nordictrackifitadbbike::forceResistance(double resistance) {}
