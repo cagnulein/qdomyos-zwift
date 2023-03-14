@@ -1,23 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "elitesterzosmart.h"
+#include "Devices/Bike/biketestdata.h"
 
-class EliteSterzoSmartTestData : public BluetoothDeviceTestData {
+
+class EliteSterzoSmartTestData : public BikeTestData {
 
 public:
-    EliteSterzoSmartTestData() : BluetoothDeviceTestData("Elite Sterzo Smart") {}
+    EliteSterzoSmartTestData();
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+    deviceType get_expectedDeviceType() const override;
 
-        return result;
-    }
-
-    deviceType get_expectedDeviceType() const override { return deviceType::EliteSterzoSmart; }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<elitesterzosmart*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

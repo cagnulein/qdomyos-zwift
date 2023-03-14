@@ -1,19 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "octaneelliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class OctaneEllipticalTestData : public BluetoothDeviceTestData {
+class OctaneEllipticalTestData : public EllipticalTestData {
 
 public:
-    OctaneEllipticalTestData() : BluetoothDeviceTestData("Octane Elliptical") {
-        this->addDeviceName("Q37", comparison::StartsWithIgnoreCase);
-    }
+    OctaneEllipticalTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::OctaneElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<octaneelliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

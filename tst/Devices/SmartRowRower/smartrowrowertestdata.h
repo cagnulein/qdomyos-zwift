@@ -1,19 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "smartrowrower.h"
+#include "Devices/Rower/rowertestdata.h"
 
-class SmartRowRowerTestData : public BluetoothDeviceTestData {
 
+class SmartRowRowerTestData : public RowerTestData {
 public:
-    SmartRowRowerTestData() : BluetoothDeviceTestData("Smart Row Rower") {
-        this->addDeviceName("SMARTROW", comparison::StartsWith);
-    }
+    SmartRowRowerTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::SmartRowRower; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<smartrowrower*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

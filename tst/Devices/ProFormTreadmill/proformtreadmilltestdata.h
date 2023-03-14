@@ -1,19 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformtreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class ProFormTreadmillTestData : public BluetoothDeviceTestData {
+
+class ProFormTreadmillTestData : public TreadmillTestData {
 
 public:
-    ProFormTreadmillTestData(): BluetoothDeviceTestData("ProForm Treadmill") {
-        this->addDeviceName("I_TL", comparison::StartsWith);
-    }
+    ProFormTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProformTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<proformtreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

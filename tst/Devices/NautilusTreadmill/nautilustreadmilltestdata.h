@@ -1,20 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "nautilustreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class NautilusTreadmillTestData : public BluetoothDeviceTestData {
+
+class NautilusTreadmillTestData : public TreadmillTestData {
 
 public:
-    NautilusTreadmillTestData() : BluetoothDeviceTestData("Nautilus Treadmill") {
-        this->addDeviceName("NAUTILUS T", comparison::StartsWithIgnoreCase);
-    }
+    NautilusTreadmillTestData();
 
 
-    deviceType get_expectedDeviceType() const override { return deviceType::NautilusTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<nautilustreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

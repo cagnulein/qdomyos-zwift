@@ -1,23 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "technogymmyruntreadmillrfcomm.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class TechnogymMyRunTreadmillRFCommTestData : public BluetoothDeviceTestData {
+
+class TechnogymMyRunTreadmillRFCommTestData : public TreadmillTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
-        info.technogym_myrun_treadmill_experimental = enable;
-        return true;
-    }
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
 public:
-    TechnogymMyRunTreadmillRFCommTestData() : BluetoothDeviceTestData("Technogym MyRun Treadmill RF Comm") {
-        this->addDeviceName("MYRUN ", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("MERACH-U3", comparison::StartsWithIgnoreCase);
-    }
-    deviceType get_expectedDeviceType() const override { return deviceType::TechnoGymMyRunTreadmillRfComm; }
+    TechnogymMyRunTreadmillRFCommTestData();
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<technogymmyruntreadmillrfcomm*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

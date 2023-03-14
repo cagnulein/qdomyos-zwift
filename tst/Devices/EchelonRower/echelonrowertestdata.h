@@ -1,21 +1,13 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "echelonrower.h"
+#include "Devices/Rower/rowertestdata.h"
 
-class EchelonRowerTestData : public BluetoothDeviceTestData {
-
+class EchelonRowerTestData : public RowerTestData {
 public:
-    EchelonRowerTestData() : BluetoothDeviceTestData("Echelon Rower") {
-        this->addDeviceName("ECH-ROW", comparison::StartsWith);
-        this->addDeviceName("ROWSPORT-", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("ROW-S", comparison::StartsWith);
-    }
+    EchelonRowerTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::EchelonRower; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<echelonrower*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

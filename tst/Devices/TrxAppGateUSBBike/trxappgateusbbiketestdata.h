@@ -1,76 +1,31 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
-#include "trxappgateusbbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
+
+class TrxAppGateUSBBikeTestData : public BikeTestData {
 protected:
-    TrxAppGateUSBBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
+    TrxAppGateUSBBikeTestData(std::string testName);
 
-    }
-
-    void configureExclusions() override {
-        this->exclude(new TrxAppGateUSBTreadmillTestData);
-    }
+    void configureExclusions() override;
 public:
-    deviceType get_expectedDeviceType() const override { return deviceType::TrxAppGateUSBBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<trxappgateusbbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
 class TrxAppGateUSBBike1TestData : public TrxAppGateUSBBikeTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        // This particular case of TrxAppGateUSBBike is independant of the setting
-
-        DeviceDiscoveryInfo config(info);
-        config.toorx_bike = true;
-        config.toorx_ftms_treadmill = !enable;
-        configurations.push_back(config);
-
-        config.toorx_bike = false;
-        config.toorx_ftms_treadmill = !enable;
-        configurations.push_back(config);
-    }
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override;
 public:
-    TrxAppGateUSBBike1TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike")  {
-        this->addDeviceName("TUN ", comparison::StartsWithIgnoreCase);
-    }
+    TrxAppGateUSBBike1TestData();
 
 };
 
 class TrxAppGateUSBBike2TestData : public TrxAppGateUSBBikeTestData {
 protected:
 
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        DeviceDiscoveryInfo config(info);
-
-        if(enable) {
-            config.toorx_bike = true;
-            config.toorx_ftms_treadmill = false;
-            configurations.push_back(config);
-        } else {
-            config.toorx_bike = false;
-            config.toorx_ftms_treadmill = true;
-            configurations.push_back(config);
-            config.toorx_bike = false;
-            config.toorx_ftms_treadmill = false;
-            configurations.push_back(config);
-        }
-    }
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override;
 public:
-    TrxAppGateUSBBike2TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike (enabled in settings)") {
-
-        this->addDeviceName("TOORX", comparison::StartsWith);
-        this->addDeviceName("I-CONSOIE+", comparison::StartsWithIgnoreCase) ;
-        this->addDeviceName("I-CONSOLE+", comparison::StartsWithIgnoreCase) ;
-        this->addDeviceName("IBIKING+", comparison::StartsWithIgnoreCase) ;
-        this->addDeviceName("ICONSOLE+", comparison::StartsWithIgnoreCase) ;
-        this->addDeviceName("VIFHTR2.1", comparison::StartsWithIgnoreCase) ;
-        this->addDeviceName("DKN MOTION", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("CR011R", comparison::IgnoreCase);
-    }
+    TrxAppGateUSBBike2TestData();
 };

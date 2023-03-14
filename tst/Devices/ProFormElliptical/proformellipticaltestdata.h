@@ -1,20 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformelliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class ProFormEllipticalTestData : public BluetoothDeviceTestData {
+class ProFormEllipticalTestData : public EllipticalTestData {
 
 public:
-    ProFormEllipticalTestData() : BluetoothDeviceTestData("ProForm Elliptical") {
-        this->addDeviceName("I_FS", comparison::StartsWithIgnoreCase);
-    }
+    ProFormEllipticalTestData();
 
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ProformElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<proformelliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

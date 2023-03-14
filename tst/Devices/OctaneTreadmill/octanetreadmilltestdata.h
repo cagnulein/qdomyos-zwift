@@ -1,20 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "octanetreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class OctaneTreadmillTestData : public BluetoothDeviceTestData {
+
+class OctaneTreadmillTestData : public TreadmillTestData {
 
 public:
-    OctaneTreadmillTestData() : BluetoothDeviceTestData("Octane Treadmill") {
-        this->addDeviceName("ZR7", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("ZR8", comparison::StartsWithIgnoreCase);
-    }
+    OctaneTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::OctaneTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<octanetreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

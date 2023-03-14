@@ -1,22 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "tacxneo2.h"
+#include "Devices/Bike/biketestdata.h"
 
-class TacxNeo2TestData : public BluetoothDeviceTestData {
+
+class TacxNeo2TestData : public BikeTestData {
 
 public:
-    TacxNeo2TestData() : BluetoothDeviceTestData("Tacx Neo 2 Bike") {
-        this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TACX FLOW", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TACX SMART BIKE", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("THINK X", comparison::StartsWithIgnoreCase);
-    }
+    TacxNeo2TestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::TacxNeo2; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<tacxneo2*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

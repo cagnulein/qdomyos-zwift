@@ -1,22 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "wahookickrsnapbike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class WahooKickrSnapBikeTestData : public BluetoothDeviceTestData {
+
+class WahooKickrSnapBikeTestData : public BikeTestData {
 
 public:
-    WahooKickrSnapBikeTestData() : BluetoothDeviceTestData("Wahoo Kickr Snap Bike") {
-        this->addDeviceName("KICKR SNAP", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("KICKR BIKE", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("KICKR ROLLR", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("WAHOO KICKR", comparison::StartsWithIgnoreCase);
-    }
+    WahooKickrSnapBikeTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::WahooKickrSnapBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<wahookickrsnapbike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

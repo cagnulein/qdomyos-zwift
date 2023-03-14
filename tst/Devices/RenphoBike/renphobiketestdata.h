@@ -1,48 +1,28 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "Devices/FitPlusBike/fitplusbiketestdata.h"
-#include "Devices/SnodeBike/snodebiketestdata.h"
+#include "Devices/Bike/biketestdata.h"
 
-#include "renphobike.h"
 
-class RenphoBikeTestData : public BluetoothDeviceTestData {
+class RenphoBikeTestData : public BikeTestData {
 protected:
-    RenphoBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
-    }
+    RenphoBikeTestData(std::string testName);
 
     void configureExclusions() override;
 public:   
-    deviceType get_expectedDeviceType() const override { return deviceType::RenphoBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<renphobike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
 class RenphoBike1TestData : public RenphoBikeTestData {
 public:
-    RenphoBike1TestData() : RenphoBikeTestData("Renpho Bike") {
-        this->addDeviceName("RQ", comparison::StartsWithIgnoreCase, 5);
-        this->addDeviceName("SCH130", comparison::StartsWithIgnoreCase);
-    }
+    RenphoBike1TestData();
 };
 
 class RenphoBike2TestData : public RenphoBikeTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        DeviceDiscoveryInfo config(info);
-
-        config.toorx_ftms = enable;
-        config.toorx_bike = true;
-        configurations.push_back(config);
-        config.toorx_ftms = enable;
-        config.toorx_bike = false;
-        configurations.push_back(config);
-    }
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override;
 public:
-    RenphoBike2TestData() : RenphoBikeTestData("Renpho Bike (Toorx FTMS)"){
-        this->addDeviceName("TOORX", comparison::StartsWith);
-    }
+    RenphoBike2TestData();
 
 };

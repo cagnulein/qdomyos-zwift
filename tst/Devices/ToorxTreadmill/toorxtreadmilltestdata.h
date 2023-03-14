@@ -1,20 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "toorxtreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class ToorxTreadmillTestData : public BluetoothDeviceTestData {
+
+class ToorxTreadmillTestData : public TreadmillTestData {
 
 public:
-    ToorxTreadmillTestData() : BluetoothDeviceTestData("Toorx Treadmill") {
-        this->addDeviceName("TRX ROUTE KEY", comparison::StartsWith);
-    }
+    ToorxTreadmillTestData();
 
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ToorxTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<toorxtreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -1,20 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "solebike.h"
+#include "Devices/Bike/biketestdata.h"
 
-class SoleBikeTestData : public BluetoothDeviceTestData {
+
+class SoleBikeTestData : public BikeTestData {
 
 public:
-    SoleBikeTestData() : BluetoothDeviceTestData("Sole Bike") {
-        this->addDeviceName("LCB", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("R92", comparison::StartsWithIgnoreCase);
-    }
+    SoleBikeTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::SoleBike; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<solebike*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

@@ -11,16 +11,90 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
+        Devices/ActivioTreadmill/activiotreadmilltestdata.cpp \
+        Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
+        Devices/Bike/biketestdata.cpp \
+        Devices/BowflexT216Treadmill/bowflext216treadmilltestdata.cpp \
+        Devices/BowflexTreadmill/bowflextreadmilltestdata.cpp \
+        Devices/CSCBike/cscbiketestdata.cpp \
+        Devices/Chronobike/chronobiketestdata.cpp \
+        Devices/CompuTrainer/computrainertestdata.cpp \
+        Devices/Concept2SkiErg/concept2skiergtestdata.cpp \
+        Devices/DomyosBike/domyosbiketestdata.cpp \
+        Devices/DomyosElliptical/domyosellipticaltestdata.cpp \
+        Devices/DomyosRower/domyosrowertestdata.cpp \
+        Devices/DomyosTreadmill/domyostreadmilltestdata.cpp \
+        Devices/ESLinkerTreadmill/eslinkertreadmilltestdata.cpp \
+        Devices/EchelonConnectSportBike/echelonconnectsportbiketestdata.cpp \
+        Devices/EchelonRower/echelonrowertestdata.cpp \
+        Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.cpp \
+        Devices/Elliptical/ellipticaltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
+        Devices/FTMSRower/ftmsrowertestdata.cpp \
+        Devices/FakeBike/fakebiketestdata.cpp \
+        Devices/FakeElliptical/fakeellipticaltestdata.cpp \
+        Devices/FakeTreadmill/faketreadmilltestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
+        Devices/FitshowTreadmill/fitshowtreadmilltestdata.cpp \
+        Devices/FlywheelBike/flywheelbiketestdata.cpp \
+        Devices/HorizonGR7Bike/horizongr7biketestdata.cpp \
+        Devices/HorizonTreadmill/horizontreadmilltestdata.cpp \
+        Devices/InspireBike/inspirebiketestdata.cpp \
+        Devices/KeepBike/keepbiketestdata.cpp \
+        Devices/KingsmithR1ProTreadmill/kingsmithr1protreadmilltestdata.cpp \
+        Devices/KingsmithR2Treadmill/kingsmithr2treadmilltestdata.cpp \
+        Devices/LifeFitnessTreadmill/lifefitnesstreadmilltestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
+        Devices/MCFBike/mcfbiketestdata.cpp \
+        Devices/MepanelBike/mepanelbiketestdata.cpp \
+        Devices/NPECableBike/npecablebiketestdata.cpp \
+        Devices/NautilusBike/nautilusbiketestdata.cpp \
+        Devices/NautilusElliptical/nautilusellipticaltestdata.cpp \
+        Devices/NautilusTreadmill/nautilustreadmilltestdata.cpp \
+        Devices/NordicTrackElliptical/nordictrackellipticaltestdata.cpp \
+        Devices/NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.cpp \
+        Devices/OctaneElliptical/octaneellipticaltestdata.cpp \
+        Devices/OctaneTreadmill/octanetreadmilltestdata.cpp \
+        Devices/PafersBike/pafersbiketestdata.cpp \
+        Devices/PafersTreadmill/paferstreadmilltestdata.cpp \
+        Devices/ProFormBike/proformbiketestdata.cpp \
+        Devices/ProFormElliptical/proformellipticaltestdata.cpp \
+        Devices/ProFormEllipticalTrainer/proformellipticaltrainertestdata.cpp \
+        Devices/ProFormRower/proformrowertestdata.cpp \
+        Devices/ProFormTreadmill/proformtreadmilltestdata.cpp \
+        Devices/ProFormWiFiBike/proformwifibiketestdata.cpp \
+        Devices/ProFormWiFiTreadmill/proformwifitreadmilltestdata.cpp \
         Devices/RenphoBike/renphobiketestdata.cpp \
+        Devices/Rower/rowertestdata.cpp \
+        Devices/SchwinnIC4Bike/schwinnic4biketestdata.cpp \
+        Devices/Shuaa5Treadmill/shuaa5treadmilltestdata.cpp \
+        Devices/SkandikaWiryBike/skandikawirybiketestdata.cpp \
+        Devices/SmartRowRower/smartrowrowertestdata.cpp \
         Devices/SnodeBike/snodebiketestdata.cpp \
+        Devices/SoleBike/solebiketestdata.cpp \
+        Devices/SoleElliptical/soleellipticaltestdata.cpp \
+        Devices/SoleF80Treadmill/solef80treadmilltestdata.cpp \
+        Devices/SpiritTreadmill/spirittreadmilltestdata.cpp \
+        Devices/SportsPlusBike/sportsplusbiketestdata.cpp \
+        Devices/SportsTechBike/sportstechbiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
+        Devices/StrydeRunPowerSensor/stryderunpowersensortestdata.cpp \
+        Devices/TacxNeo2/tacxneo2testdata.cpp \
+        Devices/TechnoGymMyRunTreadmill/technogymmyruntreadmilltestdata.cpp \
+        Devices/TechnogymMyRunTreadmillRFComm/technogymmyruntreadmillrfcommtestdata.cpp \
+        Devices/ToorxTreadmill/toorxtreadmilltestdata.cpp \
+        Devices/Treadmill/treadmilltestdata.cpp \
+        Devices/TrueTreadmill/truetreadmilltestdata.cpp \
+        Devices/TrxAppGateUSBBike/trxappgateusbbiketestdata.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
+        Devices/UltrasportBike/ultrasportbiketestdata.cpp \
+        Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.cpp \
+        Devices/YesoulBike/yesoulbiketestdata.cpp \
+        Devices/ZiproTreadmill/ziprotreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Devices/iConceptBike/iconceptbiketestdata.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         main.cpp
@@ -60,7 +134,6 @@ HEADERS += \
     Devices/EchelonConnectSportBike/echelonconnectsportbiketestdata.h \
     Devices/EchelonRower/echelonrowertestdata.h \
     Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h \
-    Devices/EliteSterzoSmart/elitesterzosmarttestdata.h \
     Devices/Elliptical/ellipticaltestdata.h \
     Devices/FTMSBike/ftmsbiketestdata.h \
     Devices/FTMSRower/ftmsrowertestdata.h \
@@ -86,6 +159,7 @@ HEADERS += \
     Devices/NautilusTreadmill/nautilustreadmilltestdata.h \
     Devices/NordicTrackElliptical/nordictrackellipticaltestdata.h \
     Devices/NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.h \
+    Devices/OctaneElliptical/octaneellipticaltestdata.h \
     Devices/OctaneTreadmill/octanetreadmilltestdata.h \
     Devices/PafersBike/pafersbiketestdata.h \
     Devices/PafersTreadmill/paferstreadmilltestdata.h \

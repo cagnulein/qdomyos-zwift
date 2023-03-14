@@ -1,19 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "eslinkertreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class ESLinkerTreadmillTestData : public BluetoothDeviceTestData {
+class ESLinkerTreadmillTestData : public TreadmillTestData {
 
 public:
-    ESLinkerTreadmillTestData(): BluetoothDeviceTestData("ES Linker Treadmill") {
-        this->addDeviceName("ESLINKER", comparison::StartsWithIgnoreCase);
-    }
+    ESLinkerTreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::ESLinkerTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<eslinkertreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

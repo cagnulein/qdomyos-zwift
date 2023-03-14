@@ -1,26 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "soleelliptical.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-class SoleEllipticalTestData : public BluetoothDeviceTestData {
+class SoleEllipticalTestData : public EllipticalTestData {
 
 public:
-    SoleEllipticalTestData(): BluetoothDeviceTestData("Sole Elliptical") {
-        this->addDeviceName("E95S", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E25", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E35", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E55", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E95", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E98", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("XG400", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("E98S", comparison::StartsWithIgnoreCase);
-    }
+    SoleEllipticalTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::SoleElliptical; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<soleelliptical*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

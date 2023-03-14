@@ -1,19 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "bowflext216treadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class BowflexT216TreadmillTestData : public BluetoothDeviceTestData {
+
+class BowflexT216TreadmillTestData : public TreadmillTestData {
 
 public:
-    BowflexT216TreadmillTestData() : BluetoothDeviceTestData("Bowflex T216 Treadmill") {
-        this->addDeviceName("BOWFLEX T", comparison::StartsWithIgnoreCase);
-    }
+    BowflexT216TreadmillTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::BowflexT216Treadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<bowflext216treadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 

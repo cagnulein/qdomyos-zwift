@@ -1,26 +1,17 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "bowflextreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 
-class BowflexTreadmillTestData : public BluetoothDeviceTestData {
+
+class BowflexTreadmillTestData : public TreadmillTestData {
 
 public:
-    BowflexTreadmillTestData() : BluetoothDeviceTestData("Bowflex Treadmill"){}
+    BowflexTreadmillTestData();
 
-    QStringList get_deviceNames() const override {
-        QStringList result;
+    QStringList get_deviceNames() const override;
 
-        return result;
-    }
+    deviceType get_expectedDeviceType() const override;
 
-    deviceType get_expectedDeviceType() const override {
-        // device not supported
-        return deviceType::None;
-    }
-
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<bowflextreadmill*>(detectedDevice)!=nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 };
 
