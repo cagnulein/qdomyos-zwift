@@ -177,8 +177,8 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
             treadmillInclinationOverride(((double)(i + 1)) / 2.0) >= Inclination) {
             qDebug() << QStringLiteral("treadmillInclinationOverrideReverse")
                      << treadmillInclinationOverride(((double)(i)) / 2.0)
-                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination;
-            return i;
+                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination << i;
+            return ((double)i) / 2.0;
         }
     }
     if (Inclination < treadmillInclinationOverride(0))
