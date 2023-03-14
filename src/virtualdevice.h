@@ -11,7 +11,6 @@ class virtualdevice : public QObject
 private:
     QZLockscreenFunctions * lockscreenFunctions = nullptr;
 protected:
-    QZLockscreenFunctions * getLockscreenFunctions() const;
 signals:
     void debug(QString string);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
@@ -19,6 +18,8 @@ public:
     explicit virtualdevice(QObject *parent = nullptr);
     ~virtualdevice() override;
     virtual bool connected()=0;
+
+    QZLockscreenFunctions * getLockscreenFunctions() const;
 };
 
 #endif // VIRTUALDEVICE_H

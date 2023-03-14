@@ -99,6 +99,11 @@ SOURCES += \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testlockscreen.cpp \
         Tools/testsettings.cpp \
+        VirtualDevices/Bike/virtualbiketestdata.cpp \
+        VirtualDevices/Rower/virtualrowertestdata.cpp \
+        VirtualDevices/Treadmill/virtualtreadmilltestdata.cpp \
+        VirtualDevices/virtualdevicetestdata.cpp \
+        VirtualDevices/virtualdevicetestsuite.cpp \
         main.cpp
 
 # Avoid the "File too big" error building in Windows. This has happened when a template class is used with Google Test / typed tests
@@ -207,4 +212,9 @@ HEADERS += \
     Devices/lockscreenfunctionstestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testlockscreen.h \
-    Tools/testsettings.h
+    Tools/testsettings.h \
+    VirtualDevices/Bike/virtualbiketestdata.h \
+    VirtualDevices/Rower/virtualrowertestdata.h \
+    VirtualDevices/Treadmill/virtualtreadmilltestdata.h \
+    VirtualDevices/virtualdevicetestdata.h \
+    VirtualDevices/virtualdevicetestsuite.h
