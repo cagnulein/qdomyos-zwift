@@ -30,6 +30,7 @@ class nordictrackifitadbbike : public bike {
   public:
     nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
     bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool inclinationAvailableByHardware();
 
     void *VirtualTreadmill();
