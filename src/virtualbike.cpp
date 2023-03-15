@@ -12,7 +12,6 @@ using namespace std::chrono_literals;
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
     Bike = t;
-
     this->noHeartService = noHeartService;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
@@ -91,7 +90,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 services << QBluetoothUuid::HeartRate;
             }
 
-            services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
+  //          services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
@@ -195,15 +194,56 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     serviceDataFIT.addCharacteristic(charDataFIT5);
                     serviceDataFIT.addCharacteristic(charDataFIT6);
                 } else if (power) {
+                    QLowEnergyCharacteristicData charDataFIT;
+                    charDataFIT.setUuid(
+                        (QBluetoothUuid::CharacteristicType)0x2A00); // FitnessMachineFeatureCharacteristicUuid
+                    QByteArray valueFIT;
+                    valueFIT.append((char)'P'); // average speed, cadence and resistance level supported
+                    valueFIT.append((char)'i'); // heart rate and elapsed time
+                    valueFIT.append((char)'x');
+                    valueFIT.append((char)'e');
+                    valueFIT.append((char)'l'); // resistance and power target supported
+                    valueFIT.append((char)' '); // indoor simulation, wheel and spin down supported
+                    valueFIT.append((char)'6');
+                    valueFIT.append((char)'a');
+                    valueFIT.append((char)0x00);
+                    charDataFIT.setValue(valueFIT);
+                    charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+
+                    QLowEnergyCharacteristicData charDataFIT2;
+                    charDataFIT2.setUuid(
+                        (QBluetoothUuid::CharacteristicType)0x2A01); // FitnessMachineFeatureCharacteristicUuid
+                    QByteArray valueFIT2;
+                    valueFIT2.append((char)0x00);
+                    charDataFIT2.setValue(valueFIT2);
+                    charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+
+                    serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1800); // FitnessMachineServiceUuid
+                    serviceDataFIT.addCharacteristic(charDataFIT);
+                    serviceDataFIT.addCharacteristic(charDataFIT2);
+
+                    QLowEnergyCharacteristicData charDataFIT3;
+                    charDataFIT3.setUuid(
+                        (QBluetoothUuid::CharacteristicType)0x2A05); // FitnessMachineFeatureCharacteristicUuid
+                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Indicate);
+                    QByteArray descriptor33;
+                    descriptor33.append((char)0x02);
+                    descriptor33.append((char)0x00);
+                    const QLowEnergyDescriptorData clientConfig43(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                                 descriptor33);
+                    charDataFIT3.addDescriptor(clientConfig43);
+
+                    serviceEchelon.setUuid((QBluetoothUuid::ServiceClassUuid)0x1801); // FitnessMachineServiceUuid
+                    serviceEchelon.addCharacteristic(charDataFIT3);
 
                     QLowEnergyCharacteristicData charData;
                     charData.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerFeature);
                     charData.setProperties(QLowEnergyCharacteristic::Read);
                     QByteArray value;
-                    value.append((char)0x08); // crank supported
+                    value.append((char)0x00); // crank supported
                     value.append((char)0x00);
                     value.append((char)0x00);
-                    value.append((char)0x00);
+                    value.append((char)0x08);
                     charData.setValue(value);
 
                     QLowEnergyCharacteristicData charData2;
@@ -219,6 +259,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     QLowEnergyCharacteristicData charData3;
                     charData3.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
                     charData3.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+                    charData3.setValue(valueLocaltion);
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -229,8 +270,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
                     serviceData.setUuid(QBluetoothUuid::ServiceClassUuid::CyclingPower);
                     serviceData.addCharacteristic(charData);
-                    serviceData.addCharacteristic(charData3);
                     serviceData.addCharacteristic(charData2);
+                    serviceData.addCharacteristic(charData3);
                 } else {
 
                     QLowEnergyCharacteristicData charData;
@@ -392,6 +433,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     serviceFIT = leController->addService(serviceDataFIT);
                 } else {
+                    serviceFIT = leController->addService(serviceDataFIT);
+	            service = leController->addService(serviceEchelon);
                     service = leController->addService(serviceData);
                 }
             }
@@ -433,10 +476,30 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
-            pars.setInterval(100, 100);
         }
+        pars.setInterval(30, 50);
 
-        leController->startAdvertising(pars, advertisingData, advertisingData);
+        QByteArray a;
+        a.append(0x02);
+        a.append(0x01);
+        a.append(0x06);
+        a.append(0x03);
+        a.append(0x03);
+        a.append(0x18);
+        a.append(0x18);
+        a.append(0x09);
+        a.append(0x09);
+        a.append(0x50);
+        a.append(0x69);
+        a.append(0x78);
+        a.append(0x65);
+        a.append(0x6c);
+        a.append(0x20);
+        a.append(0x36);
+        a.append(0x61);
+
+        advertisingData.setRawData(a);
+        leController->startAdvertising(pars, advertisingData);
 
         //! [Start Advertising]
     }
