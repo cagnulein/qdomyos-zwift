@@ -101,6 +101,16 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+    } else if(treadmill_type == COSTAWAY) {
+        // CheckSum 8 Xor
+        uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x00, 0x00, 0x00};
+        display[4] = requestSpeed * 10;
+        for (int i = 0; i < 6; i++) {
+            display[6] = display[6] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     }
 }
 
@@ -142,7 +152,7 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) { //
+        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE || treadmill_type == TYPE::COSTAWAY) { //
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -171,7 +181,7 @@ void eslinkertreadmill::update() {
                 requestInclination = -100;
             }
         } else if (treadmill_type == COSTAWAY) {
-            uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
+            uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x06, 0x00, 0x0e};
             writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("noop"), false, true);
         } else {
             if (requestVar2) {
@@ -331,6 +341,8 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
         return;
+    else if(newValue.length() != 5 && treadmill_type == COSTAWAY)
+        return;
 
     if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
@@ -368,6 +380,11 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
+    } else if(treadmill_type == COSTAWAY) {
+        const double miles = 1.60934;
+        Speed = newValue.at(3) * miles;
+        Inclination = 0; // this treadmill doesn't have inclination
+        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }
 
     if (!firstCharacteristicChanged) {
@@ -441,49 +458,26 @@ void eslinkertreadmill::btinit(bool startTape) {
         uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
-        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x39, 0x99};
+        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x79, 0xd9};
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
-        uint8_t initData3[] = {0xa9, 0x08, 0x04, 0x1b, 0xb4, 0x0c, 0x0f, 0x09};
+        uint8_t initData3[] = {0xa9, 0x08, 0x04, 0x05, 0x04, 0x04, 0x01, 0xa1};
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
 
         uint8_t initData4[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
 
-        uint8_t initData5[] = {0xa9, 0xa0, 0x03, 0x00, 0x10, 0x00, 0x1a};
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        uint8_t initData5[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
 
-        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x52, 0xf0};
+        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x48, 0xea};
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
 
         uint8_t initData7[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
 
-        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
+        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
-
-        uint8_t initData9[] = {0xa9, 0x01, 0x01, 0x11, 0xb8};
-        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
-
-        uint8_t initData10[] = {0xa9, 0x01, 0x01, 0x12, 0xbb};
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
-
-        uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x10, 0x00, 0x18};
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
-
-        uint8_t initData12[] = {0xa9, 0x01, 0x01, 0x13, 0xba};
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
-
-        uint8_t initData13[] = {0xa9, 0x01, 0x01, 0x14, 0xbd};
-        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, true);
-
-        uint8_t initData14[] = {0xa9, 0x01, 0x01, 0x15, 0xbc};
-        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
-
-        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
-
-        uint8_t initData15[] = {0xa9, 0x01, 0x01, 0x16, 0xbf};
-        writeCharacteristic(initData15, sizeof(initData15), QStringLiteral("init"), false, true);
     } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         // set speed and incline to 0
         uint8_t initData1[] = {0x08, 0x01, 0x86};
