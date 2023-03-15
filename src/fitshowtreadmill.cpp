@@ -442,8 +442,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-                emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));                
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
@@ -481,6 +480,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (Inclination.value() != incline) {
                     emit inclinationChanged(0, incline);
                 }
+                emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
 
                 if (truetimer)
                     elapsed = seconds_elapsed;
