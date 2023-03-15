@@ -533,7 +533,9 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                         &strydrunpowersensor::changeInclinationRequested);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService,
+                                              settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt(),
+                                              settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble());
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &strydrunpowersensor::changeInclinationRequested);
             }
