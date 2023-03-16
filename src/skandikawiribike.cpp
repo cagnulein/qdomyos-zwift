@@ -248,7 +248,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             if (X2000) {
-                Heart = convertHexToDec(packet.at(8));
+                Heart = convertHexToDec(newValue.at(8));
             } else {
                 Heart = 0;
             }
