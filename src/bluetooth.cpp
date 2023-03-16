@@ -1206,6 +1206,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("PARAGON X")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||       // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||      // FTMS
@@ -1899,7 +1900,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(soleBike, &solebike::debug, this, &bluetooth::debug);
                 soleBike->deviceDiscovered(b);
                 this->startTemplateManagers(soleBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BFCP")) || 
+                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 11)
+                    ) && !skandikaWiriBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 skandikaWiriBike =
