@@ -203,7 +203,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
             Resistance = newValue.at(2);
             emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
         }
-        return;        
+        return;
     } else if (newValue.length() != 12) {
         return;
     }
@@ -214,7 +214,9 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
     } else if ((newValue.at(1) == 0x10 && X2000 == false) || (newValue.at(1) == 0x30 && X2000 == true)) {
         if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -226,7 +228,11 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double kcal = GetKcalFromPacket(newValue);
 
-    m_watts = GetWattFromPacket(newValue);
+    if (X2000) {
+        m_watts = wattFromHR(true);
+    } else {
+        m_watts = GetWattFromPacket(newValue);
+    }
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
@@ -241,7 +247,11 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = 0;
+            if (X2000) {
+                Heart = convertHexToDec(packet.at(8));
+            } else {
+                Heart = 0;
+            }
         }
     }
 
@@ -291,7 +301,7 @@ double skandikawiribike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 void skandikawiribike::btinit() {
-    if(X2000) {
+    if (X2000) {
         uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x38, 0x12};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
@@ -340,11 +350,14 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -411,7 +424,7 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if(device.name().toUpper().startsWith(QLatin1String("HT"))) {
+        if (device.name().toUpper().startsWith(QLatin1String("HT"))) {
             X2000 = true;
             qDebug() << "X-2000 WORKAROUND!";
         }
