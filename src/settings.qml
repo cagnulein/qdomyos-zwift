@@ -721,6 +721,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.4
             property bool peloton_spinups_autoresistance: true
+
+            // from version 2.13.10
+            property bool eslinker_costaway: false
         }
 
         function paddingZeros(text, limit) {
@@ -5184,6 +5187,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.eslinker_ypoo = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Costaway Folding")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.eslinker_costaway
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.eslinker_costaway = checked
                         }
                     }
                 }

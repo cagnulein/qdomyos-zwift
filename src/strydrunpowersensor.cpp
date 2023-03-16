@@ -79,8 +79,8 @@ void strydrunpowersensor::update() {
         update_metrics(true, watts());
 
         if (requestInclination != -100) {
-            Inclination = requestInclination;
-            emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            Inclination = treadmillInclinationOverrideReverse(requestInclination);
+            qDebug() << QStringLiteral("writing incline ") << requestInclination;
             requestInclination = -100;
         }
 
