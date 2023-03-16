@@ -1816,7 +1816,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(soleBike, &solebike::debug, this, &bluetooth::debug);
                 soleBike->deviceDiscovered(b);
                 this->startTemplateManagers(soleBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BFCP")) || 
+                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 11)
+                    ) && !skandikaWiriBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 skandikaWiriBike =
