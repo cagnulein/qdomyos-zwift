@@ -145,6 +145,7 @@
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
 		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
 		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
+		8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710707229C4A5E70094D0F3 /* GarminConnect.swift */; };
 		871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189122893C92F006A04D1 /* libQt5Multimedia.a */; };
 		871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189142893CB51006A04D1 /* libdeclarative_multimedia.a */; };
 		871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */; };
@@ -827,6 +828,7 @@
 		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
 		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
 		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
+		8710707229C4A5E70094D0F3 /* GarminConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GarminConnect.swift; path = ../src/ios/GarminConnect.swift; sourceTree = "<group>"; };
 		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = ../../Qt/5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
 		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = ../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
 		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
@@ -2174,6 +2176,7 @@
 				68418A2D51B69FC30BF5A41C /* virtualbike.h */,
 				35E903698E72424585D33829 /* virtualtreadmill.h */,
 				C8CE72E7B224D8B886614E3F /* domyosbike.h */,
+				8710707229C4A5E70094D0F3 /* GarminConnect.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -3063,6 +3066,7 @@
 				E40895A73216AC52D35083D9 /* signalhandler.cpp in Compile Sources */,
 				873CD22427EF8E18000131BC /* inappproductqmltype.cpp in Compile Sources */,
 				87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */,
+				8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */,
 				BE1D17BBF32F04829E1B3767 /* toorxtreadmill.cpp in Compile Sources */,
 				879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */,
 				4697729B15991E98D6A2533D /* treadmill.cpp in Compile Sources */,
