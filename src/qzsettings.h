@@ -1776,6 +1776,9 @@ class QZSettings {
     static const QString peloton_spinups_autoresistance;
     static constexpr bool default_peloton_spinups_autoresistance = true;
 
+    static const QString eslinker_costaway;
+    static constexpr bool default_eslinker_costaway = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

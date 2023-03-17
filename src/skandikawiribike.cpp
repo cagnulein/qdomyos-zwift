@@ -192,7 +192,13 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if (newValue.length() == 5) {
+    if (newValue.length() == 5 && X2000 == false) {
+        if (newValue.at(2) < 33) {
+            Resistance = newValue.at(2);
+            emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
+        }
+        return;
+    } else if (newValue.length() == 6 && X2000 == true) {
         if (newValue.at(2) < 33) {
             Resistance = newValue.at(2);
             emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
@@ -202,15 +208,17 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (newValue.at(1) == 0x00) {
+    if ((newValue.at(1) == 0x00 && X2000 == false) || (newValue.at(1) == 0x20 && X2000 == true)) {
         double speed = GetSpeedFromPacket(newValue);
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
-    } else if (newValue.at(1) == 0x10) {
+    } else if ((newValue.at(1) == 0x10 && X2000 == false) || (newValue.at(1) == 0x30 && X2000 == true)) {
         if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
@@ -220,7 +228,11 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double kcal = GetKcalFromPacket(newValue);
 
-    m_watts = GetWattFromPacket(newValue);
+    if (X2000) {
+        m_watts = wattFromHR(true);
+    } else {
+        m_watts = GetWattFromPacket(newValue);
+    }
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
@@ -235,6 +247,11 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            if (X2000) {
+                Heart = convertHexToDec(newValue.at(8));
+            } else {
+                Heart = 0;
+            }
 
             if(!this->updateLockscreenEnergyDistanceHeartRate())
                 this->Heart = 0;
@@ -289,11 +306,16 @@ double skandikawiribike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 void skandikawiribike::btinit() {
-    uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x24, 0xfe};
+    if (X2000) {
+        uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x38, 0x12};
 
-    // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
-    // enough
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else {
+        uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x24, 0xfe};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -327,7 +349,8 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual bike init *************************************
         if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
@@ -387,6 +410,11 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if (device.name().toUpper().startsWith(QLatin1String("HT"))) {
+            X2000 = true;
+            qDebug() << "X-2000 WORKAROUND!";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &skandikawiribike::serviceDiscovered);

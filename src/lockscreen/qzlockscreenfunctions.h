@@ -44,7 +44,7 @@ public:
      * @param distance
      * @param heart
      * @param defaultHeartRate
-     * @return
+     * @return True if the update occurred, false if not.
      */
     virtual bool updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, const int defaultHeartRate=0)=0;
 

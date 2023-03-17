@@ -67,7 +67,8 @@ class eslinkertreadmill : public treadmill {
     typedef enum TYPE {
         RHYTHM_FUN = 0,
         CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
-        YPOO_MINI_CHANGE = 2, // Similar to RHYTHM_FUN but has no ascension
+        YPOO_MINI_CHANGE = 2,    // Similar to RHYTHM_FUN but has no ascension
+        COSTAWAY = 3,
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
 

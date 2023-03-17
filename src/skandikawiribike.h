@@ -75,6 +75,7 @@ class skandikawiribike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool X2000 = false;
   signals:
     void disconnected();
     void debug(QString string);
