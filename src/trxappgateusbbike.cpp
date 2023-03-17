@@ -253,22 +253,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
         speed = cadence * 0.37407407407407407407407407407407;
         if (Heart.value() > 0) {
-            int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
-                         settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
-                        (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
-                         settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
-                           (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
-                            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
-                       (Heart.value() *
-                        ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
-                          settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
-                         (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
-                          settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
-            if (Speed.value() > 0) {
-                watt = avgP;
-            } else {
-                watt = 0;
-            }
+            watt = wattFromHR(true);
 
             if (watt)
                 kcal =

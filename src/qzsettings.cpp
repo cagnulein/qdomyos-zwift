@@ -631,8 +631,9 @@ const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nord
 const QString QZSettings::strava_auth_external_webbrowser = QStringLiteral("strava_auth_external_webbrowser");
 const QString QZSettings::gears_from_bike = QStringLiteral("gears_from_bike");
 const QString QZSettings::peloton_spinups_autoresistance = QStringLiteral("peloton_spinups_autoresistance");
+const QString QZSettings::eslinker_costaway = QStringLiteral("eslinker_costaway");
 
-const uint32_t allSettingsCount = 527;
+const uint32_t allSettingsCount = 528;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1164,6 +1165,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser},
     {QZSettings::gears_from_bike, QZSettings::default_gears_from_bike},
     {QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance},
+    {QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

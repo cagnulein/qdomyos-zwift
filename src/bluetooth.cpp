@@ -1366,6 +1366,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("S4 COMMS")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
@@ -1816,7 +1817,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(soleBike, &solebike::debug, this, &bluetooth::debug);
                 soleBike->deviceDiscovered(b);
                 this->startTemplateManagers(soleBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BFCP")) || 
+                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 11)
+                    ) && !skandikaWiriBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 skandikaWiriBike =
