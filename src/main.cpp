@@ -38,6 +38,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "handleurl.h"
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -287,6 +289,9 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
+    HandleURL* URLHandler = new HandleURL();
+    QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif

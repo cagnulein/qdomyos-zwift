@@ -66,6 +66,7 @@ SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
+    $$PWD/handleurl.cpp \
    $$PWD/pelotonbike.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -261,6 +262,7 @@ HEADERS += \
     $$PWD/androidadblog.h \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
+    $$PWD/handleurl.h \
    $$PWD/pelotonbike.h \
    Computrainer.h \
    PathController.h \

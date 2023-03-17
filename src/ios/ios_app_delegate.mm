@@ -26,7 +26,9 @@ static IQApp *app = nil;
       }];
 
     [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.ConnectIQComms-ciq"
-                                 uiOverrideDelegate:self];
+                                 uiOverrideDelegate:nil];
+    
+    [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
 
     return YES;
 }
