@@ -189,6 +189,13 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
 
 double treadmill::treadmillInclinationOverride(double Inclination) {
     QSettings settings;
+
+    double treadmill_inclination_ovveride_gain = settings.value(QZSettings::treadmill_inclination_ovveride_gain, QZSettings::default_treadmill_inclination_ovveride_gain).toDouble();
+    double treadmill_inclination_ovveride_offset = settings.value(QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset).toDouble();
+
+    Inclination = Inclination * treadmill_inclination_ovveride_gain;
+    Inclination = Inclination + treadmill_inclination_ovveride_offset;
+
     int inc = Inclination * 10;
     qDebug() << "treadmillInclinationOverride" << Inclination << inc;
     switch (inc) {

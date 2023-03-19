@@ -1779,6 +1779,12 @@ class QZSettings {
     static const QString eslinker_costaway;
     static constexpr bool default_eslinker_costaway = false;
 
+    static const QString treadmill_inclination_ovveride_gain;
+    static constexpr double default_treadmill_inclination_ovveride_gain = 1.0;
+
+    static const QString treadmill_inclination_ovveride_offset;
+    static constexpr double default_treadmill_inclination_ovveride_offset = 0.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

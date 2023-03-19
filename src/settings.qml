@@ -724,6 +724,10 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.10
             property bool eslinker_costaway: false
+
+            // from version 2.13.14
+            property double treadmill_inclination_ovveride_gain: 1.0
+            property double treadmill_inclination_ovveride_offset: 0.0
         }
 
         function paddingZeros(text, limit) {
