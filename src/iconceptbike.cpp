@@ -99,11 +99,13 @@ void iconceptbike::update() {
             }
             char res[] = {0x55, 0x11, 0x01, 0x12};
             res[3] = requestResistance;
+            qDebug() << QStringLiteral(">>") << QByteArray(res, sizeof(res)).toHex(' ');
             socket->write(res, sizeof(res));
             requestResistance = -1;
         }
 
         const char poll[] = {0x55, 0x17, 0x01, 0x01};
+        qDebug() << QStringLiteral(">>") << QByteArray(poll, sizeof(poll)).toHex(' ');
         socket->write(poll, sizeof(poll));
         emit debug(QStringLiteral("write poll"));
 
