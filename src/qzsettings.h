@@ -1788,6 +1788,9 @@ class QZSettings {
     static const QString bh_spada_2_watt;
     static constexpr bool default_bh_spada_2_watt = false;
 
+    static const QString tacx_neo2_peloton;
+    static constexpr bool default_tacx_neo2_peloton = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

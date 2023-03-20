@@ -731,6 +731,7 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.15
             property bool bh_spada_2_watt: false
+            property bool tacx_neo2_peloton: false
         }
 
         function paddingZeros(text, limit) {
@@ -2607,6 +2608,25 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_500_profile_v1 = checked
+                    }
+                }                
+                AccordionElement {
+                    title: qsTr("Tacx Neo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    SwitchDelegate {
+                        text: qsTr("Peloton Configuration")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.tacx_neo2_peloton
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.tacx_neo2_peloton = checked
                     }
                 }
                 AccordionElement {
