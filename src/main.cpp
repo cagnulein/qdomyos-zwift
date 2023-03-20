@@ -175,6 +175,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         }
         if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
             settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+            qDebug() << "fit_file_saved_on_quit"
+                     << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
         }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
