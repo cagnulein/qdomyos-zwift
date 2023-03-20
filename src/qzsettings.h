@@ -1791,6 +1791,9 @@ class QZSettings {
     static const QString tacx_neo2_peloton;
     static constexpr bool default_tacx_neo2_peloton = false;
 
+    static const QString sole_treadmill_inclination_fast;
+    static constexpr bool default_sole_treadmill_inclination_fast = false;
+
     static const QString fit_file_saved_on_quit;
     static constexpr bool default_fit_file_saved_on_quit = false;
 

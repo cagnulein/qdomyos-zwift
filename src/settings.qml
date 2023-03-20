@@ -732,6 +732,9 @@ import Qt.labs.settings 1.0
             // from version 2.13.15
             property bool bh_spada_2_watt: false
             property bool tacx_neo2_peloton: false
+
+            // from version 2.13.16
+            property bool sole_treadmill_inclination_fast: false
         }
 
         function paddingZeros(text, limit) {
@@ -5019,6 +5022,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_inclination = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Fast Inclination (experimental)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_inclination_fast
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_inclination_fast = checked
                         }
                         SwitchDelegate {
                             id: soleMilesDelegate
