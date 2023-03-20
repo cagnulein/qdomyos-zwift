@@ -1,4 +1,5 @@
 #include "iconceptbike.h"
+#include "keepawakehelper.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
