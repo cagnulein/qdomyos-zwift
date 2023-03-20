@@ -781,7 +781,9 @@ void homeform::aboutToQuit() {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
 
-    fit_save_clicked();
+    QSettings settings;
+    if (settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit).toBool())
+        fit_save_clicked();
 
     if (bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();

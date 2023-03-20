@@ -637,8 +637,9 @@ const QString QZSettings::treadmill_inclination_ovveride_offset =
     QStringLiteral("treadmill_inclination_ovveride_offset");
 const QString QZSettings::bh_spada_2_watt = QStringLiteral("bh_spada_2_watt");
 const QString QZSettings::tacx_neo2_peloton = QStringLiteral("tacx_neo2_peloton");
+const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_saved_on_quit");
 
-const uint32_t allSettingsCount = 532;
+const uint32_t allSettingsCount = 533;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1175,6 +1176,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset},
     {QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt},
     {QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton},
+    {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

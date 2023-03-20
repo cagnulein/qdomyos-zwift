@@ -173,6 +173,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 
             bikeResistanceOffset = atoi(argv[++i]);
         }
+        if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
+            settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
             if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {

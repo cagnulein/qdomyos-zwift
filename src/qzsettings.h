@@ -1791,6 +1791,9 @@ class QZSettings {
     static const QString tacx_neo2_peloton;
     static constexpr bool default_tacx_neo2_peloton = false;
 
+    static const QString fit_file_saved_on_quit;
+    static constexpr bool default_fit_file_saved_on_quit = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
