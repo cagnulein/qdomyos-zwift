@@ -24,6 +24,7 @@ class treadmill : public bluetoothdevice {
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
     metric currentStepCount() { return StepCount; }
     uint16_t watts(double weight);
+    static uint16_t wattsCalc(double weight, double speed, double inclination);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setLap();

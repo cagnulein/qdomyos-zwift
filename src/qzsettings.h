@@ -1776,6 +1776,21 @@ class QZSettings {
     static const QString peloton_spinups_autoresistance;
     static constexpr bool default_peloton_spinups_autoresistance = true;
 
+    static const QString eslinker_costaway;
+    static constexpr bool default_eslinker_costaway = false;
+
+    static const QString treadmill_inclination_ovveride_gain;
+    static constexpr double default_treadmill_inclination_ovveride_gain = 1.0;
+
+    static const QString treadmill_inclination_ovveride_offset;
+    static constexpr double default_treadmill_inclination_ovveride_offset = 0.0;
+
+    static const QString bh_spada_2_watt;
+    static constexpr bool default_bh_spada_2_watt = false;
+
+    static const QString tacx_neo2_peloton;
+    static constexpr bool default_tacx_neo2_peloton = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

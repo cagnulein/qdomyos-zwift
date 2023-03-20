@@ -118,6 +118,7 @@
 #include "wahookickrheadwind.h"
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
+#include "ziprotreadmill.h"
 
 class bluetooth : public QObject, public SignalHandler {
 
@@ -229,6 +230,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    ziprotreadmill *ziproTreadmill = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;

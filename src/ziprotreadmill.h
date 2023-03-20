@@ -1,5 +1,5 @@
-#ifndef STRYDRUNPOWERSENSOR_H
-#define STRYDRUNPOWERSENSOR_H
+#ifndef ZIPROTREADMILL_H
+#define ZIPROTREADMILL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -24,67 +24,60 @@
 
 #include <QDateTime>
 #include <QObject>
-#include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class strydrunpowersensor : public treadmill {
+class ziprotreadmill : public treadmill {
     Q_OBJECT
   public:
-    strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
+    ziprotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
+    double minStepInclination();
+    double minStepSpeed();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
-    void *VirtualTreadmill();
+    void *VirtualTreadMill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
+    void updateDisplay(uint16_t elapsed);
+    void btinit(bool startTape);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    bool noConsole = false;
+    bool noHeartService = false;
+    uint32_t pollDeviceTime = 200;
+    uint8_t sec1Update = 0;
+    uint8_t firstInit = 0;
+    QByteArray lastPacket;
+    QDateTime lastTimeCharacteristicChanged;
+    bool firstCharacteristicChanged = true;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
-
-    uint8_t sec1Update = 0;
-    QByteArray lastPacket;
-    QDateTime lastRefreshCadenceChanged = QDateTime::currentDateTime();
-    QDateTime lastRefreshPowerChanged = QDateTime::currentDateTime();
-    QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
 
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-    bool noVirtualDevice = false;
-
-    uint16_t oldLastCrankEventTime = 0;
-    uint16_t oldCrankRevs = 0;
-    uint16_t LastCrankEventTime = 0;
-    double CrankRevs = 0;
-
-    bool powerReceived = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
-  signals:
+  Q_SIGNALS:
     void disconnected();
     void debug(QString string);
-    void onHeartRate(uint8_t heart);
+    void speedChanged(double speed);
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -94,8 +87,6 @@ class strydrunpowersensor : public treadmill {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
@@ -107,4 +98,5 @@ class strydrunpowersensor : public treadmill {
 
     void changeInclinationRequested(double grade, double percentage);
 };
-#endif // STRYDRUNPOWERSENSOR_H
+
+#endif // ZIPROTREADMILL_H

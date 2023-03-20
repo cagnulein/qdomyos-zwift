@@ -87,6 +87,7 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
@@ -182,6 +183,7 @@ UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
 ZwiftRunpodTestData,
+ZiproTreadmillTestData,
 iConceptBikeTestData>;
 
 #endif
