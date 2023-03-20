@@ -633,9 +633,11 @@ const QString QZSettings::gears_from_bike = QStringLiteral("gears_from_bike");
 const QString QZSettings::peloton_spinups_autoresistance = QStringLiteral("peloton_spinups_autoresistance");
 const QString QZSettings::eslinker_costaway = QStringLiteral("eslinker_costaway");
 const QString QZSettings::treadmill_inclination_ovveride_gain = QStringLiteral("treadmill_inclination_ovveride_gain");
-const QString QZSettings::treadmill_inclination_ovveride_offset = QStringLiteral("treadmill_inclination_ovveride_offset");
+const QString QZSettings::treadmill_inclination_ovveride_offset =
+    QStringLiteral("treadmill_inclination_ovveride_offset");
+const QString QZSettings::bh_spada_2_watt = QStringLiteral("bh_spada_2_watt");
 
-const uint32_t allSettingsCount = 530;
+const uint32_t allSettingsCount = 531;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1170,7 +1172,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway},
     {QZSettings::treadmill_inclination_ovveride_gain, QZSettings::default_treadmill_inclination_ovveride_gain},
     {QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset},
-};
+    {QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt}};
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
     QSettings settings;

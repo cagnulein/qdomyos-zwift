@@ -1785,6 +1785,9 @@ class QZSettings {
     static const QString treadmill_inclination_ovveride_offset;
     static constexpr double default_treadmill_inclination_ovveride_offset = 0.0;
 
+    static const QString bh_spada_2_watt;
+    static constexpr bool default_bh_spada_2_watt = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

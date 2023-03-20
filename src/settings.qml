@@ -728,6 +728,9 @@ import Qt.labs.settings 1.0
             // from version 2.13.14
             property double treadmill_inclination_ovveride_gain: 1.0
             property double treadmill_inclination_ovveride_offset: 0.0
+
+            // from version 2.13.15
+            property bool bh_spada_2_watt: false
         }
 
         function paddingZeros(text, limit) {
@@ -5459,6 +5462,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bh_spada_2 = checked
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("BH SPADA Wattage")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bh_spada_2_watt
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bh_spada_2_watt = checked
                     }
 
                     SwitchDelegate {
