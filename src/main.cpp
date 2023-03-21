@@ -51,6 +51,7 @@ QString peloton_username = "";
 QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
+bool fit_file_saved_on_quit = false;
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -174,9 +175,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             bikeResistanceOffset = atoi(argv[++i]);
         }
         if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
-            settings.setValue(QZSettings::fit_file_saved_on_quit, true);
-            qDebug() << "fit_file_saved_on_quit"
-                     << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
+            fit_file_saved_on_quit = true;
         }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
@@ -318,6 +317,12 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
+    }
+
+    if (fit_file_saved_on_quit) {
+        settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        qDebug() << "fit_file_saved_on_quit"
+                 << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
     }
 
     if (forceQml)
