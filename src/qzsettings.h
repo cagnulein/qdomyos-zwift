@@ -1794,6 +1794,9 @@ class QZSettings {
     static const QString sole_treadmill_inclination_fast;
     static constexpr bool default_sole_treadmill_inclination_fast = false;
 
+    static const QString zwift_ocr;
+    static constexpr bool default_zwift_ocr = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
