@@ -42,6 +42,7 @@ class iconceptbike : public bike {
 
   private slots:
     void serviceDiscovered(const QBluetoothServiceInfo &service);
+    void serviceFinished();
     void readSocket();
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);

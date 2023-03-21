@@ -28,11 +28,25 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
                 &iconceptbike::serviceDiscovered);
+        connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this, &iconceptbike::serviceFinished);
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptbike::deviceDiscovered");
         discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
+    }
+}
+
+void iconceptbike::serviceFinished() {
+    qDebug() << QStringLiteral("iconceptbike::serviceFinished") << socket;
+    if (socket) {
+#ifdef Q_OS_ANDROID
+        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+#endif
+
+        emit debug(QStringLiteral("Create socket"));
+        socket->connectToService(serialPortService);
+        emit debug(QStringLiteral("ConnectToService done"));
     }
 }
 
@@ -62,14 +76,6 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                     &iconceptbike::onSocketErrorOccurred);
-
-#ifdef Q_OS_ANDROID
-            socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
-
-            emit debug(QStringLiteral("Create socket"));
-            socket->connectToService(serialPortService);
-            emit debug(QStringLiteral("ConnectToService done"));
         }
     }
 }
@@ -105,12 +111,12 @@ void iconceptbike::update() {
             qDebug() << QStringLiteral(">>") << QByteArray(res, sizeof(res)).toHex(' ');
             socket->write(res, sizeof(res));
             requestResistance = -1;
+        } else {
+            const char poll[] = {0x55, 0x17, 0x01, 0x01};
+            qDebug() << QStringLiteral(">>") << QByteArray(poll, sizeof(poll)).toHex(' ');
+            socket->write(poll, sizeof(poll));
+            emit debug(QStringLiteral("write poll"));
         }
-
-        const char poll[] = {0x55, 0x17, 0x01, 0x01};
-        qDebug() << QStringLiteral(">>") << QByteArray(poll, sizeof(poll)).toHex(' ');
-        socket->write(poll, sizeof(poll));
-        emit debug(QStringLiteral("write poll"));
 
         update_metrics(false, watts());
     }
@@ -133,6 +139,7 @@ void iconceptbike::rfCommConnected() {
     const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
     const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
     const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
+    const uint8_t init9[] = {0x55, 0x11, 0x01, 0x08};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
@@ -159,6 +166,9 @@ void iconceptbike::rfCommConnected() {
     QThread::msleep(600);
     socket->write((char *)init8, sizeof(init8));
     qDebug() << QStringLiteral(" init8 write");
+    QThread::msleep(600);
+    socket->write((char *)init9, sizeof(init9));
+    qDebug() << QStringLiteral(" init9 write");
 
     initDone = true;
     // requestStart = 1;
