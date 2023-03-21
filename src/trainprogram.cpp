@@ -450,10 +450,10 @@ void trainprogram::scheduler() {
             QString t = text.toString();
             QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
-            QAndroidJniObject w = QAndroidJniObject::callStaticObjectMethod<jint>(
-                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getImageWidth");
-            QAndroidJniObject h = QAndroidJniObject::callStaticObjectMethod<jint>(
-                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getImageHeight");
+            jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageWidth", "()I");
+            jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageHeight", "()I");
             QString tExtended = textExtended.toString();
             QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
