@@ -776,32 +776,45 @@ import Qt.labs.settings 1.0
                 }
                 TextField
                 {
+                    function checkChildren(test) {
+                        var text = filterField.text.toUpperCase()
+                        for (var i = 0; i < test.children.length; i++)
+                        {
+                            if(test.children[i] instanceof Label || test.children[i] instanceof SwitchDelegate) {
+                                //console.log(test.children[i].objectName);
+                                if(test.children[i].objectName !== undefined) {
+                                    if(test.children[i].objectName.indexOf("rebootLabel") !== -1) {
+                                        continue;
+                                    }
+                                }
+
+                                if(test.children[i].text !== undefined) {
+                                    //console.log(test.children[i].text);
+                                    if(test.children[i] instanceof Label) {
+                                        test.visible = (test.children[i].text.toUpperCase().indexOf(text) !== -1);
+                                    } else {
+                                        test.children[i].visible = (test.children[i].text.toUpperCase().indexOf(text) !== -1);
+                                    }
+                                }
+                                if(test.children[i].title !== undefined) {
+                                    //console.log(test.children[i].title);
+                                    if(test.children[i] instanceof Label) {
+                                        test.visible = (test.children[i].title.toUpperCase().indexOf(text) !== -1);
+                                    } else {
+                                        test.children[i].visible = (test.children[i].title.toUpperCase().indexOf(text) !== -1);
+                                    }
+                                }
+                            }
+                            if(test.children[i] instanceof AccordionElement) {
+                               test.children[i].isOpen = true;
+                            }
+                            checkChildren(test.children[i]);
+                        }
+                    }
+
                     function updateFilter()
                     {
-                        var text = filterField.text
-                        for (var i = 0; i < column1.children.length; i++)
-                        {
-                            console.log(column1.children[i].propname);
-                            console.log(column1.children[i].text);
-                            console.log(column1.children[i].title);
-                            if(column1.children[i].text !== undefined) {
-                                column1.children[i].visible = (column1.children[i].text.indexOf(text) !== -1);
-                            }
-                            if(column1.children[i].title !== undefined) {
-                                column1.children[i].visible = (column1.children[i].title.indexOf(text) !== -1);
-                            }
-                            for (var l = 0; l < column1.children[i].children.length; l++) {
-                                console.log(column1.children[i].children[l].propname);
-                                console.log(column1.children[i].children[l].text);
-                                console.log(column1.children[i].children[l].title);
-                                if(column1.children[i].children[l].text !== undefined) {
-                                    column1.children[i].children[l].visible = (column1.children[i].children[l].text.indexOf(text) !== -1);
-                                }
-                                if(column1.children[i].children[l].title !== undefined) {
-                                    column1.children[i].children[l].visible = (column1.children[i].children[l].title.indexOf(text) !== -1);
-                                }
-                            }
-                        }
+                        checkChildren(column1);
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -811,6 +824,7 @@ import Qt.labs.settings 1.0
             Label {
                 Layout.preferredWidth: parent.width
                 id: rebootLabel
+                objectName: "rebootLabel"
                 text: qsTr("Reboot the app in order to apply the settings")
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
