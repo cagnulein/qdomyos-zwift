@@ -724,6 +724,17 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.10
             property bool eslinker_costaway: false
+
+            // from version 2.13.14
+            property double treadmill_inclination_ovveride_gain: 1.0
+            property double treadmill_inclination_ovveride_offset: 0.0
+
+            // from version 2.13.15
+            property bool bh_spada_2_watt: false
+            property bool tacx_neo2_peloton: false
+
+            // from version 2.13.16
+            property bool sole_treadmill_inclination_fast: false
         }
 
         function paddingZeros(text, limit) {
@@ -2600,6 +2611,25 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_500_profile_v1 = checked
+                    }
+                }                
+                AccordionElement {
+                    title: qsTr("Tacx Neo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    SwitchDelegate {
+                        text: qsTr("Peloton Configuration")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.tacx_neo2_peloton
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.tacx_neo2_peloton = checked
                     }
                 }
                 AccordionElement {
@@ -4994,6 +5024,19 @@ import Qt.labs.settings 1.0
                             onClicked: settings.sole_treadmill_inclination = checked
                         }
                         SwitchDelegate {
+                            text: qsTr("Fast Inclination (experimental)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_inclination_fast
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_inclination_fast = checked
+                        }
+                        SwitchDelegate {
                             id: soleMilesDelegate
                             text: qsTr("Miles unit from the device")
                             spacing: 0
@@ -5455,6 +5498,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bh_spada_2 = checked
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("BH SPADA Wattage")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bh_spada_2_watt
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bh_spada_2_watt = checked
                     }
 
                     SwitchDelegate {
