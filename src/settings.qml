@@ -765,6 +765,49 @@ import Qt.labs.settings 1.0
             spacing: 0
             anchors.fill: parent
 
+            Row
+            {
+                spacing: 5
+                Text
+                {
+                    text:"Filter"
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField
+                {
+                    function updateFilter()
+                    {
+                        var text = filterField.text
+                        for (var i = 0; i < column1.children.length; i++)
+                        {
+                            console.log(column1.children[i].propname);
+                            console.log(column1.children[i].text);
+                            console.log(column1.children[i].title);
+                            if(column1.children[i].text !== undefined) {
+                                column1.children[i].visible = (column1.children[i].text.indexOf(text) !== -1);
+                            }
+                            if(column1.children[i].title !== undefined) {
+                                column1.children[i].visible = (column1.children[i].title.indexOf(text) !== -1);
+                            }
+                            for (var l = 0; l < column1.children[i].children.length; l++) {
+                                console.log(column1.children[i].children[l].propname);
+                                console.log(column1.children[i].children[l].text);
+                                console.log(column1.children[i].children[l].title);
+                                if(column1.children[i].children[l].text !== undefined) {
+                                    column1.children[i].children[l].visible = (column1.children[i].children[l].text.indexOf(text) !== -1);
+                                }
+                                if(column1.children[i].children[l].title !== undefined) {
+                                    column1.children[i].children[l].visible = (column1.children[i].children[l].title.indexOf(text) !== -1);
+                                }
+                            }
+                        }
+                    }
+                    id: filterField
+                    onTextChanged: updateFilter()
+                }
+            }
+
             Label {
                 Layout.preferredWidth: parent.width
                 id: rebootLabel
