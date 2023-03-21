@@ -1749,6 +1749,51 @@ class QZSettings {
     static const QString sole_elliptical_e55;
     static constexpr bool default_sole_elliptical_e55 = false;
 
+    static const QString horizon_treadmill_force_ftms;
+    static constexpr bool default_horizon_treadmill_force_ftms = false;
+
+    static const QString treadmill_pid_heart_min;
+    static constexpr int default_treadmill_pid_heart_min = 0;
+
+    static const QString treadmill_pid_heart_max;
+    static constexpr int default_treadmill_pid_heart_max = 0;
+
+    static const QString nordictrack_elliptical_c7_5;
+    static constexpr bool default_nordictrack_elliptical_c7_5 = false;
+
+    static const QString renpho_bike_double_resistance;
+    static constexpr bool default_renpho_bike_double_resistance = false;
+
+    static const QString nordictrack_incline_trainer_x7i;
+    static constexpr bool default_nordictrack_incline_trainer_x7i = false;
+
+    static const QString strava_auth_external_webbrowser;
+    static constexpr bool default_strava_auth_external_webbrowser = false;
+
+    static const QString gears_from_bike;
+    static constexpr bool default_gears_from_bike = false;
+
+    static const QString peloton_spinups_autoresistance;
+    static constexpr bool default_peloton_spinups_autoresistance = true;
+
+    static const QString eslinker_costaway;
+    static constexpr bool default_eslinker_costaway = false;
+
+    static const QString treadmill_inclination_ovveride_gain;
+    static constexpr double default_treadmill_inclination_ovveride_gain = 1.0;
+
+    static const QString treadmill_inclination_ovveride_offset;
+    static constexpr double default_treadmill_inclination_ovveride_offset = 0.0;
+
+    static const QString bh_spada_2_watt;
+    static constexpr bool default_bh_spada_2_watt = false;
+
+    static const QString tacx_neo2_peloton;
+    static constexpr bool default_tacx_neo2_peloton = false;
+
+    static const QString sole_treadmill_inclination_fast;
+    static constexpr bool default_sole_treadmill_inclination_fast = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

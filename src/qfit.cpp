@@ -67,6 +67,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     bool gps_data = false;
     double max_alt = 0;
     double min_alt = 99999;
+    double speed_acc = 0;
+    int speed_count = 0;
+    double speed_avg = 0;
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
             gps_data = true;
@@ -86,6 +89,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             if (max_alt < session.at(i).elevationGain)
                 max_alt = session.at(i).elevationGain;
         }
+
+        if (session.at(i).speed > 0) {
+            speed_count++;
+            speed_acc += session.at(i).speed;
+        }
+    }
+
+    if (speed_count > 0) {
+        speed_avg = speed_acc / ((double)speed_count);
+        qDebug() << "average speed from the fit file" << speed_avg;
     }
 
     fit::SessionMesg sessionMesg;
@@ -111,15 +124,27 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         qDebug() << "overriding FIT sport " << overrideSport;
     } else if (type == bluetoothdevice::TREADMILL) {
 
-        sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        if (speed_avg == 0 || speed_avg > 6.5)
+            sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        else
+            sessionMesg.SetSport(FIT_SPORT_WALKING);
+
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
         }
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
-        sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        if (speed_avg == 0 || speed_avg > 6.5)
+            sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        else
+            sessionMesg.SetSport(FIT_SPORT_WALKING);
+
         if (strava_virtual_activity) {
             sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        } else {
+            sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
         }
     } else if (type == bluetoothdevice::ROWING) {
 
@@ -160,13 +185,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
+    fit::EventMesg eventMesg;
+    eventMesg.SetEvent(FIT_EVENT_TIMER);
+    eventMesg.SetEventType(FIT_EVENT_TYPE_START);
+    eventMesg.SetData(0);
+    eventMesg.SetEventGroup(0);
+    eventMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
+    encode.Write(eventMesg);
 
-    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
+    fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
 
     fit::LapMesg lapMesg;
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
@@ -261,6 +292,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             lapMesg.SetTotalDistance((sl.distance - lastLapOdometer) * 1000.0); // meters
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
+            lapMesg.SetEventType(FIT_EVENT_LAP);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
@@ -278,6 +310,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     encode.Write(lapMesg);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
 
     if (!encode.Close()) {
 

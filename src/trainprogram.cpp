@@ -83,7 +83,10 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" forcespeed = %1").arg(forcespeed);
     rv += QStringLiteral(" loopTimeHR = %1").arg(loopTimeHR);
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
+    rv += QStringLiteral(" HRmin = %1").arg(HRmin);
+    rv += QStringLiteral(" HRmax = %1").arg(HRmax);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
@@ -842,6 +845,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
             }
+            if (row.minSpeed >= 0) {
+                stream.writeAttribute(QStringLiteral("minspeed"), QString::number(row.minSpeed));
+            }
             if (row.inclination >= -50) {
                 stream.writeAttribute(QStringLiteral("inclination"), QString::number(row.inclination));
             }
@@ -907,6 +913,12 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.zoneHR >= 0) {
                 stream.writeAttribute(QStringLiteral("zonehr"), QString::number(row.zoneHR));
             }
+            if (row.HRmin >= 0) {
+                stream.writeAttribute(QStringLiteral("hrmin"), QString::number(row.HRmin));
+            }
+            if (row.HRmax >= 0) {
+                stream.writeAttribute(QStringLiteral("hrmax"), QString::number(row.HRmax));
+            }
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
             }
@@ -953,6 +965,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("minspeed"))) {
+                row.minSpeed = atts.value(QStringLiteral("minspeed")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("fanspeed"))) {
                 row.fanspeed = atts.value(QStringLiteral("fanspeed")).toDouble();
@@ -1008,13 +1023,19 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
-                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
                 row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("zonehr"))) {
                 row.zoneHR = atts.value(QStringLiteral("zonehr")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrmin"))) {
+                row.HRmin = atts.value(QStringLiteral("hrmin")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrmax"))) {
+                row.HRmax = atts.value(QStringLiteral("hrmax")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("looptimehr"))) {
                 row.loopTimeHR = atts.value(QStringLiteral("looptimehr")).toInt();

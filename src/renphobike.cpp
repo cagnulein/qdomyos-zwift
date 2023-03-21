@@ -71,8 +71,13 @@ void renphobike::forcePower(int16_t requestPower) {
 void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+    QSettings settings;
+    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
 
-    write[1] = ((uint8_t)(requestResistance * 2));
+    if(renpho_bike_double_resistance)
+        write[1] = ((uint8_t)(requestResistance));
+    else
+        write[1] = ((uint8_t)(requestResistance * 2));
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
@@ -167,6 +172,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -260,6 +266,8 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             2;
+        if(renpho_bike_double_resistance)
+            Resistance = Resistance.value() * 2;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
@@ -692,6 +700,10 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
     bool renpho_peloton_conversion_v2 =
         settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
             .toBool();
+    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+
+    if(renpho_bike_double_resistance)
+        resistance = resistance / 2.0;
 
     if (!renpho_peloton_conversion_v2) {
         // 0,0069x2 + 0,3538x + 24,207

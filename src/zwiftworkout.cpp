@@ -177,12 +177,14 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
     } else if (!qstricmp(tag, "Steadystate")) {
         uint32_t Duration = 1;
         double Power = 1;
+        double Incline = -100;
         int Pace = -1;
         trainrow row;
 
         Duration = va_arg(args, uint32_t);
         Power = va_arg(args, double);
         Pace = va_arg(args, int);
+        Incline = va_arg(args, double);
 
         if (sportType.toLower().contains(QStringLiteral("run")) && Duration != 1) {
             if (thresholdSecPerKm != 0) {
@@ -201,6 +203,11 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
         else
             row.distance = Duration / 1000.0;
+
+        if(Incline != -100) {
+            row.inclination = Incline * 100;
+        }
+
         qDebug() << "TrainRow" << row.toString();
         list.append(row);
     }
@@ -285,6 +292,7 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     uint32_t Duration = 1;
                     double Power = 1;
                     int Pace = -1;
+                    double Incline = -100;
 
                     Duration = element[QStringLiteral("Duration")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
@@ -294,7 +302,10 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *descriptio
                     if (Power == 1) {
                         Power = element[QStringLiteral("PowerLow")].toDouble();
                     }
-                    convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, Power, Pace);
+                    if (element.contains(QStringLiteral("Incline"))) {
+                        Incline = element[QStringLiteral("Incline")].toDouble();
+                    }
+                    convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, Power, Pace, Incline);
                 }
             }
         }
@@ -403,6 +414,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 uint32_t Duration = 1;
                 double Power = 1;
                 int Pace = -1;
+                double Incline = -100;
 
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toDouble();
@@ -416,8 +428,11 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
                 if (Power == 1 && atts.hasAttribute(QStringLiteral("PowerLow"))) {
                     Power = atts.value(QStringLiteral("PowerLow")).toDouble();
                 }
+                if (atts.hasAttribute(QStringLiteral("Incline"))) {
+                    Incline = atts.value(QStringLiteral("Incline")).toDouble();
+                }
                 convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration, Power,
-                           Pace);
+                           Pace, Incline);
             }
         }
     }

@@ -46,6 +46,9 @@ ScrollView {
         property double treadmill_inclination_override_140: 14.0
         property double treadmill_inclination_override_145: 14.5
         property double treadmill_inclination_override_150: 15.0
+
+        property double treadmill_inclination_ovveride_gain: 1.0
+        property double treadmill_inclination_ovveride_offset: 0.0
     }
 
 
@@ -63,6 +66,53 @@ ScrollView {
             verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Red)
         }
+
+        RowLayout {
+            spacing: 10
+            Label {
+                text: qsTr("Inclination Override Gain:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverrideGainTextField
+                text: settings.treadmill_inclination_ovveride_gain
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_gain = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: settings.treadmill_inclination_ovveride_gain = treadmillOverrideGainTextField.text
+            }
+        }
+
+        RowLayout {
+            spacing: 10
+            Label {
+                text: qsTr("Inclination Override Offset:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverrideOffsetTextField
+                text: settings.treadmill_inclination_ovveride_offset
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_offset = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: settings.treadmill_inclination_ovveride_offset = treadmillOverrideOffsetTextField.text
+            }
+        }
+
         RowLayout {
             spacing: 10
             Label {

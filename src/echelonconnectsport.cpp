@@ -207,7 +207,28 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     // resistance value is in another frame
     if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Resistance = newValue.at(3);
+        resistance_t res = newValue.at(3);
+        if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
+            qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears()
+                     << lastRawRequestedResistanceValue << lastRequestedResistance().value();
+            if (
+                // if the resistance is different from the previous one
+                res != qRound(Resistance.value()) &&
+                // and the last target resistance is different from the current one or there is no any pending last
+                // requested resistance
+                ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0) ||
+                 lastRawRequestedResistanceValue == -1) &&
+                // and the difference between the 2 resistances are less than 6
+                qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
+
+                    int8_t g = gears();
+                    g += (res - qRound(Resistance.value()));
+                    qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
+                    lastRawRequestedResistanceValue = -1; // in order to avoid to change resistance with the setGears
+                    setGears(g);
+            }
+        }
+        Resistance = res;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 

@@ -30,7 +30,7 @@ public:
 
 class RenphoBike2TestData : public RenphoBikeTestData {
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
 
         config.toorx_ftms = enable;

@@ -71,6 +71,14 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 #endif
 }
 
+double nordictrackifitadbtreadmill::getDouble(QString v) {
+    QChar d = QLocale().decimalPoint();
+    if (d == ',') {
+        v = v.replace('.', ',');
+    }
+    return QLocale().toDouble(v);
+}
+
 nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
@@ -170,13 +178,13 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = QLocale().toDouble(aValues.last());
+                    speed = getDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    incline = QLocale().toDouble(aValues.last());
+                    incline = getDouble(aValues.last());
                     Inclination = incline;
                 }
             }
@@ -199,10 +207,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
-            }
-            requestSpeed = -1;
-
-            if (requestInclination != -100) {
+                requestSpeed = -1;
+            } else if (requestInclination != -100) {
                 int x1 = 75;
                 int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
                 // set speed slider to target position
@@ -214,14 +220,16 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
+                requestInclination = -100;
             }
-            requestInclination = -100;
         }
 #endif
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
+        // we have to separate the 2 commands
+        if (requestSpeed == -1)
+            requestInclination = -100;
         requestSpeed = -1;
-        requestInclination = -100;
         int ret = socket->writeDatagram(message, message.size(), sender, 8003);
         qDebug() << QString::number(ret) + " >> " + message;
 
@@ -256,6 +264,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 #endif
             }
         }
+
+        cadenceFromAppleWatch();
 
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));

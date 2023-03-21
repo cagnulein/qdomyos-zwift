@@ -7,7 +7,7 @@ class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
 private:
     QString powerSensorName;
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         if(enable) {
             // power_as_treadmill enabled and powerSensorName in settings matches device name
             DeviceDiscoveryInfo config(info);
@@ -49,27 +49,36 @@ class ZwiftRunpodTestData : public BluetoothDeviceTestData {
 private:
     QString powerSensorName;
 protected:
-    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo> configurations) const override {
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
 
         if(enable) {
+            /* Avoid the config that enables the StrydeRunPowerSensorTestData device
             // power_as_treadmill enabled and powerSensorName in settings matches device name
             config.power_as_treadmill = true;
             config.powerSensorName = this->powerSensorName;
             configurations.push_back(config);
+            */
 
-            // power_as_treadmill enabled and powerSensorName in settings doesn't match device name
-            // should work because this isn't using the power sensor name from the settings.
+            /*
+             * In order for the search to occur, the power sensor name must start with "Disabled", or
+             * power_as_bike or power_as_treadmill must be true.
+            */
+
             config.power_as_treadmill = true;
             config.powerSensorName = "NOT " + this->powerSensorName;
             configurations.push_back(config);
 
-            // power_as_treadmill enabled
-            // should work because this isn't using the these settings
             config.power_as_treadmill = false;
-            config.powerSensorName = this->powerSensorName;
+            config.powerSensorName = "Disabled";
             configurations.push_back(config);
 
+        } else {
+            // disable the search
+            config.power_as_treadmill = false;
+            config.powerSensorName = this->powerSensorName;
+            config.power_as_bike = false;
+            configurations.push_back(config);
         }
     }
 public:
