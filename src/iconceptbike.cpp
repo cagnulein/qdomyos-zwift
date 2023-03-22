@@ -110,6 +110,7 @@ void iconceptbike::update() {
             res[3] = resValues[requestResistance - 1];
             qDebug() << QStringLiteral(">>") << QByteArray(res, sizeof(res)).toHex(' ');
             socket->write(res, sizeof(res));
+            Resistance = requestResistance;
             requestResistance = -1;
         } else {
             const char poll[] = {0x55, 0x17, 0x01, 0x01};
@@ -193,9 +194,9 @@ void iconceptbike::readSocket() {
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
-                m_watt = GetWattFromPacket(line);
+                m_watt = GetSpeedFromPacket(line) * 0.24 * (1.0 + (Resistance.value() / 20.0));
                 if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = 0.37497622 * ((double)Cadence.value());
+                    Speed = GetSpeedFromPacket(line);
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
@@ -271,13 +272,8 @@ void iconceptbike::readSocket() {
     }
 }
 
-double iconceptbike::GetWattFromPacket(const QByteArray &packet) {
-    double convertedData = ((double)((double)((uint8_t)packet.at(9))) + ((double)packet.at(10)));
-    return convertedData;
-}
-
 double iconceptbike::GetSpeedFromPacket(const QByteArray &packet) {
-    double convertedData = ((double)((double)((uint8_t)packet.at(9))) + ((double)packet.at(10))) / 100.0;
+    double convertedData = ((double)(((double)((uint8_t)packet.at(9))) * 256) + ((double)packet.at(10))) / 100.0;
     return convertedData;
 }
 
