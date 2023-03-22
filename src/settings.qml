@@ -3763,7 +3763,7 @@ import Qt.labs.settings 1.0
                     spacing: 0
 
                     SwitchDelegate {
-                        text: qsTr("Zwift Auto Inclination")
+                        text: qsTr("Zwift Treadmill Auto Inclination")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -3773,7 +3773,20 @@ import Qt.labs.settings 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.zwift_ocr = checked
+                        onClicked: {settings.zwift_ocr = checked; settings.android_notification = true;}
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
                 }
             }
