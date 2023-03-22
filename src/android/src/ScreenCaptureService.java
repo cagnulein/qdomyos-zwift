@@ -167,13 +167,13 @@ public class ScreenCaptureService extends Service {
                                           //Log.e(TAG, "Image done!");
 
                                           String resultText = result.getText();
-					  String resultTextExtended = "";
                                           lastText = resultText;
+                                          lastTextExtended = "";
                                           for (Text.TextBlock block : result.getTextBlocks()) {
                                                    String blockText = block.getText();
                                                         Point[] blockCornerPoints = block.getCornerPoints();
                                                         Rect blockFrame = block.getBoundingBox();
-							  resultTextExtended = resultTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
+                                                          lastTextExtended = lastTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
 							  /*for (Text.Line line : block.getLines()) {
                                                                  String lineText = line.getText();
                                                                  Point[] lineCornerPoints = line.getCornerPoints();
