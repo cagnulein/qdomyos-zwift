@@ -471,7 +471,7 @@ void trainprogram::scheduler() {
                         if(inc.split(",").length() > 2) {
                             int w_minbound = w * 0.96;
                             int h_minbound = h * 0.1;
-                            int h_maxbound = h * 0.11;
+                            int h_maxbound = h * 0.15;
                             int x = inc.split(",").at(0).toInt();
                             int y = inc.split(",").at(2).toInt();
                             qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
