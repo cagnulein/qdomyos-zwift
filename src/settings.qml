@@ -735,6 +735,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.16
             property bool sole_treadmill_inclination_fast: false
+
+            // from version 2.13.x
+            property bool zwift_ocr: false
         }
 
         function paddingZeros(text, limit) {
@@ -3747,6 +3750,30 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Zwift Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.zwift_ocr = checked
                     }
                 }
             }
