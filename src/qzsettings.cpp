@@ -640,8 +640,9 @@ const QString QZSettings::tacx_neo2_peloton = QStringLiteral("tacx_neo2_peloton"
 const QString QZSettings::sole_treadmill_inclination_fast = QStringLiteral("sole_treadmill_inclination_fast");
 const QString QZSettings::zwift_ocr = QStringLiteral("zwift_ocr");
 const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_saved_on_quit");
+const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
 
-const uint32_t allSettingsCount = 535;
+const uint32_t allSettingsCount = 536;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1181,6 +1182,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::sole_treadmill_inclination_fast, QZSettings::default_sole_treadmill_inclination_fast},
     {QZSettings::zwift_ocr, QZSettings::default_zwift_ocr},
     {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
+    {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

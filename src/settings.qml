@@ -736,8 +736,11 @@ import Qt.labs.settings 1.0
             // from version 2.13.16
             property bool sole_treadmill_inclination_fast: false
 
-            // from version 2.13.x
+            // from version 2.13.17
             property bool zwift_ocr: false
+
+            // from version 2.13.18
+            property bool gem_module_inclination: false
         }
 
         function paddingZeros(text, limit) {
@@ -4902,6 +4905,29 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.pafers_treadmill_bh_iboxster_plus = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    title: qsTr("GEM Module Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Inclination")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.gem_module_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.gem_module_inclination = checked
                         }
                     }
                 }
