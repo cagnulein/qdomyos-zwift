@@ -470,8 +470,8 @@ void trainprogram::scheduler() {
                         qDebug() << ss[0] << ss[1];
                         QString inc = ss[1].replace("Rect(", "").replace(")", "");
                         if (inc.split(",").length() > 2) {
-                            int w_minbound = w * 0.96;
-                            int h_minbound = h * 0.1;
+                            int w_minbound = w * 0.93;
+                            int h_minbound = h * 0.08;
                             int h_maxbound = h * 0.15;
                             int x = inc.split(",").at(0).toInt();
                             int y = inc.split(",").at(2).toInt();
