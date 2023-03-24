@@ -32,7 +32,7 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptbike::deviceDiscovered");
-        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        discoveryAgent->start();
         return;
     }
 }
