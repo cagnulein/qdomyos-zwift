@@ -984,13 +984,18 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
-    if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
+    // on android we can't check anymore the extension
+    // because it returns something like this
+    // content://com.android.providers.downloads.documents/document/126
+    // reference https://stackoverflow.com/questions/58715547/how-to-open-a-file-in-android-with-qt-having-the-content-uri
 
-        QString description = "";
-        QString tags = "";
-        return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
+    QString description = "";
+    QString tags = "";
+    QList<trainrow> r = zwiftworkout::load(filename, &description, &tags);
+    qDebug() << r.length();
+    if(r.length() > 0) {
+        return new trainprogram(r, b, &description, &tags);
     } else {
-
         return new trainprogram(loadXML(filename), b);
     }
 }

@@ -466,6 +466,14 @@ int main(int argc, char *argv[]) {
             qDebug() << "READ_EXTERNAL_STORAGE denied!";
     }
 
+    result = QtAndroid::checkPermission(QString("android.permission.MANAGE_EXTERNAL_STORAGE"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.MANAGE_EXTERNAL_STORAGE"}));
+        if (resultHash["android.permission.MANAGE_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "MANAGE_EXTERNAL_STORAGE denied!";
+    }
+
     result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
     if (result == QtAndroid::PermissionResult::Denied) {
         QtAndroid::PermissionResultMap resultHash =

@@ -106,6 +106,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	 <uses-permission android:name="com.android.vending.BILLING"/>
 	 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+         <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 	 <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"

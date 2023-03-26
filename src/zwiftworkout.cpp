@@ -1,4 +1,5 @@
 #include "zwiftworkout.h"
+#include "CrossQFile.h"
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -8,8 +9,9 @@
 QList<trainrow> zwiftworkout::load(const QString &filename, QString *description, QString *tags) {
     QSettings settings;
     // QList<trainrow> list; //NOTE: clazy-unuzed-non-trivial-variable
-    QFile input(filename);
+    CrossQFile input(filename, true);
     input.open(QIODevice::ReadOnly);
+    qDebug() << input.size();
     return load(input.readAll(), description, tags);
 }
 
@@ -325,7 +327,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description
     if (tags != nullptr)
         tags->clear();
 
-    while (!stream.atEnd()) {
+    while (!stream.atEnd()) {        
         stream.readNext();
         QString name = stream.name().toString();
         QString text = stream.text().toString();
