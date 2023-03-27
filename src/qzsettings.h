@@ -1803,6 +1803,9 @@ class QZSettings {
     static const QString gem_module_inclination;
     static constexpr bool default_gem_module_inclination = false;
 
+    static const QString treadmill_simulate_inclination_with_speed;
+    static constexpr bool default_treadmill_simulate_inclination_with_speed = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

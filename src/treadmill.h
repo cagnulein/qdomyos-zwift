@@ -42,6 +42,7 @@ class treadmill : public bluetoothdevice {
     static double treadmillInclinationOverride(double Inclination);
     static double treadmillInclinationOverrideReverse(double Inclination);
     void cadenceFromAppleWatch();
+    bool simulateInclinationWithSpeed();
 
   public slots:
     virtual void changeSpeed(double speed);

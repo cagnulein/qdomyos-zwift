@@ -741,6 +741,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.18
             property bool gem_module_inclination: false
+
+            // from version 2.13.19
+            property bool treadmill_simulate_inclination_with_speed: false
         }
 
         function paddingZeros(text, limit) {
@@ -5309,6 +5312,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.eslinker_costaway = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Simulate Inclinatin with Speed")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.treadmill_simulate_inclination_with_speed
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.treadmill_simulate_inclination_with_speed = checked
                         }
                     }
                 }

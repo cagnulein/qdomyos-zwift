@@ -35,6 +35,8 @@ void faketreadmill::update() {
 
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
+    simulateInclinationWithSpeed();
+
     if (requestSpeed != -1) {
         Speed = requestSpeed;
         emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
