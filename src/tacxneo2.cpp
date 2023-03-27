@@ -249,9 +249,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // QString::number(Resistance.value()));
 
         if (tacx_neo2_peloton) {
-            m_pelotonResistance =
-                Inclination.value() *
-                10; // max inclination value of this trainer is 10% so in order to set to a 100 peloton value...
+            m_pelotonResistance = Resistance.value();
         } else {
             double ac = 0.01243107769;
             double bc = 1.145964912;

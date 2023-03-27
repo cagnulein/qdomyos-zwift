@@ -612,6 +612,7 @@ void homeform::floatingOpen() {
 
 void homeform::peloton_abort_workout() {
     m_pelotonAskStart = false;
+    emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_abort_workout!");
     pelotonAbortedName = pelotonAskedName;
     pelotonAbortedInstructor = pelotonAskedInstructor;
@@ -619,6 +620,7 @@ void homeform::peloton_abort_workout() {
 
 void homeform::peloton_start_workout() {
     m_pelotonAskStart = false;
+    emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
