@@ -40,6 +40,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
+    simulateInclinationWithSpeed();
+
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
@@ -370,6 +372,8 @@ bool treadmill::simulateInclinationWithSpeed() {
     double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     if (treadmill_simulate_inclination_with_speed) {
         if (requestInclination != -100) {
+            qDebug() << QStringLiteral("treadmill_simulate_inclination_with_speed enabled!") << requestInclination
+                     << requestSpeed << m_lastRawSpeedRequested;
             if (requestSpeed != -1) {
                 requestSpeed =
                     wattsCalc(w, requestSpeed, requestInclination) * requestSpeed / wattsCalc(w, requestSpeed, 0);

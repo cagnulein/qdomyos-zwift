@@ -155,8 +155,6 @@ void eslinkertreadmill::update() {
         if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE ||
             treadmill_type == TYPE::COSTAWAY) {
 
-            simulateInclinationWithSpeed();
-
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
