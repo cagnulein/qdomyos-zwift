@@ -67,8 +67,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             services << QBluetoothUuid::HeartRate;
         }
 
-        services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
-
         advertisingData.setServices(services);
         //! [Advertising Data]
 
@@ -172,6 +170,45 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }
 
         if (RSCEnable()) {
+            QLowEnergyCharacteristicData charDataFIT;
+            charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); // FitnessMachineFeatureCharacteristicUuid
+            QByteArray valueFIT;
+            valueFIT.append((char)'P'); // average speed, cadence and resistance level supported
+            valueFIT.append((char)'i'); // heart rate and elapsed time
+            valueFIT.append((char)'x');
+            valueFIT.append((char)'e');
+            valueFIT.append((char)'l'); // resistance and power target supported
+            valueFIT.append((char)' '); // indoor simulation, wheel and spin down supported
+            valueFIT.append((char)'6');
+            valueFIT.append((char)'a');
+            valueFIT.append((char)0x00);
+            charDataFIT.setValue(valueFIT);
+            charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+
+            QLowEnergyCharacteristicData charDataFIT2;
+            charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2A01); // FitnessMachineFeatureCharacteristicUuid
+            QByteArray valueFIT2;
+            valueFIT2.append((char)0x00);
+            charDataFIT2.setValue(valueFIT2);
+            charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+
+            serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1800); // FitnessMachineServiceUuid
+            serviceDataFIT.addCharacteristic(charDataFIT);
+            serviceDataFIT.addCharacteristic(charDataFIT2);
+
+            QLowEnergyCharacteristicData charDataFIT3;
+            charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2A05); // FitnessMachineFeatureCharacteristicUuid
+            charDataFIT3.setProperties(QLowEnergyCharacteristic::Indicate);
+            QByteArray descriptor33;
+            descriptor33.append((char)0x02);
+            descriptor33.append((char)0x00);
+            const QLowEnergyDescriptorData clientConfig43(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                          descriptor33);
+            charDataFIT3.addDescriptor(clientConfig43);
+
+            serviceEchelon.setUuid((QBluetoothUuid::ServiceClassUuid)0x1801); // FitnessMachineServiceUuid
+            serviceEchelon.addCharacteristic(charDataFIT3);
+
             QLowEnergyCharacteristicData charData;
             charData.setUuid(QBluetoothUuid::CharacteristicType::RSCFeature);
             charData.setProperties(QLowEnergyCharacteristic::Read);
@@ -234,8 +271,11 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         Q_ASSERT(leController);
         if (ftmsServiceEnable())
             serviceFTMS = leController->addService(serviceDataFTMS);
-        if (RSCEnable())
+        if (RSCEnable()) {
             serviceRSC = leController->addService(serviceDataRSC);
+            serviceFIT = leController->addService(serviceDataFIT);
+            service = leController->addService(serviceEchelon);
+        }
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
         }
@@ -248,10 +288,32 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
-            pars.setInterval(100, 100);
         }
 
-        leController->startAdvertising(pars, advertisingData, advertisingData);
+        pars.setInterval(30, 50);
+
+        QByteArray a;
+        a.append(0x02);
+        a.append(0x01);
+        a.append(0x06);
+        a.append(0x03);
+        a.append(0x03);
+        a.append(0x18);
+        a.append(0x18);
+        a.append(0x09);
+        a.append(0x09);
+        a.append(0x50);
+        a.append(0x69);
+        a.append(0x78);
+        a.append(0x65);
+        a.append(0x6c);
+        a.append(0x20);
+        a.append(0x36);
+        a.append(0x61);
+
+        advertisingData.setRawData(a);
+        leController->startAdvertising(pars, advertisingData);
+
         //! [Start Advertising]
 
         //! [Provide Heartbeat]
