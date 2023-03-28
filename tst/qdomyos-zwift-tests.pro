@@ -98,6 +98,7 @@ HEADERS += \
     Devices/ProFormWiFiTreadmill/proformwifitreadmilltestdata.h \
     Devices/RenphoBike/renphobiketestdata.h \
     Devices/Rower/rowertestdata.h \
+    Devices/Schwinn170Bike/schwinn170biketestdata.h \
     Devices/SchwinnIC4Bike/schwinnic4biketestdata.h \
     Devices/Shuaa5Treadmill/shuaa5treadmilltestdata.h \
     Devices/SkandikaWiryBike/skandikawirybiketestdata.h \
