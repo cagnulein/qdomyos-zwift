@@ -63,6 +63,7 @@ enum deviceType {
     EchelonRower,
     EchelonConnectSport,
     SchwinnIC4Bike,
+    Schwinn170Bike,
     SportsTechBike,
     SportsPlusBike,
     YesoulBike,

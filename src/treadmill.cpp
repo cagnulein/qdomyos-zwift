@@ -52,6 +52,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
+    simulateInclinationWithSpeed();
+
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
@@ -105,7 +107,7 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
     return watts;
 }
 
-uint16_t treadmill::watts(double weight) {    
+uint16_t treadmill::watts(double weight) {
     uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
     m_watt.setValue(watts);
     return m_watt.value();
@@ -202,8 +204,14 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
 double treadmill::treadmillInclinationOverride(double Inclination) {
     QSettings settings;
 
-    double treadmill_inclination_ovveride_gain = settings.value(QZSettings::treadmill_inclination_ovveride_gain, QZSettings::default_treadmill_inclination_ovveride_gain).toDouble();
-    double treadmill_inclination_ovveride_offset = settings.value(QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset).toDouble();
+    double treadmill_inclination_ovveride_gain = settings
+                                                     .value(QZSettings::treadmill_inclination_ovveride_gain,
+                                                            QZSettings::default_treadmill_inclination_ovveride_gain)
+                                                     .toDouble();
+    double treadmill_inclination_ovveride_offset = settings
+                                                       .value(QZSettings::treadmill_inclination_ovveride_offset,
+                                                              QZSettings::default_treadmill_inclination_ovveride_offset)
+                                                       .toDouble();
 
     Inclination = Inclination * treadmill_inclination_ovveride_gain;
     Inclination = Inclination + treadmill_inclination_ovveride_offset;
@@ -358,8 +366,28 @@ void treadmill::updateLockscreenStepCadence() {
         functions->updateStepCadence(this->Cadence);
 }
 
-
-
-
-
-
+bool treadmill::simulateInclinationWithSpeed() {
+    QSettings settings;
+    bool treadmill_simulate_inclination_with_speed =
+        settings
+            .value(QZSettings::treadmill_simulate_inclination_with_speed,
+                   QZSettings::default_treadmill_simulate_inclination_with_speed)
+            .toBool();
+    double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (treadmill_simulate_inclination_with_speed) {
+        if (requestInclination != -100) {
+            qDebug() << QStringLiteral("treadmill_simulate_inclination_with_speed enabled!") << requestInclination
+                     << requestSpeed << m_lastRawSpeedRequested;
+            if (requestSpeed != -1) {
+                requestSpeed =
+                    wattsCalc(w, requestSpeed, requestInclination) * requestSpeed / wattsCalc(w, requestSpeed, 0);
+            } else if (m_lastRawSpeedRequested != -1) {
+                requestSpeed = wattsCalc(w, m_lastRawSpeedRequested, requestInclination) * m_lastRawSpeedRequested /
+                               wattsCalc(w, m_lastRawSpeedRequested, 0);
+            }
+        }
+        requestInclination = -100;
+        return true;
+    }
+    return false;
+}

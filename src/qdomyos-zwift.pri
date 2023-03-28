@@ -72,6 +72,7 @@ SOURCES += \
    $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
     $$PWD/virtualdevice.cpp \
+   $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
@@ -274,6 +275,7 @@ HEADERS += \
     $$PWD/objectfactory.h \
    $$PWD/pelotonbike.h \
     $$PWD/virtualdevice.h \
+   $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
@@ -780,4 +782,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.18
+VERSION = 2.13.20

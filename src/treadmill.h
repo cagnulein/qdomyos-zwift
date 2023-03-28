@@ -77,6 +77,9 @@ class treadmill : public bluetoothdevice {
     void doPelotonWorkaround() override;
     void configureLockscreenFunctions(QZLockscreenFunctions * functions) const override;
 
+
+  private:
+    bool simulateInclinationWithSpeed();
 };
 
 #endif // TREADMILL_H

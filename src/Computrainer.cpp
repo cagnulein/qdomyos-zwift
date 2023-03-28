@@ -632,6 +632,7 @@ void Computrainer::run() {
 
         /* time to shut up shop */
         if (!(curstatus & CT_RUNNING)) {
+            qDebug() << "time to shut up shop";
             // time to stop!
             closePort(); // need to release that file handle!!
             quit(0);
@@ -639,12 +640,14 @@ void Computrainer::run() {
         }
 
         if ((curstatus & CT_PAUSED) && isDeviceOpen == true) {
+            qDebug() << "(curstatus & CT_PAUSED) && isDeviceOpen == true";
             closePort();
             isDeviceOpen = false;
 
         } else if (!(curstatus & CT_PAUSED) && (curstatus & CT_RUNNING) && isDeviceOpen == false) {
-
+            qDebug() << "!(curstatus & CT_PAUSED) && (curstatus & CT_RUNNING) && isDeviceOpen == false";
             if (openPort()) {
+                qDebug() << "quit(2)";
                 quit(2);
                 return; // open failed!
             }
@@ -653,6 +656,7 @@ void Computrainer::run() {
             // send first command to get computrainer ready
             prepareCommand(curmode, curmode == CT_ERGOMODE ? curload : curgradient);
             if (sendCommand(curmode) == -1) {
+                qDebug() << "quit(4)";
                 // send failed - ouch!
                 closePort(); // need to release that file handle!!
                 quit(4);
@@ -671,6 +675,7 @@ void Computrainer::run() {
 
             prepareCommand(curmode, curmode == CT_ERGOMODE ? curload : curgradient);
             if (sendCommand(curmode) == -1) {
+                qDebug() << "quit(4)";
                 // send failed - ouch!
                 closePort(); // need to release that file handle!!
                 quit(4);
@@ -744,9 +749,9 @@ int Computrainer::readMessage() {
     }
 
 #ifdef Q_OS_ANDROID
-    qDebug() << cleanFrame << QByteArray((const char*)buf, 7).toHex(' ');
+    qDebug() << cleanFrame << QByteArray((const char *)buf, 7).toHex(' ');
 
-    if(!cleanFrame)
+    if (!cleanFrame)
         return 0;
 #endif
 

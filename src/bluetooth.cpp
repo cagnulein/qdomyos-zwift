@@ -1503,6 +1503,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 mepanelBike->deviceDiscovered(b);
                 this->startTemplateManagers(mepanelBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("SCHWINN 170/270"))) && !schwinn170Bike &&
+                       filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                schwinn170Bike =
+                    new schwinn170bike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(schwinn170Bike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(schwinn170Bike, &schwinn170bike::debug, this, &bluetooth::debug);
+                // connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                schwinn170Bike->deviceDiscovered(b);
+                this->startTemplateManagers(schwinn170Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
                         b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
@@ -2637,6 +2654,11 @@ void bluetooth::restart() {
         delete schwinnIC4Bike;
         schwinnIC4Bike = nullptr;
     }
+    if (schwinn170Bike) {
+
+        delete schwinn170Bike;
+        schwinn170Bike = nullptr;
+    }
     if (sportsTechBike) {
 
         delete sportsTechBike;
@@ -2906,6 +2928,8 @@ bluetoothdevice *bluetooth::device() {
         return mcfBike;
     } else if (schwinnIC4Bike) {
         return schwinnIC4Bike;
+    } else if (schwinn170Bike) {
+        return schwinn170Bike;
     } else if (sportsTechBike) {
         return sportsTechBike;
     } else if (sportsPlusBike) {

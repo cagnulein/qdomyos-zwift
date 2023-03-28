@@ -101,7 +101,7 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
-    } else if(treadmill_type == COSTAWAY) {
+    } else if (treadmill_type == COSTAWAY) {
         // CheckSum 8 Xor
         uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x00, 0x00, 0x00};
         display[4] = requestSpeed * 10;
@@ -152,7 +152,9 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE || treadmill_type == TYPE::COSTAWAY) { //
+        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE ||
+            treadmill_type == TYPE::COSTAWAY) {
+
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -342,7 +344,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
         return;
-    else if(newValue.length() != 5 && treadmill_type == COSTAWAY)
+    else if (newValue.length() != 5 && treadmill_type == COSTAWAY)
         return;
 
     if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
@@ -385,7 +387,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
-    } else if(treadmill_type == COSTAWAY) {
+    } else if (treadmill_type == COSTAWAY) {
         const double miles = 1.60934;
         Speed = newValue.at(3) * miles;
         Inclination = 0; // this treadmill doesn't have inclination
