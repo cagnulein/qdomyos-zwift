@@ -440,6 +440,60 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
 
+        // in case no workout has been selected
+        // Zwift OCR
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
+            bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+            QString t = text.toString();
+            QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+            // 2272 1027
+            jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageWidth", "()I");
+            jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageHeight", "()I");
+            QString tExtended = textExtended.toString();
+            QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+            QString packageName = packageNameJava.toString();
+            if (packageName.contains("com.zwift.zwiftgame")) {
+                qDebug() << QStringLiteral("ZWIFT OCR ACCEPTED") << packageName << w << h << t << tExtended;
+                foreach (QString s, tExtended.split("§§")) {
+                    // qDebug() << s;
+                    QStringList ss = s.split("$$");
+                    if (ss.length() > 1) {
+                        // (2195, 75 - 2254, 106)"
+                        qDebug() << ss[0] << ss[1];
+                        QString inc = ss[1].replace("Rect(", "").replace(")", "");
+                        if (inc.split(",").length() > 2) {
+                            static int zwift_ocr_prev_inc = 0;
+                            int w_minbound = w * 0.93;
+                            int h_minbound = h * 0.08;
+                            int h_maxbound = h * 0.15;
+                            int x = inc.split(",").at(0).toInt();
+                            int y = inc.split(",").at(2).toInt();
+                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound << zwift_ocr_prev_inc;
+                            if (x > w_minbound && y < h_maxbound && y > h_minbound) {
+                                ss[0] = ss[0].replace("%", "");
+                                ss[0] = ss[0].replace("O", "0");
+                                if (zwift_ocr_prev_inc == ss[0].toInt())
+                                    bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
+                                zwift_ocr_prev_inc = ss[0].toInt();
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
+            }
+        }
+#endif
+
         return;
     }
 

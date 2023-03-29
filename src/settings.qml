@@ -724,6 +724,26 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.10
             property bool eslinker_costaway: false
+
+            // from version 2.13.14
+            property double treadmill_inclination_ovveride_gain: 1.0
+            property double treadmill_inclination_ovveride_offset: 0.0
+
+            // from version 2.13.15
+            property bool bh_spada_2_watt: false
+            property bool tacx_neo2_peloton: false
+
+            // from version 2.13.16
+            property bool sole_treadmill_inclination_fast: false
+
+            // from version 2.13.17
+            property bool zwift_ocr: false
+
+            // from version 2.13.18
+            property bool gem_module_inclination: false
+
+            // from version 2.13.19
+            property bool treadmill_simulate_inclination_with_speed: false
         }
 
         function paddingZeros(text, limit) {
@@ -2601,6 +2621,25 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_500_profile_v1 = checked
                     }
+                }                
+                AccordionElement {
+                    title: qsTr("Tacx Neo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    SwitchDelegate {
+                        text: qsTr("Peloton Configuration")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.tacx_neo2_peloton
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.tacx_neo2_peloton = checked
+                    }
                 }
                 AccordionElement {
                     id: proformBikeAccordion
@@ -3722,6 +3761,43 @@ import Qt.labs.settings 1.0
             }
 
             AccordionElement {
+                title: qsTr("Zwift Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: {settings.zwift_ocr = checked; settings.android_notification = true;}
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
                 id: trainingProgramOptionsAccordion
                 title: qsTr("Training Program Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -4526,6 +4602,33 @@ import Qt.labs.settings 1.0
                     color: Material.color(Material.Lime)
                 }
 
+                SwitchDelegate {
+                    text: qsTr("Simulate Inclinatin with Speed")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.treadmill_simulate_inclination_with_speed
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.treadmill_simulate_inclination_with_speed = checked
+                }
+
+                Label {
+                    text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
                 Label {
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
@@ -4837,6 +4940,29 @@ import Qt.labs.settings 1.0
                 }
 
                 AccordionElement {
+                    title: qsTr("GEM Module Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Inclination")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.gem_module_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.gem_module_inclination = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
                     id: kingsmithTreadmillAccordion
                     title: qsTr("KingSmith Options")
                     indicatRectColor: Material.color(Material.Grey)
@@ -4992,6 +5118,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_inclination = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Fast Inclination (experimental)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_inclination_fast
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_inclination_fast = checked
                         }
                         SwitchDelegate {
                             id: soleMilesDelegate
@@ -5200,7 +5339,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.eslinker_costaway = checked
-                        }
+                        }                        
                     }
                 }
 
@@ -5455,6 +5594,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bh_spada_2 = checked
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("BH SPADA Wattage")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bh_spada_2_watt
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bh_spada_2_watt = checked
                     }
 
                     SwitchDelegate {

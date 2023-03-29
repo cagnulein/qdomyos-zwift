@@ -248,12 +248,15 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             if (X2000) {
-                Heart = convertHexToDec(newValue.at(8));
+                Heart = newValue.at(8);
             } else {
                 Heart = 0;
             }
         }
     }
+
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -273,8 +276,6 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     KCal = kcal;
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 }
 
 double skandikawiribike::GetSpeedFromPacket(const QByteArray &packet) {
