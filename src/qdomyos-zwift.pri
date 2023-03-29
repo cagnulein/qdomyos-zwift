@@ -32,6 +32,7 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:LIBS += -lgdi32 -lUser32
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -67,6 +68,7 @@ SOURCES += \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
+   $$PWD/qtesseract.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
    $$PWD/ziprotreadmill.cpp \
@@ -265,6 +267,7 @@ HEADERS += \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
    $$PWD/pelotonbike.h \
+   $$PWD/qtesseract.h \
    $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
    $$PWD/ziprotreadmill.h \
