@@ -494,11 +494,11 @@ void trainprogram::scheduler() {
                 qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
             }
         }
-        return;
 #else
             qtesseract::captureWindow();
-            return;
+        }
 #endif
+        return;
     }
 
 #ifdef Q_OS_ANDROID
