@@ -470,16 +470,19 @@ void trainprogram::scheduler() {
                         qDebug() << ss[0] << ss[1];
                         QString inc = ss[1].replace("Rect(", "").replace(")", "");
                         if (inc.split(",").length() > 2) {
+                            static int zwift_ocr_prev_inc = 0;
                             int w_minbound = w * 0.93;
                             int h_minbound = h * 0.08;
                             int h_maxbound = h * 0.15;
                             int x = inc.split(",").at(0).toInt();
                             int y = inc.split(",").at(2).toInt();
-                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
+                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound << zwift_ocr_prev_inc;
                             if (x > w_minbound && y < h_maxbound && y > h_minbound) {
                                 ss[0] = ss[0].replace("%", "");
                                 ss[0] = ss[0].replace("O", "0");
-                                bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
+                                if (zwift_ocr_prev_inc == ss[0].toInt())
+                                    bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
+                                zwift_ocr_prev_inc = ss[0].toInt();
                             }
                         }
                     }
