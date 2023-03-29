@@ -50,7 +50,7 @@ INCLUDEPATH += qmdnsengine/src/include
 
 #tesseract
 win32:INCLUDEPATH += c:\tools\cygwin\usr\include
-win32:LIBS += -llept -ltesseract -Lc:\tools\cygwin\lib\
+win32:LIBS += -llept -ltesseract -Lc:\tools\cygwin\usr\lib\
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
