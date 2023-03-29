@@ -8,6 +8,8 @@
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
+#elif defined Q_OS_WIN
+#include "qtesseract.h"
 #endif
 
 using namespace std::chrono_literals;
@@ -443,9 +445,9 @@ void trainprogram::scheduler() {
         // in case no workout has been selected
         // Zwift OCR
 
-#ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
             bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+#ifdef Q_OS_ANDROID
             QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
             QString t = text.toString();
@@ -492,9 +494,11 @@ void trainprogram::scheduler() {
                 qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
             }
         }
-#endif
-
         return;
+#else
+            qtesseract::captureWindow();
+            return;
+#endif
     }
 
 #ifdef Q_OS_ANDROID

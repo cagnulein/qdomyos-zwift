@@ -90,9 +90,9 @@ int SaveBitmapFromClipboard() {
 void qtesseract::captureWindow() {
 
     RECT rc;
-    HWND hwnd = ::FindWindow(0, TEXT("Prompt dei comandi")); //::FindWindow(0,_T("ScreenCapture (Running) - Microsoft
-                                                             //:Visual Studio"));//::FindWindow(0, _T("Calculator"));//=
-                                                             //:FindWindow("Notepad", NULL);    //You get the ideal?
+    HWND hwnd = ::FindWindow(0, TEXT("Zwift")); //::FindWindow(0,_T("ScreenCapture (Running) - Microsoft
+                                                //:Visual Studio"));//::FindWindow(0, _T("Calculator"));//=
+                                                //:FindWindow("Notepad", NULL);    //You get the ideal?
     if (hwnd == NULL) {
         return;
     }
@@ -114,6 +114,50 @@ void qtesseract::captureWindow() {
     CloseClipboard();
 
     SaveBitmapFromClipboard();
+
+    tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
+    // Initialize tesseract-ocr with English, without specifying tessdata path
+    if (api->Init(NULL, "eng")) {
+        fprintf(stderr, "Could not initialize tesseract.\n");
+        exit(1);
+    }
+    // Open input image with leptonica library
+    Pix *image = pixRead("temp.bmp");
+    api->SetImage(image);
+    // Set lstm_choice_mode to alternative symbol choices per character, bbox is at word level.
+    api->SetVariable("lstm_choice_mode", "2");
+    api->Recognize(0);
+    tesseract::PageIteratorLevel level = tesseract::RIL_WORD;
+    tesseract::ResultIterator *res_it = api->GetIterator();
+    // Get confidence level for alternative symbol choices. Code is based on
+    // https://github.com/tesseract-ocr/tesseract/blob/a7a729f6c315e751764b72ea945da961638effc5/src/api/hocrrenderer.cpp#L325-L344
+    std::vector<std::vector<std::pair<const char *, float>>> *choiceMap = nullptr;
+    if (res_it != 0) {
+        do {
+            const char *word;
+            float conf;
+            int x1, y1, x2, y2, tcnt = 1, gcnt = 1, wcnt = 0;
+            res_it->BoundingBox(level, &x1, &y1, &x2, &y2);
+            choiceMap = res_it->GetBestLSTMSymbolChoices();
+            for (auto timestep : *choiceMap) {
+                if (timestep.size() > 0) {
+                    for (auto &j : timestep) {
+                        conf = int(j.second * 100);
+                        word = j.first;
+                        printf("%d  symbol: '%s';  \tconf: %.2f; BoundingBox: %d,%d,%d,%d;\n", wcnt, word, conf, x1, y1,
+                               x2, y2);
+                        gcnt++;
+                    }
+                    tcnt++;
+                }
+                wcnt++;
+                printf("\n");
+            }
+        } while (res_it->Next(level));
+    }
+    // Destroy used object and release memory
+    api->End();
+    pixDestroy(&image);
 
     // release
     DeleteDC(hdc);

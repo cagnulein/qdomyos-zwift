@@ -47,7 +47,10 @@ macx {
     QMAKE_INFO_PLIST = macx/Info.plist
 }
 INCLUDEPATH += qmdnsengine/src/include
+
+#tesseract
 win32:INCLUDEPATH += c:\tools\cygwin\usr\include
+win32:LIBS += -llept -ltesseract -Lc:\tools\cygwin\lib\
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
