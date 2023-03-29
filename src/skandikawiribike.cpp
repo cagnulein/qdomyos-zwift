@@ -255,6 +255,9 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
@@ -273,8 +276,6 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     KCal = kcal;
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 }
 
 double skandikawiribike::GetSpeedFromPacket(const QByteArray &packet) {
