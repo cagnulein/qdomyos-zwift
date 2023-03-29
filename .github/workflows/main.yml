@@ -63,7 +63,7 @@ jobs:
       - name: Set up Cygwin
         uses: egor-tensin/setup-cygwin@v4
         with:
-          packages: tesseract-ocr tesseract-ocr-dev libleptonica-dev
+          packages: tesseract-ocr tesseract-ocr-devel libleptonica-devel
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
