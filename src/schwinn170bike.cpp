@@ -120,12 +120,20 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid();
 
+    if (newValue.length() == 20) {
+        Resistance = newValue.at(18);
+
+        emit resistanceRead(Resistance.value());
+        return;
+    }
+
     if (newValue.length() != 14)
         return;
 
     lastPacket = newValue;
 
-    Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
+    m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -142,9 +150,6 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-    m_watt = wattFromHR(true);
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) *
@@ -200,16 +205,13 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (qFabs(resistance - Resistance.value()) >=
         (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
             .toInt()) {
-        Resistance = resistance;
         m_pelotonResistance = res;
     } else {
         // to calculate correctly the averages
-        Resistance = Resistance.value();
         m_pelotonResistance = m_pelotonResistance.value();
 
         qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
     }
-    emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
