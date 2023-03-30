@@ -56,7 +56,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-tesseract-ocr mingw-w64-tesseract-data mingw-w64-x86_64-leptonica mingw-w64-x86_64-tesseract-ocr
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-tesseract-ocr mingw-w64-x86_64-tesseract-data mingw-w64-x86_64-leptonica mingw-w64-x86_64-tesseract-ocr
           msystem: mingw64
           release: false
 
