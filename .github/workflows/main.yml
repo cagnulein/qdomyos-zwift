@@ -64,7 +64,7 @@ jobs:
       - name: Check folders
         shell: pwsh
         run: |
-          dir d:\
+          Get-ChildItem -Path d:\ -Recurse -ErrorAction SilentlyContinue -Force
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
