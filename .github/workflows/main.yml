@@ -61,6 +61,11 @@ jobs:
           release: false
           location: D:\
 
+      - name: Check folders
+        shell: bash
+        run: |
+          ls -l d:
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
