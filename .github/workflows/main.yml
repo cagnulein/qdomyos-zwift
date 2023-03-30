@@ -54,16 +54,10 @@ jobs:
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
 
-      - uses: msys2/setup-msys2@v2
-        with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-tesseract-ocr mingw-w64-x86_64-tesseract-data mingw-w64-x86_64-leptonica mingw-w64-x86_64-tesseract-ocr
-          msystem: mingw64
-          release: false
-
-      - name: Check folders
-        shell: pwsh
-        run: |
-          Get-ChildItem -Path D:\a\_temp\ -Recurse -ErrorAction SilentlyContinue -Force
+#      - name: Check folders
+#        shell: pwsh
+#        run: |
+#          Get-ChildItem -Path D:\a\_temp\ -Recurse -ErrorAction SilentlyContinue -Force
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9

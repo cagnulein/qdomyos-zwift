@@ -1,0 +1,12 @@
+prefix=/mingw64
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/leptonica
+
+Name: leptonica
+Description: An open source C library for efficient image processing and image analysis operations
+Version: 1.83.1
+Libs: -L${libdir} -lleptonica
+Libs.private: -lz -lpng16 -ljpeg -lopenjp2 -lgif -ltiff -lwebp -lwebpmux -lwebp
+Cflags: -I${includedir}
+
