@@ -480,6 +480,7 @@ void trainprogram::scheduler() {
                             if (x > w_minbound && y < h_maxbound && y > h_minbound) {
                                 ss[0] = ss[0].replace("%", "");
                                 ss[0] = ss[0].replace("O", "0");
+                                ss[0] = ss[0].replace("l", "1");
                                 if (zwift_ocr_prev_inc == ss[0].toInt())
                                     bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
                                 zwift_ocr_prev_inc = ss[0].toInt();
