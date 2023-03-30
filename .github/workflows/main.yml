@@ -64,7 +64,7 @@ jobs:
       - name: Check folders
         shell: pwsh
         run: |
-          dir d:
+          dir d:\
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
