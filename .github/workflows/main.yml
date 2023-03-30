@@ -59,12 +59,12 @@ jobs:
           install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-tesseract-ocr mingw-w64-x86_64-tesseract-data mingw-w64-x86_64-leptonica mingw-w64-x86_64-tesseract-ocr
           msystem: mingw64
           release: false
-          location: D:\
+          location: ${{ github.workspace }}
 
       - name: Check folders
         shell: pwsh
         run: |
-          Get-ChildItem -Path d:\ -Recurse -ErrorAction SilentlyContinue -Force
+          Get-ChildItem -Path ${{ github.workspace }} -Recurse -ErrorAction SilentlyContinue -Force
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
