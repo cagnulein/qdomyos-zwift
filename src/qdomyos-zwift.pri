@@ -49,8 +49,8 @@ macx {
 INCLUDEPATH += qmdnsengine/src/include
 
 #tesseract
-win32:INCLUDEPATH += D:/a/_temp/msys64/mingw64/include
-win32:LIBS += -llept -ltesseract -LD:/a/_temp/msys64/mingw64/lib
+win32:INCLUDEPATH += D:/usr/include
+win32:LIBS += -llept -ltesseract -LD:/usr/lib
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
