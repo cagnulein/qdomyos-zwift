@@ -382,13 +382,17 @@ void bowflext216treadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("edff9e80-cad7-11e5-ab63-0002a5d5c51b"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     if (gattCommunicationChannelService == nullptr) {
-        qDebug() << "trying with the BOWFLEX T6 treadmill";
-        bowflex_t6 = true;
-        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("15B7BF49-1693-481E-B877-69D33CE6BAFA"));
+        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("B1216C2E-464E-4C46-B2B4-0B5C8EB23DAE"));
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (gattCommunicationChannelService == nullptr) {
-            qDebug() << "WRONG SERVICE";
-            return;
+            qDebug() << "trying with the BOWFLEX T6 treadmill";
+            bowflex_t6 = true;
+            QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("15B7BF49-1693-481E-B877-69D33CE6BAFA"));
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (gattCommunicationChannelService == nullptr) {
+                qDebug() << "WRONG SERVICE";
+                return;
+            }
         }
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,

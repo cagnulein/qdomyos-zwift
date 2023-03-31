@@ -319,9 +319,14 @@ void nautilusbike::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
-    if (gattCommunicationChannelService == nullptr) {
-        qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
-        return;
+    if (!gattCommunicationChannelService) {
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("f755c9cf-e1fc-4ecd-8d90-f2d7ebf56b81"));
+
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if (!gattCommunicationChannelService) {
+            qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+            return;
+        }
     }
     
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilusbike::stateChanged);
