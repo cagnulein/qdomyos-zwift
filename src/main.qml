@@ -385,7 +385,7 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "⏴" : "⏴"
+            text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
@@ -734,7 +734,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.23"
+                text: "version 2.13.24"
                 width: parent.width
             }
 				FileDialog {
