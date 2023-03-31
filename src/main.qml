@@ -112,6 +112,32 @@ ApplicationWindow {
         }
     }*/
 
+    Keys.onBackPressed: {
+        if(OS_VERSION === "Android") {
+            toast.show("Pressed it quickly to close the app!")
+            timer.pressBack();
+        }
+    }
+    Timer{
+        id: timer
+
+        property bool backPressed: false
+        repeat: false
+        interval: 200//ms
+        onTriggered: backPressed = false
+        function pressBack(){
+            if(backPressed){
+                timer.stop()
+                backPressed = false
+                Qt.callLater(Qt.quit)
+            }
+            else{
+                backPressed = true
+                timer.start()
+            }
+        }
+    }
+
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
