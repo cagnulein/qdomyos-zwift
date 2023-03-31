@@ -6,6 +6,8 @@ import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
 import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
+import QtQuick.Window 2.12
+import Qt.labs.platform 1.1
 
 ApplicationWindow {
     id: window
@@ -37,10 +39,11 @@ ApplicationWindow {
     signal floatingOpen()
 
     property bool lockTiles: false
+    property bool settings_restart_to_apply: false
 
     Settings {
         id: settings
-        property string profile_name: "default"
+        property string profile_name: "default"        
     }
 
     Store {
@@ -83,6 +86,31 @@ ApplicationWindow {
             pageStack.pop();
         }
     }
+
+    ToastManager {
+        id: toast
+    }
+
+    /*
+    Timer {
+        interval: 1000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This timer has triggered " + (++i) + " times!");
+        }
+    }
+
+    Timer {
+        interval: 3000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This important message has been shown " + (++i) + " times.", 5000);
+        }
+    }*/
 
     Popup {
 	    id: popup
@@ -313,6 +341,16 @@ ApplicationWindow {
          }
     }
 
+    MessageDialog {
+        id: popupRestartApp
+        text: "Settings changed"
+        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: Material.Purple
@@ -325,6 +363,11 @@ ApplicationWindow {
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    if(window.settings_restart_to_apply === true) {
+                        window.settings_restart_to_apply = false;
+                        popupRestartApp.visible = true;
+                    }
+
                     stackView.pop()
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
@@ -665,7 +708,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.21"
+                text: "version 2.13.23"
                 width: parent.width
             }
 				FileDialog {
