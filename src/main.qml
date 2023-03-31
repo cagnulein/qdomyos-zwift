@@ -87,6 +87,31 @@ ApplicationWindow {
         }
     }
 
+    ToastManager {
+        id: toast
+    }
+
+    /*
+    Timer {
+        interval: 1000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This timer has triggered " + (++i) + " times!");
+        }
+    }
+
+    Timer {
+        interval: 3000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This important message has been shown " + (++i) + " times.", 5000);
+        }
+    }*/
+
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
