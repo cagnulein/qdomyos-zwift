@@ -44,6 +44,7 @@ class nautilusbike : public bike {
     double GetInclinationFromPacket(QByteArray packet);
     double GetWattFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
+    uint16_t watts();
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -70,6 +71,8 @@ class nautilusbike : public bike {
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+    bool B616 = false;
 
   signals:
     void disconnected();
