@@ -112,6 +112,32 @@ ApplicationWindow {
         }
     }*/
 
+    Keys.onBackPressed: {
+        if(OS_VERSION === "Android") {
+            toast.show("Pressed it quickly to close the app!")
+            timer.pressBack();
+        }
+    }
+    Timer{
+        id: timer
+
+        property bool backPressed: false
+        repeat: false
+        interval: 200//ms
+        onTriggered: backPressed = false
+        function pressBack(){
+            if(backPressed){
+                timer.stop()
+                backPressed = false
+                Qt.callLater(Qt.quit)
+            }
+            else{
+                backPressed = true
+                timer.start()
+            }
+        }
+    }
+
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
@@ -359,7 +385,7 @@ ApplicationWindow {
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "⏴" : "⏴"
+            text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
@@ -708,7 +734,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.23"
+                text: "version 2.13.24"
                 width: parent.width
             }
 				FileDialog {
