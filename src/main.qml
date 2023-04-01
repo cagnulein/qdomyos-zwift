@@ -91,6 +91,16 @@ ApplicationWindow {
         id: toast
     }
 
+    Timer {
+        interval: 1
+        repeat: false
+        running: (rootItem.toastRequested !== "")
+        onTriggered: {
+            toast.show(rootItem.toastRequested);
+            rootItem.toastRequested = "";
+        }
+    }
+
     /*
     Timer {
         interval: 1000
