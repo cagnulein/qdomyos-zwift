@@ -681,7 +681,7 @@ class homeform : public QObject {
     QNetworkReply *replyConcept2log;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
-    bool concept2log_upload_file(const QByteArray &data, const QString &remotename);
+    bool concept2log_upload_file();
     QString concept2logAuthUrl;
     bool concept2logAuthWebVisible;
 
@@ -757,6 +757,8 @@ class homeform : public QObject {
     void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
     void networkRequestFinished(QNetworkReply *reply);
     void callbackReceived(const QVariantMap &values);
+    void writeFileCompleted();
+    void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
 
     // Concept2 Log
     void concept2log_connect_clicked();
@@ -766,9 +768,10 @@ class homeform : public QObject {
     void onSslErrorsConcept2log(QNetworkReply *reply, const QList<QSslError> &error);
     void networkRequestFinishedConcept2log(QNetworkReply *reply);
     void callbackReceivedConcept2log(const QVariantMap &values);
+    void errorOccurredUploadConcept2log(QNetworkReply::NetworkError code);
+    void writeFileCompletedConcept2log();
 
-    void writeFileCompleted();
-    void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);

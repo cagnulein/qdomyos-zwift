@@ -4821,6 +4821,13 @@ void homeform::fit_save_clicked() {
             strava_upload_file(fitfile, filename);
             f.close();
         }
+
+        if (!settings.value(QZSettings::concept2log_accesstoken, QZSettings::default_concept2log_accesstoken)
+                 .toString()
+                 .isEmpty()) {
+
+            concept2log_upload_file();
+        }
     }
 }
 
@@ -5363,6 +5370,82 @@ void homeform::strava_connect_clicked() {
 // ******************************************************** END STRAVA ***************************************************
 
 // ******************************************************* CONCEPT2 LOG **************************************************
+
+void homeform::errorOccurredUploadConcept2log(QNetworkReply::NetworkError code) {
+    qDebug() << QStringLiteral("concept2 log upload error!") << code;
+    setToastRequested("Concept2 Log Upload Failed!");
+    emit toastRequestedChanged(toastRequested());
+}
+
+void homeform::writeFileCompletedConcept2log() {
+    qDebug() << QStringLiteral("concept2 log upload completed!");
+
+    QNetworkReply *reply = static_cast<QNetworkReply *>(QObject::sender());
+
+    QString response = reply->readAll();
+    // QString uploadError = QStringLiteral("invalid response or parser error");
+    // NOTE: clazy-unused-non-trivial-variable
+
+    qDebug() << "reply:" << response;
+
+    setToastRequested("Concept2 Log Upload Completed!");
+    emit toastRequestedChanged(toastRequested());
+
+}
+
+bool homeform::concept2log_upload_file() {
+    if(bluetoothManager && bluetoothManager->device() &&
+            bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+        return false;
+    }
+
+    concept2log_refreshtoken();
+
+    QSettings settings;
+    QString token = settings.value(QZSettings::concept2log_accesstoken).toString();
+
+    // The V3 API doc said "https://api.strava.com" but it is not working yet
+    QUrl url = QUrl(QStringLiteral("https://log-dev.concept2.com/api/users/me/results"));
+    QNetworkRequest request = QNetworkRequest(url);
+
+    // QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
+    QString boundary = QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString() +
+                       QVariant(QRandomGenerator::global()->generate()).toString(); // NOTE: qrand is deprecated
+
+
+    // this must be performed asynchronously and call made
+    // to notifyWriteCompleted(QString remotename, QString message) when done
+    if (managerConcept2log) {
+
+        delete managerConcept2log;
+        managerConcept2log = 0;
+    }
+    managerConcept2log = new QNetworkAccessManager(this);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader(QByteArray("Authorization"), "Bearer " + token.toLatin1());
+
+    QJsonObject obj;
+    obj["type"] = "rower";
+    obj["date"] = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+    obj["distance"] = QString::number(bluetoothManager->device()->odometer() == 0 ? 1 : bluetoothManager->device()->odometer());
+    obj["time"] = QString::number(abs(bluetoothManager->device()->elapsedTime().secsTo(QTime(0,0,0,0))));
+    obj["weight_class"] = "H";
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson(QJsonDocument::Compact);
+
+    qDebug() << data;
+    replyConcept2log = managerConcept2log->post(request, data);
+
+    // catch finished signal
+    connect(replyConcept2log, &QNetworkReply::finished, this, &homeform::writeFileCompletedConcept2log);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+    connect(replyConcept2log, &QNetworkReply::errorOccurred, this, &homeform::errorOccurredUploadConcept2log);
+#endif
+    return true;
+}
+
 
 QAbstractOAuth::ModifyParametersFunction
 homeform::buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier, const QUrl &clientIdentifierSharedKey) {
