@@ -632,8 +632,19 @@ const QString QZSettings::strava_auth_external_webbrowser = QStringLiteral("stra
 const QString QZSettings::gears_from_bike = QStringLiteral("gears_from_bike");
 const QString QZSettings::peloton_spinups_autoresistance = QStringLiteral("peloton_spinups_autoresistance");
 const QString QZSettings::eslinker_costaway = QStringLiteral("eslinker_costaway");
+const QString QZSettings::treadmill_inclination_ovveride_gain = QStringLiteral("treadmill_inclination_ovveride_gain");
+const QString QZSettings::treadmill_inclination_ovveride_offset =
+    QStringLiteral("treadmill_inclination_ovveride_offset");
+const QString QZSettings::bh_spada_2_watt = QStringLiteral("bh_spada_2_watt");
+const QString QZSettings::tacx_neo2_peloton = QStringLiteral("tacx_neo2_peloton");
+const QString QZSettings::sole_treadmill_inclination_fast = QStringLiteral("sole_treadmill_inclination_fast");
+const QString QZSettings::zwift_ocr = QStringLiteral("zwift_ocr");
+const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_saved_on_quit");
+const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
+const QString QZSettings::treadmill_simulate_inclination_with_speed =
+    QStringLiteral("treadmill_simulate_inclination_with_speed");
 
-const uint32_t allSettingsCount = 528;
+const uint32_t allSettingsCount = 537;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1166,6 +1177,16 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gears_from_bike, QZSettings::default_gears_from_bike},
     {QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance},
     {QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway},
+    {QZSettings::treadmill_inclination_ovveride_gain, QZSettings::default_treadmill_inclination_ovveride_gain},
+    {QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset},
+    {QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt},
+    {QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton},
+    {QZSettings::sole_treadmill_inclination_fast, QZSettings::default_sole_treadmill_inclination_fast},
+    {QZSettings::zwift_ocr, QZSettings::default_zwift_ocr},
+    {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
+    {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
+    {QZSettings::treadmill_simulate_inclination_with_speed,
+     QZSettings::default_treadmill_simulate_inclination_with_speed},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

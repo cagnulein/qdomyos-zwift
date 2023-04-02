@@ -65,16 +65,31 @@ public class ScreenCaptureService extends Service {
     private int mDensity;
     private int mWidth;
     private int mHeight;
+	 private static int mWidthImage;
+	 private static int mHeightImage;
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
 
     private TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
 	 private static String lastText = "";
+	 private static String lastTextExtended = "";
 	 private static boolean isRunning = false;
 
 	 public static String getLastText() {
 		 return lastText;
+	 }
+
+    public static String getLastTextExtended() {
+		 return lastTextExtended;
+	 }
+
+    public static int getImageWidth() {
+		 return mWidthImage;
+		}
+
+	 public static int getImageHeight() {
+		 return mHeightImage;
 	 }
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
@@ -122,6 +137,8 @@ public class ScreenCaptureService extends Service {
                           isRunning = true;
 
                           // create bitmap
+								  mWidthImage = mWidth + rowPadding / pixelStride;
+								  mHeightImage = mHeight;
                           final Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                           bitmap.copyPixelsFromBuffer(buffer);
 /*
@@ -151,12 +168,13 @@ public class ScreenCaptureService extends Service {
 
                                           String resultText = result.getText();
                                           lastText = resultText;
-                                          /*
+                                          lastTextExtended = "";
                                           for (Text.TextBlock block : result.getTextBlocks()) {
                                                    String blockText = block.getText();
                                                         Point[] blockCornerPoints = block.getCornerPoints();
                                                         Rect blockFrame = block.getBoundingBox();
-                                                        for (Text.Line line : block.getLines()) {
+                                                          lastTextExtended = lastTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
+							  /*for (Text.Line line : block.getLines()) {
                                                                  String lineText = line.getText();
                                                                  Point[] lineCornerPoints = line.getCornerPoints();
                                                                  Rect lineFrame = line.getBoundingBox();
@@ -170,8 +188,8 @@ public class ScreenCaptureService extends Service {
                                                                                         Rect symbolFrame = symbol.getBoundingBox();
                                                                                         }
                                                                  }
-                                                        }
-                                          }*/
+																				}*/
+																	}
                                      bitmap.recycle();
                                      isRunning = false;
                                           }

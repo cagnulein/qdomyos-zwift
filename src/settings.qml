@@ -725,6 +725,26 @@ import Qt.labs.settings 1.0
             // from version 2.13.10
             property bool eslinker_costaway: false
 
+            // from version 2.13.14
+            property double treadmill_inclination_ovveride_gain: 1.0
+            property double treadmill_inclination_ovveride_offset: 0.0
+
+            // from version 2.13.15
+            property bool bh_spada_2_watt: false
+            property bool tacx_neo2_peloton: false
+
+            // from version 2.13.16
+            property bool sole_treadmill_inclination_fast: false
+
+            // from version 2.13.17
+            property bool zwift_ocr: false
+
+            // from version 2.13.18
+            property bool gem_module_inclination: false
+
+            // from version 2.13.19
+            property bool treadmill_simulate_inclination_with_speed: false
+
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -761,20 +781,12 @@ import Qt.labs.settings 1.0
           }
         }
 
+        Component.onCompleted: window.settings_restart_to_apply = false;
+
         ColumnLayout {
             id: column1
             spacing: 0
             anchors.fill: parent
-
-            Label {
-                Layout.preferredWidth: parent.width
-                id: rebootLabel
-                text: qsTr("Reboot the app in order to apply the settings")
-                textFormat: Text.PlainText
-                wrapMode: Text.WordWrap
-                verticalAlignment: Text.AlignVCenter
-                color: Material.color(Material.Red)
-            }
 
             AccordionElement {
                 id: generalOptionsAccordion
@@ -808,7 +820,7 @@ import Qt.labs.settings 1.0
                             id: okUiZoomButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.ui_zoom = uiZoomTextField.text
+                            onClicked: { settings.ui_zoom = uiZoomTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
                     Label {
@@ -845,7 +857,7 @@ import Qt.labs.settings 1.0
                             id: okWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.weight = (settings.miles_unit?weightTextField.text / 2.20462:weightTextField.text)
+                            onClicked: { settings.weight = (settings.miles_unit?weightTextField.text / 2.20462:weightTextField.text); toast.show("Setting saved!"); }
                         }
                     }
                     Label {
@@ -882,7 +894,7 @@ import Qt.labs.settings 1.0
                             id: okAgeButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.age = ageTextField.text
+                            onClicked: { settings.age = ageTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -922,7 +934,7 @@ import Qt.labs.settings 1.0
                             id: okSex
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.sex = sexTextField.displayText
+                            onClicked: { settings.sex = sexTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -961,7 +973,7 @@ import Qt.labs.settings 1.0
                             id: okFTPButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.ftp = ftpTextField.text
+                            onClicked: { settings.ftp = ftpTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -998,7 +1010,7 @@ import Qt.labs.settings 1.0
                             id: okNicknameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.user_nickname = nicknameTextField.text
+                            onClicked: { settings.user_nickname = nicknameTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1035,7 +1047,7 @@ import Qt.labs.settings 1.0
                             id: okEmailButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.user_email = emailTextField.text
+                            onClicked: { settings.user_email = emailTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1170,7 +1182,7 @@ import Qt.labs.settings 1.0
                         checked: settings.bike_heartrate_service
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.bike_heartrate_service = checked
+                        onClicked: { settings.bike_heartrate_service = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -1266,7 +1278,7 @@ import Qt.labs.settings 1.0
                             id: okHeartBeltNameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                            onClicked: { settings.heart_rate_belt_name = heartBeltNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1318,7 +1330,7 @@ import Qt.labs.settings 1.0
                                     id: okHeartRateZone1Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_zone1 = heartRateZone1TextField.text
+                                    onClicked: { settings.heart_rate_zone1 = heartRateZone1TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1343,7 +1355,7 @@ import Qt.labs.settings 1.0
                                     id: okHeartRateZone2Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_zone2 = heartRateZone2TextField.text
+                                    onClicked: { settings.heart_rate_zone2 = heartRateZone2TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1368,7 +1380,7 @@ import Qt.labs.settings 1.0
                                     id: okHeartRateZone3Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_zone3 = heartRateZone3TextField.text
+                                    onClicked: { settings.heart_rate_zone3 = heartRateZone3TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1393,7 +1405,7 @@ import Qt.labs.settings 1.0
                                     id: okHeartRateZone4Button
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_zone4 = heartRateZone4TextField.text
+                                    onClicked: { settings.heart_rate_zone4 = heartRateZone4TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1441,7 +1453,7 @@ import Qt.labs.settings 1.0
                                             id: okHeartRateMaxOverrideValue
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text
+                                            onClicked: { settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text; toast.show("Setting saved!"); }
                                         }
                                     }
                                 }
@@ -1504,7 +1516,7 @@ import Qt.labs.settings 1.0
                                     id: okPowerFromHeartPWR1
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text
+                                    onClicked: { settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1529,7 +1541,7 @@ import Qt.labs.settings 1.0
                                     id: okPowerFromHeartHR1
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.power_hr_hr1 = powerFromHeartHR1TextField.text
+                                    onClicked: { settings.power_hr_hr1 = powerFromHeartHR1TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1554,7 +1566,7 @@ import Qt.labs.settings 1.0
                                     id: okPowerFromHeartPWR2
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text
+                                    onClicked: { settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -1579,7 +1591,7 @@ import Qt.labs.settings 1.0
                                     id: okPowerFromHeartHR2
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.power_hr_hr2 = powerFromHeartHR2TextField.text
+                                    onClicked: { settings.power_hr_hr2 = powerFromHeartHR2TextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                         }
@@ -1683,7 +1695,7 @@ import Qt.labs.settings 1.0
                             id: okRollingResistanceButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.rolling_resistance = rollingreistanceTextField.text
+                            onClicked: { settings.rolling_resistance = rollingreistanceTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                     Label {
@@ -1715,7 +1727,7 @@ import Qt.labs.settings 1.0
                             id: okBikeWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
+                            onClicked: { settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text); toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1753,7 +1765,7 @@ import Qt.labs.settings 1.0
                             id: okCRRGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.crrGain = crrGainTextField.text
+                            onClicked: { settings.crrGain = crrGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                     RowLayout {
@@ -1777,7 +1789,7 @@ import Qt.labs.settings 1.0
                             id: okCWGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.cwGain = cwGainTextField.text
+                            onClicked: { settings.cwGain = cwGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                     SwitchDelegate {
@@ -1829,7 +1841,7 @@ import Qt.labs.settings 1.0
                             id: okBikeResistanceOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.bike_resistance_offset = bikeResistanceOffsetTextField.text
+                            onClicked: { settings.bike_resistance_offset = bikeResistanceOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1867,7 +1879,7 @@ import Qt.labs.settings 1.0
                             id: okBikeResistanceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.bike_resistance_gain_f = bikeResistanceGainTextField.text
+                            onClicked: { settings.bike_resistance_gain_f = bikeResistanceGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1905,7 +1917,7 @@ import Qt.labs.settings 1.0
                             id: okzwiftErgFilterButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_erg_filter = zwiftErgFilterTextField.text
+                            onClicked: { settings.zwift_erg_filter = zwiftErgFilterTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1943,7 +1955,7 @@ import Qt.labs.settings 1.0
                             id: okzwiftErgDownFilterButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text
+                            onClicked: { settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -1981,7 +1993,7 @@ import Qt.labs.settings 1.0
                             id: okzwiftErgResistanceDownButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text
+                            onClicked: { settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -2019,7 +2031,7 @@ import Qt.labs.settings 1.0
                             id: okzwiftErgResistanceUpButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text
+                            onClicked: { settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -2057,7 +2069,7 @@ import Qt.labs.settings 1.0
                             id: okBikeResistanceStartButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.bike_resistance_start = bikeResistanceStartTextField.text
+                            onClicked: { settings.bike_resistance_start = bikeResistanceStartTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -2145,7 +2157,7 @@ import Qt.labs.settings 1.0
                                 id: okschwinnResistanceSmoothButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text
+                                onClicked: { settings.schwinn_resistance_smooth = scwhinnResistanceSmoothTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                         Label {
@@ -2189,7 +2201,7 @@ import Qt.labs.settings 1.0
                             id: okhorizonGr7CadenceMultiplierButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text
+                            onClicked: { settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                 }
@@ -2228,7 +2240,7 @@ import Qt.labs.settings 1.0
                                 id: okEchelonWattTable
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
+                                onClicked: { settings.echelon_watttable = echelonWattTableTextField.displayText; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -2252,7 +2264,7 @@ import Qt.labs.settings 1.0
                                 id: okechelonResistanceGainButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.echelon_resistance_gain = echelonResistanceGainTextField.text
+                                onClicked: { settings.echelon_resistance_gain = echelonResistanceGainTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -2276,7 +2288,7 @@ import Qt.labs.settings 1.0
                                 id: okechelonResistanceOffsetButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text
+                                onClicked: { settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                         SwitchDelegate {
@@ -2390,7 +2402,7 @@ import Qt.labs.settings 1.0
                         checked: settings.hammer_racer_s
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.hammer_racer_s = checked
+                        onClicked: { settings.hammer_racer_s = checked; window.settings_restart_to_apply = true; }
                     }
                 }
                 AccordionElement {
@@ -2411,7 +2423,7 @@ import Qt.labs.settings 1.0
                         checked: settings.sp_ht_9600ie
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.sp_ht_9600ie = checked
+                        onClicked: { settings.sp_ht_9600ie = checked; window.settings_restart_to_apply = true; }
                     }
                 }
                 AccordionElement {
@@ -2454,7 +2466,7 @@ import Qt.labs.settings 1.0
                         checked: settings.snode_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.snode_bike = checked
+                        onClicked: { settings.snode_bike = checked; window.settings_restart_to_apply = true; }
                     }
                 }
                 AccordionElement {
@@ -2476,7 +2488,7 @@ import Qt.labs.settings 1.0
                         checked: settings.fitplus_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.fitplus_bike = checked
+                        onClicked: { settings.fitplus_bike = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: virtufitEtappeBikeDelegate
@@ -2490,7 +2502,7 @@ import Qt.labs.settings 1.0
                         checked: settings.virtufit_etappe
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.virtufit_etappe = checked
+                        onClicked: { settings.virtufit_etappe = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: sportstechSx600BikeDelegate
@@ -2504,7 +2516,7 @@ import Qt.labs.settings 1.0
                         checked: settings.sportstech_sx600
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.sportstech_sx600 = checked
+                        onClicked: { settings.sportstech_sx600 = checked; window.settings_restart_to_apply = true; }
                     }
                 }
                 AccordionElement {
@@ -2536,7 +2548,7 @@ import Qt.labs.settings 1.0
                                 id: okflywheelBikeFilterButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                                onClicked: { settings.flywheel_filter = flywheelBikeFilterTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                         SwitchDelegate {
@@ -2551,7 +2563,7 @@ import Qt.labs.settings 1.0
                             checked: settings.flywheel_life_fitness_ic8
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.flywheel_life_fitness_ic8 = checked
+                            onClicked: { settings.flywheel_life_fitness_ic8 = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -2740,7 +2752,7 @@ import Qt.labs.settings 1.0
                             id: okDomyosBikeCadenceFilter
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
+                            onClicked: { settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                     SwitchDelegate {
@@ -2771,6 +2783,25 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_500_profile_v1 = checked
                     }
+                }                
+                AccordionElement {
+                    title: qsTr("Tacx Neo Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    SwitchDelegate {
+                        text: qsTr("Peloton Configuration")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.tacx_neo2_peloton
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.tacx_neo2_peloton = checked
+                    }
                 }
                 AccordionElement {
                     id: proformBikeAccordion
@@ -2799,7 +2830,7 @@ import Qt.labs.settings 1.0
                             id: okproformBikeWheelRatioButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
+                            onClicked: { settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text; toast.show("Setting saved!"); }
                         }
                     }
                     SwitchDelegate {
@@ -2814,7 +2845,7 @@ import Qt.labs.settings 1.0
                         checked: settings.proform_tour_de_france_clc
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.proform_tour_de_france_clc = checked
+                        onClicked: { settings.proform_tour_de_france_clc = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: proformStudiodelegate
@@ -2828,7 +2859,7 @@ import Qt.labs.settings 1.0
                         checked: settings.proform_studio
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.proform_studio = checked
+                        onClicked: { settings.proform_studio = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: proformTDF10odelegate
@@ -2842,7 +2873,7 @@ import Qt.labs.settings 1.0
                         checked: settings.proform_tdf_10
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.proform_tdf_10 = checked
+                        onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: nordictrackGX27odelegate
@@ -2856,7 +2887,7 @@ import Qt.labs.settings 1.0
                         checked: settings.nordictrack_gx_2_7
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.nordictrack_gx_2_7 = checked
+                        onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
@@ -2884,7 +2915,7 @@ import Qt.labs.settings 1.0
                         checked: settings.proform_cycle_trainer_400
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.proform_cycle_trainer_400 = checked
+                        onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {
@@ -2908,7 +2939,7 @@ import Qt.labs.settings 1.0
                             id: okproformTDF4IPButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.proformtdf4ip = proformTDF4IPTextField.text
+                            onClicked: { settings.proformtdf4ip = proformTDF4IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
                     RowLayout {
@@ -2932,7 +2963,7 @@ import Qt.labs.settings 1.0
                             id: okproformTDFCompanionIPButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.tdf_10_ip = proformTDFCompanionIPTextField.text
+                            onClicked: { settings.tdf_10_ip = proformTDFCompanionIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
                     SwitchDelegate {
@@ -2947,7 +2978,7 @@ import Qt.labs.settings 1.0
                         checked: settings.nordictrack_ifit_adb_remote
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.nordictrack_ifit_adb_remote = checked
+                        onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                     }
                 }
 
@@ -2978,7 +3009,7 @@ import Qt.labs.settings 1.0
                             id: okcomputrainerSerialPortButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.computrainer_serialport = computrainerSerialPortTextField.text
+                            onClicked: { settings.computrainer_serialport = computrainerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
                 }
@@ -3007,7 +3038,7 @@ import Qt.labs.settings 1.0
                             checked: settings.m3i_bike_qt_search
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.m3i_bike_qt_search = checked
+                            onClicked: { settings.m3i_bike_qt_search = checked; window.settings_restart_to_apply = true; }
                         }
 
                         RowLayout {
@@ -3031,7 +3062,7 @@ import Qt.labs.settings 1.0
                                 id: okm3iBikeIdButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.m3i_bike_id = m3iBikeIdTextField.text
+                                onClicked: { settings.m3i_bike_id = m3iBikeIdTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -3056,7 +3087,7 @@ import Qt.labs.settings 1.0
                                 id: okm3iBikeSpeedBuffsizeButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
+                                onClicked: { settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -3114,7 +3145,7 @@ import Qt.labs.settings 1.0
                         checked: settings.ant_cadence
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.ant_cadence = checked
+                        onClicked: { settings.ant_cadence = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -3142,7 +3173,7 @@ import Qt.labs.settings 1.0
                         checked: settings.ant_heart
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.ant_heart = checked
+                        onClicked: { settings.ant_heart = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -3207,7 +3238,7 @@ import Qt.labs.settings 1.0
                         checked: settings.top_bar_enabled
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.top_bar_enabled = checked
+                        onClicked: { settings.top_bar_enabled = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -3243,7 +3274,7 @@ import Qt.labs.settings 1.0
                             id: okFloatingWidthButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.floating_width = floatingWidthField.text
+                            onClicked: { settings.floating_width = floatingWidthField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3280,7 +3311,7 @@ import Qt.labs.settings 1.0
                             id: okFloatingHeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.floating_height = floatingHeightField.text
+                            onClicked: { settings.floating_height = floatingHeightField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3317,7 +3348,7 @@ import Qt.labs.settings 1.0
                             id: okFloatingTransparencyButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.floating_transparency = floatingTransparencyField.text
+                            onClicked: { settings.floating_transparency = floatingTransparencyField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3393,7 +3424,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonUsernameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_username = pelotonUsernameTextField.text
+                            onClicked: { settings.peloton_username = pelotonUsernameTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3433,7 +3464,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonPasswordButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_password = pelotonPasswordTextField.text
+                            onClicked: { settings.peloton_password = pelotonPasswordTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3473,7 +3504,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonDifficultyButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_difficulty = pelotonDifficultyTextField.displayText
+                            onClicked: { settings.peloton_difficulty = pelotonDifficultyTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3510,7 +3541,7 @@ import Qt.labs.settings 1.0
                             id: okPZPUsernameButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.pzp_username = pzpUsernameTextField.text
+                            onClicked: { settings.pzp_username = pzpUsernameTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3549,7 +3580,7 @@ import Qt.labs.settings 1.0
                             id: okPZPPasswordButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.pzp_password = pzpPasswordTextField.text
+                            onClicked: { settings.pzp_password = pzpPasswordTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3587,7 +3618,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_gain = pelotonGainTextField.text
+                            onClicked: { settings.peloton_gain = pelotonGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3625,7 +3656,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_offset = pelotonOffsetTextField.text
+                            onClicked: { settings.peloton_offset = pelotonOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3654,7 +3685,7 @@ import Qt.labs.settings 1.0
                         checked: settings.bike_cadence_sensor
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.bike_cadence_sensor = checked
+                        onClicked: { settings.bike_cadence_sensor = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -3721,7 +3752,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonHeartRateMetric
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText;
+                            onClicked: { settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3761,7 +3792,7 @@ import Qt.labs.settings 1.0
                             id: okPelotonDateOnStrava
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.peloton_date = pelotonDateOnStravaTextField.displayText
+                            onClicked: { settings.peloton_date = pelotonDateOnStravaTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -3845,7 +3876,7 @@ import Qt.labs.settings 1.0
                         checked: settings.peloton_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.peloton_workout_ocr = checked
+                        onClicked: { settings.peloton_workout_ocr = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -3873,11 +3904,48 @@ import Qt.labs.settings 1.0
                         checked: settings.peloton_bike_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.peloton_bike_ocr = checked
+                        onClicked: { settings.peloton_bike_ocr = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
                         text: qsTr("Only if you are on a real Peloton Bike/Bike+! This will allow QZ to collect metrics from your Bike/Bike+ and send it to Zwift. Peloton Free ride must running.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Zwift Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_ocr = checked; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -3954,7 +4022,7 @@ import Qt.labs.settings 1.0
                             id: okTreadmillPidHR
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText
+                            onClicked: { settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
                 }
@@ -3990,7 +4058,7 @@ import Qt.labs.settings 1.0
                     Button {
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text }
+                        onClicked: { settings.treadmill_pid_heart_min = treadmillPidHRminTextField.text ; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4012,7 +4080,7 @@ import Qt.labs.settings 1.0
                     Button {
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text }
+                        onClicked: { settings.treadmill_pid_heart_max = treadmillPidHRmaxTextField.text ; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4049,7 +4117,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace1Mile
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934;}
+                        onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4086,7 +4154,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace5km
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5;}
+                        onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4123,7 +4191,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace10KM
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10;}
+                        onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4160,7 +4228,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPaceHalfMarathon
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21;}
+                        onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4197,7 +4265,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPaceMarathon
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42;}
+                        onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4237,7 +4305,7 @@ import Qt.labs.settings 1.0
                         id: okTreadmillPaceDefault
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.pace_default = treadmillPaceDefaultTextField.displayText
+                        onClicked: { settings.pace_default = treadmillPaceDefaultTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4282,7 +4350,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomDuration
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_total = trainProgramRandomDurationTextField.text
+                                onClicked: { settings.trainprogram_total = trainProgramRandomDurationTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4307,7 +4375,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomPeriod
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text
+                                onClicked: { settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4332,7 +4400,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomSpeedMin
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text
+                                onClicked: { settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4357,7 +4425,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomSpeedMax
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text
+                                onClicked: { settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4382,7 +4450,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomInclineMin
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text
+                                onClicked: { settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4407,7 +4475,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomInclineMax
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text
+                                onClicked: { settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4432,7 +4500,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomResistanceMin
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text
+                                onClicked: { settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text; toast.show("Setting saved!"); }
                             }
                         }
 
@@ -4457,7 +4525,7 @@ import Qt.labs.settings 1.0
                                 id: okTrainProgramRandomResistanceMax
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text
+                                onClicked: { settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                     }
@@ -4498,7 +4566,7 @@ import Qt.labs.settings 1.0
                         checked: settings.virtual_device_force_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.virtual_device_force_bike = checked
+                        onClicked: { settings.virtual_device_force_bike = checked; window.settings_restart_to_apply = true; }
                     }
                 }
 
@@ -4620,7 +4688,7 @@ import Qt.labs.settings 1.0
                         id: okTreadmillSpeedStepButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text)
+                        onClicked: { settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text); toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4658,7 +4726,7 @@ import Qt.labs.settings 1.0
                         id: okTreadmillInclinationStepButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.treadmill_step_incline = treadmillInclinationStepTextField.text
+                        onClicked: { settings.treadmill_step_incline = treadmillInclinationStepTextField.text; toast.show("Setting saved!"); }
                     }
                 }
 
@@ -4685,6 +4753,33 @@ import Qt.labs.settings 1.0
 
                 Label {
                     text: qsTr("Overrides the default inclination values sent from the treadmill")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                SwitchDelegate {
+                    text: qsTr("Simulate Inclinatin with Speed")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.treadmill_simulate_inclination_with_speed
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.treadmill_simulate_inclination_with_speed = checked
+                }
+
+                Label {
+                    text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 9
@@ -4729,7 +4824,7 @@ import Qt.labs.settings 1.0
                             checked: settings.norditrack_s25i_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.norditrack_s25i_treadmill = checked
+                            onClicked: { settings.norditrack_s25i_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             text: qsTr("Nordictrack Incline Trainer x7i")
@@ -4742,7 +4837,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_incline_trainer_x7i
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_incline_trainer_x7i = checked
+                            onClicked: { settings.nordictrack_incline_trainer_x7i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: nordictrack10Delegate
@@ -4756,7 +4851,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_10_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_10_treadmill = checked
+                            onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
@@ -4770,7 +4865,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_t65s_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_t65s_treadmill = checked
+                            onClicked: { settings.nordictrack_t65s_treadmill = checked; window.settings_restart_to_apply = true; }
                         }                        
 
                         SwitchDelegate {
@@ -4785,7 +4880,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_t65s_83_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_t65s_83_treadmill = checked
+                            onClicked: { settings.nordictrack_t65s_83_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -4800,7 +4895,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_t70_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_t70_treadmill = checked
+                            onClicked: { settings.nordictrack_t70_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: nordictrackS30Delegate
@@ -4814,7 +4909,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_s30_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_s30_treadmill = checked
+                            onClicked: { settings.nordictrack_s30_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proform1800iDelegate
@@ -4828,7 +4923,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_treadmill_1800i
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_treadmill_1800i = checked
+                            onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proformSEDelegate
@@ -4842,7 +4937,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_treadmill_se
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_treadmill_se = checked
+                            onClicked: { settings.proform_treadmill_se = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proformCadenceLT
@@ -4856,7 +4951,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_treadmill_cadence_lt
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_treadmill_cadence_lt = checked
+                            onClicked: { settings.proform_treadmill_cadence_lt = checked; window.settings_restart_to_apply = true; }
                         }
                         RowLayout {
                             spacing: 10
@@ -4879,7 +4974,7 @@ import Qt.labs.settings 1.0
                                 id: okproformtreadmillIPButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.proformtreadmillip = proformtreadmillIPTextField.text
+                                onClicked: { settings.proformtreadmillip = proformtreadmillIPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -4903,7 +4998,7 @@ import Qt.labs.settings 1.0
                                 id: oknordictrack2950IPButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.nordictrack_2950_ip = nordictrack2950IPTextField.text
+                                onClicked: { settings.nordictrack_2950_ip = nordictrack2950IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         SwitchDelegate {
@@ -4918,7 +5013,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_ifit_adb_remote
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_ifit_adb_remote = checked
+                            onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proform90IDelegate
@@ -4932,7 +5027,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_treadmill_9_0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_treadmill_9_0 = checked
+                            onClicked: { settings.proform_treadmill_9_0 = checked; window.settings_restart_to_apply = true; }
                         }
                         /*
                         SwitchDelegate {
@@ -4987,7 +5082,7 @@ import Qt.labs.settings 1.0
                             checked: settings.pafers_treadmill
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.pafers_treadmill = checked
+                            onClicked: { settings.pafers_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: bhIboxsterPlusDelegate
@@ -5001,7 +5096,30 @@ import Qt.labs.settings 1.0
                             checked: settings.pafers_treadmill_bh_iboxster_plus
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.pafers_treadmill_bh_iboxster_plus = checked
+                            onClicked: { settings.pafers_treadmill_bh_iboxster_plus = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    title: qsTr("GEM Module Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Inclination")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.gem_module_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.gem_module_inclination = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5026,7 +5144,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v2
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; }
+                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5041,7 +5159,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; }
+                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5056,7 +5174,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v4
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; }
+                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5081,7 +5199,7 @@ import Qt.labs.settings 1.0
                             checked: settings.fitfiu_mc_v460
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.fitfiu_mc_v460 = checked
+                            onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5161,7 +5279,20 @@ import Qt.labs.settings 1.0
                             checked: settings.sole_treadmill_inclination
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_treadmill_inclination = checked
+                            onClicked: { settings.sole_treadmill_inclination = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Fast Inclination (experimental)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_inclination_fast
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_inclination_fast = checked
                         }
                         SwitchDelegate {
                             id: soleMilesDelegate
@@ -5203,7 +5334,7 @@ import Qt.labs.settings 1.0
                             checked: settings.sole_treadmill_f65
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_treadmill_f65 = checked
+                            onClicked: { settings.sole_treadmill_f65 = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: soleTT8Delegate
@@ -5217,7 +5348,7 @@ import Qt.labs.settings 1.0
                             checked: settings.sole_treadmill_tt8
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_treadmill_tt8 = checked
+                            onClicked: { settings.sole_treadmill_tt8 = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5242,7 +5373,7 @@ import Qt.labs.settings 1.0
                             checked: settings.technogym_myrun_treadmill_experimental
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.technogym_myrun_treadmill_experimental = checked
+                            onClicked: { settings.technogym_myrun_treadmill_experimental = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5266,7 +5397,7 @@ import Qt.labs.settings 1.0
                             checked: settings.fitshow_anyrun
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.fitshow_anyrun = checked
+                            onClicked: { settings.fitshow_anyrun = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: fitshowTruetimerDelegate
@@ -5317,7 +5448,7 @@ import Qt.labs.settings 1.0
                                 id: okfitshowTreadmillUserIdButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                                onClicked: { settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                     }
@@ -5342,7 +5473,7 @@ import Qt.labs.settings 1.0
                             checked: settings.eslinker_cadenza
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.eslinker_cadenza = checked
+                            onClicked: { settings.eslinker_cadenza = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: eslinkerTreadmillYpooDelegate
@@ -5356,7 +5487,7 @@ import Qt.labs.settings 1.0
                             checked: settings.eslinker_ypoo
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.eslinker_ypoo = checked
+                            onClicked: { settings.eslinker_ypoo = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             text: qsTr("Costaway Folding")
@@ -5369,8 +5500,8 @@ import Qt.labs.settings 1.0
                             checked: settings.eslinker_costaway
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.eslinker_costaway = checked
-                        }
+                            onClicked: { settings.eslinker_costaway = checked; window.settings_restart_to_apply = true; }
+                        }                        
                     }
                 }
 
@@ -5394,7 +5525,7 @@ import Qt.labs.settings 1.0
                             checked: settings.horizon_paragon_x
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.horizon_paragon_x = checked
+                            onClicked: { settings.horizon_paragon_x = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: horizonFTMSTreadmillCadenzaDelegate
@@ -5408,7 +5539,7 @@ import Qt.labs.settings 1.0
                             checked: settings.horizon_treadmill_force_ftms
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.horizon_treadmill_force_ftms = checked
+                            onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: horizon78TreadmillDelegate
@@ -5422,7 +5553,7 @@ import Qt.labs.settings 1.0
                             checked: settings.horizon_treadmill_7_8
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.horizon_treadmill_7_8 = checked
+                            onClicked: { settings.horizon_treadmill_7_8 = checked; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5475,7 +5606,7 @@ import Qt.labs.settings 1.0
                                 id: okhorizonTreadmillProfile1Button
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text
+                                onClicked: { settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -5498,7 +5629,7 @@ import Qt.labs.settings 1.0
                                 id: okhorizonTreadmillProfile2Button
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text
+                                onClicked: { settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -5521,7 +5652,7 @@ import Qt.labs.settings 1.0
                                 id: okhorizonTreadmillProfile3Button
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text
+                                onClicked: { settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -5544,7 +5675,7 @@ import Qt.labs.settings 1.0
                                 id: okhorizonTreadmillProfile4Button
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text
+                                onClicked: { settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                         RowLayout {
@@ -5567,7 +5698,7 @@ import Qt.labs.settings 1.0
                                 id: okhorizonTreadmillProfile5Button
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text
+                                onClicked: { settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                             }
                         }
                     }
@@ -5595,7 +5726,7 @@ import Qt.labs.settings 1.0
                         checked: settings.trx_route_key
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.trx_route_key = checked
+                        onClicked:  { settings.trx_route_key = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: trxsevoDelegate
@@ -5609,7 +5740,7 @@ import Qt.labs.settings 1.0
                         checked: settings.toorx_65s_evo
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.toorx_65s_evo = checked
+                        onClicked: { settings.toorx_65s_evo = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5624,7 +5755,21 @@ import Qt.labs.settings 1.0
                         checked: settings.bh_spada_2
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.bh_spada_2 = checked
+                        onClicked: { settings.bh_spada_2 = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("BH SPADA Wattage")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bh_spada_2_watt
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5639,7 +5784,7 @@ import Qt.labs.settings 1.0
                         checked: settings.jtx_fitness_sprint_treadmill
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.jtx_fitness_sprint_treadmill = checked
+                        onClicked: { settings.jtx_fitness_sprint_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5654,7 +5799,7 @@ import Qt.labs.settings 1.0
                         checked: settings.reebok_fr30_treadmill
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.reebok_fr30_treadmill = checked
+                        onClicked: { settings.reebok_fr30_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5669,7 +5814,7 @@ import Qt.labs.settings 1.0
                         checked: settings.dkn_endurun_treadmill
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.dkn_endurun_treadmill = checked
+                        onClicked: { settings.dkn_endurun_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5684,7 +5829,7 @@ import Qt.labs.settings 1.0
                         checked: settings.toorx_3_0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.toorx_3_0 = checked
+                        onClicked: { settings.toorx_3_0 = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5699,7 +5844,7 @@ import Qt.labs.settings 1.0
                         checked: settings.toorx_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.toorx_bike = checked
+                        onClicked: { settings.toorx_bike = checked; window.settings_restart_to_apply = true; }
                     }                    
 
                     SwitchDelegate {
@@ -5714,7 +5859,7 @@ import Qt.labs.settings 1.0
                         checked: settings.toorx_ftms_treadmill
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.toorx_ftms_treadmill = checked
+                        onClicked: { settings.toorx_ftms_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5729,7 +5874,7 @@ import Qt.labs.settings 1.0
                         checked: settings.toorx_ftms
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.toorx_ftms = checked
+                        onClicked: { settings.toorx_ftms = checked; window.settings_restart_to_apply = true; }
                     }
 
                     SwitchDelegate {
@@ -5744,7 +5889,7 @@ import Qt.labs.settings 1.0
                         checked: settings.jll_IC400_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.jll_IC400_bike = checked
+                        onClicked: { settings.jll_IC400_bike = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: toorxBikeFytterRI08Delegate
@@ -5758,7 +5903,7 @@ import Qt.labs.settings 1.0
                         checked: settings.fytter_ri08_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.fytter_ri08_bike = checked
+                        onClicked: { settings.fytter_ri08_bike = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: toorxBikeASVIVADelegate
@@ -5772,7 +5917,7 @@ import Qt.labs.settings 1.0
                         checked: settings.asviva_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.asviva_bike = checked
+                        onClicked: { settings.asviva_bike = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: toorxBikeHertzXR770Delegate
@@ -5786,7 +5931,7 @@ import Qt.labs.settings 1.0
                         checked: settings.hertz_xr_770
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.hertz_xr_770 = checked
+                        onClicked: { settings.hertz_xr_770 = checked; window.settings_restart_to_apply = true; }
                     }
                 }
             }
@@ -5827,7 +5972,7 @@ import Qt.labs.settings 1.0
                                 id: okDomyosEllipticalRatioButton
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
+                                onClicked: { settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text; toast.show("Setting saved!"); }
                             }
                         }
                         SwitchDelegate {
@@ -5864,7 +6009,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_hybrid_trainer_xt
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_hybrid_trainer_xt = checked
+                            onClicked: { settings.proform_hybrid_trainer_xt = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proformHybridPFEL03815Delegate
@@ -5878,7 +6023,7 @@ import Qt.labs.settings 1.0
                             checked: settings.proform_hybrid_trainer_PFEL03815
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.proform_hybrid_trainer_PFEL03815 = checked
+                            onClicked: { settings.proform_hybrid_trainer_PFEL03815 = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             text: qsTr("Nordictrack C7.5")
@@ -5891,7 +6036,7 @@ import Qt.labs.settings 1.0
                             checked: settings.nordictrack_elliptical_c7_5
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.nordictrack_elliptical_c7_5 = checked
+                            onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                         }
                     }                    
 
@@ -5914,7 +6059,7 @@ import Qt.labs.settings 1.0
                             checked: settings.sole_elliptical_inclination
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_elliptical_inclination = checked
+                            onClicked: { settings.sole_elliptical_inclination = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: soleEllipticalE55Delegate
@@ -5928,7 +6073,7 @@ import Qt.labs.settings 1.0
                             checked: settings.sole_elliptical_e55
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.sole_elliptical_e55 = checked
+                            onClicked: { settings.sole_elliptical_e55 = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5969,7 +6114,7 @@ import Qt.labs.settings 1.0
                             id: okFilterDeviceButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.filter_device = filterDeviceTextField.displayText
+                            onClicked: { settings.filter_device = filterDeviceTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6014,7 +6159,7 @@ import Qt.labs.settings 1.0
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.watt_offset = wattOffsetTextField.text
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6052,7 +6197,7 @@ import Qt.labs.settings 1.0
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.watt_gain = wattGainTextField.text
+                            onClicked: { settings.watt_gain = wattGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6090,7 +6235,7 @@ import Qt.labs.settings 1.0
                             id: okspeedOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.speed_offset = speedOffsetTextField.text
+                            onClicked: { settings.speed_offset = speedOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6129,7 +6274,7 @@ import Qt.labs.settings 1.0
                             id: okSpeedGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.speed_gain = speedGainTextField.text
+                            onClicked: { settings.speed_gain = speedGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6167,7 +6312,7 @@ import Qt.labs.settings 1.0
                             id: okcadenceOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.cadence_offset = cadenceOffsetTextField.text
+                            onClicked: { settings.cadence_offset = cadenceOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6205,7 +6350,7 @@ import Qt.labs.settings 1.0
                             id: okCadenceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.cadence_gain = speedGainTextField.text
+                            onClicked: { settings.cadence_gain = speedGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6250,7 +6395,7 @@ import Qt.labs.settings 1.0
                             id: okStravaSuffixButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.strava_suffix = stravaSuffixTextField.text
+                            onClicked: { settings.strava_suffix = stravaSuffixTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6278,7 +6423,7 @@ import Qt.labs.settings 1.0
                         checked: settings.strava_auth_external_webbrowser
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.strava_auth_external_webbrowser = checked
+                        onClicked: { settings.strava_auth_external_webbrowser = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -6455,7 +6600,7 @@ import Qt.labs.settings 1.0
                             id: okTreadmillInclinationOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text
+                            onClicked: { settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6493,7 +6638,7 @@ import Qt.labs.settings 1.0
                             id: okTreadmillInclinationGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
+                            onClicked: { settings.zwift_inclination_gain = treadmillInclinationGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -6554,7 +6699,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.cadence_sensor_as_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.cadence_sensor_as_bike = checked
+                                onClicked: { settings.cadence_sensor_as_bike = checked; window.settings_restart_to_apply = true; }
                             }
 
                             Label {
@@ -6594,7 +6739,7 @@ import Qt.labs.settings 1.0
                                     id: okCadenceSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.cadence_sensor_name = cadenceSensorNameTextField.displayText;
+                                    onClicked: { settings.cadence_sensor_name = cadenceSensorNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -6639,7 +6784,7 @@ import Qt.labs.settings 1.0
                                     id: okCadenceSpeedRatio
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text
+                                    onClicked: { settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -6678,7 +6823,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.power_sensor_as_bike
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.power_sensor_as_bike = checked
+                                onClicked: { settings.power_sensor_as_bike = checked; window.settings_restart_to_apply = true; }
                             }
 
                             Label {
@@ -6706,7 +6851,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.power_sensor_as_treadmill
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.power_sensor_as_treadmill = checked
+                                onClicked: { settings.power_sensor_as_treadmill = checked; window.settings_restart_to_apply = true; }
                             }
 
                             Label {
@@ -6802,7 +6947,7 @@ import Qt.labs.settings 1.0
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.power_sensor_name = powerSensorNameTextField.displayText;
+                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText;; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -6868,7 +7013,7 @@ import Qt.labs.settings 1.0
                                             id: okEliteRizerNameButton
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.elite_rizer_name = eliteRizerNameTextField.displayText;
+                                            onClicked: { settings.elite_rizer_name = eliteRizerNameTextField.displayText;; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
 
@@ -6900,7 +7045,7 @@ import Qt.labs.settings 1.0
                                         id: okEliteRizerGainButton
                                         text: "OK"
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.elite_rizer_gain = eliteRizerGainTextField.text
+                                        onClicked: { settings.elite_rizer_gain = eliteRizerGainTextField.text; toast.show("Setting saved!"); }
                                     }
                                 }
                             }
@@ -6936,7 +7081,7 @@ import Qt.labs.settings 1.0
                                             id: okEliteSterzoSmartNameButton
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.elite_sterzo_smart_name = eliteSterzoSmartNameTextField.displayText;
+                                            onClicked: { settings.elite_sterzo_smart_name = eliteSterzoSmartNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
 
@@ -6983,7 +7128,7 @@ import Qt.labs.settings 1.0
                                     id: okFTMSAccessoryNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.ftms_accessory_name = ftmsAccessoryNameTextField.displayText;
+                                    onClicked: { settings.ftms_accessory_name = ftmsAccessoryNameTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -7006,7 +7151,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.ss2k_peloton
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.ss2k_peloton = checked
+                                onClicked: { settings.ss2k_peloton = checked; window.settings_restart_to_apply = true; }
                             }
 
                             RowLayout {
@@ -7030,7 +7175,7 @@ import Qt.labs.settings 1.0
                                     id: okSS2kShiftStep
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.ss2k_shift_step = ss2kShiftStepTextField.text
+                                    onClicked: { settings.ss2k_shift_step = ss2kShiftStepTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7054,7 +7199,7 @@ import Qt.labs.settings 1.0
                                     id: okSS2kMaxResistance
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text
+                                    onClicked: { settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7078,7 +7223,7 @@ import Qt.labs.settings 1.0
                                     id: okSS2kMinResistance
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.ss2k_min_resistance = ss2kMinResistanceTextField.text
+                                    onClicked: { settings.ss2k_min_resistance = ss2kMinResistanceTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -7111,7 +7256,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kResistanceSample1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text
+                                            onClicked: { settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7134,7 +7279,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kShiftStepSample1
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text
+                                            onClicked: { settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7158,7 +7303,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kResistanceSample2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text
+                                            onClicked: { settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7181,7 +7326,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kShiftStepSample2
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text
+                                            onClicked: { settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7205,7 +7350,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kResistanceSample3
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text
+                                            onClicked: { settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7228,7 +7373,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kShiftStepSample3
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text
+                                            onClicked: { settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7252,7 +7397,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kResistanceSample4
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text
+                                            onClicked: { settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                     RowLayout {
@@ -7275,7 +7420,7 @@ import Qt.labs.settings 1.0
                                             id: okSS2kShiftStepSample4
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text
+                                            onClicked: { settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                         }
                                     }
                                 }
@@ -7304,7 +7449,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.fitmetria_fanfit_enable
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.fitmetria_fanfit_enable = checked
+                                onClicked: { settings.fitmetria_fanfit_enable = checked; window.settings_restart_to_apply = true; }
                             }
 
                             RowLayout {
@@ -7330,7 +7475,7 @@ import Qt.labs.settings 1.0
                                     id: okFitmetriaFanFitModeTextField
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText
+                                    onClicked: { settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7354,7 +7499,7 @@ import Qt.labs.settings 1.0
                                     id: okFitmetriaFanFitMin
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text
+                                    onClicked: { settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7378,7 +7523,7 @@ import Qt.labs.settings 1.0
                                     id: okFitmetriaFanFitMax
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text
+                                    onClicked: { settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                         }
@@ -7403,7 +7548,7 @@ import Qt.labs.settings 1.0
                                 checked: settings.fitmetria_fanfit_enable
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                onClicked: settings.fitmetria_fanfit_enable = checked
+                                onClicked: { settings.fitmetria_fanfit_enable = checked; window.settings_restart_to_apply = true; }
                             }
 
                             RowLayout {
@@ -7427,7 +7572,7 @@ import Qt.labs.settings 1.0
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_mode = headWindModeTextField.displayText
+                                    onClicked: { settings.fitmetria_fanfit_mode = headWindModeTextField.displayText; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7449,7 +7594,7 @@ import Qt.labs.settings 1.0
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_min = headWindMinTextField.text
+                                    onClicked: { settings.fitmetria_fanfit_min = headWindMinTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                             RowLayout {
@@ -7471,7 +7616,7 @@ import Qt.labs.settings 1.0
                                 Button {
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.fitmetria_fanfit_max = headWindMaxTextField.text
+                                    onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                         }
@@ -7522,7 +7667,7 @@ import Qt.labs.settings 1.0
                             id: okMapsType
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.maps_type = mapsTypeTextField.displayText
+                            onClicked: { settings.maps_type = mapsTypeTextField.displayText; toast.show("Setting saved!"); }
                         }
                     }
                     SwitchDelegate {
@@ -7604,7 +7749,7 @@ import Qt.labs.settings 1.0
                         checked: settings.bluetooth_relaxed
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.bluetooth_relaxed = checked
+                        onClicked: { settings.bluetooth_relaxed = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7632,7 +7777,7 @@ import Qt.labs.settings 1.0
                         checked: settings.bluetooth_30m_hangs
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.bluetooth_30m_hangs = checked
+                        onClicked: { settings.bluetooth_30m_hangs = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7660,7 +7805,7 @@ import Qt.labs.settings 1.0
                         checked: settings.battery_service
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.battery_service = checked
+                        onClicked: { settings.battery_service = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -7715,7 +7860,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.virtual_device_onlyheart
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.virtual_device_onlyheart = checked
+                                        onClicked: { settings.virtual_device_onlyheart = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7743,7 +7888,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.virtual_device_echelon
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.virtual_device_echelon = checked
+                                        onClicked: { settings.virtual_device_echelon = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7771,7 +7916,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.virtual_device_rower
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.virtual_device_rower = checked
+                                        onClicked: { settings.virtual_device_rower = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7828,7 +7973,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.bike_power_sensor
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.bike_power_sensor = checked
+                                        onClicked: { settings.bike_power_sensor = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7856,7 +8001,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.virtual_device_ifit
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.virtual_device_ifit = checked
+                                        onClicked: { settings.virtual_device_ifit = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7892,7 +8037,7 @@ import Qt.labs.settings 1.0
                                         checked: settings.wahoo_rgt_dircon
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
-                                        onClicked: settings.wahoo_rgt_dircon = checked
+                                        onClicked: { settings.wahoo_rgt_dircon = checked; window.settings_restart_to_apply = true; }
                                     }
 
                                     Label {
@@ -7928,7 +8073,7 @@ import Qt.labs.settings 1.0
                                             id: okDirconServerPort
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.dircon_server_base_port = dirconServerPortTextField.text
+                                            onClicked: { settings.dircon_server_base_port = dirconServerPortTextField.text; toast.show("Setting saved!"); }
                                         }
                                     }
                                 }
@@ -7948,7 +8093,7 @@ import Qt.labs.settings 1.0
                         checked: settings.run_cadence_sensor
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.run_cadence_sensor = checked
+                        onClicked: { settings.run_cadence_sensor = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8021,7 +8166,7 @@ import Qt.labs.settings 1.0
                         checked: settings.android_wakelock
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.android_wakelock = checked
+                        onClicked: { settings.android_wakelock = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8049,7 +8194,7 @@ import Qt.labs.settings 1.0
                         checked: settings.ios_peloton_workaround
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.ios_peloton_workaround = checked
+                        onClicked: { settings.ios_peloton_workaround = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8077,7 +8222,7 @@ import Qt.labs.settings 1.0
                         checked: settings.applewatch_fakedevice
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.applewatch_fakedevice = checked
+                        onClicked: { settings.applewatch_fakedevice = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8105,7 +8250,7 @@ import Qt.labs.settings 1.0
                         checked: settings.fakedevice_treadmill
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.fakedevice_treadmill = checked
+                        onClicked: { settings.fakedevice_treadmill = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8133,7 +8278,7 @@ import Qt.labs.settings 1.0
                         checked: settings.fakedevice_elliptical
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.fakedevice_elliptical = checked
+                        onClicked: { settings.fakedevice_elliptical = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8161,7 +8306,7 @@ import Qt.labs.settings 1.0
                         checked: settings.ios_cache_heart_device
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.ios_cache_heart_device = checked
+                        onClicked: { settings.ios_cache_heart_device = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8189,7 +8334,7 @@ import Qt.labs.settings 1.0
                         checked: settings.android_notification
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.android_notification = checked
+                        onClicked: { settings.android_notification = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8217,7 +8362,7 @@ import Qt.labs.settings 1.0
                         checked: settings.log_debug
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.log_debug = checked
+                        onClicked: { settings.log_debug = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {

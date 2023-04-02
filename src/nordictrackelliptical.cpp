@@ -1039,7 +1039,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         }
     }
 
-    if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 &&
+    if (!nordictrack_elliptical_c7_5) {
+        Resistance = GetResistanceFromPacket(newValue);  
+    } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 &&
         newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
         (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)){   
         Inclination = GetInclinationFromPacket(newValue);

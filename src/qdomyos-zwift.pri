@@ -71,6 +71,7 @@ SOURCES += \
     trixterxdreamv1client.cpp \
     trixterxdreamv1serial.cpp \
     trixterxdreamv1settings.cpp \
+   $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
@@ -272,6 +273,7 @@ HEADERS += \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
    $$PWD/pelotonbike.h \
+   $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
@@ -778,4 +780,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.13
+VERSION = 2.13.25
