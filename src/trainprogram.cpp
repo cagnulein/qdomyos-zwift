@@ -475,7 +475,7 @@ void trainprogram::scheduler() {
                             int h_maxbound = h * 0.15;
                             int x = inc.split(",").at(0).toInt();
                             int y = inc.split(",").at(2).toInt();
-                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound << zwift_ocr_prev_inc;
+                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
                             if (x > w_minbound && y < h_maxbound && y > h_minbound) {
                                 ss[0] = ss[0].replace("%", "");
                                 ss[0] = ss[0].replace("O", "0");

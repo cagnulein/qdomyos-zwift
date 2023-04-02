@@ -646,6 +646,10 @@ void homeform::pelotonLoginState(bool ok) {
 
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
+    if(!ok) {
+        setToastRequested("Peloton Login Error!");
+        emit toastRequestedChanged(toastRequested());
+    }
 }
 
 void homeform::pelotonWorkoutStarted(const QString &name, const QString &instructor) {
@@ -4993,6 +4997,8 @@ void homeform::strava_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        setToastRequested("Strava Auth Failed!");
+        emit toastRequestedChanged(toastRequested());
         return;
     }
 
@@ -5014,6 +5020,9 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_accesstoken, access_token);
     settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+
+    setToastRequested("Strava Login OK!");
+    emit toastRequestedChanged(toastRequested());
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -5126,6 +5135,8 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 
 void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("strava upload error!") << code;
+    setToastRequested("Strava Upload Failed!");
+    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::writeFileCompleted() {
@@ -5138,6 +5149,10 @@ void homeform::writeFileCompleted() {
     // NOTE: clazy-unused-non-trivial-variable
 
     qDebug() << "reply:" << response;
+
+    setToastRequested("Strava Upload Completed!");
+    emit toastRequestedChanged(toastRequested());
+
 }
 
 void homeform::onStravaGranted() {
