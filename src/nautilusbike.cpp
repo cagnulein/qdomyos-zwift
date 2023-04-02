@@ -214,7 +214,8 @@ double nautilusbike::GetSpeedFromPacket(const QByteArray &packet) {
     double data = 0;
     convertedData = (packet.at(4) << 8) | packet.at(3);
     data = (double)convertedData / 100.0f;
-    data = data * miles;
+    if(!B616)
+        data = data * miles;
 
     return data;
 }
@@ -318,6 +319,7 @@ void nautilusbike::serviceScanDone(void) {
 
     if (!gattCommunicationChannelService) {
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("f755c9cf-e1fc-4ecd-8d90-f2d7ebf56b81"));
+        B616 = true;
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
@@ -403,4 +405,8 @@ void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState 
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t nautilusbike::watts() {
+    return m_watt.value();
 }

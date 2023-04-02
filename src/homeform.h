@@ -153,6 +153,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
+    Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -369,6 +370,7 @@ class homeform : public QObject {
     int pzpLogin() { return m_pzpLoginState; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
+    QString toastRequested() {return m_toastRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -414,6 +416,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
+    void setToastRequested(QString value) { m_toastRequested = value; }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
@@ -558,6 +561,7 @@ class homeform : public QObject {
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
+    QString m_toastRequested = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
@@ -769,6 +773,7 @@ class homeform : public QObject {
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
+    void toastRequestedChanged(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);

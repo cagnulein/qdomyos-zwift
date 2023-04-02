@@ -91,6 +91,16 @@ ApplicationWindow {
         id: toast
     }
 
+    Timer {
+        interval: 1
+        repeat: false
+        running: (rootItem.toastRequested !== "")
+        onTriggered: {
+            toast.show(rootItem.toastRequested);
+            rootItem.toastRequested = "";
+        }
+    }
+
     /*
     Timer {
         interval: 1000
@@ -734,7 +744,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.24"
+                text: "version 2.13.25"
                 width: parent.width
             }
 				FileDialog {
