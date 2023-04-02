@@ -1806,6 +1806,21 @@ class QZSettings {
     static const QString treadmill_simulate_inclination_with_speed;
     static constexpr bool default_treadmill_simulate_inclination_with_speed = false;
 
+    static const QString concept2log_accesstoken;
+    static const QString default_concept2log_accesstoken;
+
+    static const QString concept2log_refreshtoken;
+    static const QString default_concept2log_refreshtoken;
+
+    static const QString concept2log_lastrefresh;
+    static const QString default_concept2log_lastrefresh;
+
+    static const QString concept2log_expires;
+    static const QString default_concept2log_expires;
+
+    static const QString concept2log_code;
+    static const QString default_concept2log_code;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

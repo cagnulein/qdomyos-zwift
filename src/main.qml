@@ -27,6 +27,7 @@ ApplicationWindow {
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal concept2log_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
@@ -676,7 +677,7 @@ ApplicationWindow {
                     popupWhatsOnZwiftHelper.open()
                 }
             }*/
-
+            /*
             ItemDelegate {
                 id: gpx_save
                 text: qsTr("Save GPX")
@@ -686,7 +687,7 @@ ApplicationWindow {
                     drawer.close()
                     popupSaveFile.open()
                 }
-            }
+            }*/
             ItemDelegate {
                 id: fit_save
                 text: qsTr("Save FIT")
@@ -707,6 +708,16 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("Connect to Concept2 Log (Testing)")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebConcept2LogAuth.qml")
+                    concept2log_connect_clicked()
+                    drawer.close()
+                }
+            }
+
             ItemDelegate {
                 id: help
                 text: qsTr("Help")
