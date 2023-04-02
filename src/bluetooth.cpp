@@ -116,7 +116,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
             qDebug() << "UUID" << bt.deviceUuid();
             schwinnIC4Bike->deviceDiscovered(bt);
-            this->startTemplateManagers(schwinnIC4Bike);
+            this->signalBluetoothDeviceConnected(schwinnIC4Bike);
             qDebug() << "connecting directly";
         }
 #endif
