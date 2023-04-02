@@ -1,7 +1,6 @@
-#ifndef NAUTILUSBIKE_H
-#define NAUTILUSBIKE_H
+#ifndef SCHWINN170BIKE_H
+#define SCHWINN170BIKE_H
 
-#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
@@ -10,6 +9,9 @@
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+//#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+//#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -27,48 +29,57 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
-class nautilusbike : public bike {
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+class schwinn170bike : public bike {
     Q_OBJECT
   public:
-    nautilusbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
-                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    ~nautilusbike();
-    bool connected() override;
+    schwinn170bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                   double bikeResistanceGain);
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    bool ergManagedBySS2K() { return true; }
+    resistance_t maxResistance() { return max_resistance; }
+    bool connected();
+
+    void *VirtualBike();
+    void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(QByteArray packet);
-    double GetWattFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t watts();
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
+                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+    uint16_t wattsFromResistance(double resistance);
     void startDiscover();
+    uint16_t watts();
 
     QTimer *refresh;
-    uint8_t firstVirtual = 0;
-    uint8_t counterPoll = 0;
+    virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
-    QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
 
-    bool initDone = false;
-    bool initRequest = false;
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-    bool testResistance = false;
-    uint8_t bikeResistanceOffset = 4;
-    double bikeResistanceGain = 1.0;
-    bool searchStopped = false;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
 
-    bool B616 = false;
+    bool initDone = false;
+    bool initRequest = false;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+
+    const resistance_t max_resistance = 100;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+
+    metric ResistanceFromFTMSAccessory;
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void disconnected();
@@ -76,16 +87,17 @@ class nautilusbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
+    void resistanceFromFTMSAccessory(resistance_t res);
 
   private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -94,4 +106,4 @@ class nautilusbike : public bike {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // NAUTILUSBIKE_H
+#endif // SCHWINN170BIKE_H

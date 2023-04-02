@@ -72,6 +72,9 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+
+  private:
+    bool simulateInclinationWithSpeed();
 };
 
 #endif // TREADMILL_H

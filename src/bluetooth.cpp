@@ -166,12 +166,12 @@ void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
 
     QSettings settings;
-#ifdef Q_OS_WIN
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     // wifi devices on windows
     if (!nordictrack_2950_ip.isEmpty()) {
         // faking a bluetooth device
+        qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());
     }
 
@@ -179,7 +179,6 @@ void bluetooth::finished() {
         qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
         return;
     }
-#endif
 
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -468,6 +467,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings
             .value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus)
             .toBool();
+    bool gem_module_inclination =
+        settings.value(QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1040,7 +1041,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->startTemplateManagers(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination)) &&
                        !trueTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1117,6 +1118,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && gem_module_inclination) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11 &&
                          !toorx_bike) ||                                            // FTMS
@@ -1366,6 +1368,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("S4 COMMS")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
@@ -1500,6 +1503,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 mepanelBike->deviceDiscovered(b);
                 this->startTemplateManagers(mepanelBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("SCHWINN 170/270"))) && !schwinn170Bike &&
+                       filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                schwinn170Bike =
+                    new schwinn170bike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(schwinn170Bike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(schwinn170Bike, &schwinn170bike::debug, this, &bluetooth::debug);
+                // connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                schwinn170Bike->deviceDiscovered(b);
+                this->startTemplateManagers(schwinn170Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
                         b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
@@ -1816,7 +1836,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(soleBike, &solebike::debug, this, &bluetooth::debug);
                 soleBike->deviceDiscovered(b);
                 this->startTemplateManagers(soleBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BFCP")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("HT")) && b.name().length() == 11)) &&
+                       !skandikaWiriBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 skandikaWiriBike =
@@ -2234,7 +2256,8 @@ void bluetooth::connectedAndDiscovered() {
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool() ||
-        settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+        settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
+        settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
         AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
         QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
             "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
@@ -2620,6 +2643,11 @@ void bluetooth::restart() {
         delete schwinnIC4Bike;
         schwinnIC4Bike = nullptr;
     }
+    if (schwinn170Bike) {
+
+        delete schwinn170Bike;
+        schwinn170Bike = nullptr;
+    }
     if (sportsTechBike) {
 
         delete sportsTechBike;
@@ -2889,6 +2917,8 @@ bluetoothdevice *bluetooth::device() {
         return mcfBike;
     } else if (schwinnIC4Bike) {
         return schwinnIC4Bike;
+    } else if (schwinn170Bike) {
+        return schwinn170Bike;
     } else if (sportsTechBike) {
         return sportsTechBike;
     } else if (sportsPlusBike) {

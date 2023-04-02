@@ -83,6 +83,7 @@
 #include "proformtreadmill.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
+#include "schwinn170bike.h"
 #include "schwinnic4bike.h"
 #include "signalhandler.h"
 #include "skandikawiribike.h"
@@ -206,6 +207,7 @@ class bluetooth : public QObject, public SignalHandler {
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
+    schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
     echelonrower *echelonRower = nullptr;

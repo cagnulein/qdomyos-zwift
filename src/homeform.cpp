@@ -133,10 +133,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QString unit = QStringLiteral("km");
     QString meters = QStringLiteral("m");
     QString weightLossUnit = QStringLiteral("Kg");
+    QString cm = QStringLiteral("cm");
     if (miles) {
         unit = QStringLiteral("mi");
         weightLossUnit = QStringLiteral("Oz");
         meters = QStringLiteral("ft");
+        cm = QStringLiteral("in");
     }
 
 #ifdef Q_OS_IOS
@@ -265,7 +267,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
                                 QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
     instantaneousStrideLengthCM =
-        new DataObject(QStringLiteral("Stride L.(cm)"), QStringLiteral("icons/icons/inclination.png"),
+        new DataObject(QStringLiteral("Stride L.(") + cm + ")", QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("stride_length"), 48, labelFontSize);
     groundContactMS = new DataObject(QStringLiteral("Ground C.(ms)"), QStringLiteral("icons/icons/inclination.png"),
                                      QStringLiteral("0"), false, QStringLiteral("ground_contact"), 48, labelFontSize);
@@ -617,6 +619,7 @@ void homeform::floatingOpen() {
 
 void homeform::peloton_abort_workout() {
     m_pelotonAskStart = false;
+    emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_abort_workout!");
     pelotonAbortedName = pelotonAskedName;
     pelotonAbortedInstructor = pelotonAskedInstructor;
@@ -624,6 +627,7 @@ void homeform::peloton_abort_workout() {
 
 void homeform::peloton_start_workout() {
     m_pelotonAskStart = false;
+    emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
@@ -649,6 +653,10 @@ void homeform::pelotonLoginState(bool ok) {
 
     m_pelotonLoginState = (ok ? 1 : 0);
     emit pelotonLoginChanged(m_pelotonLoginState);
+    if(!ok) {
+        setToastRequested("Peloton Login Error!");
+        emit toastRequestedChanged(toastRequested());
+    }
 }
 
 void homeform::pelotonWorkoutStarted(const QString &name, const QString &instructor) {
@@ -779,12 +787,21 @@ homeform::~homeform() {
 }
 
 void homeform::aboutToQuit() {
+    qDebug() << "homeform::aboutToQuit()";
+
 #ifdef Q_OS_ANDROID
     // closing floating window
     if (floating_open)
         floatingOpen();
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NotificationClient", "hide", "()V");
 #endif
+
+    QSettings settings;
+    if (settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit).toBool()) {
+        qDebug() << "fit_file_saved_on_quit true";
+        fit_save_clicked();
+    }
+
     if (bluetoothManager->device())
         bluetoothManager->device()->disconnectBluetooth();
 }
@@ -3149,6 +3166,7 @@ void homeform::update() {
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
+        double cm_inches_conversion = 1.0;
         bool power5s = settings.value(QZSettings::power_avg_5s, QZSettings::default_power_avg_5s).toBool();
         uint8_t treadmill_pid_heart_zone =
             settings.value(QZSettings::treadmill_pid_heart_zone, QZSettings::default_treadmill_pid_heart_zone)
@@ -3165,6 +3183,7 @@ void homeform::update() {
         if (miles) {
             unit_conversion = 0.621371;
             meter_feet_conversion = 3.28084;
+            cm_inches_conversion = 0.393701;
         }
 
         emit signalChanged(signal());
@@ -3225,7 +3244,7 @@ void homeform::update() {
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.inclination != -1)
                     nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination) + QStringLiteral(" ") +
-                                       next.duration.toString(QStringLiteral("mm:ss")));                                       
+                                       next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
@@ -3350,7 +3369,8 @@ void homeform::update() {
 
                 pace = 0;
             }
-            strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
+            strideLength =
+                ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
@@ -4335,7 +4355,7 @@ void homeform::update() {
                     }
                 }
 
-                if(hrmax == 0 || hrmax == -1)
+                if (hrmax == 0 || hrmax == -1)
                     hrmax = 220;
 
                 if (!stopped && !paused && bluetoothManager->device()->currentHeart().value() &&
@@ -4359,7 +4379,8 @@ void homeform::update() {
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (maxSpeed >= currentSpeed + step && hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                        } else if (maxSpeed >= currentSpeed + step &&
+                                   hrmax < bluetoothManager->device()->currentHeart().average5s()) {
                             pid_heart_zone_small_inc_counter++;
                             if (pid_heart_zone_small_inc_counter > 6) {
                                 ((treadmill *)bluetoothManager->device())
@@ -4983,6 +5004,8 @@ void homeform::strava_refreshtoken() {
     // oops, no dice
     if (reply->error() != 0) {
         qDebug() << QStringLiteral("Got error") << reply->errorString().toStdString().c_str();
+        setToastRequested("Strava Auth Failed!");
+        emit toastRequestedChanged(toastRequested());
         return;
     }
 
@@ -5004,6 +5027,9 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QZSettings::strava_accesstoken, access_token);
     settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
     settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
+
+    setToastRequested("Strava Login OK!");
+    emit toastRequestedChanged(toastRequested());
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -5116,6 +5142,8 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 
 void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("strava upload error!") << code;
+    setToastRequested("Strava Upload Failed!");
+    emit toastRequestedChanged(toastRequested());
 }
 
 void homeform::writeFileCompleted() {
@@ -5128,6 +5156,10 @@ void homeform::writeFileCompleted() {
     // NOTE: clazy-unused-non-trivial-variable
 
     qDebug() << "reply:" << response;
+
+    setToastRequested("Strava Upload Completed!");
+    emit toastRequestedChanged(toastRequested());
+
 }
 
 void homeform::onStravaGranted() {

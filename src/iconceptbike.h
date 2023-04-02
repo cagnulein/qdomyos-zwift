@@ -39,6 +39,7 @@ class iconceptbike : public bike {
 
   private slots:
     void serviceDiscovered(const QBluetoothServiceInfo &service);
+    void serviceFinished();
     void readSocket();
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
@@ -57,6 +58,14 @@ class iconceptbike : public bike {
     uint16_t GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
+
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+    uint16_t watts();
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void disconnected();

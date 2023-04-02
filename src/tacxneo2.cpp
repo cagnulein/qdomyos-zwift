@@ -68,7 +68,13 @@ void tacxneo2::forceInclination(double inclination) {
     // Inclination = inclination;
 
     // this bike doesn't provide resistance, so i will put at the same value of the inclination #659
-    Resistance = inclination;
+    QSettings settings;
+    bool tacx_neo2_peloton =
+        settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
+    if (tacx_neo2_peloton)
+        Resistance = inclination * 10;
+    else
+        Resistance = inclination;
 
     inclination += 200;
     inclination = inclination * 100;
@@ -91,6 +97,11 @@ void tacxneo2::update() {
 
     if (initRequest) {
         initRequest = false;
+        QSettings settings;
+        bool tacx_neo2_peloton =
+            settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
+        if (tacx_neo2_peloton)
+            requestInclination = 0;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -164,6 +175,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool tacx_neo2_peloton =
+        settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -226,7 +239,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevsRead;
 
-        Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+        Speed = Cadence.value() *
+                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                    .toDouble();
 
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -235,29 +250,33 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
         // QString::number(Resistance.value()));
 
-        double ac = 0.01243107769;
-        double bc = 1.145964912;
-        double cc = -23.50977444;
+        if (tacx_neo2_peloton) {
+            m_pelotonResistance = Resistance.value();
+        } else {
+            double ac = 0.01243107769;
+            double bc = 1.145964912;
+            double cc = -23.50977444;
 
-        double ar = 0.1469553975;
-        double br = -5.841344538;
-        double cr = 97.62165482;
+            double ar = 0.1469553975;
+            double br = -5.841344538;
+            double cr = 97.62165482;
 
-        m_pelotonResistance =
-            (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                       (cr - (m_watt.value() * 132.0 /
-                                              (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-               br) /
-              (2.0 * ar)) *
-             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-        Resistance = m_pelotonResistance;
+            m_pelotonResistance =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+            Resistance = m_pelotonResistance;
+        }
         emit resistanceRead(Resistance.value());
 
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                   3.5) /
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -309,7 +328,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
@@ -417,11 +437,14 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();

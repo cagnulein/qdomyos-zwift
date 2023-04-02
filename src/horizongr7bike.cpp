@@ -180,23 +180,8 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         Resistance = newValue.at(12);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
 
-        if (Heart.value() > 0) {
-            int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
-                         settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
-                        (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
-                         settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
-                           (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
-                            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
-                       (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
-                                          settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
-                                         (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
-                                          settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
-            if (avgP < 50) {
-                avgP = 50;
-            }
-            m_watt = avgP;
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-        }
+        m_watt = wattFromHR(false);
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
         if (watts())
             KCal +=

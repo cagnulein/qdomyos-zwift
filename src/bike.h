@@ -87,6 +87,8 @@ class bike : public bluetoothdevice {
     metric m_steeringAngle;
 
     double m_speedLimit = 0;
+
+    uint16_t wattFromHR(bool useSpeedAndCadence);
 };
 
 #endif // BIKE_H

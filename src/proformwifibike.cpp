@@ -465,7 +465,10 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 
     if (!values[QStringLiteral("Current Watts")].isUndefined()) {
         double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-        m_watt = watt;
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = watt;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
         double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();

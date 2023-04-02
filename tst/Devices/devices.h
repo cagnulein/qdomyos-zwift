@@ -64,6 +64,7 @@
 #include "RenphoBike/renphobiketestdata.h"
 #include "Rower/rowertestdata.h"
 #include "SchwinnIC4Bike/schwinnic4biketestdata.h"
+#include "Schwinn170Bike/schwinn170biketestdata.h"
 #include "Shuaa5Treadmill/shuaa5treadmilltestdata.h"
 #include "SkandikaWiryBike/skandikawirybiketestdata.h"
 #include "SmartRowRower/smartrowrowertestdata.h"
@@ -155,6 +156,7 @@ ProFormWiFiTreadmillTestData,
 RenphoBike1TestData,
 RenphoBike2TestData,
 RowerTestData,
+Schwinn170BikeTestData,
 SchwinnIC4BikeTestData,
 Shuaa5TreadmillTestData,
 SkandikaWiryBikeTestData,

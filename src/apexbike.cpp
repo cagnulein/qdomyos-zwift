@@ -392,30 +392,7 @@ bool apexbike::connected() {
 }
 
 uint16_t apexbike::watts() {
-    QSettings settings;
-    double watt;
-    if (currentCadence().value() == 0) {
-        return 0;
-    }
-    if (Heart.value() > 0) {
-        int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
-                     settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
-                    (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
-                     settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
-                       (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
-                        settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
-                   (Heart.value() *
-                    ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
-                      settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
-                     (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
-                      settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
-        if (Speed.value() > 0) {
-            watt = avgP;
-        } else {
-            watt = 0;
-        }
-    }
-    return watt;
+    return wattFromHR(true);
 }
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {

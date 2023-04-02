@@ -741,7 +741,7 @@
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
           $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
-          
+			 $('gears-value').html("<b>" + gears.toFixed(0) + "</b>");
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
             $('.pace-value').html("<b>N/A</b>");
           else
