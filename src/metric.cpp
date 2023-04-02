@@ -52,8 +52,10 @@ void metric::setValue(double v, bool applyGainAndOffset) {
             else
                 m_rateAtSec = 0;
         }
-        m_lastChanged = now;
     }
+
+    // it has to be here, even if the value is the same, due to https://github.com/cagnulein/qdomyos-zwift/issues/1325
+    m_lastChanged = now;
 
     m_value = v;
 

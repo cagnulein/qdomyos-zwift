@@ -109,7 +109,7 @@ ScrollView {
                 id: okTTSSummarySec
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.tts_summary_sec = ttsSummarySecTextField.text
+                onClicked: { settings.tts_summary_sec = ttsSummarySecTextField.text; toast.show("Setting saved!"); }
             }
         }
         SwitchDelegate {

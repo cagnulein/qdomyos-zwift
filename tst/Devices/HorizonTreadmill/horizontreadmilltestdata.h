@@ -17,6 +17,7 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         this->addDeviceName("T218_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);
         this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);        
+        this->addDeviceName("PARAGON X", comparison::StartsWithIgnoreCase); 
         this->addDeviceName("JFTM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("CT800", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TRX4500", comparison::StartsWithIgnoreCase);
@@ -24,6 +25,7 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }

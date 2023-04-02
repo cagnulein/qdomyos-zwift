@@ -57,7 +57,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualbike_zwift_ios(settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool());
     } else
 
 #endif
@@ -220,7 +220,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     QLowEnergyCharacteristicData charData3;
                     charData3.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
-                    charData3.setProperties(QLowEnergyCharacteristic::Notify);
+                    charData3.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);

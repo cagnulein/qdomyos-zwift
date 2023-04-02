@@ -66,7 +66,11 @@ SOURCES += \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
+   $$PWD/apexbike.cpp \
    $$PWD/pelotonbike.cpp \
+   $$PWD/schwinn170bike.cpp \
+   $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -259,9 +263,13 @@ INCLUDEPATH += fit-sdk/
 HEADERS += \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
+   $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
     $$PWD/virtualdevice.h \
    $$PWD/pelotonbike.h \
+   $$PWD/schwinn170bike.h \
+   $$PWD/wahookickrheadwind.h \
+   $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
@@ -766,4 +774,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.12.70
+VERSION = 2.13.25

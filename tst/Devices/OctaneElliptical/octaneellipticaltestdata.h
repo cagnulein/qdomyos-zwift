@@ -6,7 +6,7 @@
 class OctaneEllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    OctaneEllipticalTestData() : BluetoothDeviceTestData("Octane Treadmill") {
+    OctaneEllipticalTestData() : BluetoothDeviceTestData("Octane Elliptical") {
         this->addDeviceName("Q37", comparison::StartsWithIgnoreCase);
     }
 

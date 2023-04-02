@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 #include "bluetoothdevicetestdata.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
+#include "ApexBike/apexbiketestdata.h"
 #include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
 #include "Bike/biketestdata.h"
 #include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
@@ -63,6 +64,7 @@
 #include "RenphoBike/renphobiketestdata.h"
 #include "Rower/rowertestdata.h"
 #include "SchwinnIC4Bike/schwinnic4biketestdata.h"
+#include "Schwinn170Bike/schwinn170biketestdata.h"
 #include "Shuaa5Treadmill/shuaa5treadmilltestdata.h"
 #include "SkandikaWiryBike/skandikawirybiketestdata.h"
 #include "SmartRowRower/smartrowrowertestdata.h"
@@ -86,9 +88,11 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
+ApexBikeTestData,
 BHFitnessEllipticalTestData,
 BikeTestData,
 BowflexT216TreadmillTestData,
@@ -152,6 +156,7 @@ ProFormWiFiTreadmillTestData,
 RenphoBike1TestData,
 RenphoBike2TestData,
 RowerTestData,
+Schwinn170BikeTestData,
 SchwinnIC4BikeTestData,
 Shuaa5TreadmillTestData,
 SkandikaWiryBikeTestData,
@@ -180,6 +185,7 @@ UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
 ZwiftRunpodTestData,
+ZiproTreadmillTestData,
 iConceptBikeTestData>;
 
 #endif

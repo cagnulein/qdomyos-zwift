@@ -86,6 +86,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" HRmin = %1").arg(HRmin);
     rv += QStringLiteral(" HRmax = %1").arg(HRmax);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
     rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
@@ -438,6 +439,63 @@ void trainprogram::scheduler() {
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
+
+        // in case no workout has been selected
+        // Zwift OCR
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
+            bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+            QString t = text.toString();
+            QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+            // 2272 1027
+            jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageWidth", "()I");
+            jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageHeight", "()I");
+            QString tExtended = textExtended.toString();
+            QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+            QString packageName = packageNameJava.toString();
+            if (packageName.contains("com.zwift.zwiftgame")) {
+                qDebug() << QStringLiteral("ZWIFT OCR ACCEPTED") << packageName << w << h << t << tExtended;
+                foreach (QString s, tExtended.split("§§")) {
+                    // qDebug() << s;
+                    QStringList ss = s.split("$$");
+                    if (ss.length() > 1) {
+                        // (2195, 75 - 2254, 106)"
+                        qDebug() << ss[0] << ss[1];
+                        QString inc = ss[1].replace("Rect(", "").replace(")", "");
+                        if (inc.split(",").length() > 2) {
+                            int w_minbound = w * 0.93;
+                            int h_minbound = h * 0.08;
+                            int h_maxbound = h * 0.15;
+                            int x = inc.split(",").at(0).toInt();
+                            int y = inc.split(",").at(2).toInt();
+                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
+                            if (x > w_minbound && y < h_maxbound && y > h_minbound) {
+                                ss[0] = ss[0].replace("%", "");
+                                ss[0] = ss[0].replace("O", "0");
+                                ss[0] = ss[0].replace("l", "1");
+                                ss[0] = ss[0].replace(" ", "");
+                                if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
+                                    bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
+                                } else {
+                                    qDebug() << "filtering" << ss[0].toInt();
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
+            }
+        }
+#endif
 
         return;
     }
@@ -842,6 +900,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
             }
+            if (row.minSpeed >= 0) {
+                stream.writeAttribute(QStringLiteral("minspeed"), QString::number(row.minSpeed));
+            }
             if (row.inclination >= -50) {
                 stream.writeAttribute(QStringLiteral("inclination"), QString::number(row.inclination));
             }
@@ -960,6 +1021,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
             }
+            if (atts.hasAttribute(QStringLiteral("minspeed"))) {
+                row.minSpeed = atts.value(QStringLiteral("minspeed")).toDouble();
+            }
             if (atts.hasAttribute(QStringLiteral("fanspeed"))) {
                 row.fanspeed = atts.value(QStringLiteral("fanspeed")).toDouble();
             }
@@ -1014,7 +1078,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
-                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
                 row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();

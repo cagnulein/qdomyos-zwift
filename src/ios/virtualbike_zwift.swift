@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public override init() {
+    @objc public init(disable_hr: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift()
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -61,6 +61,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
+    private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
@@ -107,8 +108,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  override init() {
+  init(disable_hr: Bool) {
     super.init()
+    self.disable_hr = disable_hr
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -224,14 +226,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
           let PowerFeaturePermissions: CBAttributePermissions = [.readable]
           self.PowerFeatureCharacteristic = CBMutableCharacteristic(type: PowerFeatureCharacteristicUUID,
                                                                  properties: PowerFeatureProperties,
-                                                                                   value: Data (bytes: [0x08, 0x00, 0x00, 0x00]),
+                                                                                   value: Data (bytes: [0x00, 0x00, 0x00, 0x08]),
                                                                                    permissions: PowerFeaturePermissions)
 
         let PowerSensorLocationProperties: CBCharacteristicProperties = [.read]
           let PowerSensorLocationPermissions: CBAttributePermissions = [.readable]
           self.PowerSensorLocationCharacteristic = CBMutableCharacteristic(type: PowerSensorLocationCharacteristicUUID,
                                                            properties: PowerSensorLocationProperties,
-                                                                           value: Data (bytes: [0x13]),
+                                                                           value: Data (bytes: [0x0D]),
                                                                            permissions: PowerSensorLocationPermissions)
 
           let PowerMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
@@ -258,11 +260,19 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       print("Failed to add service with error: \(uwError.localizedDescription)")
       return
     }
+        
+      if(disable_hr) {
+          // useful in order to hide HR from Garmin devices
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                    CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
     
-    peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
   
@@ -319,6 +329,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
     else if request.characteristic == self.indoorbikeCharacteristic {
         request.value = self.calculateIndoorBike()
+        self.peripheralManager.respond(to: request, withResult: .success)
+        print("Responded successfully to a read request")
+    } else if request.characteristic == self.PowerMeasurementCharacteristic {
+        request.value = self.calculatePower()
         self.peripheralManager.respond(to: request, withResult: .success)
         print("Responded successfully to a read request")
     }

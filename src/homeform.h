@@ -71,7 +71,7 @@ class DataObject : public QObject {
     QString identificator() { return m_id; }
     bool largeButton() { return m_largeButton; }
     QString largeButtonLabel() { return m_largeButtonLabel; }
-    QString largeButtonColor() { return m_largeButtonColor; }    
+    QString largeButtonColor() { return m_largeButtonColor; }
 
     QString m_id;
     QString m_name;
@@ -104,7 +104,7 @@ class DataObject : public QObject {
     void identificatorChanged(QString value);
     void largeButtonChanged(bool value);
     void largeButtonLabelChanged(QString value);
-    void largeButtonColorChanged(QString value);    
+    void largeButtonColorChanged(QString value);
 };
 
 class homeform : public QObject {
@@ -153,6 +153,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
+    Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -162,7 +163,12 @@ class homeform : public QObject {
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
 
+    Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
+    Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
+
   public:
+    static homeform *singleton() { return m_singleton; }
+
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -364,6 +370,7 @@ class homeform : public QObject {
     int pzpLogin() { return m_pzpLoginState; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
+    QString toastRequested() {return m_toastRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -409,6 +416,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
+    void setToastRequested(QString value) { m_toastRequested = value; }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
@@ -513,7 +521,12 @@ class homeform : public QObject {
         return false;
     }
 
+    QString getStravaAuthUrl() { return stravaAuthUrl; }
+    bool stravaWebVisible() { return stravaAuthWebVisible; }
+    trainprogram *trainingProgram() { return trainProgram; }
+
   private:
+    static homeform *m_singleton;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
@@ -546,6 +559,7 @@ class homeform : public QObject {
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
+    QString m_toastRequested = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
@@ -638,6 +652,8 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    QString stravaAuthUrl;
+    bool stravaAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -733,6 +749,8 @@ class homeform : public QObject {
     void licenseTimeout();
 #endif
 
+    void toggleAutoResistance() { setAutoResistance(!autoResistance()); }
+
   signals:
 
     void changeOfdevice();
@@ -751,6 +769,7 @@ class homeform : public QObject {
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
+    void toastRequestedChanged(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);
@@ -772,6 +791,8 @@ class homeform : public QObject {
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
+    void stravaAuthUrlChanged(QString value);
+    void stravaWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };

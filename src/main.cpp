@@ -26,7 +26,6 @@
 #endif
 
 #ifdef Q_OS_ANDROID
-#include "androidadblog.h"
 #include "keepawakehelper.h"
 #include <QtAndroid>
 #endif
@@ -52,6 +51,7 @@ QString peloton_username = "";
 QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
+bool fit_file_saved_on_quit = false;
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -174,6 +174,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 
             bikeResistanceOffset = atoi(argv[++i]);
         }
+        if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
+            fit_file_saved_on_quit = true;
+        }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
             if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
@@ -280,8 +283,6 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_ANDROID
     qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-    androidadblog* adb = new androidadblog();
-    adb->start();
 #endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
@@ -316,6 +317,12 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
+    }
+
+    if (fit_file_saved_on_quit) {
+        settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        qDebug() << "fit_file_saved_on_quit"
+                 << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
     }
 
     if (forceQml)

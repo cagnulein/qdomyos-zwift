@@ -46,6 +46,9 @@ ScrollView {
         property double treadmill_inclination_override_140: 14.0
         property double treadmill_inclination_override_145: 14.5
         property double treadmill_inclination_override_150: 15.0
+
+        property double treadmill_inclination_ovveride_gain: 1.0
+        property double treadmill_inclination_ovveride_offset: 0.0
     }
 
 
@@ -63,6 +66,53 @@ ScrollView {
             verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Red)
         }
+
+        RowLayout {
+            spacing: 10
+            Label {
+                text: qsTr("Inclination Override Gain:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverrideGainTextField
+                text: settings.treadmill_inclination_ovveride_gain
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_gain = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: {settings.treadmill_inclination_ovveride_gain = treadmillOverrideGainTextField.text; toast.show("Setting saved!"); }
+            }
+        }
+
+        RowLayout {
+            spacing: 10
+            Label {
+                text: qsTr("Inclination Override Offset:")
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: treadmillOverrideOffsetTextField
+                text: settings.treadmill_inclination_ovveride_offset
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                onAccepted: settings.treadmill_inclination_ovveride_offset = text
+                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+            }
+            Button {
+                text: "OK"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: {settings.treadmill_inclination_ovveride_offset = treadmillOverrideOffsetTextField.text; toast.show("Setting saved!"); }
+            }
+        }
+
         RowLayout {
             spacing: 10
             Label {
@@ -82,7 +132,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_0 = treadmillOverride0TextField.text
+                onClicked: {settings.treadmill_inclination_override_0 = treadmillOverride0TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -104,7 +154,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_05 = treadmillOverride05TextField.text
+                onClicked: {settings.treadmill_inclination_override_05 = treadmillOverride05TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -126,7 +176,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_10 = treadmillOverride10TextField.text
+                onClicked: {settings.treadmill_inclination_override_10 = treadmillOverride10TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -148,7 +198,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_15 = treadmillOverride15TextField.text
+                onClicked: {settings.treadmill_inclination_override_15 = treadmillOverride15TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -170,7 +220,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_20 = treadmillOverride20TextField.text
+                onClicked: {settings.treadmill_inclination_override_20 = treadmillOverride20TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -192,7 +242,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_25 = treadmillOverride25TextField.text
+                onClicked: {settings.treadmill_inclination_override_25 = treadmillOverride25TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -214,7 +264,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_30 = treadmillOverride30TextField.text
+                onClicked: {settings.treadmill_inclination_override_30 = treadmillOverride30TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -236,7 +286,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_35 = treadmillOverride35TextField.text
+                onClicked: {settings.treadmill_inclination_override_35 = treadmillOverride35TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -258,7 +308,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_40 = treadmillOverride40TextField.text
+                onClicked: {settings.treadmill_inclination_override_40 = treadmillOverride40TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -280,7 +330,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_45 = treadmillOverride45TextField.text
+                onClicked: {settings.treadmill_inclination_override_45 = treadmillOverride45TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -302,7 +352,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_50 = treadmillOverride50TextField.text
+                onClicked: {settings.treadmill_inclination_override_50 = treadmillOverride50TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -324,7 +374,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_55 = treadmillOverride55TextField.text
+                onClicked: {settings.treadmill_inclination_override_55 = treadmillOverride55TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -346,7 +396,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_60 = treadmillOverride60TextField.text
+                onClicked: {settings.treadmill_inclination_override_60 = treadmillOverride60TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -368,7 +418,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_65 = treadmillOverride65TextField.text
+                onClicked: {settings.treadmill_inclination_override_65 = treadmillOverride65TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -390,7 +440,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_70 = treadmillOverride70TextField.text
+                onClicked: {settings.treadmill_inclination_override_70 = treadmillOverride70TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -412,7 +462,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_75 = treadmillOverride75TextField.text
+                onClicked: {settings.treadmill_inclination_override_75 = treadmillOverride75TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -434,7 +484,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_80 = treadmillOverride80TextField.text
+                onClicked: {settings.treadmill_inclination_override_80 = treadmillOverride80TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -456,7 +506,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_85 = treadmillOverride85TextField.text
+                onClicked: {settings.treadmill_inclination_override_85 = treadmillOverride85TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -478,7 +528,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_90 = treadmillOverride90TextField.text
+                onClicked: {settings.treadmill_inclination_override_90 = treadmillOverride90TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -500,7 +550,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_95 = treadmillOverride95TextField.text
+                onClicked: {settings.treadmill_inclination_override_95 = treadmillOverride95TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -522,7 +572,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_100 = treadmillOverride100TextField.text
+                onClicked: {settings.treadmill_inclination_override_100 = treadmillOverride100TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -544,7 +594,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_105 = treadmillOverride105TextField.text
+                onClicked: {settings.treadmill_inclination_override_105 = treadmillOverride105TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -566,7 +616,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_110 = treadmillOverride110TextField.text
+                onClicked: {settings.treadmill_inclination_override_110 = treadmillOverride110TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -588,7 +638,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_115 = treadmillOverride115TextField.text
+                onClicked: {settings.treadmill_inclination_override_115 = treadmillOverride115TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -610,7 +660,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_120 = treadmillOverride120TextField.text
+                onClicked: {settings.treadmill_inclination_override_120 = treadmillOverride120TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -632,7 +682,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_125 = treadmillOverride125TextField.text
+                onClicked: {settings.treadmill_inclination_override_125 = treadmillOverride125TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -654,7 +704,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_130 = treadmillOverride130TextField.text
+                onClicked: {settings.treadmill_inclination_override_130 = treadmillOverride130TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -676,7 +726,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_135 = treadmillOverride135TextField.text
+                onClicked: {settings.treadmill_inclination_override_135 = treadmillOverride135TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -698,7 +748,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_140 = treadmillOverride140TextField.text
+                onClicked: {settings.treadmill_inclination_override_140 = treadmillOverride140TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -720,7 +770,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_145 = treadmillOverride145TextField.text
+                onClicked: {settings.treadmill_inclination_override_145 = treadmillOverride145TextField.text; toast.show("Setting saved!"); }
             }
         }
         RowLayout {
@@ -742,7 +792,7 @@ ScrollView {
             Button {
                 text: "OK"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                onClicked: settings.treadmill_inclination_override_150 = treadmillOverride150TextField.text
+                onClicked: {settings.treadmill_inclination_override_150 = treadmillOverride150TextField.text; toast.show("Setting saved!"); }
             }
         }
     }

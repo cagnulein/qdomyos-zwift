@@ -47,6 +47,8 @@ void faketreadmill::update() {
         requestInclination = -100;
     }
 
+    cadenceFromAppleWatch();
+
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

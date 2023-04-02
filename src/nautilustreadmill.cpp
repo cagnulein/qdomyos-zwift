@@ -217,6 +217,8 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                          (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         }
 
+        cadenceFromAppleWatch();
+
         emit debug(QStringLiteral("Current KCal Calculated: ") + QString::number(KCal.value()));
         emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
