@@ -518,7 +518,9 @@ void activiotreadmill::btinit(bool startTape) {
     uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
     writeCharacteristic(gattWrite2Characteristic, initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    
+    // starts the tape
+    //writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
     }
