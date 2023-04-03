@@ -1,14 +1,18 @@
 #include "handleurl.h"
 #include <QDebug>
 #include <QUrl>
-#ifdef Q_OS_IOS
+
 void HandleURL::handleURL(const QUrl &url)
 {
     qDebug() << url;
+#ifndef IO_UNDER_QT
     h->urlParser(url.toString().toLatin1());
+#endif
 }
 
 HandleURL::HandleURL() {
+#ifndef IO_UNDER_QT
     h = new lockscreen();
-}
 #endif
+}
+
