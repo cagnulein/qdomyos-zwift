@@ -438,3 +438,48 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+  # This workflow contains a single job called "build"
+  ios-build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+# waiting github.com/jurplel/install-qt-action/issues/63
+      - name: Install Qt iOS
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'mac'
+          target: 'ios'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/ios/'
+
+      - name: Build
+        run: qmake CONFIG+=release && make -j4
