@@ -527,6 +527,8 @@ class homeform : public QObject {
 
   private:
     static homeform *m_singleton;
+    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
+    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
@@ -743,6 +745,8 @@ class homeform : public QObject {
     void pelotonOffset_Plus();
     void pelotonOffset_Minus();
     int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
+    void bluetoothDeviceConnected(bluetoothdevice *b);
+    void bluetoothDeviceDisconnected();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);

@@ -20,6 +20,7 @@ SOURCES += \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
+        Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
     Devices/ZiproTreadmill/ziprotreadmilltestdata.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestsuite.h \
+    Devices/bluetoothsignalreceiver.h \
     Devices/devicediscoveryinfo.h \
     Devices/devices.h \
     Devices/iConceptBike/iconceptbiketestdata.h \
