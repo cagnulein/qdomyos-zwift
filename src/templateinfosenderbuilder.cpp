@@ -803,7 +803,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("gears_plus")) {
                     onGearsPlus(jsonObject[QStringLiteral("content")], sender);
                     return;
-                } else if (msg == QStringLiteral("pelotonoffset_minus")) {
+                } else if (msg == QStringLiteral("gears_minus")) {
                     onGearsMinus(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("peloton_start_workout")) {
