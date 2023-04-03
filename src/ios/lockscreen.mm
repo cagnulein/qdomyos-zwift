@@ -209,6 +209,13 @@ int lockscreen::virtualrower_getLastFTMSMessage(unsigned char* message) {
     return 0;
 }
 
+void lockscreen::garminconnect_init() {
+    [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
+                                 uiOverrideDelegate:nil];
+    
+    [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
+}
+
 bool lockscreen::urlParser(const char *url) {
     NSString *sURL = [NSString stringWithCString:url encoding:NSASCIIStringEncoding];
     NSURL *URL = [NSURL URLWithString:[sURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];

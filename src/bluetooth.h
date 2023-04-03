@@ -121,6 +121,10 @@
 #include "yesoulbike.h"
 #include "ziprotreadmill.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class bluetooth : public QObject, public SignalHandler {
 
     Q_OBJECT
@@ -302,6 +306,10 @@ private:
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
+    
+#ifdef Q_OS_IOS
+    lockscreen* h = nullptr;
+#endif
 
   signals:
 };

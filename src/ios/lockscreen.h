@@ -52,6 +52,7 @@ class lockscreen /*: IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDe
     
     // garmin
     bool urlParser(const char* url);
+    void garminconnect_init();
 };
 
 #endif // LOCKSCREEN_H

@@ -22,11 +22,6 @@
           };
       }];
 
-    [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
-                                 uiOverrideDelegate:nil];
-    
-    [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
-
     return YES;
 }
 
