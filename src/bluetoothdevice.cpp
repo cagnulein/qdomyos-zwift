@@ -4,6 +4,10 @@
 #include <QSettings>
 #include <QTime>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+
 bluetoothdevice::bluetoothdevice() {}
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
@@ -192,6 +196,13 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     METS = calculateMETS();
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<int>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        qDebug() << "Garmin Companion Heart:" << Heart.value();
+#endif
+    }
 
     _lastTimeUpdate = current;
     _firstUpdate = false;

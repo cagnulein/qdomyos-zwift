@@ -744,6 +744,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.19
             property bool treadmill_simulate_inclination_with_speed: false
+
+            // from version 2.13.26
+            property bool garmin_companion: false
         }
 
         function paddingZeros(text, limit) {
@@ -3776,6 +3779,43 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Garmin Watch/Computer Companion Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Enable Companion App")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_companion
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_companion = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

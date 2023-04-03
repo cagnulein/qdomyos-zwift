@@ -643,8 +643,9 @@ const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_save
 const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
 const QString QZSettings::treadmill_simulate_inclination_with_speed =
     QStringLiteral("treadmill_simulate_inclination_with_speed");
+const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 
-const uint32_t allSettingsCount = 537;
+const uint32_t allSettingsCount = 538;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1187,6 +1188,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
     {QZSettings::treadmill_simulate_inclination_with_speed,
      QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

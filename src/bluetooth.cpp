@@ -2244,8 +2244,10 @@ void bluetooth::connectedAndDiscovered() {
 #endif
 
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>(
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        QAndroidJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    }
 #endif
 
 #ifdef Q_OS_IOS
