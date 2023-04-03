@@ -46,6 +46,8 @@ public class Garmin {
 
     private static final String TAG = "CIQManager: ";
 
+    private static Integer HR = 0;
+
     public static void init(Context c) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -162,14 +164,14 @@ public class Garmin {
 
                 @Override
                 public void onApplicationInfoReceived(IQApp app) {
-
+                    Log.d(TAG, "App installed.");
                 }
 
                 @Override
                 public void onApplicationNotInstalled(String applicationId) {
                     if (getDevice() != null) {
-                        Toast.makeText(context, "Sleep not installed on your Garmin watch", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "Sleep watch app not installed.");
+                        Toast.makeText(context, "App not installed on your Garmin watch", Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "watch app not installed.");
                     }
                 }
             });
@@ -207,7 +209,8 @@ public class Garmin {
                     public void onMessageReceived(IQDevice device, IQApp app, List<Object> message, ConnectIQ.IQMessageStatus status) {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
-                            Log.d(TAG, "onMessageReceived, status: " + status.toString());
+                            Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
+                            HR = Integer.parseInt(message.toArray()[0].toString());
                         } else {
                             Log.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }
