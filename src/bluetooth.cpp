@@ -2214,6 +2214,11 @@ void bluetooth::connectedAndDiscovered() {
     }
 #endif
 
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+
 #ifdef Q_OS_IOS
     // in order to allow to populate the tiles with the IC BIKE auto connect feature
     if (firstConnected) {

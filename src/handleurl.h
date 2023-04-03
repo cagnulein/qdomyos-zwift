@@ -1,6 +1,6 @@
 #ifndef HANDLEURL
 #define HANDLEURL
-
+#ifdef Q_OS_IOS
 #include <QDesktopServices>
 #include <QObject>
 #include "ios/lockscreen.h"
@@ -21,5 +21,5 @@ signals:
 public slots:
      void handleURL(const QUrl &url);
 };
-
+#endif
 #endif

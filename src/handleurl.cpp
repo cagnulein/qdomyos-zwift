@@ -1,7 +1,7 @@
 #include "handleurl.h"
 #include <QDebug>
 #include <QUrl>
-
+#ifdef Q_OS_IOS
 void HandleURL::handleURL(const QUrl &url)
 {
     qDebug() << url;
@@ -11,3 +11,4 @@ void HandleURL::handleURL(const QUrl &url)
 HandleURL::HandleURL() {
     h = new lockscreen();
 }
+#endif
