@@ -496,6 +496,8 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         Heart = values[QStringLiteral("Chest Pulse")].toString().toDouble();
         // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+    } else {
+        update_hr_from_external();
     }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

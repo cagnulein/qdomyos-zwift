@@ -30,6 +30,8 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
 
 void fakebike::update() {
     QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     /*
     static int updcou = 0;
@@ -83,6 +85,9 @@ void fakebike::update() {
     // ********************************************************************************************************
 
     if (!noVirtualDevice) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            update_hr_from_external();
+        }
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
