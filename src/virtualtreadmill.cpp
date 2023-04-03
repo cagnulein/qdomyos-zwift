@@ -292,26 +292,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         pars.setInterval(30, 50);
 
-        QByteArray a;
-        a.append(0x02);
-        a.append(0x01);
-        a.append(0x06);
-        a.append(0x03);
-        a.append(0x03);
-        a.append(0x18);
-        a.append(0x18);
-        a.append(0x09);
-        a.append(0x09);
-        a.append(0x50);
-        a.append(0x69);
-        a.append(0x78);
-        a.append(0x65);
-        a.append(0x6c);
-        a.append(0x20);
-        a.append(0x36);
-        a.append(0x61);
-
-        advertisingData.setRawData(a);
         leController->startAdvertising(pars, advertisingData);
 
         //! [Start Advertising]
