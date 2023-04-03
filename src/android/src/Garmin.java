@@ -48,6 +48,10 @@ public class Garmin {
 
     private static Integer HR = 0;
 
+    public static Integer getHR() {
+        return HR;
+    }
+
     public static void init(Context c) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
