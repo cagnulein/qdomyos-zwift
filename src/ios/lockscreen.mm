@@ -222,6 +222,10 @@ bool lockscreen::urlParser(const char *url) {
     [Garmin urlParser: URL];
 }
 
+int lockscreen::getHR() {
+    return [Garmin getHR];
+}
+
 // getVolume
 
 double lockscreen::getVolume()

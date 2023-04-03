@@ -30,8 +30,6 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
 
 void fakebike::update() {
     QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     /*
     static int updcou = 0;
@@ -85,25 +83,6 @@ void fakebike::update() {
     // ********************************************************************************************************
 
     if (!noVirtualDevice) {
-#ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-            Heart = (uint8_t)KeepAwakeHelper::heart();
-            debug("Current Heart: " + QString::number(Heart.value()));
-        }
-#endif
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-        }
-
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

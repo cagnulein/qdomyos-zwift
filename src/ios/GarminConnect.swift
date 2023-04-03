@@ -18,6 +18,10 @@ extension ConnectIQ {
 @objc public class GarminConnect : NSObject {
     let v = GarminConnectSwift()
     
+    @objc public func getHR() -> Int {
+        return v.HR;
+    }
+    
     @objc public func urlParser(_ url: URL) {
         v.urlParser(url)
     }

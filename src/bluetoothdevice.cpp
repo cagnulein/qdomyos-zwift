@@ -7,6 +7,9 @@
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 bluetoothdevice::bluetoothdevice() {}
 
@@ -149,6 +152,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool power_as_bike =
         settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
     bool power_as_treadmill =
@@ -200,9 +205,31 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
         Heart = QAndroidJniObject::callStaticMethod<int>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
-        qDebug() << "Garmin Companion Heart:" << Heart.value();
 #endif
-    }
+#ifdef Q_OS_IOS
+        lockscreen h;
+        Heart = h.getHR();
+#endif
+        qDebug() << "Garmin Companion Heart:" << Heart.value();
+    } else
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+            qDebug() << "Current Heart: " << QString::number(Heart.value()));
+        }
+#endif
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
+#endif
+#endif
+        }
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
