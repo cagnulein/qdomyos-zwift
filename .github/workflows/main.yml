@@ -480,6 +480,9 @@ jobs:
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/ios/'
+          
+      - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -o -type f -print0 | xargs -0 sed -i 's/ios-simulator/iphonesimulator/g'
 
       - name: Build
         run: qmake CONFIG+=release && make -j4
