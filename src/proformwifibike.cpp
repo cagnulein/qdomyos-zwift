@@ -312,14 +312,7 @@ void proformwifibike::update() {
 }
 
 bool proformwifibike::inclinationAvailableByHardware() {
-    QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-
-    if (proform_studio || proform_tdf_10)
-        return true;
-    else
-        return false;
+    return true;
 }
 
 resistance_t proformwifibike::pelotonToBikeResistance(int pelotonResistance) {

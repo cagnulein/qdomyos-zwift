@@ -3,13 +3,17 @@
 #include "discoveryoptions.h"
 #include "bluetooth.h"
 #include "objectfactory.h"
+#include "bluetoothsignalreceiver.h"
 
 const QString testUUID = QStringLiteral("b8f79bac-32e5-11ed-a261-0242ac120002");
 QBluetoothUuid uuid{testUUID};
 
 template<typename T>
-void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt, const QBluetoothDeviceInfo &deviceInfo) const {
+BluetoothDeviceTestSuite<T>::BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
+template<typename T>
+void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt,
+                                                  const QBluetoothDeviceInfo &deviceInfo) const {
     try {
         // It is possible to use an EXPECT_NO_THROW here, but this
         // way is easier to place a breakpoint on the call to bt.deviceDiscovered.
@@ -38,10 +42,52 @@ std::string BluetoothDeviceTestSuite<T>::getTypeName(bluetoothdevice *b) const {
 }
 
 
+template<typename T>
+std::string BluetoothDeviceTestSuite<T>::formatString(std::string format, bluetoothdevice *b) const {
+
+    QString qs = QString(format.c_str());
+    QString typeName = this->getTypeName(b).c_str();
+    return qs.replace("{typeName}", typeName).toStdString();
+}
 
 template<typename T>
-BluetoothDeviceTestSuite<T>::BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
+void BluetoothDeviceTestSuite<T>::testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth &bt,
+                                                      const QBluetoothDeviceInfo &deviceInfo,
+                                                  bool expectMatch,
+                                                  bool restart,
+                                                  const QString& failMessage) const {
+    this->testDeviceDetection(testData, bt, deviceInfo, expectMatch, restart, failMessage.toStdString());
+}
 
+
+
+template<typename T>
+void BluetoothDeviceTestSuite<T>::testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth &bt,
+                                                  const QBluetoothDeviceInfo &deviceInfo,
+                                                  bool expectMatch,
+                                                  bool restart,
+                                                  const std::string& failMessage) const {
+
+    BluetoothSignalReceiver signalReceiver(bt);
+
+
+    this->tryDetectDevice(bt, deviceInfo);
+
+    bluetoothdevice * device = bt.device();
+
+    if(expectMatch) {
+        std::string formattedFailMessage = this->formatString(failMessage, device);
+        EXPECT_TRUE(testData->get_isExpectedDevice(device)) << formattedFailMessage;
+
+        EXPECT_EQ(device, signalReceiver.get_device()) << "Connection signal not received";
+    } else {
+        EXPECT_FALSE(testData->get_isExpectedDevice(device)) << this->formatString(failMessage, device);
+    }
+
+    if(restart) {
+        bt.restart();
+        EXPECT_EQ(nullptr, signalReceiver.get_device()) << "Disconnection signal not received";
+    }
 }
 
 template<typename T>
@@ -64,7 +110,6 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
 
     this->defaultDiscoveryOptions = discoveryoptions{};
     this->defaultDiscoveryOptions.startDiscovery = false;
-    this->defaultDiscoveryOptions.createTemplateManagers = false;
 
     this->names = this->typeParam.get_deviceNames();
 
@@ -77,6 +122,7 @@ void BluetoothDeviceTestSuite<T>::SetUp() {
     auto thisObject = this;
     ObjectFactory::lockscreenFactory = [thisObject]()->QZLockscreen*{ return thisObject->testLockscreen; };
 }
+
 
 template<typename T>
 void BluetoothDeviceTestSuite<T>::TearDown() {
@@ -94,17 +140,10 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
         {
             this->testSettings.loadFrom(discoveryInfo);
 
-            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
-
-            // try to create the device
-            this->tryDetectDevice(bt, deviceInfo);
-            auto detectedDevice = bt.device();
-            EXPECT_TRUE(testData.get_isExpectedDevice(detectedDevice))
-                    << "Failed to detect device for " << testData.get_testName() <<  " using name: " << deviceName.toStdString()
-                    << ",  got a " << this->getTypeName(detectedDevice) << " instead";
-
-            // restart the bluetooth manager to clear the device
-            bt.restart();
+            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);            
+            QString failMessage = QString("Failed to detect device for %1s using name: %2s, got a {typeName} instead")
+                    .arg(testData.get_testName().c_str()).arg(deviceName);
+            this->testDeviceDetection(&testData, bt, deviceInfo, true, true, failMessage);
         }
     }
 }
@@ -124,18 +163,12 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
         {
             this->testSettings.loadFrom(discoveryInfo);
 
-            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);            
+            QString failMessage = QString("Created the device %1 when expected not to: %2")
+                    .arg(testData.get_testName().c_str()).arg(deviceName);
 
             // try to create the device
-            this->tryDetectDevice(bt, deviceInfo);
-            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device()))
-                    << "Created the device "
-                    << testData.get_testName()
-                    << " when expected not to: "
-                    << deviceName.toStdString();
-
-            // restart the bluetooth manager to clear the device
-            bt.restart();
+            this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
         }
     }
 }
@@ -164,17 +197,11 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
                 this->testSettings.loadFrom(discoveryInfo);
 
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
+                QString failMessage = QString("Created the device %1 when bluetooth device info is invalid: %2")
+                        .arg(testData.get_testName().c_str()).arg(deviceName);
 
                 // try to create the device
-                this->tryDetectDevice(bt, deviceInfo);
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device()))
-                        << "Created the device "
-                        << testData.get_testName()
-                        << "when bluetooth device info is invalid: "
-                        << deviceName.toStdString();
-
-                // restart the bluetooth manager to clear the device
-                bt.restart();
+                this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
             }
         }
     }
@@ -213,25 +240,18 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
                 }
                 this->testSettings.loadFrom(exclusionDiscoveryInfo);
 
+                QString failMessage = QString("Failed to create exclusion device: %1, got a {typeName} instead")
+                        .arg(exclusion.get()->get_testName().c_str());
                 // try to create the excluding device
-                this->tryDetectDevice(bt, exclusionDeviceInfo);
-
-                auto detectedExclusionDevice = bt.device();
-                EXPECT_TRUE(exclusion.get()->get_isExpectedDevice(detectedExclusionDevice))
-                        << "Failed to create exclusion device: " << exclusion.get()->get_testName()
-                        << " got a " << this->getTypeName(detectedExclusionDevice) << " instead";
+                this->testDeviceDetection(exclusion.get(), bt, exclusionDeviceInfo, true, false, failMessage);
 
                 // now configure to have the bluetooth object try, but fail to detect the target device
                 this->testSettings.loadFrom(discoveryInfo);
                 QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
-                this->tryDetectDevice(bt, deviceInfo);
-                EXPECT_FALSE(testData.get_isExpectedDevice(bt.device())) << "Detected the " << testData.get_testName()
-                                                                         << " from "
-                                                                         << deviceName.toStdString()
-                                                                         << " in spite of exclusion";
-
-                bt.restart();
+                failMessage = QString("Detected the %1 from %2 in spite of exclusion")
+                        .arg(testData.get_testName().c_str()).arg(deviceName);
+                this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
             }
         }
     }
@@ -260,16 +280,10 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
 
             QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
-            // try to create the device
-            this->tryDetectDevice(bt, deviceInfo);
-            EXPECT_FALSE(testData.get_isExpectedDevice(bt.device()))
-                    << "Detected device "
-                    << testData.get_testName()
-                    << " from invalid name: "
-                    << deviceName.toStdString();
+            QString failMessage = QString("Detected device %1 from %2")
+                    .arg(testData.get_testName().c_str()).arg(deviceName);
 
-            // restart the bluetooth manager to clear the device
-            bt.restart();
+            this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
         }
     }
 }
