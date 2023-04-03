@@ -202,6 +202,12 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
+    _lastTimeUpdate = current;
+    _firstUpdate = false;
+}
+
+void bluetoothdevice::update_hr_from_external() {
+    QSettings settings;
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
         Heart = QAndroidJniObject::callStaticMethod<int>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
@@ -211,14 +217,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         Heart = h.getHR();
 #endif
         qDebug() << "Garmin Companion Heart:" << Heart.value();
-    } else
-#ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-            Heart = (uint8_t)KeepAwakeHelper::heart();
-            qDebug() << "Current Heart: " << QString::number(Heart.value()));
-        }
-#endif
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+    } else {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
@@ -229,10 +228,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
-        }
-
-    _lastTimeUpdate = current;
-    _firstUpdate = false;
+    }
 }
 
 void bluetoothdevice::clearStats() {

@@ -329,18 +329,9 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
         else if(heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+            update_hr_from_external();
         }
-#endif
-#endif
     }
 
     CrankRevs++;
