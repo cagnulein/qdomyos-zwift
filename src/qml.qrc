@@ -93,5 +93,7 @@
         <file>inner_templates/floating/radikalmedium.otf</file>
         <file>settings-treadmill-inclination-override.qml</file>
         <file>WebStravaAuth.qml</file>
+        <file>Toast.qml</file>
+        <file>ToastManager.qml</file>
     </qresource>
 </RCC>

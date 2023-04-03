@@ -17,7 +17,7 @@ class lockscreen /*: IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDe
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios();
+    void virtualbike_zwift_ios(bool disable_hr);
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();

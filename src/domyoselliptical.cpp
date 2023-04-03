@@ -331,7 +331,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        else {
+        else if(heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
             h.setKcal(KCal.value());
