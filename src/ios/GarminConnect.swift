@@ -14,6 +14,7 @@ extension ConnectIQ {
     }
 }
 
+@available(iOS 13.0, *)
 @objc public class GarminConnect : NSObject {
     let v = GarminConnectSwift()
     
@@ -22,6 +23,7 @@ extension ConnectIQ {
     }
 }
 
+@available(iOS 13.0, *)
 class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate {
     // This must match the value in `Info.plist`.
     private static let urlScheme = "org.cagnulein.connectiqcomms-ciq"
