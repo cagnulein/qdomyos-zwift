@@ -34,6 +34,8 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     private var apps: [UUID: IQApp] = [:]
 
     @Published private var message = ""
+    
+    public var HR: Int = 0
 
     private let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -102,6 +104,8 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
                 print("Failed to parse ConnectIQ message contents at index \(index).")
                 return
             }
+            HR = dictionary[0] as? Int ?? 0
+            print("Garmin HR: \(HR)")
         }
     }
 
