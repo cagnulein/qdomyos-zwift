@@ -163,8 +163,13 @@ class homeform : public QObject {
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
 
+    // strava
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
+
+    // concept2log
+    Q_PROPERTY(QString getConcept2logAuthUrl READ getConcept2logAuthUrl NOTIFY concept2logAuthUrlChanged)
+    Q_PROPERTY(bool concept2logWebVisible READ concept2logWebVisible NOTIFY concept2logWebVisibleChanged)
 
   public:
     static homeform *singleton() { return m_singleton; }
@@ -521,8 +526,14 @@ class homeform : public QObject {
         return false;
     }
 
+    // strava
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
+
+    // concept2log
+    QString getConcept2logAuthUrl() { return concept2logAuthUrl; }
+    bool concept2logWebVisible() { return concept2logAuthWebVisible; }
+
     trainprogram *trainingProgram() { return trainProgram; }
 
   private:
@@ -550,9 +561,16 @@ class homeform : public QObject {
     bool m_VideoVisible = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
+
+    // strava
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+
+    // concept2 log
+    QOAuth2AuthorizationCodeFlow *concept2log = nullptr;
+    QNetworkAccessManager *managerConcept2log = nullptr;
+    QOAuthHttpServerReplyHandler *concept2logReplyHandler = nullptr;
 
     bool paused = false;
     bool stopped = false;
@@ -647,6 +665,7 @@ class homeform : public QObject {
     QTimer *timer;
     QTimer *backupTimer;
 
+    // strava
     QString strava_code;
     QOAuth2AuthorizationCodeFlow *strava_connect();
     void strava_refreshtoken();
@@ -656,6 +675,17 @@ class homeform : public QObject {
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
     QString stravaAuthUrl;
     bool stravaAuthWebVisible;
+
+    // Concept2 Log
+    QString concept2log_code;
+    QOAuth2AuthorizationCodeFlow *concept2log_connect();
+    void concept2log_refreshtoken();
+    QNetworkReply *replyConcept2log;
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunctionConcept2log(const QUrl &clientIdentifier,
+                                                                           const QUrl &clientIdentifierSharedKey);
+    bool concept2log_upload_file();
+    QString concept2logAuthUrl;
+    bool concept2logAuthWebVisible;
 
     static quint64 cryptoKeySettingsProfiles();
 
@@ -718,9 +748,11 @@ class homeform : public QObject {
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
     void fit_save_clicked();
-    void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
+
+    // strava
+    void strava_connect_clicked();
     void onStravaGranted();
     void onStravaAuthorizeWithBrowser(const QUrl &url);
     void replyDataReceived(const QByteArray &v);
@@ -729,6 +761,19 @@ class homeform : public QObject {
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+
+    // Concept2 Log
+    void concept2log_connect_clicked();
+    void onConcept2logGranted();
+    void onConcept2logAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceivedConcept2log(const QByteArray &v);
+    void onSslErrorsConcept2log(QNetworkReply *reply, const QList<QSslError> &error);
+    void networkRequestFinishedConcept2log(QNetworkReply *reply);
+    void callbackReceivedConcept2log(const QVariantMap &values);
+    void errorOccurredUploadConcept2log(QNetworkReply::NetworkError code);
+    void writeFileCompletedConcept2log();
+
+
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
@@ -795,8 +840,14 @@ class homeform : public QObject {
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
+
+    // strava
     void stravaAuthUrlChanged(QString value);
     void stravaWebVisibleChanged(bool value);
+
+    // concept2 log
+    void concept2logAuthUrlChanged(QString value);
+    void concept2logWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };

@@ -95,5 +95,6 @@
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
+        <file>WebConcept2LogAuth.qml</file>
     </qresource>
 </RCC>
