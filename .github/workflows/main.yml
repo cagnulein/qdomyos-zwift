@@ -443,6 +443,9 @@ jobs:
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.7"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -470,6 +473,17 @@ jobs:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
+          
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt iOS
@@ -485,4 +499,4 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;
 
       - name: Build
-        run: qmake CONFIG+=release && cd src && make -j4
+        run: qmake CONFIG+=release && make -j4
