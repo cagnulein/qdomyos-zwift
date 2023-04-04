@@ -485,4 +485,4 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;
 
       - name: Build
-        run: qmake CONFIG+=release && make -j4
+        run: qmake CONFIG+=release && cd src && make -j4
