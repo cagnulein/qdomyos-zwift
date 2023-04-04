@@ -48,7 +48,8 @@ public class Garmin {
 
     private static Integer HR = 0;
 
-    public static Integer getHR() {
+    public static int getHR() {
+        Log.d(TAG, "getHR " + HR);
         return HR;
     }
 
@@ -214,7 +215,8 @@ public class Garmin {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
                             Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
-                            HR = Integer.parseInt(message.toArray()[0].toString());
+                            HR = Integer.parseInt(message.toArray()[0].toString().replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                            Log.d(TAG, "HR " + HR);
                         } else {
                             Log.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }

@@ -210,7 +210,7 @@ void bluetoothdevice::update_hr_from_external() {
     QSettings settings;
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
-        Heart = QAndroidJniObject::callStaticMethod<int>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
 #endif
 #ifdef Q_OS_IOS
         lockscreen h;
