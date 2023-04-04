@@ -502,4 +502,4 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
 
       - name: Build
-        run: qmake CONFIG+=release && make -j4
+        run: qmake CONFIG+=debug && make -j4
