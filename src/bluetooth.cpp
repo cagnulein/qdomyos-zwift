@@ -2249,10 +2249,12 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject::callStaticMethod<void>(
         "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #else
+#ifndef IO_UNDER_QT
         if(!h) {
             h = new lockscreen();
             h->garminconnect_init();
         }
+#endif
 #endif
     }
 #endif
