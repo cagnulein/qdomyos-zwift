@@ -1,9 +1,7 @@
 #ifndef LOCKSCREEN_H
 #define LOCKSCREEN_H
 
-//#import <ConnectIQ/ConnectIQ.h>
-
-class lockscreen /*: IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate*/ {
+class lockscreen {
   public:
     void setTimerDisabled();
     void request();
@@ -49,9 +47,9 @@ class lockscreen /*: IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDe
 
     // volume
     double getVolume();
-    
+
     // garmin
-    bool urlParser(const char* url);
+    bool urlParser(const char *url);
     void garminconnect_init();
     int getHR();
 };
