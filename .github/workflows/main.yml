@@ -439,7 +439,6 @@ jobs:
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
-  # This workflow contains a single job called "build"
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -447,7 +446,6 @@ jobs:
       matrix:
         python-version: ["3.7"]
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -485,7 +483,6 @@ jobs:
           pip install ruff pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-# waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v2
         with:
@@ -503,3 +500,4 @@ jobs:
 
       - name: Build
         run: qmake CONFIG+=debug && make -j4
+

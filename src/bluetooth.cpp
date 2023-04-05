@@ -2243,6 +2243,22 @@ void bluetooth::connectedAndDiscovered() {
     }
 #endif
 
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>(
+        "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
+#ifndef IO_UNDER_QT
+        if(!h) {
+            h = new lockscreen();
+            h->garminconnect_init();
+        }
+#endif
+#endif
+    }
+#endif
+
 #ifdef Q_OS_IOS
     // in order to allow to populate the tiles with the IC BIKE auto connect feature
     if (firstConnected) {
