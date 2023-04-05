@@ -762,7 +762,7 @@ ios {
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 	 QMAKE_ASSET_CATALOGS_BUILD_PATH = $$PWD/ios/ 
 
-    TARGET = qdomyos-zwift
+    TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
