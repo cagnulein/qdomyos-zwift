@@ -442,9 +442,6 @@ jobs:
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
-    strategy:
-      matrix:
-        python-version: ["3.7"]
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -471,17 +468,6 @@ jobs:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
-          
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v2
