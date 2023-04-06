@@ -352,10 +352,9 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::cadenceFromAppleWatch() {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
     QSettings settings;
-    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT        
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
         lockscreen h;
         Cadence = h.getFootCad();
