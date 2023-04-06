@@ -1,6 +1,6 @@
 include(qdomyos-zwift.pri)
 
-TARGET = qdomyoszwift
+TARGET = qdomyos-zwift
 TEMPLATE = lib
 CONFIG += staticlib
 DEFINES += LIB_LIBRARY

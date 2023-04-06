@@ -498,6 +498,12 @@ jobs:
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
 
+      - name: fix qt
+        run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/qdomyos-zwift/qdomyoszwift/g' {} \;                
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
+
       - name: Build
         run: qmake CONFIG+=debug && make -j4
 
