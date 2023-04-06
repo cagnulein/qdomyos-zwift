@@ -491,5 +491,5 @@ jobs:
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
       - name: Build
-        run: qmake CONFIG+=debug && make -j4
+        run: cd src && qmake CONFIG+=debug && make -j4
 
