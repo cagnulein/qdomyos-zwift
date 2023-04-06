@@ -445,7 +445,7 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
-            bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
             QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
             QString t = text.toString();
