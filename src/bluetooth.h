@@ -279,7 +279,9 @@ private:
 #endif
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     lockscreen* h = nullptr;
+#endif
 #endif
 
     /**
