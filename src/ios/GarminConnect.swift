@@ -22,6 +22,10 @@ extension ConnectIQ {
         return v.HR;
     }
     
+    @objc public func getFootCad() -> Int {
+        return v.FootCad;
+    }
+    
     @objc public func urlParser(_ url: URL) {
         v.urlParser(url)
     }
@@ -40,6 +44,7 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
     @Published private var message = ""
     
     public var HR: Int = 0
+    public var FootCad: Int = 0
 
     private let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -108,8 +113,11 @@ class GarminConnectSwift: NSObject, IQDeviceEventDelegate, IQAppMessageDelegate 
                 print("Failed to parse ConnectIQ message contents at index \(index).")
                 return
             }
+            print(dictionary)
             HR = dictionary[0] as? Int ?? 0
+            FootCad = dictionary[1] as? Int ?? 0
             print("Garmin HR: \(HR)")
+            print("Garmin Foot Cadence: \(FootCad)")
         }
     }
 

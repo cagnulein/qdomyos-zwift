@@ -54,6 +54,11 @@ public class Garmin {
         return HR;
     }
 
+    public static int getFootCad() {
+        Log.d(TAG, "getFootCad " + FootCad);
+        return FootCad;
+    }
+
     public static void init(Context c) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

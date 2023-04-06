@@ -350,6 +350,12 @@ void treadmill::cadenceFromAppleWatch() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     QSettings settings;
+    
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        lockscreen h;
+        Cadence = h.getFootCad();
+    }
+    
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -359,6 +365,12 @@ void treadmill::cadenceFromAppleWatch() {
         qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
     }
 #endif
+#endif
+
+#ifdef Q_OS_ANDROID
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+    }
 #endif
 }
 

@@ -226,6 +226,10 @@ int lockscreen::getHR() {
     return [Garmin getHR];
 }
 
+int lockscreen::getFootCad() {
+    return [Garmin getFootCad];
+}
+
 // getVolume
 
 double lockscreen::getVolume()
