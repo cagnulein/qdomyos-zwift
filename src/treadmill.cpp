@@ -1,5 +1,10 @@
 #include "treadmill.h"
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+#ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#endif
 #include <QSettings>
 
 treadmill::treadmill() {}
