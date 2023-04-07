@@ -309,6 +309,8 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
             }
         }
     }
+    
+    cadenceFromAppleWatch();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
