@@ -540,7 +540,7 @@ void trainprogram::scheduler() {
         }
 #endif
 
-       // return;
+       return;
     }
 
 #ifdef Q_OS_ANDROID
@@ -576,7 +576,6 @@ void trainprogram::scheduler() {
             connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
         }
     }
-    return;
 
     ticks++;
 
