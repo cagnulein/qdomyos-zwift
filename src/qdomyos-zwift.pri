@@ -67,6 +67,7 @@ SOURCES += \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
     $$PWD/handleurl.cpp \
+    $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
@@ -266,6 +267,7 @@ HEADERS += \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
     $$PWD/handleurl.h \
+    $$PWD/localipaddress.h \
    $$PWD/pelotonbike.h \
    $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \

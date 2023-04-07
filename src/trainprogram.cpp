@@ -9,6 +9,7 @@
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
+#include "localipaddress.h"
 
 using namespace std::chrono_literals;
 
@@ -446,6 +447,9 @@ void trainprogram::pelotonOCRprocessPendingDatagrams() {
         QString s = datagram;
         pelotonOCRcomputeTime(s);
 
+        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
+        qDebug() << "url floating" << url;
+        pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, port);
     }
 }
 
@@ -568,7 +572,7 @@ void trainprogram::scheduler() {
         bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8002);
         qDebug() << result;
         pelotonOCRprocessPendingDatagrams();
-        connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
+        connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
     }
     return;
 
