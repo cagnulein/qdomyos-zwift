@@ -98,6 +98,9 @@ class trainprogram : public QObject {
     void onTapeStarted();
     void scheduler();
 
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
+
   signals:
     void start();
     void stop(bool paused);
@@ -137,6 +140,9 @@ class trainprogram : public QObject {
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+
+    QUdpSocket* pelotonOCRsocket = nullptr;
+    void pelotonOCRcomputeTime(QString t);
 };
 
 #endif // TRAINPROGRAM_H
