@@ -454,22 +454,29 @@ void trainprogram::pelotonOCRprocessPendingDatagrams() {
 }
 
 void trainprogram::pelotonOCRcomputeTime(QString t) {
-    int minutes = t.left(2).toInt();
-    int seconds = t.left(5).right(2).toInt();
-    seconds -= 1; //(due to the OCR delay)
-    seconds += minutes * 60;
-    QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
-    QTime currentRemaining = remainingTime();
-    qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
-             << QStringLiteral("currentRemaining") << currentRemaining;
-    uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
-    if (abs < 120) {
-        qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
-        // applying the differences
-        if (ocrRemaining > currentRemaining)
-            decreaseElapsedTime(abs);
-        else
-            increaseElapsedTime(abs);
+    QRegularExpression re("\\d\\d:\\d\\d");
+    QRegularExpressionMatch match = re.match(t.left(5));
+    if (t.contains(QStringLiteral("INTRO"))) {
+        qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+        restart();
+    } else if (match.hasMatch()) {
+        int minutes = t.left(2).toInt();
+        int seconds = t.left(5).right(2).toInt();
+        seconds -= 1; //(due to the OCR delay)
+        seconds += minutes * 60;
+        QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
+        QTime currentRemaining = remainingTime();
+        qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
+                 << QStringLiteral("currentRemaining") << currentRemaining;
+        uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
+        if (abs < 120) {
+            qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
+            // applying the differences
+            if (ocrRemaining > currentRemaining)
+                decreaseElapsedTime(abs);
+            else
+                increaseElapsedTime(abs);
+        }
     }
 }
 
@@ -553,14 +560,7 @@ void trainprogram::scheduler() {
         QString packageName = packageNameJava.toString();
         if (packageName.contains("com.onepeloton.callisto")) {
             qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
-            QRegularExpression re("\\d\\d:\\d\\d");
-            QRegularExpressionMatch match = re.match(t.left(5));
-            if (t.contains(QStringLiteral("INTRO"))) {
-                qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
-                restart();
-            } else if (match.hasMatch()) {
-                pelotonOCRcomputeTime(t);
-            }
+            pelotonOCRcomputeTime(t);
         } else {
             qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
         }
