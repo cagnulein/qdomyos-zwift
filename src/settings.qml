@@ -747,6 +747,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.26
             property bool garmin_companion: false
+
+            // from version 2.13.27
+            property bool peloton_companion_workout_ocr: false
         }
 
         function paddingZeros(text, limit) {
@@ -3714,6 +3717,33 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Only for Android where QZ is running on the same Peloton device. This setting enables the AI (Artificial Intelligence) on QZ that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Peloton Auto Sync Companion (Exp.)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_companion_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.peloton_companion_workout_ocr = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

@@ -564,15 +564,17 @@ void trainprogram::scheduler() {
         } else {
             qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
         }
-    }
+    } else
 #endif
         
-    if(!pelotonOCRsocket) {
-        pelotonOCRsocket = new QUdpSocket(this);
-        bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8002);
-        qDebug() << result;
-        pelotonOCRprocessPendingDatagrams();
-        connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
+        if(!pelotonOCRsocket) {
+            pelotonOCRsocket = new QUdpSocket(this);
+            bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
+            qDebug() << result;
+            pelotonOCRprocessPendingDatagrams();
+            connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+        }
     }
     return;
 
