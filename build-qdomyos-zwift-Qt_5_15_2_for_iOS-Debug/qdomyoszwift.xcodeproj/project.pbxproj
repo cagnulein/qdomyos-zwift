@@ -330,6 +330,7 @@
 		87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7228E768D200F8D9AC /* Client.swift */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
+		87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87943AB229E0215D007575F2 /* localipaddress.cpp */; };
 		87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1827628D4500124B24 /* elitesterzosmart.cpp */; };
 		87958F1B27628D5400124B24 /* moc_elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */; };
 		8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8862733E103003148B3 /* strydrunpowersensor.cpp */; };
@@ -1111,6 +1112,8 @@
 		8791A8A725C8602A003B50B2 /* inspirebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inspirebike.h; path = ../src/inspirebike.h; sourceTree = "<group>"; };
 		8791A8A825C8602A003B50B2 /* inspirebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = inspirebike.cpp; path = ../src/inspirebike.cpp; sourceTree = "<group>"; };
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
+		87943AB229E0215D007575F2 /* localipaddress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = localipaddress.cpp; path = ../src/localipaddress.cpp; sourceTree = "<group>"; };
+		87943AB329E0215D007575F2 /* localipaddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = localipaddress.h; path = ../src/localipaddress.h; sourceTree = "<group>"; };
 		87958F1727628D4500124B24 /* elitesterzosmart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elitesterzosmart.h; path = ../src/elitesterzosmart.h; sourceTree = "<group>"; };
 		87958F1827628D4500124B24 /* elitesterzosmart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elitesterzosmart.cpp; path = ../src/elitesterzosmart.cpp; sourceTree = "<group>"; };
 		87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesterzosmart.cpp; sourceTree = "<group>"; };
@@ -1856,6 +1859,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87943AB229E0215D007575F2 /* localipaddress.cpp */,
+				87943AB329E0215D007575F2 /* localipaddress.h */,
 				8710706B29C48AEA0094D0F3 /* handleurl.cpp */,
 				8710706A29C48AE90094D0F3 /* handleurl.h */,
 				87D4693529B64D8100C9A382 /* ios_app_delegate.mm */,
@@ -3065,6 +3070,7 @@
 				87061399286D8D6500D2446E /* moc_wobjectdefs.cpp in Compile Sources */,
 				873824BA27E64707004F1B46 /* moc_server_p.cpp in Compile Sources */,
 				87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */,
+				87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */,
 				87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */,
 				ACB47DC464A2BC9D39C544AD /* gpx.cpp in Compile Sources */,
 				6361329E515248BB41640C07 /* homeform.cpp in Compile Sources */,
