@@ -308,8 +308,6 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
             }
         }
     }
-    
-    cadenceFromAppleWatch();
 
     this->doLockscreenUpdate();
 

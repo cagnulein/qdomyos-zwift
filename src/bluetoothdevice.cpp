@@ -214,33 +214,6 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     _firstUpdate = false;
 }
 
-void bluetoothdevice::update_hr_from_external() {
-    QSettings settings;
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-#ifdef Q_OS_ANDROID
-        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
-#endif
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        Heart = h.getHR();
-#endif
-#endif
-        qDebug() << "Garmin Companion Heart:" << Heart.value();
-    } else {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
-#endif
-#endif
-    }
-}
-
 void bluetoothdevice::clearStats() {
 
     elapsed.clear(true);
@@ -326,6 +299,34 @@ resistance_t bluetoothdevice::maxResistance() { return 100; }
 bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
     auto functions = this->getLockscreenFunctions();
     return functions && functions->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
+
+
+    /* TODO: support new external device functionality
+    QSettings settings;
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+#endif
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        lockscreen h;
+        Heart = h.getHR();
+#endif
+#endif
+        qDebug() << "Garmin Companion Heart:" << Heart.value();
+    } else {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
+#endif
+#endif
+    }
+*/
 }
 
 bool bluetoothdevice::isPelotonWorkaroundActive() const {

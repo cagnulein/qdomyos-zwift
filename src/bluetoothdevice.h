@@ -407,13 +407,6 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
-     /**
-     * @brief Update this object's Heart metric using a value from an external monitoring device.
-     * May also update the eternal monitoring device.
-     * @return True if the update happened, false if not.
-     */
-    bool update_hr_from_external(long defaultHeartRate=0);
-
     /**
      * @brief In IOS, perform the peloton workaround update to the lockscreen for this type of device.
      */
@@ -706,9 +699,11 @@ class bluetoothdevice : public QObject {
     void update_metrics(bool watt_calc, const double watts);
 
     /**
-     * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
+     * @brief Update this heart ratemetric using a value from an external monitoring device such as the Garmin Companion App or Apple Watch
+     * May also update the eternal monitoring device.
+     * @return True if the update happened, false if not.
      */
-    void update_hr_from_external();
+    bool update_hr_from_external(long defaultHeartRate=0);
 
     /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
