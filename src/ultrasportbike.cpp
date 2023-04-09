@@ -203,8 +203,8 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-            
             this->update_hr_from_external();
+
         }
     }
 

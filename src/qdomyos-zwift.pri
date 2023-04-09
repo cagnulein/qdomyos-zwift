@@ -70,6 +70,8 @@ SOURCES += \
     $$PWD/lockscreen/qzlockscreenfunctions.cpp \
     $$PWD/objectfactory.cpp \
    $$PWD/apexbike.cpp \
+    $$PWD/handleurl.cpp \
+    $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
     $$PWD/virtualdevice.cpp \
    $$PWD/schwinn170bike.cpp \
@@ -269,6 +271,8 @@ HEADERS += \
     $$PWD/androidadblog.h \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
+    $$PWD/handleurl.h \
+    $$PWD/localipaddress.h \
     $$PWD/lockscreen/lockscreenfunctions.h \
     $$PWD/lockscreen/qzlockscreen.h \
     $$PWD/lockscreen/qzlockscreenfunctions.h \
@@ -688,6 +692,9 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/src/Garmin.java \
+    $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
@@ -754,6 +761,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    OBJECTIVE_SOURCES += ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -782,4 +790,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.25
+VERSION = 2.13.29

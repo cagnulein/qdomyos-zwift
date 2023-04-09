@@ -9,6 +9,7 @@
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
+#include "localipaddress.h"
 
 using namespace std::chrono_literals;
 
@@ -430,6 +431,55 @@ void trainprogram::clearRows() {
     rows.clear();
 }
 
+void trainprogram::pelotonOCRprocessPendingDatagrams() {
+    qDebug() << "in !";
+    QHostAddress sender;
+    QSettings settings;
+    uint16_t port;
+    while (pelotonOCRsocket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(pelotonOCRsocket->pendingDatagramSize());
+        pelotonOCRsocket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
+        qDebug() << "PelotonOCR Message From :: " << sender.toString();
+        qDebug() << "PelotonOCR Port From :: " << port;
+        qDebug() << "PelotonOCR Message :: " << datagram;
+
+        QString s = datagram;
+        pelotonOCRcomputeTime(s);
+
+        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
+        qDebug() << "url floating" << url;
+        pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, port);
+    }
+}
+
+void trainprogram::pelotonOCRcomputeTime(QString t) {
+    QRegularExpression re("\\d\\d:\\d\\d");
+    QRegularExpressionMatch match = re.match(t.left(5));
+    if (t.contains(QStringLiteral("INTRO"))) {
+        qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+        restart();
+    } else if (match.hasMatch()) {
+        int minutes = t.left(2).toInt();
+        int seconds = t.left(5).right(2).toInt();
+        seconds -= 1; //(due to the OCR delay)
+        seconds += minutes * 60;
+        QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
+        QTime currentRemaining = remainingTime();
+        qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
+                 << QStringLiteral("currentRemaining") << currentRemaining;
+        uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
+        if (abs < 120) {
+            qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
+            // applying the differences
+            if (ocrRemaining > currentRemaining)
+                decreaseElapsedTime(abs);
+            else
+                increaseElapsedTime(abs);
+        }
+    }
+}
+
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
@@ -445,7 +495,7 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
-            bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
             QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
             QString t = text.toString();
@@ -497,7 +547,7 @@ void trainprogram::scheduler() {
         }
 #endif
 
-        return;
+       return;
     }
 
 #ifdef Q_OS_ANDROID
@@ -510,35 +560,22 @@ void trainprogram::scheduler() {
         QString packageName = packageNameJava.toString();
         if (packageName.contains("com.onepeloton.callisto")) {
             qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
-            QRegularExpression re("\\d\\d:\\d\\d");
-            QRegularExpressionMatch match = re.match(t.left(5));
-            if (t.contains(QStringLiteral("INTRO"))) {
-                qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
-                restart();
-            } else if (match.hasMatch()) {
-                int minutes = t.left(2).toInt();
-                int seconds = t.left(5).right(2).toInt();
-                seconds -= 1; //(due to the OCR delay)
-                seconds += minutes * 60;
-                QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
-                QTime currentRemaining = remainingTime();
-                qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
-                         << QStringLiteral("currentRemaining") << currentRemaining;
-                uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
-                if (abs < 120) {
-                    qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
-                    // applying the differences
-                    if (ocrRemaining > currentRemaining)
-                        decreaseElapsedTime(abs);
-                    else
-                        increaseElapsedTime(abs);
-                }
-            }
+            pelotonOCRcomputeTime(t);
         } else {
             qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
         }
-    }
+    } else
 #endif
+        
+    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
+        if(!pelotonOCRsocket) {
+            pelotonOCRsocket = new QUdpSocket(this);
+            bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
+            qDebug() << result;
+            pelotonOCRprocessPendingDatagrams();
+            connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+        }
+    }
 
     ticks++;
 

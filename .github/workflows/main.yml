@@ -438,3 +438,4 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+

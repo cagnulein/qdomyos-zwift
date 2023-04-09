@@ -92,7 +92,8 @@ void nautilusbike::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this);
@@ -177,13 +178,14 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
-    // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble(); uint16_t watt = (newValue.at(13) << 8) |
+    // newValue.at(14);
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = speed * 2.6; // this device doesn't send cadence so I'm calculating it from the speed
+        Cadence = newValue.at(1);
     }
 
     Speed = speed;
@@ -217,7 +219,7 @@ double nautilusbike::GetSpeedFromPacket(const QByteArray &packet) {
     double data = 0;
     convertedData = (packet.at(4) << 8) | packet.at(3);
     data = (double)convertedData / 100.0f;
-    if(!B616)
+    if (!B616)
         data = data * miles;
 
     return data;
@@ -330,7 +332,7 @@ void nautilusbike::serviceScanDone(void) {
             return;
         }
     }
-    
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilusbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -410,6 +412,4 @@ void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState 
     }
 }
 
-uint16_t nautilusbike::watts() {
-    return m_watt.value();
-}
+uint16_t nautilusbike::watts() { return m_watt.value(); }

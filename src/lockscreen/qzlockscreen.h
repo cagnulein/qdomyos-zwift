@@ -57,5 +57,11 @@ public:
 
   // volume
   virtual double getVolume() = 0;
+
+  // garmin
+  virtual bool urlParser(const char *url) =0;
+  virtual void garminconnect_init() =0;
+  virtual int getHR() =0;
+  virtual int getFootCad() =0;
 };
 

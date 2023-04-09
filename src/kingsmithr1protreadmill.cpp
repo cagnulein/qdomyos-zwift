@@ -310,6 +310,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
             } else
 
                 Heart = heart;
+            }
         }
     }
 

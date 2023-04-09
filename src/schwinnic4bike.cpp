@@ -345,7 +345,6 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
             this->update_hr_from_external();
 
         } else {
-
             Heart = heart;
         }
     }

@@ -1806,6 +1806,12 @@ class QZSettings {
     static const QString treadmill_simulate_inclination_with_speed;
     static constexpr bool default_treadmill_simulate_inclination_with_speed = false;
 
+    static const QString garmin_companion;
+    static constexpr bool default_garmin_companion = false;
+
+    static const QString peloton_companion_workout_ocr;
+    static constexpr bool default_companion_peloton_workout_ocr = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

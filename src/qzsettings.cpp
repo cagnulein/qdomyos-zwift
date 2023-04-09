@@ -586,6 +586,7 @@ const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("
 const QString QZSettings::pafers_treadmill_bh_iboxster_plus = QStringLiteral("pafers_treadmill_bh_iboxster_plus");
 const QString QZSettings::proform_cycle_trainer_400 = QStringLiteral("proform_cycle_trainer_400");
 const QString QZSettings::peloton_workout_ocr = QStringLiteral("peloton_workout_ocr");
+const QString QZSettings::peloton_companion_workout_ocr = QStringLiteral("peloton_companion_workout_ocr");
 const QString QZSettings::peloton_bike_ocr = QStringLiteral("peloton_bike_ocr");
 const QString QZSettings::fitshow_treadmill_miles = QStringLiteral("fitshow_treadmill_miles");
 const QString QZSettings::proform_hybrid_trainer_PFEL03815 = QStringLiteral("proform_hybrid_trainer_PFEL03815");
@@ -643,8 +644,9 @@ const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_save
 const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
 const QString QZSettings::treadmill_simulate_inclination_with_speed =
     QStringLiteral("treadmill_simulate_inclination_with_speed");
+const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 
-const uint32_t allSettingsCount = 537;
+const uint32_t allSettingsCount = 539;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1187,6 +1189,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
     {QZSettings::treadmill_simulate_inclination_with_speed,
      QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
+    {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

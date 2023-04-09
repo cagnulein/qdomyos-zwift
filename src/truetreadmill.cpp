@@ -163,6 +163,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
             } else
 
                 Heart = heart;
+            }
         }
     }
 

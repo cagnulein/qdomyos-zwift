@@ -672,7 +672,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
             this->update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }

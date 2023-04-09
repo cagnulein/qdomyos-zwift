@@ -706,6 +706,11 @@ class bluetoothdevice : public QObject {
     void update_metrics(bool watt_calc, const double watts);
 
     /**
+     * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
+     */
+    void update_hr_from_external();
+
+    /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
      * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */

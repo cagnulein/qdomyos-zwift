@@ -309,9 +309,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
             uint8_t heart = 0;
             if (heart == 0) {
                 this->update_hr_from_external();
-            } else
-
+            } else {
                 Heart = heart;
+            }
         }
     }
 

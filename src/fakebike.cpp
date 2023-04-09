@@ -43,7 +43,8 @@ void fakebike::update() {
     else if (updcou > 6000)
         w = 150;
 
-    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());*/
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(),
+    Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());*/
 
     update_metrics(true, watts());
 
@@ -53,7 +54,8 @@ void fakebike::update() {
 
     // ******************************************* virtual bike init *************************************
     if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->isPelotonWorkaroundActive()) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
@@ -82,7 +84,6 @@ void fakebike::update() {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             this->update_hr_from_external();
         }
-
         this->doLockscreenUpdate();
     }
 

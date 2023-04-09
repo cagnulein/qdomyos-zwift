@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -143,6 +143,9 @@
 		87083D9626678EFA0072410D /* zwiftworkout.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87083D9526678EFA0072410D /* zwiftworkout.cpp */; };
 		87097D2F275EA9A30020EE6F /* sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */; };
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
+		8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706B29C48AEA0094D0F3 /* handleurl.cpp */; };
+		8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */; };
+		8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8710707229C4A5E70094D0F3 /* GarminConnect.swift */; };
 		871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189122893C92F006A04D1 /* libQt5Multimedia.a */; };
 		871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189142893CB51006A04D1 /* libdeclarative_multimedia.a */; };
 		871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */; };
@@ -238,6 +241,8 @@
 		873CD22D27EF8E4B000131BC /* iosinapppurchaseproduct.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22927EF8E4B000131BC /* iosinapppurchaseproduct.mm */; };
 		873CD22F27EF8EC1000131BC /* StoreKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873CD22E27EF8EC1000131BC /* StoreKit.framework */; };
 		873CD23027EF8EF5000131BC /* iosinapppurchasetransaction.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22727EF8E4B000131BC /* iosinapppurchasetransaction.mm */; };
+		873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; };
+		873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		873F022F274BE471002D0349 /* mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F022D274BE471002D0349 /* mcfbike.cpp */; };
 		873F0231274BE47D002D0349 /* moc_mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F0230274BE47D002D0349 /* moc_mcfbike.cpp */; };
 		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
@@ -325,6 +330,7 @@
 		87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87917A7228E768D200F8D9AC /* Client.swift */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
+		87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87943AB229E0215D007575F2 /* localipaddress.cpp */; };
 		87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1827628D4500124B24 /* elitesterzosmart.cpp */; };
 		87958F1B27628D5400124B24 /* moc_elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */; };
 		8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8862733E103003148B3 /* strydrunpowersensor.cpp */; };
@@ -413,6 +419,7 @@
 		87D269A325F535340076AA48 /* moc_skandikawiribike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */; };
 		87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A225F535300076AA48 /* moc_m3ibike.cpp */; };
 		87D44181269DE979003263D5 /* webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D44180269DE979003263D5 /* webserverinfosender.cpp */; };
+		87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D4693529B64D8100C9A382 /* ios_app_delegate.mm */; };
 		87D5DC402823047D008CCDE7 /* truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC3E2823047D008CCDE7 /* truetreadmill.cpp */; };
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
@@ -588,6 +595,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -824,6 +832,10 @@
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/sportsplusbike.cpp; sourceTree = "<group>"; };
 		87097D2E275EA9A20020EE6F /* sportsplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sportsplusbike.h; path = ../src/sportsplusbike.h; sourceTree = "<group>"; };
 		87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusbike.cpp; sourceTree = "<group>"; };
+		8710706A29C48AE90094D0F3 /* handleurl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = handleurl.h; path = ../src/handleurl.h; sourceTree = "<group>"; };
+		8710706B29C48AEA0094D0F3 /* handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = handleurl.cpp; path = ../src/handleurl.cpp; sourceTree = "<group>"; };
+		8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_handleurl.cpp; sourceTree = "<group>"; };
+		8710707229C4A5E70094D0F3 /* GarminConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GarminConnect.swift; path = ../src/ios/GarminConnect.swift; sourceTree = "<group>"; };
 		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = ../../Qt/5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
 		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = ../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
 		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
@@ -966,6 +978,7 @@
 		873CD22927EF8E4B000131BC /* iosinapppurchaseproduct.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = iosinapppurchaseproduct.mm; path = ../src/purchasing/ios/iosinapppurchaseproduct.mm; sourceTree = "<group>"; };
 		873CD22A27EF8E4B000131BC /* iosinapppurchasetransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iosinapppurchasetransaction.h; path = ../src/purchasing/ios/iosinapppurchasetransaction.h; sourceTree = "<group>"; };
 		873CD22E27EF8EC1000131BC /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		873D388A29B0D744006A2611 /* ConnectIQ.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ConnectIQ.xcframework; path = ../src/ConnectIQ/iOS/ConnectIQ.xcframework; sourceTree = "<group>"; };
 		873F022D274BE471002D0349 /* mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mcfbike.cpp; path = ../src/mcfbike.cpp; sourceTree = "<group>"; };
 		873F022E274BE471002D0349 /* mcfbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mcfbike.h; path = ../src/mcfbike.h; sourceTree = "<group>"; };
 		873F0230274BE47D002D0349 /* moc_mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mcfbike.cpp; sourceTree = "<group>"; };
@@ -1099,6 +1112,8 @@
 		8791A8A725C8602A003B50B2 /* inspirebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inspirebike.h; path = ../src/inspirebike.h; sourceTree = "<group>"; };
 		8791A8A825C8602A003B50B2 /* inspirebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = inspirebike.cpp; path = ../src/inspirebike.cpp; sourceTree = "<group>"; };
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
+		87943AB229E0215D007575F2 /* localipaddress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = localipaddress.cpp; path = ../src/localipaddress.cpp; sourceTree = "<group>"; };
+		87943AB329E0215D007575F2 /* localipaddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = localipaddress.h; path = ../src/localipaddress.h; sourceTree = "<group>"; };
 		87958F1727628D4500124B24 /* elitesterzosmart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elitesterzosmart.h; path = ../src/elitesterzosmart.h; sourceTree = "<group>"; };
 		87958F1827628D4500124B24 /* elitesterzosmart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elitesterzosmart.cpp; path = ../src/elitesterzosmart.cpp; sourceTree = "<group>"; };
 		87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elitesterzosmart.cpp; sourceTree = "<group>"; };
@@ -1232,6 +1247,7 @@
 		87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_skandikawiribike.cpp; sourceTree = "<group>"; };
 		87D269A225F535300076AA48 /* moc_m3ibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_m3ibike.cpp; sourceTree = "<group>"; };
 		87D44180269DE979003263D5 /* webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webserverinfosender.cpp; path = ../src/webserverinfosender.cpp; sourceTree = "<group>"; };
+		87D4693529B64D8100C9A382 /* ios_app_delegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_app_delegate.mm; path = ../src/ios/ios_app_delegate.mm; sourceTree = "<group>"; };
 		87D5DC3E2823047D008CCDE7 /* truetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = truetreadmill.cpp; path = ../src/truetreadmill.cpp; sourceTree = "<group>"; };
 		87D5DC3F2823047D008CCDE7 /* truetreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = truetreadmill.h; path = ../src/truetreadmill.h; sourceTree = "<group>"; };
 		87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_truetreadmill.cpp; sourceTree = "<group>"; };
@@ -1607,6 +1623,7 @@
 				023642106C14651D2E1F4D5D /* dialogplugin in Link Binary With Libraries */,
 				133CA0345CD2BFB03079A655 /* qmlfolderlistmodelplugin in Link Binary With Libraries */,
 				4AAA7380490CBDBAA8587CFA /* qmlsettingsplugin in Link Binary With Libraries */,
+				873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */,
 				3BD5A5F95DF5239184791B58 /* dialogsprivateplugin in Link Binary With Libraries */,
 				EF98F8C34BE322582E9B73D7 /* qtquickcontrolsplugin in Link Binary With Libraries */,
 				7C8D236C48F2964061C3457C /* widgetsplugin in Link Binary With Libraries */,
@@ -1679,6 +1696,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8710706D29C48AF30094D0F3 /* moc_handleurl.cpp */,
 				87F4FB5B29D550DF0061BB4A /* moc_schwinn170bike.cpp */,
 				87B187BC29B8C577007EEF9D /* moc_ziprotreadmill.cpp */,
 				87A0771129B6420200A368BF /* moc_wahookickrheadwind.cpp */,
@@ -1841,6 +1859,11 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87943AB229E0215D007575F2 /* localipaddress.cpp */,
+				87943AB329E0215D007575F2 /* localipaddress.h */,
+				8710706B29C48AEA0094D0F3 /* handleurl.cpp */,
+				8710706A29C48AE90094D0F3 /* handleurl.h */,
+				87D4693529B64D8100C9A382 /* ios_app_delegate.mm */,
 				87F4FB5829D550BF0061BB4A /* schwinn170bike.cpp */,
 				87F4FB5929D550BF0061BB4A /* schwinn170bike.h */,
 				87B187B929B8C552007EEF9D /* ziprotreadmill.cpp */,
@@ -2182,6 +2205,7 @@
 				68418A2D51B69FC30BF5A41C /* virtualbike.h */,
 				35E903698E72424585D33829 /* virtualtreadmill.h */,
 				C8CE72E7B224D8B886614E3F /* domyosbike.h */,
+				8710707229C4A5E70094D0F3 /* GarminConnect.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -2274,6 +2298,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				873D388A29B0D744006A2611 /* ConnectIQ.xcframework */,
 				879F74142893D732009A64C8 /* CoreMedia.framework */,
 				879F74122893D705009A64C8 /* CoreVideo.framework */,
 				879F74102893D5B7009A64C8 /* libqavfcamera.a */,
@@ -2884,6 +2909,7 @@
 				87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
 				8738249827E646E3004F1B46 /* dirconmanager.cpp in Compile Sources */,
+				87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */,
 				87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */,
 				87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */,
 				87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */,
@@ -3035,6 +3061,7 @@
 				8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */,
 				2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */,
 				6DC5D7C695B8763F9E2E029F /* fit_profile.cpp in Compile Sources */,
+				8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */,
 				87C5F0B726285E5F0067A1B5 /* mimecontentformatter.cpp in Compile Sources */,
 				23191C28CB29474279752FD3 /* fit_protocol_validator.cpp in Compile Sources */,
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
@@ -3043,6 +3070,7 @@
 				87061399286D8D6500D2446E /* moc_wobjectdefs.cpp in Compile Sources */,
 				873824BA27E64707004F1B46 /* moc_server_p.cpp in Compile Sources */,
 				87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */,
+				87943AB429E0215D007575F2 /* localipaddress.cpp in Compile Sources */,
 				87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */,
 				ACB47DC464A2BC9D39C544AD /* gpx.cpp in Compile Sources */,
 				6361329E515248BB41640C07 /* homeform.cpp in Compile Sources */,
@@ -3070,11 +3098,13 @@
 				E40895A73216AC52D35083D9 /* signalhandler.cpp in Compile Sources */,
 				873CD22427EF8E18000131BC /* inappproductqmltype.cpp in Compile Sources */,
 				87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */,
+				8710707329C4A5E70094D0F3 /* GarminConnect.swift in Compile Sources */,
 				BE1D17BBF32F04829E1B3767 /* toorxtreadmill.cpp in Compile Sources */,
 				879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */,
 				4697729B15991E98D6A2533D /* treadmill.cpp in Compile Sources */,
 				87C481FC26DFA7D1006211AD /* moc_eliterizer.cpp in Compile Sources */,
 				20AA270C9F447F42F5DC2FF2 /* trainprogram.cpp in Compile Sources */,
+				8710706E29C48AF30094D0F3 /* moc_handleurl.cpp in Compile Sources */,
 				87F93429278E0ECF0088B596 /* moc_domyosrower.cpp in Compile Sources */,
 				87C5F0C026285E5F0067A1B5 /* mimepart.cpp in Compile Sources */,
 				47E45EE0BB22C1E4332F1D1D /* trxappgateusbtreadmill.cpp in Compile Sources */,
@@ -3586,7 +3616,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3754,7 +3784,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -3958,7 +3988,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3978,7 +4008,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4050,7 +4084,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4066,7 +4100,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4087,8 +4125,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "watchkit-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
@@ -4137,7 +4176,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4177,7 +4216,11 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4247,7 +4290,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 527;
+				CURRENT_PROJECT_VERSION = 533;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -4283,7 +4326,11 @@
 					../../Qt/5.15.2/ios/include/QtMultimedia,
 				);
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 2.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -4304,7 +4351,8 @@
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;

@@ -224,8 +224,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if(!this->update_hr_from_external())
-                this->Heart = 0;
+            this->update_hr_from_external();
         }
     }
 
