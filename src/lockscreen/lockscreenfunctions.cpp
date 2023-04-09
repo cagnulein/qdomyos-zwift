@@ -133,16 +133,25 @@ bool LockscreenFunctions::isPelotonWorkaroundActive() const {
     return this->pelotonWorkaroundActive;
 }
 
-bool LockscreenFunctions::updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, int defaultHeartRate) {
+bool LockscreenFunctions::updateEnergyDistance(metric kcal, metric distance) {
+    QZLockscreen * ls = this->getLockscreen();
+    if(!ls)
+        return false;
 
+    ls->setKcal(kcal.value());
+    ls->setDistance(distance.value());
+
+    return true;
+}
+
+bool LockscreenFunctions::updateHeartRate(metric &heart, int defaultHeartRate) {
     long appleWatchHeartRate = 0;
+
     QZLockscreen * ls = this->getLockscreen();
     if(!ls)
         return false;
 
     appleWatchHeartRate = ls->heartRate();
-    ls->setKcal(kcal.value());
-    ls->setDistance(distance.value());
 
     if (appleWatchHeartRate == 0)
         heart = defaultHeartRate;
@@ -151,24 +160,6 @@ bool LockscreenFunctions::updateEnergyDistanceHeartRate(metric kcal, metric dist
 
     qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
 
-    //debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-    return true;
-}
-
-bool LockscreenFunctions::updateHeartRate(metric &heart) {
-    long appleWatchHeartRate = 0;
-
-    QZLockscreen * ls = this->getLockscreen();
-    if(!ls)
-        return false;
-
-    appleWatchHeartRate = ls->heartRate();
-
-    heart = appleWatchHeartRate;
-
-    qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-
-    //debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
     return true;
 }
 

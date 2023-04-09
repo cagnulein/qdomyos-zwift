@@ -298,8 +298,13 @@ resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
     auto functions = this->getLockscreenFunctions();
-    return functions && functions->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
 
+    if(!functions)
+        return false;
+
+    functions->updateEnergyDistance(this->KCal, this->Distance);
+
+    return functions->updateHeartRate(this->Heart, defaultHeartRate);
 
     /* TODO: support new external device functionality
     QSettings settings;
@@ -315,16 +320,9 @@ bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
 #endif
         qDebug() << "Garmin Companion Heart:" << Heart.value();
     } else {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
-#endif
-#endif
+
+// IOS implemention of updateEnergyDistanceHeartRate here
+
     }
 */
 }

@@ -39,21 +39,20 @@ public:
     virtual configurationType getConfigurationType() const =0;
 
     /**
-     * @brief Updates the kcal and distance on the lockscreen, and gets the heart rate from it.
+     * @brief Updates the kcal and distance on the lockscreen.
      * @param kcal
      * @param distance
-     * @param heart
-     * @param defaultHeartRate
-     * @return True if the update occurred, false if not.
+          * @return True if the update occurred, false if not.
      */
-    virtual bool updateEnergyDistanceHeartRate(metric kcal, metric distance, metric &heart, const int defaultHeartRate=0)=0;
+    virtual bool updateEnergyDistance(metric kcal, metric distance)=0;
 
     /**
      * @brief Get the heart rate from the lockscreen.
      * @param heart
+     * @param defaultHeartRate The defult heart rate to set if none is provided by the external device.
      * @return True if the update occurred, false if not.
      */
-    virtual bool updateHeartRate(metric &heart)=0;
+    virtual bool updateHeartRate(metric &heart, const int defaultHeartRate=0)=0;
 
     /**
      * @brief Gets the cadence from the lockscreen.
