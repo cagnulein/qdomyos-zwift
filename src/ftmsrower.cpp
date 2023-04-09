@@ -39,7 +39,7 @@ void ftmsrower::doPelotonWorkaround() {
         return;
 
     // this rower does the bike update
-    this->getLockscreenFunctions()->pelotonUpdateCHR(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
+    this->getLockscreenFunctions()->pelotonSetCrankHeartRate(currentCrankRevolutions(), LastCrankEventTime, (uint8_t)metrics_override_heartrate());
 }
 
 void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,

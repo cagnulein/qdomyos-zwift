@@ -27,10 +27,10 @@ public:
     configurationType getConfigurationType() const override;
 
     bool isPelotonWorkaroundActive() const override;
-    bool updateEnergyDistance(metric kcal, metric distance) override;
-    bool updateHeartRate(metric &heart, const int defaultHeartRate) override;
-    void updateStepCadence(metric& cadence) override;
-    void pelotonUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) override;
+    bool setEnergyDistance(metric kcal, metric distance) override;
+    bool getHeartRate(metric &heart, const int defaultHeartRate) override;
+    void getStepCadence(metric& cadence) override;
+    void pelotonSetCrankHeartRate(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) override;
 };
 
 

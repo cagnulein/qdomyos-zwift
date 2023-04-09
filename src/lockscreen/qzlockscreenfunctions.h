@@ -44,7 +44,7 @@ public:
      * @param distance
           * @return True if the update occurred, false if not.
      */
-    virtual bool updateEnergyDistance(metric kcal, metric distance)=0;
+    virtual bool setEnergyDistance(metric kcal, metric distance)=0;
 
     /**
      * @brief Get the heart rate from the lockscreen.
@@ -52,13 +52,13 @@ public:
      * @param defaultHeartRate The defult heart rate to set if none is provided by the external device.
      * @return True if the update occurred, false if not.
      */
-    virtual bool updateHeartRate(metric &heart, const int defaultHeartRate=0)=0;
+    virtual bool getHeartRate(metric &heart, const int defaultHeartRate=0)=0;
 
     /**
      * @brief Gets the cadence from the lockscreen.
      * @param cadence The metric object to update.
      */
-    virtual void updateStepCadence(metric& cadence) = 0;
+    virtual void getStepCadence(metric& cadence) = 0;
 
     /**
      * @brief Indicates if the Peloton workaround is active.
@@ -72,7 +72,7 @@ public:
      * @param lastCrankEventTime
      * @param heartRate
      */
-    virtual void pelotonUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
+    virtual void pelotonSetCrankHeartRate(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate)=0;
 
 };
 

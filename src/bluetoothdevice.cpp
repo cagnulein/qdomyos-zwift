@@ -302,9 +302,9 @@ bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
     if(!functions)
         return false;
 
-    functions->updateEnergyDistance(this->KCal, this->Distance);
+    functions->setEnergyDistance(this->KCal, this->Distance);
 
-    return functions->updateHeartRate(this->Heart, defaultHeartRate);
+    return functions->getHeartRate(this->Heart, defaultHeartRate);
 
     /* TODO: support new external device functionality
     QSettings settings;

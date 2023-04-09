@@ -133,7 +133,7 @@ bool LockscreenFunctions::isPelotonWorkaroundActive() const {
     return this->pelotonWorkaroundActive;
 }
 
-bool LockscreenFunctions::updateEnergyDistance(metric kcal, metric distance) {
+bool LockscreenFunctions::setEnergyDistance(metric kcal, metric distance) {
     QZLockscreen * ls = this->getLockscreen();
     if(!ls)
         return false;
@@ -144,7 +144,7 @@ bool LockscreenFunctions::updateEnergyDistance(metric kcal, metric distance) {
     return true;
 }
 
-bool LockscreenFunctions::updateHeartRate(metric &heart, int defaultHeartRate) {
+bool LockscreenFunctions::getHeartRate(metric &heart, int defaultHeartRate) {
     long appleWatchHeartRate = 0;
 
     QZLockscreen * ls = this->getLockscreen();
@@ -163,7 +163,7 @@ bool LockscreenFunctions::updateHeartRate(metric &heart, int defaultHeartRate) {
     return true;
 }
 
-void LockscreenFunctions::updateStepCadence(metric &cadence) {
+void LockscreenFunctions::getStepCadence(metric &cadence) {
 
     QSettings settings;
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -179,7 +179,7 @@ void LockscreenFunctions::updateStepCadence(metric &cadence) {
 }
 
 
-void LockscreenFunctions::pelotonUpdateCHR(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
+void LockscreenFunctions::pelotonSetCrankHeartRate(const double crankRevolutions, const uint16_t lastCrankEventTime, const uint8_t heartRate) {
 
     if(!this->isPelotonWorkaroundActive())
         return;

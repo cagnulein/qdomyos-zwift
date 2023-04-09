@@ -367,7 +367,7 @@ void treadmill::updateLockscreenStepCadence() {
     auto functions = this->getLockscreenFunctions();
 
     if(functions)
-        functions->updateStepCadence(this->Cadence);
+        functions->getStepCadence(this->Cadence);
 /* TODO: incorprate Garmin functionality
 
 #ifdef Q_OS_IOS
