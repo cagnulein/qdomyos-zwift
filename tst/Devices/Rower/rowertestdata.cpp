@@ -15,6 +15,6 @@ void RowerTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info,
         config.bike_cadence_sensor = i&2;
         config.virtual_device_rower = i&4;
         bool enabled = config.ios_peloton_workaround && config.bike_cadence_sensor && !config.virtual_device_rower;
-        configurations.push_back(LockscreenFunctionsTestData(enabled ? rower:none, enabled ? bike:none, enabled, enabled && expectedZwiftMode, config));
+        configurations.push_back(LockscreenFunctionsTestData(none, enabled ? bike:none, enabled, enabled && expectedZwiftMode, config));
     }
 }
