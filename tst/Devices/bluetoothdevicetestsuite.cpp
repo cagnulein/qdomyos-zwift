@@ -323,9 +323,11 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
         EXPECT_NE(nullptr, lockscreenFunctions) << "A lockscreen functions object should have been created";
         if(!lockscreenFunctions) return;
 
+        bool doPelotonWorkaroundTests = lsfTestData.get_isPelotonActive() && lockscreenFunctions->isPelotonWorkaroundActive();
+
         EXPECT_EQ(lsfTestData.get_isPelotonActive(), lockscreenFunctions->isPelotonWorkaroundActive())
             << testData.get_testName()
-            << " : Unexpected Peloton worakround activity, expected "
+            << " : Unexpected Peloton workround activity, expected "
             << lsfTestData.get_isPelotonActive()
             << " got "
             << lockscreenFunctions->isPelotonWorkaroundActive();
@@ -337,24 +339,25 @@ void BluetoothDeviceTestSuite<T>::test_lockscreenConfiguration() {
             << " got "
             << LockscreenFunctionsTestData::getConfigurationTypeName(lockscreenFunctions->getConfigurationType());
 
-        QZLockscreenFunctions::configurationType expectedLockscreenConfig = QZLockscreenFunctions::configurationType::NONE;
-        if(lsfTestData.get_isPelotonActive())
-            expectedLockscreenConfig = lsfTestData.get_lockscreenConfigType();
+        if(doPelotonWorkaroundTests) {
+            QZLockscreenFunctions::configurationType expectedLockscreenConfig = lsfTestData.get_lockscreenConfigType();
 
-        EXPECT_EQ(expectedLockscreenConfig, this->testLockscreen->get_virtualDeviceType())
-            << testData.get_testName()
-            << " : Unexpected Peloton workaround configuration type in lockscreen object. Expected "
-            << LockscreenFunctionsTestData::getConfigurationTypeName(expectedLockscreenConfig)
-            << " got "
-            << LockscreenFunctionsTestData::getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType());
+            EXPECT_EQ(expectedLockscreenConfig, this->testLockscreen->get_virtualDeviceType())
+                << testData.get_testName()
+                << " : Unexpected Peloton workaround configuration type in lockscreen object. Expected "
+                << LockscreenFunctionsTestData::getConfigurationTypeName(expectedLockscreenConfig)
+                << " got "
+                << LockscreenFunctionsTestData::getConfigurationTypeName(this->testLockscreen->get_virtualDeviceType())
+                << ". Peloton workaround active: " << lockscreenFunctions->isPelotonWorkaroundActive();
 
-        bool expectedLockscreenZwiftMode = lockscreenFunctions->isPelotonWorkaroundActive() && testData.get_expectedLockscreenZwiftMode();
-        EXPECT_EQ(expectedLockscreenZwiftMode ,this->testLockscreen->get_zwiftMode())
-            << testData.get_testName()
-            << " : Peloton workaround in lockscreen object unexpectedly "
-            << (expectedLockscreenZwiftMode ? "not ":"")
-            << "in Zwift mode. "
-            << "Peloton workaround active: " << lockscreenFunctions->isPelotonWorkaroundActive();
+            bool expectedLockscreenZwiftMode = testData.get_expectedLockscreenZwiftMode();
+            EXPECT_EQ(expectedLockscreenZwiftMode ,this->testLockscreen->get_zwiftMode())
+                << testData.get_testName()
+                << " : Peloton workaround in lockscreen object unexpectedly "
+                << (expectedLockscreenZwiftMode ? "not ":"")
+                << "in Zwift mode. "
+                << "Peloton workaround active: " << lockscreenFunctions->isPelotonWorkaroundActive();
+        }
 
         EXPECT_FALSE(this->testLockscreen->get_disableHeartRate())
             << testData.get_testName()
