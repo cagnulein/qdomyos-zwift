@@ -341,8 +341,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
-
-            this->updateLockscreenEnergyDistanceHeartRate();
+            
+            this->update_hr_from_external();
 
         } else {
 

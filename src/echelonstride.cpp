@@ -302,7 +302,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
             uint8_t heart = ((uint8_t)newValue.at(11));
             if (heart == 0) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+                    this->update_hr_from_external();
             } else {
                 Heart = heart;
             }

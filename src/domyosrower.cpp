@@ -321,7 +321,7 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if(!this->updateLockscreenEnergyDistanceHeartRate())
+            if(!this->update_hr_from_external())
                 this->Heart = ((uint8_t)newValue.at(18));
         }
     }

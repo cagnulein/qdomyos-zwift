@@ -294,12 +294,7 @@ QStringList bluetoothdevice::metrics() {
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 
-bool bluetoothdevice::updateLockscreenHeartRate() {
-    auto functions = this->getLockscreenFunctions();
-    return functions && functions->updateHeartRate(this->Heart);
-}
-
-bool bluetoothdevice::updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate) {
+bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
     auto functions = this->getLockscreenFunctions();
     return functions && functions->updateEnergyDistanceHeartRate(this->KCal, this->Distance, this->Heart, defaultHeartRate);
 }

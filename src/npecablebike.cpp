@@ -401,7 +401,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
     }
 #endif
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-        this->updateLockscreenEnergyDistanceHeartRate();
+        this->update_hr_from_external();
     }
 
     if (Cadence.value() > 0) {

@@ -488,7 +488,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 #endif
     {
         if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

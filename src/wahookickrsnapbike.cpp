@@ -488,7 +488,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         } else
 #endif
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

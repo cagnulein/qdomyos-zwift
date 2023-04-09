@@ -1601,8 +1601,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-
-            this->updateLockscreenEnergyDistanceHeartRate();
+            
+            this->update_hr_from_external();
         } else {
 
             Heart = heart;

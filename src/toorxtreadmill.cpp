@@ -305,7 +305,7 @@ void toorxtreadmill::readSocket() {
                 settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+                this->update_hr_from_external();
             }
             this->doLockscreenUpdate();
 

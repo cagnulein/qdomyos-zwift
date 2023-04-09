@@ -323,7 +323,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
-        this->updateLockscreenEnergyDistanceHeartRate();
+        this->update_hr_from_external();
     }
 
     this->doLockscreenUpdate();

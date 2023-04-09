@@ -181,7 +181,7 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

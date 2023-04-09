@@ -429,7 +429,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

@@ -1132,7 +1132,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

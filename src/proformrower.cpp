@@ -370,7 +370,7 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
     this->doLockscreenUpdate();

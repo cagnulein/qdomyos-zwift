@@ -365,7 +365,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         } else {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
     this->doLockscreenUpdate();

@@ -704,7 +704,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #endif
         {
             if (heartRateBeltDisabled) {
-                if(!this->updateLockscreenEnergyDistanceHeartRate(k3.pulse))
+                if(!this->update_hr_from_external(k3.pulse))
                     this->Heart = k3.pulse;
             }
         }

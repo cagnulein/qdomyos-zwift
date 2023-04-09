@@ -486,7 +486,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
                 {
                     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
-                        if(!this->updateLockscreenEnergyDistanceHeartRate())
+                        if(!this->update_hr_from_external())
                             this->Heart = heart;
                     }
                 }

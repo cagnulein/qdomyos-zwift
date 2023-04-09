@@ -389,7 +389,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if(heartRateBeltName.startsWith("Disabled"))
                 this->Heart = value.at(18);
         */
-        this->updateLockscreenEnergyDistanceHeartRate();    }
+        this->update_hr_from_external();    }
     
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 

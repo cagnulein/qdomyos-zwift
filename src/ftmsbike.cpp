@@ -566,7 +566,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
-        this->updateLockscreenEnergyDistanceHeartRate();
+        this->update_hr_from_external();
     }
 
     this->doLockscreenUpdate();

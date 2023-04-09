@@ -159,7 +159,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
             uint8_t heart = 0;
             if (heart == 0 || disable_hr_frommachinery) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+                this->update_hr_from_external();
             } else
 
                 Heart = heart;

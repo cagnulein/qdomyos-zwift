@@ -247,7 +247,7 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled")) && disable_hr_frommachinery) {
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

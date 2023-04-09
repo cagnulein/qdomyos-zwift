@@ -348,7 +348,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (heartRateBeltName.startsWith("Disabled")) {
-        this->updateLockscreenEnergyDistanceHeartRate();
+        this->update_hr_from_external();
     }
 
     this->doLockscreenUpdate();

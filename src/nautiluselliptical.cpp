@@ -239,7 +239,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         {
             uint8_t heart = ((uint8_t)newValue.at(16));
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
-                if(!this->updateLockscreenEnergyDistanceHeartRate())
+                if(!this->update_hr_from_external())
                     this->Heart = heart;
             }
         }

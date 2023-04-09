@@ -308,7 +308,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 #endif
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-        this->updateLockscreenHeartRate();
+        this->update_hr_from_external();
     }
 
     if (Cadence.value() > 0) {

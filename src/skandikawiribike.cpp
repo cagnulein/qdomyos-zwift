@@ -252,8 +252,8 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
             } else {
                 Heart = 0;
             }
-
-            if(!this->updateLockscreenEnergyDistanceHeartRate())
+            
+            if(!this->update_hr_from_external())
                 this->Heart = 0;
         }
     }

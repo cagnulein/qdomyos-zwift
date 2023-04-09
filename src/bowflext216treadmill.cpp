@@ -206,7 +206,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             // Heart = value.at(18);
-            this->updateLockscreenEnergyDistanceHeartRate();
+            this->update_hr_from_external();
         }
     }
 

@@ -407,18 +407,12 @@ class bluetoothdevice : public QObject {
      */
     virtual resistance_t maxResistance();
 
-    /**
-     * @brief Update this object's Heart metric using a value from the lockscreen, in IOS.
-     * @return True if the update happened, false if not (e.g. if it's not running in IOS)
+     /**
+     * @brief Update this object's Heart metric using a value from an external monitoring device.
+     * May also update the eternal monitoring device.
+     * @return True if the update happened, false if not.
      */
-    bool updateLockscreenHeartRate();
-
-    /**
-     * @brief Update the energy spent and distance travelled on the lockscreen and update this object's
-     * Heart metric using a value from the lockscreen, in IOS.
-     * @return True if the update happened, false if not (e.g. if it's not running in IOS)
-     */
-    bool updateLockscreenEnergyDistanceHeartRate(long defaultHeartRate=0);
+    bool update_hr_from_external(long defaultHeartRate=0);
 
     /**
      * @brief In IOS, perform the peloton workaround update to the lockscreen for this type of device.

@@ -306,7 +306,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             uint8_t heart = 0;
             if (heart == 0) {
-                this->updateLockscreenEnergyDistanceHeartRate();
+                this->update_hr_from_external();
             } else
 
                 Heart = heart;

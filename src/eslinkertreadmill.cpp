@@ -335,7 +335,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
             {
                 if (heartRateBeltName.startsWith("Disabled"))
-                    if(!this->updateLockscreenEnergyDistanceHeartRate())
+                    if(!this->update_hr_from_external())
                         this->Heart = heart;
             }
             emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
