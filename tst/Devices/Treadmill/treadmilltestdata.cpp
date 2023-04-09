@@ -5,6 +5,11 @@ void TreadmillTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &i
     DeviceDiscoveryInfo config(info);
     auto none = QZLockscreenFunctions::configurationType::NONE;
 
+    // enabling
+    bool expectedZwiftMode = this->get_expectedLockscreenZwiftMode();
+    // TODO: add enabling configurations
+
+
     // Disabling
     for(int i=0; i<4; i++) {
         config.ios_peloton_workaround = i&1;

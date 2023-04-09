@@ -14,20 +14,30 @@ std::string LockscreenFunctionsTestData::getConfigurationTypeName(QZLockscreenFu
 
 LockscreenFunctionsTestData::LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType configType,
                                                          bool pelotonWorkaroundActive, bool zwiftMode,
+                                                         const DeviceDiscoveryInfo &settings) :
+    LockscreenFunctionsTestData(configType, configType, pelotonWorkaroundActive, zwiftMode, settings)
+{
+
+}
+
+LockscreenFunctionsTestData::LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType lockscreenFunctionsConfigType,
+                                                         QZLockscreenFunctions::configurationType lockscreenConfigType,
+                                                         bool pelotonWorkaroundActive, bool zwiftMode,
                                                          const DeviceDiscoveryInfo &settings) {
-    this->configType = configType;
+    this->lockscreenFunctionsConfigType = lockscreenFunctionsConfigType;
+    this->lockscreenConfigType = lockscreenConfigType;
     this->settings = settings;
     this->pelotonWorkaroundActive = pelotonWorkaroundActive;
     this->zwiftMode = zwiftMode;
 }
 
 QZLockscreenFunctions::configurationType LockscreenFunctionsTestData::get_lockscreenConfigType() const {
-    return this->get_lockscreenFunctionsConfigType();
+    return this->lockscreenConfigType;
 }
 
 bool LockscreenFunctionsTestData::get_lockscreenZwiftMode() const {return this->zwiftMode;}
 
-QZLockscreenFunctions::configurationType LockscreenFunctionsTestData::get_lockscreenFunctionsConfigType() const { return this->configType; }
+QZLockscreenFunctions::configurationType LockscreenFunctionsTestData::get_lockscreenFunctionsConfigType() const { return this->lockscreenFunctionsConfigType; }
 
 DeviceDiscoveryInfo LockscreenFunctionsTestData::get_settings() const { return this->settings;}
 

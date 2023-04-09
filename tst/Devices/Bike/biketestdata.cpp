@@ -4,11 +4,13 @@ void BikeTestData::configureLockscreenSettings(const DeviceDiscoveryInfo &info,
                                                       std::vector<LockscreenFunctionsTestData> &configurations) const {
     DeviceDiscoveryInfo config(info);
     auto bike = QZLockscreenFunctions::configurationType::BIKE;
+    bool expectedZwiftMode = this-get_expectedLockscreenZwiftMode();
 
     // Enabling
     config.ios_peloton_workaround = true;
     config.bike_cadence_sensor = true;
-    configurations.push_back(LockscreenFunctionsTestData(bike, true, false, config));
+    configurations.push_back(LockscreenFunctionsTestData(bike, true, expectedZwiftMode, config));
+
 
     // Disabling
     for(int i=0; i<3; i++) {

@@ -4,12 +4,18 @@
 
 class LockscreenFunctionsTestData
 {
-    QZLockscreenFunctions::configurationType configType;
+    QZLockscreenFunctions::configurationType lockscreenFunctionsConfigType;
+    QZLockscreenFunctions::configurationType lockscreenConfigType;
     DeviceDiscoveryInfo settings;
     bool pelotonWorkaroundActive = false;
     bool zwiftMode = false;
 public:
     LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType configType,
+                                bool pelotonWorkaroundActive,
+                                bool zwiftMode,
+                                const DeviceDiscoveryInfo& settings);
+    LockscreenFunctionsTestData(QZLockscreenFunctions::configurationType lockscreenFunctionsConfigType,
+                                QZLockscreenFunctions::configurationType lockscreenConfigType,
                                 bool pelotonWorkaroundActive,
                                 bool zwiftMode,
                                 const DeviceDiscoveryInfo& settings);

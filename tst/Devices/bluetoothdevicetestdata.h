@@ -278,6 +278,13 @@ public:
      */
     virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
 
+
+    /**
+     * @brief Indicates if the lockscreen object should be in Zwift mode.
+     * @return
+     */
+    virtual bool get_expectedLockscreenZwiftMode() const;
+
 };
 
 

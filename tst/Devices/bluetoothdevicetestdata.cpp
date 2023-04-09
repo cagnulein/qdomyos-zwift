@@ -134,3 +134,5 @@ QBluetoothDeviceInfo BluetoothDeviceTestData::get_bluetoothDeviceInfo(const QBlu
         throw "Invalid bluetooth device info is not implemented in this class.";
     return QBluetoothDeviceInfo(uuid, name, 0);
 }
+
+bool BluetoothDeviceTestData::get_expectedLockscreenZwiftMode() const { return false; }

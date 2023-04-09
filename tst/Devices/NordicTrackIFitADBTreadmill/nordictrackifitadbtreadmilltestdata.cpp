@@ -20,3 +20,8 @@ deviceType NordicTrackIFitADBTreadmillTestData::get_expectedDeviceType() const {
 bool NordicTrackIFitADBTreadmillTestData::get_isExpectedDevice(bluetoothdevice *detectedDevice) const {
     return dynamic_cast<nordictrackifitadbtreadmill*>(detectedDevice)!=nullptr;
 }
+
+bool NordicTrackIFitADBTreadmillTestData::get_expectedLockscreenZwiftMode() const {
+    // Special case:the virtual device is set up in the nordictrackifitadbtreadmill constructor.
+    return true;
+}
