@@ -17,6 +17,10 @@ QZLockscreen *ObjectFactory::createLockscreen() {
     if(lockscreenFactory)
         return lockscreenFactory();
 
+#ifdef Q_OS_ANDROID
+    return new AndroidLockscreen();
+#endif
+
 #ifdef IOS_ENABLED
     return new lockscreen();
 #endif

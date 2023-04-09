@@ -65,6 +65,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
+    $$PWD/lockscreen/androidlockscreen.cpp \
     $$PWD/lockscreen/lockscreenfunctions.cpp \
     $$PWD/lockscreen/qzlockscreen.cpp \
     $$PWD/lockscreen/qzlockscreenfunctions.cpp \
@@ -273,6 +274,7 @@ HEADERS += \
     $$PWD/discoveryoptions.h \
     $$PWD/handleurl.h \
     $$PWD/localipaddress.h \
+    $$PWD/lockscreen/androidlockscreen.h \
     $$PWD/lockscreen/lockscreenfunctions.h \
     $$PWD/lockscreen/qzlockscreen.h \
     $$PWD/lockscreen/qzlockscreenfunctions.h \

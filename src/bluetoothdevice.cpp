@@ -302,16 +302,13 @@ bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
     if(!functions)
         return false;
 
+    // update the energy and distance if the external device supports it
     functions->setEnergyDistance(this->KCal, this->Distance);
 
     return functions->getHeartRate(this->Heart, defaultHeartRate);
 
-    /* TODO: support new external device functionality
-    QSettings settings;
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-#ifdef Q_OS_ANDROID
-        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
-#endif
+    /* TODO: support garmin in IOS, select with heigher priority than the IOS lockscreen.
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
@@ -319,10 +316,6 @@ bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
 #endif
 #endif
         qDebug() << "Garmin Companion Heart:" << Heart.value();
-    } else {
-
-// IOS implemention of updateEnergyDistanceHeartRate here
-
     }
 */
 }

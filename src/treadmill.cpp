@@ -368,7 +368,7 @@ void treadmill::updateLockscreenStepCadence() {
 
     if(functions)
         functions->getStepCadence(this->Cadence);
-/* TODO: incorprate Garmin functionality
+/* TODO: incorprate Garmin functionality for IOS with higher priority than IOS lockscreen
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT        
@@ -376,22 +376,8 @@ void treadmill::updateLockscreenStepCadence() {
         lockscreen h;
         Cadence = h.getFootCad();
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-    } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
-        lockscreen h;
-        long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-        qDebug() << QStringLiteral("Current Cadence: ") << QString::number(Cadence.value());
     }
 #endif
-#endif
-
-#ifdef Q_OS_ANDROID
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
-    }
 #endif
 
 */
