@@ -75,4 +75,12 @@ bool TestLockscreen::virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, 
 
 double TestLockscreen::getVolume() { return 0.0;}
 
+bool TestLockscreen::urlParser(const char *url){ return false;}
+
+void TestLockscreen::garminconnect_init(){}
+
+int TestLockscreen::getHR(){ return 0;}
+
+int TestLockscreen::getFootCad(){return 0;}
+
 

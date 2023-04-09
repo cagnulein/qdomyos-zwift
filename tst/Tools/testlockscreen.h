@@ -53,6 +53,9 @@ public:
                                    unsigned short currentCadence, unsigned short currentWatt,
                                    unsigned short currentInclination) override;
   double getVolume() override;
-
+  bool urlParser(const char *url) override;
+  void garminconnect_init() override;
+  int getHR() override;
+  int getFootCad() override;
 };
 
