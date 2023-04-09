@@ -17,7 +17,3 @@ bool ProFormWiFiTreadmillTestData::get_isExpectedDevice(bluetoothdevice *detecte
     return dynamic_cast<proformwifitreadmill*>(detectedDevice)!=nullptr;
 }
 
-bool ProFormWiFiTreadmillTestData::get_expectedLockscreenZwiftMode() const {
-    // Special case:the virtual device is set up in the bluetoothdevice subclass' constructor.
-    return true;
-}

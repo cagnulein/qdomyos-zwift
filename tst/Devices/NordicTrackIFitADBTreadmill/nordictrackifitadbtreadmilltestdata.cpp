@@ -22,6 +22,7 @@ bool NordicTrackIFitADBTreadmillTestData::get_isExpectedDevice(bluetoothdevice *
 }
 
 bool NordicTrackIFitADBTreadmillTestData::get_expectedLockscreenZwiftMode() const {
-    // Special case:the virtual device is set up in the bluetoothdevice subclass' constructor.
+    // Special case: the virtual device is set up in the bluetoothdevice subclass' constructor.
+    // However there are other devices that also do so that have the lockscreen not in Zwift mode for the test.
     return true;
 }

@@ -12,6 +12,6 @@ public:
     deviceType get_expectedDeviceType() const override;
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
-    bool get_expectedLockscreenZwiftMode() const override;
+
 };
 
