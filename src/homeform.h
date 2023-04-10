@@ -747,6 +747,7 @@ class homeform : public QObject {
     int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
+    void onToastRequested(QString message);
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
