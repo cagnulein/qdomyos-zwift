@@ -5,7 +5,7 @@
 #include <QAndroidJniObject>
 #endif
 
-#include "QZSettings.h"
+#include "qzsettings.h"
 #include "androidlockscreen.h"
 
 AndroidLockscreen::AndroidLockscreen()
