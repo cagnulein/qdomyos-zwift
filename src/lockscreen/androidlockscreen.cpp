@@ -3,6 +3,7 @@
 #ifdef Q_OS_ANDROID
 #include <QDebug>
 #include <QAndroidJniObject>
+#include <QtAndroid>
 #endif
 
 #include "qzsettings.h"

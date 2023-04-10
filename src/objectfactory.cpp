@@ -9,6 +9,10 @@
 #endif
 #endif
 
+#ifdef Q_OS_ANDROID
+#include "lockscreen/androidlockscreen.h"
+#endif
+
 std::function<QZLockscreen*()> ObjectFactory::lockscreenFactory = nullptr;
 std::function<QZLockscreenFunctions*()> ObjectFactory::lockscreenFunctionsFactory = nullptr;
 

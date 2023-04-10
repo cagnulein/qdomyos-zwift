@@ -12,6 +12,9 @@
 #include <QAndroidJniObject>
 #endif
 
+#include "objectfactory.h"
+
+
 
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
