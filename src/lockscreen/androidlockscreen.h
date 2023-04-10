@@ -7,6 +7,8 @@
 
 class AndroidLockscreen : public QZLockscreen
 {
+  protected:
+    bool getGarminCompanionEnabled() const;
   public:
     QZLockscreenFunctions::configurationType  get_virtualDeviceType() const;
 

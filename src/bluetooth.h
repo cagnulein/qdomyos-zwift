@@ -306,11 +306,6 @@ private:
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
-    
-#ifdef Q_OS_IOS
-    lockscreen* h = nullptr;
-#endif
-
   signals:
 };
 

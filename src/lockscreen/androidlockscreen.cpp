@@ -3,10 +3,9 @@
 #ifdef Q_OS_ANDROID
 #include <QDebug>
 #include <QAndroidJniObject>
-
-#include "QZSettings.h"
 #endif
 
+#include "QZSettings.h"
 #include "androidlockscreen.h"
 
 AndroidLockscreen::AndroidLockscreen()
@@ -14,6 +13,11 @@ AndroidLockscreen::AndroidLockscreen()
 #ifndef Q_OS_ANDROID
     throw "Not supported in this operating system.";
 #endif
+}
+
+bool AndroidLockscreen::getGarminCompanionEnabled() const {
+    QSettings settings;
+    return settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool();
 }
 
 QZLockscreenFunctions::configurationType AndroidLockscreen::get_virtualDeviceType() const { return QZLockscreenFunctions::configurationType::NONE; }
@@ -78,15 +82,23 @@ double AndroidLockscreen::getVolume() { return 0.0;}
 
 bool AndroidLockscreen::urlParser(const char *url){ return false;}
 
-void AndroidLockscreen::garminconnect_init(){}
+void AndroidLockscreen::garminconnect_init(){
+
+#ifdef Q_OS_ANDROID
+    if(this->getGarminCompanionEnabled()) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+    }
+#endif
+}
 
 int AndroidLockscreen::getHR() {
+
 #ifdef Q_OS_ANDROID
-    QSettings settings;
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+    if(this->getGarminCompanionEnabled()) {
         return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
     }
-    #endif
+#endif
     return 0;
 }
 

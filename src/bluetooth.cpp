@@ -12,6 +12,8 @@
 #include <QAndroidJniObject>
 #endif
 
+#include "ObjectFactory.h"
+
 bluetooth::bluetooth(const discoveryoptions &options)
     : bluetooth(options.logs, options.deviceName, options.noWriteResistance, options.noHeartService,
                 options.pollDeviceTime, options.noConsole, options.testResistance, options.bikeResistanceOffset,
@@ -2245,17 +2247,9 @@ void bluetooth::connectedAndDiscovered() {
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-#ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
-#else
-#ifndef IO_UNDER_QT
-        if(!h) {
-            h = new lockscreen();
-            h->garminconnect_init();
-        }
-#endif
-#endif
+        QZLockscreen * lockscreen = ObjectFactory::createLockscreen();
+        lockscreen->garminconnect_init();
+        delete lockscreen;
     }
 #endif
 
