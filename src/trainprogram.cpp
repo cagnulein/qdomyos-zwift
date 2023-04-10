@@ -448,8 +448,8 @@ void trainprogram::pelotonOCRprocessPendingDatagrams() {
         pelotonOCRcomputeTime(s);
 
         QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
-        qDebug() << "url floating" << url;
-        pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, port);
+        int r = pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, 8003);
+        qDebug() << "url floating" << url << r;
     }
 }
 
