@@ -96,7 +96,9 @@ int AndroidLockscreen::getHR() {
 
 #ifdef Q_OS_ANDROID
     if(this->getGarminCompanionEnabled()) {
-        return QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        int result = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+        qDebug() << QStringLiteral("Current Garmin Heart Rate: ") << QString::number(result);
+        return result;
     }
 #endif
     return 0;
@@ -107,8 +109,9 @@ int AndroidLockscreen::getFootCad(){
 #ifdef Q_OS_ANDROID
     QSettings settings;
     if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
-        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
-        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+        int result = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(result);
+        return result;
     }
 #endif
     return 0;
