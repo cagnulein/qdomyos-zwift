@@ -217,12 +217,12 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         } else {
             index += 2;
         }
-        LastCrankEventTime =
+        uint16_t LastCrankEventTimeRead =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
-        int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+        int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
         if (deltaT < 0) {
-            deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
+            deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
         if (CrankRevsRead != oldCrankRevs && deltaT) {
@@ -235,7 +235,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             Cadence = 0;
         }
 
-        oldLastCrankEventTime = LastCrankEventTime;
+        oldLastCrankEventTime = LastCrankEventTimeRead;
         oldCrankRevs = CrankRevsRead;
 
         Speed = Cadence.value() *
