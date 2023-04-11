@@ -448,16 +448,22 @@ void trainprogram::pelotonOCRprocessPendingDatagrams() {
         pelotonOCRcomputeTime(s);
 
         QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
-        qDebug() << "url floating" << url;
-        pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, port);
+        int r = pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, 8003);
+        qDebug() << "url floating" << url << r;
     }
 }
 
 void trainprogram::pelotonOCRcomputeTime(QString t) {
+    static bool pelotonOCRcomputeTime_intro = false;
+    static bool pelotonOCRcomputeTime_syncing = false;
     QRegularExpression re("\\d\\d:\\d\\d");
     QRegularExpressionMatch match = re.match(t.left(5));
-    if (t.contains(QStringLiteral("INTRO"))) {
+    if (t.contains(QStringLiteral("INTRO")) || t.contains(QStringLiteral("UNTIL START"))) {
         qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+        if(!pelotonOCRcomputeTime_intro) {
+            pelotonOCRcomputeTime_intro = true;
+            emit toastRequest("Peloton Syncing! Skipping intro...");
+        }
         restart();
     } else if (match.hasMatch()) {
         int minutes = t.left(2).toInt();
@@ -471,6 +477,10 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
         uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
         if (abs < 120) {
             qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
+            if(!pelotonOCRcomputeTime_syncing) {
+                pelotonOCRcomputeTime_syncing = true;
+                emit toastRequest("Peloton Syncing!");
+            }
             // applying the differences
             if (ocrRemaining > currentRemaining)
                 decreaseElapsedTime(abs);
