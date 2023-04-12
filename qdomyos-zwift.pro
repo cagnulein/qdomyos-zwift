@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 CONFIG+=ordered
 
-!android: !ios: {
+!ios: {
 SUBDIRS = \
     src/qdomyos-zwift-lib.pro \
     src/qdomyos-zwift.pro \
@@ -17,6 +17,7 @@ android:  {
 
 ios: {
     SUBDIRS = \
+        src/qdomyos-zwift-lib.pro \
         src/qdomyos-zwift.pro
 }
 
