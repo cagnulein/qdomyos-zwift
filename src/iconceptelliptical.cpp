@@ -253,3 +253,10 @@ void iconceptelliptical::onSocketErrorOccurred(QBluetoothSocket::SocketError err
 void *iconceptelliptical::VirtualTreadmill() { return virtualTreadmill; }
 
 void *iconceptelliptical::VirtualDevice() { return VirtualTreadmill(); }
+
+uint16_t iconceptelliptical::watts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+    return m_watt.value();
+}
