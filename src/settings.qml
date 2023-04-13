@@ -750,6 +750,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.27
             property bool peloton_companion_workout_ocr: false
+
+            // from version 2.13.31
+            property bool iconcept_elliptical: false
         }
 
         function paddingZeros(text, limit) {
@@ -5974,6 +5977,27 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.sole_elliptical_e55 = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+
+                    AccordionElement {
+                        title: qsTr("iConcept Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            text: qsTr("iConcept elliptical")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.iconcept_elliptical
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.iconcept_elliptical = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }

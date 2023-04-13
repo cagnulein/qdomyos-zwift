@@ -1812,6 +1812,9 @@ class QZSettings {
     static const QString peloton_companion_workout_ocr;
     static constexpr bool default_companion_peloton_workout_ocr = false;
 
+    static const QString iconcept_elliptical;
+    static constexpr bool default_iconcept_elliptical = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
