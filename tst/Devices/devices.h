@@ -36,6 +36,7 @@
 #include "HorizonGR7Bike/horizongr7biketestdata.h"
 #include "HorizonTreadmill/horizontreadmilltestdata.h"
 #include "iConceptBike/iconceptbiketestdata.h"
+#include "iConceptElliptical/iconceptellipticaltestdata.h"
 #include "InspireBike/inspirebiketestdata.h"
 #include "KeepBike/keepbiketestdata.h"
 #include "LifeFitnessTreadmill/lifefitnesstreadmilltestdata.h"
@@ -186,7 +187,8 @@ WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
 ZwiftRunpodTestData,
 ZiproTreadmillTestData,
-iConceptBikeTestData>;
+iConceptBikeTestData,
+iConceptEllipticalTestData>;
 
 #endif
 
