@@ -34,8 +34,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
     this->useDiscovery = startDiscovery;
 
-
-
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
 
@@ -133,9 +131,7 @@ bluetooth::~bluetooth() {
     }*/
 }
 
-void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) {
-    emit this->bluetoothDeviceConnected(b);
-}
+void bluetooth::signalBluetoothDeviceConnected(bluetoothdevice *b) { emit this->bluetoothDeviceConnected(b); }
 
 void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
@@ -215,8 +211,10 @@ void bluetooth::startDiscovery() {
                                                       .toBool();
     bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
     bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
+    bool iconcept_elliptical =
+        settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 
-    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental) {
+    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
 #endif
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 #ifndef Q_OS_IOS
@@ -444,6 +442,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             .toBool();
     bool gem_module_inclination =
         settings.value(QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination).toBool();
+    bool iconcept_elliptical =
+        settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1697,7 +1697,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(toorx, &toorxtreadmill::debug, this, &bluetooth::debug);
                 toorx->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(toorx);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptBike &&
+                       !iconcept_elliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 iConceptBike = new iconceptbike();
@@ -1708,6 +1709,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(iConceptBike, &iconceptbike::debug, this, &bluetooth::debug);
                 iConceptBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(iConceptBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptElliptical &&
+                       iconcept_elliptical && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                iConceptElliptical = new iconceptelliptical();
+                emit deviceConnected(b);
+                connect(iConceptElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(iConceptElliptical, &iconceptelliptical::debug, this, &bluetooth::debug);
+                iConceptElliptical->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(iConceptElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("XT385")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT800")) ||
@@ -2244,13 +2257,13 @@ void bluetooth::connectedAndDiscovered() {
 #endif
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>(
-        "org/cagnulen/qdomyoszwift/Garmin", "init", "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Garmin", "init",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #else
 #ifndef IO_UNDER_QT
-        if(!h) {
+        if (!h) {
             h = new lockscreen();
             h->garminconnect_init();
         }
@@ -2484,6 +2497,11 @@ void bluetooth::restart() {
 
         delete iConceptBike;
         iConceptBike = nullptr;
+    }
+    if (iConceptElliptical) {
+
+        delete iConceptElliptical;
+        iConceptElliptical = nullptr;
     }
     if (trxappgateusb) {
 
@@ -2833,6 +2851,8 @@ bluetoothdevice *bluetooth::device() {
         return toorx;
     } else if (iConceptBike) {
         return iConceptBike;
+    } else if (iConceptElliptical) {
+        return iConceptElliptical;
     } else if (spiritTreadmill) {
         return spiritTreadmill;
     } else if (activioTreadmill) {

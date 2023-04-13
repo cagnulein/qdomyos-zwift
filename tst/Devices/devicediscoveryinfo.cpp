@@ -35,6 +35,7 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::ss2k_peloton, this->ss2k_peloton);
     settings.setValue(QZSettings::ftms_accessory_name, this->ftmsAccessoryName);
     settings.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, this->pafers_treadmill_bh_iboxster_plus);
+    settings.setValue(QZSettings::iconcept_elliptical, this->iconcept_elliptical);
 }
 
 void DeviceDiscoveryInfo::getValues(QSettings &settings){
@@ -64,6 +65,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     this->ftmsAccessoryName = settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     this->pafers_treadmill_bh_iboxster_plus = settings.value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus).toBool();
+    this->iconcept_elliptical = settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 }
 
 void DeviceDiscoveryInfo::loadDefaultValues() {

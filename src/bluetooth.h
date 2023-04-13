@@ -56,6 +56,7 @@
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
+#include "iconceptelliptical.h"
 #include "inspirebike.h"
 #include "keepbike.h"
 #include "kingsmithr1protreadmill.h"
@@ -133,7 +134,7 @@ class bluetooth : public QObject, public SignalHandler {
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
-                       bool startDiscovery=true);
+                       bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
@@ -141,7 +142,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
 
-private:
+  private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
@@ -160,6 +161,7 @@ private:
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
     iconceptbike *iConceptBike = nullptr;
+    iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
