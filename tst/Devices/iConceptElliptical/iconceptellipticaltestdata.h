@@ -18,7 +18,7 @@ class iConceptEllipticalTestData : public BluetoothDeviceTestData {
     }
 
   public:
-    iConceptBikeTestData() : BluetoothDeviceTestData("iConcept Elliptical") {
+    iConceptEllipticalTestData() : BluetoothDeviceTestData("iConcept Elliptical") {
         this->addDeviceName("BH DUALKIT", comparison::StartsWithIgnoreCase);
     }
 
