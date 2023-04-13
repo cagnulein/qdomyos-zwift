@@ -278,6 +278,10 @@ private:
     QTimer discoveryTimeout;
 #endif
 
+#ifdef Q_OS_IOS
+    lockscreen* h = nullptr;
+#endif
+
     /**
      * @brief Store the name and other info in the settings.
      * @param b The bluetooth device info.

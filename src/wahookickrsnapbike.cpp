@@ -389,8 +389,10 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
-                    if(!crank_rev_present)
-                        cadence = cadence / 2; // I really don't like this, there is no releationship between wheel rev and crank rev
+                    if (!crank_rev_present)
+                        cadence =
+                            cadence /
+                            2; // I really don't like this, there is no releationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
@@ -488,7 +490,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         } else
 #endif
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            this->update_hr_from_external();
+            	this->update_hr_from_external();
         }
     }
 
@@ -522,6 +524,8 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             return;
         }
     }
+
+    notificationSubscribed = 0;
 
     qDebug() << QStringLiteral("all services discovered!");
 
@@ -557,6 +561,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
+                    notificationSubscribed++;
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
@@ -572,6 +577,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
+                    notificationSubscribed++;
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
                     } else {
@@ -610,9 +616,16 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+    qDebug() << QStringLiteral("descriptorWritten ") << descriptor.name() << newValue.toHex(' ')
+             << notificationSubscribed;
 
-    emit connectedAndDiscovered();
+    if (notificationSubscribed)
+        notificationSubscribed--;
+
+    if (!notificationSubscribed) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void wahookickrsnapbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
