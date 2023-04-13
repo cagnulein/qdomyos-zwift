@@ -2970,7 +2970,8 @@ void homeform::Start_inner(bool send_event_to_device) {
 
 #ifdef Q_OS_IOS
             // due to #857
-            this->innerTemplateManager->start(bluetoothManager->device());
+            if(!settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool())
+                this->innerTemplateManager->start(bluetoothManager->device());
 #endif
 
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
@@ -3038,7 +3039,8 @@ void homeform::Stop() {
 
 #ifdef Q_OS_IOS
     // due to #857
-    this->innerTemplateManager->reinit();
+    if(!settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool())
+        this->innerTemplateManager->reinit();
 #endif
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
