@@ -280,6 +280,10 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer discoveryTimeout;
 #endif
 
+#ifdef Q_OS_IOS
+    lockscreen* h = nullptr;
+#endif
+
     /**
      * @brief Store the name and other info in the settings.
      * @param b The bluetooth device info.
@@ -308,10 +312,6 @@ class bluetooth : public QObject, public SignalHandler {
     void speedChanged(double);
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
-
-#ifdef Q_OS_IOS
-    lockscreen *h = nullptr;
-#endif
 
   signals:
 };
