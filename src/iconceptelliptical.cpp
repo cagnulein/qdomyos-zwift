@@ -204,7 +204,7 @@ void iconceptelliptical::readSocket() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence =
+            /*bool cadence =
                 settings.value(QZSettings::treadmill_cadence_sensor, QZSettings::default_treadmill_cadence_sensor)
                     .toBool();
             bool ios_peloton_workaround =
@@ -212,7 +212,7 @@ void iconceptelliptical::readSocket() {
             if (ios_peloton_workaround && cadence && h && firstStateChanged) {
                 h->virtualtreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
                 h->virtualtreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
-            }
+            }*/
 #endif
 #endif
 
