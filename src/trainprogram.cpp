@@ -495,6 +495,17 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
+    // outside the if case about a valid train program because the information for the floating window url should be sent anyway
+    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
+        if(!pelotonOCRsocket) {
+            pelotonOCRsocket = new QUdpSocket(this);
+            bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
+            qDebug() << result;
+            pelotonOCRprocessPendingDatagrams();
+            connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+        }
+    }
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
@@ -576,16 +587,6 @@ void trainprogram::scheduler() {
         }
     } else
 #endif
-        
-    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
-        if(!pelotonOCRsocket) {
-            pelotonOCRsocket = new QUdpSocket(this);
-            bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
-            qDebug() << result;
-            pelotonOCRprocessPendingDatagrams();
-            connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
-        }
-    }
 
     ticks++;
 

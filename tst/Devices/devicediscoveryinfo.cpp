@@ -35,6 +35,7 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(QZSettings::ss2k_peloton, this->ss2k_peloton);
     settings.setValue(QZSettings::ftms_accessory_name, this->ftmsAccessoryName);
     settings.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, this->pafers_treadmill_bh_iboxster_plus);
+    settings.setValue(QZSettings::iconcept_elliptical, this->iconcept_elliptical);
     settings.setValue(QZSettings::ios_peloton_workaround, this->ios_peloton_workaround);
     settings.setValue(QZSettings::virtual_device_rower, this->virtual_device_rower);
     settings.setValue(QZSettings::bike_cadence_sensor, this->bike_cadence_sensor);
@@ -72,6 +73,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     this->ftmsAccessoryName = settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name).toString();
     this->pafers_treadmill_bh_iboxster_plus = settings.value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus).toBool();
+    this->iconcept_elliptical = settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
     this->ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     this->virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
     this->bike_cadence_sensor = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

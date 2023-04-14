@@ -34,14 +34,17 @@ class wahookickrheadwind : public bluetoothdevice {
     bool connected();
 
   private:
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
     QLowEnergyCharacteristic gattWrite1Characteristic;
+    QLowEnergyService *gattWrite1Service;
     QLowEnergyCharacteristic gattWrite2Characteristic;
+    QLowEnergyService *gattWrite2Service;
 
-    void writeCharacteristic(QLowEnergyCharacteristic *writeChar, uint8_t *data, uint8_t data_len, const QString &info,
-                             bool disable_log = false, bool wait_for_response = false);
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
+                             uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
 
     bluetoothdevice *parentDevice = nullptr;
 

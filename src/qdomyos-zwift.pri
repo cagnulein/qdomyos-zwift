@@ -72,6 +72,7 @@ SOURCES += \
     $$PWD/objectfactory.cpp \
    $$PWD/apexbike.cpp \
     $$PWD/handleurl.cpp \
+   $$PWD/iconceptelliptical.cpp \
     $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
     $$PWD/virtualdevice.cpp \
@@ -273,6 +274,7 @@ HEADERS += \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
     $$PWD/handleurl.h \
+   $$PWD/iconceptelliptical.h \
     $$PWD/localipaddress.h \
     $$PWD/lockscreen/androidlockscreen.h \
     $$PWD/lockscreen/lockscreenfunctions.h \
@@ -793,4 +795,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.30
+VERSION = 2.13.31

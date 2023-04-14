@@ -212,6 +212,7 @@ HEADERS += \
     Devices/devicediscoveryinfo.h \
     Devices/devices.h \
     Devices/iConceptBike/iconceptbiketestdata.h \
+    Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/lockscreenfunctionstestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testlockscreen.h \

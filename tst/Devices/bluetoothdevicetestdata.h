@@ -77,6 +77,7 @@ enum deviceType {
     MCFBike,
     ToorxTreadmill,
     IConceptBike,
+    IConceptElliptical,
     SpiritTreadmill,
     ActivioTreadmill,
     TrxAppGateUSBTreadmill,
