@@ -214,6 +214,30 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     _firstUpdate = false;
 }
 
+bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
+    auto functions = this->getLockscreenFunctions();
+
+    if(!functions)
+        return false;
+
+           // update the energy and distance if the external device supports it
+    functions->setEnergyDistance(this->KCal, this->Distance);
+
+    return functions->getHeartRate(this->Heart, defaultHeartRate);
+
+    /* TODO: support garmin in IOS, select with heigher priority than the IOS lockscreen.
+
+ #ifdef Q_OS_IOS
+ #ifndef IO_UNDER_QT
+         lockscreen h;
+         Heart = h.getHR();
+ #endif
+ #endif
+         qDebug() << "Garmin Companion Heart:" << Heart.value();
+     }
+ */
+}
+
 void bluetoothdevice::clearStats() {
 
     elapsed.clear(true);
@@ -295,30 +319,6 @@ QStringList bluetoothdevice::metrics() {
 
 resistance_t bluetoothdevice::maxResistance() { return 100; }
 
-
-bool bluetoothdevice::update_hr_from_external(long defaultHeartRate) {
-    auto functions = this->getLockscreenFunctions();
-
-    if(!functions)
-        return false;
-
-    // update the energy and distance if the external device supports it
-    functions->setEnergyDistance(this->KCal, this->Distance);
-
-    return functions->getHeartRate(this->Heart, defaultHeartRate);
-
-    /* TODO: support garmin in IOS, select with heigher priority than the IOS lockscreen.
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        Heart = h.getHR();
-#endif
-#endif
-        qDebug() << "Garmin Companion Heart:" << Heart.value();
-    }
-*/
-}
 
 bool bluetoothdevice::isPelotonWorkaroundActive() const {
     auto functions = this->getLockscreenFunctions();
