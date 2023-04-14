@@ -31,10 +31,6 @@
 #include "bike.h"
 #include "virtualbike.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
 class schwinn170bike : public bike {
     Q_OBJECT
   public:
@@ -76,10 +72,6 @@ class schwinn170bike : public bike {
     double bikeResistanceGain = 1.0;
 
     metric ResistanceFromFTMSAccessory;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
 
   signals:
     void disconnected();
