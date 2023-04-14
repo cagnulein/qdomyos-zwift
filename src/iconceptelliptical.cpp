@@ -85,7 +85,7 @@ void iconceptelliptical::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualTreadmill) {
+        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -96,7 +96,7 @@ void iconceptelliptical::update() {
                         &iconceptelliptical::changeInclination);
             }
         }
-        firstStateChanged = 1;
+        this->setVirtualDeviceSetUp();
 
         // ********************************************************************************************************
 
@@ -202,19 +202,7 @@ void iconceptelliptical::readSocket() {
                 }
             }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            /*bool cadence =
-                settings.value(QZSettings::treadmill_cadence_sensor, QZSettings::default_treadmill_cadence_sensor)
-                    .toBool();
-            bool ios_peloton_workaround =
-                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-            if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-                h->virtualtreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-                h->virtualtreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
-            }*/
-#endif
-#endif
+            this->doLockscreenUpdate();
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));

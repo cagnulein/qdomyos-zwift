@@ -68,10 +68,6 @@ class iconceptelliptical : public elliptical {
 
     uint16_t watts();
 
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
   signals:
     void disconnected();
     void debug(QString string);
