@@ -3826,7 +3826,7 @@ import Qt.labs.settings 1.0
             }
 
             AccordionElement {
-                title: qsTr("Garmin Watch/Computer Companion Options") + "\uD83E\uDD47"
+                title: qsTr("Garmin Companion Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
