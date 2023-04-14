@@ -2245,7 +2245,8 @@ void bluetooth::connectedAndDiscovered() {
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool() ||
         settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() ||
-        settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
+        settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() ||
+        settings.value(QZSettings::zwift_ocr_workout, QZSettings::default_zwift_ocr_workout).toBool()) {
         AndroidActivityResultReceiver *a = new AndroidActivityResultReceiver();
         QAndroidJniObject MediaProjectionManager = QtAndroid::androidActivity().callObjectMethod(
             "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
