@@ -1815,6 +1815,9 @@ class QZSettings {
     static const QString iconcept_elliptical;
     static constexpr bool default_iconcept_elliptical = false;
 
+    static const QString zwift_ocr_workout;
+    static constexpr bool default_zwift_ocr_workout = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

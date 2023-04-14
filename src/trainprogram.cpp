@@ -515,8 +515,12 @@ void trainprogram::scheduler() {
         // Zwift OCR
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
+        if ((settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() ||
+             settings.value(QZSettings::zwift_ocr_workout, QZSettings::default_zwift_ocr_workout).toBool())
+                && bluetoothManager &&
             bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
+            bool treadmill_force_speed =
+                settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
             QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
             QString t = text.toString();
@@ -537,25 +541,58 @@ void trainprogram::scheduler() {
                     // qDebug() << s;
                     QStringList ss = s.split("$$");
                     if (ss.length() > 1) {
-                        // (2195, 75 - 2254, 106)"
-                        qDebug() << ss[0] << ss[1];
-                        QString inc = ss[1].replace("Rect(", "").replace(")", "");
-                        if (inc.split(",").length() > 2) {
-                            int w_minbound = w * 0.93;
-                            int h_minbound = h * 0.08;
-                            int h_maxbound = h * 0.15;
-                            int x = inc.split(",").at(0).toInt();
-                            int y = inc.split(",").at(2).toInt();
-                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
-                            if (x > w_minbound && y < h_maxbound && y > h_minbound) {
-                                ss[0] = ss[0].replace("%", "");
-                                ss[0] = ss[0].replace("O", "0");
-                                ss[0] = ss[0].replace("l", "1");
-                                ss[0] = ss[0].replace(" ", "");
-                                if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
-                                    bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
-                                } else {
-                                    qDebug() << "filtering" << ss[0].toInt();
+                        if(settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool()) {
+                            // (2195, 75 - 2254, 106)"
+                            qDebug() << ss[0] << ss[1];
+                            QString inc = ss[1].replace("Rect(", "").replace(")", "");
+                            if (inc.split(",").length() > 2) {
+                                int w_minbound = w * 0.93;
+                                int h_minbound = h * 0.08;
+                                int h_maxbound = h * 0.15;
+                                int x = inc.split(",").at(0).toInt();
+                                int y = inc.split(",").at(2).toInt();
+                                qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
+                                if (x > w_minbound && y < h_maxbound && y > h_minbound) {
+                                    ss[0] = ss[0].replace("%", "");
+                                    ss[0] = ss[0].replace("O", "0");
+                                    ss[0] = ss[0].replace("l", "1");
+                                    ss[0] = ss[0].replace(" ", "");
+                                    if (ss[0].toFloat() < 15 && ss[0].toFloat() > -15) {
+                                        bluetoothManager->device()->changeInclination(ss[0].toFloat(), ss[0].toFloat());
+                                    } else {
+                                        qDebug() << "filtering" << ss[0].toInt();
+                                    }
+                                }
+                            }
+                        } else if(settings.value(QZSettings::zwift_ocr_workout, QZSettings::default_zwift_ocr_workout).toBool()) {
+                            // 2272 1027
+                            // "7.9kph" "Rect(924, 170 - 1049, 221)"
+                            qDebug() << ss[0] << ss[1];
+                            QString inc = ss[1].replace("Rect(", "").replace(")", "");
+                            if (inc.split(",").length() > 2) {
+                                int w_minbound = w * 0.40;
+                                int w_maxbound = w * 0.42;
+                                int h_minbound = h * 0.16;
+                                int h_maxbound = h * 0.3;
+                                int x = inc.split(",").at(0).toInt();
+                                int y = inc.split(",").at(2).toInt();
+                                qDebug() << x << w_minbound << w_maxbound << h_maxbound << y << h_minbound;
+                                if (x > w_minbound && x < w_maxbound && y < h_maxbound && y > h_minbound) {
+                                    ss[0] = ss[0].replace("kph", "");
+                                    ss[0] = ss[0].replace("xph", "");
+                                    ss[0] = ss[0].replace("mph", "");
+                                    ss[0] = ss[0].replace("ph", "");
+                                    ss[0] = ss[0].replace("h", "");
+                                    ss[0] = ss[0].replace("O", "0");
+                                    ss[0] = ss[0].replace("l", "1");
+                                    ss[0] = ss[0].replace(" ", "");
+                                    if(ss[0].endsWith("."))
+                                        ss[0] = ss[0].left(ss[0].length() - 1);
+                                    if (ss[0].toFloat() < 22 && ss[0].toFloat() > 0 && treadmill_force_speed) {
+                                        ((treadmill*)bluetoothManager->device())->changeSpeed(ss[0].toFloat());
+                                    } else {
+                                        qDebug() << "filtering" << ss[0].toFloat();
+                                    }
                                 }
                             }
                         }
