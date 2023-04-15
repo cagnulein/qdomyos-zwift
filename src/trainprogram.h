@@ -76,12 +76,15 @@ class trainprogram : public QObject {
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
     double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed);
     int TotalGPXSecs();
+    double weightedInclination(int step);
+    double medianInclination(int step);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
     QString description = "";
     QString tags = "";
     bool enabled = true;
+    bool videoAvailable = false;
 
     void restart();
     bool isStarted() { return started; }

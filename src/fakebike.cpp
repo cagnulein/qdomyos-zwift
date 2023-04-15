@@ -32,19 +32,29 @@ void fakebike::update() {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-
     /*
     static int updcou = 0;
     updcou++;
-    double w = 250.0;
+    double w = 60.0;
     if (updcou > 20000 )
         updcou = 0;
     else if (updcou > 12000)
-        w = 300;
+        w = 120;
     else if (updcou > 6000)
-        w = 150;
+        w = 80;
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+    */
 
-    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());*/
+    static int currentrun = 0;
+    static bool runincrement = true;
+    if (currentrun<50) Speed = 7;
+    else if (currentrun<100) Speed = 8;
+    else if (currentrun<150) Speed = 9;
+    else Speed = 10;
+    if (runincrement) currentrun++;
+    else currentrun--;
+    if (currentrun>=175) runincrement=false;
+    if (currentrun<=0) runincrement = true;
 
     update_metrics(true, watts());
 

@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QMutexLocker>
 #include <QtXml/QtXml>
+#include <algorithm>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -43,6 +44,8 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         QTime(0, 0, 0).secsTo(rows.at(0).gpxElapsed) != 0 && !treadmill_force_speed && videoAvailable) {
         applySpeedFilter();
     }
+
+    this->videoAvailable=videoAvailable;
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
@@ -336,6 +339,56 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
         lastGpxRateSet = rate;
     }
     return rate;
+}
+
+// Calculate the Median Inclination for a given Step. Median is built from the given Step -2 Steps and +2 Steps (5 Steps in total)
+double trainprogram::medianInclination(int step) {
+    QList<double> inclinations;
+    inclinations.reserve(5);
+    if (rows.length() == 0) return 0;
+    if ((step>1) && (rows.length()>step-2)) inclinations.append(rows.at(step-2).inclination);
+    else inclinations.append(0);
+    if ((step>0) && (rows.length()>step-1)) inclinations.append(rows.at(step-1).inclination);
+    else inclinations.append(0);
+    if (rows.length()>step) inclinations.append(rows.at(step).inclination);
+    else inclinations.append(0);
+    if (rows.length()>step+1) inclinations.append(rows.at(step+1).inclination);
+    else inclinations.append(0);
+    if (rows.length()>step+2) inclinations.append(rows.at(step+2).inclination);
+    else inclinations.append(0);
+    std::sort(inclinations.begin(),inclinations.end());
+    return(inclinations.at(2));
+}
+
+// Calculates a weighted Inclination for a given Step. Inclination is calculated for the given Step + windowsize Steps (7)
+// The inclination for each Point needed goes through a Median Filter first to eliminate/minimize Errors in the recorded elevation Data
+double trainprogram::weightedInclination(int step) {
+    int windowsize = 7;
+    int firststep = step;
+    double inc = 0;
+    double sumweights = 0;
+    double pointweight = 0;
+    if (rows.length() == 0) return 0;
+    // Determine first and last possible Steps
+    if (firststep < 0) firststep=0;
+    int laststep = step+windowsize;
+    if (laststep >= rows.length()) {
+        firststep = rows.length()-1-(windowsize*2);
+        if (firststep < 0) firststep = 0;
+    }
+    // Loop through the determined Steps
+    for (int s = firststep; s <= laststep; s++) {
+        // Calculate the Weight used for the inclination
+        pointweight = ((( (double)windowsize*2.0)-1.0) - ((s-firststep)*2.0));
+        // Calculate the sum of weights
+        sumweights = (sumweights + pointweight);
+        // Calculate the sum of weighted median inclinations
+        inc = (inc + (medianInclination(s))*pointweight);
+    }
+    // avoid a Division by 0
+    if (sumweights == 0) return 0;
+    // Return the sum of weighted median inclinations / sum of all weights
+    return (inc / sumweights);
 }
 
 double trainprogram::avgInclinationNext100Meters(int step) {
@@ -689,6 +742,10 @@ void trainprogram::scheduler() {
             if (rows.at(currentStep).inclination != -200 &&
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
                 double inc = avgInclinationNext100Meters(currentStep);
+                // if Bike used and it is a gpx with Video use the new weightedInclination
+                if ( (videoAvailable) && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) ) {
+                    inc = weightedInclination(currentStep);
+                }
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
                         .toInt();
