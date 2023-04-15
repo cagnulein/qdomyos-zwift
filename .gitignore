@@ -40,9 +40,12 @@ template-examples/train-program-saver/.eslintrc.js
 template-examples/train-program-saver/.jshintrc
 template-examples/train-program-saver/debug.js
 
+google_test/*
+
 # Qt-es
 *.pro.user
 *build-*
 !build-qdomyos-zwift-Qt_*_for_iOS-Debug # Needed for Apple Watch
 src/inner_templates/googlemaps/cesium-key.js
 *.autosave
+.vscode/settings.json

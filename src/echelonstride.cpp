@@ -184,6 +184,13 @@ void echelonstride::update() {
             }
             uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
             writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
+
+            uint8_t initData4[] = {0xf0, 0xd0, 0x01, 0x00, 0xc1};
+            writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("start"), false, false);
+
+            uint8_t initData5[] = {0xf0, 0xd0, 0x01, 0x11, 0xd2};
+            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("start"), false, false);
+
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
@@ -232,6 +239,8 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
 
+        writeCharacteristic((uint8_t*)newValue.constData(), newValue.length(), "reply to d3", false, false);
+
         double miles = 1.60934;
 
         // this line on iOS sometimes gives strange overflow values
@@ -255,8 +264,12 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
+        writeCharacteristic((uint8_t*)newValue.constData(), newValue.length(), "reply to d2", false, false);
         Inclination = (uint8_t)newValue.at(3);
         qDebug() << QStringLiteral("Current Inclination: ") + QString::number(Inclination.value());
+        return;
+    } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd0) {
+        writeCharacteristic((uint8_t*)newValue.constData(), newValue.length(), "reply to d0", false, false);
         return;
     }
 
@@ -290,21 +303,14 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
             uint8_t heart = ((uint8_t)newValue.at(11));
             if (heart == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                update_hr_from_external();
             } else {
                 Heart = heart;
             }
         }
     }
+    
+    cadenceFromAppleWatch();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
@@ -319,15 +325,12 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 }
 
 void echelonstride::btinit() {
+    uint8_t initData0[] = {0xf0, 0xa4, 0x00, 0x94};
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
     uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};    
-    // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
-    // useless i guess
-    // writeCharacteristic(initData4, sizeof(initData4), "get sleep", false, true);
+    writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true);
 
-    // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
-    // enough
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);

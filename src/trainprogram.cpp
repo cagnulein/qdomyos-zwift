@@ -5,6 +5,12 @@
 #include <QtXml/QtXml>
 #include <algorithm>
 #include <chrono>
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
+#include "localipaddress.h"
 
 using namespace std::chrono_literals;
 
@@ -81,7 +87,11 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" forcespeed = %1").arg(forcespeed);
     rv += QStringLiteral(" loopTimeHR = %1").arg(loopTimeHR);
     rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
+    rv += QStringLiteral(" HRmin = %1").arg(HRmin);
+    rv += QStringLiteral(" HRmax = %1").arg(HRmax);
     rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" minSpeed = %1").arg(minSpeed);
+    rv += QStringLiteral(" maxResistance = %1").arg(maxResistance);
     rv += QStringLiteral(" power = %1").arg(power);
     rv += QStringLiteral(" mets = %1").arg(mets);
     rv += QStringLiteral(" latitude = %1").arg(latitude);
@@ -474,17 +484,162 @@ void trainprogram::clearRows() {
     rows.clear();
 }
 
+void trainprogram::pelotonOCRprocessPendingDatagrams() {
+    qDebug() << "in !";
+    QHostAddress sender;
+    QSettings settings;
+    uint16_t port;
+    while (pelotonOCRsocket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(pelotonOCRsocket->pendingDatagramSize());
+        pelotonOCRsocket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
+        qDebug() << "PelotonOCR Message From :: " << sender.toString();
+        qDebug() << "PelotonOCR Port From :: " << port;
+        qDebug() << "PelotonOCR Message :: " << datagram;
+
+        QString s = datagram;
+        pelotonOCRcomputeTime(s);
+
+        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
+        int r = pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, 8003);
+        qDebug() << "url floating" << url << r;
+    }
+}
+
+void trainprogram::pelotonOCRcomputeTime(QString t) {
+    static bool pelotonOCRcomputeTime_intro = false;
+    static bool pelotonOCRcomputeTime_syncing = false;
+    QRegularExpression re("\\d\\d:\\d\\d");
+    QRegularExpressionMatch match = re.match(t.left(5));
+    if (t.contains(QStringLiteral("INTRO")) || t.contains(QStringLiteral("UNTIL START"))) {
+        qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
+        if(!pelotonOCRcomputeTime_intro) {
+            pelotonOCRcomputeTime_intro = true;
+            emit toastRequest("Peloton Syncing! Skipping intro...");
+        }
+        restart();
+    } else if (match.hasMatch()) {
+        int minutes = t.left(2).toInt();
+        int seconds = t.left(5).right(2).toInt();
+        seconds -= 1; //(due to the OCR delay)
+        seconds += minutes * 60;
+        QTime ocrRemaining = QTime(0, 0, 0, 0).addSecs(seconds);
+        QTime currentRemaining = remainingTime();
+        qDebug() << QStringLiteral("PELOTON OCR USING: ocrRemaining") << ocrRemaining
+                 << QStringLiteral("currentRemaining") << currentRemaining;
+        uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
+        if (abs < 120) {
+            qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
+            if(!pelotonOCRcomputeTime_syncing) {
+                pelotonOCRcomputeTime_syncing = true;
+                emit toastRequest("Peloton Syncing!");
+            }
+            // applying the differences
+            if (ocrRemaining > currentRemaining)
+                decreaseElapsedTime(abs);
+            else
+                increaseElapsedTime(abs);
+        }
+    }
+}
+
 void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
+
+    // outside the if case about a valid train program because the information for the floating window url should be sent anyway
+    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
+        if(!pelotonOCRsocket) {
+            pelotonOCRsocket = new QUdpSocket(this);
+            bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
+            qDebug() << result;
+            pelotonOCRprocessPendingDatagrams();
+            connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
+        }
+    }
+
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
 
-        return;
+        // in case no workout has been selected
+        // Zwift OCR
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
+            bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
+            QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+            QString t = text.toString();
+            QAndroidJniObject textExtended = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastTextExtended");
+            // 2272 1027
+            jint w = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageWidth", "()I");
+            jint h = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ScreenCaptureService",
+                                                               "getImageHeight", "()I");
+            QString tExtended = textExtended.toString();
+            QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+                "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+            QString packageName = packageNameJava.toString();
+            if (packageName.contains("com.zwift.zwiftgame")) {
+                qDebug() << QStringLiteral("ZWIFT OCR ACCEPTED") << packageName << w << h << t << tExtended;
+                foreach (QString s, tExtended.split("§§")) {
+                    // qDebug() << s;
+                    QStringList ss = s.split("$$");
+                    if (ss.length() > 1) {
+                        // (2195, 75 - 2254, 106)"
+                        qDebug() << ss[0] << ss[1];
+                        QString inc = ss[1].replace("Rect(", "").replace(")", "");
+                        if (inc.split(",").length() > 2) {
+                            int w_minbound = w * 0.93;
+                            int h_minbound = h * 0.08;
+                            int h_maxbound = h * 0.15;
+                            int x = inc.split(",").at(0).toInt();
+                            int y = inc.split(",").at(2).toInt();
+                            qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
+                            if (x > w_minbound && y < h_maxbound && y > h_minbound) {
+                                ss[0] = ss[0].replace("%", "");
+                                ss[0] = ss[0].replace("O", "0");
+                                ss[0] = ss[0].replace("l", "1");
+                                ss[0] = ss[0].replace(" ", "");
+                                if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
+                                    bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
+                                } else {
+                                    qDebug() << "filtering" << ss[0].toInt();
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } else {
+                qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
+            }
+        }
+#endif
+
+       return;
     }
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::peloton_workout_ocr, QZSettings::default_peloton_workout_ocr).toBool()) {
+        QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
+        QString t = text.toString();
+        QAndroidJniObject packageNameJava = QAndroidJniObject::callStaticObjectMethod<jstring>(
+            "org/cagnulen/qdomyoszwift/MediaProjection", "getPackageName");
+        QString packageName = packageNameJava.toString();
+        if (packageName.contains("com.onepeloton.callisto")) {
+            qDebug() << QStringLiteral("PELOTON OCR ACCEPTED") << packageName << t;
+            pelotonOCRcomputeTime(t);
+        } else {
+            qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
+        }
+    } else
+#endif
 
     ticks++;
 
@@ -722,9 +877,13 @@ void trainprogram::scheduler() {
                             .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
                     emit lap();
                     restart();
+                    distanceEvaluation = false;
                 } else {
                     started = false;
-                    emit stop(false);
+                    if (settings
+                            .value(QZSettings::trainprogram_stop_at_end, QZSettings::default_trainprogram_stop_at_end)
+                            .toBool())
+                        emit stop(false);
                     distanceEvaluation = false;
                 }
             }
@@ -797,6 +956,15 @@ void trainprogram::scheduler() {
     } while (distanceEvaluation);
 }
 
+bool trainprogram::overridePowerForCurrentRow(double power) {
+    if (started && currentStep < rows.length() && currentRow().power != -1) {
+        qDebug() << "overriding power from" << rows.at(currentStep).power << "to" << power;
+        rows[currentStep].power = power;
+        return true;
+    }
+    return false;
+}
+
 void trainprogram::increaseElapsedTime(uint32_t i) {
 
     offset += i;
@@ -836,6 +1004,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             }
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
+            }
+            if (row.minSpeed >= 0) {
+                stream.writeAttribute(QStringLiteral("minspeed"), QString::number(row.minSpeed));
             }
             if (row.inclination >= -50) {
                 stream.writeAttribute(QStringLiteral("inclination"), QString::number(row.inclination));
@@ -896,8 +1067,17 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.maxSpeed >= 0) {
                 stream.writeAttribute(QStringLiteral("maxspeed"), QString::number(row.maxSpeed));
             }
+            if (row.maxResistance >= 0) {
+                stream.writeAttribute(QStringLiteral("maxresistance"), QString::number(row.maxResistance));
+            }
             if (row.zoneHR >= 0) {
                 stream.writeAttribute(QStringLiteral("zonehr"), QString::number(row.zoneHR));
+            }
+            if (row.HRmin >= 0) {
+                stream.writeAttribute(QStringLiteral("hrmin"), QString::number(row.HRmin));
+            }
+            if (row.HRmax >= 0) {
+                stream.writeAttribute(QStringLiteral("hrmax"), QString::number(row.HRmax));
             }
             if (row.loopTimeHR >= 0) {
                 stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
@@ -945,6 +1125,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("minspeed"))) {
+                row.minSpeed = atts.value(QStringLiteral("minspeed")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("fanspeed"))) {
                 row.fanspeed = atts.value(QStringLiteral("fanspeed")).toDouble();
@@ -1000,10 +1183,19 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
-                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("maxresistance"))) {
+                row.maxResistance = atts.value(QStringLiteral("maxresistance")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("zonehr"))) {
                 row.zoneHR = atts.value(QStringLiteral("zonehr")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrmin"))) {
+                row.HRmin = atts.value(QStringLiteral("hrmin")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("hrmax"))) {
+                row.HRmax = atts.value(QStringLiteral("hrmax")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("looptimehr"))) {
                 row.loopTimeHR = atts.value(QStringLiteral("looptimehr")).toInt();

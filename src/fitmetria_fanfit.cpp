@@ -9,7 +9,16 @@
 
 using namespace std::chrono_literals;
 
-fitmetria_fanfit::fitmetria_fanfit(bluetoothdevice *parentDevice) { this->parentDevice = parentDevice; }
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
+fitmetria_fanfit::fitmetria_fanfit(bluetoothdevice *parentDevice) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+    this->parentDevice = parentDevice;
+}
 
 void fitmetria_fanfit::update() {}
 

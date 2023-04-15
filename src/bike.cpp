@@ -39,12 +39,19 @@ void bike::changePower(int32_t power) {
     RequestedPower = power;
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
-    bool force_resistance = settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance).toBool();
-    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used anywhere in code
-    double erg_filter_upper = settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
-    double erg_filter_lower = settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
-    double zwift_erg_resistance_up = settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
-    double zwift_erg_resistance_down = settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
+    bool force_resistance =
+        settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+            .toBool();
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
+    // anywhere in code
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double zwift_erg_resistance_up =
+        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
+    double zwift_erg_resistance_down =
+        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
 
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
@@ -66,8 +73,10 @@ void bike::changePower(int32_t power) {
 
 int8_t bike::gears() { return m_gears; }
 void bike::setGears(int8_t gears) {
+    QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
+    settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
@@ -241,3 +250,33 @@ uint8_t bike::metrics_override_heartrate() {
 }
 
 bool bike::inclinationAvailableByHardware() { return false; }
+
+uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
+    QSettings settings;
+    double watt = 0;
+    if (currentCadence().value() == 0 && useSpeedAndCadence == true) {
+        return 0;
+    }
+    if (Heart.value() > 0) {
+        int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                     settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                    (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                     settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                       (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                        settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                   (Heart.value() *
+                    ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                      settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                     (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                      settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
+        if (Speed.value() > 0 || useSpeedAndCadence == false) {
+            if (avgP < 50) {
+                avgP = 50;
+            }
+            watt = avgP;
+        } else {
+            watt = 0;
+        }
+    }
+    return watt;
+}

@@ -116,6 +116,9 @@ public class ChannelService extends Service {
             if (null != powerChannelController) {
                 powerChannelController.cadence = cadence;
             }
+            if (null != speedChannelController) {
+                speedChannelController.cadence = cadence;
+            }
         }
 
         int getHeart() {

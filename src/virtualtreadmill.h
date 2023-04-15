@@ -80,6 +80,7 @@ class virtualtreadmill : public QObject {
     void treadmillProvider();
     void reconnect();
     void slopeChanged();
+    void dirconChangedInclination(double grade, double percentage);
 };
 
 #endif // VIRTUALTREADMILL_H

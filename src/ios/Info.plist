@@ -20,8 +20,25 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>${QMAKE_PKGINFO_TYPEINFO}</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
+			<key>CFBundleURLName</key>
+			<string>ConnectIQ URL Scheme</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>org.cagnulein.connectiqcomms-ciq</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>gcm-ciq</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -55,6 +72,8 @@
 	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>This app will need access to the local network for Discovery services (Wahoo Fitness Direct Connect).</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>NSMotionUsageDescription</key>

@@ -56,7 +56,7 @@ const bike = viewer.entities.add({
     uri: bikeUri,
     runAnimations: false,
           minimumPixelSize: 32,
-          scale: 1,
+          scale: 0.5,
           color: Cesium.Color.ORANGE,
           silhouetteColor: Cesium.Color.ORANGE,
           silhouetteSize: 1,
@@ -72,7 +72,7 @@ viewer.trackedEntity = bike;
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
 	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; bottom: 0px; right: 0px; margin-bottom: 0px; border-radius: 25px; border: 2px solid #73AD21; background: #73AD21; padding: 2px;">🏃Speed: 0.00<br>🚴Cadence:0<br>💓Heart:0<br>🔥Calories:0.0<br>📏Odometer:0.00<br>⚡Watt:0<br>⏲️Elapsed:0:00:00<br>📐Inclination:0.0<br>🧲Resistance:0<br>✈️Altitude:0.0<br>⛰️Elevation:0.0</p></div>
-         <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 2pt solid #ffff00;"></canvas></div>
+	      <div style="border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; bottom: 0px; right: 150px; width=150px; height=75px"><canvas id="canvasChart" style="width=150px; height=75px; border-right: 0pt solid #ffff00;"></canvas></div>
     <script type="text/javascript">
     let cameraComplete = true
     let lastAzimuth = 0

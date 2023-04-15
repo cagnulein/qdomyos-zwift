@@ -41,6 +41,7 @@ class octanetreadmill : public treadmill {
 
     void *VirtualTreadMill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);
@@ -65,6 +66,7 @@ class octanetreadmill : public treadmill {
 
     QByteArray actualPaceSign;
     QByteArray actualPace2Sign;
+    QByteArray cadenceSign;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
@@ -75,6 +77,8 @@ class octanetreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    bool ZR8 = false;
 
   Q_SIGNALS:
     void disconnected();

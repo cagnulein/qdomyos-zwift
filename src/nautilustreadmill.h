@@ -40,6 +40,7 @@ class nautilustreadmill : public treadmill {
 
     void *VirtualTreadMill();
     void *VirtualDevice();
+    virtual bool canStartStop() { return false; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

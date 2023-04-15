@@ -312,17 +312,7 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+                update_hr_from_external();
             } else
 
                 Heart = heart;
@@ -518,7 +508,9 @@ void activiotreadmill::btinit(bool startTape) {
     uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
     writeCharacteristic(gattWrite2Characteristic, initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    
+    // starts the tape
+    //writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
     }

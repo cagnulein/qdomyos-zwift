@@ -40,6 +40,7 @@ class soleelliptical : public elliptical {
 
     void *VirtualTreadmill();
     void *VirtualDevice();
+    double minStepInclination() { return 1; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -47,6 +48,7 @@ class soleelliptical : public elliptical {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
     void forceResistanceAndInclination(resistance_t requestResistance, uint8_t inclination);
+    void forceInclination(uint8_t inclination);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

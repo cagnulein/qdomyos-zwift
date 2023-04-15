@@ -26,7 +26,6 @@
 #endif
 
 #ifdef Q_OS_ANDROID
-
 #include "keepawakehelper.h"
 #include <QtAndroid>
 #endif
@@ -38,6 +37,8 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+#include "handleurl.h"
 
 bool logs = true;
 bool noWriteResistance = false;
@@ -52,6 +53,7 @@ QString peloton_username = "";
 QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
+bool fit_file_saved_on_quit = false;
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -77,6 +79,7 @@ QString logfilename = QStringLiteral("debug-") +
                           .replace(QStringLiteral(" "), QStringLiteral("_"))
                           .replace(QStringLiteral("."), QStringLiteral("_")) +
                       QStringLiteral(".log");
+QUrl profileToLoad;
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
@@ -172,6 +175,17 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-bike-resistance-offset")) {
 
             bikeResistanceOffset = atoi(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
+            fit_file_saved_on_quit = true;
+        }
+        if (!qstrcmp(argv[i], "-profile")) {
+            QString profileName = argv[++i];
+            if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+                profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+            } else {
+                qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+            }
         }
     }
 
@@ -279,6 +293,11 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
+    #ifdef Q_OS_IOS
+    HandleURL* URLHandler = new HandleURL();
+    QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
+    #endif
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
@@ -303,6 +322,16 @@ int main(int argc, char *argv[]) {
 
     QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    if (!profileToLoad.isEmpty()) {
+        homeform::loadSettings(profileToLoad);
+    }
+
+    if (fit_file_saved_on_quit) {
+        settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        qDebug() << "fit_file_saved_on_quit"
+                 << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
+    }
+
     if (forceQml)
 #endif
     {
@@ -343,7 +372,7 @@ int main(int argc, char *argv[]) {
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains(QStringLiteral("password"))) {
+        if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
 
             qDebug() << s << settings.value(s);
         }
@@ -400,7 +429,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700, "");
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
@@ -490,6 +519,14 @@ int main(int argc, char *argv[]) {
             QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
         if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
             qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.POST_NOTIFICATIONS"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.POST_NOTIFICATIONS"}));
+        if (resultHash["android.permission.POST_NOTIFICATIONS"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "POST_NOTIFICATIONS denied!";
     }
 #endif
 

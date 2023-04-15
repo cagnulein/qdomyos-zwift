@@ -151,6 +151,9 @@ class homeform : public QObject {
     Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
+    Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
+    Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
+    Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -160,7 +163,12 @@ class homeform : public QObject {
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
 
+    Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
+    Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
+
   public:
+    static homeform *singleton() { return m_singleton; }
+
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -324,6 +332,8 @@ class homeform : public QObject {
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
+    bool stopRequested() { return m_stopRequested; }
+    bool startRequested() { return m_startRequested; }
     QString info() { return m_info; }
     QString signal();
     QString startText();
@@ -358,9 +368,9 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
-    bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
+    QString toastRequested() {return m_toastRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -388,6 +398,14 @@ class homeform : public QObject {
             bluetoothManager->device()->setAutoResistance(value);
         }
     }
+    void setStopRequestedChanged(bool value) {
+        m_stopRequested = value;
+        emit stopRequestedChanged(value);
+    }
+    void setStartRequestedChanged(bool value) {
+        m_startRequested = value;
+        emit startRequestedChanged(value);
+    }
     void setLicensePopupVisible(bool value);
     void setVideoIconVisible(bool value);
     void setVideoVisible(bool value) {
@@ -398,6 +416,7 @@ class homeform : public QObject {
     void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
+    void setToastRequested(QString value) { m_toastRequested = value; }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
@@ -502,7 +521,14 @@ class homeform : public QObject {
         return false;
     }
 
+    QString getStravaAuthUrl() { return stravaAuthUrl; }
+    bool stravaWebVisible() { return stravaAuthWebVisible; }
+    trainprogram *trainingProgram() { return trainProgram; }
+
   private:
+    static homeform *m_singleton;
+    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
+    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
@@ -535,6 +561,7 @@ class homeform : public QObject {
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
+    QString m_toastRequested = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
@@ -553,6 +580,8 @@ class homeform : public QObject {
     QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;
+    bool m_stopRequested = false;
+    bool m_startRequested = false;
 
     DataObject *speed;
     DataObject *inclination;
@@ -613,6 +642,7 @@ class homeform : public QObject {
     DataObject *preset_inclination_3;
     DataObject *preset_inclination_4;
     DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -624,8 +654,10 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    QString stravaAuthUrl;
+    bool stravaAuthWebVisible;
 
-    quint64 cryptoKeySettingsProfiles();
+    static quint64 cryptoKeySettingsProfiles();
 
     int16_t fanOverride = 0;
 
@@ -639,7 +671,7 @@ class homeform : public QObject {
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
     void licenseRequest();
@@ -649,17 +681,24 @@ class homeform : public QObject {
     PathController pathController;
     bool videoMustBeReset = true;
 
+#ifdef Q_OS_ANDROID
+    bool floating_open = false;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
-    void loadSettings(const QUrl &filename);
+    static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
     void saveProfile(QString profilename);
     void restart();
+    bool pelotonAskStart() { return m_pelotonAskStart; }
 
   private slots:
     void Start();
     void Stop();
+    void StartRequested();
+    void StopRequested();
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
@@ -668,6 +707,7 @@ class homeform : public QObject {
     void volumeUp();
     void keyMediaPrevious();
     void keyMediaNext();
+    void floatingOpen();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
@@ -702,11 +742,19 @@ class homeform : public QObject {
     void gearUp();
     void gearDown();
     void changeTimestamp(QTime source, QTime actual);
+    void pelotonOffset_Plus();
+    void pelotonOffset_Minus();
+    int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
+    void bluetoothDeviceConnected(bluetoothdevice *b);
+    void bluetoothDeviceDisconnected();
+    void onToastRequested(QString message);
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif
+
+    void toggleAutoResistance() { setAutoResistance(!autoResistance()); }
 
   signals:
 
@@ -726,6 +774,7 @@ class homeform : public QObject {
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
+    void toastRequestedChanged(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);
@@ -741,10 +790,14 @@ class homeform : public QObject {
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
+    void startRequestedChanged(bool value);
+    void stopRequestedChanged(bool value);
 
     void previewWorkoutPointsChanged(int value);
     void previewWorkoutDescriptionChanged(QString value);
     void previewWorkoutTagsChanged(QString value);
+    void stravaAuthUrlChanged(QString value);
+    void stravaWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };

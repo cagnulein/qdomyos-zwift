@@ -26,6 +26,12 @@ ColumnLayout {
         }
     }
 
+    Timer {
+        id: chartJscheckStartFromWeb
+        interval: 200; running: true; repeat: true
+        onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; stackView.pop(); }}
+    }
+
     Button {
         id: closeButton
         height: 50

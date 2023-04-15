@@ -145,9 +145,10 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     switch ((uint8_t)newValue.at(0)) {
     case 30: {
-        double intValue = (double)((double)(newValue.at(1) * 256) + (double)newValue.at(2));
+        double intValue =
+            ((double)(((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(2)))) / 100.0;
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = intValue / 100.0;
+            Speed = intValue;
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
@@ -160,7 +161,7 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
-            Cadence = ((double)(newValue.at(1) * 256) + (double)newValue.at(2));
+            Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(2))));
         }
         break;
     case 60:
@@ -179,7 +180,7 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         str = "RECEIVED_CALORIES," + (intValue3 / 10.0d);*/
         break;
     case 105:
-        m_watt = ((double)(newValue.at(1) * 256) + (double)newValue.at(2));
+        m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(2)))) / 10.0;
         break;
     case 120:
         if (!disable_hr_frommachinery)
@@ -247,16 +248,7 @@ void mepanelbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled")) && disable_hr_frommachinery) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 

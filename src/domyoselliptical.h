@@ -37,6 +37,7 @@ class domyoselliptical : public elliptical {
                      uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyoselliptical();
     bool connected();
+    bool inclinationAvailableByHardware();
 
     void *VirtualTreadmill();
     void *VirtualDevice();

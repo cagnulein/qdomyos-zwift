@@ -2,6 +2,7 @@
 #include "dirconpacket.h"
 #include "qzsettings.h"
 #include <QSettings>
+#include <QHostInfo>
 
 DirconProcessor::DirconProcessor(const QList<DirconProcessorService *> &my_services, const QString &serv_name,
                                  quint16 serv_port, const QString &serv_sn, const QString &my_mac, QObject *parent)

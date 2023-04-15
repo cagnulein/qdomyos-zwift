@@ -36,7 +36,11 @@ class trainrow {
     bool forcespeed = false;
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
-    int8_t maxSpeed = -1;
+    int16_t HRmin = -1;
+    int16_t HRmax = -1;
+    double maxSpeed = -1;
+    double minSpeed = -1;
+    int8_t maxResistance = -1;
     int32_t power = -1;
     int32_t mets = -1;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
@@ -78,6 +82,7 @@ class trainprogram : public QObject {
     int TotalGPXSecs();
     double weightedInclination(int step);
     double medianInclination(int step);
+    bool overridePowerForCurrentRow(double power);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -96,6 +101,9 @@ class trainprogram : public QObject {
     void onTapeStarted();
     void scheduler();
 
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
+
   signals:
     void start();
     void stop(bool paused);
@@ -111,6 +119,7 @@ class trainprogram : public QObject {
     void changeSpeedAndInclination(double speed, double inclination);
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     void changeTimestamp(QTime source, QTime actual);
+    void toastRequest(QString message);
 
   private:
     mutable QRecursiveMutex schedulerMutex;
@@ -135,6 +144,9 @@ class trainprogram : public QObject {
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+
+    QUdpSocket* pelotonOCRsocket = nullptr;
+    void pelotonOCRcomputeTime(QString t);
 };
 
 #endif // TRAINPROGRAM_H

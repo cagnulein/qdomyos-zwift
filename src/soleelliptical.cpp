@@ -94,6 +94,23 @@ void soleelliptical::forceResistanceAndInclination(resistance_t requestResistanc
     }
 }
 
+void soleelliptical::forceInclination(uint8_t inclination) {
+
+    uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+    uint8_t writeUp[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
+
+    uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
+
+    if (currentInclination().value() < inclination) {
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+        writeCharacteristic(writeUp, sizeof(writeUp), QStringLiteral("forceInclination ") + inclination, false, true);
+    } else if (currentInclination().value() > inclination) {
+        writeCharacteristic(writeDown, sizeof(writeDown), QStringLiteral("forceInclination ") + inclination, false,
+                            true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceInclination ") + inclination, false, true);
+    }
+}
+
 void soleelliptical::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
@@ -101,9 +118,6 @@ void soleelliptical::changeInclinationRequested(double grade, double percentage)
 }
 
 void soleelliptical::update() {
-
-    uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -122,10 +136,17 @@ void soleelliptical::update() {
         update_metrics(true, watts());
 
         QSettings settings;
+        bool sole_elliptical_inclination =
+            settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
+                .toBool();
+
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -148,19 +169,60 @@ void soleelliptical::update() {
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
-        } else {
-            switch (counterPoll) {
+        } else {            
+            bool sole_elliptical_e55 = settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
 
-            case 0:
-                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-                break;
-            case 1:
-                writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
-                break;
-            }
-            counterPoll++;
-            if (counterPoll > 1) {
-                counterPoll = 0;
+            if(!sole_elliptical_e55) {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+
+                switch (counterPoll) {
+
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                }
+                counterPoll++;
+                if (counterPoll > 1) {
+                    counterPoll = 0;
+                }
+            } else {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData2[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData3[] = {0x5b, 0x04, 0x00, 0x12, 0x4f, 0x4b, 0x5d};
+
+                switch (counterPoll) {
+
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                case 2:
+                    writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                    break;
+                case 3:
+                    writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
+                    break;
+                case 4:
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                case 5:
+                    writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, true);
+                    break;
+                case 6:
+                    writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
+                    break;
+                }
+                counterPoll++;
+                if (counterPoll > 6) {
+                    counterPoll = 0;
+                }
             }
         }
 
@@ -176,7 +238,7 @@ void soleelliptical::update() {
         }
 
         // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -100)
+        if (requestInclination != -100 && !sole_elliptical_inclination)
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
@@ -195,14 +257,17 @@ void soleelliptical::update() {
         } else if (requestInclination != -100) {
             if (requestInclination > 15) {
                 requestInclination = 15;
-            } else if (requestInclination == 0) {
-                requestInclination = 1;
+            } else if (requestInclination < 0) {
+                requestInclination = 0;
             }
 
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
-                forceResistanceAndInclination(currentResistance().value(), requestInclination);
+                if (sole_elliptical_inclination)
+                    forceInclination(requestInclination);
+                else
+                    forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
             requestInclination = -100;
         }
@@ -251,16 +316,29 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
+    if (newValue.length() == 5 && newValue.at(1) == 0x02 && newValue.at(2) == 0x12) {
+
+        Inclination = newValue.at(3) + 1;
+        emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
+        return;
+    }
+
     if (newValue.length() < 20) {
         return;
     }
 
-    double speed = GetSpeedFromPacket(newValue) *
-                   settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble() * miles;
+    double speed =
+        GetSpeedFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble() *
+        miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
     uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -269,7 +347,6 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
     // m_watt = watt;
 
-    // Inclination = newValue.at(21);
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
@@ -282,8 +359,11 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
+        }
+        else {
+            update_hr_from_external();
         }
     }
 
@@ -336,29 +416,64 @@ void soleelliptical::btinit(bool startTape) {
 
     QSettings settings;
     Q_UNUSED(startTape)
+    bool sole_elliptical_e55 = settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
 
-    // set speed and incline to 0
-    uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
-    uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
-    uint8_t initData3[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
-    uint8_t initData4[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
-    uint8_t initData5[] = {0x5b, 0x05, 0x04, 0xFF, 0x00, 0x00, 0x00, 0x5d}; // 0xFF is the duration of the workout
-    uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
-    uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+    if(!sole_elliptical_e55) {
+        // set speed and incline to 0
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x05, 0x04, 0xFF, 0x00, 0x00, 0x00, 0x5d}; // 0xFF is the duration of the workout
+        uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    initData3[4] = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
-    initData3[6] = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 2.20462;
+        initData3[4] = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+        initData3[6] = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 2.20462;
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"));
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"));
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"));
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"));
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"));
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"));
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"));
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"));
+    } else {
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData8[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+        uint8_t initData9[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+        uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"));
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"));
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"));
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"));
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"));
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"));
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"));
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"));
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"));
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"));
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"));
+    }
 
     initDone = true;
 }

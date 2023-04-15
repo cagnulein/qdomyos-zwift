@@ -30,6 +30,7 @@ class nordictrackifitadbbike : public bike {
   public:
     nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
     bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool inclinationAvailableByHardware();
 
     void *VirtualTreadmill();
@@ -38,12 +39,14 @@ class nordictrackifitadbbike : public bike {
   private:
     void forceResistance(double resistance);
     uint16_t watts();
+    double getDouble(QString v);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
 
@@ -55,6 +58,12 @@ class nordictrackifitadbbike : public bike {
 
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
+
+#ifdef Q_OS_ANDROID
+    QString lastCommand;
+#endif
+
+    QString ip;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

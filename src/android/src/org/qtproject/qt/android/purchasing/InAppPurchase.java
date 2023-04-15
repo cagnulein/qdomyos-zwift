@@ -181,6 +181,20 @@ public class InAppPurchase implements PurchasesUpdatedListener
                 purchaseFailed(purchaseRequestCode, FAILUREREASON_ERROR, e.getMessage());
             }
             purchaseSucceeded(purchaseRequestCode, purchase.getSignature(), purchase.getOriginalJson(), purchase.getPurchaseToken(), purchase.getOrderId(), purchase.getPurchaseTime());
+            AcknowledgePurchaseParams acknowledgePurchaseParams =
+                        AcknowledgePurchaseParams.newBuilder()
+                                .setPurchaseToken(purchase.getPurchaseToken())
+                                .build();
+            billingClient.acknowledgePurchase(acknowledgePurchaseParams,
+                new AcknowledgePurchaseResponseListener()
+                {
+                    @Override
+                    public void onAcknowledgePurchaseResponse(BillingResult billingResult)
+                    {
+                        Log.d(TAG, "Purchase acknowledged  ");
+                    }
+                }
+            );
         }
     }
 

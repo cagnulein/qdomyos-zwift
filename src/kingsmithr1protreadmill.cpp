@@ -105,8 +105,11 @@ void kingsmithr1protreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -158,7 +161,7 @@ void kingsmithr1protreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
@@ -241,7 +244,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = value;
 
-    if (newValue.length() != 20) {
+    if (newValue.length() != 20 || ignoreFirstPackage) {
+        ignoreFirstPackage = false;
         emit debug(QStringLiteral("packet ignored"));
         return;
     }
@@ -303,27 +307,18 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -334,6 +329,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
                      ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
+
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));
@@ -352,6 +349,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         emit speedChanged(speed);
     }
     Speed = speed;
+    Inclination = treadmillInclinationOverride(0);
 
     if (speed > 0) {
 
@@ -446,6 +444,8 @@ void kingsmithr1protreadmill::characteristicWritten(const QLowEnergyCharacterist
 void kingsmithr1protreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFE00);
     emit debug(QStringLiteral("serviceScanDone"));
+
+    ignoreFirstPackage = true;
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
