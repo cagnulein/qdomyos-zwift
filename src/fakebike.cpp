@@ -45,17 +45,6 @@ void fakebike::update() {
     Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
     */
 
-    static int currentrun = 0;
-    static bool runincrement = true;
-    if (currentrun<50) Speed = 7;
-    else if (currentrun<100) Speed = 8;
-    else if (currentrun<150) Speed = 9;
-    else Speed = 10;
-    if (runincrement) currentrun++;
-    else currentrun--;
-    if (currentrun>=175) runincrement=false;
-    if (currentrun<=0) runincrement = true;
-
     if (requestPower != -1) {
         m_watt = requestPower;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
