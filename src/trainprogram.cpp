@@ -320,7 +320,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
         double avgSpeedForLimit = avgSpeedFromGpxStep(currentStep + 1, 5);
         if (avgSpeedForLimit > 0.0) {
             bike *dev = (bike *)bluetoothManager->device();
-            dev->setSpeedLimit(avgSpeedForLimit * 3);
+            // bepo70: Video is recorded with Factor 2, Replay allows Factor 2 max, so set the speed Limit to 4 times speed to
+            //         avoid any jumps in Video
+            dev->setSpeedLimit(avgSpeedForLimit * 4.0 / 3.0);
         }
     }
     if (gpxsecs == lastGpxRateSetAt) {
