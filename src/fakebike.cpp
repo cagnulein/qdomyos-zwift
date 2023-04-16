@@ -46,9 +46,11 @@ void fakebike::update() {
     */
 
     if (requestPower != -1) {
-        m_watt = requestPower;
+        // don't know if this conversion is really needed, i would do it anyway.
+        m_watt = (double)requestPower;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
-        requestPower = -1;
+        // When i want fake power i want it constantly, not only one time.
+        //requestPower = -1;
         Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
         Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
     }
