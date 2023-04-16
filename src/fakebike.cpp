@@ -56,7 +56,21 @@ void fakebike::update() {
     if (currentrun>=175) runincrement=false;
     if (currentrun<=0) runincrement = true;
 
-    update_metrics(true, watts());
+    if (requestPower != -1) {
+        m_watt = requestPower;
+        emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
+        requestPower = -1;
+        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+    }
+
+    if (requestInclination != -100) {
+        Inclination = requestInclination;
+        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+        requestInclination = -100;
+    }
+
+    update_metrics(false, watts());
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
