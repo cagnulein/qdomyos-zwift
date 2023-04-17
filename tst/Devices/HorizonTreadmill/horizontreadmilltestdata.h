@@ -25,29 +25,14 @@ class HorizonTreadmillToorxTestData : public TreadmillTestData {
     bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override;
 };
 
-class HorizonTreadmillBodyToneTestData : public BluetoothDeviceTestData {
+class HorizonTreadmillBodyToneTestData : public TreadmillTestData {
     void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
-                           std::vector<DeviceDiscoveryInfo> &configurations) const override {
-        DeviceDiscoveryInfo config(info);
-
-        if (enable) {
-            config.horizon_treadmill_force_ftms = true;
-            configurations.push_back(config);
-        } else {
-            // Basic case where the device is disabled in the settings
-            config.horizon_treadmill_force_ftms = false;
-            configurations.push_back(config);
-        }
-    }
+                           std::vector<DeviceDiscoveryInfo> &configurations) const override;
 
   public:
-    HorizonTreadmillBodyToneTestData() : BluetoothDeviceTestData("Horizon Treadmill (Bodytone)") {
-        this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
-    }
+    HorizonTreadmillBodyToneTestData();
 
-    deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }
+    deviceType get_expectedDeviceType() const override;
 
-    bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override {
-        return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
-    }
+    bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override;
 };

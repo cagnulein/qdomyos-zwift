@@ -64,3 +64,26 @@ deviceType HorizonTreadmillToorxTestData::get_expectedDeviceType() const { retur
 bool HorizonTreadmillToorxTestData::get_isExpectedDevice(bluetoothdevice *detectedDevice) const {
     return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
 }
+
+void HorizonTreadmillBodyToneTestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) const {
+    DeviceDiscoveryInfo config(info);
+
+    if (enable) {
+        config.horizon_treadmill_force_ftms = true;
+        configurations.push_back(config);
+    } else {
+        // Basic case where the device is disabled in the settings
+        config.horizon_treadmill_force_ftms = false;
+        configurations.push_back(config);
+    }
+}
+
+HorizonTreadmillBodyToneTestData::HorizonTreadmillBodyToneTestData() : TreadmillTestData("Horizon Treadmill (Bodytone)") {
+    this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
+}
+
+deviceType HorizonTreadmillBodyToneTestData::get_expectedDeviceType() const { return deviceType::HorizonTreadmill; }
+
+bool HorizonTreadmillBodyToneTestData::get_isExpectedDevice(bluetoothdevice *detectedDevice) const {
+    return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
+}
