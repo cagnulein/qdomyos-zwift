@@ -78,8 +78,10 @@ class trainprogram : public QObject {
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
-    double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed);
+    double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed, int recordingFactor);
     int TotalGPXSecs();
+    double weightedInclination(int step);
+    double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
 
     QList<trainrow> rows;
@@ -87,6 +89,7 @@ class trainprogram : public QObject {
     QString description = "";
     QString tags = "";
     bool enabled = true;
+    bool videoAvailable = false;
 
     void restart();
     bool isStarted() { return started; }

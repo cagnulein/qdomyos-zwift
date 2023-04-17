@@ -28,5 +28,5 @@ SnodeBike1TestData::SnodeBike1TestData() : SnodeBikeTestData("Snode Bike") {
 }
 
 SnodeBike2TestData::SnodeBike2TestData() : SnodeBikeTestData("Snode Bike TF") {
-    this->addDeviceName("TF-", comparison::StartsWith);
+    this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
 }
