@@ -24,7 +24,9 @@ public:
 };
 
 class SnodeBike2TestData : public SnodeBikeTestData {
-
+protected:
+    void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
+                           std::vector<DeviceDiscoveryInfo> &configurations) const override;
 public:
     SnodeBike2TestData();
 

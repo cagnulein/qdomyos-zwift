@@ -27,6 +27,19 @@ SnodeBike1TestData::SnodeBike1TestData() : SnodeBikeTestData("Snode Bike") {
     this->addDeviceName("FS-", comparison::StartsWith);
 }
 
+void SnodeBike2TestData::configureSettings(const DeviceDiscoveryInfo &info, bool enable, std::vector<DeviceDiscoveryInfo> &configurations) const {
+    DeviceDiscoveryInfo config(info);
+
+    if (enable) {
+        config.horizon_treadmill_force_ftms = false;
+        configurations.push_back(config);
+    } else {
+        // Basic case where the device is disabled in the settings
+        config.horizon_treadmill_force_ftms = true;
+        configurations.push_back(config);
+    }
+}
+
 SnodeBike2TestData::SnodeBike2TestData() : SnodeBikeTestData("Snode Bike TF") {
     this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
 }
