@@ -32,26 +32,30 @@ void fakebike::update() {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-
     /*
     static int updcou = 0;
     updcou++;
-    double w = 250.0;
+    double w = 60.0;
     if (updcou > 20000 )
         updcou = 0;
     else if (updcou > 12000)
-        w = 300;
+        w = 120;
     else if (updcou > 6000)
-        w = 150;
-
-    Speed = metric::calculateSpeedFromPower(w, Inclination.value(),
-    Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());*/
+        w = 80;
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+    */
 
     if (requestPower != -1) {
-        m_watt = requestPower;
+        // bepo70: don't know if this conversion is really needed, i would do it anyway.
+        m_watt = (double)requestPower;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
         requestPower = -1;
-        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        // bepo70: Disregard the current inclination for calculating speed. When the video
+        //         has a high inclination you have to give many power to get the desired playback speed,
+        //         if inclination is very low little more power gives a quite high speed jump.
+        //Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        //Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(), 0,
         Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
     }
 

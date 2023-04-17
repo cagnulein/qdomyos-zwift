@@ -2947,12 +2947,18 @@ void homeform::Start_inner(bool send_event_to_device) {
         m_speech.say("Start pressed");
 
     if (!paused && !stopped) {
-
         paused = true;
         if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->stop(paused);
         }
         emit workoutEventStateChanged(bluetoothdevice::PAUSED);
+        // Pause Video if running and visible
+        if ((trainProgram) && (videoVisible() == true)) {
+            QObject *rootObject = engine->rootObjects().constFirst();
+            auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+            auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+            videoPlaybackHalfPlayer->pause();
+        }
     } else {
 
         if (bluetoothManager->device() && send_event_to_device) {
@@ -2992,6 +2998,13 @@ void homeform::Start_inner(bool send_event_to_device) {
                 trainProgram->restart();
             }
             emit workoutEventStateChanged(bluetoothdevice::RESUMED);
+            // Resume Video if visible
+            if ((trainProgram) && (videoVisible() == true)) {
+                QObject *rootObject = engine->rootObjects().constFirst();
+                auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+                auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+                videoPlaybackHalfPlayer->play();
+            }
         }
 
         paused = false;
@@ -5956,7 +5969,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                 // calculate and set the new Video Rate
                 double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).msecsTo(source)) / 1000.0,
                                                             videoTimeStampSeconds,
-                                                            bluetoothManager->device()->currentSpeed().average5s());
+                                                            bluetoothManager->device()->currentSpeed().average5s(),
+                                                            recordingFactor);
                 rate = rate / ((double)(recordingFactor));
                 setVideoRate(rate);
             } else {
