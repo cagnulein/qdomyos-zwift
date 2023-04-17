@@ -72,6 +72,7 @@ SOURCES += \
    $$PWD/pelotonbike.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -273,6 +274,7 @@ HEADERS += \
    $$PWD/pelotonbike.h \
    $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
+   $$PWD/ypooelliptical.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
