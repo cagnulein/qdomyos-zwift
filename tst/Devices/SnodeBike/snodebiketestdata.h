@@ -48,7 +48,7 @@ class SnodeBike2TestData : public SnodeBikeTestData {
 
 public:
     SnodeBike2TestData() : SnodeBikeTestData("Snode Bike TF") {
-        this->addDeviceName("TF-", comparison::StartsWith);
+        this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
     }
 
 };
