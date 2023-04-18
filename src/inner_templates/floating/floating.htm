@@ -217,6 +217,7 @@
     function closeConfirmBox() {
       document.getElementById("overlay").hidden = true;
       document.getElementById("maintable").hidden = false;
+      peloton_ask_already_running = false;
     }
     function isConfirm(answer) {
       if (answer) {
@@ -691,6 +692,8 @@
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;
               document.getElementById("maintable").hidden = true;
+            } else if (key === 'peloton_ask_start' && peloton_ask_already_running && (msg.content[key] === false || msg.content[key] === 'false')) {
+              closeConfirmBox();
             } else if (key === 'autoresistance') {
               if((msg.content[key] === true || msg.content[key] === 'true'))
                 $(".autoresistance").html('🧲');
