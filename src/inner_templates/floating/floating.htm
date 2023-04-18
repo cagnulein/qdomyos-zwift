@@ -693,7 +693,6 @@
               document.getElementById("overlay").hidden = false;
               document.getElementById("maintable").hidden = true;
             } else if (key === 'peloton_ask_start' && peloton_ask_already_running && (msg.content[key] === false || msg.content[key] === 'false')) {
-              peloton_ask_already_running = true;
               closeConfirmBox();
             } else if (key === 'autoresistance') {
               if((msg.content[key] === true || msg.content[key] === 'true'))
