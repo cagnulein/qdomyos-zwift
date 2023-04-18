@@ -63,15 +63,25 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-qt5-networkauth mingw-w64-x86_64-qt5-charts mingw-w64-x86_64-qt5-location mingw-w64-x86_64-qt5-multimedia mingw-w64-x86_64-qt5-serialport mingw-w64-x86_64-qt5-websockets mingw-w64-x86_64-qt5-connectivity mingw-w64-x86_64-qt5-base mingw-w64-x86_64-qt5-tools
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
           msystem: mingw64
           release: false
-          path-type: inherit
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
           cmake-version: '3.20.x'
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_mingw81
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -81,7 +91,6 @@ jobs:
       - name: Build qthttpserver
         run: |
             cd src\qthttpserver 
-            $env:Path += ";C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;"
             qmake
             make -j8
             make install
@@ -89,7 +98,6 @@ jobs:
 
       - name: Build
         run: |
-            $env:Path += ";C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/;"
             qmake
             cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -97,7 +105,7 @@ jobs:
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
             cd ..
-            make -j8
+            CFLAGS+="-IC:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/include/" make -j8
             cd src/debug
             mkdir output
             mkdir appx
