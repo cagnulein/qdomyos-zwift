@@ -51,7 +51,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         applySpeedFilter();
     }
 
-    this->videoAvailable=videoAvailable;
+    this->videoAvailable = videoAvailable;
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
@@ -353,52 +353,69 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, double cu
     return rate;
 }
 
-// Calculate the Median Inclination for a given Step. Median is built from the given Step -2 Steps and +2 Steps (5 Steps in total)
+// Calculate the Median Inclination for a given Step. Median is built from the given Step -2 Steps and +2 Steps (5 Steps
+// in total)
 double trainprogram::medianInclination(int step) {
     QList<double> inclinations;
     inclinations.reserve(5);
-    if (rows.length() == 0) return 0;
-    if ((step>1) && (rows.length()>step-2)) inclinations.append(rows.at(step-2).inclination);
-    else inclinations.append(0);
-    if ((step>0) && (rows.length()>step-1)) inclinations.append(rows.at(step-1).inclination);
-    else inclinations.append(0);
-    if (rows.length()>step) inclinations.append(rows.at(step).inclination);
-    else inclinations.append(0);
-    if (rows.length()>step+1) inclinations.append(rows.at(step+1).inclination);
-    else inclinations.append(0);
-    if (rows.length()>step+2) inclinations.append(rows.at(step+2).inclination);
-    else inclinations.append(0);
-    std::sort(inclinations.begin(),inclinations.end());
-    return(inclinations.at(2));
+    if (rows.length() == 0)
+        return 0;
+    if ((step > 1) && (rows.length() > step - 2))
+        inclinations.append(rows.at(step - 2).inclination);
+    else
+        inclinations.append(0);
+    if ((step > 0) && (rows.length() > step - 1))
+        inclinations.append(rows.at(step - 1).inclination);
+    else
+        inclinations.append(0);
+    if (rows.length() > step)
+        inclinations.append(rows.at(step).inclination);
+    else
+        inclinations.append(0);
+    if (rows.length() > step + 1)
+        inclinations.append(rows.at(step + 1).inclination);
+    else
+        inclinations.append(0);
+    if (rows.length() > step + 2)
+        inclinations.append(rows.at(step + 2).inclination);
+    else
+        inclinations.append(0);
+    std::sort(inclinations.begin(), inclinations.end());
+    return (inclinations.at(2));
 }
 
-// Calculates a weighted Inclination for a given Step. Inclination is calculated for the given Step + windowsize Steps (7)
-// The inclination for each Point needed goes through a Median Filter first to eliminate/minimize Errors in the recorded elevation Data
+// Calculates a weighted Inclination for a given Step. Inclination is calculated for the given Step + windowsize Steps
+// (7) The inclination for each Point needed goes through a Median Filter first to eliminate/minimize Errors in the
+// recorded elevation Data
 double trainprogram::weightedInclination(int step) {
     int windowsize = 7;
     int firststep = step;
     double inc = 0;
     double sumweights = 0;
     double pointweight = 0;
-    if (rows.length() == 0) return 0;
+    if (rows.length() == 0)
+        return 0;
     // Determine first and last possible Steps
-    if (firststep < 0) firststep=0;
-    int laststep = step+windowsize;
+    if (firststep < 0)
+        firststep = 0;
+    int laststep = step + windowsize;
     if (laststep >= rows.length()) {
-        firststep = rows.length()-1-(windowsize*2);
-        if (firststep < 0) firststep = 0;
+        firststep = rows.length() - 1 - (windowsize * 2);
+        if (firststep < 0)
+            firststep = 0;
     }
     // Loop through the determined Steps
     for (int s = firststep; s <= laststep; s++) {
         // Calculate the Weight used for the inclination
-        pointweight = ((( (double)windowsize*2.0)-1.0) - ((s-firststep)*2.0));
+        pointweight = ((((double)windowsize * 2.0) - 1.0) - ((s - firststep) * 2.0));
         // Calculate the sum of weights
         sumweights = (sumweights + pointweight);
         // Calculate the sum of weighted median inclinations
-        inc = (inc + (medianInclination(s))*pointweight);
+        inc = (inc + (medianInclination(s)) * pointweight);
     }
     // avoid a Division by 0
-    if (sumweights == 0) return 0;
+    if (sumweights == 0)
+        return 0;
     // Return the sum of weighted median inclinations / sum of all weights
     return (inc / sumweights);
 }
@@ -502,7 +519,9 @@ void trainprogram::pelotonOCRprocessPendingDatagrams() {
         QString s = datagram;
         pelotonOCRcomputeTime(s);
 
-        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" + QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
+        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" +
+                      QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) +
+                      "/floating/floating.htm";
         int r = pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, 8003);
         qDebug() << "url floating" << url << r;
     }
@@ -515,7 +534,7 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
     QRegularExpressionMatch match = re.match(t.left(5));
     if (t.contains(QStringLiteral("INTRO")) || t.contains(QStringLiteral("UNTIL START"))) {
         qDebug() << QStringLiteral("PELOTON OCR: SKIPPING INTRO, restarting training program");
-        if(!pelotonOCRcomputeTime_intro) {
+        if (!pelotonOCRcomputeTime_intro) {
             pelotonOCRcomputeTime_intro = true;
             emit toastRequest("Peloton Syncing! Skipping intro...");
         }
@@ -532,7 +551,7 @@ void trainprogram::pelotonOCRcomputeTime(QString t) {
         uint32_t abs = qAbs(ocrRemaining.secsTo(currentRemaining));
         if (abs < 120) {
             qDebug() << QStringLiteral("PELOTON OCR SYNCING!");
-            if(!pelotonOCRcomputeTime_syncing) {
+            if (!pelotonOCRcomputeTime_syncing) {
                 pelotonOCRcomputeTime_syncing = true;
                 emit toastRequest("Peloton Syncing!");
             }
@@ -550,9 +569,11 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
-    // outside the if case about a valid train program because the information for the floating window url should be sent anyway
-    if(settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr).toBool()) {
-        if(!pelotonOCRsocket) {
+    // outside the if case about a valid train program because the information for the floating window url should be
+    // sent anyway
+    if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
+            .toBool()) {
+        if (!pelotonOCRsocket) {
             pelotonOCRsocket = new QUdpSocket(this);
             bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
             qDebug() << result;
@@ -571,7 +592,9 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
-            bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
+            bluetoothManager->device() &&
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL ||
+             bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
             QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                 "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
             QString t = text.toString();
@@ -623,7 +646,7 @@ void trainprogram::scheduler() {
         }
 #endif
 
-       return;
+        return;
     }
 
 #ifdef Q_OS_ANDROID
@@ -640,7 +663,7 @@ void trainprogram::scheduler() {
         } else {
             qDebug() << QStringLiteral("PELOTON OCR IGNORING") << packageName << t;
         }
-    } else
+    }
 #endif
 
     ticks++;
@@ -904,7 +927,7 @@ void trainprogram::scheduler() {
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
                 double inc = avgInclinationNext100Meters(currentStep);
                 // if Bike used and it is a gpx with Video use the new weightedInclination
-                if ( (videoAvailable) && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) ) {
+                if ((videoAvailable) && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)) {
                     inc = weightedInclination(currentStep);
                 }
                 double bikeResistanceOffset =
