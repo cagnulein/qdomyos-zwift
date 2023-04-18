@@ -3,7 +3,7 @@
 #include "Devices/Bike/biketestdata.h"
 #include "pafersbike.h"
 
-class PafersBikeTestData : public BluetoothDeviceTestData {
+class PafersBikeTestData : public BikeTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         // the treadmill is given priority
@@ -11,7 +11,7 @@ protected:
         return true;
     }
 public:
-    PafersBikeTestData() : BluetoothDeviceTestData("Pafers Bike") {
+    PafersBikeTestData() : BikeTestData("Pafers Bike") {
         this->addDeviceName("PAFERS_", comparison::StartsWithIgnoreCase);
     }
 
