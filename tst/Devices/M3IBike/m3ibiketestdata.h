@@ -1,16 +1,22 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-
+#include "m3ibike.h"
 
 class M3IBikeTestData : public BikeTestData {
 
 public:
-    M3IBikeTestData();
+    M3IBikeTestData() : BikeTestData("M3I Bike") {
+        this->testInvalidBluetoothDeviceInfo = true;
 
-    deviceType get_expectedDeviceType() const override;
+        this->addDeviceName("M3", comparison::StartsWith);
+    }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::M3IBike; }
+
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<m3ibike*>(detectedDevice)!=nullptr;
+    }
 
     QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true) override;
 };

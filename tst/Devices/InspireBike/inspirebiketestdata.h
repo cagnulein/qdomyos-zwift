@@ -1,15 +1,19 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-
+#include "inspirebike.h"
 
 class InspireBikeTestData : public BikeTestData {
 
 public:
-    InspireBikeTestData();
+    InspireBikeTestData() : BikeTestData("Inspire Bike") {
+        this->addDeviceName("IC", comparison::StartsWithIgnoreCase, 8);
+    }
 
-    deviceType get_expectedDeviceType() const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::InspireBike; }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<inspirebike*>(detectedDevice)!=nullptr;
+    }
 };
 

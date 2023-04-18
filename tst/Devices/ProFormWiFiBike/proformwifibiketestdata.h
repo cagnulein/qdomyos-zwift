@@ -1,17 +1,24 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-
+#include "proformwifibike.h"
 
 class ProFormWiFiBikeTestData : public BikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
+        info.proformtdf4ip = enable ? this->get_testIP():QString();
+        return true;
+    }
 public:
-    ProFormWiFiBikeTestData();
+    ProFormWiFiBikeTestData(): BikeTestData("ProForm WiFi Bike") {
+        // any name
+        this->addDeviceName("", comparison::StartsWithIgnoreCase);
+    }
 
-    deviceType get_expectedDeviceType() const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::ProformWifiBike; }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
-
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<proformwifibike*>(detectedDevice)!=nullptr;
+    }
 };
 

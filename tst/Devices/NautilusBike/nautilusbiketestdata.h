@@ -1,15 +1,19 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-
+#include "nautilusbike.h"
 
 class NautilusBikeTestData : public BikeTestData {
 
 public:
-    NautilusBikeTestData();
+    NautilusBikeTestData(): BikeTestData("Nautilus Bike") {
+        this->addDeviceName("NAUTILUS B", comparison::StartsWithIgnoreCase);
+    }
 
-    deviceType get_expectedDeviceType() const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::NautilusBike; }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<nautilusbike*>(detectedDevice)!=nullptr;
+    }
 };
 

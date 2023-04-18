@@ -1,15 +1,19 @@
 ﻿#pragma once
 
-#include "Devices/Rower/rowertestdata.h"
-
+#include "Devices/bluetoothdevicetestdata.h"
+#include "proformrower.h"
 
 class ProFormRowerTestData : public RowerTestData {
 
 public:
-    ProFormRowerTestData();
+    ProFormRowerTestData() : RowerTestData("ProForm Rower") {
+        this->addDeviceName("I_RW", comparison::StartsWithIgnoreCase);
+    }
 
-    deviceType get_expectedDeviceType() const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::ProformRower; }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<proformrower*>(detectedDevice)!=nullptr;
+    }
 };
 

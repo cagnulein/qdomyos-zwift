@@ -1,6 +1,6 @@
 ﻿#pragma once
-
 #include "Devices/Elliptical/ellipticaltestdata.h"
+#include "Devices/bluetoothdevicetestdata.h"
 #include "iconceptelliptical.h"
 
 class iConceptEllipticalTestData : public EllipticalTestData {

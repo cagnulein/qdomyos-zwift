@@ -1,15 +1,23 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
+#include "fakebike.h"
 
 class FakeBikeTestData : public BikeTestData {
 protected:
-    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override;
+    bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
+        info.fake_bike = enable;
+        return true;
+    }
 public:
-    FakeBikeTestData();
+    FakeBikeTestData() : BikeTestData("Fake Bike"){
+        this->addDeviceName("", comparison::StartsWithIgnoreCase);
+    }
 
-    deviceType get_expectedDeviceType() const override;
+    deviceType get_expectedDeviceType() const override { return deviceType::FakeBike; }
 
-    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
+    bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
+        return dynamic_cast<fakebike*>(detectedDevice)!=nullptr;
+    }
 };
 
