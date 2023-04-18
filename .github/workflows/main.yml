@@ -105,7 +105,7 @@ jobs:
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
             cd ..
-            CFLAGS+="-IC:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/include/" make -j8
+            make -j8
             cd src/debug
             mkdir output
             mkdir appx
