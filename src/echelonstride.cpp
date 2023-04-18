@@ -303,21 +303,14 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
             uint8_t heart = ((uint8_t)newValue.at(11));
             if (heart == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                update_hr_from_external();
             } else {
                 Heart = heart;
             }
         }
     }
+    
+    cadenceFromAppleWatch();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

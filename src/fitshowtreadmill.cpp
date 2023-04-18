@@ -183,18 +183,11 @@ void fitshowtreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                double inc = currentInclination().value();
+                double inc = rawInclination.value();
                 if (requestInclination != -100) {
-                    int diffInc = (int)(requestInclination - inc);
-                    if (!diffInc) {
-                        if (requestInclination > inc) {
-                            inc += 1.0;
-                        } else if (requestInclination < inc) {
-                            inc -= 1.0;
-                        }
-                    } else {
-                        inc = (int)requestInclination;
-                    }
+                    // only 0.5 or 1 changes otherwise it beeps forever
+                    double a = 1.0 / minStepInclination();
+                    inc = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
                     requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
@@ -203,19 +196,13 @@ void fitshowtreadmill::update() {
         }
 
         if (requestInclination != -100) {
-            double inc = currentInclination().value();
+            double inc = rawInclination.value();
+            // only 0.5 or 1 changes otherwise it beeps forever
+            double a = 1.0 / minStepInclination();
+            requestInclination = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                int diffInc = (int)(requestInclination - inc);
-                if (!diffInc) {
-                    if (requestInclination > inc) {
-                        inc += 1.0;
-                    } else if (requestInclination < inc) {
-                        inc -= 1.0;
-                    }
-                } else {
-                    inc = (int)requestInclination;
-                }
+                inc = requestInclination;
                 double speed = currentSpeed().value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
@@ -455,8 +442,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-                emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));                
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
@@ -485,14 +471,16 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
-                
-                if(noblepro_connected)
+
+                if (noblepro_connected)
                     incline /= 2;
-                
+
+                rawInclination = incline;
                 Inclination = treadmillInclinationOverride(incline);
                 if (Inclination.value() != incline) {
                     emit inclinationChanged(0, incline);
                 }
+                emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
 
                 if (truetimer)
                     elapsed = seconds_elapsed;

@@ -15,6 +15,7 @@
  */
 enum deviceType {
     None,
+    ApexBike,
     M3IBike,
     FakeBike,
     FakeElliptical,
@@ -61,6 +62,7 @@ enum deviceType {
     EchelonRower,
     EchelonConnectSport,
     SchwinnIC4Bike,
+    Schwinn170Bike,
     SportsTechBike,
     SportsPlusBike,
     YesoulBike,
@@ -74,6 +76,7 @@ enum deviceType {
     MCFBike,
     ToorxTreadmill,
     IConceptBike,
+    IConceptElliptical,
     SpiritTreadmill,
     ActivioTreadmill,
     TrxAppGateUSBTreadmill,
@@ -91,6 +94,7 @@ enum deviceType {
     ChronoBike,
     MepanelBike,
     LifeFitnessTreadmill,
+    ZiproTreadmill,
     CompuTrainerBike
 };
 

@@ -4,6 +4,7 @@
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <AVFoundation/AVFoundation.h>
+#import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 
@@ -19,6 +20,8 @@ static virtualbike_zwift* _virtualbike_zwift = nil;
 static virtualrower* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
+static GarminConnect* Garmin = 0;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -27,6 +30,7 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    Garmin = [[GarminConnect alloc] init];
 }
 
 long lockscreen::heartRate()
@@ -68,9 +72,9 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios()
+void lockscreen::virtualbike_zwift_ios(bool disable_hr)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] init];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
 }
 
 void lockscreen::virtualrower_ios()
@@ -203,6 +207,27 @@ int lockscreen::virtualrower_getLastFTMSMessage(unsigned char* message) {
         return 0;
     }
     return 0;
+}
+
+void lockscreen::garminconnect_init() {
+    [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
+                                 uiOverrideDelegate:nil];
+    
+    [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
+}
+
+bool lockscreen::urlParser(const char *url) {
+    NSString *sURL = [NSString stringWithCString:url encoding:NSASCIIStringEncoding];
+    NSURL *URL = [NSURL URLWithString:[sURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [Garmin urlParser: URL];
+}
+
+int lockscreen::getHR() {
+    return [Garmin getHR];
+}
+
+int lockscreen::getFootCad() {
+    return [Garmin getFootCad];
 }
 
 // getVolume

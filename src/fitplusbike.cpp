@@ -276,25 +276,8 @@ void fitplusbike::update() {
         if (virtufit_etappe || merach_MRK || sportstech_sx600) {
 
         } else {
-
-            if (Heart.value() > 0) {
-                int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
-                             settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
-                            (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
-                             settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
-                               (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
-                                settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
-                           (Heart.value() *
-                            ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
-                              settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
-                             (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
-                              settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
-                if (avgP < 50) {
-                    avgP = 50;
-                }
-                m_watt = avgP;
-                qDebug() << QStringLiteral("Current Watt: ") + QString::number(m_watt.value());
-            }
+            m_watt = wattFromHR(false);
+            qDebug() << QStringLiteral("Current Watt: ") + QString::number(m_watt.value());
         }
 
         // sending poll every 2 seconds
@@ -660,16 +643,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 

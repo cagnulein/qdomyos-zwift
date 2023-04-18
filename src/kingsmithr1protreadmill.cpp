@@ -244,7 +244,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
     lastPacket = value;
 
-    if (newValue.length() != 20) {
+    if (newValue.length() != 20 || ignoreFirstPackage) {
+        ignoreFirstPackage = false;
         emit debug(QStringLiteral("packet ignored"));
         return;
     }
@@ -306,20 +307,10 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 
@@ -453,6 +444,8 @@ void kingsmithr1protreadmill::characteristicWritten(const QLowEnergyCharacterist
 void kingsmithr1protreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFE00);
     emit debug(QStringLiteral("serviceScanDone"));
+
+    ignoreFirstPackage = true;
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,

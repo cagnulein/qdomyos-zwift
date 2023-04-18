@@ -586,6 +586,7 @@ const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("
 const QString QZSettings::pafers_treadmill_bh_iboxster_plus = QStringLiteral("pafers_treadmill_bh_iboxster_plus");
 const QString QZSettings::proform_cycle_trainer_400 = QStringLiteral("proform_cycle_trainer_400");
 const QString QZSettings::peloton_workout_ocr = QStringLiteral("peloton_workout_ocr");
+const QString QZSettings::peloton_companion_workout_ocr = QStringLiteral("peloton_companion_workout_ocr");
 const QString QZSettings::peloton_bike_ocr = QStringLiteral("peloton_bike_ocr");
 const QString QZSettings::fitshow_treadmill_miles = QStringLiteral("fitshow_treadmill_miles");
 const QString QZSettings::proform_hybrid_trainer_PFEL03815 = QStringLiteral("proform_hybrid_trainer_PFEL03815");
@@ -630,8 +631,23 @@ const QString QZSettings::renpho_bike_double_resistance = QStringLiteral("renpho
 const QString QZSettings::nordictrack_incline_trainer_x7i = QStringLiteral("nordictrack_incline_trainer_x7i");
 const QString QZSettings::strava_auth_external_webbrowser = QStringLiteral("strava_auth_external_webbrowser");
 const QString QZSettings::gears_from_bike = QStringLiteral("gears_from_bike");
+const QString QZSettings::peloton_spinups_autoresistance = QStringLiteral("peloton_spinups_autoresistance");
+const QString QZSettings::eslinker_costaway = QStringLiteral("eslinker_costaway");
+const QString QZSettings::treadmill_inclination_ovveride_gain = QStringLiteral("treadmill_inclination_ovveride_gain");
+const QString QZSettings::treadmill_inclination_ovveride_offset =
+    QStringLiteral("treadmill_inclination_ovveride_offset");
+const QString QZSettings::bh_spada_2_watt = QStringLiteral("bh_spada_2_watt");
+const QString QZSettings::tacx_neo2_peloton = QStringLiteral("tacx_neo2_peloton");
+const QString QZSettings::sole_treadmill_inclination_fast = QStringLiteral("sole_treadmill_inclination_fast");
+const QString QZSettings::zwift_ocr = QStringLiteral("zwift_ocr");
+const QString QZSettings::fit_file_saved_on_quit = QStringLiteral("fit_file_saved_on_quit");
+const QString QZSettings::gem_module_inclination = QStringLiteral("gem_module_inclination");
+const QString QZSettings::treadmill_simulate_inclination_with_speed =
+    QStringLiteral("treadmill_simulate_inclination_with_speed");
+const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
+const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
 
-const uint32_t allSettingsCount = 526;
+const uint32_t allSettingsCount = 540;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1162,6 +1178,21 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_incline_trainer_x7i, QZSettings::default_nordictrack_incline_trainer_x7i},
     {QZSettings::strava_auth_external_webbrowser, QZSettings::default_strava_auth_external_webbrowser},
     {QZSettings::gears_from_bike, QZSettings::default_gears_from_bike},
+    {QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance},
+    {QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway},
+    {QZSettings::treadmill_inclination_ovveride_gain, QZSettings::default_treadmill_inclination_ovveride_gain},
+    {QZSettings::treadmill_inclination_ovveride_offset, QZSettings::default_treadmill_inclination_ovveride_offset},
+    {QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt},
+    {QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton},
+    {QZSettings::sole_treadmill_inclination_fast, QZSettings::default_sole_treadmill_inclination_fast},
+    {QZSettings::zwift_ocr, QZSettings::default_zwift_ocr},
+    {QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit},
+    {QZSettings::gem_module_inclination, QZSettings::default_gem_module_inclination},
+    {QZSettings::treadmill_simulate_inclination_with_speed,
+     QZSettings::default_treadmill_simulate_inclination_with_speed},
+    {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
+    {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
+    {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

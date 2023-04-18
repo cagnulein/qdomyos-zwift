@@ -1773,6 +1773,48 @@ class QZSettings {
     static const QString gears_from_bike;
     static constexpr bool default_gears_from_bike = false;
 
+    static const QString peloton_spinups_autoresistance;
+    static constexpr bool default_peloton_spinups_autoresistance = true;
+
+    static const QString eslinker_costaway;
+    static constexpr bool default_eslinker_costaway = false;
+
+    static const QString treadmill_inclination_ovveride_gain;
+    static constexpr double default_treadmill_inclination_ovveride_gain = 1.0;
+
+    static const QString treadmill_inclination_ovveride_offset;
+    static constexpr double default_treadmill_inclination_ovveride_offset = 0.0;
+
+    static const QString bh_spada_2_watt;
+    static constexpr bool default_bh_spada_2_watt = false;
+
+    static const QString tacx_neo2_peloton;
+    static constexpr bool default_tacx_neo2_peloton = false;
+
+    static const QString sole_treadmill_inclination_fast;
+    static constexpr bool default_sole_treadmill_inclination_fast = false;
+
+    static const QString zwift_ocr;
+    static constexpr bool default_zwift_ocr = false;
+
+    static const QString fit_file_saved_on_quit;
+    static constexpr bool default_fit_file_saved_on_quit = false;
+
+    static const QString gem_module_inclination;
+    static constexpr bool default_gem_module_inclination = false;
+
+    static const QString treadmill_simulate_inclination_with_speed;
+    static constexpr bool default_treadmill_simulate_inclination_with_speed = false;
+
+    static const QString garmin_companion;
+    static constexpr bool default_garmin_companion = false;
+
+    static const QString peloton_companion_workout_ocr;
+    static constexpr bool default_companion_peloton_workout_ocr = false;
+
+    static const QString iconcept_elliptical;
+    static constexpr bool default_iconcept_elliptical = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

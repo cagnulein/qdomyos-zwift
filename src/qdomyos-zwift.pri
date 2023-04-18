@@ -74,7 +74,14 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
+   $$PWD/apexbike.cpp \
+    $$PWD/handleurl.cpp \
+   $$PWD/iconceptelliptical.cpp \
+    $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
+   $$PWD/schwinn170bike.cpp \
+   $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -267,8 +274,15 @@ INCLUDEPATH += fit-sdk/
 HEADERS += \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
+   $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
+    $$PWD/handleurl.h \
+   $$PWD/iconceptelliptical.h \
+    $$PWD/localipaddress.h \
    $$PWD/pelotonbike.h \
+   $$PWD/schwinn170bike.h \
+   $$PWD/wahookickrheadwind.h \
+   $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
     characteristicnotifier2a53.h \
@@ -679,6 +693,9 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/src/Garmin.java \
+    $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
@@ -745,6 +762,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -761,6 +779,7 @@ ios {
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
+	 QMAKE_ASSET_CATALOGS_BUILD_PATH = $$PWD/ios/ 
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
@@ -773,4 +792,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.0
+VERSION = 2.13.32

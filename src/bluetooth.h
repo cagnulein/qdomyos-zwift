@@ -21,6 +21,7 @@
 #include "qzsettings.h"
 
 #include "activiotreadmill.h"
+#include "apexbike.h"
 #include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
 #include "bowflext216treadmill.h"
@@ -55,6 +56,7 @@
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
+#include "iconceptelliptical.h"
 #include "inspirebike.h"
 #include "keepbike.h"
 #include "kingsmithr1protreadmill.h"
@@ -82,6 +84,7 @@
 #include "proformtreadmill.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
+#include "schwinn170bike.h"
 #include "schwinnic4bike.h"
 #include "signalhandler.h"
 #include "skandikawiribike.h"
@@ -114,8 +117,14 @@
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
 #include "ultrasportbike.h"
+#include "wahookickrheadwind.h"
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
+#include "ziprotreadmill.h"
+
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 class bluetooth : public QObject, public SignalHandler {
 
@@ -125,23 +134,19 @@ class bluetooth : public QObject, public SignalHandler {
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
-                       bool createTemplateManagers = true, bool startDiscovery = true);
+                       bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
-    TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
-    TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 
   private:
     bool useDiscovery = false;
-    bool createTemplateManagers = false;
-    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
-    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    apexbike *apexBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
@@ -156,6 +161,7 @@ class bluetooth : public QObject, public SignalHandler {
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
     iconceptbike *iConceptBike = nullptr;
+    iconceptelliptical *iConceptElliptical = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
@@ -202,6 +208,7 @@ class bluetooth : public QObject, public SignalHandler {
     solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
+    schwinn170bike *schwinn170Bike = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
     echelonrower *echelonRower = nullptr;
@@ -226,6 +233,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    ziprotreadmill *ziproTreadmill = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
@@ -233,6 +241,7 @@ class bluetooth : public QObject, public SignalHandler {
     fakeelliptical *fakeElliptical = nullptr;
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
+    QList<wahookickrheadwind *> wahookickrHeadWind;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -271,19 +280,24 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer discoveryTimeout;
 #endif
 
+#ifdef Q_OS_IOS
+    lockscreen* h = nullptr;
+#endif
+
     /**
      * @brief Store the name and other info in the settings.
      * @param b The bluetooth device info.
      */
     void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
-    void startTemplateManagers(bluetoothdevice *b);
-    void stopTemplateManagers();
+    void signalBluetoothDeviceConnected(bluetoothdevice *b);
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
     void ftmsAccessoryConnected(smartspin2k *d);
 
+    void bluetoothDeviceConnected(bluetoothdevice *b);
+    void bluetoothDeviceDisconnected();
   public slots:
     void restart();
     void debug(const QString &string);

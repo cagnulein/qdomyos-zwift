@@ -280,6 +280,10 @@ void solef80treadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
+        bool sole_treadmill_inclination_fast =
+            settings
+                .value(QZSettings::sole_treadmill_inclination_fast, QZSettings::default_sole_treadmill_inclination_fast)
+                .toBool();
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
@@ -298,30 +302,36 @@ void solef80treadmill::update() {
                 writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
-        if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
+        do {
+            if (requestSpeed != -1) {
+                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                    forceSpeed(requestSpeed);
+                }
+                // i have to do the reset on when the speed is equal to the current
+                // requestSpeed = -1;
             }
-            // i have to do the reset on when the speed is equal to the current
-            // requestSpeed = -1;
-        }
-        if (requestInclination != -100) {
-            if (requestInclination < 0)
-                requestInclination = 0;
-            // this treadmill has only 1% step inclination
-            if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
-            } else if ((int)requestInclination == (int)currentInclination().value()) {
-                qDebug() << "int inclination match the current one" << requestInclination
-                         << currentInclination().value();
-                requestInclination = -100;
+        } while (requestSpeed != -1 && sole_treadmill_inclination_fast);
+
+        do {
+            if (requestInclination != -100) {
+                if (requestInclination < 0)
+                    requestInclination = 0;
+                // this treadmill has only 1% step inclination
+                if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
+                    requestInclination <= 15) {
+                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                    forceIncline(requestInclination);
+                } else if ((int)requestInclination == (int)currentInclination().value()) {
+                    qDebug() << "int inclination match the current one" << requestInclination
+                             << currentInclination().value();
+                    requestInclination = -100;
+                }
+                // i have to do the reset on when the inclination is equal to the current
+                // requestInclination = -100;
             }
-            // i have to do the reset on when the inclination is equal to the current
-            // requestInclination = -100;
-        }
+        } while (requestInclination != -100 && sole_treadmill_inclination_fast);
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
@@ -661,19 +671,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }
