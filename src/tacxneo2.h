@@ -35,6 +35,7 @@ class tacxneo2 : public bike {
     tacxneo2(bool noWriteResistance, bool noHeartService);
     void changePower(int32_t power) override;
     bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
 
     void *VirtualBike();
     void *VirtualDevice() override;
@@ -45,9 +46,12 @@ class tacxneo2 : public bike {
     void startDiscover();
     void forceInclination(double inclination);
     uint16_t watts() override;
+    double bikeResistanceToPeloton(double resistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = 0;
+
+    const int max_resistance = 100;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

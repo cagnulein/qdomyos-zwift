@@ -249,7 +249,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // QString::number(Resistance.value()));
 
         if (tacx_neo2_peloton) {
-            m_pelotonResistance = Resistance.value();
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         } else {
             double ac = 0.01243107769;
             double bc = 1.145964912;
@@ -541,5 +541,30 @@ void tacxneo2::controllerStateChanged(QLowEnergyController::ControllerState stat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
+    }
+}
+
+resistance_t tacxneo2::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 0; i < max_resistance; i++) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+            return i;
+        }
+    }
+    if (pelotonResistance < bikeResistanceToPeloton(1))
+        return 0;
+    else
+        return max_resistance;
+}
+
+double tacxneo2::bikeResistanceToPeloton(double resistance) {
+    QSettings settings;
+    bool tacx_neo2_peloton =
+        settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
+
+    if (tacx_neo2_peloton) {
+        return (resistance * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+               settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    } else {
+        return resistance;
     }
 }
