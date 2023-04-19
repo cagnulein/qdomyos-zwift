@@ -18,11 +18,18 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
+#	 win32: {
+#	     DEFINES += CHARTJS
+#		}
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
+
+#win32: CONFIG += webengine
+#unix:!android: CONFIG += webengine
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -32,6 +39,8 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
+
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -785,4 +794,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.32
+VERSION = 2.13.33

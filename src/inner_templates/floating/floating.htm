@@ -214,9 +214,11 @@
   </table>
 
   <script>
+    var peloton_ask_already_running = false;
     function closeConfirmBox() {
       document.getElementById("overlay").hidden = true;
       document.getElementById("maintable").hidden = false;
+      peloton_ask_already_running = false;
     }
     function isConfirm(answer) {
       if (answer) {
@@ -573,8 +575,7 @@
           var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
-          var gears = 0;
-          var peloton_ask_already_running = false;
+          var gears = 0;          
 
           for (let key of keys_arr) {
             if (msg.content[key] === undefined)
@@ -691,6 +692,8 @@
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;
               document.getElementById("maintable").hidden = true;
+            } else if (key === 'peloton_ask_start' && peloton_ask_already_running && (msg.content[key] === false || msg.content[key] === 'false')) {
+              closeConfirmBox();
             } else if (key === 'autoresistance') {
               if((msg.content[key] === true || msg.content[key] === 'true'))
                 $(".autoresistance").html('🧲');
