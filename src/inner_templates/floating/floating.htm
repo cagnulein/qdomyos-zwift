@@ -214,6 +214,7 @@
   </table>
 
   <script>
+    var peloton_ask_already_running = false;
     function closeConfirmBox() {
       document.getElementById("overlay").hidden = true;
       document.getElementById("maintable").hidden = false;
@@ -574,8 +575,7 @@
           var target_inclination = 0;
           var target_power = 0;
           var peloton_offset = 0;
-          var gears = 0;
-          var peloton_ask_already_running = false;
+          var gears = 0;          
 
           for (let key of keys_arr) {
             if (msg.content[key] === undefined)
