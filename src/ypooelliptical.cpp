@@ -151,7 +151,7 @@ void ypooelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -160,15 +160,13 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
-        Heart = (uint8_t)newValue[1];
+    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newvalue.length() > 1) {
+        Heart = (uint8_t)newvalue[1];
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
     }
-
-    lastPacket = newValue;
 
     union flags {
         struct {
@@ -197,31 +195,44 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     flags Flags;
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
+
+        if (newvalue.length() == 18) {
+            qDebug() << QStringLiteral("let's wait for the next piece of frame");
+            lastPacket = newvalue;
+            return;
+        } else if (newvalue.length() == 17) {
+            lastPacket.append(newvalue);
+        } else {
+            qDebug() << "packet not handled!!";
+            return;
+        }
+
         int index = 0;
-        Flags.word_flags = (newValue.at(2) << 16) | (newValue.at(1) << 8) | newValue.at(0);
+        Flags.word_flags = (lastPacket.at(2) << 16) | (lastPacket.at(1) << 8) | lastPacket.at(0);
         index += 3;
 
         if (!Flags.moreData) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            /*Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));*/
             index += 2;
         }
 
+        // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
-            double avgSpeed;
-            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint16_t)((uint8_t)newValue.at(index)))) /
-                       100.0;
+            // double avgSpeed;
+            Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)lastPacket.at(index)))) /
+                    100.0;
             index += 2;
-            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
         }
 
         if (Flags.totDistance) {
-            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+            Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)lastPacket.at(index)))) /
                        1000.0;
             index += 3;
         } else {
@@ -235,8 +246,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index))));
+                Cadence = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)lastPacket.at(index))));
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -259,8 +270,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.resistanceLvl) {
-            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+            Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)lastPacket.at(index))));
             // emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -291,23 +302,24 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
-                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)lastPacket.at(index)))) /
+                         100.0; // i added this because this device seems to send it multiplied by 100
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         }
 
-        if (Flags.avgPower && newValue.length() > index + 1) {
+        if (Flags.avgPower && lastPacket.length() > index + 1) {
             double avgPower;
-            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint16_t)((uint8_t)newValue.at(index))));
+            avgPower = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)lastPacket.at(index))));
             emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
             index += 2;
         }
 
-        if (Flags.expEnergy && newValue.length() > index + 1) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint16_t)((uint8_t)newValue.at(index))));
+        if (Flags.expEnergy && lastPacket.length() > index + 1) {
+            KCal = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)lastPacket.at(index))));
             index += 2;
 
             // energy per hour
@@ -334,8 +346,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         else
 #endif
         {
-            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+            if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
+                Heart = ((double)((lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {

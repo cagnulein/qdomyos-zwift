@@ -787,6 +787,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(domyosElliptical);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) && !ypooElliptical && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                ypooElliptical =
+                    new ypooelliptical(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(ypooElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(ypooElliptical, &ypooelliptical::debug, this, &bluetooth::debug);
+                ypooElliptical->deviceDiscovered(b);
+                // connect(this, &bluetooth::searchingStop, ypooElliptical, &ypooelliptical::searchingStop);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(ypooElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
                        !nautilusElliptical && // NAUTILUS E616
                        filter) {
@@ -2408,6 +2424,11 @@ void bluetooth::restart() {
         delete domyosElliptical;
         domyosElliptical = nullptr;
     }
+    if (ypooElliptical) {
+
+        delete ypooElliptical;
+        ypooElliptical = nullptr;
+    }
     if (soleElliptical) {
 
         delete soleElliptical;
@@ -2819,6 +2840,8 @@ bluetoothdevice *bluetooth::device() {
         return fitshowTreadmill;
     } else if (domyosElliptical) {
         return domyosElliptical;
+    } else if (ypooElliptical) {
+        return ypooElliptical;
     } else if (soleElliptical) {
         return soleElliptical;
     } else if (nautilusElliptical) {

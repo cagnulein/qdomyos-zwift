@@ -37,8 +37,8 @@
 class ypooelliptical : public elliptical {
     Q_OBJECT
   public:
-    ypooelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                   double bikeResistanceGain);
+    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+                   double bikeResistanceGain = 1.0);
     bool connected();
 
     void *VirtualTreadmill();

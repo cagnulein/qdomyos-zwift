@@ -89,6 +89,7 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "YpooElliptical/ypooellipticaltestdata.h"
 #include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
@@ -186,6 +187,7 @@ TrxAppGateUSBTreadmillTestData,
 UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
+YpooEllipticalData,
 ZwiftRunpodTestData,
 ZiproTreadmillTestData,
 iConceptBikeTestData,

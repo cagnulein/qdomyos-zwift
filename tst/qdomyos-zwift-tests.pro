@@ -132,5 +132,6 @@ HEADERS += \
     Devices/devices.h \
     Devices/iConceptBike/iconceptbiketestdata.h \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
+    Devices/YpooElliptical/ypooellipticaltestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h
