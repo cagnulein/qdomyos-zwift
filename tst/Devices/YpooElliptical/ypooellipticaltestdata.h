@@ -3,10 +3,10 @@
 #include "Devices/Elliptical/ellipticaltestdata.h"
 #include "ypooelliptical.h"
 
-class YpooEllipticalTestData : public EllipticalDeviceTestData {
+class YpooEllipticalTestData : public EllipticalTestData {
 
 public:
-    YpooEllipticalTestData() : BluetoothDeviceTestData("Ypoo Elliptical") {
+    YpooEllipticalTestData() : EllipticalTestData("Ypoo Elliptical") {
         this->addDeviceName("YPOO-U3-", comparison::StartsWithIgnoreCase);
     }
 
