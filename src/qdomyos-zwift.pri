@@ -87,6 +87,7 @@ SOURCES += \
     $$PWD/virtualdevice.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -294,6 +295,7 @@ HEADERS += \
     $$PWD/virtualdevice.h \
    $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
+   $$PWD/ypooelliptical.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
@@ -804,4 +806,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.33
+VERSION = 2.13.34

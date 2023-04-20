@@ -120,6 +120,7 @@
 #include "wahookickrheadwind.h"
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
+#include "ypooelliptical.h"
 #include "ziprotreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -233,6 +234,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     ultrasportbike *ultraSportBike = nullptr;
     wahookickrsnapbike *wahooKickrSnapBike = nullptr;
+    ypooelliptical *ypooElliptical = nullptr;
     ziprotreadmill *ziproTreadmill = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
@@ -281,7 +283,7 @@ class bluetooth : public QObject, public SignalHandler {
 #endif
 
 #ifdef Q_OS_IOS
-    lockscreen* h = nullptr;
+    lockscreen *h = nullptr;
 #endif
 
     /**
