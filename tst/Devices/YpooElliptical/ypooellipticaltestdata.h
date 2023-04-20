@@ -14,6 +14,6 @@ public:
     deviceType get_expectedDeviceType() const override { return deviceType::YpooElliptical; }
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override {
-        return dynamic_cast<domyoselliptical*>(detectedDevice)!=nullptr;
+        return dynamic_cast<ypooelliptical*>(detectedDevice)!=nullptr;
     }
 };
