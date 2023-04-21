@@ -52,6 +52,7 @@ public:
         this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
         this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("DBF", comparison::StartsWithIgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("SUITO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("D2RIDE", comparison::StartsWithIgnoreCase);
@@ -67,6 +68,7 @@ public:
         this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
         this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
         this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
+        this->addInvalidDeviceName("DBF1356", comparison::IgnoreCase); // too long for DBF135
      }
 };
 
