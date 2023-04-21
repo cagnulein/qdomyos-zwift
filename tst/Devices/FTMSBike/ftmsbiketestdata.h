@@ -60,6 +60,7 @@ public:
         this->addDeviceName("SMB1", comparison::StartsWithIgnoreCase);
         this->addDeviceName("INRIDE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XBR55", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("EW-JS-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("HAMMER ", comparison::StartsWithIgnoreCase); // HAMMER 64123
 
 
