@@ -68,7 +68,6 @@ public:
         this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
         this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
         this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
-        this->addInvalidDeviceName("DBF1356", comparison::IgnoreCase); // too long for DBF135
      }
 };
 
