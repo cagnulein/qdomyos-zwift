@@ -71,6 +71,10 @@ class ftmsrower : public rower {
     bool WHIPR = false;
     bool KINGSMITH = false;
 
+    bool WATER_ROWER = false;
+    QDateTime lastStroke = QDateTime::currentDateTime();
+    double lastStrokesCount = 0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
