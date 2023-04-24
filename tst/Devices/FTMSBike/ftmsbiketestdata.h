@@ -62,6 +62,7 @@ public:
         this->addDeviceName("XBR55", comparison::StartsWithIgnoreCase);
         this->addDeviceName("EW-JS-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("HAMMER ", comparison::StartsWithIgnoreCase); // HAMMER 64123
+        this->addDeviceName("QB-WC01", comparison::StartsWithIgnoreCase);
 
 
         // Starts with DT- and is 14+ characters long.
