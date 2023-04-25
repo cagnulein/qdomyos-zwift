@@ -36,6 +36,7 @@
 #include "HorizonGR7Bike/horizongr7biketestdata.h"
 #include "HorizonTreadmill/horizontreadmilltestdata.h"
 #include "iConceptBike/iconceptbiketestdata.h"
+#include "iConceptElliptical/iconceptellipticaltestdata.h"
 #include "InspireBike/inspirebiketestdata.h"
 #include "KeepBike/keepbiketestdata.h"
 #include "LifeFitnessTreadmill/lifefitnesstreadmilltestdata.h"
@@ -88,6 +89,7 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "YpooElliptical/ypooellipticaltestdata.h"
 #include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
@@ -127,6 +129,7 @@ FlywheelBike2TestData,
 HorizonGR7BikeTestData,
 HorizonTreadmillTestData,
 HorizonTreadmillToorxTestData,
+HorizonTreadmillBodyToneTestData,
 InspireBikeTestData,
 KeepBikeTestData,
 KingsmithR1ProTreadmillTestData,
@@ -184,9 +187,11 @@ TrxAppGateUSBTreadmillTestData,
 UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
+YpooEllipticalTestData,
 ZwiftRunpodTestData,
 ZiproTreadmillTestData,
-iConceptBikeTestData>;
+iConceptBikeTestData,
+iConceptEllipticalTestData>;
 
 #endif
 

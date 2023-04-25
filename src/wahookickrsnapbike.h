@@ -101,6 +101,8 @@ class wahookickrsnapbike : public bike {
 
     bool WAHOO_KICKR = false;
 
+    volatile int notificationSubscribed = 0;
+
     resistance_t lastForcedResistance = -1;
 
 #ifdef Q_OS_IOS

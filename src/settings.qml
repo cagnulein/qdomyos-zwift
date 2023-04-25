@@ -744,6 +744,15 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.19
             property bool treadmill_simulate_inclination_with_speed: false
+
+            // from version 2.13.26
+            property bool garmin_companion: false
+
+            // from version 2.13.27
+            property bool peloton_companion_workout_ocr: false
+
+            // from version 2.13.31
+            property bool iconcept_elliptical: false
         }
 
         function paddingZeros(text, limit) {
@@ -3723,6 +3732,33 @@ import Qt.labs.settings 1.0
                     }
 
                     SwitchDelegate {
+                        text: qsTr("Peloton Auto Sync Companion (Exp.)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_companion_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.peloton_companion_workout_ocr = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
                         id: pelotonBikeOCRDelegate
                         text: qsTr("Peloton Bike/Bike+ (Experimental)")
                         spacing: 0
@@ -3776,6 +3812,43 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Garmin Companion Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Enable Companion App")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_companion
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_companion = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -5534,6 +5607,28 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                AccordionElement {
+                    title: qsTr("Bodytone Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Force Using FTMS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_force_ftms
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                }
             }
 
             AccordionElement {
@@ -5904,6 +5999,27 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.sole_elliptical_e55 = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+
+                    AccordionElement {
+                        title: qsTr("iConcept Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            text: qsTr("iConcept elliptical")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.iconcept_elliptical
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.iconcept_elliptical = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }

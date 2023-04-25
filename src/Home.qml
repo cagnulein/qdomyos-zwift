@@ -284,7 +284,8 @@ HomeForm{
                 anchors.top: gridView.bottom
                 width: parent.width
                 height: parent.height / 2
-
+                // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
+                /*
                 Timer {
                     id: pauseTimer
                     interval: 1000; running: true; repeat: true
@@ -292,6 +293,7 @@ HomeForm{
                                         videoPlaybackHalf.play() :
                                         videoPlaybackHalf.pause()) } }
                 }
+                */
 
                 onVisibleChanged: {
                     if(visible === true) {

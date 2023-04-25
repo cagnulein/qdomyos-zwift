@@ -569,16 +569,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS

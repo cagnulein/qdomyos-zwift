@@ -226,20 +226,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
-            Heart = 0;
-#endif
-#else
-            Heart = 0;
-#endif
+            update_hr_from_external();
         }
     }
     FanSpeed = 0;

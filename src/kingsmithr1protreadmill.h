@@ -44,6 +44,10 @@ class kingsmithr1protreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+    double minStepSpeed() { return 0.1; }
+
   private:
     typedef enum K1_VERSION { CLASSIC = 0, RE = 1 } K1_VERSION;
     K1_VERSION version = CLASSIC;

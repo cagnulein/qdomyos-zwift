@@ -181,9 +181,20 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
+        if(WATER_ROWER && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
+            qDebug() << "Resetting cadence!";
+            Cadence = 0;
+        } else {
+            Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
+        }
+
         StrokesCount =
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+
+        if(lastStrokesCount != StrokesCount.value()) {
+            lastStroke = QDateTime::currentDateTime();
+        }
+        lastStrokesCount = StrokesCount.value();
 
         index += 3;
 
@@ -329,17 +340,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS
@@ -555,6 +556,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KS-WLT"))) { // KS-WLT-W1
             KINGSMITH = true;
             qDebug() << "KINGSMITH found! cadence multiplier 1x";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
+            WATER_ROWER = true;
+            qDebug() << "WATER_ROWER found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
