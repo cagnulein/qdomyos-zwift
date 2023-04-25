@@ -38,6 +38,12 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if(!gattCustomService) {
+        qDebug() << "gattCustomService nullptr";
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattCustomService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);

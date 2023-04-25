@@ -70,6 +70,9 @@ class ftmsrower : public rower {
     bool WHIPR = false;
     bool KINGSMITH = false;
 
+    bool WATER_ROWER = false;
+    QDateTime lastStroke = QDateTime::currentDateTime();
+    double lastStrokesCount = 0;
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);
