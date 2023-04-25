@@ -43,9 +43,6 @@ class kingsmithr1protreadmill : public treadmill {
 
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
-
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
     double minStepSpeed() { return 0.1; }
 
   private:
