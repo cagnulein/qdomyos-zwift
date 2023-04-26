@@ -32,7 +32,7 @@ void iconceptelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptelliptical::deviceDiscovered");
-        discoveryAgent->start();
+        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
     }
 }
