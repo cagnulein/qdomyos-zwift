@@ -23,6 +23,7 @@ class WatchKitConnection: NSObject {
     weak var delegate: WatchKitConnectionDelegate?
     static var currentHeartRate = 0
     static var distance = 0.0
+    static var stepCadence = 0
     static var kcal = 0.0
     
     private override init() {
@@ -34,6 +35,11 @@ class WatchKitConnection: NSObject {
         return WatchKitConnection.currentHeartRate;
     }
 
+    public func stepCadence() -> Int
+    {
+        return WatchKitConnection.stepCadence;
+    }
+    
     public func setKCal(Kcal: Double) -> Void
     {
         WatchKitConnection.kcal = Kcal;
@@ -107,19 +113,26 @@ extension WatchKitConnection: WCSessionDelegate {
         
         print("didReceiveMessage with reply")
         print(message)
-        guard let heartReate = message.values.first as? String else {
-            return
-        }
-        guard let heartReateDouble = Double(heartReate) else {
-            return
+        if(message.keys.first?.description == "heartRate") {
+            guard let heartReate = message.values.first as? String else {
+                return
+            }
+            guard let heartReateDouble = Double(heartReate) else {
+                return
+            }
+            WatchKitConnection.currentHeartRate = Int(heartReateDouble)
+        } else if(message.keys.first?.description == "stepCadence") {
+            guard let stepCadence = message.values.first as? String else {
+                return
+            }
+            WatchKitConnection.stepCadence = Int(stepCadence) ?? 0
         }
         
         replyValues["distance"] = WatchKitConnection.distance
         replyValues["kcal"] = WatchKitConnection.kcal
         
         replyHandler(replyValues)
-        
-        WatchKitConnection.currentHeartRate = Int(heartReateDouble)
+                
         //LocalNotificationHelper.fireHeartRate(heartReateDouble)
     }
 }

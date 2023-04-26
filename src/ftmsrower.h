@@ -47,14 +47,14 @@ class ftmsrower : public rower {
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -66,6 +66,14 @@ class ftmsrower : public rower {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool filterWattNull = false;
+    bool WHIPR = false;
+    bool KINGSMITH = false;
+
+    bool WATER_ROWER = false;
+    QDateTime lastStroke = QDateTime::currentDateTime();
+    double lastStrokesCount = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

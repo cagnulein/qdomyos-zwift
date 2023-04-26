@@ -114,7 +114,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -158,7 +158,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
             deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
         }
 
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             if (CrankRevs != oldCrankRevs && deltaT) {
@@ -177,10 +177,10 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
 
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-            Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -195,7 +195,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                    3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -214,25 +214,195 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         }
 
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+    } else if(characteristic.uuid() == QBluetoothUuid((quint16)0x2ad2)) {
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+        union flags {
+            struct {
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t instantCadence : 1;
+                uint16_t avgCadence : 1;
+                uint16_t totDistance : 1;
+                uint16_t resistanceLvl : 1;
+                uint16_t instantPower : 1;
+                uint16_t avgPower : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolic : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
+            } else {
+                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+                100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.instantCadence) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)))) /
+                          2.0;
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        }
+
+        if (Flags.avgCadence) {
+            double avgCadence;
+            avgCadence =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+                2.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+        }
+
+        if (Flags.totDistance) {
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;
+            index += 3;
+        } else {
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        }
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        if (Flags.resistanceLvl) {
+            Resistance =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            emit resistanceRead(Resistance.value());
+            index += 2;
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        } else {
+            double ac = 0.01243107769;
+            double bc = 1.145964912;
+            double cc = -23.50977444;
+
+            double ar = 0.1469553975;
+            double br = -5.841344538;
+            double cr = 97.62165482;
+
+            if (Cadence.value() && m_watt.value()) {
+                m_pelotonResistance =
+                    (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                               (cr - (m_watt.value() * 132.0 /
+                                                      (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                       br) /
+                      (2.0 * ar)) *
+                     settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                    settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+                Resistance = m_pelotonResistance;
+                emit resistanceRead(Resistance.value());
+            }
+        }
+
+        if (Flags.instantPower) {
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }
+
+        if (Flags.avgPower) {
+            double avgPower;
+            avgPower =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+        }
+
+        if (Flags.expEnergy && newValue.length() > index + 1) {
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+
+            // energy per hour
+            index += 2;
+
+            // energy per minute
+            index += 1;
+        } else {
+            if (watts())
+                KCal +=
+                    ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
+                       3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                      // kg * 3.5) / 200 ) / 60
+        }
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+    #ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+    #endif
+        {
+            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+                Heart = ((double)((newValue.at(index))));
+                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else {
+                Flags.heartRate = false;
+            }
+        }
+
+        if (Flags.metabolic) {
+            // todo
+        }
+
+        if (Flags.elapsedTime) {
+            // todo
+        }
+
+        if (Flags.remainingTime) {
+            // todo
+        }
     }
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
         debug("Current Heart: " + QString::number(Heart.value()));
     }
 #endif
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
 
     if (Cadence.value() > 0) {
@@ -244,8 +414,8 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -344,11 +514,11 @@ void npecablebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();

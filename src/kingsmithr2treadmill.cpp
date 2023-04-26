@@ -56,7 +56,15 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     QByteArray encrypted;
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
-        encrypted.append(ENCRYPT_TABLE[idx]);
+        QSettings settings;
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+            encrypted.append(ENCRYPT_TABLE_v2[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
+            encrypted.append(ENCRYPT_TABLE_v3[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4).toBool())
+            encrypted.append(ENCRYPT_TABLE_v4[idx]);
+        else
+            encrypted.append(ENCRYPT_TABLE[idx]);
     }
     if (!disable_log) {
         emit debug(QStringLiteral(" >> plain: ") + data + QStringLiteral(" // ") + info);
@@ -111,9 +119,9 @@ void kingsmithr2treadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        if (!firstInit && !virtualTreadMill && !virtualBike) {
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -132,7 +140,7 @@ void kingsmithr2treadmill::update() {
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ >= (1000 / refresh->interval())) {
@@ -150,19 +158,21 @@ void kingsmithr2treadmill::update() {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
                 double inc = Inclination.value();
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
 
-                    // only 0.5 steps ara avaiable
+                    // only 0.5 steps ara available
                     requestInclination = qRound(requestInclination * 2.0) / 2.0;
                     inc = requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
-            // only 0.5 steps ara avaiable
+        if (requestInclination != -100) {
+            if(requestInclination < 0)
+                requestInclination = 0;
+            // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -176,7 +186,7 @@ void kingsmithr2treadmill::update() {
                 }
                 forceSpeedOrIncline(speed, requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -195,18 +205,18 @@ void kingsmithr2treadmill::update() {
         if (requestFanSpeed != -1) {
             emit debug(QStringLiteral("changing fan speed..."));
 
-            //sendChangeFanSpeed(requestFanSpeed);
+            // sendChangeFanSpeed(requestFanSpeed);
             requestFanSpeed = -1;
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
 
-            //sendChangeFanSpeed(FanSpeed + 1);
+            // sendChangeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
 
-            //sendChangeFanSpeed(FanSpeed - 1);
+            // sendChangeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
     }
@@ -221,7 +231,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -238,7 +248,16 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (ch == '\x0d') {
             continue;
         }
-        int idx = ENCRYPT_TABLE.indexOf(ch);
+        int idx;
+        QSettings settings;
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+            idx = ENCRYPT_TABLE_v2.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
+            idx = ENCRYPT_TABLE_v3.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4).toBool())
+            idx = ENCRYPT_TABLE_v4.indexOf(ch);
+        else
+            idx = ENCRYPT_TABLE.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
     }
     buffer.clear();
@@ -261,12 +280,18 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
         }
+        if(i+1 >= _props.count()) {
+            qDebug() << "error decoding" << i;
+            return;
+        }
         QString value = _props.at(i + 1);
         emit debug(key + ": " + value);
         props[key] = value.toDouble();
     }
 
     double speed = props.value("CurrentSpeed", 0);
+    Cadence = props.value("spm", 0);
+
     // TODO:
     // - RunningDistance (int; meter) : update each 10miters / 0.01 mile
     // - RunningSteps (int) : update 2 steps
@@ -275,7 +300,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - spm (int) : steps per minute
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -284,28 +309,18 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in

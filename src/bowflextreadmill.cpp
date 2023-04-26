@@ -1,3 +1,5 @@
+// THIS MODULE IS UNUSED RIGHT NOW
+
 #include "bowflextreadmill.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
@@ -10,8 +12,17 @@
 
 using namespace std::chrono_literals;
 
-bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
-                                     double forceInitSpeed, double forceInitInclination) {
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
+bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
+                                   double forceInitInclination) {
+
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -30,7 +41,7 @@ bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 }
 
 void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                            bool wait_for_response) {
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -42,8 +53,8 @@ void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         // &QEventLoop::quit); timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(
-        gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                         QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -59,16 +70,13 @@ void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     }
 }
 
-void bowflextreadmill::updateDisplay(uint16_t elapsed) {
-}
+void bowflextreadmill::updateDisplay(uint16_t elapsed) {}
 
-void bowflextreadmill::forceIncline(double requestIncline) {
-}
+void bowflextreadmill::forceIncline(double requestIncline) {}
 
 double bowflextreadmill::minStepInclination() { return 1.0; }
 
-void bowflextreadmill::forceSpeed(double requestSpeed) {
-}
+void bowflextreadmill::forceSpeed(double requestSpeed) {}
 
 void bowflextreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -77,19 +85,18 @@ void bowflextreadmill::update() {
     }
 
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
-             << gattWriteCharacteristic.isValid() << initDone
-             << requestSpeed << requestInclination;
+             << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
 
     if (initRequest) {
         initRequest = false;
         btinit((lastSpeed > 0 ? true : false));
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
-               gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               initDone) {
+               gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -99,7 +106,7 @@ void bowflextreadmill::update() {
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         // it seems that stops the communication
@@ -111,15 +118,17 @@ void bowflextreadmill::update() {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 // double inc = Inclination.value(); // NOTE: clang-analyzer-deadcode.DeadStores
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
                     //                        inc = requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
+            if (requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -130,7 +139,7 @@ void bowflextreadmill::update() {
                 }
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
 
         if (requestStart != -1) {
@@ -154,11 +163,11 @@ void bowflextreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                              const QByteArray &newValue) {
+                                             const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -175,7 +184,7 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -206,10 +215,11 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -218,6 +228,8 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Distance += ((Speed.value() / 3600.0) /
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
+
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
@@ -267,11 +279,11 @@ void bowflextreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("1717b3c0-9803-11e3-90e1-0002a5d5c51b"));
-        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("35ddd0a09-8031-1e39-a8b0-002a5d5c51b"));
-        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("6be8f5809-8031-1e3a-b030-002a5d5c51b"));
-        QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("a46a4a809-8031-1e38-f3c0-002a5d5c51b"));
-        QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("b8066ec09-8031-1e38-3460-002a5d5c51b"));
-        QBluetoothUuid _gattNotify5CharacteristicId(QStringLiteral("d57cda209-8031-1e38-4260-002a5d5c51b"));
+        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("35ddd0a0-9803-11e3-9a8b-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("6be8f580-9803-11e3-ab03-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("b8066ec0-9803-11e3-8346-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify5CharacteristicId(QStringLiteral("d57cda20-9803-11e3-8426-0002a5d5c51b"));
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
@@ -323,7 +335,7 @@ void bowflextreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 }
 
 void bowflextreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                              const QByteArray &newValue) {
+                                             const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }

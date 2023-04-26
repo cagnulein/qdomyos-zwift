@@ -1,4 +1,5 @@
 #include "iconceptbike.h"
+#include "keepawakehelper.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -27,11 +28,25 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
                 &iconceptbike::serviceDiscovered);
+        connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::finished, this, &iconceptbike::serviceFinished);
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptbike::deviceDiscovered");
         discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
+    }
+}
+
+void iconceptbike::serviceFinished() {
+    qDebug() << QStringLiteral("iconceptbike::serviceFinished") << socket;
+    if (socket) {
+#ifdef Q_OS_ANDROID
+        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+#endif
+
+        emit debug(QStringLiteral("Create socket"));
+        socket->connectToService(serialPortService);
+        emit debug(QStringLiteral("ConnectToService done"));
     }
 }
 
@@ -61,14 +76,6 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                     &iconceptbike::onSocketErrorOccurred);
-
-#ifdef Q_OS_ANDROID
-            socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
-
-            emit debug(QStringLiteral("Create socket"));
-            socket->connectToService(serialPortService);
-            emit debug(QStringLiteral("ConnectToService done"));
         }
     }
 }
@@ -78,34 +85,41 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!virtualBike) {
+        if (!firstStateChanged && !virtualBike) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
+                emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
             }
         }
+        firstStateChanged = 1;
+
         // ********************************************************************************************************
 
         if (requestResistance != -1) {
-            if (requestResistance > 32) {
-                requestResistance = 32;
+            if (requestResistance > 12) {
+                requestResistance = 12;
             } else if (requestResistance < 1) {
                 requestResistance = 1;
             }
+            char resValues[] = {0x08, 0x0a, 0x0b, 0x0d, 0x0e, 0x10, 0x11, 0x13, 0x14, 0x16, 0x17, 0x18};
             char res[] = {0x55, 0x11, 0x01, 0x12};
-            res[3] = requestResistance;
+            res[3] = resValues[requestResistance - 1];
+            qDebug() << QStringLiteral(">>") << QByteArray(res, sizeof(res)).toHex(' ');
             socket->write(res, sizeof(res));
+            Resistance = requestResistance;
             requestResistance = -1;
+        } else {
+            const char poll[] = {0x55, 0x17, 0x01, 0x01};
+            qDebug() << QStringLiteral(">>") << QByteArray(poll, sizeof(poll)).toHex(' ');
+            socket->write(poll, sizeof(poll));
+            emit debug(QStringLiteral("write poll"));
         }
 
-        const char poll[] = {0x55, 0x17, 0x01, 0x01};
-        socket->write(poll, sizeof(poll));
-        emit debug(QStringLiteral("write poll"));
-
-        update_metrics(true, watts());
+        update_metrics(false, watts());
     }
 }
 
@@ -126,6 +140,7 @@ void iconceptbike::rfCommConnected() {
     const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
     const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
     const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
+    const uint8_t init9[] = {0x55, 0x11, 0x01, 0x08};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
@@ -152,6 +167,9 @@ void iconceptbike::rfCommConnected() {
     QThread::msleep(600);
     socket->write((char *)init8, sizeof(init8));
     qDebug() << QStringLiteral(" init8 write");
+    QThread::msleep(600);
+    socket->write((char *)init9, sizeof(init9));
+    qDebug() << QStringLiteral(" init9 write");
 
     initDone = true;
     // requestStart = 1;
@@ -167,24 +185,86 @@ void iconceptbike::readSocket() {
         qDebug() << QStringLiteral(" << ") + line.toHex(' ');
 
         if (line.length() == 16) {
+            QSettings settings;
+            QString heartRateBeltName =
+                settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+            bool bh_spada_2_watt =
+                settings.value(QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt).toBool();
             elapsed = GetElapsedTimeFromPacket(line);
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
-            Speed = GetSpeedFromPacket(line);
+            if (bh_spada_2_watt) {
+                m_watt = GetSpeedFromPacket(line) * 0.24 * (1.0 + (Resistance.value() / 20.0));
+                if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                    Speed = GetSpeedFromPacket(line);
+                } else {
+                    Speed = metric::calculateSpeedFromPower(
+                        watts(), Inclination.value(), Speed.value(),
+                        fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                }
+                if (watts())
+                    KCal +=
+                        ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                                                //* 3.5) / 200 ) / 60
+            } else {
+                Speed = GetSpeedFromPacket(line);
+            }
             Cadence = (uint8_t)line.at(13);
             // Heart = GetHeartRateFromPacket(line);
+
+            if (Cadence.value() > 0) {
+                CrankRevs++;
+                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            }
+
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+#ifdef Q_OS_ANDROID
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+            } else
+#endif
+            {
+                if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
+                    update_hr_from_external();
+                }
+            }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+            }
+#endif
+#endif
+
+            // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
+            // echelon just send the resistance values when it changes
+            Resistance = Resistance.value();
+            m_pelotonResistance = m_pelotonResistance.value();
 
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
             // emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
         }
     }
 }
 
 double iconceptbike::GetSpeedFromPacket(const QByteArray &packet) {
-    double convertedData = ((double)((double)((uint8_t)packet.at(9))) + ((double)packet.at(10))) / 100.0;
+    double convertedData = ((double)(((double)((uint8_t)packet.at(9))) * 256) + ((double)packet.at(10))) / 100.0;
     return convertedData;
 }
 
@@ -205,4 +285,15 @@ uint16_t iconceptbike::GetElapsedTimeFromPacket(const QByteArray &packet) {
 
 void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
+}
+
+void *iconceptbike::VirtualBike() { return virtualBike; }
+
+void *iconceptbike::VirtualDevice() { return VirtualBike(); }
+
+uint16_t iconceptbike::watts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+    return m_watt.value();
 }

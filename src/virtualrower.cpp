@@ -1,5 +1,6 @@
 #include "virtualrower.h"
 #include "ftmsrower.h"
+#include "qsettings.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -15,10 +16,24 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
 
     QSettings settings;
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
     Q_UNUSED(noWriteResistance)
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    if (ios_peloton_workaround && !heart_only) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualrower_ios();
+    } else
+
+#endif
+#endif
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -146,7 +161,8 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                          &virtualrower::characteristicChanged);
 
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
             pars.setInterval(100, 100);
@@ -171,13 +187,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
-    bool force_resistance = settings.value(QStringLiteral("virtualrower_forceresistance"), true).toBool();
-    bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
-    //    double erg_filter_upper =
-    //        settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble(); //
-    //        NOTE:clang-analyzer-deadcode.DeadStores
-    //    double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0)
-    //                                  .toDouble(); // NOTE:clang-analyzer-deadcode.DeadStores
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
@@ -192,7 +202,7 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         if ((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 
             // Set Target Resistance
-            uint8_t uresistance = newValue.at(1);
+            resistance_t uresistance = newValue.at(1);
             uresistance = uresistance / 10;
             if (force_resistance && !erg_mode) {
                 rower->changeResistance(uresistance);
@@ -270,22 +280,22 @@ void virtualrower::writeCharacteristic(QLowEnergyService *service, const QLowEne
 void virtualrower::reconnect() {
 
     QSettings settings;
-    bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+    bool bluetooth_relaxed =
+        settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
 
     if (bluetooth_relaxed) {
         return;
     }
 
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
     qDebug() << QStringLiteral("virtualrower::reconnect");
     leController->disconnectFromDevice();
 
-#ifndef Q_OS_IOS
     serviceFIT = leController->addService(serviceDataFIT);
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
-#endif
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
@@ -295,15 +305,58 @@ void virtualrower::reconnect() {
 void virtualrower::rowerProvider() {
 
     QSettings settings;
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+
+    double normalizeWattage = Rower->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
+    uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (h) {
+        // really connected to a device
+        if (h->virtualrower_updateFTMS(
+                normalizeSpeed, (char)Rower->currentResistance().value(), (uint16_t)Rower->currentCadence().value() * 2,
+                (uint16_t)normalizeWattage, Rower->currentCrankRevolutions(), Rower->lastCrankEventTime(),
+                ((rower *)Rower)->currentStrokesCount().value(), Rower->odometer() * 1000, Rower->calories().value(),
+                QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace()))) {
+            h->virtualrower_setHeartRate(Rower->currentHeart().value());
+
+            uint8_t ftms_message[255];
+            int ret = h->virtualrower_getLastFTMSMessage(ftms_message);
+            if (ret > 0) {
+                lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
+                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                               QByteArray::fromRawData((char *)ftms_message, ret));
+            }
+            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) { /*
+                 if (!erg_mode)
+                     writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), 0, 0);
+                 else {
+                     qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
+                     writeP2AD9->changePower(h->virtualbike_getPowerRequested());
+                 }*/
+            }
+        }
+        return;
+    }
+#endif
+#endif
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual rower not connected");
 
         return;
     } else {
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
-        bool bluetooth_30m_hangs = settings.value(QStringLiteral("bluetooth_30m_hangs"), false).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+        bool bluetooth_30m_hangs =
+            settings.value(QZSettings::bluetooth_30m_hangs, QZSettings::default_bluetooth_30m_hangs).toBool();
         if (bluetooth_relaxed) {
 
             leController->stopAdvertising();
@@ -349,8 +402,12 @@ void virtualrower::rowerProvider() {
         }
 
         QLowEnergyCharacteristic characteristic =
-            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
-        Q_ASSERT(characteristic.isValid());
+            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD1);
+        if (!characteristic.isValid()) {
+            qDebug() << QStringLiteral("virtual rower characteristic not valid!");
+
+            return;
+        }
         if (leController->state() != QLowEnergyController::ConnectedState) {
             qDebug() << QStringLiteral("virtual rower not connected");
 

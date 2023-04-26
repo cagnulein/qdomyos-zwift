@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>Jonathan's short mix</name>
+    <description>A hard, but not too hard mixed session. The zone 6 intervals train your anaerobic capacity followed by sweet spot, tempo and a short threshold session. Look to increase the length of time in threshold training as you gain the confidence to keep it up. There is a warm up and a short cool down, but no active recovery time in this session, you’ll need to build that in to other sessions, it is important.
+I’m not a big user of short mixes, but use this workout if you really are short on time and don’t want to push yourself on an all out threshold ride or Tabata intervals.</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+        <tag name="JonathanC"/>
+        <tag name="Threshold"/>
+        <tag name="VO2max"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="30.0" PowerLow="0.650" PowerHigh="0.650"/>
+        <SteadyState Duration="30.0" PowerLow="0.670" PowerHigh="0.670"/>
+        <SteadyState Duration="60.0" PowerLow="0.700" PowerHigh="0.700"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="60.0" PowerLow="0.770" PowerHigh="0.770"/>
+        <SteadyState Duration="60.0" PowerLow="0.800" PowerHigh="0.800">
+		<textevent timeoffset="50" message="Keep cadence high in intervals"/>
+		</SteadyState>
+        <SteadyState Duration="20.0" PowerLow="1.430" PowerHigh="1.430"/>
+        <SteadyState Duration="10.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="20.0" PowerLow="1.430" PowerHigh="1.430"/>
+        <SteadyState Duration="10.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="20.0" PowerLow="1.430" PowerHigh="1.430"/>
+        <SteadyState Duration="10.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="20.0" PowerLow="1.430" PowerHigh="1.430"/>
+        <SteadyState Duration="80.0" PowerLow="0.890" PowerHigh="0.890"/>
+        <SteadyState Duration="60.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="80.0" PowerLow="0.890" PowerHigh="0.890"/>
+        <SteadyState Duration="60.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="80.0" PowerLow="0.890" PowerHigh="0.890"/>
+        <SteadyState Duration="60.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="300.0" PowerLow="0.89" PowerHigh="0.890"/>
+        <SteadyState Duration="60.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="300.0" PowerLow="0.840" PowerHigh="0.840"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950">
+		<textevent timeoffset="162" message="You&apos;ve done harder before"/>
+        </SteadyState>
+        <SteadyState Duration="60.0" PowerLow="0.860" PowerHigh="0.860"/>
+        <SteadyState Duration="10.0" PowerLow="0.800" PowerHigh="0.800"/>
+    </workout>
+</workout_file>
+

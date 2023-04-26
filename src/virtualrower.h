@@ -59,7 +59,8 @@ class virtualrower : public QObject {
 #endif
 
   signals:
-
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void rowerProvider();

@@ -38,16 +38,16 @@ class echelonrower : public rower {
     Q_OBJECT
   public:
     echelonrower(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t resistanceFromPowerRequest(uint16_t power);
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
-    const int max_resistance = 32;
+    const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t wattsFromResistance(double resistance);
@@ -56,7 +56,7 @@ class echelonrower : public rower {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts();
 

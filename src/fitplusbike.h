@@ -37,19 +37,19 @@ class fitplusbike : public bike {
     Q_OBJECT
   public:
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
-    const int max_resistance = 32;
+    resistance_t max_resistance = 24;
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts();
 
@@ -57,8 +57,10 @@ class fitplusbike : public bike {
     virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattCommunicationChannelServiceFTMS = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotifyFTMSCharacteristic;
 
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -67,13 +69,15 @@ class fitplusbike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    int8_t lastResistanceBeforeDisconnection = -1;
+    resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool merach_MRK = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

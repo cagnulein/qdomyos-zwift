@@ -5,7 +5,7 @@
 #include "bluetoothdevice.h"
 #include <QObject>
 
-class rower : public bike {
+class rower : public bluetoothdevice {
     Q_OBJECT
 
   public:
@@ -14,17 +14,20 @@ class rower : public bike {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
+    virtual QTime lastPace500m();
     virtual metric currentResistance();
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
     virtual QTime currentPace();
+    virtual QTime averagePace();
+    virtual QTime maxPace();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
     virtual uint16_t watts();
-    virtual int pelotonToBikeResistance(int pelotonResistance);
-    virtual uint8_t resistanceFromPowerRequest(uint16_t power);
+    virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
+    virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
@@ -32,7 +35,7 @@ class rower : public bike {
     void setPaused(bool p);
 
   public slots:
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(resistance_t res);
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
@@ -41,22 +44,32 @@ class rower : public bike {
 
   signals:
     void bikeStarted();
-    void resistanceChanged(int8_t resistance);
-    void resistanceRead(int8_t resistance);
+    void resistanceChanged(resistance_t resistance);
+    void resistanceRead(resistance_t resistance);
 
   protected:
     metric Resistance;
     metric RequestedResistance;
     metric RequestedPelotonResistance;
+    double requestInclination = -100;
     metric RequestedCadence;
     metric RequestedPower;
     metric StrokesLength;
     metric StrokesCount;
     uint16_t LastCrankEventTime = 0;
-    int8_t requestResistance = -1;
+    resistance_t requestResistance = -1;
     double CrankRevs = 0;
 
     metric m_pelotonResistance;
+
+    class rowerSpeedDistance {
+    public:
+        rowerSpeedDistance(double distance, double speed) {this->distance = distance; this->speed = speed;}
+        double distance;
+        double speed;
+    };
+
+    QList<rowerSpeedDistance*> speedLast500mValues;
 };
 
 #endif // ROWER_H

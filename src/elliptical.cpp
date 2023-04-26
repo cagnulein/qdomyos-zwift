@@ -10,7 +10,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
@@ -20,7 +20,7 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
             }
             m_jouls += (m_watt.value() * deltaTime);
             WeightLoss = metric::calculateWeightLoss(KCal.value());
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
             m_watt = 0;
             WattKg = 0;
@@ -37,10 +37,39 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     _firstUpdate = false;
 }
 
-uint16_t elliptical::watts() { return 0; }
-void elliptical::changeResistance(int8_t resistance) {
-    requestResistance = resistance;
-    RequestedResistance = resistance;
+uint16_t elliptical::watts() {
+
+    QSettings settings;
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    uint16_t watts = 0;
+    if (currentSpeed().value() > 0) {
+
+        double pace = 60 / currentSpeed().value();
+        double VO2R = 210.0 / pace;
+        double VO2A = (VO2R * weight) / 1000.0;
+        double hwatts = 75 * VO2A;
+        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        watts = hwatts + vwatts;
+    }
+    m_watt.setValue(watts);
+    return m_watt.value();
+}
+void elliptical::changeResistance(resistance_t resistance) {
+    lastRawRequestedResistanceValue = resistance;
+    requestResistance = resistance + gears();
+    RequestedResistance = resistance + gears();
+}
+int8_t elliptical::gears() { return m_gears; }
+void elliptical::setGears(int8_t gears) {
+    QSettings settings;
+    qDebug() << "setGears" << gears;
+    m_gears = gears;
+    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (lastRawRequestedResistanceValue != -1) {
+        changeResistance(lastRawRequestedResistanceValue);
+    }
 }
 void elliptical::changeInclination(double grade, double inclination) {
     Q_UNUSED(grade);
@@ -101,3 +130,18 @@ void elliptical::setLap() {
 
     Inclination.setLap(false);
 }
+
+int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pelotonResistance; }
+void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
+double elliptical::requestedSpeed() { return requestSpeed; }
+void elliptical::changeSpeed(double speed) {
+    RequestedSpeed = speed;
+    if (autoResistanceEnable)
+        requestSpeed = speed;
+}
+metric elliptical::lastRequestedCadence() { return RequestedCadence; }
+metric elliptical::pelotonResistance() { return m_pelotonResistance; }
+metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
+metric elliptical::lastRequestedResistance() { return RequestedResistance; }
+bool elliptical::inclinationAvailableByHardware() { return true; }

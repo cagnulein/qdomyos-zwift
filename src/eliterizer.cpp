@@ -33,6 +33,10 @@ void eliterizer::autoResistanceChanged(bool value) { Q_UNUSED(value); }
 void eliterizer::changeInclinationRequested(double grade, double percentage) {
     Q_UNUSED(grade);
     uint8_t incline[] = {0x0a, 0x00, 0x00};
+    QSettings settings;
+    double gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
+    percentage = percentage * gain;
+
     incline[1] = ((int16_t)(percentage * 10.0)) & 0xff;
     incline[2] = (((int16_t)(percentage * 10.0)) >> 8) & 0xff;
     writeCharacteristic(incline, sizeof(incline),
@@ -96,41 +100,53 @@ void eliterizer::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void eliterizer::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
-    Q_UNUSED(characteristic);
-
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + QStringLiteral(" ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() >= 3) {
-        uint8_t response = newValue.at(2);
-        switch (response) {
-        case 0:
-            qDebug() << "Wrong parameters command";
-            break;
-        case 1:
-            qDebug() << "Out of range";
-            break;
-        case 2:
-            qDebug() << "Success";
-            break;
-        case 3:
-            qDebug() << "Wrong";
-            break;
-        case 4:
-            qDebug() << "Fail";
-            break;
-        case 5:
-            qDebug() << "Command not accessible";
-            break;
+    if (characteristic == gattNotifyCharacteristic) {
+        if (newValue.length() >= 3) {
+            uint8_t response = newValue.at(2);
+            switch (response) {
+            case 0:
+                qDebug() << "Wrong parameters command";
+                break;
+            case 1:
+                qDebug() << "Out of range";
+                break;
+            case 2:
+                qDebug() << "Success";
+                break;
+            case 3:
+                qDebug() << "Wrong";
+                break;
+            case 4:
+                qDebug() << "Fail";
+                break;
+            case 5:
+                qDebug() << "Command not accessible";
+                break;
+            }
+        }
+    } else if (characteristic == gattNotify3Characteristic && newValue.length() >= 4) {
+        Inclination = (((double)newValue.at(1)) - 100.0) / 2;
+        qDebug() << QStringLiteral("Rizer Current Inclination: ") << Inclination.value();
+    } else {
+        if (newValue.length() >= 4) {
+            const float *ptrFloat = reinterpret_cast<const float *>(newValue.constData());
+            emit debug(QStringLiteral("Steering Angle: ") + QString::number(*ptrFloat) + "°");
+            m_steeringAngle = *ptrFloat;
+            emit steeringAngleChanged(m_steeringAngle.value());
         }
     }
 }
 
 void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
 
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "347B0020–7635–408B–8918–8FF3949CE592");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "347B0021–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("347b0020-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("347b0021-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("347b0030-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("347b0022-7635-408b-8918-8ff3949ce592"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -138,10 +154,23 @@ void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+            }
+        }
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
+        Q_ASSERT(gattNotify2Characteristic.isValid());
+        Q_ASSERT(gattNotify3Characteristic.isValid());
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
@@ -162,6 +191,10 @@ void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattCommunicationChannelService->writeDescriptor(
+            gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -189,7 +222,7 @@ void eliterizer::characteristicRead(const QLowEnergyCharacteristic &characterist
 void eliterizer::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "347B0001–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("347b0001-7635-408b-8918-8ff3949ce592"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,

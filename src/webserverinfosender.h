@@ -29,10 +29,11 @@ class WebServerInfoSender : public TemplateInfoSender {
     QStringList folders;
     bool listen();
     void processFetcher(QWebSocket *sender, const QByteArray &data);
+    QTimer watchdogTimer;
 
   protected:
     virtual void innerStop();
-    int port;
+    int port = 0;
     QTcpServer *innerTcpServer = 0;
     virtual bool init();
     QList<QWebSocket *> clients;
@@ -40,7 +41,9 @@ class WebServerInfoSender : public TemplateInfoSender {
     QList<QWebSocket *> sendToClients;
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
-private slots:
+  private slots:
+    void acceptError(QAbstractSocket::SocketError socketError);
+    void watchdogEvent();
     void onNewConnection();
     void handleFetcherRequest(QNetworkReply *reply);
     void processTextMessage(QString message);

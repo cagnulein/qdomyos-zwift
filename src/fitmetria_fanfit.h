@@ -1,7 +1,6 @@
 #ifndef FITMETRIA_FANFIT_H
 #define FITMETRIA_FANFIT_H
 
-
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -31,16 +30,19 @@
 class fitmetria_fanfit : public bluetoothdevice {
     Q_OBJECT
   public:
-    fitmetria_fanfit();
+    fitmetria_fanfit(bluetoothdevice *parentDevice);
     bool connected();
 
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;
-    //QLowEnergyCharacteristic gattNotifyCharacteristic;
+    // QLowEnergyCharacteristic gattNotifyCharacteristic;
     QLowEnergyCharacteristic gattWriteCharacteristic;
 
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+
+    bluetoothdevice *parentDevice = nullptr;
+    QString lastValueSent = "";
 
   signals:
     void disconnected();

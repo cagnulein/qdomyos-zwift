@@ -45,6 +45,7 @@
 #define FITSHOW_CONTROL_READY_OR_START 1
 #define FITSHOW_CONTROL_USER 0
 #define FITSHOW_CONTROL_STOP 3
+#define FITSHOW_CONTROL_PAUSE 6
 #define FITSHOW_DATE_NOT_SUPPORT ""
 #define FITSHOW_TREADMILL_SPORT_ID 0
 #define FITSHOW_INFO_MODEL 0
@@ -82,6 +83,9 @@ class fitshowtreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     virtual ~fitshowtreadmill();
     bool connected();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+    double minStepInclination();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -97,8 +101,12 @@ class fitshowtreadmill : public treadmill {
     void sendSportData();
     void removeFromBuffer();
     QBluetoothUuid serviceId;
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
     int retrySend = 0;
     bool noHeartService = false;
+    bool anyrun = false;
+    bool truetimer = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t firstInit = 0;
@@ -106,15 +114,16 @@ class fitshowtreadmill : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
-    int MAX_INCLINE = 0;
+    int MAX_INCLINE = 30;
     int COUNTDOWN_VALUE = 0;
-    int MAX_SPEED = 0;
+    int MAX_SPEED = 30;
     int MIN_INCLINE = 0;
     int MIN_SPEED = 0;
     int UNIT = -100;
     int SPORT_ID;
     int USER_ID;
     bool IS_PAUSE = false;
+    bool IS_HRC = false;
     QString DEVICE_ID_NAME;
     int TOTAL = 0;
     QDate FACTORY_DATE;
@@ -143,6 +152,12 @@ class fitshowtreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    double minStepInclinationValue = 1.0;
+    bool noblepro_connected = false;
+
+    metric rawInclination;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -163,6 +178,8 @@ class fitshowtreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

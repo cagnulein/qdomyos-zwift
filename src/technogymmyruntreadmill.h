@@ -43,13 +43,16 @@ class technogymmyruntreadmill : public treadmill {
     bool connected();
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
     void *VirtualTreadmill();
     void *VirtualDevice();
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
-                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false,
+                             QLowEnergyService::WriteMode writeMode = QLowEnergyService::WriteWithResponse);
     void waitForAPacket();
     void startDiscover();
     void btinit();
@@ -58,9 +61,14 @@ class technogymmyruntreadmill : public treadmill {
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyService *gattFTMSService = nullptr;
+    QLowEnergyService *gattWeightService = nullptr;
+    QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyCharacteristic gattWriteCustomCharacteristic;
+    QLowEnergyCharacteristic gattNotifyCustomCharacteristic;
+    QLowEnergyCharacteristic gattWriteCharWeight;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -68,6 +76,8 @@ class technogymmyruntreadmill : public treadmill {
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     bool initDone = false;
     bool initRequest = false;

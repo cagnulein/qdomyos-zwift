@@ -5,14 +5,11 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
-void bike::changeResistance(int8_t resistance) {
+void bike::changeResistance(resistance_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
-        if (!ergModeSupported)
-            requestResistance = v;
-        else
-            requestPower = powerFromResistanceRequest(v);
+        requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
     RequestedResistance = resistance * m_difficult + gears();
@@ -27,7 +24,7 @@ void bike::changeInclination(double grade, double percentage) {
 }
 
 // originally made for renphobike, but i guess it could be very generic
-uint16_t bike::powerFromResistanceRequest(int8_t requestResistance) {
+uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
     double cadence = RequestedCadence.value();
     if (cadence <= 0)
@@ -39,27 +36,52 @@ void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPeloto
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
 
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        return;
+    }
+
     RequestedPower = power;
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
-    bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
-    // bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool(); //Not used anywhere in code
-    double erg_filter_upper = settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble();
-    double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0).toDouble();
+    bool force_resistance =
+        settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+            .toBool();
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
+    // anywhere in code
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double zwift_erg_resistance_up =
+        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
+    double zwift_erg_resistance_down =
+        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
 
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
-        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
-        changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
+        if ((double)r > zwift_erg_resistance_up) {
+            qDebug() << "zwift_erg_resistance_up filter enabled!";
+            r = (resistance_t)zwift_erg_resistance_up;
+        } else if ((double)r < zwift_erg_resistance_down) {
+            qDebug() << "zwift_erg_resistance_down filter enabled!";
+            r = (resistance_t)zwift_erg_resistance_down;
+        }
+        changeResistance(r); // resistance start from 1
+    }
 }
 
 int8_t bike::gears() { return m_gears; }
 void bike::setGears(int8_t gears) {
+    QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
+    settings.setValue(QZSettings::gears_current_value, m_gears);
     if (lastRawRequestedResistanceValue != -1) {
         changeResistance(lastRawRequestedResistanceValue);
     }
@@ -76,10 +98,10 @@ uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
-int bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
-uint8_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+resistance_t bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
+resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void bike::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
 
@@ -154,7 +176,7 @@ uint8_t bike::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
@@ -230,4 +252,36 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(wattKg().value());
     }
     return qRound(currentHeart().value());
+}
+
+bool bike::inclinationAvailableByHardware() { return false; }
+
+uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
+    QSettings settings;
+    double watt = 0;
+    if (currentCadence().value() == 0 && useSpeedAndCadence == true) {
+        return 0;
+    }
+    if (Heart.value() > 0) {
+        int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                     settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                    (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                     settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                       (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                        settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                   (Heart.value() *
+                    ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                      settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                     (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                      settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
+        if (Speed.value() > 0 || useSpeedAndCadence == false) {
+            if (avgP < 50) {
+                avgP = 50;
+            }
+            watt = avgP;
+        } else {
+            watt = 0;
+        }
+    }
+    return watt;
 }

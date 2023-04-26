@@ -59,6 +59,9 @@ void MainWindow::update() {
         double avgStrokesRate = 0;
         double maxStrokesRate = 0;
         double avgStrokesLength = 0;
+        double strideLength = 0;
+        double groundContact = 0;
+        double verticalOscillation = 0;
 
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 2));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart().value()));
@@ -77,6 +80,9 @@ void MainWindow::update() {
 
                 pace = 0;
             }
+            strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
+            groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
+            verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             watts = ((treadmill *)bluetoothManager->device())->watts(ui->weight->text().toFloat());
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
             ui->pace->setText(
@@ -169,7 +175,8 @@ void MainWindow::update() {
                           (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                       false, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                      bluetoothManager->device()->currentCordinate() // TODO add lap
+                      bluetoothManager->device()->currentCordinate(), strideLength, groundContact,
+                      verticalOscillation // TODO add lap
         );
 
         Session.append(s);
@@ -451,7 +458,7 @@ void MainWindow::on_reset_clicked() {
 void MainWindow::on_stop_clicked() {
     if (bluetoothManager->device()) {
 
-        bluetoothManager->device()->stop();
+        bluetoothManager->device()->stop(false);
     }
 }
 

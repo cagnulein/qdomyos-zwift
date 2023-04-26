@@ -41,5 +41,59 @@
         <file>inner_templates/chartjs/ajax-loader.gif</file>
         <file>Classifica.qml</file>
         <file>Credits.qml</file>
+        <file>WebEngineTest.qml</file>
+        <file>profiles.qml</file>
+        <file>SwagBagView.qml</file>
+        <file>SimpleButton.qml</file>
+        <file>SwagBagItem.qml</file>
+        <file>GoogleMap.qml</file>
+        <file>inner_templates/googlemaps/maps.htm</file>
+        <file>inner_templates/googlemaps/main_ws_manager.js</file>
+        <file>inner_templates/googlemaps/globals.js</file>
+        <file>inner_templates/googlemaps/marker.png</file>
+        <file>settings-tts.qml</file>
+        <file>NewPageElement.qml</file>
+        <file>inner_templates/googlemaps/jquery-3.6.0.min.js</file>
+        <file>inner_templates/googlemaps/bike.js</file>
+        <file>zwo/Easy intervals.zwo</file>
+        <file>zwo/HIIT Aerobic.zwo</file>
+        <file>zwo/HIIT Anaerobic Sprint.zwo</file>
+        <file>zwo/HIIT Anaerobic.zwo</file>
+        <file>zwo/HIIT Neuromuscular.zwo</file>
+        <file>zwo/Short Mix by Jonathan.zwo</file>
+        <file>zwo/Tabata plus 2 with sweet spot and threshold.zwo</file>
+        <file>zwo/Tabata with sweet spot.zwo</file>
+        <file>zwo/Tempo and endurance.zwo</file>
+        <file>zwo/VO2max with recovery.zwo</file>
+        <file>zwo/VO2max with sweet spot.zwo</file>
+        <file>inner_templates/googlemaps/chart.js</file>
+        <file>inner_templates/googlemaps/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/googlemaps/chartjs-adapter-moment.js</file>
+        <file>inner_templates/googlemaps/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/googlemaps/cesium-key.js</file>
+        <file>inner_templates/maps2d/globals.js</file>
+        <file>inner_templates/maps2d/main_ws_manager.js</file>
+        <file>inner_templates/maps2d/maps.htm</file>
+        <file>inner_templates/maps2d/marker.png</file>
+        <file>gpx/Italy - Passo dello Stelvio.gpx</file>
+        <file>gpx/Box Hill.gpx</file>
+        <file>gpx/Butterfield Canyon Road.gpx</file>
+        <file>gpx/Crater Lake.gpx</file>
+        <file>gpx/Govi to Hood.gpx</file>
+        <file>gpx/Pittenweem to St Andrews.gpx</file>
+        <file>gpx/Richmond Park.gpx</file>
+        <file>gpx/St Andrews to Pittenweem.gpx</file>
+        <file>GPXList.qml</file>
+        <file>videoPlayback.qml</file>
+        <file>settings-tiles.qml</file>
+        <file>inner_templates/floating/floating.htm</file>
+        <file>inner_templates/floating/globals.js</file>
+        <file>inner_templates/floating/jquery-3.6.0.min.js</file>
+        <file>inner_templates/floating/main_ws_manager.js</file>
+        <file>inner_templates/floating/radikalmedium.otf</file>
+        <file>settings-treadmill-inclination-override.qml</file>
+        <file>WebStravaAuth.qml</file>
+        <file>Toast.qml</file>
+        <file>ToastManager.qml</file>
     </qresource>
 </RCC>

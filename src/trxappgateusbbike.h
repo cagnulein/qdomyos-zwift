@@ -35,7 +35,8 @@
 class trxappgateusbbike : public bike {
     Q_OBJECT
   public:
-    trxappgateusbbike(bool noWriteResistance, bool noHeartService);
+    trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                      double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -47,7 +48,7 @@ class trxappgateusbbike : public bike {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -65,6 +66,8 @@ class trxappgateusbbike : public bike {
     lockscreen *h = 0;
 #endif
 
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -96,6 +99,12 @@ class trxappgateusbbike : public bike {
         FYTTER_RI08 = 9,
         ICONSOLE_2 = 10,
         HERTZ_XR_770 = 11,
+        CASALL = 12,
+        VIRTUFIT = 13,
+        HERTZ_XR_770_2 = 14,
+        VIRTUFIT_2 = 15,
+        TUNTURI = 16,
+        TUNTURI_2 = 17,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

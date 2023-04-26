@@ -12,6 +12,7 @@ import HealthKit
 protocol WorkoutTrackingDelegate: class {
     func didReceiveHealthKitHeartRate(_ heartRate: Double)
     func didReceiveHealthKitStepCounts(_ stepCounts: Double)
+    func didReceiveHealthKitStepCadence(_ stepCadence: Double)
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double)
     func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double)
 }
@@ -27,6 +28,10 @@ class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var distance = Double()
     public static var kcal = Double()
+    public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
+    public static var cadenceLastSteps = Double()
+    public static var cadenceSteps = 0
+    var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
     var workoutSession: HKWorkoutSession!
@@ -79,7 +84,13 @@ extension WorkoutTracking {
                 
                 if let sum = result.sumQuantity() {
                     resultCount = sum.doubleValue(for: HKUnit.count())
+                    let now = NSDate().timeIntervalSince1970
+                    let deltaT = now - WorkoutTracking.cadenceTimeStamp
+                    let deltaC = resultCount - WorkoutTracking.cadenceLastSteps
+                    WorkoutTracking.cadenceLastSteps = resultCount
+                    WorkoutTracking.cadenceTimeStamp = now
                     weakSelf.delegate?.didReceiveHealthKitStepCounts(resultCount)
+                    weakSelf.delegate?.didReceiveHealthKitStepCadence((deltaC / deltaT) * 60)
                 } else {
                     print("Failed to fetch steps rate 2")
                 }
@@ -91,8 +102,23 @@ extension WorkoutTracking {
         }
     }
     
+    func setSport(_ sport: Int) {
+        self.sport = sport
+    }
+    
     private func configWorkout() {
-        configuration.activityType = .cycling
+        var activityType = HKWorkoutActivityType.cycling
+        if self.sport == 1 {
+            activityType = HKWorkoutActivityType.running
+        } else if self.sport == 2 {
+            activityType = HKWorkoutActivityType.walking
+        } else if self.sport == 3 {
+            activityType = HKWorkoutActivityType.elliptical
+        } else if self.sport == 4 {
+            activityType = HKWorkoutActivityType.rowing
+        }
+        
+        configuration.activityType = activityType
         configuration.locationType = .indoor
         
         do {
@@ -124,6 +150,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
                 HKSampleType.quantityType(forIdentifier: .heartRate)!,
                 HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
                 HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,				
                 HKSampleType.workoutType()
                 ])
@@ -149,6 +176,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             if let error = error {
                 print(error)
             }
+
+            if self.sport > 0 {
+                self.workoutBuilder.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
+            }
         }
     }
     
@@ -173,29 +204,72 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                       end: Date())
         
         workoutBuilder.add([sample]) {(success, error) in}
-        
-        guard let quantityTypeDistance = HKQuantityType.quantityType(
-                forIdentifier: .distanceCycling) else {
-          return
-        }
             
         let unitDistance = HKUnit.mile()
         let miles = WorkoutTracking.distance
         let quantityMiles = HKQuantity(unit: unitDistance,
                                   doubleValue: miles)
         
-        let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
-                                                      quantity: quantityMiles,
-                                                      start: workoutSession.startDate!,
-                                                      end: Date())
-        
-        workoutBuilder.add([sample]) {(success, error) in}
-        workoutBuilder.add([sampleDistance]) {(success, error) in}
-        
-        workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+        if(sport == 0) {
             
+            guard let quantityTypeDistance = HKQuantityType.quantityType(
+                    forIdentifier: .distanceCycling) else {
+              return
+            }
+            
+            
+            let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
+                                                          quantity: quantityMiles,
+                                                          start: workoutSession.startDate!,
+                                                          end: Date())
+            
+            workoutBuilder.add([sampleDistance]) {(success, error) in
+                if let error = error {
+                    print(error)
+                }
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    self.workoutBuilder.finishWorkout{ (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                    }
+                }
+            }
+        } else {
+            
+            guard let quantityTypeDistance = HKQuantityType.quantityType(
+                forIdentifier: .distanceWalkingRunning) else {
+              return
+            }
+      
+            let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
+                                                          quantity: quantityMiles,
+                                                          start: workoutSession.startDate!,
+                                                          end: Date())
+            
+            workoutBuilder.add([sampleDistance]) {(success, error) in
+                if let error = error {
+                    print(error)
+                }
+                self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
+                    if let error = error {
+                        print(error)
+                    }
+                    self.workoutBuilder.finishWorkout{ (workout, error) in
+                        if let error = error {
+                            print(error)
+                        }
+                        workout?.setValue(quantityMiles, forKey: "totalDistance")
+                    }
+                }
+            }
         }
-        workoutBuilder.finishWorkout{ (success, error) in }
+        
+   
     }
     
     func fetchStepCounts() {

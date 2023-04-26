@@ -72,12 +72,14 @@ void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
 
 void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
-    if (bike_type == TELINK) {
-        multiplier = 10;
-    }
 
     QSettings settings;
-    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();    
+    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display).toBool();
+    bool domyos_bike_display_calories = settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories).toBool();
+
+    if (domyos_bike_display_calories) {
+        multiplier = 10;
+    }
 
     // if(bike_type == CHANG_YOW)
     if (distance) {
@@ -99,17 +101,31 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value() * multiplier) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+    if (currentSpeed().value() < 10.0) {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x02; // decimal position
+    } else if (currentSpeed().value() < 100.0) {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x01; // decimal position
+    } else {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x00; // decimal position
+    }
 
     display[12] = (uint8_t)currentHeart().value();
 
     // display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     // display[14] = (((uint8_t)calories())) & 0xFF;
 
-    if (bike_type == TELINK) {
+    if (domyos_bike_display_calories) {
         display[15] = ((((uint16_t)currentCadence().value()) * multiplier) >> 8) & 0xFF;
         display[16] = (((uint16_t)currentCadence().value()) * multiplier) & 0xFF;
     } else {
@@ -128,7 +144,7 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
                         QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, true);
 }
 
-void domyosbike::forceResistance(int8_t requestResistance) {
+void domyosbike::forceResistance(resistance_t requestResistance) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 
@@ -174,11 +190,11 @@ void domyosbike::update() {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -262,15 +278,15 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QByteArray value = newValue;
 
     qDebug() << QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' ');
 
-    // for the init packets, the lenght is always less than 20
-    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
-    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
-    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of
+    // for the init packets, the length is always less than 20
+    // for the display and status packets, the length is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the length will be always != 20
+    // - t900: it splits packets with length grater than 20 in two distinct packets, so the first one it has length of
     // 20,
     //         and the second one with the remained byte
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
@@ -291,7 +307,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     startBytes3.append(0xf0);
     startBytes3.append(0xdd);
 
-    // on some treadmills, the 26bytes has splitted in 2 packets
+    // on some treadmills, the 26bytes has split in 2 packets
     if ((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes3) && value.length() == 7)) {
@@ -331,8 +347,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
-    double cadenceFilter = settings.value(QStringLiteral("domyos_bike_cadence_filter"), 0).toDouble();
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    double cadenceFilter = settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter).toDouble();
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         if (cadenceFilter == 0 || cadenceFilter > ucadence) {
@@ -351,10 +367,10 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     emit resistanceRead(Resistance.value());
     m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
 
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -362,16 +378,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             uint8_t heart = ((uint8_t)value.at(18));
             if (heart == 0 || disable_hr_frommachinery) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                update_hr_from_external();
             } else
                 Heart = heart;
         }
@@ -385,8 +392,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -408,10 +415,10 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
     }
 
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     KCal = kcal;
     Distance = distance;
@@ -630,12 +637,12 @@ void *domyosbike::VirtualBike() { return virtualBike; }
 
 void *domyosbike::VirtualDevice() { return VirtualBike(); }
 
-int domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
 
-uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             return i;
         }
@@ -647,16 +654,39 @@ uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
 }
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
-    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    QSettings settings;
+    if(!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1).toBool() || resistance < 8)
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    else {
+        switch((int)resistance) {
+            case 8:
+                return (13.6 * Cadence.value()) / 9.5488;
+            case 9:
+                return (15.3 * Cadence.value()) / 9.5488;
+            case 10:
+                return (17.3 * Cadence.value()) / 9.5488;
+            case 11:
+                return (19.8 * Cadence.value()) / 9.5488;
+            case 12:
+                return (22.5 * Cadence.value()) / 9.5488;
+            case 13:
+                return (25.6 * Cadence.value()) / 9.5488;
+            case 14:
+                return (28.4 * Cadence.value()) / 9.5488;
+            case 15:
+                return (35.9 * Cadence.value()) / 9.5488;
+        }
+        return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    }
 }
 
 uint16_t domyosbike::watts() {
     double v = 0;
-    // const uint8_t max_resistance = 15;
+    // const resistance_t max_resistance = 15;
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    if (currentSpeed().value() <= 0) {
+    if (currentCadence().value() <= 0) {
         return 0;
     }
     v = wattsFromResistance(currentResistance().value());

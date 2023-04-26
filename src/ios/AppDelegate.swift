@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import CoreMotion
+
+var pedometer = CMPedometer()
 
 @objc public class virtualdevice_ios:NSObject {
     let v = BLEPeripheralManager()
@@ -14,11 +17,29 @@ import UIKit
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
-    
+        
     @objc public func request()
     {
+        if #available(iOS 13.0, *) {
+            Client.client.start()
+        } else {
+            // Fallback on earlier versions
+        }
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
+        }
+        Server.server?.start()
+	
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
+        
+        if CMPedometer.isStepCountingAvailable() {
+            pedometer.startUpdates(from: Date()) { pedometerData, error in
+                guard let pedometerData = pedometerData, error == nil else { return }
+                    print("\(pedometerData.numberOfSteps.intValue) STEP CAD.")
+            }
+        }
+
         
         //w.startWatchApp()
     }
@@ -28,14 +49,44 @@ import UIKit
         return WatchKitConnection.currentHeartRate;
     }
     
+    @objc public func stepCadence() -> Int
+    {
+        return WatchKitConnection.stepCadence;
+    }
+    
     @objc public func setDistance(distance: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)#")
         WatchKitConnection.distance = distance;
     }
     
     @objc public func setKcal(kcal: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)#")
         WatchKitConnection.kcal = kcal;
+    }
+    
+    @objc func updateHeartRate() {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#CAD=\(WatchKitConnection.stepCadence)#")
+
     }
 }
 /*

@@ -62,6 +62,9 @@ void stagesbike::update() {
     }
 
     if (initRequest) {
+        // required to the SS2K only one time
+        Resistance = 0;
+        emit resistanceRead(Resistance.value());
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -78,8 +81,8 @@ void stagesbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15) {
-                requestResistance = 15;
+            if (requestResistance > 100) {
+                requestResistance = 100;
             } else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -110,12 +113,61 @@ void stagesbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+resistance_t stagesbike::pelotonToBikeResistance(int pelotonResistance) {
+    QSettings settings;
+    bool schwinn_bike_resistance_v2 =
+        settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    if (!schwinn_bike_resistance_v2) {
+        if (pelotonResistance > 54)
+            return pelotonResistance;
+        if (pelotonResistance < 26)
+            return pelotonResistance / 5;
+
+        // y = 0,04x2 - 1,32x + 11,8
+        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+    } else {
+        if (pelotonResistance > 20)
+            return (((double)pelotonResistance - 20.0) * 1.25);
+        else
+            return 1;
+    }
+}
+
+uint16_t stagesbike::wattsFromResistance(double resistance) {
+    QSettings settings;
+
+    double ac = 0.01243107769;
+    double bc = 1.145964912;
+    double cc = -23.50977444;
+
+    double ar = 0.1469553975;
+    double br = -5.841344538;
+    double cr = 97.62165482;
+
+    for (uint16_t i = 1; i < 2000; i += 5) {
+        double res =
+            (((sqrt(pow(br, 2.0) -
+                    4.0 * ar *
+                        (cr - ((double)i * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+        if (!isnan(res) && res >= resistance) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
 void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -180,7 +232,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 deltaT = LastCrankEventTime + time_division - oldLastCrankEventTime;
             }
 
-            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
@@ -199,10 +251,15 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             oldLastCrankEventTime = LastCrankEventTime;
             oldCrankRevs = CrankRevs;
 
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-                Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = Cadence.value() * settings
+                                              .value(QZSettings::cadence_sensor_speed_ratio,
+                                                     QZSettings::default_cadence_sensor_speed_ratio)
+                                              .toDouble();
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -210,15 +267,53 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-            // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-            // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
-            // QString::number(Resistance.value()));
-            emit resistanceRead(Resistance.value());
+            // if we change this, also change the wattsFromResistance function. We can create a standard function in
+            // order to have all the costants in one place (I WANT MORE TIME!!!)
+            double ac = 0.01243107769;
+            double bc = 1.145964912;
+            double cc = -23.50977444;
+
+            double ar = 0.1469553975;
+            double br = -5.841344538;
+            double cr = 97.62165482;
+
+            double res =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+
+            if (isnan(res)) {
+                if (Cadence.value() > 0) {
+                    // let's keep the last good value
+                } else {
+                    m_pelotonResistance = 0;
+                }
+            } else {
+                m_pelotonResistance = res;
+            }
+
+            qDebug() << QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value());
+
+            if (ResistanceFromFTMSAccessoryLastTime == 0) {
+                if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance)
+                        .toBool())
+                    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+                else
+                    Resistance = m_pelotonResistance;
+                emit resistanceRead(Resistance.value());
+                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
+            } else {
+                Resistance = ResistanceFromFTMSAccessory.value();
+            }
 
             if (watts())
                 KCal +=
-                    ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-                       3.5) /
+                    ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                     QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
@@ -229,22 +324,13 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool()) {
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
             debug("Current Heart: " + QString::number(Heart.value()));
-        }
+        } else
 #endif
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                update_hr_from_external();
         }
     }
 
@@ -258,8 +344,10 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -358,11 +446,14 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -489,6 +580,12 @@ uint16_t stagesbike::watts() {
     }
 
     return m_watt.value();
+}
+
+void stagesbike::resistanceFromFTMSAccessory(resistance_t res) {
+    ResistanceFromFTMSAccessory = res;
+    ResistanceFromFTMSAccessoryLastTime = QDateTime::currentMSecsSinceEpoch();
+    qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }
 
 void stagesbike::controllerStateChanged(QLowEnergyController::ControllerState state) {

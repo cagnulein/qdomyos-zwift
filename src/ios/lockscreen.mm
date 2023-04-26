@@ -4,16 +4,23 @@
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <AVFoundation/AVFoundation.h>
+#import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
+@class virtualrower;
+@class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
+static virtualrower* _virtualrower = nil;
+static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
+
+static GarminConnect* Garmin = 0;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -23,11 +30,17 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    Garmin = [[GarminConnect alloc] init];
 }
 
 long lockscreen::heartRate()
 {
     return [h heartRate];
+}
+
+long lockscreen::stepCadence()
+{
+    return [h stepCadence];
 }
 
 void lockscreen::setKcal(double kcal)
@@ -59,9 +72,14 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios()
+void lockscreen::virtualbike_zwift_ios(bool disable_hr)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] init];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
+}
+
+void lockscreen::virtualrower_ios()
+{
+    _virtualrower = [[virtualrower alloc] init];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -69,6 +87,24 @@ double lockscreen::virtualbike_getCurrentSlope()
     if(_virtualbike_zwift != nil)
     {
         return [_virtualbike_zwift readCurrentSlope];
+    }
+    return 0;
+}
+
+double lockscreen::virtualbike_getCurrentCRR()
+{
+    if(_virtualbike_zwift != nil)
+    {
+        return [_virtualbike_zwift readCurrentCRR];
+    }
+    return 0;
+}
+
+double lockscreen::virtualbike_getCurrentCW()
+{
+    if(_virtualbike_zwift != nil)
+    {
+        return [_virtualbike_zwift readCurrentCW];
     }
     return 0;
 }
@@ -82,12 +118,119 @@ double lockscreen::virtualbike_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt)
+bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
 {
     if(_virtualbike_zwift != nil)
-        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
+        return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
     return 0;
 }
+
+bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime, UInt16 StrokesCount, UInt32 Distance, UInt16 KCal, UInt16 Pace)
+{
+    if(_virtualrower != nil)
+        return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime StrokesCount:StrokesCount Distance:Distance KCal:KCal Pace:Pace];
+    return 0;
+}
+
+void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
+{
+    if(_virtualrower != nil)
+        [_virtualrower updateHeartRateWithHeartRate:heartRate];
+}
+
+
+// virtual treadmill
+void lockscreen::virtualtreadmill_zwift_ios()
+{
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
+}
+
+void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
+{
+    if(_virtualtreadmill_zwift != nil)
+        [_virtualtreadmill_zwift updateHeartRateWithHeartRate:heartRate];
+}
+
+double lockscreen::virtualtreadmill_getCurrentSlope()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift readCurrentSlope];
+    }
+    return 0;
+}
+
+uint64_t lockscreen::virtualtreadmill_lastChangeCurrentSlope()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift lastChangeCurrentSlope];
+    }
+    return 0;
+}
+
+double lockscreen::virtualtreadmill_getPowerRequested()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift readPowerRequested];
+    }
+    return 0;
+}
+
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination)
+{
+    if(_virtualtreadmill_zwift != nil)
+        return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination];
+    return 0;
+}
+
+int lockscreen::virtualbike_getLastFTMSMessage(unsigned char* message) {
+    if(message) {
+        if(_virtualbike_zwift != nil) {
+            NSData* data = [_virtualbike_zwift getLastFTMSMessage];
+            [data getBytes:message length:data.length];
+            return (int)data.length;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+int lockscreen::virtualrower_getLastFTMSMessage(unsigned char* message) {
+    if(message) {
+        if(_virtualrower != nil) {
+            NSData* data = [_virtualrower getLastFTMSMessage];
+            [data getBytes:message length:data.length];
+            return (int)data.length;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+void lockscreen::garminconnect_init() {
+    [[ConnectIQ sharedInstance] initializeWithUrlScheme:@"org.cagnulein.connectiqcomms-ciq"
+                                 uiOverrideDelegate:nil];
+    
+    [[ConnectIQ sharedInstance] showConnectIQDeviceSelection];
+}
+
+bool lockscreen::urlParser(const char *url) {
+    NSString *sURL = [NSString stringWithCString:url encoding:NSASCIIStringEncoding];
+    NSURL *URL = [NSURL URLWithString:[sURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [Garmin urlParser: URL];
+}
+
+int lockscreen::getHR() {
+    return [Garmin getHR];
+}
+
+int lockscreen::getFootCad() {
+    return [Garmin getFootCad];
+}
+
+// getVolume
 
 double lockscreen::getVolume()
 {

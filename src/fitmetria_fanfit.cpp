@@ -9,7 +9,16 @@
 
 using namespace std::chrono_literals;
 
-fitmetria_fanfit::fitmetria_fanfit() {}
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
+fitmetria_fanfit::fitmetria_fanfit(bluetoothdevice *parentDevice) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+    this->parentDevice = parentDevice;
+}
 
 void fitmetria_fanfit::update() {}
 
@@ -38,13 +47,133 @@ void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
     QSettings settings;
     if (speed > 102)
         speed = 102;
-    double max = settings.value(QStringLiteral("fitmetria_fanfit_max"), 100).toDouble();
-    double min = settings.value(QStringLiteral("fitmetria_fanfit_min"), 0).toDouble();
+    double max = settings.value(QZSettings::fitmetria_fanfit_max, QZSettings::default_fitmetria_fanfit_max).toDouble();
+    double min = settings.value(QZSettings::fitmetria_fanfit_min, QZSettings::default_fitmetria_fanfit_min).toDouble();
 
     uint16_t speed16 = (uint16_t)((double)speed * ((max * 10.0) - (min * 10.0)) / 100.0 + (min * 10.0));
+    const uint8_t brightness = 5;
+    const uint8_t leds_max = 15;
 
-    QString s = QString::number((speed16));
-    writeCharacteristic((uint8_t *)s.toLocal8Bit().data(), s.length(), QStringLiteral("forcing fan ") + s, false, true);
+    uint8_t leds[leds_max] = {30, 30, 30, 15, 15, 15, 13, 24, 24, 8, 27, 27, 27, 26, 26};
+    // 0~5~30~30~30~15~15~15~13~24~24~8~27~27~27~26~26
+    // 0 - fans peed
+    // 1 - brightness
+    // all the rest - colors
+    /*
+        myCollorDict = {}
+        myCollorDict['Black'] = 0
+        myCollorDict['Blue'] = 1
+        myCollorDict['Brown'] = 2
+        myCollorDict['Cyan'] = 3
+        myCollorDict['DarkBlue'] = 4
+        myCollorDict['DarkCyan'] = 5
+        myCollorDict['DarkGrey'] = 6
+        myCollorDict['DarkGreen'] = 7
+        myCollorDict['DarkOrange'] = 8
+        myCollorDict['DarkRed'] = 9
+        myCollorDict['DarkViolet'] = 10
+        myCollorDict['DeepPink'] = 11
+        myCollorDict['DimGrey'] = 12
+        myCollorDict['Gold'] = 13
+        myCollorDict['Grey'] = 14
+        myCollorDict['Green'] = 15
+        myCollorDict['LightBlue'] = 16
+        myCollorDict['LightCyan'] = 17
+        myCollorDict['LightGreen'] = 18
+        myCollorDict['LightGrey'] = 19
+        myCollorDict['LightPink'] = 20
+        myCollorDict['LightYellow'] = 21
+        myCollorDict['MediumBlue'] = 22
+        myCollorDict['MediumPurple'] = 23
+        myCollorDict['Orange'] = 24
+        myCollorDict['Pink'] = 25
+        myCollorDict['Purple'] = 26
+        myCollorDict['Red'] = 27
+        myCollorDict['Silver'] = 28
+        myCollorDict['Violet'] = 29
+        myCollorDict['White'] = 30
+        myCollorDict['Yellow'] = 31
+    */
+
+    QString s = QString::number((speed16)) + "~" + QString::number(brightness);
+
+    if (!settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
+             .toString()
+             .compare(QStringLiteral("Power")) &&
+        parentDevice) {
+        double ftp = parentDevice->currentPowerZone().value();
+        if (ftp < 1.3)
+            memset(&leds[1], 0, leds_max - 1);
+        else if (ftp < 1.6)
+            memset(&leds[2], 0, leds_max - 2);
+        else if (ftp < 2)
+            memset(&leds[3], 0, leds_max - 3);
+        else if (ftp < 2.4)
+            memset(&leds[4], 0, leds_max - 4);
+        else if (ftp < 3)
+            memset(&leds[5], 0, leds_max - 5);
+        else if (ftp < 3.3)
+            memset(&leds[6], 0, leds_max - 6);
+        else if (ftp < 3.6)
+            memset(&leds[7], 0, leds_max - 7);
+        else if (ftp < 4)
+            memset(&leds[8], 0, leds_max - 8);
+        else if (ftp < 5)
+            memset(&leds[9], 0, leds_max - 9);
+        else if (ftp < 5.6)
+            memset(&leds[10], 0, leds_max - 10);
+        else if (ftp < 6)
+            memset(&leds[11], 0, leds_max - 11);
+        else if (ftp < 6.6)
+            memset(&leds[12], 0, leds_max - 12);
+        else if (ftp < 7)
+            memset(&leds[13], 0, leds_max - 13);
+        else if (ftp < 7.1)
+            memset(&leds[14], 0, leds_max - 14);
+    } else if (!settings.value(QZSettings::fitmetria_fanfit_mode, QZSettings::default_fitmetria_fanfit_mode)
+                    .toString()
+                    .compare(QStringLiteral("Heart")) &&
+               parentDevice) {
+        double ftp = parentDevice->currentHeartZone().value();
+        if (ftp < 1.3)
+            memset(&leds[1], 0, leds_max - 1);
+        else if (ftp < 1.6)
+            memset(&leds[2], 0, leds_max - 2);
+        else if (ftp < 1.9)
+            memset(&leds[3], 0, leds_max - 3);
+        else if (ftp < 2)
+            memset(&leds[4], 0, leds_max - 4);
+        else if (ftp < 2.3)
+            memset(&leds[5], 0, leds_max - 5);
+        else if (ftp < 2.6)
+            memset(&leds[6], 0, leds_max - 6);
+        else if (ftp < 2.9)
+            memset(&leds[7], 0, leds_max - 7);
+        else if (ftp < 3.3)
+            memset(&leds[8], 0, leds_max - 8);
+        else if (ftp < 3.6)
+            memset(&leds[9], 0, leds_max - 9);
+        else if (ftp < 4)
+            memset(&leds[10], 0, leds_max - 10);
+        else if (ftp < 4.3)
+            memset(&leds[11], 0, leds_max - 11);
+        else if (ftp < 4.9)
+            memset(&leds[12], 0, leds_max - 12);
+        else if (ftp < 5)
+            memset(&leds[13], 0, leds_max - 13);
+        else if (ftp < 5.1)
+            memset(&leds[14], 0, leds_max - 14);
+    } else {
+        memset(&leds, 0, leds_max);
+    }
+    for (int i = 0; i < leds_max; i++)
+        s += "~" + QString::number(leds[i]);
+
+    // only if the string differs i update the value over bluetooth
+    if (lastValueSent != s)
+        writeCharacteristic((uint8_t *)s.toLocal8Bit().data(), s.length(), QStringLiteral("forcing fan ") + s, false,
+                            true);
+    lastValueSent = s;
 }
 
 void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -87,7 +216,8 @@ void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
                         QStringLiteral(" // ") + info;
     }
 
-    loop.exec();
+    // not necessary, since the communication is one way only. also it could lead to crashes
+    // loop.exec();
 }
 
 void fitmetria_fanfit::stateChanged(QLowEnergyService::ServiceState state) {
@@ -147,6 +277,8 @@ void fitmetria_fanfit::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitmetria_fanfit::stateChanged);
     gattCommunicationChannelService->discoverDetails();
+
+    lastValueSent = "";
 }
 
 void fitmetria_fanfit::errorService(QLowEnergyService::ServiceError err) {

@@ -94,15 +94,15 @@ void elitesterzosmart::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (newValue.length() >= 4) {
         const float *ptrFloat = reinterpret_cast<const float *>(newValue.constData());
-        emit debug(QStringLiteral("Steering Angle: ") + *ptrFloat + "°");
+        emit debug(QStringLiteral("Steering Angle: ") + QString::number(*ptrFloat) + "°");
         m_steeringAngle = *ptrFloat;
+        emit steeringAngleChanged(m_steeringAngle.value());
     }
 }
 
 void elitesterzosmart::stateChanged(QLowEnergyService::ServiceState state) {
-
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "347B0030–7635–408B–8918–8FF3949CE592");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "347B0031–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("347b0031-7635-408b-8918-8ff3949ce592"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("347b0030-7635-408b-8918-8ff3949ce592"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -110,6 +110,15 @@ void elitesterzosmart::stateChanged(QLowEnergyService::ServiceState state) {
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+            }
+        }
+        
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
@@ -162,7 +171,7 @@ void elitesterzosmart::characteristicRead(const QLowEnergyCharacteristic &charac
 void elitesterzosmart::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "347B0001–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("347b0001-7635-408b-8918-8ff3949ce592"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,

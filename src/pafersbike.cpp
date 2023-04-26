@@ -70,7 +70,7 @@ void pafersbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     loop.exec();
 }
 
-void pafersbike::forceResistance(int8_t requestResistance) {
+void pafersbike::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData[] = {0x55, 0x11, 0x01, 0x18};
 
     noOpData[3] = requestResistance;
@@ -137,8 +137,8 @@ void pafersbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int pafersbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t pafersbike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
@@ -149,10 +149,10 @@ int pafersbike::pelotonToBikeResistance(int pelotonResistance) {
         return max_resistance;
 }
 
-uint8_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
@@ -190,7 +190,7 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << " << " + newValue.toHex(' ');
 
@@ -200,15 +200,15 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
         return;
     }
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(7));
     }
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = ((uint8_t)newValue.at(3));
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
 
     Resistance = ((uint8_t)newValue.at(5));
@@ -218,7 +218,7 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -234,29 +234,20 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QStringLiteral("ant_heart"), false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
     } else
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -332,11 +323,11 @@ void pafersbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();

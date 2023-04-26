@@ -58,6 +58,8 @@ class eliterizer : public bike {
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -80,8 +82,9 @@ class eliterizer : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    // void resistanceReadFromTheBike(int8_t resistance);
+    // void resistanceReadFromTheBike(resistance_t resistance);
     void autoResistanceChanged(bool value);
+    void changeInclinationRequested(double grade, double percentage);
 
   private slots:
 
@@ -92,7 +95,6 @@ class eliterizer : public bike {
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

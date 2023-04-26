@@ -1,6 +1,5 @@
 #include "activiotreadmill.h"
 
-#include "activiotreadmill.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
@@ -34,7 +33,7 @@ activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh->start(pollDeviceTime);
 }
 
-void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data,
+void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data,
                                            uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
     QEventLoop loop;
@@ -55,7 +54,7 @@ void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(characteristc, QByteArray((const char *)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -70,11 +69,66 @@ void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
 }
 
 void activiotreadmill::forceSpeed(double requestSpeed) {
+    QSettings settings;
     uint8_t writeSpeed[] = {0x03, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00};
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    writeSpeed[6] = writeSpeed[1] + 1;
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
+        writeSpeed[6] = writeSpeed[1] + 1;
+    else {
+        switch(writeSpeed[1] & 0x0F) {
+            case 0x00:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x01:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x02:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x03:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x04:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x05:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x06:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x07:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x08:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x09:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x0A:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x0B:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x0C:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x0D:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x0E:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x0F:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+
+        }
+    }
 
     writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
                         QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
@@ -114,8 +168,8 @@ void activiotreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -136,7 +190,7 @@ void activiotreadmill::update() {
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         {
             if (requestSpeed != -1) {
@@ -146,13 +200,15 @@ void activiotreadmill::update() {
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -1) {
+            if (requestInclination != -100) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                     forceIncline(requestInclination);
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
             if (requestStart != -1) {
                 emit debug(QStringLiteral("starting..."));
@@ -226,7 +282,7 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -240,12 +296,14 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // lastState = value.at(0);
 
     double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
+    double incline = 1.0; // "fitfiu_mc_v460" has 1.0 fixed inclination
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
+        incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -254,17 +312,7 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+                update_hr_from_external();
             } else
 
                 Heart = heart;
@@ -272,10 +320,10 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -460,7 +508,9 @@ void activiotreadmill::btinit(bool startTape) {
     uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
     writeCharacteristic(gattWrite2Characteristic, initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    
+    // starts the tape
+    //writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
     }

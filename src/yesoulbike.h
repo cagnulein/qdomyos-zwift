@@ -36,7 +36,13 @@
 class yesoulbike : public bike {
     Q_OBJECT
   public:
-    yesoulbike(bool noWriteResistance, bool noHeartService);
+    static constexpr uint8_t manufacturerData[] = { 0x01, 0x05, 0x00, 0xff, 0xff };
+    static constexpr uint8_t manufacturerDataSize = 5;
+    static constexpr uint16_t manufacturerDataId = 637;
+    static constexpr const char* bluetoothName = "YESOUL";
+
+    yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+               double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -70,6 +76,8 @@ class yesoulbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

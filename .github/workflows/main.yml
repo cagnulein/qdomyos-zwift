@@ -13,13 +13,201 @@ on:
     branches: [ master,  github-workflow-playground ]
   pull_request:
     branches: [ master ]
-  schedule:
-    - cron: "0 */12 * * *"    
+#  schedule:
+#    - cron: "0 */12 * * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  window-build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/MSIX-Toolkit
+          path: "src/MSIX-Toolkit/"
+          ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          msystem: mingw64
+          release: false
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          cmake-version: '3.20.x'
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_mingw81
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.h"
+            Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
+
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            make -j8
+            make install
+            cd ../..
+
+      - name: Build
+        run: |
+            qmake
+            cd src
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            cd ..
+            make -j8
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: src/debug/output
+
+#  window-steam-build:
+#    runs-on: windows-latest
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Checkout submodule repo
+#        uses: actions/checkout@v2
+#        with:
+#          repository: bluetiger9/SmtpClient-for-Qt
+#          path: "src/smtpclient/"
+#          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+#
+#      - uses: actions/checkout@v2
+#      - name: Checkout submodule repo
+#        uses: actions/checkout@v2
+#        with:
+#          repository: cagnulein/qmdnsengine
+#          path: "src/qmdnsengine/"
+#          ref: "zwift"
+#
+#      - uses: msys2/setup-msys2@v2
+#        with:
+#          install: mingw-w64-x86_64-toolchain
+#          msystem: mingw64
+#          release: false
+#
+#      - name: Setup cmake
+#        uses: jwlawson/actions-setup-cmake@v1.9
+#        with:
+#          cmake-version: '3.20.x'
+#
+#      - name: Install Qt
+#        uses: jurplel/install-qt-action@v2
+#        with:
+#          version: '5.15.2'
+#          host: 'windows'
+#          modules: 'qtnetworkauth qtcharts'
+#          target: "desktop"
+#          arch: win64_mingw81
+#          dir: "${{github.workspace}}/qt/"
+#          install-deps: "true"
+#
+#      - name: Build
+#        run: |
+#            qmake
+#            cd src
+#            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+#            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+#            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+#            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+#            echo "#define STEAM_STORE" >> secret.h
+#            cd ..
+#            make -j8
+#            cd src/debug
+#            mkdir output
+#            mkdir appx
+#            cp qdomyos-zwift.exe output/
+#            cd output
+#            windeployqt --qmldir ../../ qdomyos-zwift.exe
+#            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
+#            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
+#            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .
+#
+#      - uses: game-ci/steam-deploy@v1
+#        with:
+#          username: ${{ secrets.STEAM_USERNAME }}
+#          password: ${{ secrets.STEAM_PASSWORD }}
+#          configVdf: ${{ secrets.STEAM_CONFIG_VDF}}
+#          ssfnFileName: ${{ secrets.STEAM_SSFN_FILE_NAME }}
+#          ssfnFileContents: ${{ secrets.STEAM_SSFN_FILE_CONTENTS }}
+#          appId: 2267200
+#          buildDescription: 2.12
+#          rootPath: src/debug/output
+#          depot1Path: ./
+#          #depot2Path: StandaloneLinux64
+#          releaseBranch: prerelease
+
   # This workflow contains a single job called "build"
-  build:
+  linux-x86-build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -42,7 +230,7 @@ jobs:
       - name: Xvfb install and run
         run: |
           sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &    
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -51,18 +239,52 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qt5-default libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
-      
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'linux'
+          modules: 'qtnetworkauth qtcharts'
+
       - name: Compile Linux Desktop
-        run: cd src; qmake; make -j8
-        
+        run: qmake; make -j8
+
       - name: Archive linux-desktop binary
         uses: actions/upload-artifact@v2
         with:
           name: linux-desktop-binary
-          path: src/qdomyos-zwift              
+          path: src/qdomyos-zwift         
+
+      - name: Test
+        run: cd tst; GTEST_OUTPUT=xml:test-results/ GTEST_COLOR=1 ./qdomyos-zwift-tests; cd ..
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: test_results_xml
+          path: tst/test-results/**/*.xml               
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -103,7 +325,7 @@ jobs:
 #          modules: 'qtcharts debug_info'
 #          dir: '${{ github.workspace }}/output/android/'
 #          cached: ${{ steps.cache-qt-android.outputs.cache-hit }}
-      
+
 #      - name: Compile Android
 #        run: cd src; qmake; make -j4
 
@@ -115,6 +337,179 @@ jobs:
 #          target: 'desktop'
 #          modules: 'qtcharts debug_info'
 #          dir: '${{ github.workspace }}/output/macos/'
-      
+
 #      - name: Compile MacOS
 #        run: cd src; qmake; make -j4
+
+
+  # This workflow contains a single job called "build"
+  android-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+#      - name: Cache Qt Linux Desktop
+#        id: cache-qt-linux-desktop
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/linux-desktop/'
+#          key: ${{ runner.os }}-QtCache-Linux-Desktop
+
+#      - name: Cache Qt Linux Android
+#        id: cache-qt-android
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/android/'
+#          key: ${{ runner.os }}-QtCache-Android
+
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+
+#      - name: Test Peloton API
+#        if: github.event_name == 'push' || github.event_name == 'schedule'
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+#        timeout-minutes: 2
+
+#      - name: Test Home Fitness Buddy API
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+#        timeout-minutes: 2
+
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: nttld/setup-ndk
+#          path: setup-ndk
+      # The packages.json in nttld/setup-ndk has already been updated,
+      # https://github.com/nttld/setup-ndk/commit/831db5b02a0f0cab80614619efe461a3dcc140e6
+      # but `dist/*` has not been rebuilt yet. Build it.
+      # https://github.com/nttld/setup-ndk/tree/main/dist
+#      - name: Locally rebuilt setup-ndk
+#        run: |
+#          npm -prefix ./setup-ndk install
+#          npm -prefix ./setup-ndk run all
+      # Install using locally rebuilt setup-ndk
+#      - name: Setup Android NDK r21d
+#        uses: ./setup-ndk
+      #- uses: nttld/setup-ndk@v1
+#        with:
+#          ndk-version: r21d
+
+# waiting github.com/jurplel/install-qt-action/issues/63
+      - name: Install Qt Android
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'linux'
+          target: 'android'
+          arch: 'android'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/android/'
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '11'
+
+      - name: Set Android NDK 21 && build
+        run: |
+          # Install NDK 21 after GitHub update
+          # https://github.com/actions/virtual-environments/issues/5595
+          ANDROID_ROOT="/usr/local/lib/android"
+          ANDROID_SDK_ROOT="${ANDROID_ROOT}/sdk"
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          echo "y" | $SDKMANAGER "ndk;21.4.7075529"
+          export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+
+          ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
+          rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
+          qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+
+      - name: Build APK (not usable for production due to unpatched QT library)
+        run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+  ios-build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - name: Install Qt iOS
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'mac'
+          target: 'ios'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/ios/'
+          
+      - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;
+      
+      - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
+
+      - name: fix qt
+        run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/TARGET = qdomyos-zwift/TARGET = qdomyoszwift/g' {} \;                
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
+
+      - name: Build
+        run: qmake CONFIG+=debug && make -j4
+

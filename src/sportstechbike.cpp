@@ -50,7 +50,7 @@ void sportstechbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
 }
 
-void sportstechbike::forceResistance(int8_t requestResistance) {
+void sportstechbike::forceResistance(resistance_t requestResistance) {
     Q_UNUSED(requestResistance)
     /*
     uint8_t resistance[] = { 0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00 };
@@ -114,7 +114,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -131,7 +131,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double watt = GetWattFromPacket(newValue);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -160,20 +160,20 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());
     KCal = kcal;
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
     }
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled")))
         m_watt = watt;
@@ -277,7 +277,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual bike init *************************************
         if (!firstVirtualBike && !virtualBike) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);

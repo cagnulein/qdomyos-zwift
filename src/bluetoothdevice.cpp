@@ -1,13 +1,25 @@
 #include "bluetoothdevice.h"
 
+#include <QFile>
 #include <QSettings>
 #include <QTime>
+
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 
 bluetoothdevice::bluetoothdevice() {}
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; }
-void bluetoothdevice::stop() { requestStop = 1; }
+void bluetoothdevice::stop(bool pause) {
+    requestStop = 1;
+    if (pause)
+        requestPause = 1;
+}
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }
 metric bluetoothdevice::currentInclination() { return Inclination; }
@@ -29,7 +41,7 @@ metric bluetoothdevice::currentResistance() { return Resistance; }
 metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
-void bluetoothdevice::changeResistance(int8_t resistance) {}
+void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
 
@@ -37,7 +49,7 @@ void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 
 QTime bluetoothdevice::currentPace() {
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -54,7 +66,7 @@ QTime bluetoothdevice::currentPace() {
 QTime bluetoothdevice::averagePace() {
 
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -71,7 +83,7 @@ QTime bluetoothdevice::averagePace() {
 QTime bluetoothdevice::maxPace() {
 
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -119,9 +131,18 @@ void bluetoothdevice::disconnectBluetooth() {
 metric bluetoothdevice::wattsMetric() { return m_watt; }
 void bluetoothdevice::setDifficult(double d) { m_difficult = d; }
 double bluetoothdevice::difficult() { return m_difficult; }
+void bluetoothdevice::setInclinationDifficult(double d) { m_inclination_difficult = d; }
+double bluetoothdevice::inclinationDifficult() { return m_inclination_difficult; }
+void bluetoothdevice::setDifficultOffset(double d) { m_difficult_offset = d; }
+double bluetoothdevice::difficultOffset() { return m_difficult_offset; }
+void bluetoothdevice::setInclinationDifficultOffset(double d) { m_inclination_difficult_offset = d; }
+double bluetoothdevice::inclinationDifficultOffset() { return m_inclination_difficult_offset; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
+void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(length); }
+void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
+void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
@@ -131,17 +152,21 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
-    bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
-    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool power_as_bike =
+        settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill =
+        settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
 
             elapsed += deltaTime;
         }
@@ -153,27 +178,59 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             if (watt_calc) {
                 m_watt = watts;
             }
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
 
-            m_watt = 0;
+            if (watt_calc) {
+                m_watt = 0;
+            }
             WattKg = 0;
         }
-    } else if (paused && settings.value(QStringLiteral("instant_power_on_pause"), false).toBool()) {
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause)
+                             .toBool()) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;
         }
-        WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
         WattKg = 0;
     }
     METS = calculateMETS();
+    if (currentInclination().value() > 0)
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+}
+
+void bluetoothdevice::update_hr_from_external() {
+    QSettings settings;
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+#endif
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        lockscreen h;
+        Heart = h.getHR();
+#endif
+#endif
+        qDebug() << "Garmin Companion Heart:" << Heart.value();
+    } else {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
+#endif
+#endif
+    }
 }
 
 void bluetoothdevice::clearStats() {
@@ -189,6 +246,7 @@ void bluetoothdevice::clearStats() {
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
+    Cadence.clear(false);
 }
 
 void bluetoothdevice::setPaused(bool p) {
@@ -204,6 +262,7 @@ void bluetoothdevice::setPaused(bool p) {
     m_watt.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
+    Cadence.setPaused(p);
 }
 
 void bluetoothdevice::setLap() {
@@ -218,6 +277,7 @@ void bluetoothdevice::setLap() {
     m_watt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
+    Cadence.setLap(false);
 }
 
 QStringList bluetoothdevice::metrics() {
@@ -252,13 +312,13 @@ QStringList bluetoothdevice::metrics() {
     return r;
 }
 
-uint8_t bluetoothdevice::maxResistance() { return 100; }
+resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {
@@ -337,7 +397,32 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     return currentHeart().value();
 }
 
-void bluetoothdevice::changeGeoPosition(QGeoCoordinate p) { coordinate = p; }
-QGeoCoordinate bluetoothdevice::currentCordinate() { return coordinate; }
+void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {
+    coordinateTS = QDateTime::currentMSecsSinceEpoch();
+    coordinateOdometer = odometer();
+    coordinate = p;
+    this->setAverageAzimuthNext300m(avgAzimuthNext300Meters);
+    this->azimuth = azimuth;
+}
+QGeoCoordinate bluetoothdevice::currentCordinate() {
+    if (coordinateTS) {
+        double distance = odometer() - coordinateOdometer;
+        QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance * 1000.0, this->azimuth);
+        c.setAltitude(coordinate.altitude());
+        // qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
+        return c;
+    }
+    return coordinate;
+}
 
 void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }
+void bluetoothdevice::setInclination(double inclination) { Inclination = inclination; }
+void bluetoothdevice::setGPXFile(QString filename) {
+    gpxFileName = filename;
+    QFile input(filename);
+    if (input.open(QIODevice::ReadOnly)) {
+        QByteArray asSaved = input.readAll();
+        gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
+        input.close();
+    }
+}

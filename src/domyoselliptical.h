@@ -37,6 +37,7 @@ class domyoselliptical : public elliptical {
                      uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyoselliptical();
     bool connected();
+    bool inclinationAvailableByHardware();
 
     void *VirtualTreadmill();
     void *VirtualDevice();
@@ -46,7 +47,7 @@ class domyoselliptical : public elliptical {
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forceInclination(int8_t requestInclination);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);
