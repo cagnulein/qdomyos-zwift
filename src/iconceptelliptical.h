@@ -28,12 +28,14 @@
 #include <QObject>
 
 #include "elliptical.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 class iconceptelliptical : public elliptical {
     Q_OBJECT
   public:
-    explicit iconceptelliptical();
+    explicit iconceptelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                double bikeResistanceGain);
     void *VirtualTreadmill();
     void *VirtualDevice();
 
@@ -47,13 +49,20 @@ class iconceptelliptical : public elliptical {
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
     void update();
+    void changeInclinationRequested(double grade, double percentage);
 
   private:
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
+
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
     virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

@@ -9,7 +9,12 @@
 
 using namespace std::chrono_literals;
 
-iconceptelliptical::iconceptelliptical() {
+iconceptelliptical::iconceptelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                       double bikeResistanceGain) {
+    this->noWriteResistance = noWriteResistance;
+    this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -84,20 +89,32 @@ void iconceptelliptical::update() {
     QSettings settings;
 
     if (initDone) {
-        // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualTreadmill) {
-            QSettings settings;
+        // ******************************************* virtual bike init *************************************
+        QSettings settings;
+        if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadmill = new virtualtreadmill(this, true);
-                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-                        &iconceptelliptical::changeInclination);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadmill = new virtualtreadmill(this, true);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &iconceptelliptical::debug);
+                    connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                            &iconceptelliptical::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                  bikeResistanceGain);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &iconceptelliptical::changeInclinationRequested);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
+                }
+                firstStateChanged = 1;
             }
         }
-        firstStateChanged = 1;
-
         // ********************************************************************************************************
 
         if (requestResistance != -1) {
@@ -259,4 +276,10 @@ uint16_t iconceptelliptical::watts() {
         return 0;
     }
     return m_watt.value();
+}
+
+void iconceptelliptical::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }

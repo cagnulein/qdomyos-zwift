@@ -1737,7 +1737,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        iconcept_elliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
-                iConceptElliptical = new iconceptelliptical();
+                iConceptElliptical =
+                    new iconceptelliptical(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(iConceptElliptical, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
