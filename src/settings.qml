@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.0
 
 //Page {
     ScrollView {
@@ -753,6 +754,11 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.31
             property bool iconcept_elliptical: false
+
+            // from version 2.13.37
+            property bool theme_tile_icon_enabled: true
+            property string theme_tile_background_color: "#303030"
+            property string theme_status_bar_background_color: "#800080"
         }
 
         function paddingZeros(text, limit) {
@@ -3230,6 +3236,97 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    AccordionElement {
+                        id: themesOptionsAccordion
+                        title: qsTr("UI Themes")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 10
+                            SwitchDelegate {
+                                id: tilesIconsDelegate
+                                text: qsTr("Tiles Icons")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.theme_tile_icon_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.theme_tile_icon_enabled = checked
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelBackgroundColor
+                                    text: qsTr("Tiles Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: backgroundColorTextField
+                                      text: settings.theme_tile_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: okBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: backgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        backgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Statusbar Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: statusbarbackgroundColorTextField
+                                      text: settings.theme_status_bar_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: okStatusbarBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: statusbarbackgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        statusbarbackgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+                        }
                     }
                 }
             }

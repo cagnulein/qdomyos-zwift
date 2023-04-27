@@ -44,6 +44,7 @@ ApplicationWindow {
     Settings {
         id: settings
         property string profile_name: "default"        
+        property string theme_status_bar_background_color: "#800080"
     }
 
     Store {
@@ -389,7 +390,7 @@ ApplicationWindow {
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: Material.Purple
+        Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
 
         ToolButton {
@@ -744,7 +745,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.36"
+                text: "version 2.13.37"
                 width: parent.width
             }
 				FileDialog {
