@@ -44,7 +44,7 @@ ApplicationWindow {
     Settings {
         id: settings
         property string profile_name: "default"        
-        property string theme_status_bar_background_color: Material.Purple
+        property string theme_status_bar_background_color: "#800080"
     }
 
     Store {
