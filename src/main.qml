@@ -44,6 +44,7 @@ ApplicationWindow {
     Settings {
         id: settings
         property string profile_name: "default"        
+        property string theme_status_bar_background_color: Material.Purple
     }
 
     Store {
@@ -389,7 +390,7 @@ ApplicationWindow {
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: Material.Purple
+        Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
 
         ToolButton {

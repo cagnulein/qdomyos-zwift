@@ -758,6 +758,11 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.31
             property bool iconcept_elliptical: false
+
+            // from version 2.13.37
+            property bool theme_tile_icon_enabled: true
+            property string theme_tile_background_color: Material.backgroundColor
+            property string theme_status_bar_background_color: Material.Purple
         }
 
         function paddingZeros(text, limit) {
@@ -1208,6 +1213,45 @@ import QtQuick.Dialogs 1.0
                             title: "Please choose a color"
                             onAccepted: {
                                 backgroundColorTextField.color = this.color
+                                visible = false;
+                            }
+                            onRejected: visible = false;
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Statusbar Background Color:")
+                            Layout.fillWidth: true
+                        }
+                        Rectangle {
+                            id: statusbarbackgroundColorTextField
+                            color: settings.theme_status_bar_background_color
+                            width: okStatusbarBackgroundColor.width
+                            height: okStatusbarBackgroundColor.height
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            border.color: "white"
+                            border.width: 2
+                            visible: true
+                            MouseArea {
+                                visible: true
+                                anchors.fill: parent
+                                onClicked: statusbarbackgroundColorDialog.visible = true;
+                            }
+                        }
+                        Button {
+                            id: okStatusbarBackgroundColor
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.color;
+                        }
+                        ColorDialog {
+                            id: statusbarbackgroundColorDialog
+                            title: "Please choose a color"
+                            onAccepted: {
+                                statusbarbackgroundColorTextField.color = this.color
                                 visible = false;
                             }
                             onRejected: visible = false;

@@ -22,7 +22,7 @@ HomeForm{
         id: settings
         property real ui_zoom: 100.0
         property bool theme_tile_icon_enabled: true
-        property string theme_tile_background_color
+        property string theme_tile_background_color: Material.backgroundColor
     }
 
     MessageDialog {
