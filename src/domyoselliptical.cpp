@@ -182,7 +182,7 @@ void domyoselliptical::update() {
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyoselliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill, false);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
@@ -190,7 +190,7 @@ void domyoselliptical::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstVirtual = 1;
             }

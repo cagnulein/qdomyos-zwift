@@ -113,7 +113,7 @@ void ziprotreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &ziprotreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &ziprotreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }

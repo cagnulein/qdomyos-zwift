@@ -451,7 +451,7 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::changeInclination, this, &tacxneo2::changeInclination);
             // connect(virtualBike, &virtualbike::powerPacketReceived, this, &tacxneo2::powerPacketReceived);
             // connect(virtualBike, &virtualbike::debug, this, &tacxneo2::debug);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

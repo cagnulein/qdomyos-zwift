@@ -308,7 +308,7 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&ultrasportbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &ultrasportbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

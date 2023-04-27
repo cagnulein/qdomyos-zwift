@@ -376,7 +376,7 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &concept2skierg::debug);
                 // connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                 //        &domyostreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadmill, false);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
     }
     firstStateChanged = 1;

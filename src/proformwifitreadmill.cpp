@@ -54,13 +54,13 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &proformwifitreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, true);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
             firstStateChanged = 1;
         }

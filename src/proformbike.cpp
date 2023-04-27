@@ -1481,7 +1481,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &proformbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

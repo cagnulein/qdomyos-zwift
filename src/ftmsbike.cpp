@@ -724,7 +724,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &ftmsbike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &ftmsbike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

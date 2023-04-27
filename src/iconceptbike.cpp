@@ -94,7 +94,7 @@ void iconceptbike::update() {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 auto virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

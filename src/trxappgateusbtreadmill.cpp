@@ -540,7 +540,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &trxappgateusbtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstVirtualTreadmill = 1;

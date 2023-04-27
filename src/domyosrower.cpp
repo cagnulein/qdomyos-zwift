@@ -180,21 +180,21 @@ void domyosrower::update() {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
-                    this->setVirtualDevice(virtualRower, true);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill, false);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstVirtual = 1;
             }

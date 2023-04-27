@@ -118,13 +118,13 @@ void kingsmithr1protreadmill::update() {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr1protreadmill::debug);
-                    this->setVirtualDevice(virtualTreadMill, false);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr1protreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }

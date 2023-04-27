@@ -462,13 +462,13 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &spirittreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill, false);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &spirittreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
 
                 }
             }

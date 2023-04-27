@@ -773,7 +773,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstVirtualBike = 1;

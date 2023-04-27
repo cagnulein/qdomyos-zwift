@@ -99,7 +99,7 @@ void nautilustreadmill::update() {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &nautilustreadmill::debug);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }

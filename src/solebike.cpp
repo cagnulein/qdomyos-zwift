@@ -453,7 +453,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&solebike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &solebike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

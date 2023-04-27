@@ -168,7 +168,7 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }

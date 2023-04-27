@@ -99,7 +99,7 @@ void fakebike::update() {
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     if (!firstStateChanged)

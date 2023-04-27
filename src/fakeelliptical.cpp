@@ -69,7 +69,7 @@ void fakeelliptical::update() {
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakeelliptical::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakeelliptical::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     if (!firstStateChanged)

@@ -50,14 +50,7 @@ class MetersByInclination {
 class bluetoothdevice : public QObject {
 
     Q_OBJECT
-  private:
-    /**
-     * @brief hideVirtualDevice Indicates if the virtual device will be exposed via VirtualDevice().
-     * Normally false, set this to true where the device is being used unusually, e.g.
-     * for the Zwift Auto-Inclination Workaround.
-     */
-    bool hideVirtualDevice = false;
-    virtualdevice *virtualDevice = nullptr;
+
   public:
     bluetoothdevice();
 
@@ -205,7 +198,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
-    virtualdevice *VirtualDevice() { return this->hideVirtualDevice ? nullptr:this->virtualDevice; }
+    virtualdevice *VirtualDevice();
 
     /**
      * @brief watts Calculates the amount of power used. Units: watts
@@ -445,6 +438,30 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
+
+    /**
+     * @brief Mode of operation for the virtual device with the bluetoothdevice object.
+     */
+    enum VIRTUAL_DEVICE_MODE {
+
+        /**
+         * @brief Not set.
+         */
+        NONE,
+        /**
+         * @brief Virtual device represents the same type of device.
+         * bluetoothdevice objects expose the virtual device.
+         */
+        PRIMARY,
+
+        /**
+         * @brief Virtual device representing the device for a purpose other than the
+         * type of device it matches.
+         * bluetoothdevice objects do not expose the virtual device.
+         */
+        ALTERNATIVE
+    };
+
     /**
      * @brief hasVirtualDevice shows if the object has any virtual device, even if hidden via VirtualDevice().
      */
@@ -666,10 +683,19 @@ class bluetoothdevice : public QObject {
     /**
      * @brief setVirtualDevice Set the virtual device. Deletes the existing one, if present.
      * @param virtualDevice The virtual device.
-     * @hide Set to true to store the virtual device (for later deletion by the desctructor)
+     * @hide Set to ALTERNATIVE to store the virtual device (for later deletion by the destructor)
      * but don't show via VirtualDevice().
      */
-    void setVirtualDevice(virtualdevice * virtualDevice, bool hide);
+    void setVirtualDevice(virtualdevice * virtualDevice, VIRTUAL_DEVICE_MODE mode);
+
+  private:
+    /**
+     * @brief virrualDeviveMode Indicates if the virtual device will be exposed via VirtualDevice().
+     * Normally PRIMARY, set this to ALTERNATIVE where the device is being used unusually, e.g.
+     * for the Zwift Auto-Inclination Workaround.
+     */
+    VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
+    virtualdevice *virtualDevice = nullptr;
 };
 
 #endif // BLUETOOTHDEVICE_H

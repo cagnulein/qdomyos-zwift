@@ -395,7 +395,7 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
             // connect(virtualBike,&virtualbike::debug ,this,&snodebike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &snodebike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &snodebike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

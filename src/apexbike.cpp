@@ -288,7 +288,7 @@ void apexbike::stateChanged(QLowEnergyService::ServiceState state) {
                 // connect(virtualBike,&virtualbike::debug ,this,&apexbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &apexbike::changeInclination);
 
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

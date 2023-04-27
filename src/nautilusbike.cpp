@@ -96,7 +96,7 @@ void nautilusbike::update() {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstVirtual = 1;
             }
         }

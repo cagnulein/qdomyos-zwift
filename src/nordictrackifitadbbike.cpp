@@ -41,7 +41,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbbike::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             firstStateChanged = 1;
         }
     }

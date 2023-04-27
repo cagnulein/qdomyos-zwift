@@ -48,6 +48,8 @@ metric bluetoothdevice::currentResistance() { return Resistance; }
 metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
+
+virtualdevice *bluetoothdevice::VirtualDevice() { return this->virtualDeviceMode==VIRTUAL_DEVICE_MODE::PRIMARY ? this->virtualDevice:nullptr; }
 void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
@@ -154,11 +156,15 @@ bool bluetoothdevice::hasVirtualDevice() { return this->virtualDevice!=nullptr; 
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
-void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, bool hide) {
+void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode) {
+
+    if(mode!=VIRTUAL_DEVICE_MODE::NONE && !virtualDevice)
+        throw "Virtual device mode should be NONE when no virtual device is specified.";
+
     if(this->virtualDevice)
         delete this->virtualDevice;
     this->virtualDevice = virtualDevice;
-    this->hideVirtualDevice = hide;
+    this->virtualDeviceMode=mode;
 }
 
 // keiser m3i has a separate management of this, so please check it

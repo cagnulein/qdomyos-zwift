@@ -285,7 +285,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&sportstechbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &sportstechbike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstVirtualBike = 1;

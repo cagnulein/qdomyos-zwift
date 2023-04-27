@@ -639,7 +639,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
-            this->setVirtualDevice(virtualBike,false);
+            this->setVirtualDevice(virtualBike,VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

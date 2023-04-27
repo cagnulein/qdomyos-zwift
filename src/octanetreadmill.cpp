@@ -278,7 +278,7 @@ void octanetreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octanetreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }

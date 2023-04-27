@@ -113,7 +113,7 @@ void technogymmyruntreadmillrfcomm::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &technogymmyruntreadmillrfcomm::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmillrfcomm::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill, false);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         // ********************************************************************************************************

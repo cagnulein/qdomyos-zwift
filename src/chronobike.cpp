@@ -284,7 +284,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

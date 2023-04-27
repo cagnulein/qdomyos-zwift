@@ -451,7 +451,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &bhfitnesselliptical::changeInclinationRequested);
 
-                    this->setVirtualDevice(virtualTreadmill, false);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
@@ -461,7 +461,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
                             &bhfitnesselliptical::changeInclination);
                     connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                             &bhfitnesselliptical::ftmsCharacteristicChanged);
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
         }

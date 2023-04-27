@@ -447,7 +447,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &shuaa5treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &shuaa5treadmill::changeInclinationRequested);
-            this->setVirtualDevice(virtualTreadmill, false);
+            this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

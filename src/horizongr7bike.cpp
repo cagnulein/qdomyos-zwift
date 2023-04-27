@@ -512,7 +512,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                     &horizongr7bike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

@@ -787,7 +787,7 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &solef80treadmill::changeInclinationRequested);
-            this->setVirtualDevice(virtualTreadmill, false);
+            this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

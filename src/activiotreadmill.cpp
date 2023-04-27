@@ -179,7 +179,7 @@ void activiotreadmill::update() {
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &activiotreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill, false);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
@@ -187,7 +187,7 @@ void activiotreadmill::update() {
                             &activiotreadmill::changeInclinationRequested);
 
                     // DO NOT show the virtual device in this case (Zwift Auto-Inclination Workaround)
-                    this->setVirtualDevice(virtualBike, true);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }

@@ -274,7 +274,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&inspirebike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &inspirebike::changeInclination);
-                this->setVirtualDevice(virtualBike, false);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;

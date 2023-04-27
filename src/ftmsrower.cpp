@@ -481,7 +481,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
-            this->setVirtualDevice(virtualBike, false);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
