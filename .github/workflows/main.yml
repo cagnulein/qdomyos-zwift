@@ -88,6 +88,16 @@ jobs:
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
+      - name: download python and paddleocr
+        run: |
+            Invoke-WebRequest -URI "https://www.python.org/ftp/python/3.10.11/python-3.10.11-embed-amd64.zip"
+            mkdir python
+            Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
+            pip install opencv-python
+            pip install pywin32
+            pip install paddlepaddle==2.4.2
+            pip install "paddleocr>=2.0.1"
+
       - name: Build qthttpserver
         run: |
             cd src\qthttpserver 
