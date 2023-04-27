@@ -66,7 +66,7 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
             emit debug(QStringLiteral("Serial port service found"));
-            discoveryAgent->stop();
+            // discoveryAgent->stop(); // could lead to a crash?
 
             serialPortService = service;
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
