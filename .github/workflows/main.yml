@@ -67,6 +67,8 @@ jobs:
             mkdir python
             Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
             del python-3.10.11-embed-amd64.zip
+            Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            python\python get-pip.py
             python\python -m pip install opencv-python
             python\python -m pip install pywin32
             python\python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
