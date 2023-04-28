@@ -74,16 +74,17 @@ jobs:
             mkdir python
             Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
             del python-3.10.11-embed-amd64.zip
+            cd python
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            python\python get-pip.py
-            echo "." >> python\python310._pth
-            echo "Lib\site-packages" >> python\python310._pth
-            cat python\python310._pth
-            python\python -m ensurepip
-            python\python -m pip install opencv-python
-            python\python -m pip install pywin32
-            python\python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
-            python\python -m pip install paddleocr>=2.0.1
+            python get-pip.py
+            echo "." >> python310._pth
+            echo "Lib\site-packages" >> python310._pth
+            python -m ensurepip
+            python -m pip install opencv-python
+            python -m pip install pywin32
+            python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
+            python -m pip install paddleocr>=2.0.1
+            cd ..
 
       - uses: msys2/setup-msys2@v2
         with:
