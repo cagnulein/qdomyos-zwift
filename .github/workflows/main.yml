@@ -67,10 +67,10 @@ jobs:
             mkdir python
             Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
             del python-3.10.11-embed-amd64.zip
-            pip install opencv-python
-            pip install pywin32
-            pip install paddlepaddle==2.4.2
-            pip install "paddleocr>=2.0.1"
+            python\python -m pip install opencv-python
+            python\python -m pip install pywin32
+            python\python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
+            python\python -m pip install paddleocr>=2.0.1
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -129,8 +129,7 @@ jobs:
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             mkdir adb
-            mkdir python
-            cp -a ../../python/ .
+            Copy-Item -Path ../../python/ -Destination . -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
