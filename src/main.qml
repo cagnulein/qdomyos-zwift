@@ -698,9 +698,11 @@ ApplicationWindow {
                     popupSaveFile.open()
                 }
             }
-            ItemDelegate {
+            Image {
                 id: strava_connect
-                text: qsTr("Connect to Strava")
+                source: "qrc:/icons/btn_strava_connectwith_orange.png"
+                fillMode: Image.PreserveAspectFit
+                visible: true
                 width: parent.width
                 onClicked: {
                     stackView.push("WebStravaAuth.qml")
