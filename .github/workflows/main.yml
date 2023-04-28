@@ -4,6 +4,7 @@ name: CI
 
 env:
   DISPLAY: ':99'
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
