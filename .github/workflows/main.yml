@@ -62,6 +62,12 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
+
+      - name: add python to path
+        run: |
+            echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
+            echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python"
+
       - name: download python and paddleocr
         run: |
             Invoke-WebRequest -URI "https://www.python.org/ftp/python/3.10.11/python-3.10.11-embed-amd64.zip" -OutFile python-3.10.11-embed-amd64.zip
@@ -69,8 +75,6 @@ jobs:
             Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
             del python-3.10.11-embed-amd64.zip
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
-            echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python"
             python\python get-pip.py
             python\python -m pip install opencv-python
             python\python -m pip install pywin32
