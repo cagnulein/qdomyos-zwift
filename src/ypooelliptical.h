@@ -41,9 +41,6 @@ class ypooelliptical : public elliptical {
                    double bikeResistanceGain = 1.0);
     bool connected();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -52,8 +49,6 @@ class ypooelliptical : public elliptical {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

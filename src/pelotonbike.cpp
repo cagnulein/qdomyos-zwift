@@ -24,14 +24,15 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     connect(refresh, &QTimer::timeout, this, &pelotonbike::update);
     refresh->start(200ms);    
 
-    // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualBike) {
+    // ******************************************* virtual bike init *************************************
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
-            virtualBike = new virtualbike(this);
+            auto virtualBike = new virtualbike(this);
             connect(virtualBike, &virtualbike::changeInclination, this, &pelotonbike::changeInclinationRequested);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             firstStateChanged = 1;
         }
     }
@@ -123,4 +124,4 @@ void pelotonbike::changeInclinationRequested(double grade, double percentage) {
 
 bool pelotonbike::connected() { return true; }
 
-void *pelotonbike::VirtualDevice() { return virtualBike; }
+

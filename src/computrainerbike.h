@@ -40,9 +40,6 @@ class computrainerbike : public bike {
     bool inclinationAvailableByHardware();
     bool connected();
 
-    void *VirtualBike();
-    void *VirtualDevice();
-
   private:
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;
