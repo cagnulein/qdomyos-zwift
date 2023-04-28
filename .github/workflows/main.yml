@@ -69,10 +69,12 @@ jobs:
             del python-3.10.11-embed-amd64.zip
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
             python\python get-pip.py
-            python\Scripts\pip install opencv-python
-            python\Scripts\pip install pywin32
-            python\Scripts\pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
-            python\Scripts\pip install paddleocr>=2.0.1
+            echo "D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            echo "D:\a\qdomyos-zwift\qdomyos-zwift\python" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+            python\python -m pip install opencv-python
+            python\python -m pip install pywin32
+            python\python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
+            python\python -m pip install paddleocr>=2.0.1
 
       - uses: msys2/setup-msys2@v2
         with:
