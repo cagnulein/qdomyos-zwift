@@ -68,8 +68,10 @@ jobs:
             Expand-Archive python-3.10.11-embed-amd64.zip -DestinationPath python\
             del python-3.10.11-embed-amd64.zip
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
-            echo "D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-            echo "D:\a\qdomyos-zwift\qdomyos-zwift\python" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append            
+            Add-Content $env:GITHUB_PATH "D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
+            Add-Content $env:GITHUB_PATH "D:\a\qdomyos-zwift\qdomyos-zwift\python"
+            Add-Content $env:PATH "D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
+            Add-Content $env:PATH "D:\a\qdomyos-zwift\qdomyos-zwift\python"            
             python\python get-pip.py
             python\python -m pip install opencv-python
             python\python -m pip install pywin32
