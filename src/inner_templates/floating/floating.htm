@@ -70,7 +70,7 @@
     </div>
   </div>
   <table id="maintable" class="metrics customfont" style="color: #FFFFFF; font-family: sans-serif; border: 0">
-    <tr class="speed">
+    <tr class="speed" sort-order="0">
       <td class="icon">🏃</td>
       <td style="text-align: left">SPEED</td>
       <td><small>AVG</small></td>
@@ -79,7 +79,7 @@
       <td><small>MAX</small></td>
       <td class="speed-max">0.0</td>
     </tr>
-    <tr class="inclination">
+    <tr class="inclination" sort-order="1">
       <td class="icon">📐</td>
       <td style="text-align: left">INCLINE</td>
       <td><small>AVG</small></td>
@@ -88,7 +88,7 @@
       <td><small>MAX</small></td>
       <td class="inclination-max">0.0</td>
     </tr>
-    <tr class="pace">
+    <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
       <td style="text-align: left">PACE</td>
       <td><small>AVG</small></td>
@@ -97,12 +97,12 @@
       <td><small>MAX</small></td>
       <td class="pace-max">00:00</td>
     </tr>    
-    <tr class="elevation">
+    <tr class="elevation" sort-order="3">
       <td class="icon">🚵</td>
       <td style="text-align: left">ELEV.</td>
       <td class="elevation-value values" colspan="5"><b>0.0</b></td>
     </tr>    
-    <tr class="cadence">
+    <tr class="cadence" sort-order="4">
       <td class="icon">🚴</td>
       <td style="text-align: left">CADENCE</td>
       <td><small>AVG</small></td>
@@ -111,7 +111,7 @@
       <td><small>MAX</small></td>
       <td class="cadence-max">0</td>
     </tr>
-    <tr class="heart">
+    <tr class="heart" sort-order="5">
       <td class="icon">💓</td>
       <td style="text-align: left">PULSE</td>
       <td><small>AVG</small></td>
@@ -120,7 +120,7 @@
       <td><small>MAX</small></td>
       <td class="heart-max">0</td>
     </tr>
-    <tr class="watt">
+    <tr class="watt" sort-order="6">
       <td class="icon">⚡</td>
       <td style="text-align: left">POWER</td>
       <td><small>AVG</small></td>
@@ -129,7 +129,7 @@
       <td><small>MAX</small></td>
       <td class="watt-max">0</td>
     </tr>
-    <tr class="powerzone">
+    <tr class="powerzone" sort-order="7">
       <td class="icon">🚥</td>
       <td style="text-align: left">P.ZONE</td>
       <td><small>AVG</small></td>
@@ -138,7 +138,7 @@
       <td><small>MAX</small></td>
       <td class="powerzone-max">0.0</td>
     </tr>
-    <tr class="resistance">
+    <tr class="resistance" sort-order="8">
       <td class="icon">🆁</td>
       <td style="text-align: left">RESISTANCE</td>
       <td><small>AVG</small></td>
@@ -147,7 +147,7 @@
       <td><small>MAX</small></td>
       <td class="resistance-max">1</td>
     </tr>
-    <tr class="pelotonresistance">
+    <tr class="pelotonresistance" sort-order="9">
       <td class="icon">🅿</td>
       <td style="text-align: left">P.RESISTANCE</td>
       <td><small>AVG</small></td>
@@ -156,32 +156,32 @@
       <td><small>MAX</small></td>
       <td class="pelotonresistance-max">1</td>
     </tr>
-    <tr class="calories">
+    <tr class="calories" sort-order="10">
       <td class="icon">🔥</td>
       <td style="text-align: left">CALORIES</td>
       <td class="calories-value values" colspan="5"><b>0</b></td>
     </tr>
-    <tr class="jouls">
+    <tr class="jouls" sort-order="11">
       <td class="icon">🔥</td>
       <td style="text-align: left">TOT.OUTPUT</td>
       <td class="jouls-value values" colspan="5"><b>0</b></td>
     </tr>
-    <tr class="distance">
+    <tr class="distance" sort-order="12">
       <td class="icon">📏</td>
       <td style="text-align: left">DISTANCE</td>
       <td class="distance-value values" colspan="5"><b>0.00</b></td>
     </tr>
-    <tr class="elapsed">
+    <tr class="elapsed" sort-order="13">
       <td class="icon">⏲️</td>
       <td style="text-align: left">ELAPSED</td>
       <td class="elapsed-value values" colspan="5"><b>0:00:00</b></td>
     </tr>
-    <tr class="rowremainingtime">
+    <tr class="rowremainingtime" sort-order="14">
       <td class="icon">⏲️</td>
       <td style="text-align: left">REM.TIME</td>
       <td class="rowremainingtime-value values" colspan="5"><b>0:00:00</b></td>
     </tr>
-    <tr class="pelotonoffset">
+    <tr class="pelotonoffset" sort-order="15">
       <td class="icon">⏰</td>
       <td style="text-align: left">P.OFFSET</td>
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
@@ -190,7 +190,7 @@
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
           onclick="PelotonOffsetPlus()">+</button></td>
     </tr>
-    <tr class="gears">
+    <tr class="gears" sort-order="16">
       <td class="icon">⚙</td>
       <td style="text-align: left">GEARS</td>
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
@@ -199,7 +199,7 @@
       <td colspan="2"><button style="width: 40px; font-size: 24px; color: white; background-color:#4C70BF"
           onclick="GearsPlus()">+</button></td>
     </tr>    
-    <tr>
+    <tr sort-order="255">
       <td colspan=2 style="text-align:left"><button style="font-size: 16px; color: white; background-color:#4C70BF"
           onclick="Lap()">CLEAR</button></td>
       <td colspan="2"><button style="font-size: 16px; color: white; background-color:#4C70BF"
@@ -407,7 +407,12 @@
         'tile_heart_enabled', 'tile_elapsed_enabled', 'tile_peloton_resistance_enabled', 'floating_transparency', 'tile_target_resistance_enabled', 'tile_target_peloton_resistance_enabled',
         'tile_target_cadence_enabled', 'tile_target_power_enabled', 'tile_peloton_offset_enabled', 'miles_unit', 'tile_target_speed_enabled', 'tile_inclination_enabled',
         'tile_target_incline_enabled', 'tile_target_zone_enabled', 'tile_ftp_enabled', 'tile_jouls_enabled', 'tile_remainingtimetrainprogramrow_enabled', 'tile_gears_enabled', 
-        'tile_elevation_enabled', 'tile_pace_enabled']
+        'tile_elevation_enabled', 'tile_pace_enabled',
+        'tile_speed_order', 'tile_cadence_order', 'tile_calories_order', 'tile_odometer_order', 'tile_resistance_order', 'tile_watt_order',
+        'tile_heart_order', 'tile_elapsed_order', 'tile_peloton_resistance_order', 'floating_transparency', 'tile_target_resistance_order', 'tile_target_peloton_resistance_order',
+        'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_inclination_order',
+        'tile_target_incline_order', 'tile_target_zone_order', 'tile_ftp_order', 'tile_jouls_order', 'tile_remainingtimetrainprogramrow_order', 'tile_gears_order', 
+        'tile_elevation_order', 'tile_pace_order']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -508,8 +513,68 @@
               if (msg.content[key] === false || msg.content[key] === 'false') {
                 $(".gears").hide();
               }              
-            }
+            } else if(key === 'tile_speed_order') {
+              $(".speed").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_cadence_order') {
+              $(".cadence").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_calories_order') {
+              $(".calories").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_odometer_order') {
+              $(".distance").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_resistance_order') {
+              $(".resistance").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_watt_order') {
+              $(".watt").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_heart_order') {
+              $(".heart").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_elapsed_order') {
+              $(".elapsed").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_peloton_resistance_order') {
+              $(".pelotonresistance").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_target_resistance_order') {
+              $(".resistance").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_pace_order') {
+              $(".pace").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_elevation_order') {
+              $(".elevation").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_gears_order') {
+              $(".gears").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_peloton_offset_order') {
+              $(".pelotonoffset").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_remainingtimetrainprogramrow_order') {
+              $(".rowremainingtime").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_inclination_order') {
+              $(".inclination").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_jouls_order') {
+              $(".jouls").attr('sort-order', msg.content[key]);
+            } else if(key === 'tile_ftp_order') {
+              $(".powerzone").attr('sort-order', msg.content[key]);              
+            } /*else if(key === 'tile_target_peloton_resistance_order') {
+              $(".pelotonresistance").attr('sort-order', msg.content[key]);              
+            } else if(key === 'tile_target_cadence_order') {
+              $(".cadence").attr('sort-order', msg.content[key]);              
+            } else if(key === 'tile_target_power_order') {
+              $(".watt").attr('sort-order', msg.content[key]);                          
+            } else if(key === 'tile_target_speed_order') {
+              $(".speed").attr('sort-order', msg.content[key]);              
+            } else if(key === 'tile_target_incline_order') {
+              $(".inclination").attr('sort-order', msg.content[key]);              
+            } else if(key === 'tile_target_zone_order') {
+              $(".powerzone").attr('sort-order', msg.content[key]);        
+            }*/
           }
+
+          // sort the table rows
+          var sortedTableRows = $('table tbody tr').get().sort(function (a, b) {
+            var aVal = +a.getAttribute('sort-order');
+            var bVal = +b.getAttribute('sort-order');
+            return (aVal > bVal) ? 1 : (aVal < bVal) ? -1 : 0;
+          });
+          
+          // substitute the table rows with the ordered one
+          $.each(sortedTableRows, function (i, e) {
+            $('table tbody').append(e);
+          });
           return msg.content;
         }
         return null;
