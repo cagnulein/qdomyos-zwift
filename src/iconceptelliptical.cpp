@@ -112,7 +112,6 @@ void iconceptelliptical::update() {
                             &iconceptelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
                 }
-                firstStateChanged = 1;
             }
         }
         this->setVirtualDeviceSetUp();
