@@ -5,6 +5,7 @@ name: CI
 env:
   DISPLAY: ':99'
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  PYTHONPATH: 'D:\a\qdomyos-zwift\qdomyos-zwift\python'
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -67,7 +68,6 @@ jobs:
         run: |
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python"
-            echo "PYTHONPATH=D:\a\qdomyos-zwift\qdomyos-zwift\python" >> $GITHUB_ENV
 
       - name: download python and paddleocr
         run: |
