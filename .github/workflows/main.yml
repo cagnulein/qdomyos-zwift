@@ -67,6 +67,7 @@ jobs:
         run: |
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python"
+            set PYTHONPATH="${PYTHONPATH}:D:\a\qdomyos-zwift\qdomyos-zwift\python"
 
       - name: download python and paddleocr
         run: |
@@ -77,6 +78,7 @@ jobs:
             cd python
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
             python get-pip.py
+            set PYTHONPATH="${PYTHONPATH}:D:\a\qdomyos-zwift\qdomyos-zwift\python"
             echo "." >> python310._pth
             echo "Lib\site-packages" >> python310._pth
             python -m ensurepip
