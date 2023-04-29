@@ -145,8 +145,7 @@ void bluetooth::nonBluetoothDeviceDiscovery() {
 
     if(nonBluetoothDevice) {
         this->stopDiscovery();
-        this->userTemplateManager->start(nonBluetoothDevice);
-        this->innerTemplateManager->start(nonBluetoothDevice);
+        this->signalBluetoothDeviceConnected(nonBluetoothDevice);
         emit this->deviceConnected(nonBluetoothDevice->bluetoothDevice);
         connect(nonBluetoothDevice, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
         this->connectedAndDiscovered();
