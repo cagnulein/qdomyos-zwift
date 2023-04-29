@@ -151,11 +151,19 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                     if (!sportType.toLower().contains(QStringLiteral("run"))) {
                         row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
                                     settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    } else {
+                        double speed = speedFromPace(Pace);
+                        row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i))) * 10.0)) / 10.0;
+                        row.forcespeed = 1;
                     }
                 } else {
                     if (!sportType.toLower().contains(QStringLiteral("run"))) {
                         row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
                                     settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    } else {
+                        double speed = speedFromPace(Pace);
+                        row.speed = (double)qFloor(((((60.0 / speed) * 60.0) * ((PowerLow - (((PowerLow - PowerHigh) / Duration) * i)))) * 10.0)) / 10.0;
+                        row.forcespeed = 1;
                     }
                 }
                 qDebug() << "TrainRow" << row.toString();

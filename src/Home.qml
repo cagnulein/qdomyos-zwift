@@ -21,6 +21,8 @@ HomeForm{
     Settings {
         id: settings
         property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_tile_background_color: "#303030"
     }
 
     MessageDialog {
@@ -155,7 +157,7 @@ HomeForm{
                     radius: 3
                     border.width: 1
                     border.color: "purple"
-                    color: Material.backgroundColor
+                    color: settings.theme_tile_background_color
                     id: rect
                 }
 
@@ -173,7 +175,7 @@ HomeForm{
                 Timer {
                     id: toggleIconTimer
                     interval: 500; running: true; repeat: true
-                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = true; }
+                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = settings.theme_tile_icon_enabled && !largeButton; }
                 }
 
                 Image {
@@ -185,7 +187,7 @@ HomeForm{
                     width: 48 * settings.ui_zoom / 100
                     height: 48 * settings.ui_zoom / 100
                     source: icon
-                    visible: !largeButton
+                    visible: settings.theme_tile_icon_enabled && !largeButton
                 }
                 Text {
                     objectName: "value"
@@ -284,7 +286,8 @@ HomeForm{
                 anchors.top: gridView.bottom
                 width: parent.width
                 height: parent.height / 2
-
+                // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
+                /*
                 Timer {
                     id: pauseTimer
                     interval: 1000; running: true; repeat: true
@@ -292,6 +295,7 @@ HomeForm{
                                         videoPlaybackHalf.play() :
                                         videoPlaybackHalf.pause()) } }
                 }
+                */
 
                 onVisibleChanged: {
                     if(visible === true) {

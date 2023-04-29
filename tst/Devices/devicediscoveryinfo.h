@@ -36,6 +36,7 @@ public :
 
     bool toorx_ftms = false;
     bool toorx_ftms_treadmill = false;
+    bool horizon_treadmill_force_ftms = false;
     bool snode_bike = false;
     bool fitplus_bike = false;
 
@@ -49,6 +50,8 @@ public :
     bool trixter_xdream_v1_bike = false;
 
     bool pafers_treadmill_bh_iboxster_plus = false;
+
+    bool iconcept_elliptical = false;
 
     /**
      * @brief Constructor.

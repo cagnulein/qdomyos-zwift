@@ -47,6 +47,12 @@ class lockscreen {
 
     // volume
     double getVolume();
+
+    // garmin
+    bool urlParser(const char *url);
+    void garminconnect_init();
+    int getHR();
+    int getFootCad();
 };
 
 #endif // LOCKSCREEN_H

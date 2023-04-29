@@ -32,7 +32,7 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptbike::deviceDiscovered");
-        discoveryAgent->start();
+        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
     }
 }
@@ -66,7 +66,7 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
             emit debug(QStringLiteral("Serial port service found"));
-            discoveryAgent->stop();
+            // discoveryAgent->stop(); // could lead to a crash?
 
             serialPortService = service;
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
@@ -231,16 +231,7 @@ void iconceptbike::readSocket() {
 #endif
             {
                 if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                    lockscreen h;
-                    long appleWatchHeartRate = h.heartRate();
-                    h.setKcal(KCal.value());
-                    h.setDistance(Distance.value());
-                    Heart = appleWatchHeartRate;
-                    qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                    update_hr_from_external();
                 }
             }
 

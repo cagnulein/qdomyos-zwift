@@ -8,6 +8,7 @@
 
 template <typename T>
 class BluetoothDeviceTestSuite : public testing::Test {
+
 protected:
     T typeParam;
 
@@ -43,7 +44,30 @@ protected:
      * @param bt
      * @param deviceInfo
      */
-    void tryDetectDevice(bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo) const;
+    void tryDetectDevice(bluetooth &bt, const QBluetoothDeviceInfo &deviceInfo) const;
+
+    /**
+     * @brief Tests device detection.
+     * @param testData The test data object for the device to be detected (or not).
+     * @param bt The object that will do the detecting.
+     * @param deviceInfo The device info for the device for which detection will be attempted.
+     * @param expectMatch Indicates if the device is expected to be detected (true) or not (false).
+     * @param restart Indicates if the bluetooth (bt) object should be restarted.
+     * @param failMessage The failure message if the device is not detected when expected to be, or detected when not expected to be.
+     */
+    void testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const QString& failMessage) const;
+
+    /**
+     * @brief Tests device detection.
+     * @param testData The test data object for the device to be detected (or not).
+     * @param bt The object that will do the detecting.
+     * @param deviceInfo The device info for the device for which detection will be attempted.
+     * @param expectMatch Indicates if the device is expected to be detected (true) or not (false).
+     * @param restart Indicates if the bluetooth (bt) object should be restarted.
+     * @param failMessage The failure message if the device is not detected when expected to be, or detected when not expected to be.
+     */
+    void testDeviceDetection(BluetoothDeviceTestData * testData, bluetooth& bt, const QBluetoothDeviceInfo& deviceInfo, bool expectMatch, bool restart, const std::string& failMessage) const;
+
 
     /**
      * @brief Gets the type name for the specified device object. Attempts to strip metadata from typeid result.
@@ -51,6 +75,14 @@ protected:
      * @return
      */
     std::string getTypeName(bluetoothdevice *b) const;
+
+    /**
+     * @brief Replaces {typeName} in the format string with the type name of the provided object
+     * @param format The format string. The text "{typeName}" will be replaced with type name of the provided object.
+     * @param b
+     * @return
+     */
+    std::string formatString(std::string format, bluetoothdevice *b) const;
 public:
     BluetoothDeviceTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 

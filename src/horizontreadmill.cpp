@@ -1273,11 +1273,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
-    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && (uint8_t)newValue.at(0) == 0x55 &&
-               (uint8_t)newValue.at(1) == 0xAA && (uint8_t)newValue.at(2) == 0x00 && (uint8_t)newValue.at(3) == 0x00 &&
-               (uint8_t)newValue.at(4) == 0x03 && (uint8_t)newValue.at(5) == 0x03 && (uint8_t)newValue.at(6) == 0x01 &&
-               (uint8_t)newValue.at(7) == 0x00 && (uint8_t)newValue.at(8) == 0xf0 && (uint8_t)newValue.at(9) == 0xe1 &&
-               (uint8_t)newValue.at(10) == 0x00) {
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 10 &&
+               (uint8_t)newValue.at(0) == 0x55 && (uint8_t)newValue.at(1) == 0xAA && (uint8_t)newValue.at(2) == 0x00 &&
+               (uint8_t)newValue.at(3) == 0x00 && (uint8_t)newValue.at(4) == 0x03 && (uint8_t)newValue.at(5) == 0x03 &&
+               (uint8_t)newValue.at(6) == 0x01 && (uint8_t)newValue.at(7) == 0x00 && (uint8_t)newValue.at(8) == 0xf0 &&
+               (uint8_t)newValue.at(9) == 0xe1 && (uint8_t)newValue.at(10) == 0x00) {
 
         Speed = 0;
         horizonPaused = true;
@@ -1602,17 +1602,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         } else {
 
             Heart = heart;

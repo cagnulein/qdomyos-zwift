@@ -560,20 +560,10 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
             uint8_t heart = ((uint8_t)value.at(18));
             if (heart == 0 || disable_hr_frommachinery) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 

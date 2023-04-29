@@ -107,6 +107,8 @@ class ftmsbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool powerForced = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

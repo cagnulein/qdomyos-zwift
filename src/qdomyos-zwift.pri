@@ -18,11 +18,18 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
+#	 win32: {
+#	     DEFINES += CHARTJS
+#		}
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
+
+#win32: CONFIG += webengine
+#unix:!android: CONFIG += webengine
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -32,6 +39,8 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
+
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -66,6 +75,9 @@ SOURCES += \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
+    $$PWD/handleurl.cpp \
+   $$PWD/iconceptelliptical.cpp \
+    $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
     trixterxdreamv1bike.cpp \
     trixterxdreamv1client.cpp \
@@ -73,6 +85,7 @@ SOURCES += \
     trixterxdreamv1settings.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -272,9 +285,13 @@ HEADERS += \
     trixterxdreamv1settings.h \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
+    $$PWD/handleurl.h \
+   $$PWD/iconceptelliptical.h \
+    $$PWD/localipaddress.h \
    $$PWD/pelotonbike.h \
    $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
+   $$PWD/ypooelliptical.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
@@ -686,6 +703,9 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/src/Garmin.java \
+    $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
@@ -752,6 +772,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -768,6 +789,7 @@ ios {
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
+	 QMAKE_ASSET_CATALOGS_BUILD_PATH = $$PWD/ios/ 
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
@@ -780,4 +802,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.25
+VERSION = 2.13.38
