@@ -51,6 +51,8 @@ class pelotonbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    QUdpSocket* pelotonOCRsocket = nullptr;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -59,7 +61,8 @@ class pelotonbike : public bike {
     void disconnected();
     void debug(QString string);
 
-  private slots:
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
 
     void changeInclinationRequested(double grade, double percentage);
 
