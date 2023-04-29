@@ -102,6 +102,7 @@ class ftmsbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool powerForced = false;
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

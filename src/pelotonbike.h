@@ -51,11 +51,13 @@ class pelotonbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    QUdpSocket* pelotonOCRsocket = nullptr;
   signals:
     void disconnected();
     void debug(QString string);
 
-  private slots:
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
 
     void changeInclinationRequested(double grade, double percentage);
 

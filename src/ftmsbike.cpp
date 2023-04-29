@@ -75,6 +75,8 @@ void ftmsbike::forcePower(int16_t requestPower) {
     write[2] = ((uint16_t)requestPower) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+
+    powerForced = true;
 }
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
@@ -119,6 +121,14 @@ void ftmsbike::update() {
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed);
+        }
+
+        if (powerForced && !autoResistance()) {
+            qDebug() << QStringLiteral("disabling resistance ") << QString::number(currentResistance().value());
+            powerForced = false;
+            requestPower = -1;
+            init();
+            forceResistance(currentResistance().value());
         }
 
         if (requestResistance != -1) {
