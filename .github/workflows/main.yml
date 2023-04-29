@@ -68,6 +68,8 @@ jobs:
         run: |
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python\Scripts"
             echo "##[add-path]D:\a\qdomyos-zwift\qdomyos-zwift\python"
+            $env:PYTHONPATH=’D:\a\qdomyos-zwift\qdomyos-zwift\python’
+            echo %PYTHONPATH%
 
       - name: download python and paddleocr
         run: |
@@ -77,6 +79,7 @@ jobs:
             del python-3.10.11-embed-amd64.zip
             cd python
             Invoke-WebRequest -URI https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
+            $env:PYTHONPATH=’D:\a\qdomyos-zwift\qdomyos-zwift\python’
             python get-pip.py
             echo "." >> python310._pth
             echo "Lib\site-packages" >> python310._pth
