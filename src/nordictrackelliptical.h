@@ -40,7 +40,7 @@ class nordictrackelliptical : public elliptical {
     bool connected();
 
     int pelotonToEllipticalResistance(int pelotonResistance);
-	bool inclinationAvailableByHardware() { return false; }
+    bool inclinationAvailableByHardware() { return false; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
