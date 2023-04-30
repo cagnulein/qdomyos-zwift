@@ -38,7 +38,7 @@ class pafersbike : public bike {
     pafersbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance);
     resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance()  { return max_resistance; }
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
   private:
