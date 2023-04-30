@@ -36,10 +36,10 @@ class mcfbike : public bike {
     Q_OBJECT
   public:
     mcfbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    resistance_t maxResistance() override { return max_resistance; }
-    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t resistanceFromPowerRequest(uint16_t power);
+    resistance_t maxResistance() { return max_resistance; }
+    bool connected();
 
   private:
     const resistance_t max_resistance = 14;
@@ -52,7 +52,7 @@ class mcfbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
 
