@@ -36,7 +36,8 @@ class soleelliptical : public elliptical {
     ~soleelliptical();
     bool connected();
 
-    double minStepInclination() { return 1; }  private:
+    double minStepInclination() { return 1; }
+  private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
