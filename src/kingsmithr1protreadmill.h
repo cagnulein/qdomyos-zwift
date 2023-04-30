@@ -39,10 +39,10 @@ class kingsmithr1protreadmill : public treadmill {
   public:
     kingsmithr1protreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
+    bool connected();
 
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
     double minStepSpeed() { return 0.1; }
 
   private:
