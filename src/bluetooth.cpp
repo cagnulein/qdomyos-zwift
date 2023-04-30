@@ -992,7 +992,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(
-                            QStringLiteral("KS-H"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                            QStringLiteral("KS-H")) ||
+                        b.name().toUpper().startsWith(
+                            QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
