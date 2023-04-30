@@ -704,7 +704,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
