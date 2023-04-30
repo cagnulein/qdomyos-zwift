@@ -53,7 +53,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected() override;
+    bool connected();
 
     virtual bool canStartStop() { return false; }
   private:
