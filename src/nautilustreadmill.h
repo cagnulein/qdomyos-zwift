@@ -32,10 +32,10 @@ class nautilustreadmill : public treadmill {
   public:
     nautilustreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
-    double minStepInclination() override;
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool connected();
+    double minStepInclination();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
     virtual bool canStartStop() { return false; }
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
