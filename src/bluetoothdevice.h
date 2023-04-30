@@ -690,7 +690,7 @@ class bluetoothdevice : public QObject {
 
   private:
     /**
-     * @brief virrualDeviveMode Indicates if the virtual device will be exposed via VirtualDevice().
+     * @brief Indicates if the virtual device will be exposed via VirtualDevice().
      * Normally PRIMARY, set this to ALTERNATIVE where the device is being used unusually, e.g.
      * for the Zwift Auto-Inclination Workaround.
      */
