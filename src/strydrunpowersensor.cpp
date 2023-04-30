@@ -550,7 +550,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &strydrunpowersensor::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &strydrunpowersensor::changeInclinationRequested);
-				this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService,
@@ -558,7 +558,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
                                               settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble());
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &strydrunpowersensor::changeInclinationRequested);
-				this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
             
         }

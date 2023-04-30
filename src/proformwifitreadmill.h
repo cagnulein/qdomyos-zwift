@@ -44,7 +44,7 @@ class proformwifitreadmill : public treadmill {
   public:
     proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain);
-    bool connected() override;
+    bool connected();
 
     virtual bool canStartStop() { return false; }
 
@@ -63,7 +63,6 @@ class proformwifitreadmill : public treadmill {
     uint16_t watts();
 
     QTimer *refresh;
-
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

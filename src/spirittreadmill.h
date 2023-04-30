@@ -27,12 +27,11 @@
 
 #include "treadmill.h"
 
-
 class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
-    bool connected() override;
+    bool connected();
 
 
 

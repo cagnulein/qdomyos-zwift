@@ -36,10 +36,10 @@ class stagesbike : public bike {
     Q_OBJECT
   public:
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    bool connected() override;
-    resistance_t maxResistance() override { return 100; }
-    bool ergManagedBySS2K() override { return true; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    bool connected();
+    resistance_t maxResistance() { return 100; }
+    bool ergManagedBySS2K() { return true; }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -48,7 +48,7 @@ class stagesbike : public bike {
     metric ResistanceFromFTMSAccessory;
     uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
     void startDiscover();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
 
@@ -81,7 +81,7 @@ class stagesbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(resistance_t res) override;
+    void resistanceFromFTMSAccessory(resistance_t res);
 
   private slots:
 

@@ -34,9 +34,9 @@ class soleelliptical : public elliptical {
     soleelliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                    uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~soleelliptical();
-    bool connected() override;
+    bool connected();
 
-	double minStepInclination() { return 1; }  private:
+    double minStepInclination() { return 1; }  private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
