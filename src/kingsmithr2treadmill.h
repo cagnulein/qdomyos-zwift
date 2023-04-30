@@ -40,7 +40,7 @@ class kingsmithr2treadmill : public treadmill {
   public:
     kingsmithr2treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected() override;
+    bool connected();
 
     virtual bool canStartStop() { return false; }
   private:
