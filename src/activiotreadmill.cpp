@@ -593,6 +593,7 @@ void activiotreadmill::serviceScanDone(void) {
         gattCommunicationChannelService->discoverDetails();
     } else {
         emit debug(QStringLiteral("error on find Service"));
+		m_control->disconnectFromDevice();
     }
 }
 

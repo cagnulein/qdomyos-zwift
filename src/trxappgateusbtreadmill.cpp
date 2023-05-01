@@ -586,6 +586,7 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
             if (gattCommunicationChannelService == nullptr) {
                 qDebug() << QStringLiteral("invalid service") << uuid;
+				m_control->disconnectFromDevice();
                 return;
             } else {
                 treadmill_type = TYPE::IRUNNING_2;
@@ -593,6 +594,7 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
             }
         } else {
             qDebug() << QStringLiteral("invalid service") << uuid;
+			m_control->disconnectFromDevice();
             return;
         }
     }

@@ -328,6 +328,7 @@ void nautilustreadmill::serviceScanDone(void) {
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
+			m_control->disconnectFromDevice();
             return;
         }
     }

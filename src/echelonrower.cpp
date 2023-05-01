@@ -423,8 +423,12 @@ void echelonrower::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &echelonrower::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &echelonrower::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void echelonrower::errorService(QLowEnergyService::ServiceError err) {

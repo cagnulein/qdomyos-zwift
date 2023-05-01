@@ -416,8 +416,12 @@ void keepbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0x00ff);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &keepbike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &keepbike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void keepbike::errorService(QLowEnergyService::ServiceError err) {

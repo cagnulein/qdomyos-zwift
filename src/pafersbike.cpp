@@ -372,8 +372,12 @@ void pafersbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("72d70001-501f-46f7-95f9-23846ee1aba3"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &pafersbike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &pafersbike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void pafersbike::errorService(QLowEnergyService::ServiceError err) {

@@ -1797,9 +1797,13 @@ void horizontreadmill::serviceScanDone(void) {
     QBluetoothUuid ftmsService((quint16)0x1826);
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &horizontreadmill::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (gattCommunicationChannelService.constLast()) {
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &horizontreadmill::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        } else {
+            m_control->disconnectFromDevice();
+        }
     }
 }
 

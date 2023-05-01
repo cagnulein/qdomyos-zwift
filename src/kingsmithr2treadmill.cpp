@@ -439,9 +439,13 @@ void kingsmithr2treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-            &kingsmithr2treadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+                &kingsmithr2treadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void kingsmithr2treadmill::errorService(QLowEnergyService::ServiceError err) {

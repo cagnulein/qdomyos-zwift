@@ -506,9 +506,14 @@ void stagesbike::serviceScanDone(void) {
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &stagesbike::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (gattCommunicationChannelService.constLast()) {
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &stagesbike::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        } else {
+            m_control->disconnectFromDevice();
+            return;
+        }
     }
 }
 

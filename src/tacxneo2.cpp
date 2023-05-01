@@ -490,9 +490,14 @@ void tacxneo2::serviceScanDone(void) {
     auto services = m_control->services();
     for (const QBluetoothUuid &s : services) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &tacxneo2::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (gattCommunicationChannelService.constLast()) {
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &tacxneo2::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        } else {
+            m_control->disconnectFromDevice();
+            return;
+        }
     }
 }
 

@@ -326,6 +326,7 @@ void nautilusbike::serviceScanDone(void) {
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
             qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+			m_control->disconnectFromDevice();
             return;
         }
     }

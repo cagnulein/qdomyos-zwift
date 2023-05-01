@@ -606,10 +606,14 @@ void renphobike::serviceScanDone(void) {
 #endif
         {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
+			if (gattCommunicationChannelService.constLast()) {
+            	connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
                     SLOT(stateChanged(QLowEnergyService::ServiceState)));
-            gattCommunicationChannelService.last()->discoverDetails();
-        }
+            	gattCommunicationChannelService.last()->discoverDetails();
+	        } else {
+    	        m_control->disconnectFromDevice();
+        	    return;
+	        }
     }
 }
 

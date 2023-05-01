@@ -412,6 +412,7 @@ void nautiluselliptical::serviceScanDone(void) {
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (gattCommunicationChannelService == nullptr) {
             qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+			m_control->disconnectFromDevice();
             return;
         }
     }

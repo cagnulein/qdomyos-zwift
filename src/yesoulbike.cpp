@@ -295,8 +295,12 @@ void yesoulbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFFF0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &yesoulbike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &yesoulbike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void yesoulbike::errorService(QLowEnergyService::ServiceError err) {

@@ -404,8 +404,13 @@ void skandikawiribike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+                &skandikawiribike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void skandikawiribike::errorService(QLowEnergyService::ServiceError err) {

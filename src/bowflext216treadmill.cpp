@@ -387,6 +387,7 @@ void bowflext216treadmill::serviceScanDone(void) {
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
             if (gattCommunicationChannelService == nullptr) {
                 qDebug() << "WRONG SERVICE";
+				m_control->disconnectFromDevice();
                 return;
             }
         }

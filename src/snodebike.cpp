@@ -443,8 +443,12 @@ void snodebike::serviceScanDone() {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &snodebike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &snodebike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void snodebike::errorService(QLowEnergyService::ServiceError err) {

@@ -466,8 +466,12 @@ void schwinnic4bike::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &schwinnic4bike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &schwinnic4bike::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void schwinnic4bike::errorService(QLowEnergyService::ServiceError err) {

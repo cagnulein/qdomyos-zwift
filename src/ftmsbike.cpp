@@ -803,9 +803,14 @@ void ftmsbike::serviceScanDone(void) {
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         if ((JK_fitness_577 && s == ftmsService) || !JK_fitness_577) {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &ftmsbike::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+			if (gattCommunicationChannelService.constLast()) {
+	            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+	                    &ftmsbike::stateChanged);
+	            gattCommunicationChannelService.constLast()->discoverDetails();
+	        } else {
+	            m_control->disconnectFromDevice();
+	            return;
+	        }
         }
     }
 }
