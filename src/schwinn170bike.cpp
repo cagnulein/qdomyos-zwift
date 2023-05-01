@@ -399,7 +399,7 @@ void schwinn170bike::serviceScanDone(void) {
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        if(gattCommunicationChannelService)
+        if(gattCommunicationChannelService.constLast()) {
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &schwinn170bike::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();

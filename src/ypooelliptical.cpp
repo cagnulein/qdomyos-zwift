@@ -582,7 +582,7 @@ void ypooelliptical::serviceScanDone(void) {
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        if(gattCommunicationChannelService.constLast()) {}
+        if(gattCommunicationChannelService.constLast()) {
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ypooelliptical::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();

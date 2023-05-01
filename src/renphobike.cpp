@@ -614,6 +614,7 @@ void renphobike::serviceScanDone(void) {
     	        m_control->disconnectFromDevice();
         	    return;
 	        }
+        }
     }
 }
 
