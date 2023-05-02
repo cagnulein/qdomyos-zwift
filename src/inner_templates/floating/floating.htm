@@ -531,8 +531,6 @@
               $(".elapsed").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_peloton_resistance_order') {
               $(".pelotonresistance").attr('sort-order', msg.content[key]);
-            } else if(key === 'tile_target_resistance_order') {
-              $(".resistance").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_pace_order') {
               $(".pace").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_elevation_order') {
@@ -561,6 +559,8 @@
               $(".inclination").attr('sort-order', msg.content[key]);              
             } else if(key === 'tile_target_zone_order') {
               $(".powerzone").attr('sort-order', msg.content[key]);        
+				} else if(key === 'tile_target_resistance_order') {
+				  $(".resistance").attr('sort-order', msg.content[key]);
             }*/
           }
 

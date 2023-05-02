@@ -63,7 +63,8 @@ class truetreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
-Q_SIGNALS:
+    bool assault_treadmill = false;
+  Q_SIGNALS:
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);

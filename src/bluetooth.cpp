@@ -996,7 +996,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(
-                            QStringLiteral("KS-H"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                            QStringLiteral("KS-H")) ||
+                        b.name().toUpper().startsWith(
+                            QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1039,6 +1041,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination)) &&
                        !trueTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1264,6 +1267,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DHZ-")) ||   // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
+                        (b.name().toUpper().startsWith("YS_G1_")) || // Yesoul S3
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||

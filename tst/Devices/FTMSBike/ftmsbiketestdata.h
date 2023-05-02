@@ -45,6 +45,7 @@ public:
         this->addDeviceName("DHZ-", comparison::StartsWithIgnoreCase); // JK fitness 577
         this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase); // MKSM3600036
         this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase);// Yesoul C1H
+        this->addDeviceName("YS_G1_", comparison::StartsWithIgnoreCase);// Yesoul S3
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
