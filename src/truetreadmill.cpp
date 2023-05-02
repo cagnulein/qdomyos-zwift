@@ -148,7 +148,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     Q_UNUSED(characteristic);
     QByteArray avalue = newValue;
 
-    emit debug(QStringLiteral(" << ") + QString::number(avalue.length()) + QStringLiteral(" ") + avalue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + QString::number(newValue.length()) + QStringLiteral(" ") + newValue.toHex(' '));
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -171,30 +171,39 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     double speed = 0;
 
-    if (avalue.length() == 16) {
-        uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
-        speed = ((double)convertedData) / 100.0;
-        double incline = ((double)(avalue.at(14))) / 10.0;
-
-        if (Inclination.value() != incline) {
-
-            emit inclinationChanged(0, incline);
+    if (assault_treadmill) {
+        if (avalue.length() == 16) {
+            uint16_t convertedData = (avalue.at(6) << 8) | ((uint8_t)avalue.at(5));
+            speed = ((double)convertedData) / 100.0;
+        } else {
+            return;
         }
-        Inclination = incline;
-        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+    } else {
+        if (avalue.length() == 16) {
+            uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
+            speed = ((double)convertedData) / 100.0;
+            double incline = ((double)(avalue.at(14))) / 10.0;
 
-    } else if (avalue.length() == 19) {
-        uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
-        speed = ((double)convertedData) / 100.0;
-    } else if (avalue.length() == 4) {
-        double incline = ((double)(avalue.at(2))) / 10.0;
-        if (Inclination.value() != incline) {
+            if (Inclination.value() != incline) {
 
-            emit inclinationChanged(0, incline);
+                emit inclinationChanged(0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+
+        } else if (avalue.length() == 19) {
+            uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
+            speed = ((double)convertedData) / 100.0;
+        } else if (avalue.length() == 4) {
+            double incline = ((double)(avalue.at(2))) / 10.0;
+            if (Inclination.value() != incline) {
+
+                emit inclinationChanged(0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+            return;
         }
-        Inclination = incline;
-        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-        return;
     }
 
     if (!firstCharacteristicChanged) {
@@ -306,6 +315,10 @@ void truetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
 
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL "))) {
+            assault_treadmill = true;
+            qDebug() << QStringLiteral("ASSAULT TREADMILL enabled!");
+        }
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &truetreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &truetreadmill::serviceScanDone);
