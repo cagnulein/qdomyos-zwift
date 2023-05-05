@@ -63,6 +63,7 @@ class iconceptbike : public bike {
     uint16_t GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
+    double GetWattFromPacket(const QByteArray &packet);
 
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
