@@ -196,9 +196,9 @@ void iconceptbike::readSocket() {
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
-                m_watt = GetSpeedFromPacket(line) * 0.24 * (1.0 + (Resistance.value() / 20.0));
+                m_watt = GetWattFromPacket(line);
                 if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = GetSpeedFromPacket(line);
+                    Speed = GetSpeedFromPacket(line) / 2.0;
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
@@ -267,6 +267,11 @@ void iconceptbike::readSocket() {
 
 double iconceptbike::GetSpeedFromPacket(const QByteArray &packet) {
     double convertedData = ((double)(((double)((uint8_t)packet.at(9))) * 256) + ((double)packet.at(10))) / 100.0;
+    return convertedData;
+}
+
+double iconceptbike::GetWattFromPacket(const QByteArray &packet) {
+    double convertedData = ((double)(((double)((uint8_t)packet.at(14))) * 256) + ((double)packet.at(15)));
     return convertedData;
 }
 
