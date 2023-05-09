@@ -805,6 +805,8 @@ void horizontreadmill::btinit() {
     initDone = true;
 }
 
+float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
+
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -838,9 +840,10 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            bool minSpeed = fabs(requestSpeed - currentSpeed().value()) >= minStepSpeed();
+            bool minSpeed = fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= minStepSpeed();
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
-            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed;
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                     << float_one_point_round(currentSpeed().value());
             if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
