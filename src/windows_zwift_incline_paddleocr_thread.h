@@ -17,7 +17,7 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-class windows_zwift_incline_paddleocr_thread {
+class windows_zwift_incline_paddleocr_thread : public QThread {
     Q_OBJECT
 
   public:
