@@ -10,6 +10,7 @@
 #include <QThread>
 #include <chrono>
 #include <math.h>
+#include "localipaddress.h"
 
 using namespace std::chrono_literals;
 
@@ -23,6 +24,12 @@ pelotonbike::pelotonbike(bool noWriteResistance, bool noHeartService) {
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &pelotonbike::update);
     refresh->start(200ms);    
+
+    pelotonOCRsocket = new QUdpSocket(this);
+    bool result = pelotonOCRsocket->bind(QHostAddress::AnyIPv4, 8003);
+    qDebug() << result;
+    pelotonOCRprocessPendingDatagrams();
+    connect(pelotonOCRsocket, SIGNAL(readyRead()), this, SLOT(pelotonOCRprocessPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualBike) {
@@ -42,6 +49,41 @@ bool pelotonbike::inclinationAvailableByHardware() { return true; }
 
 void pelotonbike::forceResistance(double resistance) {}
 
+void pelotonbike::pelotonOCRprocessPendingDatagrams() {
+    qDebug() << "in !";
+    QHostAddress sender;
+    QSettings settings;
+    uint16_t port;
+    while (pelotonOCRsocket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(pelotonOCRsocket->pendingDatagramSize());
+        pelotonOCRsocket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
+        qDebug() << "PelotonOCR Message From :: " << sender.toString();
+        qDebug() << "PelotonOCR Port From :: " << port;
+        qDebug() << "PelotonOCR Message :: " << datagram;
+
+        QString s = datagram;
+        QStringList metrics = s.split(";");
+        if(s.length() >= 5) {
+            m_watt = metrics.at(1).toDouble();
+            qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
+            Cadence = metrics.at(2).toDouble();
+            qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
+            Resistance = metrics.at(3).toDouble();
+            qDebug() << QStringLiteral("Current Resistance: ") + QString::number(Resistance.value());
+            Speed = metrics.at(4).toDouble();
+            qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
+        }
+
+
+        QString url = "http://" + localipaddress::getIP(sender).toString() + ":" +
+                      QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) +
+                      "/floating/floating.htm";
+        int r = pelotonOCRsocket->writeDatagram(QByteArray(url.toLatin1()), sender, 8003);
+        qDebug() << "url floating" << url << r;
+    }
+}
+
 void pelotonbike::update() {
 
     QSettings settings;
@@ -51,13 +93,6 @@ void pelotonbike::update() {
         initDone = true;
         emit connectedAndDiscovered();
     }
-
-#ifdef Q_OS_ANDROID
-    QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
-        "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
-    QString t = text.toString();
-    qDebug() << "OCR" << t;
-#endif
 
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -85,10 +120,6 @@ void pelotonbike::update() {
         }
     }
 
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
