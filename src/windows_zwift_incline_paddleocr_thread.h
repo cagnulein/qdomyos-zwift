@@ -1,0 +1,34 @@
+#ifndef WINDOWS_ZWIFT_INCLINE_PADDLEOCR_THREAD_H
+#define WINDOWS_ZWIFT_INCLINE_PADDLEOCR_THREAD_H
+#include <QtCore/qbytearray.h>
+
+#ifndef Q_OS_ANDROID
+#include <QtCore/qcoreapplication.h>
+#else
+#include <QtGui/qguiapplication.h>
+#endif
+#include "bluetoothdevice.h"
+#include <QDateTime>
+#include <QObject>
+#include <QString>
+#include <QThread>
+#include <QtCore/qlist.h>
+#include <QtCore/qmutex.h>
+#include <QtCore/qscopedpointer.h>
+#include <QtCore/qtimer.h>
+
+class windows_zwift_incline_paddleocr_thread {
+    Q_OBJECT
+
+  public:
+    explicit windows_zwift_incline_paddleocr_thread(bluetoothdevice *device);
+
+    void run();
+
+  private:
+    double inclination = 0;
+    bluetoothdevice *device;
+    QString runPython(QString command);
+};
+
+#endif // WINDOWS_ZWIFT_INCLINE_PADDLEOCR_THREAD_H
