@@ -855,7 +855,7 @@ void horizontreadmill::update() {
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
-            else
+            else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination*2) / 2.0;
                 qDebug() << "requestInclination after rounding=" << requestInclination;
