@@ -21,11 +21,9 @@ windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(b
 void windows_zwift_incline_paddleocr_thread::run() {
     while (1) {
         QString ret = runPython("zwift-incline.py");
-        if (!ret.toUpper().contains("NONE")) {
-            if (device->deviceType() == bluetoothdevice::TREADMILL)
-                ((treadmill *)device)->changeInclination(ret.toFloat(), ret.toFloat());
-            else if (device->deviceType() == bluetoothdevice::ELLIPTICAL)
-                ((elliptical *)device)->changeInclination(ret.toFloat(), ret.toFloat());
+        if (!ret.toUpper().contains("NONE") && ret.length() > 0) {
+            qDebug() << "windows_zwift_incline_paddleocr_thread onInclination" << ret.toFloat();
+            emit onInclination(ret.toFloat(), ret.toFloat());
         }
     }
 }
