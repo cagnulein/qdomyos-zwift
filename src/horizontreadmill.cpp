@@ -804,6 +804,8 @@ void horizontreadmill::btinit() {
     initDone = true;
 }
 
+float horizontreadmill::float_one_point_round(float value) { return ((float)((int)(value * 10))) / 10; }
+
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -837,9 +839,10 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            bool minSpeed = fabs(requestSpeed - currentSpeed().value()) >= minStepSpeed();
+            bool minSpeed = fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= minStepSpeed();
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
-            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed;
+            qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
+                     << float_one_point_round(currentSpeed().value());
             if (requestSpeed != currentSpeed().value() && minSpeed && requestSpeed >= 0 && requestSpeed <= 22 &&
                 forceSpeedNeed) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -851,9 +854,10 @@ void horizontreadmill::update() {
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
-            else if (((int)requestInclination) != requestInclination) { // it has decimal
+            else {
                 // the treadmill accepts only .5 steps
-                requestInclination = floor(requestInclination) + 0.5;
+                requestInclination = std::llround(requestInclination*2) / 2.0;
+                qDebug() << "requestInclination after rounding=" << requestInclination;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
