@@ -647,8 +647,9 @@ const QString QZSettings::treadmill_simulate_inclination_with_speed =
 const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
 const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
+const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
 
-const uint32_t allSettingsCount = 541;
+const uint32_t allSettingsCount = 542;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1195,6 +1196,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
     {QZSettings::gears_gain, QZSettings::default_gears_gain},
+    {QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

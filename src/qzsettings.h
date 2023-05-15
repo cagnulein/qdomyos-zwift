@@ -1818,6 +1818,9 @@ class QZSettings {
     static const QString gears_gain;
     static constexpr double default_gears_gain = 1.0;
 
+    static const QString proform_treadmill_8_0;
+    static constexpr bool default_proform_treadmill_8_0 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
