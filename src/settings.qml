@@ -768,6 +768,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.13.44
             property double gears_gain: 1.0
             property double gears_current_value_f: 0
+
+            // from version 2.13.45
+            property bool proform_treadmill_8_0: false
         }
 
         function paddingZeros(text, limit) {
@@ -5141,6 +5144,21 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
+
+                        SwitchDelegate {
+                            text: qsTr("Proform 8.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_8_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_8_0 = checked; window.settings_restart_to_apply = true; }
+                        }
+
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
