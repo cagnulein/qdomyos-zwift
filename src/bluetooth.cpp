@@ -46,12 +46,14 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
             emit searchingStop();
         }
+        // this signal is not associated to anything in this moment, since the homeform is not loaded yet
         this->signalBluetoothDeviceConnected(pelotonBike);
     }
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
-    this->startTemplateManagers(schwinnIC4Bike);
+    // this signal is not associated to anything in this moment, since the homeform is not loaded yet
+    this->signalBluetoothDeviceConnected(schwinnIC4Bike);
     connectedAndDiscovered();
     return;
 #endif
@@ -88,38 +90,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
 #endif
-
-#ifdef Q_OS_IOS
-        // Schwinn bikes on iOS allows to be connected to several instances, so in this way
-        // QZ will remember the address and will try to connect to it
-        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name)
-                        .toString();
-        qDebug() << "last device name (IC BIKE workaround)" << b;
-        if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
-            (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
-
-            this->stopDiscovery();
-            schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
-            // stateFileRead();
-            QBluetoothDeviceInfo bt;
-            bt.setDeviceUuid(QBluetoothUuid(
-                settings
-                    .value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
-                    .toString()));
-            // set name method doesn't exist
-            emit(deviceConnected(bt));
-            connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-            // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
-            connect(schwinnIC4Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-            // connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-            // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-            qDebug() << "UUID" << bt.deviceUuid();
-            schwinnIC4Bike->deviceDiscovered(bt);
-            this->signalBluetoothDeviceConnected(schwinnIC4Bike);
-            qDebug() << "connecting directly";
-        }
-#endif
-
         this->startDiscovery();
     }
 }
@@ -561,6 +531,37 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
     }
+
+#ifdef Q_OS_IOS
+    // Schwinn bikes on iOS allows to be connected to several instances, so in this way
+    // QZ will remember the address and will try to connect to it
+    QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name)
+                    .toString();
+    qDebug() << "last device name (IC BIKE workaround)" << b;
+    if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
+        (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
+
+        this->stopDiscovery();
+        schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
+        // stateFileRead();
+        QBluetoothDeviceInfo bt;
+        bt.setDeviceUuid(QBluetoothUuid(
+            settings
+                .value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
+                .toString()));
+        // set name method doesn't exist
+        emit(deviceConnected(bt));
+        connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+        // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(schwinnIC4Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        // connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+        // connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+        qDebug() << "UUID" << bt.deviceUuid();
+        schwinnIC4Bike->deviceDiscovered(bt);
+        this->signalBluetoothDeviceConnected(schwinnIC4Bike);
+        qDebug() << "connecting directly";
+    }
+#endif
 
     QVector<quint16> ids = device.manufacturerIds();
     qDebug() << "manufacturerData";
@@ -1074,7 +1075,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(
-                            QStringLiteral("KS-H"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                            QStringLiteral("KS-H")) ||
+                        b.name().toUpper().startsWith(
+                            QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1117,6 +1120,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination)) &&
                        !trueTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1342,6 +1346,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DHZ-")) ||   // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
+                        (b.name().toUpper().startsWith("YS_G1_")) || // Yesoul S3
                         (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||

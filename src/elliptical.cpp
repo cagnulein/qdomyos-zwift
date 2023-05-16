@@ -61,8 +61,8 @@ void elliptical::changeResistance(resistance_t resistance) {
     requestResistance = resistance + gears();
     RequestedResistance = resistance + gears();
 }
-int8_t elliptical::gears() { return m_gears; }
-void elliptical::setGears(int8_t gears) {
+double elliptical::gears() { return m_gears; }
+void elliptical::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;

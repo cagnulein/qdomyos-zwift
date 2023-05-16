@@ -80,6 +80,8 @@ class tacxneo2 : public bike {
     uint16_t oldCrankRevs = 0;
     uint16_t CrankRevsRead = 0;
 
+    double lastGearValue = -1;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

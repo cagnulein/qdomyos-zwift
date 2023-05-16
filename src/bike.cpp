@@ -77,8 +77,8 @@ void bike::changePower(int32_t power) {
     }
 }
 
-int8_t bike::gears() { return m_gears; }
-void bike::setGears(int8_t gears) {
+double bike::gears() { return m_gears; }
+void bike::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;

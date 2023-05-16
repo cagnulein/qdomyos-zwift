@@ -162,15 +162,13 @@ void domyoselliptical::update() {
         btinit_changyow(false);
         // else
         //    btinit_telink(false);
-    } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
-               gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotifyCharacteristic.isValid() && initDone) {
+    } else if (initDone) {
 
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!firstVirtual && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =

@@ -642,7 +642,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.12.43
             property bool proform_hybrid_trainer_xt: false
             property bool gears_restore_value: false
-            property int gears_current_value: 0
+            property int gears_current_value: 0 // unused
 
             // from version 2.12.44
             property bool tile_pace_last500m_enabled: true
@@ -759,6 +759,18 @@ import QtQuick.Dialogs 1.0
             property bool theme_tile_icon_enabled: true
             property string theme_tile_background_color: "#303030"
             property string theme_status_bar_background_color: "#800080"
+
+            // from version 2.13.43
+            property string theme_background_color: "#303030"
+            property bool theme_tile_shadow_enabled: true
+            property string theme_tile_shadow_color: "#9C27B0"
+
+            // from version 2.13.44
+            property double gears_gain: 1.0
+            property double gears_current_value_f: 0
+
+            // from version 2.13.45
+            property bool proform_treadmill_8_0: false
 
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -2100,6 +2112,42 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsGainTextField
+                            text: settings.gears_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                 }
 
                 Label {
@@ -3430,16 +3478,16 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.theme_tile_icon_enabled = checked
                             }
+
                             RowLayout {
                                 spacing: 10
                                 Label {
-                                    id: labelBackgroundColor
-                                    text: qsTr("Tiles Background Color:")
+                                    text: qsTr("Background Color:")
                                     Layout.fillWidth: true
                                 }
                                 TextField {
                                       id: backgroundColorTextField
-                                      text: settings.theme_tile_background_color
+                                      text: settings.theme_background_color
                                       Layout.fillHeight: false
                                       Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                       onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
@@ -3451,13 +3499,94 @@ import QtQuick.Dialogs 1.0
                                     id: okBackgroundColor
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.theme_tile_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
+                                    onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
                                 }
                                 ColorDialog {
                                     id: backgroundColorDialog
                                     title: "Please choose a color"
                                     onAccepted: {
                                         backgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelBackgroundColor
+                                    text: qsTr("Tiles Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: tilebackgroundColorTextField
+                                      text: settings.theme_tile_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: oktileBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: tilebackgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        tilebackgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Tiles Shadow")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.theme_tile_shadow_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.theme_tile_shadow_enabled = checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Tiles Shadow Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: tileShadowColorTextField
+                                      text: settings.theme_tile_shadow_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: oktileShadowColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: tileShadowColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        tileShadowColorTextField.text = this.color
                                         visible = false;
                                     }
                                     onRejected: visible = false;
@@ -4850,7 +4979,7 @@ import QtQuick.Dialogs 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_speed = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -4888,7 +5017,7 @@ import QtQuick.Dialogs 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_incline = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -5185,6 +5314,21 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
+
+                        SwitchDelegate {
+                            text: qsTr("Proform 8.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_8_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_8_0 = checked; window.settings_restart_to_apply = true; }
+                        }
+
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")

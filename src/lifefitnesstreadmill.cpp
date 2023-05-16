@@ -155,7 +155,7 @@ void lifefitnesstreadmill::update() {
                 requestInclination = 0;
             else {
                 // the treadmill accepts only .5 steps
-                requestInclination = floor(requestInclination) + 0.5;
+                requestInclination = std::llround(requestInclination*2) / 2.0;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
