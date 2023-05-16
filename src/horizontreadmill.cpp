@@ -855,9 +855,10 @@ void horizontreadmill::update() {
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < 0)
                 requestInclination = 0;
-            else if (((int)requestInclination) != requestInclination) { // it has decimal
+            else {
                 // the treadmill accepts only .5 steps
-                requestInclination = floor(requestInclination) + 0.5;
+                requestInclination = std::llround(requestInclination*2) / 2.0;
+                qDebug() << "requestInclination after rounding=" << requestInclination;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {

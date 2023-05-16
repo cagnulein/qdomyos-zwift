@@ -579,7 +579,7 @@ const QString QZSettings::sportstech_sx600 = QStringLiteral("sportstech_sx600");
 const QString QZSettings::sole_elliptical_inclination = QStringLiteral("sole_elliptical_inclination");
 const QString QZSettings::proform_hybrid_trainer_xt = QStringLiteral("proform_hybrid_trainer_xt");
 const QString QZSettings::gears_restore_value = QStringLiteral("gears_restore_value");
-const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value");
+const QString QZSettings::gears_current_value = QStringLiteral("gears_current_value_f");
 const QString QZSettings::tile_pace_last500m_enabled = QStringLiteral("tile_pace_last500m_enabled");
 const QString QZSettings::tile_pace_last500m_order = QStringLiteral("tile_pace_last500m_order");
 const QString QZSettings::treadmill_difficulty_gain_or_offset = QStringLiteral("treadmill_difficulty_gain_or_offset");
@@ -646,8 +646,10 @@ const QString QZSettings::treadmill_simulate_inclination_with_speed =
     QStringLiteral("treadmill_simulate_inclination_with_speed");
 const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
+const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
+const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
 
-const uint32_t allSettingsCount = 540;
+const uint32_t allSettingsCount = 542;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1127,7 +1129,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination},
     {QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt},
     {QZSettings::gears_restore_value, QZSettings::default_gears_restore_value},
-    {QZSettings::gears_current_value, QZSettings::gears_current_value},
+    {QZSettings::gears_current_value, QZSettings::default_gears_current_value},
     {QZSettings::tile_pace_last500m_enabled, QZSettings::default_tile_pace_last500m_enabled},
     {QZSettings::tile_pace_last500m_order, QZSettings::default_tile_pace_last500m_order},
     {QZSettings::treadmill_difficulty_gain_or_offset, QZSettings::default_treadmill_difficulty_gain_or_offset},
@@ -1193,6 +1195,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::garmin_companion, QZSettings::default_garmin_companion},
     {QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr},
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
+    {QZSettings::gears_gain, QZSettings::default_gears_gain},
+    {QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

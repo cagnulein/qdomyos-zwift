@@ -642,7 +642,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.12.43
             property bool proform_hybrid_trainer_xt: false
             property bool gears_restore_value: false
-            property int gears_current_value: 0
+            property int gears_current_value: 0 // unused
 
             // from version 2.12.44
             property bool tile_pace_last500m_enabled: true
@@ -764,6 +764,13 @@ import QtQuick.Dialogs 1.0
             property string theme_background_color: "#303030"
             property bool theme_tile_shadow_enabled: true
             property string theme_tile_shadow_color: "#9C27B0"
+
+            // from version 2.13.44
+            property double gears_gain: 1.0
+            property double gears_current_value_f: 0
+
+            // from version 2.13.45
+            property bool proform_treadmill_8_0: false
         }
 
         function paddingZeros(text, limit) {
@@ -2083,6 +2090,42 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsGainTextField
+                            text: settings.gears_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -4766,7 +4809,7 @@ import QtQuick.Dialogs 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_speed = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -4804,7 +4847,7 @@ import QtQuick.Dialogs 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_incline = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -5101,6 +5144,21 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
+
+                        SwitchDelegate {
+                            text: qsTr("Proform 8.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_8_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_8_0 = checked; window.settings_restart_to_apply = true; }
+                        }
+
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
