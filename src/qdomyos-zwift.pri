@@ -77,6 +77,7 @@ SOURCES += \
    $$PWD/apexbike.cpp \
     $$PWD/handleurl.cpp \
    $$PWD/iconceptelliptical.cpp \
+   $$PWD/kettlertreadmill.cpp \
     $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
    $$PWD/schwinn170bike.cpp \
@@ -279,6 +280,7 @@ HEADERS += \
     $$PWD/discoveryoptions.h \
     $$PWD/handleurl.h \
    $$PWD/iconceptelliptical.h \
+   $$PWD/kettlertreadmill.h \
     $$PWD/localipaddress.h \
    $$PWD/pelotonbike.h \
    $$PWD/schwinn170bike.h \
