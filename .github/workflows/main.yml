@@ -58,7 +58,7 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
-			 arch: win64_msvc2019_64
+          arch: win64_msvc2019_64
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
 
