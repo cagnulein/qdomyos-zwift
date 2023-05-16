@@ -651,6 +651,8 @@ void trainprogram::scheduler() {
             static windows_zwift_incline_paddleocr_thread *windows_zwift_ocr_thread = nullptr;
             if (!windows_zwift_ocr_thread) {
                 windows_zwift_ocr_thread = new windows_zwift_incline_paddleocr_thread(bluetoothManager->device());
+                connect(windows_zwift_ocr_thread, &windows_zwift_incline_paddleocr_thread::debug, bluetoothManager,
+                        &bluetooth::debug);
                 connect(windows_zwift_ocr_thread, &windows_zwift_incline_paddleocr_thread::onInclination, this,
                         &trainprogram::changeInclination);
                 windows_zwift_ocr_thread->start();

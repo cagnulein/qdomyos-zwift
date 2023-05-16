@@ -15,14 +15,14 @@ using namespace std::chrono_literals;
 
 windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(bluetoothdevice *device) {
     this->device = device;
-    qDebug() << "windows_zwift_incline_paddleocr_thread created!";
+    emit debug("windows_zwift_incline_paddleocr_thread created!");
 }
 
 void windows_zwift_incline_paddleocr_thread::run() {
     while (1) {
         QString ret = runPython("zwift-incline.py");
         if (!ret.toUpper().contains("NONE") && ret.length() > 0) {
-            qDebug() << "windows_zwift_incline_paddleocr_thread onInclination" << ret.toFloat();
+            emit debug("windows_zwift_incline_paddleocr_thread onInclination " + QString::number(ret.toFloat()));
             emit onInclination(ret.toFloat(), ret.toFloat());
         }
     }
@@ -38,8 +38,8 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
     QString out = process.readAllStandardOutput();
     QString err = process.readAllStandardError();
 
-    qDebug() << "python << OUT" << out;
-    qDebug() << "python << ERR" << err;
+    emit debug("python << OUT " + out);
+    emit debug("python << ERR " + err);
 #else
     QString out;
 #endif

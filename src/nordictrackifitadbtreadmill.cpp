@@ -28,15 +28,15 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
 QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString command) {
 #ifdef Q_OS_WINDOWS
     QProcess process;
-    qDebug() << "adb >> " << command;
+    emit debug("adb >> " + command);
     process.start("adb/adb.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
 
     QString out = process.readAllStandardOutput();
     QString err = process.readAllStandardError();
 
-    qDebug() << "adb << OUT" << out;
-    qDebug() << "adb << ERR" << err;
+    emit debug("adb << OUT " + out);
+    emit debug("adb << ERR" + err);
 #else
     QString out;
 #endif
@@ -52,10 +52,10 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         foreach (QString line, lines) {
             if (line.contains("Changed KPH")) {
-                qDebug() << line;
+                emit debug(line);
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
-                qDebug() << line;
+                emit debug(line);
                 inclination = line.split(' ').last().toDouble();
             }
         }
@@ -63,9 +63,9 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
-        qDebug() << "adbLogCat ERROR << " << output;
+        emit debug("adbLogCat ERROR << " + output);
     });
-    qDebug() << "adbLogCat >> " << command;
+    emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
 #endif
@@ -109,6 +109,8 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::debug, this,
+                &nordictrackifitadbtreadmill::debug);
         logcatAdbThread->start();
     }
 #endif

@@ -37,6 +37,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 
   signals:
     void onSpeedInclination(double speed, double inclination);
+    void debug(QString message);
 
   private:
     double speed = 0;

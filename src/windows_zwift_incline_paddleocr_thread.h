@@ -27,6 +27,7 @@ class windows_zwift_incline_paddleocr_thread : public QThread {
 
   signals:
     void onInclination(double inclination, double grade);
+    void debug(QString string);
 
   private:
     double inclination = 0;
