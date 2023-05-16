@@ -44,11 +44,11 @@ void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
     if (wait_for_response) {
         connect(gattPowerChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        timeout.singleShot(1000, &loop, SLOT(quit()));
     } else {
         connect(gattPowerChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        timeout.singleShot(1000, &loop, SLOT(quit()));
     }
 
     gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
@@ -642,7 +642,6 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
-    initRequest = true; // here because it can't be in the descriptorWritten event since it will be called several times
 }
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
