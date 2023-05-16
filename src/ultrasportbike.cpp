@@ -18,7 +18,7 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 ultrasportbike::ultrasportbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
 #ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
+    QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

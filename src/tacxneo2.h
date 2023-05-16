@@ -76,6 +76,7 @@ class tacxneo2 : public bike {
     uint16_t oldCrankRevs = 0;
     uint16_t CrankRevsRead = 0;
 
+    double lastGearValue = -1;
   signals:
     void disconnected();
     void debug(QString string);

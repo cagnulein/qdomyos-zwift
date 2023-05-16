@@ -116,7 +116,7 @@ void tacxneo2::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value()) {
+            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
@@ -124,6 +124,7 @@ void tacxneo2::update() {
                 }
                 // forceResistance(requestResistance);;
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
         if (requestInclination != -100) {

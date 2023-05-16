@@ -56,6 +56,8 @@ void proformtreadmill::forceIncline(double incline) {
             .toBool();
     bool nordictrack_s30_treadmill =
         settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_8_0 =
+        settings.value(QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0).toBool();
     bool proform_treadmill_9_0 =
         settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     bool proform_treadmill_1800i =
@@ -84,7 +86,7 @@ void proformtreadmill::forceIncline(double incline) {
 
     if (norditrack_s25i_treadmill) {
         write[14] = write[11] + write[12] + 0x11;
-    } else if (proform_treadmill_9_0 || proform_treadmill_se) {
+    } else if (proform_treadmill_8_0 || proform_treadmill_9_0 || proform_treadmill_se) {
         write[14] = write[11] + write[12] + 0x12;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -108,6 +110,8 @@ void proformtreadmill::forceSpeed(double speed) {
         settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     bool nordictrack_s30_treadmill =
         settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
+    bool proform_treadmill_8_0 =
+        settings.value(QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0).toBool();
     bool proform_treadmill_9_0 =
         settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     bool proform_treadmill_se =
@@ -127,7 +131,7 @@ void proformtreadmill::forceSpeed(double speed) {
 
     if (norditrack_s25i_treadmill) {
         write[14] = write[11] + write[12] + 0x11;
-    } else if (proform_treadmill_9_0 || proform_treadmill_se || proform_treadmill_cadence_lt) {
+    } else if (proform_treadmill_8_0 || proform_treadmill_9_0 || proform_treadmill_se || proform_treadmill_cadence_lt) {
         write[14] = write[11] + write[12] + 0x11;
     } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !nordictrack_t65s_83_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
@@ -172,6 +176,8 @@ void proformtreadmill::update() {
                 .toBool();
         bool proform_treadmill_1800i =
             settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+        bool proform_treadmill_8_0 =
+            settings.value(QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0).toBool();
         bool proform_treadmill_9_0 =
             settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
         bool proform_treadmill_se =
@@ -919,6 +925,98 @@ void proformtreadmill::update() {
             if (counterPoll > 5) {
                 counterPoll = 0;
             }
+        } else if (proform_treadmill_8_0) {
+            uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x00, 0x0f, 0x92, 0x1a, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x81, 0x00, 0x10, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xfe, 0x02, 0x14, 0x03};
+            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x04, 0x10, 0x02, 0x00, 0x0a, 0x1b, 0x94, 0x30, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
+            uint8_t noOpData6[] = {0xff, 0x02, 0x18, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (counterPoll) {
+            case 0:
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
+                break;
+            case 4:
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                break;
+            case 5:
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestInclination != -100) {
+                    if (requestInclination < 0)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -100;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
+                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
+            }
         } else {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -1014,6 +1112,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
     bool proform_treadmill_se =
         settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool proform_treadmill_8_0 =
+        settings.value(QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0).toBool();
     bool proform_treadmill_9_0 =
         settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     bool proform_cadence_lt =
@@ -1033,7 +1133,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
         newValue.at(3) != 0x04 ||
-        ((nordictrack10 || nordictrackt70 || proform_treadmill_1800i || proform_treadmill_9_0 ||
+        ((nordictrack10 || nordictrackt70 || proform_treadmill_1800i || proform_treadmill_8_0 || proform_treadmill_9_0 ||
           nordictrack_incline_trainer_x7i) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
         ((norditrack_s25i_treadmill) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
@@ -1109,6 +1209,8 @@ void proformtreadmill::btinit() {
         settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
     bool proform_treadmill_se =
         settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
+    bool proform_treadmill_8_0 =
+        settings.value(QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0).toBool();
     bool proform_treadmill_9_0 =
         settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     bool proform_cadence_lt =
@@ -1465,6 +1567,79 @@ void proformtreadmill::btinit() {
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+    } else if (proform_treadmill_8_0) {
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
+                               0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x07,
+                                0x01, 0xe2, 0x34, 0x84, 0xd2, 0x2e, 0x88, 0xd0, 0x3e, 0x9a};
+        uint8_t initData11[] = {0x01, 0x12, 0xfc, 0x5c, 0xba, 0x16, 0x90, 0xf8, 0x46, 0xd2,
+                                0x24, 0xb4, 0x02, 0x9e, 0x18, 0x60, 0xee, 0x6a, 0xec, 0x6c};
+        uint8_t initData12[] = {0xff, 0x08, 0xea, 0x66, 0x20, 0x98, 0x02, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);

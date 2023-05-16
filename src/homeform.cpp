@@ -2197,11 +2197,11 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             ((bike *)bluetoothManager->device())
                 ->setGears(
-                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toInt());
+                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
             ((elliptical *)bluetoothManager->device())
                 ->setGears(
-                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toInt());
+                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
         }
     }
 }
@@ -2605,10 +2605,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() + 1);
+                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() + settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
-                    ->setGears(((elliptical *)bluetoothManager->device())->gears() + 1);
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() + settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -2839,10 +2839,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() - 1);
+                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() - settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
-                    ->setGears(((elliptical *)bluetoothManager->device())->gears() - 1);
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() - settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -3537,7 +3537,10 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
+            if(settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0)
+                this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
+            else
+                this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
 
             this->resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
