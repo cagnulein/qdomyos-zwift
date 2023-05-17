@@ -1991,7 +1991,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceDown
-                            text: qsTr("ERG Min. Resistance:")
+                            text: qsTr("Min. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -2029,7 +2029,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceUp
-                            text: qsTr("ERG Max. Resistance:")
+                            text: qsTr("Max. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
