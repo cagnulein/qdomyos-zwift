@@ -457,8 +457,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #ifdef Q_OS_IOS
     // Schwinn bikes on iOS allows to be connected to several instances, so in this way
     // QZ will remember the address and will try to connect to it
-    QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name)
-                    .toString();
+    QString b =
+        settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
     qDebug() << "last device name (IC BIKE workaround)" << b;
     if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
         (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
@@ -468,8 +468,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         // stateFileRead();
         QBluetoothDeviceInfo bt;
         bt.setDeviceUuid(QBluetoothUuid(
-            settings
-                .value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
+            settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address)
                 .toString()));
         // set name method doesn't exist
         emit(deviceConnected(bt));
@@ -996,8 +995,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
-                        b.name().toUpper().startsWith(
-                            QStringLiteral("KS-H")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KS-H")) ||
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-BLR"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
@@ -1138,7 +1136,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||         // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

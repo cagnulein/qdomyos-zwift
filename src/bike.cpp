@@ -12,9 +12,22 @@ void bike::configureLockscreenFunctions(QZLockscreenFunctions *functions) const 
 }
 
 void bike::changeResistance(resistance_t resistance) {
+    QSettings settings;
+    double zwift_erg_resistance_up =
+        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
+    double zwift_erg_resistance_down =
+        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
+
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
+        if ((double)v > zwift_erg_resistance_up) {
+            qDebug() << "zwift_erg_resistance_up filter enabled!";
+            v = (resistance_t)zwift_erg_resistance_up;
+        } else if ((double)v < zwift_erg_resistance_down) {
+            qDebug() << "zwift_erg_resistance_down filter enabled!";
+            v = (resistance_t)zwift_erg_resistance_down;
+        }
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
@@ -68,11 +81,6 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
-    double zwift_erg_resistance_up =
-        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
-    double zwift_erg_resistance_down =
-        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
-
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
@@ -80,13 +88,6 @@ void bike::changePower(int32_t power) {
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
         (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
-        if ((double)r > zwift_erg_resistance_up) {
-            qDebug() << "zwift_erg_resistance_up filter enabled!";
-            r = (resistance_t)zwift_erg_resistance_up;
-        } else if ((double)r < zwift_erg_resistance_down) {
-            qDebug() << "zwift_erg_resistance_down filter enabled!";
-            r = (resistance_t)zwift_erg_resistance_down;
-        }
         changeResistance(r); // resistance start from 1
     }
 }
