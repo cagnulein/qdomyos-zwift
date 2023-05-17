@@ -1142,8 +1142,13 @@ void horizontreadmill::forceIncline(double requestIncline) {
                             false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
-        writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+        if(kettler_treadmill) {
+            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+        } else {
+            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceIncline"), false, false);
@@ -1835,6 +1840,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
+            kettler_treadmill = true;
+            qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
