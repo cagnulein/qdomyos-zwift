@@ -1144,8 +1144,12 @@ void horizontreadmill::forceIncline(double requestIncline) {
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
         if(kettler_treadmill) {
             int16_t r = ((int16_t)(requestIncline * 10.0));
+
             if(r < 0)
                 r = 0;
+            else if(r > 12)
+                r = 12;
+
             QHash<uint8_t, uint8_t> conversion;
             QHash<uint8_t, uint8_t> conversion1;
             conversion[0] = 0;
