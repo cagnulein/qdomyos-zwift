@@ -1143,8 +1143,64 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
         if(kettler_treadmill) {
-            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
-            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+            int16_t r = ((int16_t)(requestIncline * 10.0));
+            if(r < 0)
+                r = 0;
+            QHash<uint8_t, uint8_t> conversion;
+            QHash<uint8_t, uint8_t> conversion1;
+            conversion[0] = 0;
+            conversion1[0] = 0;
+            conversion[5] = 0x05;
+            conversion1[5] = 0;
+            conversion[10] = 0x10;
+            conversion1[10] = 0;
+            conversion[15] = 0x15;
+            conversion1[15] = 0;
+            conversion[20] = 0x20;
+            conversion1[20] = 0;
+            conversion[25] = 0x25;
+            conversion1[25] = 0;
+            conversion[30] = 0x30;
+            conversion1[30] = 0;
+            conversion[35] = 0x35;
+            conversion1[35] = 0;
+            conversion[40] = 0x40;
+            conversion1[40] = 0;
+            conversion[45] = 0x45;
+            conversion1[45] = 0;
+            conversion[50] = 0x50;
+            conversion1[50] = 0;
+            conversion[55] = 0x55;
+            conversion1[55] = 0;
+            conversion[60] = 0x60;
+            conversion1[60] = 0;
+            conversion[65] = 0x65;
+            conversion1[65] = 0;
+            conversion[70] = 0x70;
+            conversion1[70] = 0;
+            conversion[75] = 0x75;
+            conversion1[75] = 0;
+            conversion[80] = 0x80;
+            conversion1[80] = 0;
+            conversion[85] = 0x85;
+            conversion1[85] = 0;
+            conversion[90] = 0x90;
+            conversion1[90] = 0;
+            conversion[95] = 0x95;
+            conversion1[95] = 0;
+            conversion[100] = 0x0;
+            conversion1[100] = 0x01;
+            conversion[105] = 0x05;
+            conversion1[105] = 0x01;
+            conversion[110] = 0x10;
+            conversion1[110] = 0x01;
+            conversion[115] = 0x15;
+            conversion1[115] = 0x01;
+            conversion[120] = 0x20;
+            conversion1[120] = 0x01;
+
+            writeS[1] = conversion[r];
+            writeS[2] = conversion1[r];
         } else {
             writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
             writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
