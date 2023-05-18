@@ -94,6 +94,7 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool kettler_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();
