@@ -1136,6 +1136,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          !toorx_ftms && toorx_ftms_treadmill) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) || // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
