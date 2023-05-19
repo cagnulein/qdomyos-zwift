@@ -185,8 +185,6 @@ void activiotreadmill::update() {
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-
-                    // DO NOT show the virtual device in this case (Zwift Auto-Inclination Workaround)
                     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
