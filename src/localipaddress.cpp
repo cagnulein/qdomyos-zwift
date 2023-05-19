@@ -104,7 +104,7 @@ QHostAddress localipaddress::getIP(const QHostAddress &srcAddress) {
             if (srcAddress.isInSubnet(entry.ip(), entry.prefixLength())) {
                 for (const QNetworkAddressEntry &newEntry : entries) {
                     QHostAddress address = newEntry.ip();
-                    if ((address.protocol() == QAbstractSocket::IPv4Protocol)) {
+                    if ((address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback())) {
                         return address;
                     }
                 }

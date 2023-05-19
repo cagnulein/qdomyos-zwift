@@ -417,6 +417,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool horizon_treadmill_force_ftms =
         settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms)
             .toBool();
+    bool sole_inclination =
+        settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -1062,7 +1064,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ST90")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("F85"))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && sole_inclination)) &&
                        !soleF80 && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1134,6 +1136,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          !toorx_ftms && toorx_ftms_treadmill) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||         // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) || // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) || // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);

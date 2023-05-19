@@ -13,7 +13,7 @@ import QtQuick.Dialogs 1.0
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane
+        id: settingsPane        
 
         Settings {
             id: settings
@@ -3284,6 +3284,12 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    Button {
+                        text: "Open Floating on a Browser"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: openFloatingWindowBrowser();
                     }
 
                     AccordionElement {
