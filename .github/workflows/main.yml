@@ -85,6 +85,8 @@ jobs:
 
       - name: download 3rd party files for qthttpserver
         run: |
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls, [Net.SecurityProtocolType]::Tls11, [Net.SecurityProtocolType]::Tls12, [Net.SecurityProtocolType]::Ssl3
+            [Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"        
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.h" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.h"
             Invoke-WebRequest -URI "https://github.com/nodejs/http-parser/raw/main/http_parser.c" -OutFile "src/qthttpserver/src/3rdparty/http-parser/http_parser.c"
 
