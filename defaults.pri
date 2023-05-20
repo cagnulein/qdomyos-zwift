@@ -12,3 +12,4 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/src/android
 
 ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
 
+QMAKE_CXXFLAGS += -Werror=suggest-override
