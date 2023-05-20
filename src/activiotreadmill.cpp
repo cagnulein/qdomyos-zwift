@@ -76,7 +76,8 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool() &&
+       !settings.value(QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill).toBool())
         writeSpeed[6] = writeSpeed[1] + 1;
     else {
         switch(writeSpeed[1] & 0x0F) {

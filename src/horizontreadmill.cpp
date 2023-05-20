@@ -1150,6 +1150,11 @@ void horizontreadmill::forceIncline(double requestIncline) {
             else if(r > 12)
                 r = 12;
 
+
+            // send:  1/0 a  14 1e 28 32 3c 46 50 5a 64 6e 78 82 8c 96
+            // recv:  0   5   a 14 19 1e 28 2d 32 3c 41 46 50 55 5a 64
+            // recv:  0   5  10 20 25 30 40 45 50 60 65 70 80 85 90 100
+
             QHash<uint8_t, uint8_t> conversion;
             QHash<uint8_t, uint8_t> conversion1;
             conversion[0] = 0;

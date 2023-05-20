@@ -28,6 +28,7 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KETTLER TREADMILL", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ASSAULTRUNNER", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }
