@@ -33,13 +33,13 @@ class bowflext216treadmill : public treadmill {
   public:
     bowflext216treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool connected() override;
+    double minStepInclination() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

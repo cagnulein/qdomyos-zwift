@@ -35,16 +35,16 @@ class nautilusbike : public bike {
     nautilusbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                  uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautilusbike();
-    bool connected();
+    bool connected() override;
 
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetWattFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t watts();
+    uint16_t watts() override;
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

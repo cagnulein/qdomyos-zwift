@@ -37,10 +37,10 @@ class trxappgateusbbike : public bike {
   public:
     trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                       double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -54,7 +54,7 @@ class trxappgateusbbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);

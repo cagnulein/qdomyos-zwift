@@ -40,17 +40,17 @@ class horizontreadmill : public treadmill {
     Q_OBJECT
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination();
-    double minStepSpeed();
+    double minStepInclination() override;
+    double minStepSpeed() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,

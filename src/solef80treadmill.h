@@ -39,13 +39,13 @@ class solef80treadmill : public treadmill {
     Q_OBJECT
   public:
     solef80treadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination();
+    double minStepInclination() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,

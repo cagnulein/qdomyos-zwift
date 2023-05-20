@@ -33,14 +33,14 @@ class paferstreadmill : public treadmill {
   public:
     paferstreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    double minStepSpeed();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool connected() override;
+    double minStepInclination() override;
+    double minStepSpeed() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

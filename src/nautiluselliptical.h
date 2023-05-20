@@ -36,10 +36,10 @@ class nautiluselliptical : public elliptical {
     nautiluselliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                        uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautiluselliptical();
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

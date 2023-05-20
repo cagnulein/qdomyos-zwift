@@ -37,10 +37,10 @@ class fakeelliptical : public elliptical {
     Q_OBJECT
   public:
     fakeelliptical(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     QTimer *refresh;

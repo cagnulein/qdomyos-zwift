@@ -37,10 +37,10 @@ class mepanelbike : public bike {
     Q_OBJECT
   public:
     mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     const resistance_t max_resistance = 32;
@@ -49,7 +49,7 @@ class mepanelbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
-    uint16_t watts();
+    uint16_t watts() override;
     uint8_t getCheckNum(uint8_t i, uint8_t i2);
 
     QTimer *refresh;

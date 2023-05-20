@@ -12,7 +12,7 @@ class CharacteristicWriteProcessorE005 : public CharacteristicWriteProcessor {
     explicit CharacteristicWriteProcessorE005(double bikeResistanceGain, uint8_t bikeResistanceOffset,
                                               bluetoothdevice *bike, // CharacteristicNotifier2AD9 *notifier,
                                               QObject *parent = nullptr);
-    virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out);
+    int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) override;
 
   private:
     double weight, rrc, wrc;

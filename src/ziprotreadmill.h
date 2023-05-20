@@ -33,15 +33,15 @@ class ziprotreadmill : public treadmill {
   public:
     ziprotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                    double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    double minStepSpeed();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool connected() override;
+    double minStepInclination() override;
+    double minStepSpeed() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
-    virtual bool canStartStop() { return false; }
+    void *VirtualDevice() override;
+    bool canStartStop()  override{ return false; }
 
   private:
     void forceSpeed(double requestSpeed);

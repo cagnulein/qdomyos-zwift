@@ -39,10 +39,10 @@ class bhfitnesselliptical : public elliptical {
   public:
     bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                         double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

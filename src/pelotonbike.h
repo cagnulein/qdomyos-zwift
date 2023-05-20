@@ -29,15 +29,15 @@ class pelotonbike : public bike {
     Q_OBJECT
   public:
     pelotonbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    bool inclinationAvailableByHardware();
+    bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;

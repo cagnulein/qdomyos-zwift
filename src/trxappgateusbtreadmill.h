@@ -32,12 +32,12 @@ class trxappgateusbtreadmill : public treadmill {
     Q_OBJECT
   public:
     trxappgateusbtreadmill();
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
-    double minStepInclination();
+    double minStepInclination() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

@@ -15,32 +15,32 @@ class rower : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual QTime lastPace500m();
-    virtual metric currentResistance();
+    metric currentResistance() override;
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
-    virtual QTime currentPace();
-    virtual QTime averagePace();
-    virtual QTime maxPace();
-    virtual uint8_t fanSpeed();
-    virtual double currentCrankRevolutions();
-    virtual uint16_t lastCrankEventTime();
-    virtual bool connected();
+    QTime currentPace() override;
+    QTime averagePace() override;
+    QTime maxPace() override;
+    uint8_t fanSpeed() override;
+    double currentCrankRevolutions() override;
+    uint16_t lastCrankEventTime() override;
+    bool connected() override;
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
-    void clearStats();
-    void setLap();
-    void setPaused(bool p);
+    void clearStats() override;
+    void setLap() override;
+    void setPaused(bool p) override;
 
   public slots:
-    virtual void changeResistance(resistance_t res);
+    void changeResistance(resistance_t res) override;
     virtual void changeCadence(int16_t cad);
-    virtual void changePower(int32_t power);
+    void changePower(int32_t power) override;
     virtual void changeRequestedPelotonResistance(int8_t resistance);
-    virtual void cadenceSensor(uint8_t cadence);
-    virtual void powerSensor(uint16_t power);
+    void cadenceSensor(uint8_t cadence) override;
+    void powerSensor(uint16_t power) override;
 
   signals:
     void bikeStarted();

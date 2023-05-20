@@ -46,12 +46,12 @@ class proformwifitreadmill : public treadmill {
   public:
     proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadMill();
     void *VirtualBike();
-    void *VirtualDevice();
-    virtual bool canStartStop() { return false; }
+    void *VirtualDevice() override;
+    virtual bool canStartStop() override { return false; }
 
   private:
     QWebSocket websocket;

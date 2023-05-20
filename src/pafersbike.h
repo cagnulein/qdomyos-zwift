@@ -37,13 +37,13 @@ class pafersbike : public bike {
     Q_OBJECT
   public:
     pafersbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     const resistance_t max_resistance = 24;
@@ -58,7 +58,7 @@ class pafersbike : public bike {
     void forceResistance(resistance_t requestResistance);
     double GetWattFromPacket(const QByteArray &packet);
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

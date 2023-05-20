@@ -37,11 +37,11 @@ class inspirebike : public bike {
     Q_OBJECT
   public:
     inspirebike(bool noWriteResistance, bool noHeartService);
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
     const resistance_t max_resistance = 40;
 
@@ -49,7 +49,7 @@ class inspirebike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
     QTimer *t_timeout;

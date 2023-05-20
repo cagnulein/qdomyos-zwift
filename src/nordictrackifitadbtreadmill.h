@@ -33,7 +33,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
   public:
     explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
 
-    void run();
+    void run() override;
 
   signals:
     void onSpeedInclination(double speed, double inclination);
@@ -55,11 +55,11 @@ class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
-    virtual bool canStartStop() { return false; }
+    void *VirtualDevice() override;
+    bool canStartStop() override { return false; }
 
   private:
     void forceIncline(double incline);

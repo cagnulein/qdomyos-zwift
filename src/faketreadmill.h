@@ -38,11 +38,11 @@ class faketreadmill : public treadmill {
     Q_OBJECT
   public:
     faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
+    bool connected() override;
 
     void *VirtualBike();
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     QTimer *refresh;

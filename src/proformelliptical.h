@@ -38,10 +38,10 @@ class proformelliptical : public elliptical {
     Q_OBJECT
   public:
     proformelliptical(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetDistanceFromPacket(QByteArray packet);

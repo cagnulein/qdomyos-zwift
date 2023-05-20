@@ -38,10 +38,10 @@ class strydrunpowersensor : public treadmill {
     Q_OBJECT
   public:
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,

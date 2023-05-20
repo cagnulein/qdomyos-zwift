@@ -36,11 +36,11 @@ class soleelliptical : public elliptical {
     soleelliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                    uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~soleelliptical();
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
-    double minStepInclination() { return 1; }
+    void *VirtualDevice() override;
+    double minStepInclination() override { return 1; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

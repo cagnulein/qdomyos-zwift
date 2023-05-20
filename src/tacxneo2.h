@@ -39,7 +39,7 @@ class tacxneo2 : public bike {
     tacxneo2(bool noWriteResistance, bool noHeartService);
     void changePower(int32_t power) override;
     bool connected() override;
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
     void *VirtualBike();
     void *VirtualDevice() override;

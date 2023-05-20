@@ -39,10 +39,10 @@ class proformrower : public rower {
     Q_OBJECT
   public:
     proformrower(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     const resistance_t max_resistance = 24;
@@ -61,7 +61,7 @@ class proformrower : public rower {
     virtualbike *virtualBike = nullptr;
     virtualrower *virtualRower = nullptr;
     uint8_t counterPoll = 0;
-    uint16_t watts();
+    uint16_t watts() override;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

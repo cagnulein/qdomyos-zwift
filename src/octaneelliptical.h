@@ -33,14 +33,14 @@ class octaneelliptical : public elliptical {
   public:
     octaneelliptical(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
+    bool connected() override;
+    double minStepInclination() override;
     double minStepSpeed();
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);

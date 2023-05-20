@@ -33,10 +33,10 @@ class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadMill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

@@ -38,10 +38,10 @@ class proformtreadmill : public treadmill {
     Q_OBJECT
   public:
     proformtreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     double GetDistanceFromPacket(QByteArray packet);

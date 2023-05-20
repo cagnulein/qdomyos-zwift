@@ -37,10 +37,10 @@ class flywheelbike : public bike {
     Q_OBJECT
   public:
     flywheelbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
 
     void *VirtualBike();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   private:
     typedef enum DecoderRXState { WFSYNC_1 = 0, WFLENGTH, WFID, DATA, CHECKSUM, EOF_1 } DecoderRXState;
@@ -139,7 +139,7 @@ class flywheelbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
     void updateStats();
 
     QTimer *refresh;

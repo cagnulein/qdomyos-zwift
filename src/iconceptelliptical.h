@@ -37,7 +37,7 @@ class iconceptelliptical : public elliptical {
     explicit iconceptelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                 double bikeResistanceGain);
     void *VirtualTreadmill();
-    void *VirtualDevice();
+    void *VirtualDevice() override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

@@ -39,12 +39,12 @@ class nordictrackelliptical : public elliptical {
   public:
     nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                           double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
     void *VirtualTreadmill();
-    void *VirtualDevice();
-    int pelotonToEllipticalResistance(int pelotonResistance);
-    bool inclinationAvailableByHardware() { return false; }
+    void *VirtualDevice() override;
+    int pelotonToEllipticalResistance(int pelotonResistance) override;
+    bool inclinationAvailableByHardware()  override{ return false; }
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
