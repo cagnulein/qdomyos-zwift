@@ -92,6 +92,8 @@ class kingsmithr2treadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
+    bool KS_NACH_X21C = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

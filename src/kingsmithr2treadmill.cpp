@@ -389,6 +389,13 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFED7);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFED8);
+
+    if(KS_NACH_X21C) {
+        _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
+        _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
+    }
+
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::DiscoveringServices) {
@@ -438,6 +445,9 @@ void kingsmithr2treadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0x1234);
     emit debug(QStringLiteral("serviceScanDone"));
 
+    if(KS_NACH_X21C)
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
+
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
@@ -462,6 +472,10 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
     {
 
         bluetoothDevice = device;
+        if(device.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C"))) {
+            qDebug() << "KS-NACH-X21C workaround!";
+            KS_NACH_X21C = true;
+        }
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kingsmithr2treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kingsmithr2treadmill::serviceScanDone);
