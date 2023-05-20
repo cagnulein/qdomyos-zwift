@@ -1180,7 +1180,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
             conversion1[0] = 0;
             conversion[5] = 0x05;
             conversion1[5] = 0;
-            conversion[10] = 0x0a;
+            conversion[10] = 0x14;
             conversion1[10] = 0;
             conversion[15] = 0x15;
             conversion1[15] = 0;
