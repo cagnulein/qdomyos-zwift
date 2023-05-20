@@ -771,6 +771,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.45
             property bool proform_treadmill_8_0: false
+
+            // from version 2.13.50
+            property bool zero_zt2500_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5350,6 +5353,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Zero ZT-2500")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.zero_zt2500_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
