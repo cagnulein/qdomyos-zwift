@@ -36,13 +36,13 @@ class chronobike : public bike {
     Q_OBJECT
   public:
     chronobike(bool noWriteResistance, bool noHeartService);
-    bool connected() override;
+    bool connected();
 
   private:
     // void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false, // Unused
     //                         bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts() override;
+    uint16_t watts();
 
     QTimer *refresh;
     QTimer *t_timeout;
