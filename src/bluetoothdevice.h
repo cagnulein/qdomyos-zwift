@@ -450,20 +450,18 @@ class bluetoothdevice : public QObject {
         NONE,
         /**
          * @brief Virtual device represents the same type of device.
-         * bluetoothdevice objects expose the virtual device.
          */
         PRIMARY,
 
         /**
          * @brief Virtual device representing the device for a purpose other than the
          * type of device it matches.
-         * bluetoothdevice objects do not expose the virtual device.
          */
         ALTERNATIVE
     };
 
     /**
-     * @brief hasVirtualDevice shows if the object has any virtual device, even if hidden via VirtualDevice().
+     * @brief hasVirtualDevice shows if the object has any virtual device assigned.
      */
     bool hasVirtualDevice();
 
@@ -681,16 +679,14 @@ class bluetoothdevice : public QObject {
 
 
     /**
-     * @brief setVirtualDevice Set the virtual device. Deletes the existing one, if present.
+     * @brief setVirtualDevice Set the virtual device, and the way it is being used. Deletes the existing one, if present.
      * @param virtualDevice The virtual device.
-     * @hide Set to ALTERNATIVE to store the virtual device (for later deletion by the destructor)
-     * but don't show via VirtualDevice().
      */
     void setVirtualDevice(virtualdevice * virtualDevice, VIRTUAL_DEVICE_MODE mode);
 
   private:
     /**
-     * @brief Indicates if the virtual device will be exposed via VirtualDevice().
+     * @brief Indicates the way the virtual device is being used.
      * Normally PRIMARY, set this to ALTERNATIVE where the device is being used unusually, e.g.
      * for the Zwift Auto-Inclination Workaround.
      */
