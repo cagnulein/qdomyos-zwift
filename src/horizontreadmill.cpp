@@ -1147,8 +1147,8 @@ void horizontreadmill::forceIncline(double requestIncline) {
 
             if(r < 0)
                 r = 0;
-            else if(r > 10)
-                r = 10;
+            else if(r > 100) // max 10% inclination
+                r = 100;
 
 
             // send:  1/0 a  14 1e 28 32 3c 46 50 5a 64 6e 78 82 8c 96
