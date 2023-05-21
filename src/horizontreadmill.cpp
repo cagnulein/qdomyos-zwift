@@ -1217,7 +1217,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
             conversion[95] = 0x95;
             conversion1[95] = 0;
             conversion[100] = 0x96;
-            conversion1[100] = 0x01;
+            conversion1[100] = 0x00;
             conversion[105] = 0x05;
             conversion1[105] = 0x01;
             conversion[110] = 0x10;
