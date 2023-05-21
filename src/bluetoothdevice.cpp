@@ -49,7 +49,7 @@ metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
 
-virtualdevice *bluetoothdevice::VirtualDevice() { return this->virtualDeviceMode==VIRTUAL_DEVICE_MODE::PRIMARY ? this->virtualDevice:nullptr; }
+virtualdevice *bluetoothdevice::VirtualDevice() { return this->virtualDevice; }
 void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
