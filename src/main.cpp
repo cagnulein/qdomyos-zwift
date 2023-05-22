@@ -316,6 +316,122 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
+    QByteArray buffer;
+    buffer.append(0x44);
+    buffer.append(0x48);
+    buffer.append(0x4a);
+    buffer.append(0x76);
+    buffer.append(0x44);
+    buffer.append(0x48);
+    buffer.append(0x68);
+    buffer.append(0x67);
+    buffer.append(0x39);
+    buffer.append(0x32);
+    buffer.append(0x2f);
+    buffer.append(0x58);
+    buffer.append(0x44);
+    buffer.append(0x6d);
+    buffer.append(0x2f);
+    buffer.append(0x75);
+    buffer.append(0x64);
+    buffer.append(0x46);
+    buffer.append(0x4e);
+    buffer.append(0x4d);
+    buffer.append(0x36);
+    buffer.append(0x57);
+    buffer.append(0x2f);
+    buffer.append(0x6b);
+    buffer.append(0x49);
+    
+    buffer.append(0x77);
+    buffer.append(0x34);
+    buffer.append(0x4d);
+    buffer.append(0x4c);
+    buffer.append(0x6a);
+    buffer.append(0x69);
+    buffer.append(0x67);
+    buffer.append(0x55);
+    buffer.append(0x6e);
+    buffer.append(0x2f);
+    buffer.append(0x75);
+    buffer.append(0x62);
+    buffer.append(0x6d);
+    buffer.append(0x6c);
+    
+    buffer.append(0x75);
+    buffer.append(0x36);
+    buffer.append(0x79);
+    buffer.append(0x52);
+    buffer.append(0x76);
+    buffer.append(0x64);
+    buffer.append(0x47);
+    buffer.append(0x46);
+    buffer.append(0x73);
+    buffer.append(0x2f);
+    buffer.append(0x47);
+    buffer.append(0x6c);
+    buffer.append(0x42);
+    buffer.append(0x36);
+    buffer.append(0x56);
+    buffer.append(0x69);
+    buffer.append(0x41);
+    buffer.append(0x4e);
+    buffer.append(0x6a);
+    buffer.append(0x69);
+    buffer.append(0x3d);
+    buffer.append(0x0d);
+    
+    qDebug() << buffer;
+    
+    const QByteArray PLAINTEXT_TABLE =
+        QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
+    
+    for(int i = 0; i < PLAINTEXT_TABLE.length(); i++) {
+        for(int l = 0; l < PLAINTEXT_TABLE.length(); l++) {
+            if(i == l) continue;
+            for(int k = 0; k < PLAINTEXT_TABLE.length(); k++) {
+                if(i == k || l == k) continue;
+                for(int p = 0; p < PLAINTEXT_TABLE.length(); p++) {
+                    if(i == p || l == p || k == p) continue;
+                    QByteArray decrypted;
+                    QByteArray ENCRYPT_TABLE_v2 =
+                    QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
+                    
+                    char a = ENCRYPT_TABLE_v2[i];
+                    ENCRYPT_TABLE_v2[i] = ENCRYPT_TABLE_v2[l];
+                    ENCRYPT_TABLE_v2[l] = a;
+                    
+                    a = ENCRYPT_TABLE_v2[k];
+                    ENCRYPT_TABLE_v2[k] = ENCRYPT_TABLE_v2[p];
+                    ENCRYPT_TABLE_v2[p] = a;
+                    
+                    for (int j = 0; j < buffer.length(); j++) {
+                        char ch = buffer.at(j);
+                        if (ch == '\x0d') {
+                            continue;
+                        }
+                        int idx;
+                        QSettings settings;
+                        idx = ENCRYPT_TABLE_v2.indexOf(ch);
+                        decrypted.append(PLAINTEXT_TABLE[idx]);
+                    }
+                    QString aa = QString(QByteArray::fromBase64(decrypted));
+                    
+                    qDebug() << i << l << k << p << ENCRYPT_TABLE_v2 << decrypted << aa;
+                    
+                    if(aa.contains("CurrentSpeed 10.8 "))
+                        qDebug() << aa;
+                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("ZaCw4FGHIJqLhN+P9RMTU/WcY6ObDdefgEijklmnopQrsBuvVxXz1yA2t5078KS3=").toUtf8())
+                        qDebug() << a;
+                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("0aCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5Z78KS3=").toUtf8())
+                        qDebug() << a;
+                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("ZaCw4FGHIJqLhN9P+RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8())
+                        qDebug() << a;
+                }
+            }
+        }
+    }
+    
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
