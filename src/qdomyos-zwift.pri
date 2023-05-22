@@ -85,7 +85,6 @@ SOURCES += \
    $$PWD/iconceptelliptical.cpp \
     $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
-    $$PWD/virtualdevice.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
    $$PWD/ypooelliptical.cpp \
@@ -280,7 +279,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
-    virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
    $$PWD/apexbike.h \
