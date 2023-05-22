@@ -1,11 +1,14 @@
 #include "paferstreadmill.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <QThread>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -112,15 +115,16 @@ void paferstreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &paferstreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &paferstreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -432,10 +436,6 @@ bool paferstreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *paferstreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *paferstreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool paferstreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

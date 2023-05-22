@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -41,9 +40,6 @@ class mcfbike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power);
     resistance_t maxResistance() { return max_resistance; }
     bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     const resistance_t max_resistance = 14;
@@ -59,7 +55,6 @@ class mcfbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

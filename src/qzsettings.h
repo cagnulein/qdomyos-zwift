@@ -1821,6 +1821,12 @@ class QZSettings {
     static const QString proform_treadmill_8_0;
     static constexpr bool default_proform_treadmill_8_0 = false;
 
+    static const QString zero_zt2500_treadmill;
+    static constexpr bool default_zero_zt2500_treadmill = false;
+
+    static const QString kingsmith_encrypt_v5;
+    static constexpr bool default_kingsmith_encrypt_v5 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

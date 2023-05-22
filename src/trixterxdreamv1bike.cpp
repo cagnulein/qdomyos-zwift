@@ -401,15 +401,16 @@ void trixterxdreamv1bike::disconnectPort() {
 void trixterxdreamv1bike::configureVirtualBike(){
 // ******************************************* virtual bike init *************************************
 
-    bool haveVirtualBike = this->virtualBike!=nullptr;
+    bool haveVirtualDevice = this->hasVirtualDevice();
 
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
-    haveVirtualBike &= !h;
+    if(h)
+        haveVirtualDevice = true;
     #endif
     #endif
 
-    if(!haveVirtualBike){
+    if(!haveVirtualDevice){
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 
@@ -429,12 +430,13 @@ void trixterxdreamv1bike::configureVirtualBike(){
 
             double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
             double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
-            this->virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-            bike::connect(this->virtualBike, &virtualbike::changeInclination, this, &trixterxdreamv1bike::changeInclination);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            bike::connect(virtualBike, &virtualbike::changeInclination, this, &trixterxdreamv1bike::changeInclination);
+
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
-
-// ********************************************************************************************************
+    // ********************************************************************************************************
 }
 
 uint16_t trixterxdreamv1bike::powerFromResistanceRequest(resistance_t requestedResistance) {
@@ -657,7 +659,7 @@ void trixterxdreamv1bike::update() {
              << "bike::requestInclination="<<this->requestInclination
              << "bike::Inclination=" << this->Inclination.value();
 
-    if(this->virtualBike && this->virtualBike->connected()) {
+    if(this->VirtualDevice() && this->VirtualDevice()->connected()) {
         // the virtual bike is connected to the client app, so use inclination to get the power and resistance
 
         // Update resistance because the requested resistance or cadence could have changed.
@@ -799,10 +801,6 @@ trixterxdreamv1bike::~trixterxdreamv1bike() {
 
     // NOTE: bluetooth::restart() deletes this object, then deletes the bike object
     //if(this->virtualBike) delete this->virtualBike;
-}
-
-void *trixterxdreamv1bike::VirtualDevice() {
-    return this->virtualBike;
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value) {

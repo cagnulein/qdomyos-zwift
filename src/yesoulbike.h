@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -45,9 +44,6 @@ class yesoulbike : public bike {
                double bikeResistanceGain);
     bool connected();
 
-    void *VirtualBike();
-    void *VirtualDevice();
-
   private:
     double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(QByteArray packet);
@@ -59,7 +55,6 @@ class yesoulbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

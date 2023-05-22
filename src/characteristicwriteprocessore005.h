@@ -2,7 +2,6 @@
 #define CHARACTERISTICWRITEPROCESSORE005_H
 
 #include "bluetoothdevice.h"
-#include "characteristicnotifier2ad9.h"
 #include "characteristicwriteprocessor.h"
 
 class CharacteristicWriteProcessorE005 : public CharacteristicWriteProcessor {

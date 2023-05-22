@@ -26,16 +26,12 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class trxappgateusbtreadmill : public treadmill {
     Q_OBJECT
   public:
     trxappgateusbtreadmill();
     bool connected();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
     double minStepInclination();
 
@@ -56,7 +52,6 @@ class trxappgateusbtreadmill : public treadmill {
     double DistanceCalculated = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;

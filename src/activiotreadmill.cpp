@@ -1,7 +1,9 @@
 #include "activiotreadmill.h"
+#include "virtualbike.h"
 
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -74,7 +76,8 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool() &&
+       !settings.value(QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill).toBool())
         writeSpeed[6] = writeSpeed[1] + 1;
     else {
         switch(writeSpeed[1] & 0x0F) {
@@ -167,21 +170,23 @@ void activiotreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();           
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &activiotreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -666,9 +671,5 @@ bool activiotreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *activiotreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *activiotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void activiotreadmill::searchingStop() { searchStopped = true; }

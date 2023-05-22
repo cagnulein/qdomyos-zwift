@@ -1,4 +1,5 @@
 #include "iconceptbike.h"
+#include "virtualbike.h"
 #include "keepawakehelper.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -85,14 +86,15 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualBike) {
+        if (!firstStateChanged && !hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, true);
+                auto virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -292,9 +294,6 @@ void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
 
-void *iconceptbike::VirtualBike() { return virtualBike; }
-
-void *iconceptbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t iconceptbike::watts() {
     if (currentCadence().value() == 0) {

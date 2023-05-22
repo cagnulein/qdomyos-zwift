@@ -421,7 +421,7 @@
       }, function (msg) {
         if (msg.msg === 'R_getsettings') {
           for (let key of settings_arr) {
-            if (msg.content[key] === undefined)
+            if (msg.content[key] === undefined || msg.content[key] === null)
               return null;
             if (key === 'tile_speed_enabled') {
               if (msg.content[key] === false || msg.content[key] === 'false') {
@@ -622,7 +622,7 @@
           var maxpace_s = 0;                    
           var row_remaining_time_s = 0;
           var row_remaining_time_m = 0;
-          row_remaining_time_h = 0;
+          var row_remaining_time_h = 0;
           var resistance = 0;
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
@@ -643,7 +643,7 @@
           var gears = 0;          
 
           for (let key of keys_arr) {
-            if (msg.content[key] === undefined)
+            if (msg.content[key] === undefined || msg.content[key] === null)
               continue;
             if (key === 'speed') {
               speed = msg.content[key] * miles_conversion;

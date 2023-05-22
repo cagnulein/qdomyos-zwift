@@ -34,7 +34,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -50,9 +49,6 @@ class proformwifibike : public bike {
     resistance_t maxResistance() { return max_resistance; }
     bool inclinationAvailableByHardware();
     bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     QWebSocket websocket;
@@ -74,7 +70,6 @@ class proformwifibike : public bike {
     void setWorkoutType(QString type);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

@@ -40,6 +40,7 @@ void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
     settings.setValue(trixterxdreamv1settings::keys::Enabled, this->trixter_xdream_v1_bike);
     settings.setValue(QZSettings::pafers_treadmill_bh_iboxster_plus, this->pafers_treadmill_bh_iboxster_plus);
     settings.setValue(QZSettings::iconcept_elliptical, this->iconcept_elliptical);
+    settings.setValue(QZSettings::sole_treadmill_inclination, this->sole_treadmill_inclination);
 }
 
 void DeviceDiscoveryInfo::getValues(QSettings &settings){
@@ -62,7 +63,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->toorx_bike = settings.value(QZSettings::toorx_bike, QZSettings::default_toorx_bike).toBool();
     this->toorx_ftms = settings.value(QZSettings::toorx_ftms, QZSettings::default_toorx_ftms).toBool();
     this->toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    this->horizon_treadmill_force_ftms = settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::horizon_treadmill_force_ftms).toBool();
+    this->horizon_treadmill_force_ftms = settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms).toBool();
     this->snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
     this->fitplus_bike = settings.value(QZSettings::fitplus_bike, QZSettings::default_fitplus_bike).toBool();
     this->technogym_myrun_treadmill_experimental = settings.value(QZSettings::technogym_myrun_treadmill_experimental, QZSettings::default_technogym_myrun_treadmill_experimental).toBool();
@@ -73,6 +74,7 @@ void DeviceDiscoveryInfo::getValues(QSettings &settings){
     this->trixter_xdream_v1_bike = settings.value(trixterxdreamv1settings::keys::Enabled, trixterxdreamv1settings::DefaultEnabled).toBool();
     this->pafers_treadmill_bh_iboxster_plus = settings.value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus).toBool();
     this->iconcept_elliptical = settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
+    this->sole_treadmill_inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 }
 
 void DeviceDiscoveryInfo::loadDefaultValues() {

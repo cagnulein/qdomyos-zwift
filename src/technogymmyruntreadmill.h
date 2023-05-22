@@ -29,8 +29,6 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -46,9 +44,6 @@ class technogymmyruntreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false,
@@ -58,8 +53,6 @@ class technogymmyruntreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

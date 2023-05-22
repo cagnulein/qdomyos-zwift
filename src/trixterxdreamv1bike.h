@@ -48,11 +48,6 @@ private:
     trixterxdreamv1serial * port = nullptr;
 
     /**
-     * @brief The bridge to the client application.
-     */
-    virtualbike * virtualBike = nullptr;
-
-    /**
      * @brief Indicates if the deice should be sent full resistance instead of the currently requested resistance.
      */
     bool stopping = false;
@@ -275,12 +270,6 @@ public:
      * @param power The power in watts.
      */
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
-
-    /**
-     * @brief Virtual device
-     * @return
-     */
-    void *VirtualDevice() override;
 
     /**
      * @brief Attempt to connect to the specified port.

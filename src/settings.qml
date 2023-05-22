@@ -13,7 +13,7 @@ import QtQuick.Dialogs 1.0
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane
+        id: settingsPane        
 
         Settings {
             id: settings
@@ -771,6 +771,12 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.45
             property bool proform_treadmill_8_0: false
+
+            // from version 2.13.50
+            property bool zero_zt2500_treadmill: false
+
+            // from version 2.13.52
+            property bool kingsmith_encrypt_v5: false
 
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -2003,7 +2009,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceDown
-                            text: qsTr("ERG Min. Resistance:")
+                            text: qsTr("Min. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -2041,7 +2047,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceUp
-                            text: qsTr("ERG Max. Resistance:")
+                            text: qsTr("Max. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -3454,6 +3460,12 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    Button {
+                        text: "Open Floating on a Browser"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: openFloatingWindowBrowser();
                     }
 
                     AccordionElement {
@@ -5458,7 +5470,7 @@ import QtQuick.Dialogs 1.0
                             checked: settings.kingsmith_encrypt_v2
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5473,7 +5485,7 @@ import QtQuick.Dialogs 1.0
                             checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5488,7 +5500,21 @@ import QtQuick.Dialogs 1.0
                             checked: settings.kingsmith_encrypt_v4
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
+                        }
+
+                        SwitchDelegate {
+                            text: qsTr("WalkingPad X21 v4")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.kingsmith_encrypt_v5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.kingsmith_encrypt_v5 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5514,6 +5540,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Zero ZT-2500")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.zero_zt2500_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }

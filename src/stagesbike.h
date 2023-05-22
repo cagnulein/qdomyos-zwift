@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -42,9 +41,6 @@ class stagesbike : public bike {
     resistance_t maxResistance() { return 100; }
     bool ergManagedBySS2K() { return true; }
 
-    void *VirtualBike();
-    void *VirtualDevice();
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -55,7 +51,6 @@ class stagesbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
