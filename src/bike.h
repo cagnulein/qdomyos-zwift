@@ -2,6 +2,7 @@
 #define BIKE_H
 
 #include "bluetoothdevice.h"
+#include "virtualbike.h"
 #include <QObject>
 
 class bike : public bluetoothdevice {
@@ -10,6 +11,9 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
+
+    virtualbike * VirtualBike();
+
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
@@ -30,11 +34,10 @@ class bike : public bluetoothdevice {
     void setLap();
     void setPaused(bool p);
     uint8_t metrics_override_heartrate();
-    void setGears(int8_t d);
-    int8_t gears();
+    void setGears(double d);
+    double gears();
     void setSpeedLimit(double speed) {m_speedLimit = speed;}
     double speedLimit() {return m_speedLimit;}
-
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -74,7 +77,7 @@ class bike : public bluetoothdevice {
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power
                                    // request there is no need to translate in resistance levels
 
-    int8_t m_gears = 0;
+    double m_gears = 0;
     resistance_t lastRawRequestedResistanceValue = -1;
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;

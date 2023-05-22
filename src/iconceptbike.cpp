@@ -1,4 +1,5 @@
 #include "iconceptbike.h"
+#include "virtualbike.h"
 #include "keepawakehelper.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -32,7 +33,7 @@ void iconceptbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         // Start a discovery
         qDebug() << QStringLiteral("iconceptbike::deviceDiscovered");
-        discoveryAgent->start();
+        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
     }
 }
@@ -66,7 +67,7 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
             emit debug(QStringLiteral("Serial port service found"));
-            discoveryAgent->stop();
+            // discoveryAgent->stop(); // could lead to a crash?
 
             serialPortService = service;
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
@@ -85,14 +86,15 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualBike) {
+        if (!firstStateChanged && !hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, true);
+                auto virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -194,9 +196,9 @@ void iconceptbike::readSocket() {
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
-                m_watt = GetSpeedFromPacket(line) * 0.24 * (1.0 + (Resistance.value() / 20.0));
+                m_watt = GetWattFromPacket(line);
                 if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = GetSpeedFromPacket(line);
+                    Speed = GetSpeedFromPacket(line) / 2.0;
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
@@ -231,16 +233,7 @@ void iconceptbike::readSocket() {
 #endif
             {
                 if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                    lockscreen h;
-                    long appleWatchHeartRate = h.heartRate();
-                    h.setKcal(KCal.value());
-                    h.setDistance(Distance.value());
-                    Heart = appleWatchHeartRate;
-                    qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+                    update_hr_from_external();
                 }
             }
 
@@ -277,6 +270,11 @@ double iconceptbike::GetSpeedFromPacket(const QByteArray &packet) {
     return convertedData;
 }
 
+double iconceptbike::GetWattFromPacket(const QByteArray &packet) {
+    double convertedData = ((double)(((double)((uint8_t)packet.at(14))) * 256) + ((double)packet.at(15)));
+    return convertedData;
+}
+
 uint16_t iconceptbike::GetCaloriesFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
     return convertedData;
@@ -296,9 +294,6 @@ void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
 
-void *iconceptbike::VirtualBike() { return virtualBike; }
-
-void *iconceptbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t iconceptbike::watts() {
     if (currentCadence().value() == 0) {

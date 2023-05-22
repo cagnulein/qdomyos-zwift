@@ -1652,7 +1652,7 @@ class QZSettings {
     static constexpr bool default_gears_restore_value = false;
 
     static const QString gears_current_value;
-    static constexpr int default_gears_current_value = 0;
+    static constexpr double default_gears_current_value = 0;
 
     static const QString tile_pace_last500m_enabled;
     static constexpr bool default_tile_pace_last500m_enabled = true;
@@ -1805,6 +1805,27 @@ class QZSettings {
 
     static const QString treadmill_simulate_inclination_with_speed;
     static constexpr bool default_treadmill_simulate_inclination_with_speed = false;
+
+    static const QString garmin_companion;
+    static constexpr bool default_garmin_companion = false;
+
+    static const QString peloton_companion_workout_ocr;
+    static constexpr bool default_companion_peloton_workout_ocr = false;
+
+    static const QString iconcept_elliptical;
+    static constexpr bool default_iconcept_elliptical = false;
+
+    static const QString gears_gain;
+    static constexpr double default_gears_gain = 1.0;
+
+    static const QString proform_treadmill_8_0;
+    static constexpr bool default_proform_treadmill_8_0 = false;
+
+    static const QString zero_zt2500_treadmill;
+    static constexpr bool default_zero_zt2500_treadmill = false;
+
+    static const QString kingsmith_encrypt_v5;
+    static constexpr bool default_kingsmith_encrypt_v5 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -36,7 +36,7 @@ jobs:
         with:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
-          ref: "zwift"
+          ref: "zwift"   
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -54,9 +54,16 @@ jobs:
           path: "src/MSIX-Toolkit/"
           ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
 
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
           msystem: mingw64
           release: false
 
@@ -76,6 +83,18 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
 
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            make -j8
+            make install
+            cd ../..
+
       - name: Build
         run: |
             qmake
@@ -92,9 +111,9 @@ jobs:
             cp qdomyos-zwift.exe output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             mkdir adb
@@ -438,3 +457,58 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+  ios-build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - name: Install Qt iOS
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'mac'
+          target: 'ios'
+          modules: 'qtcharts  qtnetworkauth'
+          dir: '${{ github.workspace }}/output/ios/'
+          
+      - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;
+      
+      - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
+
+      - name: fix qt
+        run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/TARGET = qdomyos-zwift/TARGET = qdomyoszwift/g' {} \;                
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
+
+      - name: Build
+        run: qmake CONFIG+=debug && make -j4
+

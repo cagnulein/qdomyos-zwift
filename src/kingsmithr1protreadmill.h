@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -43,11 +41,9 @@ class kingsmithr1protreadmill : public treadmill {
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
-
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
+    double minStepSpeed() { return 0.1; }
 
   private:
     typedef enum K1_VERSION { CLASSIC = 0, RE = 1 } K1_VERSION;
@@ -75,8 +71,6 @@ class kingsmithr1protreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

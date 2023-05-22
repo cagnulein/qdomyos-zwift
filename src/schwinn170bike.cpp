@@ -217,19 +217,8 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }
@@ -347,7 +336,7 @@ void schwinn170bike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -372,10 +361,11 @@ void schwinn170bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinn170bike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -476,10 +466,6 @@ bool schwinn170bike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *schwinn170bike::VirtualBike() { return virtualBike; }
-
-void *schwinn170bike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t schwinn170bike::watts() {
     if (currentCadence().value() == 0) {

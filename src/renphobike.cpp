@@ -1,5 +1,5 @@
 #include "renphobike.h"
-#include "ios/lockscreen.h"
+#include "ftmsbike.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +9,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 
 renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
 
@@ -110,6 +110,7 @@ void renphobike::update() {
                                 QStringLiteral("stopping control ") + QString::number(requestPower));
             return;
         } else {
+            auto virtualBike = this->VirtualBike();
             if (requestPower != -1) {
                 debug("writing power request " + QString::number(requestPower));
                 QSettings settings;
@@ -349,16 +350,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (heartRateBeltName.startsWith("Disabled")) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS
@@ -474,7 +466,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -499,10 +491,11 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&renphobike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &renphobike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &renphobike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -521,8 +514,8 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     powerRequested = ((powerRequested / watt_gain) - watt_offset);
     qDebug() << QStringLiteral("to") << powerRequested;
 
-    if (power_sensor && virtualBike) {
-        if (QDateTime::currentMSecsSinceEpoch() > (virtualBike->whenLastFTMSFrameReceived() + 5000)) {
+    if (power_sensor && this->VirtualBike()) {
+        if(QDateTime::currentMSecsSinceEpoch() > (this->VirtualBike()->whenLastFTMSFrameReceived() + 5000)) {
             double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
             lastPowerRequestedFactor = f / powerRequested;
             powerRequested = f;
@@ -725,10 +718,6 @@ bool renphobike::connected() {
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *renphobike::VirtualBike() { return virtualBike; }
-
-void *renphobike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t renphobike::watts() {
     if (currentCadence().value() == 0)

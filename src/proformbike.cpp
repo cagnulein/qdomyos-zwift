@@ -1,6 +1,8 @@
 #include "proformbike.h"
-#include "ios/lockscreen.h"
+
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -1133,16 +1135,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -1459,7 +1452,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &proformbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -1484,10 +1477,11 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &proformbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -1580,10 +1574,6 @@ bool proformbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *proformbike::VirtualBike() { return virtualBike; }
-
-void *proformbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformbike::watts() {
     if (currentCadence().value() == 0) {

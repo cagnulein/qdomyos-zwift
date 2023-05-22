@@ -44,6 +44,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
 
     QDateTime now = QDateTime::currentDateTime();
     if (v != m_value) {
+        m_valueChanged = now;
         if (m_last5.count() > 1) {
             double diff = v - m_value;
             double diffFromLastValue = qAbs(now.msecsTo(m_lastChanged));

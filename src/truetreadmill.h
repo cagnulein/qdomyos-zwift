@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -43,8 +41,6 @@ class truetreadmill : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
     virtual bool canStartStop() { return false; }
 
   private:
@@ -59,14 +55,14 @@ class truetreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     bool initDone = false;
     bool initRequest = false;
+
+    bool assault_treadmill = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

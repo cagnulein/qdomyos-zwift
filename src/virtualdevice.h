@@ -2,11 +2,13 @@
 #define VIRTUALDEVICE_H
 
 #include <QString>
+#include <QObject>
 
-class virtualdevice {
-private:
-    virtualdevice() {}
+class virtualdevice : public QObject
+{
+    Q_OBJECT
 public:
+
     /**
       * @brief Legacy Bluetooth device name. This is the default when the alternative name is not in use,
       * and is still used for a consistent customer experience.
@@ -32,6 +34,13 @@ public:
      * @brief Gets the full bluetooth name to be advertised.
      */
     static QString get_VirtualDeviceName();
+
+    explicit virtualdevice(QObject *parent = nullptr);
+    ~virtualdevice() override;
+    virtual bool connected()=0;
+
+signals:
+
 
 };
 

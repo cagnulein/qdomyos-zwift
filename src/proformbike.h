@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -42,9 +41,6 @@ class proformbike : public bike {
     resistance_t maxResistance() { return max_resistance; }
     bool inclinationAvailableByHardware();
     bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     resistance_t max_resistance = 16;
@@ -62,7 +58,6 @@ class proformbike : public bike {
     void innerWriteResistance();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

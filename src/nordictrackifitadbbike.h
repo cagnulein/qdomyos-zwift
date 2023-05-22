@@ -33,16 +33,12 @@ class nordictrackifitadbbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool inclinationAvailableByHardware();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-
   private:
     void forceResistance(double resistance);
     uint16_t watts();
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

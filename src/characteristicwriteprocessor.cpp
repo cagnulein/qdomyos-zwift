@@ -1,3 +1,5 @@
+#include "bike.h"
+#include "elliptical.h"
 #include "characteristicwriteprocessor.h"
 #include <QSettings>
 

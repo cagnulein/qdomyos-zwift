@@ -42,9 +42,6 @@ class wahookickrsnapbike : public bike {
     bool connected();
     resistance_t maxResistance() { return 100; }
 
-    void *VirtualBike();
-    void *VirtualDevice();
-
     enum OperationCode : uint8_t {
         _unlock = 32,
         _setResistanceMode = 64,
@@ -103,6 +100,8 @@ class wahookickrsnapbike : public bike {
     uint16_t oldCrankRevs = 0;
 
     bool WAHOO_KICKR = false;
+
+    volatile int notificationSubscribed = 0;
 
     resistance_t lastForcedResistance = -1;
 

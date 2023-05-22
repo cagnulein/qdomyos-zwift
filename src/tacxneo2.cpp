@@ -1,5 +1,4 @@
 #include "tacxneo2.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +8,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -117,14 +117,16 @@ void tacxneo2::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance != currentResistance().value()) {
+            if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                auto virtualBike =this->VirtualBike();
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
         if (requestInclination != -100) {
@@ -217,12 +219,12 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         } else {
             index += 2;
         }
-        LastCrankEventTime =
+        uint16_t LastCrankEventTimeRead =
             (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
-        int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+        int16_t deltaT = LastCrankEventTimeRead - oldLastCrankEventTime;
         if (deltaT < 0) {
-            deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
+            deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
         if (CrankRevsRead != oldCrankRevs && deltaT) {
@@ -235,7 +237,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             Cadence = 0;
         }
 
-        oldLastCrankEventTime = LastCrankEventTime;
+        oldLastCrankEventTime = LastCrankEventTimeRead;
         oldCrankRevs = CrankRevsRead;
 
         Speed = Cadence.value() *
@@ -250,7 +252,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // QString::number(Resistance.value()));
 
         if (tacx_neo2_peloton) {
-            m_pelotonResistance = Resistance.value();
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         } else {
             double ac = 0.01243107769;
             double bc = 1.145964912;
@@ -309,14 +311,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
     }
 #endif
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
 
     if (Cadence.value() > 0) {
@@ -428,7 +423,7 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -453,10 +448,11 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
             connect(virtualBike, &virtualbike::changeInclination, this, &tacxneo2::changeInclination);
             // connect(virtualBike, &virtualbike::powerPacketReceived, this, &tacxneo2::powerPacketReceived);
             // connect(virtualBike, &virtualbike::debug, this, &tacxneo2::debug);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -559,10 +555,6 @@ bool tacxneo2::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *tacxneo2::VirtualBike() { return virtualBike; }
-
-void *tacxneo2::VirtualDevice() { return VirtualBike(); }
-
 uint16_t tacxneo2::watts() {
     if (currentCadence().value() == 0) {
         return 0;
@@ -577,5 +569,30 @@ void tacxneo2::controllerStateChanged(QLowEnergyController::ControllerState stat
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
+    }
+}
+
+resistance_t tacxneo2::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 0; i < max_resistance; i++) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+            return i;
+        }
+    }
+    if (pelotonResistance < bikeResistanceToPeloton(1))
+        return 0;
+    else
+        return max_resistance;
+}
+
+double tacxneo2::bikeResistanceToPeloton(double resistance) {
+    QSettings settings;
+    bool tacx_neo2_peloton =
+        settings.value(QZSettings::tacx_neo2_peloton, QZSettings::default_tacx_neo2_peloton).toBool();
+
+    if (tacx_neo2_peloton) {
+        return (resistance * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+               settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    } else {
+        return resistance;
     }
 }

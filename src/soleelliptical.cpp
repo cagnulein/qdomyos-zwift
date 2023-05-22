@@ -1,6 +1,9 @@
 #include "soleelliptical.h"
 
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -30,11 +33,7 @@ soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool
 }
 
 soleelliptical::~soleelliptical() {
-    qDebug() << QStringLiteral("~soleelliptical()") << virtualTreadmill;
-    if (virtualTreadmill) {
-
-        delete virtualTreadmill;
-    }
+    qDebug() << QStringLiteral("~soleelliptical()");
 }
 
 void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -141,7 +140,7 @@ void soleelliptical::update() {
                 .toBool();
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -150,15 +149,17 @@ void soleelliptical::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstVirtual = 1;
             }
@@ -362,18 +363,9 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
         }
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
         else {
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+            update_hr_from_external();
         }
-#endif
-#endif
     }
 
     Distance += ((Speed.value() / 3600000.0) *
@@ -609,10 +601,6 @@ bool soleelliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *soleelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t soleelliptical::watts() {
 

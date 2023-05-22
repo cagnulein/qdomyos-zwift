@@ -20,8 +20,6 @@
 #include <QUdpSocket>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -57,18 +55,13 @@ class nordictrackifitadbtreadmill : public treadmill {
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
     virtual bool canStartStop() { return false; }
-
   private:
     void forceIncline(double incline);
     void forceSpeed(double speed);
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

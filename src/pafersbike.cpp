@@ -1,6 +1,8 @@
 #include "pafersbike.h"
-#include "ios/lockscreen.h"
+
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -240,16 +242,7 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -324,7 +317,7 @@ void pafersbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &pafersbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -346,10 +339,11 @@ void pafersbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&pafersbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &pafersbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -443,9 +437,6 @@ bool pafersbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *pafersbike::VirtualBike() { return virtualBike; }
-
-void *pafersbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t pafersbike::watts() {
     if (currentCadence().value() == 0) {

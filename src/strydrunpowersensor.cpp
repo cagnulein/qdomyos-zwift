@@ -1,5 +1,6 @@
 #include "strydrunpowersensor.h"
-#include "ios/lockscreen.h"
+
+#include "virtualtreadmill.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +10,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -430,16 +432,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -537,7 +530,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill/bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -553,18 +546,21 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &strydrunpowersensor::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &strydrunpowersensor::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService,
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService,
                                               settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt(),
                                               settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble());
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &strydrunpowersensor::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
+            
         }
     }
     firstStateChanged = 1;
@@ -670,10 +666,6 @@ bool strydrunpowersensor::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *strydrunpowersensor::VirtualTreadmill() { return virtualTreadmill; }
-
-void *strydrunpowersensor::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t strydrunpowersensor::watts() { return m_watt.value(); }
 

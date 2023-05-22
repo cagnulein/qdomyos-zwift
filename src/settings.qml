@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.0
 
 //Page {
     ScrollView {
@@ -12,7 +13,7 @@ import Qt.labs.settings 1.0
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane
+        id: settingsPane        
 
         Settings {
             id: settings
@@ -641,7 +642,7 @@ import Qt.labs.settings 1.0
             // from version 2.12.43
             property bool proform_hybrid_trainer_xt: false
             property bool gears_restore_value: false
-            property int gears_current_value: 0
+            property int gears_current_value: 0 // unused
 
             // from version 2.12.44
             property bool tile_pace_last500m_enabled: true
@@ -744,6 +745,38 @@ import Qt.labs.settings 1.0
 
             // from version 2.13.19
             property bool treadmill_simulate_inclination_with_speed: false
+
+            // from version 2.13.26
+            property bool garmin_companion: false
+
+            // from version 2.13.27
+            property bool peloton_companion_workout_ocr: false
+
+            // from version 2.13.31
+            property bool iconcept_elliptical: false
+
+            // from version 2.13.37
+            property bool theme_tile_icon_enabled: true
+            property string theme_tile_background_color: "#303030"
+            property string theme_status_bar_background_color: "#800080"
+
+            // from version 2.13.43
+            property string theme_background_color: "#303030"
+            property bool theme_tile_shadow_enabled: true
+            property string theme_tile_shadow_color: "#9C27B0"
+
+            // from version 2.13.44
+            property double gears_gain: 1.0
+            property double gears_current_value_f: 0
+
+            // from version 2.13.45
+            property bool proform_treadmill_8_0: false
+
+            // from version 2.13.50
+            property bool zero_zt2500_treadmill: false
+
+            // from version 2.13.52
+            property bool kingsmith_encrypt_v5: false
 
             // from version ?
             property string virtual_device_alt_name_suffix: "0"
@@ -1968,7 +2001,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceDown
-                            text: qsTr("ERG Min. Resistance:")
+                            text: qsTr("Min. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -2006,7 +2039,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgResistanceUp
-                            text: qsTr("ERG Max. Resistance:")
+                            text: qsTr("Max. Resistance:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -2067,6 +2100,42 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("(only for bikes with electronically-controlled resistance): Enter the resistance level you want QZ to set at startup. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Gears Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: gearsGainTextField
+                            text: settings.gears_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.gears_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.gears_gain = gearsGainTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -3226,6 +3295,184 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    Button {
+                        text: "Open Floating on a Browser"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: openFloatingWindowBrowser();
+                    }
+
+                    AccordionElement {
+                        id: themesOptionsAccordion
+                        title: qsTr("UI Themes")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 10
+                            SwitchDelegate {
+                                id: tilesIconsDelegate
+                                text: qsTr("Tiles Icons")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.theme_tile_icon_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.theme_tile_icon_enabled = checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: backgroundColorTextField
+                                      text: settings.theme_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") backgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: okBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_background_color = backgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: backgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        backgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelBackgroundColor
+                                    text: qsTr("Tiles Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: tilebackgroundColorTextField
+                                      text: settings.theme_tile_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") tilebackgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: oktileBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_background_color = tilebackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: tilebackgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        tilebackgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Tiles Shadow")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.theme_tile_shadow_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.theme_tile_shadow_enabled = checked
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Tiles Shadow Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: tileShadowColorTextField
+                                      text: settings.theme_tile_shadow_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") tileShadowColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: oktileShadowColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_shadow_color = tileShadowColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: tileShadowColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        tileShadowColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Statusbar Background Color:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                      id: statusbarbackgroundColorTextField
+                                      text: settings.theme_status_bar_background_color
+                                      Layout.fillHeight: false
+                                      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                      onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                      onPressed: {
+                                          if(OS_VERSION !== "Android") statusbarbackgroundColorDialog.visible = true
+                                      }
+                                }
+                                Button {
+                                    id: okStatusbarBackgroundColor
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_status_bar_background_color = statusbarbackgroundColorTextField.text; toast.show("Setting saved!"); }
+                                }
+                                ColorDialog {
+                                    id: statusbarbackgroundColorDialog
+                                    title: "Please choose a color"
+                                    onAccepted: {
+                                        statusbarbackgroundColorTextField.text = this.color
+                                        visible = false;
+                                    }
+                                    onRejected: visible = false;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -3727,6 +3974,33 @@ import Qt.labs.settings 1.0
                     }
 
                     SwitchDelegate {
+                        text: qsTr("Peloton Auto Sync Companion (Exp.)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_companion_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.peloton_companion_workout_ocr = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("This setting enables the AI (Artificial Intelligence) on the QZ Companion AI app that will read the peloton workout screen and will adjust the peloton offset in order to stay in sync in realtime with your Peloton workout.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
                         id: pelotonBikeOCRDelegate
                         text: qsTr("Peloton Bike/Bike+ (Experimental)")
                         spacing: 0
@@ -3780,6 +4054,43 @@ import Qt.labs.settings 1.0
 
                     Label {
                         text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Garmin Companion Options") + "\uD83E\uDD47"
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Enable Companion App")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_companion
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_companion = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("You have to install the QZ Companion App on your Garmin Watch/Computer first.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -4514,7 +4825,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_speed = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -4552,7 +4863,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.treadmill_step_incline = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
@@ -4849,6 +5160,21 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
+
+                        SwitchDelegate {
+                            text: qsTr("Proform 8.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_8_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_8_0 = checked; window.settings_restart_to_apply = true; }
+                        }
+
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
@@ -4978,7 +5304,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v2
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v2 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -4993,7 +5319,7 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v3 = checked; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
                         }
 
                         SwitchDelegate {
@@ -5008,7 +5334,21 @@ import Qt.labs.settings 1.0
                             checked: settings.kingsmith_encrypt_v4
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.kingsmith_encrypt_v4 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v5 = false; window.settings_restart_to_apply = true; }
+                        }
+
+                        SwitchDelegate {
+                            text: qsTr("WalkingPad X21 v4")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.kingsmith_encrypt_v5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.kingsmith_encrypt_v5 = checked; settings.kingsmith_encrypt_v3 = false; settings.kingsmith_encrypt_v2 = false; settings.kingsmith_encrypt_v4 = false; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5034,6 +5374,19 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.fitfiu_mc_v460 = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Zero ZT-2500")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.zero_zt2500_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.zero_zt2500_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }
@@ -5538,6 +5891,28 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                AccordionElement {
+                    title: qsTr("Bodytone Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Force Using FTMS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_force_ftms
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.horizon_treadmill_force_ftms = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                }
             }
 
             AccordionElement {
@@ -5908,6 +6283,27 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.sole_elliptical_e55 = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+
+                    AccordionElement {
+                        title: qsTr("iConcept Elliptical Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            text: qsTr("iConcept elliptical")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.iconcept_elliptical
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.iconcept_elliptical = checked; window.settings_restart_to_apply = true; }
                         }
                     }
                 }

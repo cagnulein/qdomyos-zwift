@@ -1,6 +1,7 @@
 #include "chronobike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -198,16 +199,7 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -264,7 +256,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 &chronobike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -289,9 +281,10 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -382,10 +375,6 @@ bool chronobike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *chronobike::VirtualBike() { return virtualBike; }
-
-void *chronobike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t chronobike::watts() {
     QSettings settings;

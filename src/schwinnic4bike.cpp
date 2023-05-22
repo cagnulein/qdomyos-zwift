@@ -1,6 +1,6 @@
 #include "schwinnic4bike.h"
 
-#include "ios/lockscreen.h"
+
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -11,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -341,19 +342,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }
@@ -408,7 +398,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -442,10 +432,11 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             double bikeResistanceGain =
                 settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
                     .toDouble();
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -541,10 +532,6 @@ bool schwinnic4bike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *schwinnic4bike::VirtualBike() { return virtualBike; }
-
-void *schwinnic4bike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t schwinnic4bike::watts() {
     if (currentCadence().value() == 0) {

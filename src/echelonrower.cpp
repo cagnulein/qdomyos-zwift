@@ -1,7 +1,9 @@
 #include "echelonrower.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
+#include "virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -256,16 +258,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -367,7 +360,7 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonrower::descriptorWritten);
 
         // ******************************************* virtual bike/rower init *************************************
-        if (!firstStateChanged && !virtualBike && !virtualRower
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -391,13 +384,15 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 if (virtual_device_enabled) {
                 if (!virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
-                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
             }
         }
@@ -489,15 +484,6 @@ bool echelonrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *echelonrower::VirtualBike() {
-    if (virtualBike)
-        return virtualBike;
-    else
-        return virtualRower;
-}
-
-void *echelonrower::VirtualDevice() { return VirtualBike(); }
 
 uint16_t echelonrower::watts() {
     if (currentCadence().value() == 0) {

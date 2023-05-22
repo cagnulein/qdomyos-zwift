@@ -37,6 +37,7 @@ ApplicationWindow {
     signal keyMediaPrevious()
     signal keyMediaNext()
     signal floatingOpen()
+    signal openFloatingWindowBrowser();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -44,6 +45,7 @@ ApplicationWindow {
     Settings {
         id: settings
         property string profile_name: "default"        
+        property string theme_status_bar_background_color: "#800080"
     }
 
     Store {
@@ -389,7 +391,7 @@ ApplicationWindow {
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: Material.Purple
+        Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
 
         ToolButton {
@@ -698,16 +700,6 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                id: strava_connect
-                text: qsTr("Connect to Strava")
-                width: parent.width
-                onClicked: {
-                    stackView.push("WebStravaAuth.qml")
-                    strava_connect_clicked()
-                    drawer.close()
-                }
-            }
-            ItemDelegate {
                 id: help
                 text: qsTr("Help")
                 width: parent.width
@@ -744,9 +736,28 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.25"
+                text: "version 2.13.54"
                 width: parent.width
             }
+
+            ItemDelegate {
+                id: strava_connect
+                Image {
+                    anchors.left: parent.left;
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "icons/icons/btn_strava_connectwith_orange.png"
+                    fillMode: Image.PreserveAspectFit
+                    visible: true
+                    width: parent.width
+                }
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebStravaAuth.qml")
+                    strava_connect_clicked()
+                    drawer.close()
+                }
+            }
+
 				FileDialog {
 				    id: fileDialogGPX
 					 title: "Please choose a file"

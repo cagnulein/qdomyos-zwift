@@ -1,6 +1,7 @@
 #include "ultrasportbike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -19,7 +20,7 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 ultrasportbike::ultrasportbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
 #ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
+    QZ_EnableDiscoveryCharsAndDescripttors = false;
 #endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -204,16 +205,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -291,7 +283,7 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &ultrasportbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -313,10 +305,10 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&ultrasportbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &ultrasportbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -414,10 +406,6 @@ bool ultrasportbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ultrasportbike::VirtualBike() { return virtualBike; }
-
-void *ultrasportbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ultrasportbike::watts() {
     if (currentCadence().value() == 0) {

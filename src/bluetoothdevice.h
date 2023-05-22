@@ -22,6 +22,8 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 
+#include "virtualdevice.h"
+
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
@@ -48,8 +50,12 @@ class MetersByInclination {
 class bluetoothdevice : public QObject {
 
     Q_OBJECT
+
   public:
     bluetoothdevice();
+
+    ~bluetoothdevice() override;
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -192,7 +198,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
-    virtual void *VirtualDevice();
+    virtualdevice *VirtualDevice();
 
     /**
      * @brief watts Calculates the amount of power used. Units: watts
@@ -432,6 +438,33 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
+
+    /**
+     * @brief Mode of operation for the virtual device with the bluetoothdevice object.
+     */
+    enum VIRTUAL_DEVICE_MODE {
+
+        /**
+         * @brief Not set.
+         */
+        NONE,
+        /**
+         * @brief Virtual device represents the same type of device.
+         */
+        PRIMARY,
+
+        /**
+         * @brief Virtual device representing the device for a purpose other than the
+         * type of device it matches.
+         */
+        ALTERNATIVE
+    };
+
+    /**
+     * @brief hasVirtualDevice shows if the object has any virtual device assigned.
+     */
+    bool hasVirtualDevice();
+
     QLowEnergyController *m_control = nullptr;
 
     /**
@@ -634,10 +667,31 @@ class bluetoothdevice : public QObject {
     void update_metrics(bool watt_calc, const double watts);
 
     /**
+     * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
+     */
+    void update_hr_from_external();
+
+    /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
      * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     double calculateMETS();
+
+
+    /**
+     * @brief setVirtualDevice Set the virtual device, and the way it is being used. Deletes the existing one, if present.
+     * @param virtualDevice The virtual device.
+     */
+    void setVirtualDevice(virtualdevice * virtualDevice, VIRTUAL_DEVICE_MODE mode);
+
+  private:
+    /**
+     * @brief Indicates the way the virtual device is being used.
+     * Normally PRIMARY, set this to ALTERNATIVE where the device is being used unusually, e.g.
+     * for the Zwift Auto-Inclination Workaround.
+     */
+    VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
+    virtualdevice *virtualDevice = nullptr;
 };
 
 #endif // BLUETOOTHDEVICE_H

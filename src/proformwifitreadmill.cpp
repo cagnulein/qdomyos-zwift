@@ -1,7 +1,7 @@
 #include "proformwifitreadmill.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -41,7 +41,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     initRequest = true;
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadMill && !virtualBike) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -50,15 +50,17 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &proformwifitreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
             firstStateChanged = 1;
         }
@@ -245,16 +247,7 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
 #endif
     {
         if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -284,11 +277,5 @@ void proformwifitreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
 }
 
 bool proformwifitreadmill::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
-
-void *proformwifitreadmill::VirtualBike() { return virtualBike; }
-
-void *proformwifitreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *proformwifitreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 uint16_t proformwifitreadmill::watts() { return m_watts; }

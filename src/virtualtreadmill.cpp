@@ -1,9 +1,8 @@
 #include "virtualtreadmill.h"
-#include "elliptical.h"
-#include "ftmsbike.h"
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
+
 
 using namespace std::chrono_literals;
 

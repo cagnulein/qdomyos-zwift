@@ -260,15 +260,16 @@ void octaneelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
-                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &octaneelliptical::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -534,9 +535,6 @@ bool octaneelliptical::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *octaneelliptical::VirtualTreadMill() { return virtualTreadMill; }
-
-void *octaneelliptical::VirtualDevice() { return VirtualTreadMill(); }
 
 bool octaneelliptical::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

@@ -27,8 +27,7 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
+
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,11 +37,7 @@ class strydrunpowersensor : public treadmill {
     Q_OBJECT
   public:
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-
+    bool connected() override;
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -50,8 +45,6 @@ class strydrunpowersensor : public treadmill {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;

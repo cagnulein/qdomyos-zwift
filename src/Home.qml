@@ -9,6 +9,12 @@ import QtMultimedia 5.15
 
 HomeForm{
     objectName: "home"
+    background: Rectangle {
+        anchors.fill: parent
+        width: parent.fill
+        height: parent.fill
+        color: settings.theme_background_color
+    }
     signal start_clicked;
     signal stop_clicked;
     signal lap_clicked;
@@ -21,6 +27,11 @@ HomeForm{
     Settings {
         id: settings
         property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_tile_background_color: "#303030"
+        property string theme_background_color: "#303030"
+        property bool theme_tile_shadow_enabled: true
+        property string theme_tile_shadow_color: "#9C27B0"
     }
 
     MessageDialog {
@@ -154,26 +165,27 @@ HomeForm{
                     height: 123 * settings.ui_zoom / 100
                     radius: 3
                     border.width: 1
-                    border.color: "purple"
-                    color: Material.backgroundColor
+                    border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
+                    color: settings.theme_tile_background_color
                     id: rect
                 }
 
                 DropShadow {
+                    visible: settings.theme_tile_shadow_enabled
                     anchors.fill: rect
                     cached: true
                     horizontalOffset: 3
                     verticalOffset: 3
                     radius: 8.0
                     samples: 16
-                    color: Material.color(Material.Purple)
+                    color: settings.theme_tile_shadow_color
                     source: rect
                 }
 
                 Timer {
                     id: toggleIconTimer
                     interval: 500; running: true; repeat: true
-                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = true; }
+                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = settings.theme_tile_icon_enabled && !largeButton; }
                 }
 
                 Image {
@@ -185,7 +197,7 @@ HomeForm{
                     width: 48 * settings.ui_zoom / 100
                     height: 48 * settings.ui_zoom / 100
                     source: icon
-                    visible: !largeButton
+                    visible: settings.theme_tile_icon_enabled && !largeButton
                 }
                 Text {
                     objectName: "value"
@@ -284,7 +296,8 @@ HomeForm{
                 anchors.top: gridView.bottom
                 width: parent.width
                 height: parent.height / 2
-
+                // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
+                /*
                 Timer {
                     id: pauseTimer
                     interval: 1000; running: true; repeat: true
@@ -292,6 +305,7 @@ HomeForm{
                                         videoPlaybackHalf.play() :
                                         videoPlaybackHalf.pause()) } }
                 }
+                */
 
                 onVisibleChanged: {
                     if(visible === true) {

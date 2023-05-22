@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
+import Qt.labs.settings 1.0
 
 Page {
 
@@ -12,6 +13,13 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+
+    Settings {
+	     id: settings
+		  property real ui_zoom: 100.0
+		  property bool theme_tile_icon_enabled: true
+		  property string theme_background_color: "#303030"
+		}
 
     Item {
         width: parent.width
@@ -30,7 +38,7 @@ Page {
             Rectangle {
                 width: 50
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -42,7 +50,7 @@ Page {
                     Rectangle {
                         width: 50
                         height: row.height
-                        color: Material.backgroundColor
+                        color: settings.theme_background_color
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
@@ -73,7 +81,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 RoundButton {
                     icon.source: rootItem.startIcon
                     icon.height: row.height - 54
@@ -95,7 +103,7 @@ Page {
             Rectangle {
                 width: 120
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
 
                 RoundButton {
                     icon.source: rootItem.stopIcon
@@ -119,7 +127,7 @@ Page {
                 id: item2
                 width: 50
                 height: row.height
-                color: Material.backgroundColor
+					 color: settings.theme_background_color
                 RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
                     id: lap

@@ -19,3 +19,15 @@ QString virtualdevice::get_VirtualDeviceName() {
     return VirtualDeviceBaseName+suffix;
 }
 
+#include "virtualdevice.h"
+#include <QDebug>
+
+virtualdevice::virtualdevice(QObject *parent)
+    : QObject{parent}
+{
+
+}
+
+virtualdevice::~virtualdevice() {
+    qDebug() << "Deleting virtual device";
+}
