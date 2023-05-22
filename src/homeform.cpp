@@ -1,7 +1,11 @@
 #include "homeform.h"
+#ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#endif
 #include "localipaddress.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -12,6 +16,8 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
@@ -21,6 +27,7 @@
 #include <QNetworkInterface>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
+#include <QProcess>
 #include <QQmlContext>
 #include <QQmlFile>
 

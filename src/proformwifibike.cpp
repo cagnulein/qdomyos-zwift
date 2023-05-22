@@ -1,6 +1,7 @@
 #include "proformwifibike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QDateTime>
 #include <QFile>
@@ -43,7 +44,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     initRequest = true;
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -68,10 +69,10 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,& proformwifibike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &proformwifibike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -251,6 +252,7 @@ void proformwifibike::innerWriteResistance() {
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+            auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                 (requestPower == 0 || requestPower == -1)) {
                 forceResistance(requestResistance);
@@ -535,9 +537,5 @@ void proformwifibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool proformwifibike::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
-
-void *proformwifibike::VirtualBike() { return virtualBike; }
-
-void *proformwifibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformwifibike::watts() { return m_watt.value(); }

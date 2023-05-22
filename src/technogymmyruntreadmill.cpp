@@ -1,7 +1,6 @@
 #include "technogymmyruntreadmill.h"
 
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -547,7 +547,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -561,15 +561,17 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &technogymmyruntreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
         firstStateChanged = 1;
@@ -682,10 +684,6 @@ bool technogymmyruntreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *technogymmyruntreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *technogymmyruntreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void technogymmyruntreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

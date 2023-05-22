@@ -1,6 +1,7 @@
 #include "fitshowtreadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -43,9 +44,6 @@ fitshowtreadmill::~fitshowtreadmill() {
     if (refresh) {
         refresh->stop();
         delete refresh;
-    }
-    if (virtualTreadMill) {
-        delete virtualTreadMill;
     }
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
@@ -161,16 +159,16 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
+        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -803,10 +801,6 @@ bool fitshowtreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *fitshowtreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *fitshowtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void fitshowtreadmill::searchingStop() { searchStopped = true; }
 

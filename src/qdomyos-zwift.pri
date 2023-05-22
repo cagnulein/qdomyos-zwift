@@ -72,6 +72,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
@@ -273,6 +274,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
    $$PWD/apexbike.h \

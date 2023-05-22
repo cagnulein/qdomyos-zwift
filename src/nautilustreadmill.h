@@ -26,7 +26,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class nautilustreadmill : public treadmill {
     Q_OBJECT
@@ -37,11 +36,7 @@ class nautilustreadmill : public treadmill {
     double minStepInclination();
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
     virtual bool canStartStop() { return false; }
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
@@ -65,7 +60,6 @@ class nautilustreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

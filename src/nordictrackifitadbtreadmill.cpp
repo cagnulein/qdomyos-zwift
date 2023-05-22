@@ -1,13 +1,15 @@
 #include "nordictrackifitadbtreadmill.h"
-#include "homeform.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
+#include "virtualbike.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <QProcess>
 #include <chrono>
 #include <math.h>
 
@@ -125,7 +127,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initRequest = true;
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -134,15 +136,17 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &nordictrackifitadbtreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
             firstStateChanged = 1;
         }
@@ -374,6 +378,3 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
 
-void *nordictrackifitadbtreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *nordictrackifitadbtreadmill::VirtualDevice() { return VirtualTreadmill(); }

@@ -28,7 +28,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/M3iIOS-Interface.h"
@@ -141,10 +140,8 @@ class m3ibike : public bike {
   public:
     m3ibike(bool noWriteResistance, bool noHeartService);
     virtual ~m3ibike();
-    bool connected();
+    bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice();
     static bool parse_data(const QByteArray &data, keiser_m3i_out_t *f);
     static bool valid_id(int id);
     static bool isCorrectUnit(const QBluetoothDeviceInfo &device);
@@ -163,15 +160,13 @@ class m3ibike : public bike {
     void initScan();
     Q_INVOKABLE void processAdvertising(const QByteArray &data);
     Q_INVOKABLE void restartScan();
-    uint16_t watts();
+    uint16_t watts() override;
     QTimer *detectDisc = nullptr, *elapsedTimer = nullptr;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
     qint64 lastTimerRestart = -1;
     int lastTimerRestartOffset = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
-    virtualbike *virtualBike = nullptr;
 
     bool firstUpdate = true;
 

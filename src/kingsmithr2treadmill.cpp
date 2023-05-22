@@ -1,6 +1,8 @@
 #include "kingsmithr2treadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -121,22 +123,22 @@ void kingsmithr2treadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled =
-                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike =
-                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
-                    .toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr2treadmill::debug);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr2treadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -535,9 +537,5 @@ bool kingsmithr2treadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *kingsmithr2treadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *kingsmithr2treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }

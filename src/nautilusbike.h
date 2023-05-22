@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class nautilusbike : public bike {
     Q_OBJECT
@@ -35,9 +34,7 @@ class nautilusbike : public bike {
     nautilusbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                  uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautilusbike();
-    bool connected();
-
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -51,7 +48,6 @@ class nautilusbike : public bike {
     void startDiscover();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
     uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 

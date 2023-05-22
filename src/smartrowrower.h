@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "rower.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -42,8 +41,6 @@ class smartrowrower : public rower {
     resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     const resistance_t max_resistance = 32;
@@ -60,7 +57,6 @@ class smartrowrower : public rower {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

@@ -1,4 +1,5 @@
 #include "technogymmyruntreadmillrfcomm.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -103,15 +104,16 @@ void technogymmyruntreadmillrfcomm::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!virtualTreadMill) {
+        if (!this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, true);
+                auto virtualTreadMill = new virtualtreadmill(this, true);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &technogymmyruntreadmillrfcomm::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmillrfcomm::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         // ********************************************************************************************************
@@ -226,7 +228,3 @@ void technogymmyruntreadmillrfcomm::readSocket() {
 void technogymmyruntreadmillrfcomm::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
-
-void *technogymmyruntreadmillrfcomm::VirtualTreadMill() { return virtualTreadMill; }
-
-void *technogymmyruntreadmillrfcomm::VirtualDevice() { return VirtualTreadMill(); }
