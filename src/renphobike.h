@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "ftmsbike.h"
-#include "virtualbike.h"
 
 class renphobike : public bike {
     Q_OBJECT
@@ -38,9 +36,6 @@ class renphobike : public bike {
     // uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
     resistance_t maxResistance() { return max_resistance; }
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     const resistance_t max_resistance = 80;
@@ -53,9 +48,7 @@ class renphobike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
 
-    QTimer *refresh;
-    virtualbike *virtualBike = 0;
-
+    QTimer *refresh;    
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;

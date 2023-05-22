@@ -51,6 +51,8 @@ public :
 
     bool iconcept_elliptical = false;
 
+    bool sole_treadmill_inclination = false;
+
     bool ios_peloton_workaround =false;
     bool virtual_device_rower = false;
     bool bike_cadence_sensor = false;

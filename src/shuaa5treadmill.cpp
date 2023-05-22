@@ -10,9 +10,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -428,7 +429,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->isPelotonWorkaroundActive()) {
+    if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
 
         QSettings settings;
         bool virtual_device_enabled =
@@ -436,10 +437,11 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
+            auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &shuaa5treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &shuaa5treadmill::changeInclinationRequested);
+            this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     this->setVirtualDeviceSetUp();
@@ -548,10 +550,6 @@ bool shuaa5treadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *shuaa5treadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *shuaa5treadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void shuaa5treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

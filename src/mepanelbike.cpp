@@ -314,16 +314,17 @@ void mepanelbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &mepanelbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&mepanelbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &mepanelbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -416,10 +417,6 @@ bool mepanelbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *mepanelbike::VirtualBike() { return virtualBike; }
-
-void *mepanelbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t mepanelbike::watts() {
     if (currentCadence().value() == 0) {

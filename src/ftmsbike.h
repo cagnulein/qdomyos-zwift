@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 enum FtmsControlPointCommand {
     FTMS_REQUEST_CONTROL = 0x00,
@@ -70,9 +69,6 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance);
     resistance_t maxResistance() { return max_resistance; }
 
-    void *VirtualBike();
-    void *VirtualDevice();
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -83,7 +79,6 @@ class ftmsbike : public bike {
     void forcePower(int16_t requestPower);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

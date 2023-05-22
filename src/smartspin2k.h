@@ -30,8 +30,6 @@
 #include <QUdpSocket>
 
 #include "bike.h"
-#include "ftmsbike.h"
-#include "virtualbike.h"
 
 class smartspin2k : public bike {
 
@@ -40,8 +38,6 @@ class smartspin2k : public bike {
     smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice);
     bool connected();
 
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     #define max_calibration_samples  4
@@ -56,7 +52,6 @@ class smartspin2k : public bike {
     void lowInit(resistance_t resistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QUdpSocket *udpSocket = new QUdpSocket();
 

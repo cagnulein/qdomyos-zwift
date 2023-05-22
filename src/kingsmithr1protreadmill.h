@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class kingsmithr1protreadmill : public treadmill {
 
@@ -38,9 +36,6 @@ class kingsmithr1protreadmill : public treadmill {
     kingsmithr1protreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
@@ -71,8 +66,6 @@ class kingsmithr1protreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

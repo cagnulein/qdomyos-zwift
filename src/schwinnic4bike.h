@@ -29,29 +29,24 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class schwinnic4bike : public bike {
     Q_OBJECT
   public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool ergManagedBySS2K() { return true; }
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool ergManagedBySS2K() override { return true; }
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
@@ -77,7 +72,7 @@ class schwinnic4bike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(resistance_t res);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

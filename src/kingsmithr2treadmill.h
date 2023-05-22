@@ -29,8 +29,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class kingsmithr2treadmill : public treadmill {
 
@@ -40,10 +38,7 @@ class kingsmithr2treadmill : public treadmill {
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
     virtual bool canStartStop() { return false; }
-
   private:
     const QByteArray PLAINTEXT_TABLE =
         QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
@@ -55,6 +50,8 @@ class kingsmithr2treadmill : public treadmill {
         QStringLiteral("0aCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5Z78KS3=").toUtf8();
     const QByteArray ENCRYPT_TABLE_v4 =
         QStringLiteral("ZaCw4FGHIJqLhN9P+RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
+    const QByteArray ENCRYPT_TABLE_v5 =
+        QStringLiteral("iaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEZjklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
 
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -78,8 +75,6 @@ class kingsmithr2treadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -88,6 +83,7 @@ class kingsmithr2treadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
+    bool KS_NACH_X21C = false;
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

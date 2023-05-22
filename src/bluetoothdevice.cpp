@@ -11,6 +11,12 @@ bluetoothdevice::bluetoothdevice() {
 
 bluetoothdevice::~bluetoothdevice() {
 
+
+    if(this->virtualDevice) {
+        delete this->virtualDevice;
+        this->virtualDevice = nullptr;
+    }
+
     if(this->lockscreenFunctions)
         delete this->lockscreenFunctions;
 }
@@ -43,6 +49,8 @@ metric bluetoothdevice::currentResistance() { return Resistance; }
 metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
+
+virtualdevice *bluetoothdevice::VirtualDevice() { return this->virtualDevice; }
 void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
@@ -103,7 +111,6 @@ double bluetoothdevice::odometer() { return Distance.value(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
-void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
     if (speed > 230 && FanSpeed < 20) {
@@ -146,6 +153,8 @@ void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
+bool bluetoothdevice::hasVirtualDevice() { return this->virtualDevice!=nullptr; }
+
 void bluetoothdevice::configureLockscreenFunctions(QZLockscreenFunctions *) const {
     // ideally this would be abstract, but an implementation is provided to avoid unhelpful segmentation fault errors
     qDebug() << "unimplemented configureLockscreenFunctions called";
@@ -153,6 +162,17 @@ void bluetoothdevice::configureLockscreenFunctions(QZLockscreenFunctions *) cons
 }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
+
+void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode) {
+
+    if(mode!=VIRTUAL_DEVICE_MODE::NONE && !virtualDevice)
+        throw "Virtual device mode should be NONE when no virtual device is specified.";
+
+    if(this->virtualDevice)
+        delete this->virtualDevice;
+    this->virtualDevice = virtualDevice;
+    this->virtualDeviceMode=mode;
+}
 
 // keiser m3i has a separate management of this, so please check it
 void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {

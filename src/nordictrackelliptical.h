@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class nordictrackelliptical : public elliptical {
     Q_OBJECT
@@ -37,8 +35,6 @@ class nordictrackelliptical : public elliptical {
                           double bikeResistanceGain);
     bool connected();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
     int pelotonToEllipticalResistance(int pelotonResistance);
     bool inclinationAvailableByHardware() { return false; }
 
@@ -57,8 +53,6 @@ class nordictrackelliptical : public elliptical {
     void forceSpeed(double speed);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

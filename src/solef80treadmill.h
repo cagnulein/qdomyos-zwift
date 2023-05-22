@@ -29,19 +29,15 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class solef80treadmill : public treadmill {
     Q_OBJECT
   public:
     solef80treadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    double minStepInclination() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -51,7 +47,6 @@ class solef80treadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class echelonstride : public treadmill {
     Q_OBJECT
@@ -37,9 +35,7 @@ class echelonstride : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
 
-    void *VirtualTreadMill();
     double minStepInclination() override;
-    void *VirtualDevice() override;
 
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
@@ -70,8 +66,6 @@ class echelonstride : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

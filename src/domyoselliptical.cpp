@@ -1,6 +1,8 @@
 #include "domyoselliptical.h"
-
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -30,10 +32,7 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
 }
 
 domyoselliptical::~domyoselliptical() {
-    qDebug() << QStringLiteral("~domyoselliptical()") << virtualTreadmill;
-
-    if (virtualTreadmill)
-        delete virtualTreadmill;
+    qDebug() << QStringLiteral("~domyoselliptical()");
 }
 
 void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -168,7 +167,7 @@ void domyoselliptical::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -177,17 +176,19 @@ void domyoselliptical::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyoselliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
 
@@ -585,10 +586,6 @@ bool domyoselliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *domyoselliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *domyoselliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t domyoselliptical::watts() {
 

@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class activiotreadmill : public treadmill {
 
@@ -39,9 +37,6 @@ class activiotreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     double minStepInclination();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -62,8 +57,6 @@ class activiotreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

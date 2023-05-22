@@ -1,7 +1,11 @@
 #include "domyosrower.h"
 
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
+#include "virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -30,10 +34,7 @@ domyosrower::domyosrower(bool noWriteResistance, bool noHeartService, bool testR
 }
 
 domyosrower::~domyosrower() {
-    qDebug() << QStringLiteral("~domyosrower()") << virtualTreadmill;
-
-    if (virtualTreadmill)
-        delete virtualTreadmill;
+    qDebug() << QStringLiteral("~domyosrower()") ;
 }
 
 void domyosrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -170,26 +171,30 @@ void domyosrower::update() {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadmill && !virtualBike && !virtualRower && !this->isPelotonWorkaroundActive()) {
-			bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
+			bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();           
+			bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
-                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
             // inside the outer if in case !searchStopped
@@ -574,10 +579,6 @@ bool domyosrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *domyosrower::VirtualTreadmill() { return virtualTreadmill; }
-
-void *domyosrower::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t domyosrower::watts() {
 

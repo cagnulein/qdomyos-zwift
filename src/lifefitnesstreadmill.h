@@ -42,8 +42,6 @@ class lifefitnesstreadmill : public treadmill {
     double minStepInclination();
     double minStepSpeed();
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
     virtual bool canStartStop() { return false; }
 
   private:
@@ -54,8 +52,6 @@ class lifefitnesstreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

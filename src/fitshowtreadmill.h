@@ -78,13 +78,10 @@ class fitshowtreadmill : public treadmill {
     fitshowtreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     virtual ~fitshowtreadmill();
-    bool connected();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
-    double minStepInclination();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
+    bool connected() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    double minStepInclination() override;
 
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
@@ -139,7 +136,6 @@ class fitshowtreadmill : public treadmill {
     QByteArray bufferWrite;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

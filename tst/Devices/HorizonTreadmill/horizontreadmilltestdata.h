@@ -26,6 +26,9 @@ class HorizonTreadmillTestData : public TreadmillTestData {
         this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KETTLER TREADMILL", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ASSAULTRUNNER", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }

@@ -33,12 +33,9 @@ class keepbike : public bike {
     Q_OBJECT
   public:
     keepbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
     const resistance_t max_resistance = 36;
@@ -53,10 +50,9 @@ class keepbike : public bike {
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

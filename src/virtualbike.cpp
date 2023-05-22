@@ -1,4 +1,5 @@
 #include "virtualbike.h"
+#include "bike.h"
 
 #include <QDataStream>
 #include <QMetaEnum>

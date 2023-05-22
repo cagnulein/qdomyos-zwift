@@ -23,7 +23,7 @@
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-
+#include "treadmill.h"
 #include "dirconmanager.h"
 #include "virtualdevice.h"
 

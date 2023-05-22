@@ -90,7 +90,7 @@ void iconceptelliptical::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -100,17 +100,19 @@ void iconceptelliptical::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, true);
+                    auto virtualTreadmill = new virtualtreadmill(this, true);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &iconceptelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
         }
@@ -263,10 +265,6 @@ uint16_t iconceptelliptical::GetElapsedTimeFromPacket(const QByteArray &packet) 
 void iconceptelliptical::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
-
-void *iconceptelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *iconceptelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t iconceptelliptical::watts() {
     if (currentCadence().value() == 0) {

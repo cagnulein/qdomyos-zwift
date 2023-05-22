@@ -27,17 +27,12 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class flywheelbike : public bike {
     Q_OBJECT
   public:
     flywheelbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
-
+    bool connected() override;
   private:
     typedef enum DecoderRXState { WFSYNC_1 = 0, WFLENGTH, WFID, DATA, CHECKSUM, EOF_1 } DecoderRXState;
 
@@ -135,11 +130,10 @@ class flywheelbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
     void updateStats();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

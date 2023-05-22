@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class domyoselliptical : public elliptical {
     Q_OBJECT
@@ -38,9 +36,6 @@ class domyoselliptical : public elliptical {
     ~domyoselliptical();
     bool connected();
     bool inclinationAvailableByHardware();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -58,8 +53,6 @@ class domyoselliptical : public elliptical {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

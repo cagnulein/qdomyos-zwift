@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class domyostreadmill : public treadmill {
 
@@ -37,11 +35,8 @@ class domyostreadmill : public treadmill {
   public:
     domyostreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    bool changeFanSpeed(uint8_t speed);
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
+    bool connected() override;
+    bool changeFanSpeed(uint8_t speed) override;
 
   private:
     bool sendChangeFanSpeed(uint8_t speed);
@@ -66,8 +61,6 @@ class domyostreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

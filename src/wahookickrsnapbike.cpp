@@ -8,9 +8,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -216,6 +217,7 @@ void wahookickrsnapbike::update() {
                 requestResistance = 1;
             }
 
+            auto virtualBike = this->VirtualBike();
             if (requestResistance != currentResistance().value() &&
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -597,17 +599,17 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+    if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
+            this->setVirtualDevice(virtualBike,VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     this->setVirtualDeviceSetUp();
@@ -724,10 +726,6 @@ bool wahookickrsnapbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *wahookickrsnapbike::VirtualBike() { return virtualBike; }
-
-void *wahookickrsnapbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t wahookickrsnapbike::watts() {
     if (currentCadence().value() == 0) {

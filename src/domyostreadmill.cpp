@@ -1,6 +1,7 @@
 #include "domyostreadmill.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
+#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -270,7 +271,7 @@ void domyostreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!this->isVirtualDeviceSetUp() && searchStopped && !virtualTreadMill && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && searchStopped && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -279,15 +280,17 @@ void domyostreadmill::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &domyostreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &domyostreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyostreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
 
@@ -805,9 +808,5 @@ bool domyostreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *domyostreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *domyostreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void domyostreadmill::searchingStop() { searchStopped = true; }

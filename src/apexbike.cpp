@@ -247,16 +247,18 @@ void apexbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &apexbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&apexbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &apexbike::changeInclination);
+
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -349,10 +351,6 @@ bool apexbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *apexbike::VirtualBike() { return virtualBike; }
-
-void *apexbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t apexbike::watts() {
     return wattFromHR(true);

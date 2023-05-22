@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class solebike : public bike {
     Q_OBJECT
@@ -36,9 +35,6 @@ class solebike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance);
     resistance_t maxResistance() { return max_resistance; }
     bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     bool r92 = false;
@@ -57,7 +53,6 @@ class solebike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

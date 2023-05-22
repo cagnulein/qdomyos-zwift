@@ -1,5 +1,4 @@
 #include "keepbike.h"
-#include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -8,6 +7,10 @@
 #include <QSettings>
 #include <chrono>
 #include <math.h>
+
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#endif
 
 using namespace std::chrono_literals;
 
@@ -349,15 +352,16 @@ void keepbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &keepbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&keepbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &keepbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -451,9 +455,6 @@ bool keepbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *keepbike::VirtualBike() { return virtualBike; }
-
-void *keepbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t keepbike::watts() {
     if (currentCadence().value() == 0) {

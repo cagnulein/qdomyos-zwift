@@ -130,6 +130,7 @@ void ypooelliptical::update() {
             }
 
             if (requestResistance != currentResistance().value()) {
+                auto virtualBike = dynamic_cast<virtualbike*>(this->VirtualDevice());
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
@@ -493,7 +494,7 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        if (!virtualTreadmill && !virtualBike) {
+        if (!this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -502,18 +503,20 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &ypooelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &ypooelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &ypooelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &ypooelliptical::changeInclination);
                     /*connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                             &ypooelliptical::ftmsCharacteristicChanged);*/
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
         }
@@ -645,10 +648,6 @@ bool ypooelliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ypooelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *ypooelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t ypooelliptical::watts() {
     if (currentCadence().value() == 0) {

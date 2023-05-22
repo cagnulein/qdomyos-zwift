@@ -1,5 +1,7 @@
 #include "chronobike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -244,15 +246,16 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 &chronobike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -344,10 +347,6 @@ bool chronobike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *chronobike::VirtualBike() { return virtualBike; }
-
-void *chronobike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t chronobike::watts() {
     QSettings settings;

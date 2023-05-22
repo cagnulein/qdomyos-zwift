@@ -1,5 +1,8 @@
 #include "pafersbike.h"
+
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -305,16 +308,17 @@ void pafersbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &pafersbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
             if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&pafersbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &pafersbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -408,9 +412,6 @@ bool pafersbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *pafersbike::VirtualBike() { return virtualBike; }
-
-void *pafersbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t pafersbike::watts() {
     if (currentCadence().value() == 0) {

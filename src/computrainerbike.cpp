@@ -371,8 +371,4 @@ void computrainerbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool computrainerbike::connected() { return true; }
 
-void *computrainerbike::VirtualBike() { return virtualBike; }
-
-void *computrainerbike::VirtualDevice() { return VirtualBike(); }
-
 uint16_t computrainerbike::watts() { return m_watt.value(); }

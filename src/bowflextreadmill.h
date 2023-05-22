@@ -27,20 +27,16 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class bowflextreadmill : public treadmill {
     Q_OBJECT
   public:
     bowflextreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
+    bool connected() override;
+    double minStepInclination() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -66,7 +62,6 @@ class bowflextreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

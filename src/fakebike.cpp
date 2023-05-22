@@ -1,5 +1,6 @@
 #include "fakebike.h"
 #include "virtualbike.h"
+
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -8,9 +9,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -71,15 +72,16 @@ void fakebike::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!this->isVirtualDeviceSetUp() && !virtualBike && !noVirtualDevice && !this->isPelotonWorkaroundActive()) {
+    if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !noVirtualDevice && !this->isPelotonWorkaroundActive()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     if (!this->isVirtualDeviceSetUp()) {
@@ -128,6 +130,3 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
 
 bool fakebike::connected() { return true; }
 
-void *fakebike::VirtualBike() { return virtualBike; }
-
-void *fakebike::VirtualDevice() { return VirtualBike(); }

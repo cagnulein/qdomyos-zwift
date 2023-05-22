@@ -1,5 +1,7 @@
 #include "m3ibike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -297,9 +299,6 @@ m3ibike::~m3ibike() {
     if (elapsedTimer) {
         elapsedTimer->stop();
         delete elapsedTimer;
-    }
-    if (virtualBike) {
-        delete virtualBike;
     }
     m_instance = 0;
     disconnecting = true;
@@ -612,14 +611,15 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         if (!this->isVirtualDeviceSetUp()) {
             this->setVirtualDeviceSetUp();
 
-            if (!virtualBike && !this->isPelotonWorkaroundActive()) {
+            if (!this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
                 bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
                 if (virtual_device_enabled) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
                 int buffSize = settings.value(QZSettings::m3i_bike_speed_buffsize, QZSettings::default_m3i_bike_speed_buffsize).toInt();
                 k3s.inner_reset(buffSize,
@@ -731,10 +731,6 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool m3ibike::connected() { return this->isVirtualDeviceSetUp(); }
-
-void *m3ibike::VirtualBike() { return virtualBike; }
-
-void *m3ibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t m3ibike::watts() {
     if (currentCadence().value() == 0) {

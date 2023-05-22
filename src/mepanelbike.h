@@ -35,10 +35,6 @@ class mepanelbike : public bike {
   public:
     mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
-
   private:
     const resistance_t max_resistance = 32;
     void btinit();
@@ -50,7 +46,6 @@ class mepanelbike : public bike {
     uint8_t getCheckNum(uint8_t i, uint8_t i2);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

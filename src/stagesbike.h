@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class stagesbike : public bike {
     Q_OBJECT
@@ -37,9 +36,6 @@ class stagesbike : public bike {
     bool connected();
     resistance_t maxResistance() { return 100; }
     bool ergManagedBySS2K() { return true; }
-
-    void *VirtualBike();
-    void *VirtualDevice();
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -51,7 +47,6 @@ class stagesbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;

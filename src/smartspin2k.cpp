@@ -1,5 +1,5 @@
 #include "smartspin2k.h"
-#include "virtualbike.h"
+#include "ftmsbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -10,9 +10,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -510,10 +511,6 @@ bool smartspin2k::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *smartspin2k::VirtualBike() { return virtualBike; }
-
-void *smartspin2k::VirtualDevice() { return VirtualBike(); }
 
 uint16_t smartspin2k::watts() {
     if (currentCadence().value() == 0) {

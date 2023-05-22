@@ -1,5 +1,9 @@
 #include "proformellipticaltrainer.h"
+
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,6 +13,7 @@
 #include <QThread>
 #include <chrono>
 #include <math.h>
+#include <qmath.h>
 
 using namespace std::chrono_literals;
 
@@ -559,22 +564,24 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!this->isVirtualDeviceSetUp() && !virtualTreadmill && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformellipticaltrainer::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
         }
@@ -673,9 +680,6 @@ bool proformellipticaltrainer::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *proformellipticaltrainer::VirtualTreadmill() { return virtualTreadmill; }
-
-void *proformellipticaltrainer::VirtualDevice() { return VirtualTreadmill(); }
 
 void proformellipticaltrainer::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

@@ -1,5 +1,7 @@
 #include "skandikawiribike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -28,10 +30,7 @@ skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, 
 }
 
 skandikawiribike::~skandikawiribike() {
-    qDebug() << QStringLiteral("~skandikawiribike()") << virtualBike;
-    if (virtualBike) {
-        delete virtualBike;
-    }
+    qDebug() << QStringLiteral("~skandikawiribike()");
 }
 
 void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -348,17 +347,18 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
                 &skandikawiribike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!this->isVirtualDeviceSetUp() && !virtualBike && !this->isPelotonWorkaroundActive()) {
+        if (!this->isVirtualDeviceSetUp() && !this->hasVirtualDevice() && !this->isPelotonWorkaroundActive()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &skandikawiribike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         this->setVirtualDeviceSetUp();
@@ -456,10 +456,6 @@ bool skandikawiribike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *skandikawiribike::VirtualBike() { return virtualBike; }
-
-void *skandikawiribike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t skandikawiribike::watts() {
     QSettings settings;

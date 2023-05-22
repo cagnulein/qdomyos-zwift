@@ -1,5 +1,4 @@
 #include "elitesterzosmart.h"
-#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -11,7 +10,6 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -238,10 +236,6 @@ bool elitesterzosmart::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *elitesterzosmart::VirtualBike() { return virtualBike; }
-
-void *elitesterzosmart::VirtualDevice() { return VirtualBike(); }
 
 uint16_t elitesterzosmart::watts() {
     if (currentCadence().value() == 0) {
