@@ -31,9 +31,7 @@ nautilusbike::nautilusbike(bool noWriteResistance, bool noHeartService, bool tes
     refresh->start(300ms);
 }
 
-nautilusbike::~nautilusbike() {
-    qDebug() << QStringLiteral("~nautilusbike()");
-}
+nautilusbike::~nautilusbike() { qDebug() << QStringLiteral("~nautilusbike()"); }
 
 void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                        bool wait_for_response) {
@@ -324,8 +322,14 @@ void nautilusbike::serviceScanDone(void) {
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
-            qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
-            return;
+            _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("44f8d44f-7e03-4baf-9cc1-bd5a9c7a076b"));
+            B616 = false;
+
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (!gattCommunicationChannelService) {
+                qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+                return;
+            }
         }
     }
 
