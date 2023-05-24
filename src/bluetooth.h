@@ -23,6 +23,7 @@
 #include "activiotreadmill.h"
 #include "apexbike.h"
 #include "bhfitnesselliptical.h"
+#include "bkoolbike.h"
 #include "bluetoothdevice.h"
 #include "bowflext216treadmill.h"
 #include "bowflextreadmill.h"
@@ -148,6 +149,7 @@ class bluetooth : public QObject, public SignalHandler {
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     apexbike *apexBike = nullptr;
+    bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;

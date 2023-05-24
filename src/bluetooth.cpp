@@ -1135,9 +1135,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||         // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) || // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                  // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||          // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||              // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) || // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
@@ -1500,6 +1500,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) && !bkoolBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                bkoolBike = new bkoolbike(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(bkoolBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                bkoolBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(bkoolBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2421,6 +2430,10 @@ void bluetooth::restart() {
         delete apexBike;
         apexBike = nullptr;
     }
+    if (bkoolBike) {
+        delete bkoolBike;
+        bkoolBike = nullptr;
+    }
     if (domyosElliptical) {
 
         delete domyosElliptical;
@@ -2898,6 +2911,8 @@ bluetoothdevice *bluetooth::device() {
         return keepBike;
     } else if (apexBike) {
         return apexBike;
+    } else if (bkoolBike) {
+        return bkoolBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
     } else if (horizonTreadmill) {
