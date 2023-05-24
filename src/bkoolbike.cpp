@@ -454,6 +454,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                                     QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        }
     }
 
 #ifdef Q_OS_ANDROID
