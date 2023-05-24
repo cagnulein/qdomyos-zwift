@@ -94,8 +94,8 @@ inv = cv2.bitwise_not(closing)
 averageBlur = cv2.blur(inv, (3, 3))
 
 # OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, show_log=False)
-result = ocr.ocr(averageBlur, cls=False)
+ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, show_log=False)
+result = ocr.ocr(averageBlur, cls=False, det=True, rec=True)
 
 # Extract OCR text
 ocr_text = ''
