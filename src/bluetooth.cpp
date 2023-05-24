@@ -1507,6 +1507,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // stateFileRead();
                 emit deviceConnected(b);
                 connect(bkoolBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(bkoolBike, &bkoolbike::debug, this, &bluetooth::debug);
                 bkoolBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(bkoolBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
