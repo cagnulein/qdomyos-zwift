@@ -64,7 +64,6 @@ class octaneelliptical : public elliptical {
     QByteArray actualPace2Sign;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

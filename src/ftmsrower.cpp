@@ -1,6 +1,5 @@
 #include "ftmsrower.h"
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -13,8 +12,8 @@
 
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
-#endif
 #include "keepawakehelper.h"
+#endif
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -451,7 +450,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -480,8 +479,9 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -601,10 +601,6 @@ bool ftmsrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ftmsrower::VirtualBike() { return virtualBike; }
-
-void *ftmsrower::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ftmsrower::watts() {
     if (currentCadence().value() == 0) {

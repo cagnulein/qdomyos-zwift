@@ -26,7 +26,6 @@
 #include <QTime>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -57,7 +56,6 @@ class trxappgateusbbike : public bike {
     double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -29,8 +29,6 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -57,8 +55,6 @@ class horizontreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -91,6 +87,7 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool kettler_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();

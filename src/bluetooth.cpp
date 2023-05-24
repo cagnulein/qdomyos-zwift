@@ -417,6 +417,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool horizon_treadmill_force_ftms =
         settings.value(QZSettings::horizon_treadmill_force_ftms, QZSettings::default_horizon_treadmill_force_ftms)
             .toBool();
+    bool sole_inclination =
+        settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -965,6 +967,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            b.name().toUpper().startsWith(QStringLiteral("KS-X21")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1062,7 +1065,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ST90")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("F85"))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && sole_inclination)) &&
                        !soleF80 && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1132,8 +1135,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||         // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                  // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||          // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||              // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) || // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1495,6 +1500,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(apexBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 apexBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(apexBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BKOOLSMARTPRO")) && !bkoolBike && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                bkoolBike = new bkoolbike(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(bkoolBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(bkoolBike, &bkoolbike::debug, this, &bluetooth::debug);
+                bkoolBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(bkoolBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MEPANEL")) && !mepanelBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2340,17 +2355,6 @@ void bluetooth::restart() {
 
     emit this->bluetoothDeviceDisconnected();
 
-    if (device() && device()->VirtualDevice()) {
-        if (device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-            delete static_cast<virtualtreadmill *>(device()->VirtualDevice());
-        } else if (device()->deviceType() == bluetoothdevice::BIKE) {
-            delete static_cast<virtualbike *>(device()->VirtualDevice());
-        } else if (device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-            delete static_cast<virtualtreadmill *>(device()->VirtualDevice());
-        }
-    }
-
     if (domyos) {
 
         delete domyos;
@@ -2426,6 +2430,10 @@ void bluetooth::restart() {
     if (apexBike) {
         delete apexBike;
         apexBike = nullptr;
+    }
+    if (bkoolBike) {
+        delete bkoolBike;
+        bkoolBike = nullptr;
     }
     if (domyosElliptical) {
 
@@ -2904,6 +2912,8 @@ bluetoothdevice *bluetooth::device() {
         return keepBike;
     } else if (apexBike) {
         return apexBike;
+    } else if (bkoolBike) {
+        return bkoolBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
     } else if (horizonTreadmill) {

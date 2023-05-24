@@ -41,7 +41,7 @@ class domyosbike : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
-    ~domyosbike();
+    ~domyosbike() override;
     bool connected() override;
 
   private:
@@ -61,7 +61,6 @@ class domyosbike : public bike {
 
     const resistance_t max_resistance = 15;
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t firstVirtual = 0;
     uint8_t firstStateChanged = 0;
 

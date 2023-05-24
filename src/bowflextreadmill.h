@@ -27,7 +27,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class bowflextreadmill : public treadmill {
     Q_OBJECT
@@ -64,7 +63,6 @@ class bowflextreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

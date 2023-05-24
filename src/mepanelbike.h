@@ -50,7 +50,6 @@ class mepanelbike : public bike {
     uint8_t getCheckNum(uint8_t i, uint8_t i2);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

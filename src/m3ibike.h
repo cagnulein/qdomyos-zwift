@@ -28,7 +28,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/M3iIOS-Interface.h"
@@ -167,8 +166,6 @@ class m3ibike : public bike {
     qint64 lastTimerRestart = -1;
     int lastTimerRestartOffset = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
-    virtualbike *virtualBike = nullptr;
 
     bool firstUpdate = true;
 

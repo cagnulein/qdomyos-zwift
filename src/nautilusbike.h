@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class nautilusbike : public bike {
     Q_OBJECT
@@ -49,7 +48,6 @@ class nautilusbike : public bike {
     void startDiscover();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
     uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 

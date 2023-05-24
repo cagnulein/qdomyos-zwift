@@ -28,7 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class technogymmyruntreadmillrfcomm : public treadmill {
     Q_OBJECT
@@ -53,7 +52,6 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

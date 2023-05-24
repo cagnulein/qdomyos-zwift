@@ -1,5 +1,5 @@
 #include "wahookickrsnapbike.h"
-#include "ios/lockscreen.h"
+
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +9,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -171,11 +172,13 @@ void wahookickrsnapbike::update() {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "init", false, true);
+        QThread::msleep(700);
 
         QByteArray c = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), 0.004,
                                   0.4); // wind and rolling should arrive from FTMS
         memcpy(b, c.constData(), c.length());
         writeCharacteristic(b, c.length(), "setSimMode", false, true);
+        QThread::msleep(700);
 
         // required to the SS2K only one time
         Resistance = 0;
@@ -217,6 +220,7 @@ void wahookickrsnapbike::update() {
                 requestResistance = 1;
             }
 
+            auto virtualBike = this->VirtualBike();
             if (requestResistance != currentResistance().value() &&
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -609,7 +613,7 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -634,10 +638,10 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
+            this->setVirtualDevice(virtualBike,VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -754,10 +758,6 @@ bool wahookickrsnapbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *wahookickrsnapbike::VirtualBike() { return virtualBike; }
-
-void *wahookickrsnapbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t wahookickrsnapbike::watts() {
     if (currentCadence().value() == 0) {

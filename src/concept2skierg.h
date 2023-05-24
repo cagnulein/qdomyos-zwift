@@ -27,7 +27,7 @@
 #include <QString>
 
 #include "rower.h"
-#include "virtualtreadmill.h"
+
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -47,7 +47,6 @@ class concept2skierg : public rower {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

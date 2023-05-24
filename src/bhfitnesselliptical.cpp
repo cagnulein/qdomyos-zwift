@@ -1,6 +1,5 @@
 #include "bhfitnesselliptical.h"
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -10,9 +9,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -98,6 +98,7 @@ void bhfitnesselliptical::update() {
             }
 
             if (requestResistance != currentResistance().value()) {
+                virtualbike * virtualBike = dynamic_cast<virtualbike*>(this->VirtualDevice());
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
@@ -429,7 +430,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -437,28 +438,30 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        if (!virtualTreadmill && !virtualBike) {
+        if (!this->hasVirtualDevice()) {
             bool virtual_device_enabled =
-                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
-                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
-                    .toBool();
+                 settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &bhfitnesselliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &bhfitnesselliptical::changeInclinationRequested);
+
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &bhfitnesselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &bhfitnesselliptical::changeInclination);
                     connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                             &bhfitnesselliptical::ftmsCharacteristicChanged);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
             }
         }
@@ -589,10 +592,6 @@ bool bhfitnesselliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *bhfitnesselliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *bhfitnesselliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t bhfitnesselliptical::watts() {
     if (currentCadence().value() == 0) {

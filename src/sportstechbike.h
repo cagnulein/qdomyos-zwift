@@ -26,7 +26,6 @@
 #include <QTime>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class sportstechbike : public bike {
     Q_OBJECT
@@ -51,7 +50,6 @@ class sportstechbike : public bike {
     double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

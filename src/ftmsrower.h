@@ -47,7 +47,6 @@ class ftmsrower : public rower {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

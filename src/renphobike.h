@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "ftmsbike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -54,9 +52,7 @@ class renphobike : public bike {
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
 
-    QTimer *refresh;
-    virtualbike *virtualBike = 0;
-
+    QTimer *refresh;    
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;

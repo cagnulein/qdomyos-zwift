@@ -51,7 +51,6 @@ class fitplusbike : public bike {
     uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyService *gattCommunicationChannelServiceFTMS = nullptr;

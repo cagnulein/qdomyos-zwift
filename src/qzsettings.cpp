@@ -648,8 +648,10 @@ const QString QZSettings::garmin_companion = QStringLiteral("garmin_companion");
 const QString QZSettings::iconcept_elliptical = QStringLiteral("iconcept_elliptical");
 const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
 const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
+const QString QZSettings::zero_zt2500_treadmill = QStringLiteral("zero_zt2500_treadmill");
+const QString QZSettings::kingsmith_encrypt_v5 = QStringLiteral("kingsmith_encrypt_v5");
 
-const uint32_t allSettingsCount = 542;
+const uint32_t allSettingsCount = 544;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1197,6 +1199,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical},
     {QZSettings::gears_gain, QZSettings::default_gears_gain},
     {QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0},
+    {QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill},
+    {QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

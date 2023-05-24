@@ -1,6 +1,4 @@
 #include "eliterizer.h"
-#include "ios/lockscreen.h"
-#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -12,7 +10,7 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -291,9 +289,6 @@ bool eliterizer::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *eliterizer::VirtualBike() { return virtualBike; }
-
-void *eliterizer::VirtualDevice() { return VirtualBike(); }
 
 uint16_t eliterizer::watts() {
     if (currentCadence().value() == 0) {

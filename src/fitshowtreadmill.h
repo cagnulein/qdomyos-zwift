@@ -141,7 +141,6 @@ class fitshowtreadmill : public treadmill {
     QByteArray bufferWrite;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

@@ -26,7 +26,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class octanetreadmill : public treadmill {
     Q_OBJECT
@@ -66,7 +65,6 @@ class octanetreadmill : public treadmill {
     QByteArray cadenceSign;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

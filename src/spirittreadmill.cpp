@@ -1,5 +1,8 @@
 #include "spirittreadmill.h"
+#include "virtualbike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -445,7 +448,7 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !virtualTreadMill && !virtualBike) {
+        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
@@ -455,15 +458,18 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, false);
+                    auto virtualTreadMill = new virtualtreadmill(this, false);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &spirittreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &spirittreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+
                 }
             }
         }
@@ -578,10 +584,6 @@ bool spirittreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *spirittreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *spirittreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void spirittreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

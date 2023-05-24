@@ -49,7 +49,6 @@ class horizongr7bike : public bike {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

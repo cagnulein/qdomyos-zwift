@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -53,8 +51,6 @@ class proformelliptical : public elliptical {
     void forceSpeed(double speed);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

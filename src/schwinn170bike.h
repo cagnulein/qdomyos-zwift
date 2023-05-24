@@ -53,7 +53,6 @@ class schwinn170bike : public bike {
     uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
 

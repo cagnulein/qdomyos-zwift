@@ -30,7 +30,6 @@
 
 #include "bike.h"
 #include "ftmsbike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -50,7 +49,6 @@ class eliterizer : public bike {
     uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharacteristic;

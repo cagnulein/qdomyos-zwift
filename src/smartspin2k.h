@@ -30,8 +30,6 @@
 #include <QUdpSocket>
 
 #include "bike.h"
-#include "ftmsbike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -57,7 +55,6 @@ class smartspin2k : public bike {
     void lowInit(resistance_t resistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QUdpSocket *udpSocket = new QUdpSocket();
 

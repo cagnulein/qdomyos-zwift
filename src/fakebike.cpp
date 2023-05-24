@@ -1,6 +1,6 @@
 #include "fakebike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
+
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -9,9 +9,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -42,7 +42,8 @@ void fakebike::update() {
         w = 120;
     else if (updcou > 6000)
         w = 80;
-    Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(),
+    Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
     */
 
     if (requestPower != -1) {
@@ -53,10 +54,11 @@ void fakebike::update() {
         // bepo70: Disregard the current inclination for calculating speed. When the video
         //         has a high inclination you have to give many power to get the desired playback speed,
         //         if inclination is very low little more power gives a quite high speed jump.
-        //Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
-        //Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
-        Speed = metric::calculateSpeedFromPower(m_watt.value(), 0,
-        Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+        // Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        // Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+        Speed = metric::calculateSpeedFromPower(
+            m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+            speedLimit());
     }
 
     if (requestInclination != -100) {
@@ -72,7 +74,7 @@ void fakebike::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -96,9 +98,10 @@ void fakebike::update() {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     if (!firstStateChanged)
@@ -131,7 +134,10 @@ void fakebike::update() {
     }
 
     if (Heart.value()) {
-        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
     }
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
@@ -152,7 +158,3 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
 }
 
 bool fakebike::connected() { return true; }
-
-void *fakebike::VirtualBike() { return virtualBike; }
-
-void *fakebike::VirtualDevice() { return VirtualBike(); }

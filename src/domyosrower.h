@@ -27,9 +27,6 @@
 #include <QString>
 
 #include "rower.h"
-#include "virtualbike.h"
-#include "virtualrower.h"
-#include "virtualtreadmill.h"
 
 class domyosrower : public rower {
     Q_OBJECT
@@ -55,9 +52,6 @@ class domyosrower : public rower {
     uint16_t watts() override;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
-    virtualrower *virtualRower = nullptr;
     uint8_t firstVirtual = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;

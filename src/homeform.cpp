@@ -1,6 +1,11 @@
 #include "homeform.h"
+#ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#endif
+#include "localipaddress.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "material.h"
 #include "qfit.h"
 #include "simplecrypt.h"
@@ -11,14 +16,18 @@
 #include <QApplication>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QHttpMultiPart>
 #include <QImageWriter>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
+#include <QNetworkInterface>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
+#include <QProcess>
 #include <QQmlContext>
 #include <QQmlFile>
 
@@ -495,6 +504,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
     QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
+    QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -615,6 +625,29 @@ void homeform::floatingOpen() {
     }
     floating_open = !floating_open;
 #endif
+}
+
+void homeform::openFloatingWindowBrowser() {
+    QSettings settings;
+    QHostAddress a;
+    foreach (QNetworkInterface netInterface, QNetworkInterface::allInterfaces()) {
+        // Return only the first non-loopback MAC Address
+        QString addr = netInterface.hardwareAddress();
+        if (!(netInterface.flags() & QNetworkInterface::IsLoopBack) && !addr.isEmpty()) {
+            const auto entries = netInterface.addressEntries();
+            for (const QNetworkAddressEntry &newEntry : entries) {
+                qDebug() << newEntry.ip().toIPv4Address();
+                if(!newEntry.ip().isLoopback()) {
+                    a = newEntry.ip();
+                    break;
+                }
+            }
+        }
+    }
+    QString url = "http://" + localipaddress::getIP(a).toString() + ":" +
+                  QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) +
+                  "/floating/floating.htm";
+    QDesktopServices::openUrl(url);
 }
 
 void homeform::peloton_abort_workout() {

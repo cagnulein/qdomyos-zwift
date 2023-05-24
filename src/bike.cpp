@@ -5,6 +5,8 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
+virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
+
 void bike::changeResistance(resistance_t resistance) {
     QSettings settings;
     double zwift_erg_resistance_up =

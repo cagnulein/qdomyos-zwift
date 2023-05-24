@@ -51,7 +51,6 @@ class sportsplusbike : public bike {
     double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 

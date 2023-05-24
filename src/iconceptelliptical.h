@@ -59,9 +59,6 @@ class iconceptelliptical : public elliptical {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
-
     QTimer *refresh;
     bool initDone = false;
     uint8_t firstStateChanged = 0;

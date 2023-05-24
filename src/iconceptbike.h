@@ -28,7 +28,6 @@
 #include <QObject>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class iconceptbike : public bike {
     Q_OBJECT
@@ -50,8 +49,6 @@ class iconceptbike : public bike {
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
-
-    virtualbike *virtualBike = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

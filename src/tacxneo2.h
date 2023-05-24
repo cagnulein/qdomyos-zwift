@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -50,7 +49,6 @@ class tacxneo2 : public bike {
     double bikeResistanceToPeloton(double resistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
 
     const int max_resistance = 100;
 

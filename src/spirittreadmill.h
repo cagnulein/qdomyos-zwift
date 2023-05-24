@@ -26,14 +26,13 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
     bool connected() override;
+
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -50,8 +49,6 @@ class spirittreadmill : public treadmill {
     void startDiscover();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;

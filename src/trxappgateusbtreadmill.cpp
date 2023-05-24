@@ -1,5 +1,7 @@
 #include "trxappgateusbtreadmill.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -528,16 +530,17 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 &trxappgateusbtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !virtualTreadMill) {
+        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, false);
+                auto virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &trxappgateusbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstVirtualTreadmill = 1;
@@ -691,10 +694,6 @@ bool trxappgateusbtreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *trxappgateusbtreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *trxappgateusbtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

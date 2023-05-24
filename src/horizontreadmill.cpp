@@ -1,7 +1,7 @@
 #include "horizontreadmill.h"
 
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -13,8 +13,8 @@
 #include <math.h>
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
-#endif
 #include "keepawakehelper.h"
+#endif
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -1142,8 +1142,97 @@ void horizontreadmill::forceIncline(double requestIncline) {
                             false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
-        writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+        if(kettler_treadmill) {
+            int16_t r = ((int16_t)(requestIncline * 10.0));
+
+            if(r < 0)
+                r = 0;
+            else if(r > 100) // max 10% inclination
+                r = 100;
+
+
+            // send:  1/0 a  14 1e 28 32 3c 46 50 5a 64 6e 78 82 8c 96
+            // recv:  0   5   a 14 19 1e 28 2d 32 3c 41 46 50 55 5a 64
+            // recv:  0   5  10 20 25 30 40 45 50 60 65 70 80 85 90 100
+
+            /*
+             * Kinomap | TM
+                01.0% | 00.5%
+                02.0% | 01.0%
+                03.0% | 02.0%
+                04.0% | 02.5%
+                05.0% | 03.0%
+                06.0% | 04.0%
+                07.0% | 04.5%
+                08.0% | 05.0%
+                09.0% | 06.0%
+                10.0% | 06.5%
+                11.0% | 07.0%
+                12.0% | 08.0%
+                13.0% | 08.5%
+                14.0% | 09.0%
+                15.0% | 10.0%
+               */
+
+            QHash<uint8_t, uint8_t> conversion;
+            QHash<uint8_t, uint8_t> conversion1;
+            conversion[0] = 0;
+            conversion1[0] = 0;
+            conversion[5] = 0x05;
+            conversion1[5] = 0;
+            conversion[10] = 0x14;
+            conversion1[10] = 0;
+            conversion[15] = 0x15;
+            conversion1[15] = 0;
+            conversion[20] = 0x1e;
+            conversion1[20] = 0;
+            conversion[25] = 0x25;
+            conversion1[25] = 0;
+            conversion[30] = 0x32;
+            conversion1[30] = 0;
+            conversion[35] = 0x35;
+            conversion1[35] = 0;
+            conversion[40] = 0x3c;
+            conversion1[40] = 0;
+            conversion[45] = 0x45;
+            conversion1[45] = 0;
+            conversion[50] = 0x50;
+            conversion1[50] = 0;
+            conversion[55] = 0x55;
+            conversion1[55] = 0;
+            conversion[60] = 0x5a;
+            conversion1[60] = 0;
+            conversion[65] = 0x65;
+            conversion1[65] = 0;
+            conversion[70] = 0x6e;
+            conversion1[70] = 0;
+            conversion[75] = 0x75;
+            conversion1[75] = 0;
+            conversion[80] = 0x78;
+            conversion1[80] = 0;
+            conversion[85] = 0x85;
+            conversion1[85] = 0;
+            conversion[90] = 0x8c;
+            conversion1[90] = 0;
+            conversion[95] = 0x95;
+            conversion1[95] = 0;
+            conversion[100] = 0x96;
+            conversion1[100] = 0x00;
+            conversion[105] = 0x05;
+            conversion1[105] = 0x01;
+            conversion[110] = 0x10;
+            conversion1[110] = 0x01;
+            conversion[115] = 0x15;
+            conversion1[115] = 0x01;
+            conversion[120] = 0x20;
+            conversion1[120] = 0x01;
+
+            writeS[1] = conversion[r];
+            writeS[2] = conversion1[r];
+        } else {
+            writeS[1] = ((int16_t)(requestIncline * 10.0)) & 0xFF;
+            writeS[2] = ((int16_t)(requestIncline * 10.0)) >> 8;
+        }
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceIncline"), false, false);
@@ -1727,7 +1816,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -1744,15 +1833,17 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
         firstStateChanged = 1;
@@ -1835,6 +1926,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
+            kettler_treadmill = true;
+            qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -1877,10 +1971,6 @@ bool horizontreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *horizontreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *horizontreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
@@ -2541,5 +2631,11 @@ void horizontreadmill::testProfileCRC() {
     assert(initData7_6[9] == (confirm >> 8));
 }
 
-double horizontreadmill::minStepInclination() { return 0.5; }
+double horizontreadmill::minStepInclination() {
+    if(kettler_treadmill)
+        return 1.0;
+    else
+        return 0.5;
+}
+
 double horizontreadmill::minStepSpeed() { return 0.1; }

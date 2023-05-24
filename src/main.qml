@@ -37,6 +37,7 @@ ApplicationWindow {
     signal keyMediaPrevious()
     signal keyMediaNext()
     signal floatingOpen()
+    signal openFloatingWindowBrowser();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -735,7 +736,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.46"
+                text: "version 2.13.56"
                 width: parent.width
             }
 

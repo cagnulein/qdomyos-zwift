@@ -50,7 +50,6 @@ class inspirebike : public bike {
 
     QTimer *refresh;
     QTimer *t_timeout;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotify1Characteristic;

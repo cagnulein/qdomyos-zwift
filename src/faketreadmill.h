@@ -42,8 +42,6 @@ class faketreadmill : public treadmill {
 
   private:
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
-    virtualtreadmill *virtualTreadmill = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

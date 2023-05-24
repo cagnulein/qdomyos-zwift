@@ -1,10 +1,7 @@
 #ifndef CHARACTERISTICWRITEPROCESSOR_H
 #define CHARACTERISTICWRITEPROCESSOR_H
 
-#include "bike.h"
 #include "bluetoothdevice.h"
-#include "elliptical.h"
-#include "treadmill.h"
 #include <QObject>
 #include <QSettings>
 #include <QtMath>
