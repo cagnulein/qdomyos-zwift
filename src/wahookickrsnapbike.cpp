@@ -172,11 +172,13 @@ void wahookickrsnapbike::update() {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "init", false, true);
+        QThread::msleep(700);
 
         QByteArray c = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), 0.004,
                                   0.4); // wind and rolling should arrive from FTMS
         memcpy(b, c.constData(), c.length());
         writeCharacteristic(b, c.length(), "setSimMode", false, true);
+        QThread::msleep(700);
 
         // required to the SS2K only one time
         Resistance = 0;
