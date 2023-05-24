@@ -39,9 +39,6 @@ class domyosrower : public rower {
     ~domyosrower();
     bool connected() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

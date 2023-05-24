@@ -40,9 +40,6 @@ class fakebike : public bike {
     fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

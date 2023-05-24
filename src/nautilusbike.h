@@ -37,8 +37,6 @@ class nautilusbike : public bike {
     ~nautilusbike();
     bool connected() override;
 
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

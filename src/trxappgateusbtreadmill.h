@@ -34,9 +34,6 @@ class trxappgateusbtreadmill : public treadmill {
     trxappgateusbtreadmill();
     bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
     double minStepInclination() override;
 
   private:

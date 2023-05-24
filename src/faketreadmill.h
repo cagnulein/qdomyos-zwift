@@ -40,10 +40,6 @@ class faketreadmill : public treadmill {
     faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

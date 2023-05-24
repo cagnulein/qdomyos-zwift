@@ -47,10 +47,6 @@ class proformwifitreadmill : public treadmill {
     proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain);
     bool connected() override;
-
-    void *VirtualTreadMill();
-    void *VirtualBike();
-    void *VirtualDevice() override;
     virtual bool canStartStop() override { return false; }
 
   private:

@@ -44,9 +44,6 @@ class domyostreadmill : public treadmill {
     bool connected() override;
     bool changeFanSpeed(uint8_t speed) override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
   private:
     bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);

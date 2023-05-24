@@ -39,9 +39,6 @@ class flywheelbike : public bike {
     flywheelbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     typedef enum DecoderRXState { WFSYNC_1 = 0, WFLENGTH, WFID, DATA, CHECKSUM, EOF_1 } DecoderRXState;
 

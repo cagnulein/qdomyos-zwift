@@ -45,9 +45,6 @@ class yesoulbike : public bike {
                double bikeResistanceGain);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(QByteArray packet);

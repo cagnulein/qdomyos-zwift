@@ -35,9 +35,6 @@ class sportsplusbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);

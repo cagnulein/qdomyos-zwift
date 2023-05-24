@@ -44,9 +44,6 @@ class smartspin2k : public bike {
     smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     #define max_calibration_samples  4
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

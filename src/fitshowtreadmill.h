@@ -87,9 +87,6 @@ class fitshowtreadmill : public treadmill {
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     double minStepInclination() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
   private:
     bool checkIncomingPacket(const uint8_t *data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);

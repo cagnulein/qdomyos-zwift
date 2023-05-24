@@ -39,9 +39,6 @@ class bowflextreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);

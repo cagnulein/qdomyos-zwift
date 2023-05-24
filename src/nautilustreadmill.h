@@ -37,9 +37,6 @@ class nautilustreadmill : public treadmill {
     double minStepInclination() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
-
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
     virtual bool canStartStop() override { return false; }
 
   private:

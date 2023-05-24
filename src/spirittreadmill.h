@@ -35,9 +35,6 @@ class spirittreadmill : public treadmill {
     spirittreadmill();
     bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);

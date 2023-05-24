@@ -40,9 +40,6 @@ class proformtreadmill : public treadmill {
     proformtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

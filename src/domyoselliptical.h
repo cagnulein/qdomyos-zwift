@@ -39,9 +39,6 @@ class domyoselliptical : public elliptical {
     bool connected() override;
     bool inclinationAvailableByHardware() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

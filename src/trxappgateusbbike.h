@@ -39,9 +39,6 @@ class trxappgateusbbike : public bike {
                       double bikeResistanceGain);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetResistanceFromPacket(const QByteArray &packet);

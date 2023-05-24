@@ -34,9 +34,6 @@ class sportstechbike : public bike {
     sportstechbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetResistanceFromPacket(const QByteArray &packet);

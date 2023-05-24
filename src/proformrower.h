@@ -41,9 +41,6 @@ class proformrower : public rower {
     proformrower(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     const resistance_t max_resistance = 24;
     double GetDistanceFromPacket(QByteArray packet);

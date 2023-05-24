@@ -41,9 +41,6 @@ class keepbike : public bike {
     resistance_t maxResistance() override { return max_resistance; }
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     const resistance_t max_resistance = 36;
     double bikeResistanceToPeloton(double resistance);

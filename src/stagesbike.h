@@ -42,9 +42,6 @@ class stagesbike : public bike {
     resistance_t maxResistance() override { return 100; }
     bool ergManagedBySS2K() override { return true; }
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);

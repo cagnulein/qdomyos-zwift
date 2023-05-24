@@ -44,9 +44,6 @@ class shuaa5treadmill : public treadmill {
     void forceIncline(double requestIncline);
     double minStepInclination() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);

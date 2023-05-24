@@ -39,9 +39,6 @@ class octaneelliptical : public elliptical {
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);
     void forceSpeed(double requestSpeed);

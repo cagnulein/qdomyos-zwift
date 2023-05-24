@@ -40,9 +40,6 @@ class computrainerbike : public bike {
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;

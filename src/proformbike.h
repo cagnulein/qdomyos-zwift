@@ -43,9 +43,6 @@ class proformbike : public bike {
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     resistance_t max_resistance = 16;
     uint16_t wattsFromResistance(resistance_t resistance);

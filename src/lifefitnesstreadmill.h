@@ -45,9 +45,6 @@ class lifefitnesstreadmill : public treadmill {
     void forceIncline(double requestIncline);
     double minStepInclination() override;
     double minStepSpeed() override;
-
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
     virtual bool canStartStop()  override{ return false; }
 
   private:

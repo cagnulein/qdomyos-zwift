@@ -39,9 +39,6 @@ class mepanelbike : public bike {
     mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     const resistance_t max_resistance = 32;
     void btinit();

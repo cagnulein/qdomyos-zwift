@@ -51,9 +51,6 @@ class proformwifibike : public bike {
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     QWebSocket websocket;
     resistance_t max_resistance = 100;

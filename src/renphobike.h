@@ -43,9 +43,6 @@ class renphobike : public bike {
     bool connected() override;
     resistance_t maxResistance() override { return max_resistance; }
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     const resistance_t max_resistance = 80;
     double bikeResistanceToPeloton(double resistance);

@@ -43,9 +43,6 @@ class kingsmithr1protreadmill : public treadmill {
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
-
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     double minStepSpeed() override { return 0.1; }

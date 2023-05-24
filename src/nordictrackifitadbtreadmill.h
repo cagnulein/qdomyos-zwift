@@ -56,9 +56,6 @@ class nordictrackifitadbtreadmill : public treadmill {
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
     bool canStartStop() override { return false; }
 
   private:

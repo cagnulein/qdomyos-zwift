@@ -38,9 +38,6 @@ class octanetreadmill : public treadmill {
     double minStepSpeed() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
-
-    void *VirtualTreadMill();
-    void *VirtualDevice() override;
     bool canStartStop() override { return false; }
 
   private:

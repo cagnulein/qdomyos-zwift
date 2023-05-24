@@ -43,9 +43,6 @@ class echelonconnectsport : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);

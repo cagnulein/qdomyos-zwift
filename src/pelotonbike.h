@@ -32,9 +32,6 @@ class pelotonbike : public bike {
     bool connected() override;
     bool inclinationAvailableByHardware() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     void forceResistance(double resistance);
     uint16_t watts() override;

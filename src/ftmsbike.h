@@ -74,9 +74,6 @@ class ftmsbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t maxResistance() override { return max_resistance; }
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

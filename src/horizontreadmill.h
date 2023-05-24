@@ -46,9 +46,6 @@ class horizontreadmill : public treadmill {
     double minStepInclination() override;
     double minStepSpeed() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
 

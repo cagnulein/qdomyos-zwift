@@ -38,9 +38,6 @@ class nautiluselliptical : public elliptical {
     ~nautiluselliptical();
     bool connected() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice() override;
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

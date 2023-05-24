@@ -39,9 +39,6 @@ class cscbike : public bike {
     cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
 
-    void *VirtualBike();
-    void *VirtualDevice() override;
-
   private:
     //    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false, //Unused
     //                             bool wait_for_response = false);
