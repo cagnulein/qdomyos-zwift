@@ -366,7 +366,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     bool atLeastOnePower = false;
-    if (trainrows.empty() && !segments_segment_list.isEmpty()) {
+    if (trainrows.empty() && !segments_segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -633,6 +633,50 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }
         }
+    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+       QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+       trainrows.reserve(target_metrics.count() + 2);
+       for (int i = 0; i < target_metrics.count(); i++) {
+           QJsonObject metrics = target_metrics.at(i).toObject();
+           QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
+           QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+           QString segment_type = metrics[QStringLiteral("segment_type")].toString();
+           if (metrics_ar.count() > 1 && !offset.isEmpty()) {
+               QJsonObject strokes_rate = metrics_ar.at(0).toObject();
+               QJsonObject pace_intensity = metrics_ar.at(1).toObject();
+               double strokes_rate_lower = strokes_rate[QStringLiteral("lower")].toDouble();
+               double strokes_rate_upper = strokes_rate[QStringLiteral("upper")].toDouble();
+               int offset_start = offset[QStringLiteral("start")].toInt();
+               int offset_end = offset[QStringLiteral("end")].toInt();
+               double strokes_rate_average = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+               trainrow r;
+               r.duration = QTime(0, 0, 0, 0);
+               r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+               if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                   r.cadence = strokes_rate_lower;
+               } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                   r.cadence = strokes_rate_upper;
+               } else {
+                   r.cadence = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+               }
+
+               r.lower_cadence = strokes_rate_lower;
+               r.average_cadence = strokes_rate_average;
+               r.upper_cadence = strokes_rate_upper;
+
+               trainrows.append(r);
+               qDebug() << i << r.duration << r.cadence;
+           } else if (segment_type.contains("floor")) {
+               int offset_start = offset[QStringLiteral("start")].toInt();
+               int offset_end = offset[QStringLiteral("end")].toInt();
+               trainrow r;
+               r.duration = QTime(0, 0, 0, 0);
+               r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+               trainrows.append(r);
+               qDebug() << i << r.duration << r.cadence;
+           }
+       }
     }
     // Target METS it's quite useless so I removed, no one use this
     /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
