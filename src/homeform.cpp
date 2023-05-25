@@ -673,7 +673,7 @@ void homeform::peloton_start_workout() {
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         if(!pelotonAskedName.isEmpty() && !pelotonAskedInstructor.isEmpty()) {
             QString path = getWritableAppDir();
-            lastTrainProgramFileSaved = path + pelotonAskedName + " " + pelotonAskedInstructor + ".xml";
+            lastTrainProgramFileSaved = path + pelotonAskedName + " - " + pelotonAskedInstructor + ".xml";
             trainProgram->save(lastTrainProgramFileSaved);
         }
         trainProgramSignals();
