@@ -576,6 +576,7 @@ class homeform : public QObject {
     QString pelotonAbortedInstructor = QStringLiteral("");
 
     QString lastFitFileSaved = QLatin1String("");
+    QString lastTrainProgramFileSaved = QLatin1String("");
 
     QList<QString> chartImagesFilenames;
 

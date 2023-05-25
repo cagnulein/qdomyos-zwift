@@ -671,6 +671,11 @@ void homeform::peloton_start_workout() {
             trainProgram = nullptr;
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
+        if(!pelotonAskedName.isEmpty() && !pelotonAskedInstructor.isEmpty()) {
+            QString path = getWritableAppDir();
+            lastTrainProgramFileSaved = path + pelotonAskedName + " " + pelotonAskedInstructor + ".xml";
+            trainProgram->save(lastTrainProgramFileSaved);
+        }
         trainProgramSignals();
         trainProgram->restart();
     }
@@ -5716,6 +5721,19 @@ void homeform::sendMail() {
         fit->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(fit);
     }
+
+    if (!lastTrainProgramFileSaved.isEmpty()) {
+
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile *xml = new MimeInlineFile((new QFile(lastTrainProgramFileSaved)));
+
+        // An unique content id must be setted
+        xml->setContentId(lastTrainProgramFileSaved);
+        xml->setContentType(QStringLiteral("application/octet-stream"));
+        message.addPart(xml);
+        lastTrainProgramFileSaved = "";
+    }
+
     if (pelotonHandler && pelotonHandler->current_image_downloaded &&
         !pelotonHandler->current_image_downloaded->downloadedData().isEmpty()) {
 
