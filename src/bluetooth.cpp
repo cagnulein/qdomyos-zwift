@@ -1381,7 +1381,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                         b.name().toUpper().contains(QStringLiteral("ROW")))) &&
+                         !b.name().toUpper().endsWith(QStringLiteral("SKI")))) &&
                        !ftmsRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
