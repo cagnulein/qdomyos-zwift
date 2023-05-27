@@ -1358,7 +1358,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 smartrowRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                        b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
+                        !b.name().toUpper().endsWith(QStringLiteral("ROW"))) &&
                        !concept2Skierg && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1381,7 +1381,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                         !b.name().toUpper().endsWith(QStringLiteral("SKI")))) &&
+                         b.name().toUpper().endsWith(QStringLiteral("ROW")))) &&
                        !ftmsRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
