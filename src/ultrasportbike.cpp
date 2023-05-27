@@ -20,7 +20,7 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 ultrasportbike::ultrasportbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
 #ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = false;
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -60,8 +60,12 @@ void ultrasportbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len),
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
+    }
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
