@@ -71,6 +71,7 @@ jobs:
           python -VV
           python -m pip install opencv-python
           python -m pip install pywin32
+          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
           python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
           python -m pip install paddleocr>=2.0.1
 
