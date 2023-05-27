@@ -64,12 +64,14 @@ void iconceptelliptical::serviceDiscovered(const QBluetoothServiceInfo &service)
     }
 
     qDebug() << QStringLiteral("iconceptelliptical::serviceDiscovered") << service;
-    if (service.device().address() == bluetoothDevice.address()) {
+    /*if (service.device().address() == bluetoothDevice.address())*/ {
         emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
                    service.serviceUuid().toString() + ')');
 
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
-            service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+            service.serviceName().startsWith(QStringLiteral("Serial Port")) ||
+            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
+
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
