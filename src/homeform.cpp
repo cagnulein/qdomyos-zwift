@@ -673,7 +673,7 @@ void homeform::peloton_start_workout() {
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         if(!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
             QString path = getWritableAppDir() + "training/";
-            lastTrainProgramFileSaved = path + stravaPelotonActivityName + " - " + stravaPelotonInstructorName + ".xml";
+            lastTrainProgramFileSaved = path + stravaPelotonActivityName.replace("/", "-") + " - " + stravaPelotonInstructorName + ".xml";
             trainProgram->save(lastTrainProgramFileSaved);
         }
         trainProgramSignals();
