@@ -515,6 +515,56 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         if (!atLeastOnePower) {
             trainrows.clear();
         }
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+        QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
+        typedef struct _peloton_rower_pace_intensities_level {
+            QString display_name;
+            double fast_pace;
+            double slow_pace;
+            QString slug;
+        }_peloton_rower_pace_intensities_level;
+
+        typedef struct _peloton_rower_pace_intensities {
+            QString display_name;
+            int value;
+            _peloton_rower_pace_intensities_level levels[6];
+        } _peloton_rower_pace_intensities;
+
+        _peloton_rower_pace_intensities pace[4];
+
+        int pace_count = 0;
+        foreach (QJsonValue o, pace_intensities_list) {
+            qDebug() << o;
+            pace_count = o["value"].toInt();
+            if(pace_count < 4 && pace_count >= 0) {
+                pace[pace_count].display_name = o["display_name"].toString();
+                pace[pace_count].value = o["value"].toInt();
+
+                QJsonArray levels = o["pace_levels"].toArray();
+                if(levels.count() > 6) {
+                    qDebug() << "peloton pace levels had been changed!";
+                }
+                int count = 0;
+                foreach (QJsonValue level, levels) {
+                    count = level["slug"].toString().right(1).toInt() - 1;
+                    if(count >= 0 && count < 6) {
+                        pace[pace_count].levels[count].fast_pace = level["fast_pace"].toDouble();
+                        pace[pace_count].levels[count].slow_pace = level["slow_pace"].toDouble();
+                        pace[pace_count].levels[count].display_name = level["display_name"].toString();
+                        pace[pace_count].levels[count].slug = level["slug"].toString();
+
+                        qDebug() << count << pace[pace_count].levels[count].display_name << pace[pace_count].levels[count].fast_pace << pace[pace_count].levels[count].slow_pace << pace[pace_count].levels[count].slug;
+                    } else {
+                        qDebug() << level["slug"].toString() << "slug error";
+                    }
+                }
+
+                qDebug() << pace_count << pace[pace_count].display_name << pace[pace_count].value;
+            } else {
+                qDebug() << "pace_count error!";
+            }
+        }
     }
 
     if (log_request) {
