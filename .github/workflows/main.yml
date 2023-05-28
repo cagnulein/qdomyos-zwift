@@ -279,7 +279,7 @@ jobs:
 
       - name: Build qthttpserver
         run: |
-            cd src\qthttpserver 
+            cd src/qthttpserver 
             qmake
             make -j8
             make install
