@@ -13,6 +13,7 @@ class rower : public bluetoothdevice {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
+    metric lastRequestedSpeed() { return RequestedSpeed; }
     virtual QTime lastPace500m();
     virtual metric currentResistance();
     virtual metric currentStrokesCount();
@@ -20,6 +21,7 @@ class rower : public bluetoothdevice {
     virtual QTime currentPace();
     virtual QTime averagePace();
     virtual QTime maxPace();
+    virtual double requestedSpeed();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -53,6 +55,8 @@ class rower : public bluetoothdevice {
     double requestInclination = -100;
     metric RequestedCadence;
     metric RequestedPower;
+    metric RequestedSpeed;
+    volatile double requestSpeed = -1;
     metric StrokesLength;
     metric StrokesCount;
     uint16_t LastCrankEventTime = 0;

@@ -705,9 +705,18 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                }
 
                if(pace_intensity_lower > 0 && pace_intensity_lower < 4) {
-                   r.average_speed = (rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace - rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace ) / 2.0;
-                   r.upper_speed = rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace;
-                   r.lower_speed = rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace;
+                   r.average_speed = rowerpaceToSpeed((rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace - rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace ) / 2.0);
+                   r.upper_speed = rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace);
+                   r.lower_speed = rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace);
+
+                   if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                       r.speed = r.lower_speed;
+                   } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                       r.speed = r.upper_speed;
+                   } else {
+                       r.speed = r.average_speed;
+                   }
+                   r.forcespeed = 1;
                }
 
                r.lower_cadence = strokes_rate_lower;
@@ -763,6 +772,17 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     timer->start(30s); // check for a status changed
+}
+
+double peloton::rowerpaceToSpeed(double pace) {
+    float whole, fractional;
+
+    fractional = std::modf(pace, &whole);
+    double seconds = whole * 60.0;
+    seconds += (fractional * 10.0);
+    seconds *= 2.0;
+
+    return 3600.0 / seconds;
 }
 
 void peloton::getInstructor(const QString &instructor_id) {

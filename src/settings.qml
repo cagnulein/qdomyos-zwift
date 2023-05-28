@@ -3565,7 +3565,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelPelotonDifficulty
-                            text: qsTr("Bike Difficulty:")
+                            text: qsTr("Difficulty:")
                             Layout.fillWidth: true
                         }
                         ComboBox {

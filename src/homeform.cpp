@@ -1829,6 +1829,12 @@ void homeform::sortTiles() {
                 pace_last500m->setGridId(i);
                 dataList.append(pace_last500m);
             }
+
+            if (settings.value(QZSettings::tile_target_speed_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_speed_order, 28).toInt() == i) {
+                target_speed->setGridId(i);
+                dataList.append(target_speed);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -3643,6 +3649,9 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesCount().value(), 'f', 0));
             this->strokesLength->setValue(
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().value(), 'f', 1));
+
+            this->target_speed->setValue(QString::number(
+                ((rower *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
 
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(

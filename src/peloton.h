@@ -83,6 +83,7 @@ class peloton : public QObject {
     bool testMode = false;
 
     // rowers
+    double rowerpaceToSpeed(double pace);
     typedef struct _peloton_rower_pace_intensities_level {
         QString display_name;
         double fast_pace;
