@@ -345,8 +345,7 @@ void csaferower::update() {
             if (virtual_device_enabled) {
             if (!virtual_device_rower) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
