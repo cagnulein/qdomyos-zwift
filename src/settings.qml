@@ -777,6 +777,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.52
             property bool kingsmith_encrypt_v5: false
+
+            // from version 2.13.58
+            property int peloton_rower_level: 1
         }
 
         function paddingZeros(text, limit) {
@@ -3587,6 +3590,44 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Typically, Peloton coaches call out a range for target incline, resistance and/or speed. Use this setting to choose the difficulty of the target QZ communicates. Difficulty level can be set to lower, upper or average. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Rower Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonRowerLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6" ]
+                            displayText: settings.peloton_rower_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonRowerLevelTextField.currentIndex)
+                                displayText = pelotonRowerLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 6 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

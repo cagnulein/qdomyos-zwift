@@ -5,6 +5,12 @@
 
 rower::rower() {}
 
+void rower::changeSpeed(double speed) {
+    qDebug() << "changeSpeed" << speed;
+    RequestedSpeed = speed;
+    if (autoResistanceEnable)
+        requestSpeed = speed;
+}
 void rower::changeResistance(resistance_t resistance) {
     if (autoResistanceEnable) {
         requestResistance = resistance * m_difficult;
@@ -36,6 +42,7 @@ resistance_t rower::pelotonToBikeResistance(int pelotonResistance) { return pelo
 resistance_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
+double rower::requestedSpeed() { return requestSpeed; }
 
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 
@@ -120,7 +127,7 @@ void rower::setLap() {
 QTime rower::averagePace() {
 
     QSettings settings;
-    //bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     /*if (miles) {
         unit_conversion = 0.621371;
@@ -138,7 +145,7 @@ QTime rower::averagePace() {
 QTime rower::maxPace() {
 
     QSettings settings;
-    //bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     /*if (miles) {
         unit_conversion = 0.621371;
@@ -151,7 +158,6 @@ QTime rower::maxPace() {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
-
 
 // min/500m
 QTime rower::currentPace() {
@@ -173,7 +179,7 @@ QTime rower::currentPace() {
 
 // min/500m
 QTime rower::lastPace500m() {
-    
+
     QSettings settings;
     // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     const double unit_conversion = 1.0;
@@ -183,20 +189,20 @@ QTime rower::lastPace500m() {
     }*/
 
     // last 500m speed calculation
-    if(!paused && Speed.value() > 0) {
+    if (!paused && Speed.value() > 0) {
         double o = odometer();
         speedLast500mValues.append(new rowerSpeedDistance(o, Speed.value()));
-        while(o > speedLast500mValues.first()->distance + 0.5) {
+        while (o > speedLast500mValues.first()->distance + 0.5) {
             delete speedLast500mValues.first();
             speedLast500mValues.removeFirst();
         }
     }
 
-    if(speedLast500mValues.count() == 0)
-        return QTime(0,0,0,0);
-    
+    if (speedLast500mValues.count() == 0)
+        return QTime(0, 0, 0, 0);
+
     double avg = 0;
-    for(int i=0; i<speedLast500mValues.count(); i++)
+    for (int i = 0; i < speedLast500mValues.count(); i++)
         avg += speedLast500mValues.at(i)->speed;
     avg = avg / (double)speedLast500mValues.count();
 
