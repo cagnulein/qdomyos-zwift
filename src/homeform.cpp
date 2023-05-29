@@ -637,7 +637,7 @@ void homeform::openFloatingWindowBrowser() {
             const auto entries = netInterface.addressEntries();
             for (const QNetworkAddressEntry &newEntry : entries) {
                 qDebug() << newEntry.ip().toIPv4Address();
-                if(!newEntry.ip().isLoopback()) {
+                if (!newEntry.ip().isLoopback()) {
                     a = newEntry.ip();
                     break;
                 }
@@ -645,8 +645,7 @@ void homeform::openFloatingWindowBrowser() {
         }
     }
     QString url = "http://" + localipaddress::getIP(a).toString() + ":" +
-                  QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) +
-                  "/floating/floating.htm";
+                  QString::number(settings.value("template_inner_QZWS_port", 6666).toInt()) + "/floating/floating.htm";
     QDesktopServices::openUrl(url);
 }
 
@@ -671,9 +670,10 @@ void homeform::peloton_start_workout() {
             trainProgram = nullptr;
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
-        if(!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
+        if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
             QString path = getWritableAppDir() + "training/";
-            lastTrainProgramFileSaved = path + stravaPelotonActivityName.replace("/", "-") + " - " + stravaPelotonInstructorName + ".xml";
+            lastTrainProgramFileSaved =
+                path + stravaPelotonActivityName.replace("/", "-") + " - " + stravaPelotonInstructorName + ".xml";
             trainProgram->save(lastTrainProgramFileSaved);
         }
         trainProgramSignals();
@@ -870,6 +870,8 @@ void homeform::trainProgramSignals() {
         disconnect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()), &bike::changePower);
         disconnect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                    &rower::changePower);
+        disconnect(trainProgram, &trainprogram::changeSpeed, ((rower *)bluetoothManager->device()),
+                   &rower::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeCadence, ((elliptical *)bluetoothManager->device()),
                    &elliptical::changeCadence);
         disconnect(trainProgram, &trainprogram::changePower, ((elliptical *)bluetoothManager->device()),
@@ -936,6 +938,8 @@ void homeform::trainProgramSignals() {
                     &rower::changeResistance);
             connect(trainProgram, &trainprogram::changeCadence, ((rower *)bluetoothManager->device()),
                     &rower::changeCadence);
+            connect(trainProgram, &trainprogram::changeSpeed, ((rower *)bluetoothManager->device()),
+                    &rower::changeSpeed);
         }
         connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
                 &bluetoothdevice::changeNextInclination300Meters);
@@ -2240,12 +2244,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool()) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             ((bike *)bluetoothManager->device())
-                ->setGears(
-                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
+                               .toDouble());
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
             ((elliptical *)bluetoothManager->device())
-                ->setGears(
-                    settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value).toDouble());
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
+                               .toDouble());
         }
     }
 }
@@ -2649,10 +2653,13 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains("gears")) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() + settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())
+                    ->setGears(((bike *)bluetoothManager->device())->gears() +
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
-                    ->setGears(((elliptical *)bluetoothManager->device())->gears() + settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() +
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -2883,10 +2890,13 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("gears"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                ((bike *)bluetoothManager->device())->setGears(((bike *)bluetoothManager->device())->gears() - settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                ((bike *)bluetoothManager->device())
+                    ->setGears(((bike *)bluetoothManager->device())->gears() -
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
-                    ->setGears(((elliptical *)bluetoothManager->device())->gears() - settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+                    ->setGears(((elliptical *)bluetoothManager->device())->gears() -
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -3581,7 +3591,7 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            if(settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0)
+            if (settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble() == 1.0)
                 this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
             else
                 this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears(), 'f', 1));
