@@ -7,19 +7,12 @@
 # imports
 import cv2
 import numpy as np
-import win32gui
 import re
 from datetime import datetime
 from paddleocr import PaddleOCR
 from PIL import Image, ImageGrab
 
-# File path
-ocrfileName = 'ocr-output.txt'
-ocrlogFile = 'ocr-logfile.txt'
-
 # Take Zwift screenshot
-hwnd = win32gui.FindWindow(None,'Zwift') 
-win32gui.SetForegroundWindow(hwnd)
 screenshot = ImageGrab.grab()
 
 # Scale image to 3000 x 2000
