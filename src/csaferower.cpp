@@ -1,18 +1,4 @@
 #include "csaferower.h"
-#include "virtualbike.h"
-#include <QBluetoothLocalDevice>
-#include <QDateTime>
-#include <QFile>
-#include <QMetaEnum>
-#include <QSettings>
-#include <QThread>
-#include <math.h>
-#ifdef Q_OS_ANDROID
-#include "keepawakehelper.h"
-#include <QLowEnergyConnectionParameters>
-#endif
-#include "csafe.h"
-#include <chrono>
 
 using namespace std::chrono_literals;
 
@@ -34,8 +20,8 @@ csaferowerThread::csaferowerThread() {}
 
 void csaferowerThread::run() {
     QSettings settings;
-    devicePort =
-        settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+    /*devicePort =
+        settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
 
     openPort();
     while (1) {

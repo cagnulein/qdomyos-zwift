@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QString>
 
+#include "csafe.h"
 #include "rower.h"
 #include <QDebug>
 #include <QFile>
@@ -66,6 +67,10 @@
 #include "ios/lockscreen.h"
 #endif
 
+/* read timeouts in microseconds */
+#define CT_READTIMEOUT 1000
+#define CT_WRITETIMEOUT 2000
+
 class csaferowerThread : public QThread {
     Q_OBJECT
 
@@ -78,11 +83,30 @@ class csaferowerThread : public QThread {
     void onDebug(QString debug);
 
   private:
-    QString devicePort;
-    int rawWrite(uint8_t *bytes, int size);
-    int rawRead(uint8_t bytes[], int size);
-    int closePort();
+    // Utility and BG Thread functions
     int openPort();
+    int closePort();
+
+    // Mutex for controlling accessing private data
+    QMutex pvars;
+
+    // device port
+    QString deviceFilename;
+#ifdef WIN32
+    HANDLE devicePort;  // file descriptor for reading from com3
+    DCB deviceSettings; // serial port settings baud rate et al
+#else
+    int devicePort;                // unix!!
+    struct termios deviceSettings; // unix!!
+#endif
+    // raw device utils
+    int rawWrite(uint8_t *bytes, int size); // unix!!
+    int rawRead(uint8_t *bytes, int size);  // unix!!
+
+#ifdef Q_OS_ANDROID
+    QList<jbyte> bufRX;
+    bool cleanFrame = false;
+#endif
 };
 
 class csaferower : public rower {
