@@ -13,6 +13,7 @@ class rower : public bluetoothdevice {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
+    metric lastRequestedSpeed() { return RequestedSpeed; }
     virtual QTime lastPace500m();
     virtual metric currentResistance();
     virtual metric currentStrokesCount();
@@ -20,6 +21,7 @@ class rower : public bluetoothdevice {
     virtual QTime currentPace();
     virtual QTime averagePace();
     virtual QTime maxPace();
+    virtual double requestedSpeed();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -40,6 +42,7 @@ class rower : public bluetoothdevice {
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
+    virtual void changeSpeed(double speed);
 
   signals:
     void bikeStarted();
@@ -53,6 +56,8 @@ class rower : public bluetoothdevice {
     double requestInclination = -100;
     metric RequestedCadence;
     metric RequestedPower;
+    metric RequestedSpeed;
+    volatile double requestSpeed = -1;
     metric StrokesLength;
     metric StrokesCount;
     uint16_t LastCrankEventTime = 0;
@@ -62,13 +67,16 @@ class rower : public bluetoothdevice {
     metric m_pelotonResistance;
 
     class rowerSpeedDistance {
-    public:
-        rowerSpeedDistance(double distance, double speed) {this->distance = distance; this->speed = speed;}
+      public:
+        rowerSpeedDistance(double distance, double speed) {
+            this->distance = distance;
+            this->speed = speed;
+        }
         double distance;
         double speed;
     };
 
-    QList<rowerSpeedDistance*> speedLast500mValues;
+    QList<rowerSpeedDistance *> speedLast500mValues;
 };
 
 #endif // ROWER_H
