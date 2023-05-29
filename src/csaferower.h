@@ -28,9 +28,12 @@
 
 #include "csafe.h"
 #include "rower.h"
+#include "virtualbike.h"
+#include "virtualrower.h"
 #include <QDebug>
 #include <QFile>
 #include <QMutex>
+#include <QSettings>
 #include <QString>
 #include <QThread>
 

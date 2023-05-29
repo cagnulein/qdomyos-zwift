@@ -316,8 +316,8 @@ void csaferower::update() {
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
+    // ******************************************* virtual bike/rower init *************************************
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -327,13 +327,15 @@ void csaferower::update() {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
             settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence) {
+        if (ios_peloton_workaround && cadence && !virtual_device_rower) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
@@ -341,10 +343,18 @@ void csaferower::update() {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &csaferower::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            if (!virtual_device_rower) {
+                qDebug() << QStringLiteral("creating virtual bike interface...");
+                auto virtualBike =
+                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+            } else {
+                qDebug() << QStringLiteral("creating virtual rower interface...");
+                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+            }
         }
     }
     if (!firstStateChanged)
