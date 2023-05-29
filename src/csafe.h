@@ -202,11 +202,10 @@ class csafe {
         }
     };
 
-    class FrameReader : public QObject {
-        Q_OBJECT
+    class FrameReader {
 
       public:
-        explicit FrameReader(QObject *parent = nullptr) : QObject(parent), frameBuffer(nullptr) {}
+        explicit FrameReader() : frameBuffer(nullptr) {}
 
         void read(const QByteArray &buffer) {
             if (!buffer.isDetached()) {
