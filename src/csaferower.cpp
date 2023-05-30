@@ -25,7 +25,7 @@ void csaferowerThread::run() {
 
     openPort();
     while (1) {
-        csafe::Command command("GetStatus", QByteArray());
+        csafeCommand command("GetStatus", QByteArray());
         rawWrite((uint8_t *)command.contents().data(), command.contents().length());
         static uint8_t rx[100];
         rawRead(rx, 100);
