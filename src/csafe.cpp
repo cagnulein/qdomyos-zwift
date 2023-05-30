@@ -1,6 +1,9 @@
 #include "csafe.h"
 
-csafe::csafe() {}
+csafe::csafe() {
+    initializeFlags();
+    initializeCommands();
+}
 
 void csafe::initializeFlags() {
     flags["ExtendedStartFlag"] = 0xF0;
