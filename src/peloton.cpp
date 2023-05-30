@@ -366,7 +366,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     bool atLeastOnePower = false;
-    if (trainrows.empty() && !segments_segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+    if (trainrows.empty() && !segments_segment_list.isEmpty() &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -376,9 +377,13 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     int len = s["length"].toInt();
                     if (!zone.toUpper().compare(QStringLiteral("SPIN UPS")) ||
                         !zone.toUpper().compare(QStringLiteral("SPIN-UPS"))) {
-                        bool peloton_spinups_autoresistance = settings.value(QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance).toBool();
+                        bool peloton_spinups_autoresistance =
+                            settings
+                                .value(QZSettings::peloton_spinups_autoresistance,
+                                       QZSettings::default_peloton_spinups_autoresistance)
+                                .toBool();
                         uint32_t Duration = len;
-                        if(peloton_spinups_autoresistance) {
+                        if (peloton_spinups_autoresistance) {
                             double PowerLow = 0.5;
                             double PowerHigh = 0.83;
                             for (uint32_t i = 0; i < Duration; i++) {
@@ -523,25 +528,24 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         foreach (QJsonValue o, pace_intensities_list) {
             qDebug() << o;
             pace_count = o["value"].toInt();
-            if(pace_count < 4 && pace_count >= 0) {
+            if (pace_count < 4 && pace_count >= 0) {
                 rower_pace[pace_count].display_name = o["display_name"].toString();
                 rower_pace[pace_count].value = o["value"].toInt();
 
                 QJsonArray levels = o["pace_levels"].toArray();
-                if(levels.count() > 6) {
+                if (levels.count() > 6) {
                     qDebug() << "peloton pace levels had been changed!";
                 }
                 int count = 0;
                 foreach (QJsonValue level, levels) {
                     count = level["slug"].toString().right(1).toInt() - 1;
-                    if(count >= 0 && count < 6) {
+                    if (count >= 0 && count < 6) {
                         rower_pace[pace_count].levels[count].fast_pace = level["fast_pace"].toDouble();
                         rower_pace[pace_count].levels[count].slow_pace = level["slow_pace"].toDouble();
                         rower_pace[pace_count].levels[count].display_name = level["display_name"].toString();
                         rower_pace[pace_count].levels[count].slug = level["slug"].toString();
 
-                        qDebug() << count
-                                 << rower_pace[pace_count].levels[count].display_name
+                        qDebug() << count << rower_pace[pace_count].levels[count].display_name
                                  << rower_pace[pace_count].levels[count].fast_pace
                                  << rower_pace[pace_count].levels[count].slow_pace
                                  << rower_pace[pace_count].levels[count].slug;
@@ -675,66 +679,73 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         }
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-       QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
-       trainrows.reserve(target_metrics.count() + 2);
-       for (int i = 0; i < target_metrics.count(); i++) {
-           QJsonObject metrics = target_metrics.at(i).toObject();
-           QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
-           QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
-           QString segment_type = metrics[QStringLiteral("segment_type")].toString();
-           if (metrics_ar.count() > 1 && !offset.isEmpty()) {
-               QJsonObject strokes_rate = metrics_ar.at(0).toObject();
-               QJsonObject pace_intensity = metrics_ar.at(1).toObject();
-               int peloton_rower_level = settings.value(QZSettings::peloton_rower_level, QZSettings::default_peloton_rower_level).toInt() - 1;
-               double strokes_rate_lower = strokes_rate[QStringLiteral("lower")].toDouble();
-               double strokes_rate_upper = strokes_rate[QStringLiteral("upper")].toDouble();
-               int pace_intensity_lower = pace_intensity[QStringLiteral("lower")].toInt();
-               int pace_intensity_upper = pace_intensity[QStringLiteral("upper")].toInt();
-               int offset_start = offset[QStringLiteral("start")].toInt();
-               int offset_end = offset[QStringLiteral("end")].toInt();
-               double strokes_rate_average = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
-               trainrow r;
-               r.duration = QTime(0, 0, 0, 0);
-               r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
-               if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
-                   r.cadence = strokes_rate_lower;
-               } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
-                   r.cadence = strokes_rate_upper;
-               } else {
-                   r.cadence = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
-               }
+        QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+        trainrows.reserve(target_metrics.count() + 2);
+        for (int i = 0; i < target_metrics.count(); i++) {
+            QJsonObject metrics = target_metrics.at(i).toObject();
+            QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
+            QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            QString segment_type = metrics[QStringLiteral("segment_type")].toString();
+            if (metrics_ar.count() > 1 && !offset.isEmpty()) {
+                QJsonObject strokes_rate = metrics_ar.at(0).toObject();
+                QJsonObject pace_intensity = metrics_ar.at(1).toObject();
+                int peloton_rower_level =
+                    settings.value(QZSettings::peloton_rower_level, QZSettings::default_peloton_rower_level).toInt() -
+                    1;
+                double strokes_rate_lower = strokes_rate[QStringLiteral("lower")].toDouble();
+                double strokes_rate_upper = strokes_rate[QStringLiteral("upper")].toDouble();
+                int pace_intensity_lower = pace_intensity[QStringLiteral("lower")].toInt();
+                int pace_intensity_upper = pace_intensity[QStringLiteral("upper")].toInt();
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                double strokes_rate_average = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+                if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                    r.cadence = strokes_rate_lower;
+                } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                    r.cadence = strokes_rate_upper;
+                } else {
+                    r.cadence = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+                }
 
-               if(pace_intensity_lower > 0 && pace_intensity_lower < 4) {
-                   r.average_speed = rowerpaceToSpeed((rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace - rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace ) / 2.0);
-                   r.upper_speed = rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace);
-                   r.lower_speed = rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace);
+                if (pace_intensity_lower >= 0 && pace_intensity_lower < 4) {
+                    r.average_speed =
+                        (rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace) +
+                         rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace)) /
+                        2.0;
+                    r.upper_speed =
+                        rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace);
+                    r.lower_speed =
+                        rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace);
 
-                   if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
-                       r.speed = r.lower_speed;
-                   } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
-                       r.speed = r.upper_speed;
-                   } else {
-                       r.speed = r.average_speed;
-                   }
-                   r.forcespeed = 1;
-               }
+                    if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                        r.speed = r.lower_speed;
+                    } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                        r.speed = r.upper_speed;
+                    } else {
+                        r.speed = r.average_speed;
+                    }
+                    r.forcespeed = 1;
+                }
 
-               r.lower_cadence = strokes_rate_lower;
-               r.average_cadence = strokes_rate_average;
-               r.upper_cadence = strokes_rate_upper;
+                r.lower_cadence = strokes_rate_lower;
+                r.average_cadence = strokes_rate_average;
+                r.upper_cadence = strokes_rate_upper;
 
-               trainrows.append(r);
-               qDebug() << i << r.duration << r.cadence;
-           } else if (segment_type.contains("floor")) {
-               int offset_start = offset[QStringLiteral("start")].toInt();
-               int offset_end = offset[QStringLiteral("end")].toInt();
-               trainrow r;
-               r.duration = QTime(0, 0, 0, 0);
-               r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
-               trainrows.append(r);
-               qDebug() << i << r.duration << r.cadence;
-           }
-       }
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.cadence << r.speed << r.upper_speed << r.lower_speed;
+            } else if (segment_type.contains("floor")) {
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.cadence;
+            }
+        }
     }
     // Target METS it's quite useless so I removed, no one use this
     /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {

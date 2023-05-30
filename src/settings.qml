@@ -780,6 +780,11 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.58
             property int peloton_rower_level: 1
+
+            // from version 2.13.61
+            property bool tile_target_pace_enabled: false
+            property int  tile_target_pace_order: 50
+            property bool tts_act_target_pace: false
         }
 
         function paddingZeros(text, limit) {

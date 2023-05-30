@@ -926,11 +926,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         el = device->averagePace();
         obj.setProperty(QStringLiteral("avgpace_s"), el.second());
         obj.setProperty(QStringLiteral("avgpace_m"), el.minute());
-        obj.setProperty(QStringLiteral("avgpace_h"), el.hour());        
+        obj.setProperty(QStringLiteral("avgpace_h"), el.hour());
         el = device->maxPace();
         obj.setProperty(QStringLiteral("maxpace_s"), el.second());
         obj.setProperty(QStringLiteral("maxpace_m"), el.minute());
-        obj.setProperty(QStringLiteral("maxpace_h"), el.hour());                
+        obj.setProperty(QStringLiteral("maxpace_h"), el.hour());
         el = device->movingTime();
         obj.setProperty(QStringLiteral("moving_s"), el.second());
         obj.setProperty(QStringLiteral("moving_m"), el.minute());
@@ -1020,6 +1020,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
+            el = ((rower *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_pace_s"), el.second());
+            obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
+            obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((rower *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -1037,6 +1041,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else if (tp == bluetoothdevice::TREADMILL) {
             obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
+            el = ((treadmill *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_pace_s"), el.second());
+            obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
+            obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
             obj.setProperty(QStringLiteral("target_inclination"),
                             ((treadmill *)device)->lastRequestedInclination().value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());

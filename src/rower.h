@@ -14,6 +14,7 @@ class rower : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     metric lastRequestedSpeed() { return RequestedSpeed; }
+    QTime lastRequestedPace();
     virtual QTime lastPace500m();
     virtual metric currentResistance();
     virtual metric currentStrokesCount();

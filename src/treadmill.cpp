@@ -354,14 +354,14 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 void treadmill::cadenceFromAppleWatch() {
     QSettings settings;
 #ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT        
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifndef IO_UNDER_QT
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
         lockscreen h;
         Cadence = h.getFootCad();
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
     } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         lockscreen h;
         long appleWatchCadence = h.stepCadence();
         Cadence = appleWatchCadence;
@@ -371,7 +371,7 @@ void treadmill::cadenceFromAppleWatch() {
 #endif
 
 #ifdef Q_OS_ANDROID
-    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
         Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
         qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
     }
@@ -402,4 +402,20 @@ bool treadmill::simulateInclinationWithSpeed() {
         return true;
     }
     return false;
+}
+
+QTime treadmill::lastRequestedPace() {
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    if (miles) {
+        unit_conversion = 0.621371;
+    }
+    if (lastRequestedSpeed().value() == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = lastRequestedSpeed().value() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
 }

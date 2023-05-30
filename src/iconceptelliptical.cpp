@@ -110,7 +110,7 @@ void iconceptelliptical::update() {
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
-                                                  bikeResistanceGain);
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
@@ -166,33 +166,43 @@ void iconceptelliptical::rfCommConnected() {
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
     QThread::msleep(2000);
+    readSocket();
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
-    QThread::msleep(1000);
+    QThread::msleep(1500);
+    readSocket();
     socket->write((char *)init3, sizeof(init3));
     qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(200);
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init3b, sizeof(init3b));
     qDebug() << QStringLiteral(" init3b write");
-    QThread::msleep(200);
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init4, sizeof(init4));
     qDebug() << QStringLiteral(" init4 write");
     QThread::msleep(700);
+    readSocket();
     socket->write((char *)init5, sizeof(init5));
     qDebug() << QStringLiteral(" init5 write");
     QThread::msleep(600);
+    readSocket();
     socket->write((char *)init3b, sizeof(init3b));
     qDebug() << QStringLiteral(" init3b write");
     QThread::msleep(400);
+    readSocket();
     socket->write((char *)init6, sizeof(init6));
     qDebug() << QStringLiteral(" init6 write");
     QThread::msleep(600);
+    readSocket();
     socket->write((char *)init6a, sizeof(init6a));
     qDebug() << QStringLiteral(" init6a write");
     QThread::msleep(100);
+    readSocket();
     socket->write((char *)init3b, sizeof(init3b));
     qDebug() << QStringLiteral(" init3b write");
     QThread::msleep(400);
+    readSocket();
 
     initDone = true;
     // requestStart = 1;
