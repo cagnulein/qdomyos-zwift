@@ -370,7 +370,7 @@ class homeform : public QObject {
     int pzpLogin() { return m_pzpLoginState; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
-    QString toastRequested() {return m_toastRequested; }
+    QString toastRequested() { return m_toastRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -610,6 +610,7 @@ class homeform : public QObject {
     DataObject *target_power;
     DataObject *target_zone;
     DataObject *target_speed;
+    DataObject *target_pace;
     DataObject *target_incline;
     DataObject *ftp;
     DataObject *lapElapsed;
