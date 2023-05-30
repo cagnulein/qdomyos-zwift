@@ -26,9 +26,11 @@ void csaferowerThread::run() {
     openPort();
     while (1) {
         csafeCommand command("GetStatus", QByteArray());
+        qDebug() << " >> " << command.contents().toHex(' ');
         rawWrite((uint8_t *)command.contents().data(), command.contents().length());
         static uint8_t rx[100];
-        rawRead(rx, 100);
+        rawRead(rx, 5);
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 5).toHex(' ');
     }
     closePort();
 }
@@ -404,3 +406,7 @@ void csaferower::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 bool csaferower::connected() { return true; }
+
+void csaferower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
+}

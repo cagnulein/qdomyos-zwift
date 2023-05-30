@@ -30,6 +30,7 @@
 #include "chronobike.h"
 #ifndef Q_OS_IOS
 #include "computrainerbike.h"
+#include "csaferower.h"
 #endif
 #include "concept2skierg.h"
 #include "cscbike.h"
@@ -156,6 +157,7 @@ class bluetooth : public QObject, public SignalHandler {
     fitshowtreadmill *fitshowTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
+    csaferower *csafeRower = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;

@@ -149,6 +149,9 @@ class csaferower : public rower {
     void update();
 
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+
+  public slots:
+    void deviceDiscovered(const QBluetoothDeviceInfo &device);
 };
 
 #endif // CSAFEROWER_H
