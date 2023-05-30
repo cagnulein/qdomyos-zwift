@@ -55,9 +55,9 @@ class csafe {
         QString type() const {
             quint8 startFlag = buffer[0];
 
-            if (startFlag == csafe::flags.value("ExtendedStartFlag"))
+            if (startFlag == flags.value("ExtendedStartFlag"))
                 return "extended";
-            else if (startFlag == csafe::flags.value("StandardStartFlag"))
+            else if (startFlag == flags.value("StandardStartFlag"))
                 return "standard";
 
             throw std::runtime_error("Invalid or unknown startFlag for Frame.");
@@ -76,7 +76,7 @@ class csafe {
             return (checksum() == validate);
         }
 
-        bool isStuffed() const { return (buffer.indexOf(csafe::flags.value("StuffFlag")) > -1); }
+        bool isStuffed() const { return (buffer.indexOf(flags.value("StuffFlag")) > -1); }
 
         void stuff() {
             int startIdx = 1;
@@ -85,12 +85,11 @@ class csafe {
             for (int i = startIdx; i <= endIdx; ++i) {
                 quint8 byte = buffer.at(i);
 
-                if (byte == csafe::flags.value("ExtendedStartFlag") ||
-                    byte == csafe::flags.value("StandardStartFlag") || byte == csafe::flags.value("StopFlag") ||
-                    byte == csafe::flags.value("StuffFlag")) {
+                if (byte == flags.value("ExtendedStartFlag") || byte == flags.value("StandardStartFlag") ||
+                    byte == flags.value("StopFlag") || byte == flags.value("StuffFlag")) {
                     QByteArray bufferList;
                     bufferList.append(buffer.left(i));
-                    bufferList.append(csafe::flags.value("StuffFlag"));
+                    bufferList.append(flags.value("StuffFlag"));
                     bufferList.append(stuffByte(byte));
                     bufferList.append(buffer.mid(i + 1, buffer.length() - i));
 
@@ -106,7 +105,7 @@ class csafe {
             int endIdx = buffer.length() - 1;
 
             for (int i = startIdx; i <= endIdx; ++i) {
-                if (buffer.at(i) == csafe::flags.value("StuffFlag")) {
+                if (buffer.at(i) == flags.value("StuffFlag")) {
                     QByteArray bufferList;
                     bufferList.append(buffer.left(i));
                     bufferList.append(unstuffByte(buffer.at(i + 1)));
@@ -128,9 +127,9 @@ class csafe {
             : Frame(createBuffer(commandName, data)) {}
 
         static QByteArray createBuffer(const QString &commandName, const QByteArray &data) {
-            quint8 startFlag = csafe::flags.value("StandardStartFlag");
-            quint8 stopFlag = csafe::flags.value("StopFlag");
-            QMap<QString, QVariant> command = csafe::commands.value(commandName);
+            quint8 startFlag = flags.value("StandardStartFlag");
+            quint8 stopFlag = flags.value("StopFlag");
+            QMap<QString, QVariant> command = commands.value(commandName);
             QByteArray bufferArray;
             bufferArray.append(command.value("id").toUInt());
 
@@ -214,7 +213,7 @@ class csafe {
 
             // Create a new frame buffer if start flag is detected.
             // TODO: Handle extended frames.
-            int frameStartIdx = buffer.indexOf(csafe::flags.value("StandardStartFlag"));
+            int frameStartIdx = buffer.indexOf(flags.value("StandardStartFlag"));
             if (frameStartIdx > -1) {
                 frameBuffer = buffer.mid(frameStartIdx);
             }
@@ -231,7 +230,7 @@ class csafe {
 
       private:
         void emitFrameIfComplete() {
-            int stopFlagIdx = frameBuffer.indexOf(csafe::flags.value("StopFlag"));
+            int stopFlagIdx = frameBuffer.indexOf(flags.value("StopFlag"));
             if (stopFlagIdx > -1) {
                 frameBuffer = frameBuffer.left(stopFlagIdx + 1);
 
