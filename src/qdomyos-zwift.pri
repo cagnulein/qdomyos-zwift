@@ -73,6 +73,8 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 
 SOURCES += \
    $$PWD/bkoolbike.cpp \
+   $$PWD/csafe.cpp \
+   $$PWD/csaferower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
@@ -276,6 +278,8 @@ INCLUDEPATH += fit-sdk/
 
 HEADERS += \
    $$PWD/bkoolbike.h \
+   $$PWD/csafe.h \
+   $$PWD/csaferower.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -798,4 +802,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.61
+VERSION = 2.13.62

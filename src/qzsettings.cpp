@@ -654,8 +654,10 @@ const QString QZSettings::peloton_rower_level = QStringLiteral("peloton_rower_le
 const QString QZSettings::tile_target_pace_enabled = QStringLiteral("tile_target_pace_enabled");
 const QString QZSettings::tile_target_pace_order = QStringLiteral("tile_target_pace_order");
 const QString QZSettings::tts_act_target_pace = QStringLiteral("tts_act_target_pace");
+const QString QZSettings::csafe_rower = QStringLiteral("csafe_rower");
+const QString QZSettings::default_csafe_rower = QStringLiteral("");
 
-const uint32_t allSettingsCount = 548;
+const uint32_t allSettingsCount = 549;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1209,6 +1211,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_target_pace_enabled, QZSettings::default_tile_target_pace_enabled},
     {QZSettings::tile_target_pace_order, QZSettings::default_tile_target_pace_order},
     {QZSettings::tts_act_target_pace, QZSettings::default_tts_act_target_pace},
+    {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
