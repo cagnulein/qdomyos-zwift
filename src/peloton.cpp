@@ -667,7 +667,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.upper_inclination = inc_upper;
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
-            } else if (segment_type.contains("floor")) {
+            } else if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
                 trainrow r;
@@ -736,7 +736,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.cadence << r.speed << r.upper_speed << r.lower_speed;
-            } else if (segment_type.contains("floor")) {
+            } else if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
                 trainrow r;
