@@ -26,8 +26,8 @@ void csaferowerThread::run() {
     openPort();
     while (1) {
         csafeCommand command("GetStatus", QByteArray());
-        qDebug() << " >> " << command.contents().toHex(' ');
-        rawWrite((uint8_t *)command.contents().data(), command.contents().length());
+        qDebug() << " >> " << command.buffer.toHex(' ');
+        rawWrite((uint8_t *)command.buffer.data(), command.buffer.length());
         static uint8_t rx[100];
         rawRead(rx, 5);
         qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 5).toHex(' ');
@@ -228,6 +228,8 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
         jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+        if (len == 0)
+            return 0;
         jbyteArray d = dd.object<jbyteArray>();
         jbyte *b = env->GetByteArrayElements(d, 0);
         if (len + fullLen > size) {

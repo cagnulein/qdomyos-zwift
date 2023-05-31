@@ -27,6 +27,8 @@ class csafe {
 
 class csafeFrame {
   public:
+    QByteArray buffer;
+
     class InvalidFrameError : public std::runtime_error {
       public:
         InvalidFrameError(const std::string &message) : std::runtime_error(message) {}
@@ -121,9 +123,6 @@ class csafeFrame {
             }
         }
     }
-
-  private:
-    QByteArray buffer;
 };
 
 class csafeCommand : public csafeFrame {
