@@ -35,6 +35,7 @@ class rower : public bluetoothdevice {
     void clearStats();
     void setLap();
     void setPaused(bool p);
+    QTime speedToPace(double Speed);
 
   public slots:
     virtual void changeResistance(resistance_t res);

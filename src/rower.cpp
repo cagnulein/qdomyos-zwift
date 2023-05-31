@@ -160,22 +160,7 @@ QTime rower::maxPace() {
 }
 
 // min/500m
-QTime rower::currentPace() {
-    QSettings settings;
-    // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-    const double unit_conversion = 1.0;
-    // rowers are always in meters!
-    /*if (miles) {
-        unit_conversion = 0.621371;
-    }*/
-    if (Speed.value() == 0) {
-        return QTime(0, 0, 0, 0);
-    } else {
-        double speed = Speed.value() * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
-        return QTime(0, (int)(1.0 / (speed / 60.0)),
-                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
-    }
-}
+QTime rower::currentPace() { return speedToPace(Speed.value()); }
 
 // min/500m
 QTime rower::lastPace500m() {
@@ -211,7 +196,11 @@ QTime rower::lastPace500m() {
                  (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
 }
 
-QTime rower::lastRequestedPace() {
+// min/500m
+QTime rower::lastRequestedPace() { return speedToPace(lastRequestedSpeed().value()); }
+
+// min/500m
+QTime rower::speedToPace(double Speed) {
     QSettings settings;
     // bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     const double unit_conversion = 1.0;
@@ -219,11 +208,10 @@ QTime rower::lastRequestedPace() {
     /*if (miles) {
         unit_conversion = 0.621371;
     }*/
-    if (lastRequestedSpeed().value() == 0) {
+    if (Speed == 0) {
         return QTime(0, 0, 0, 0);
     } else {
-        double speed =
-            lastRequestedSpeed().value() * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
+        double speed = Speed * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
         return QTime(0, (int)(1.0 / (speed / 60.0)),
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
