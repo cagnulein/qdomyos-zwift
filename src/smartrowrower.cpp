@@ -195,7 +195,9 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     double distance = GetDistanceFromPacket(newValue);
     QTime localTime;
+    int pace_inst;
 
+    // https://github.com/inonoob/pirowflo/blob/6ea5f3a9d224ed594b23c25c186737bc0cae7ac3/src/adapters/smartrow/smartrowtobleant.py
     switch (newValue.at(0)) {
     case 'a':
         // elapsed time
@@ -222,6 +224,13 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         break;
     case 'e':
         // actual split time
+        // pace_inst = int(event[6])*60 + int(event[7:9])
+        // 3243 = 180 + 243 = 713
+        // speed = int(500 * 100 / pace_inst) # speed in cm/s
+        pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 3));
+        qDebug() << QStringLiteral("pace_inst") << pace_inst;
+        Speed = (500.0 * 100.0 / pace_inst) * 0.036;
+
         // average split time
         break;
     case 'f':
@@ -238,7 +247,6 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         break;
     }
 
-    Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
