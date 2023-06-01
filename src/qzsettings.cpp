@@ -650,8 +650,14 @@ const QString QZSettings::gears_gain = QStringLiteral("gears_gain");
 const QString QZSettings::proform_treadmill_8_0 = QStringLiteral("proform_treadmill_8_0");
 const QString QZSettings::zero_zt2500_treadmill = QStringLiteral("zero_zt2500_treadmill");
 const QString QZSettings::kingsmith_encrypt_v5 = QStringLiteral("kingsmith_encrypt_v5");
+const QString QZSettings::peloton_rower_level = QStringLiteral("peloton_rower_level");
+const QString QZSettings::tile_target_pace_enabled = QStringLiteral("tile_target_pace_enabled");
+const QString QZSettings::tile_target_pace_order = QStringLiteral("tile_target_pace_order");
+const QString QZSettings::tts_act_target_pace = QStringLiteral("tts_act_target_pace");
+const QString QZSettings::csafe_rower = QStringLiteral("csafe_rower");
+const QString QZSettings::default_csafe_rower = QStringLiteral("");
 
-const uint32_t allSettingsCount = 544;
+const uint32_t allSettingsCount = 549;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1201,6 +1207,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_8_0, QZSettings::default_proform_treadmill_8_0},
     {QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill},
     {QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5},
+    {QZSettings::peloton_rower_level, QZSettings::default_peloton_rower_level},
+    {QZSettings::tile_target_pace_enabled, QZSettings::default_tile_target_pace_enabled},
+    {QZSettings::tile_target_pace_order, QZSettings::default_tile_target_pace_order},
+    {QZSettings::tts_act_target_pace, QZSettings::default_tts_act_target_pace},
+    {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

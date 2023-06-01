@@ -404,6 +404,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     QString computrainerSerialPort =
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+    QString csaferowerSerialPort = settings.value(QZSettings::csafe_rower, QZSettings::default_csafe_rower).toString();
     bool manufacturerDeviceFound = false;
     bool ss2k_peloton = settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool();
     bool pafers_treadmill_bh_iboxster_plus =
@@ -650,6 +651,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(computrainerBike);
+            } else if (!csaferowerSerialPort.isEmpty() && !csafeRower) {
+                this->stopDiscovery();
+                csafeRower = new csaferower(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(csafeRower, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(csafeRower, &csaferower::debug, this, &bluetooth::debug);
+                csafeRower->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(csafeRower);
 #endif
             } else if (!proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
                 this->stopDiscovery();
@@ -1342,7 +1356,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(stagesBike);
-            } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 smartrowRower =
@@ -1358,7 +1372,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 smartrowRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                        b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
+                        !b.name().toUpper().endsWith(QStringLiteral("ROW"))) &&
                        !concept2Skierg && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1381,7 +1395,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                         b.name().toUpper().contains(QStringLiteral("ROW")))) &&
+                         b.name().toUpper().endsWith(QStringLiteral("ROW")))) &&
                        !ftmsRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2737,6 +2751,11 @@ void bluetooth::restart() {
         delete computrainerBike;
         computrainerBike = nullptr;
     }
+    if (csafeRower) {
+
+        delete csafeRower;
+        csafeRower = nullptr;
+    }
 #endif
     if (chronoBike) {
 
@@ -3019,6 +3038,8 @@ bluetoothdevice *bluetooth::device() {
 #ifndef Q_OS_IOS
     } else if (computrainerBike) {
         return computrainerBike;
+    } else if (csafeRower) {
+        return csafeRower;
 #endif
     }
     return nullptr;

@@ -13,6 +13,8 @@ class rower : public bluetoothdevice {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
+    metric lastRequestedSpeed() { return RequestedSpeed; }
+    QTime lastRequestedPace();
     virtual QTime lastPace500m();
     metric currentResistance() override;
     virtual metric currentStrokesCount();
@@ -20,6 +22,7 @@ class rower : public bluetoothdevice {
     QTime currentPace() override;
     QTime averagePace() override;
     QTime maxPace() override;
+    virtual double requestedSpeed();
     uint8_t fanSpeed() override;
     double currentCrankRevolutions() override;
     uint16_t lastCrankEventTime() override;
@@ -32,6 +35,7 @@ class rower : public bluetoothdevice {
     void clearStats() override;
     void setLap() override;
     void setPaused(bool p) override;
+    QTime speedToPace(double Speed);
 
   public slots:
     void changeResistance(resistance_t res) override;
@@ -40,6 +44,7 @@ class rower : public bluetoothdevice {
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
+    virtual void changeSpeed(double speed) override;
 
   signals:
     void bikeStarted();
@@ -53,6 +58,8 @@ class rower : public bluetoothdevice {
     double requestInclination = -100;
     metric RequestedCadence;
     metric RequestedPower;
+    metric RequestedSpeed;
+    volatile double requestSpeed = -1;
     metric StrokesLength;
     metric StrokesCount;
     uint16_t LastCrankEventTime = 0;
@@ -62,13 +69,16 @@ class rower : public bluetoothdevice {
     metric m_pelotonResistance;
 
     class rowerSpeedDistance {
-    public:
-        rowerSpeedDistance(double distance, double speed) {this->distance = distance; this->speed = speed;}
+      public:
+        rowerSpeedDistance(double distance, double speed) {
+            this->distance = distance;
+            this->speed = speed;
+        }
         double distance;
         double speed;
     };
 
-    QList<rowerSpeedDistance*> speedLast500mValues;
+    QList<rowerSpeedDistance *> speedLast500mValues;
 };
 
 #endif // ROWER_H

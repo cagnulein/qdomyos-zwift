@@ -1827,6 +1827,21 @@ class QZSettings {
     static const QString kingsmith_encrypt_v5;
     static constexpr bool default_kingsmith_encrypt_v5 = false;
 
+    static const QString peloton_rower_level;
+    static constexpr int default_peloton_rower_level = 1;
+
+    static const QString tile_target_pace_enabled;
+    static constexpr bool default_tile_target_pace_enabled = false;
+
+    static const QString tile_target_pace_order;
+    static constexpr int default_tile_target_pace_order = 50;
+
+    static const QString tts_act_target_pace;
+    static constexpr bool default_tts_act_target_pace = false;
+
+    static const QString csafe_rower;
+    static const QString default_csafe_rower;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -29,6 +29,7 @@ class trainrow {
     int8_t lower_requested_peloton_resistance = -1;
     int8_t average_requested_peloton_resistance = -1; // used for peloton
     int8_t upper_requested_peloton_resistance = -1;
+    int8_t pace_intensity = -1; // used for peloton
     int16_t cadence = -1;
     int16_t lower_cadence = -1;
     int16_t average_cadence = -1; // used for peloton

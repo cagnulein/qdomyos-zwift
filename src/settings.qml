@@ -777,6 +777,17 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.52
             property bool kingsmith_encrypt_v5: false
+
+            // from version 2.13.58
+            property int peloton_rower_level: 1
+
+            // from version 2.13.61
+            property bool tile_target_pace_enabled: false
+            property int  tile_target_pace_order: 50
+            property bool tts_act_target_pace: false
+
+            // from version 2.13.62
+            property string csafe_rower: ""
         }
 
         function paddingZeros(text, limit) {
@@ -3601,6 +3612,44 @@ import QtQuick.Dialogs 1.0
                     RowLayout {
                         spacing: 10
                         Label {
+                            text: qsTr("Rower Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonRowerLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6" ]
+                            displayText: settings.peloton_rower_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonRowerLevelTextField.currentIndex)
+                                displayText = pelotonRowerLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_rower_level = parseInt(pelotonRowerLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 6 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             id: labelPZPUsername
                             text: qsTr("PZP Username:")
                             Layout.fillWidth: true
@@ -6137,6 +6186,44 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.hertz_xr_770 = checked; window.settings_restart_to_apply = true; }
+                    }
+                }
+            }
+
+            AccordionElement {
+                title: qsTr("Rower Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    AccordionElement {
+                        title: qsTr("PM3, PM4 Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Serial Port:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: csaferowerSerialPortTextField
+                                text: settings.csafe_rower
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.csafe_rower = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.csafe_rower = csaferowerSerialPortTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                            }
+                        }
                     }
                 }
             }
