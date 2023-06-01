@@ -790,7 +790,7 @@ double peloton::rowerpaceToSpeed(double pace) {
 
     fractional = std::modf(pace, &whole);
     double seconds = whole * 60.0;
-    seconds += (fractional * 10.0);
+    seconds += (fractional * 100.0);
     seconds *= 2.0;
 
     return 3600.0 / seconds;
