@@ -31,7 +31,7 @@ class heartratebelt : public treadmill {
     Q_OBJECT
   public:
     heartratebelt();
-    bool connected();
+    bool connected() override;
 
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -41,7 +41,7 @@ class heartratebelt : public treadmill {
     void disconnected();
     void debug(QString string);
     void packetReceived();
-    void heartRate(uint8_t heart);
+    void heartRate(uint8_t heart) override;
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

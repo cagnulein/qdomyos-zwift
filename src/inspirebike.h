@@ -37,7 +37,7 @@ class inspirebike : public bike {
     Q_OBJECT
   public:
     inspirebike(bool noWriteResistance, bool noHeartService);
-    resistance_t maxResistance() { return max_resistance; }
+    resistance_t maxResistance() override { return max_resistance; }
     bool connected() override;
 
     const resistance_t max_resistance = 40;

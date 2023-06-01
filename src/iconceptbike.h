@@ -62,7 +62,7 @@ class iconceptbike : public bike {
 
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    uint16_t watts();
+    uint16_t watts() override;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

@@ -44,7 +44,6 @@ class domyosbike : public bike {
     ~domyosbike() override;
     bool connected() override;
 
-
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);

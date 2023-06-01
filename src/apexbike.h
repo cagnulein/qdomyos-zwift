@@ -36,7 +36,7 @@ class apexbike : public bike {
     Q_OBJECT
   public:
     apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
   private:
     const resistance_t max_resistance = 32;
@@ -46,7 +46,7 @@ class apexbike : public bike {
     void startDiscover();
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
 

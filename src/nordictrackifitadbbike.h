@@ -29,13 +29,13 @@ class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
     nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool inclinationAvailableByHardware();
+    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;

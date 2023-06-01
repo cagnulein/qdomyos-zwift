@@ -38,7 +38,6 @@ class proformellipticaltrainer : public elliptical {
     proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                              double bikeResistanceGain);
     bool connected() override;
-
     int pelotonToEllipticalResistance(int pelotonResistance) override;
 
   private:

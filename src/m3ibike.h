@@ -141,7 +141,6 @@ class m3ibike : public bike {
     m3ibike(bool noWriteResistance, bool noHeartService);
     virtual ~m3ibike();
     bool connected() override;
-
     static bool parse_data(const QByteArray &data, keiser_m3i_out_t *f);
     static bool valid_id(int id);
     static bool isCorrectUnit(const QBluetoothDeviceInfo &device);

@@ -34,8 +34,8 @@ class domyoselliptical : public elliptical {
     domyoselliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                      uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyoselliptical();
-    bool connected();
-    bool inclinationAvailableByHardware();
+    bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

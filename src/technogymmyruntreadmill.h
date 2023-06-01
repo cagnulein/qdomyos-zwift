@@ -38,11 +38,11 @@ class technogymmyruntreadmill : public treadmill {
     Q_OBJECT
   public:
     technogymmyruntreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,

@@ -40,17 +40,17 @@ class schwinn170bike : public bike {
   public:
     schwinn170bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                    double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool ergManagedBySS2K() { return true; }
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool ergManagedBySS2K() override { return true; }
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
 
@@ -83,7 +83,7 @@ class schwinn170bike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(resistance_t res);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

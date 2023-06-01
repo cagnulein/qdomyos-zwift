@@ -41,7 +41,7 @@ class nautilusbike : public bike {
     double GetInclinationFromPacket(QByteArray packet);
     double GetWattFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t watts();
+    uint16_t watts() override;
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

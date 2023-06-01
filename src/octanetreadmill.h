@@ -32,13 +32,12 @@ class octanetreadmill : public treadmill {
   public:
     octanetreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    double minStepSpeed();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
-
-    virtual bool canStartStop() { return false; }
+    bool connected() override;
+    double minStepInclination() override;
+    double minStepSpeed() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool canStartStop() override { return false; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet, int index);

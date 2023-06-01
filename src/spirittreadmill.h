@@ -31,8 +31,7 @@ class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
-    bool connected();
-
+    bool connected() override;
 
 
   private:

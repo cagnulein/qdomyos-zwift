@@ -38,7 +38,7 @@ class faketreadmill : public treadmill {
     Q_OBJECT
   public:
     faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
+    bool connected() override;
 
   private:
     QTimer *refresh;
