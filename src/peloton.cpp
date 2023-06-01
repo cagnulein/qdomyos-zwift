@@ -721,14 +721,17 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                         rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace);
 
                     if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                        r.pace_intensity = pace_intensity_lower;
                         r.speed = r.lower_speed;
                     } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                        r.pace_intensity = pace_intensity_upper;
                         r.speed = r.upper_speed;
                     } else {
+                        r.pace_intensity = (pace_intensity_upper + pace_intensity_lower) / 2;
                         r.speed = r.average_speed;
                     }
                     r.forcespeed = 1;
-                }
+                }                
 
                 r.lower_cadence = strokes_rate_lower;
                 r.average_cadence = strokes_rate_average;

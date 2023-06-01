@@ -3686,15 +3686,36 @@ void homeform::update() {
 
                 if(((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
                     if(bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed ||
-                       bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed)
+                       bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_pace->setValueFontColor(QStringLiteral("limegreen"));
+                        this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
+                    }
                     else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) ||
-                            bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2))
+                            bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_pace->setValueFontColor(QStringLiteral("orange"));
-                    else
+                        this->target_zone->setValueFontColor(QStringLiteral("orange"));
+                    }
+                    else {
                         this->target_pace->setValueFontColor(QStringLiteral("red"));
+                        this->target_zone->setValueFontColor(QStringLiteral("red"));
+                    }
                 } else {
                     this->target_pace->setValueFontColor(QStringLiteral("white"));
+                    this->target_zone->setValueFontColor(QStringLiteral("white"));
+                }
+                switch(trainProgram->currentRow().pace_intensity) {
+                    case 0:
+                        this->target_zone->setValue(tr("Easy"));
+                    break;
+                    case 1:
+                        this->target_zone->setValue(tr("Moderate"));
+                    break;
+                    case 2:
+                        this->target_zone->setValue(tr("Challenging"));
+                    break;
+                    case 3:
+                        this->target_zone->setValue(tr("Max"));
+                    break;
                 }
             }
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
@@ -3985,7 +4006,7 @@ void homeform::update() {
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
-            bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING && (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);

@@ -80,6 +80,7 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" average_requested_peloton_resistance = %1")
               .arg(average_requested_peloton_resistance); // used for peloton
     rv += QStringLiteral(" upper_requested_peloton_resistance = %1").arg(upper_requested_peloton_resistance);
+    rv += QStringLiteral(" pace_intensity = %1").arg(pace_intensity);
     rv += QStringLiteral(" cadence = %1").arg(cadence);
     rv += QStringLiteral(" lower_cadence = %1").arg(lower_cadence);
     rv += QStringLiteral(" average_cadence = %1").arg(average_cadence); // used for peloton
@@ -1116,6 +1117,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
                 stream.writeAttribute(QStringLiteral("upper_requested_peloton_resistance"),
                                       QString::number(row.upper_requested_peloton_resistance));
             }
+            if (row.pace_intensity >= 0) {
+                stream.writeAttribute(QStringLiteral("pace_intensity"), QString::number(row.pace_intensity));
+            }
             if (row.cadence >= 0) {
                 stream.writeAttribute(QStringLiteral("cadence"), QString::number(row.cadence));
             }
@@ -1238,6 +1242,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("upper_requested_peloton_resistance"))) {
                 row.upper_requested_peloton_resistance =
                     atts.value(QStringLiteral("upper_requested_peloton_resistance")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("pace_intensity"))) {
+                row.pace_intensity = atts.value(QStringLiteral("pace_intensity")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("cadence"))) {
                 row.cadence = atts.value(QStringLiteral("cadence")).toInt();
