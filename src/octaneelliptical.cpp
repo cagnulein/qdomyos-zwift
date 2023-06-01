@@ -170,10 +170,10 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPace2Sign.clear();
 
     // SPEED
-    actualPaceSign.append(0x02);
     actualPaceSign.append(0x07);
-    actualPace2Sign.append(0x01);
+    actualPaceSign.append(0x03);
     actualPace2Sign.append(0x07);
+    actualPace2Sign.append(0x03);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -336,8 +336,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x06) {
-        Resistance = (uint8_t)newValue[5];
+    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x09) {
+        Resistance = (uint8_t)newValue[4];
         emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
         return;
     }
@@ -398,8 +398,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 double octaneelliptical::GetSpeedFromPacket(const QByteArray &packet, int index) {
-    uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
-    return ((double)convertedData) / 1000.0;
+    uint16_t convertedData = (packet.at(index + 4) << 8) | ((uint8_t)packet.at(index + 5));
+    return ((double)convertedData) / 100.0;
 }
 
 void octaneelliptical::btinit(bool startTape) {
