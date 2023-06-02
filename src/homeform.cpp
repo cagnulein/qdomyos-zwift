@@ -3708,10 +3708,10 @@ void homeform::update() {
                         this->target_zone->setValue(tr("Easy"));
                     break;
                     case 1:
-                        this->target_zone->setValue(tr("Moderate"));
+                        this->target_zone->setValue(tr("Moder."));
                     break;
                     case 2:
-                        this->target_zone->setValue(tr("Challenging"));
+                        this->target_zone->setValue(tr("Chall."));
                     break;
                     case 3:
                         this->target_zone->setValue(tr("Max"));
