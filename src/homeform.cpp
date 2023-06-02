@@ -3768,22 +3768,22 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
-            if (bluetoothManager->device()->currentSpeed().value() < 4) {
+            if (bluetoothManager->device()->currentSpeed().value() < 8) {
                 speed->setValueFontColor(QStringLiteral("white"));
                 this->pace->setValueFontColor(QStringLiteral("white"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 5) {
+            } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
                 speed->setValueFontColor(QStringLiteral("limegreen"));
                 this->pace->setValueFontColor(QStringLiteral("limegreen"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 5.5) {
+            } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
                 speed->setValueFontColor(QStringLiteral("gold"));
                 this->pace->setValueFontColor(QStringLiteral("gold"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 6) {
+            } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
                 speed->setValueFontColor(QStringLiteral("orange"));
                 this->pace->setValueFontColor(QStringLiteral("orange"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 6.5) {
+            } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
                 speed->setValueFontColor(QStringLiteral("darkorange"));
                 this->pace->setValueFontColor(QStringLiteral("darkorange"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 7) {
+            } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
                 speed->setValueFontColor(QStringLiteral("orangered"));
                 this->pace->setValueFontColor(QStringLiteral("orangered"));
             } else {
