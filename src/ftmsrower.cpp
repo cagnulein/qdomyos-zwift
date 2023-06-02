@@ -308,7 +308,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     {
         if (Flags.heartRate && !disable_hr_frommachinery) {
             if (index < newValue.length()) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else
