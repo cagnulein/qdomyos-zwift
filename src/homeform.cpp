@@ -3740,17 +3740,6 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
             this->target_cadence->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
-            int cadDiff = qAbs(bluetoothManager->device()->currentCadence().value() - ((rower *)bluetoothManager->device())->lastRequestedCadence().value());
-            if(((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
-                if(cadDiff < 2)
-                    this->target_cadence->setValueFontColor(QStringLiteral("limegreen"));
-                else if(cadDiff < 5)
-                    this->target_cadence->setValueFontColor(QStringLiteral("orange"));
-                else
-                    this->target_cadence->setValueFontColor(QStringLiteral("red"));
-            } else {
-                this->target_cadence->setValueFontColor(QStringLiteral("white"));
-            }
             this->target_power->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
