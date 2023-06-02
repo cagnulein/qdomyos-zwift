@@ -656,8 +656,10 @@ const QString QZSettings::tile_target_pace_order = QStringLiteral("tile_target_p
 const QString QZSettings::tts_act_target_pace = QStringLiteral("tts_act_target_pace");
 const QString QZSettings::csafe_rower = QStringLiteral("csafe_rower");
 const QString QZSettings::default_csafe_rower = QStringLiteral("");
+const QString QZSettings::ftms_rower = QStringLiteral("ftms_rower");
+const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
 
-const uint32_t allSettingsCount = 549;
+const uint32_t allSettingsCount = 550;
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
     {QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection},
@@ -1212,6 +1214,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_target_pace_order, QZSettings::default_tile_target_pace_order},
     {QZSettings::tts_act_target_pace, QZSettings::default_tts_act_target_pace},
     {QZSettings::csafe_rower, QZSettings::default_csafe_rower},
+    {QZSettings::ftms_rower, QZSettings::default_ftms_rower},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

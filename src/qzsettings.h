@@ -1842,6 +1842,9 @@ class QZSettings {
     static const QString csafe_rower;
     static const QString default_csafe_rower;
 
+    static const QString ftms_rower;
+    static const QString default_ftms_rower;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
