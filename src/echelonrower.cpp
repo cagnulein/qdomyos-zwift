@@ -231,7 +231,11 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
     // instant pace to km/h
-    Speed = (60.0 / (double)(lastPacket.at(14))) * 30.0;
+    if(((uint8_t)lastPacket.at(14)) > 0)
+        Speed = (60.0 / (double)((uint8_t)lastPacket.at(14))) * 30.0;
+    else
+        Speed = 0;
+
     StrokesLength =
         ((Speed.value() / 60.0) * 1000.0) /
         Cadence.value(); // this is just to fill the tile, but it's quite useless since the machinery doesn't report it
