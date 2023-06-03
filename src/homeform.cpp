@@ -3685,25 +3685,21 @@ void homeform::update() {
                                                      .toString(QStringLiteral("m:ss")));
 
                 if(((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
-                    if(bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed ||
+                    if(bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                        bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
-                        this->target_pace->setValueFontColor(QStringLiteral("limegreen"));
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                         this->pace->setValueFontColor(QStringLiteral("limegreen"));
                     }
-                    else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) ||
+                    else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) &&
                             bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2)) {
-                        this->target_pace->setValueFontColor(QStringLiteral("orange"));
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
                         this->pace->setValueFontColor(QStringLiteral("orange"));
                     }
                     else {
-                        this->target_pace->setValueFontColor(QStringLiteral("red"));
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
                         this->pace->setValueFontColor(QStringLiteral("red"));
                     }
                 } else {
-                    this->target_pace->setValueFontColor(QStringLiteral("white"));
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
                     this->pace->setValueFontColor(QStringLiteral("white"));
                 }

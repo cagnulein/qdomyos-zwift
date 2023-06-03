@@ -87,7 +87,6 @@
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
-            BuildableIdentifier = "primary"
             BlueprintIdentifier = "876E4E102594747F00BD5714"
             BuildableName = "watchkit.app"
             BlueprintName = "watchkit"
