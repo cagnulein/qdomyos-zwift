@@ -81,14 +81,14 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         if (value() < m_lapMin) {
             m_lapMin = value();
         }
-    }
 
-    if (value() > m_max) {
-        m_max = value();
-    }
+        if (value() > m_max) {
+            m_max = value();
+        }
 
-    if (value() > m_lapMax) {
-        m_lapMax = value();
+        if (value() > m_lapMax) {
+            m_lapMax = value();
+        }
     }
 }
 
