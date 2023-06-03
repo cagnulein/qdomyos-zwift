@@ -3689,19 +3689,23 @@ void homeform::update() {
                        bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_pace->setValueFontColor(QStringLiteral("limegreen"));
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
+                        this->pace->setValueFontColor(QStringLiteral("limegreen"));
                     }
                     else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) ||
                             bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_pace->setValueFontColor(QStringLiteral("orange"));
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
+                        this->pace->setValueFontColor(QStringLiteral("orange"));
                     }
                     else {
                         this->target_pace->setValueFontColor(QStringLiteral("red"));
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
+                        this->pace->setValueFontColor(QStringLiteral("red"));
                     }
                 } else {
                     this->target_pace->setValueFontColor(QStringLiteral("white"));
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
+                    this->pace->setValueFontColor(QStringLiteral("white"));
                 }
                 switch(trainProgram->currentRow().pace_intensity) {
                     case 0:
@@ -3768,29 +3772,33 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
-            if (bluetoothManager->device()->currentSpeed().value() < 8) {
-                speed->setValueFontColor(QStringLiteral("white"));
-                this->pace->setValueFontColor(QStringLiteral("white"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
-                speed->setValueFontColor(QStringLiteral("limegreen"));
-                this->pace->setValueFontColor(QStringLiteral("limegreen"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
-                speed->setValueFontColor(QStringLiteral("gold"));
-                this->pace->setValueFontColor(QStringLiteral("gold"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
-                speed->setValueFontColor(QStringLiteral("orange"));
-                this->pace->setValueFontColor(QStringLiteral("orange"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
-                speed->setValueFontColor(QStringLiteral("darkorange"));
-                this->pace->setValueFontColor(QStringLiteral("darkorange"));
-            } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
-                speed->setValueFontColor(QStringLiteral("orangered"));
-                this->pace->setValueFontColor(QStringLiteral("orangered"));
-            } else {
-                speed->setValueFontColor(QStringLiteral("red"));
-                this->pace->setValueFontColor(QStringLiteral("red"));
+
+            // if there is no training program, the color is based on presets
+            if(!trainProgram || trainProgram->currentRow().speed == -1) {
+                if (bluetoothManager->device()->currentSpeed().value() < 8) {
+                    speed->setValueFontColor(QStringLiteral("white"));
+                    this->pace->setValueFontColor(QStringLiteral("white"));
+                } else if (bluetoothManager->device()->currentSpeed().value() < 10) {
+                    speed->setValueFontColor(QStringLiteral("limegreen"));
+                    this->pace->setValueFontColor(QStringLiteral("limegreen"));
+                } else if (bluetoothManager->device()->currentSpeed().value() < 11) {
+                    speed->setValueFontColor(QStringLiteral("gold"));
+                    this->pace->setValueFontColor(QStringLiteral("gold"));
+                } else if (bluetoothManager->device()->currentSpeed().value() < 12) {
+                    speed->setValueFontColor(QStringLiteral("orange"));
+                    this->pace->setValueFontColor(QStringLiteral("orange"));
+                } else if (bluetoothManager->device()->currentSpeed().value() < 13) {
+                    speed->setValueFontColor(QStringLiteral("darkorange"));
+                    this->pace->setValueFontColor(QStringLiteral("darkorange"));
+                } else if (bluetoothManager->device()->currentSpeed().value() < 14) {
+                    speed->setValueFontColor(QStringLiteral("orangered"));
+                    this->pace->setValueFontColor(QStringLiteral("orangered"));
+                } else {
+                    speed->setValueFontColor(QStringLiteral("red"));
+                    this->pace->setValueFontColor(QStringLiteral("red"));
+                }
+                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             }
-            bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
