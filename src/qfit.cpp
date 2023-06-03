@@ -18,7 +18,7 @@ using namespace std;
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport) {
+                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -312,6 +312,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(lapMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
+
+    if(workoutName.length() > 0) {
+        fit::WorkoutMesg workout;
+        workout.SetSport(sessionMesg.GetSport());
+        workout.SetSubSport(sessionMesg.GetSubSport());
+        workout.SetWktName(workoutName.toStdWString());
+        encode.Write(workout);
+    }
 
     if (!encode.Close()) {
 

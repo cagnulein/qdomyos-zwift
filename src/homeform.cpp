@@ -5009,9 +5009,14 @@ void homeform::fit_save_clicked() {
         QString filename = path +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
+
+        QString workoutName = "";
+        if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty())
+            workoutName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
+
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType);
+                   stravaPelotonWorkoutType, workoutName);
         lastFitFileSaved = filename;
 
         QSettings settings;
