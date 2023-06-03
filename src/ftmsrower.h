@@ -66,6 +66,7 @@ class ftmsrower : public rower {
     bool filterWattNull = false;
     bool WHIPR = false;
     bool KINGSMITH = false;
+    bool PM5 = false;
 
     bool WATER_ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();

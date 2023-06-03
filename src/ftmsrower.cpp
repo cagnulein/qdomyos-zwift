@@ -147,6 +147,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         return;
     }
 
+    if(PM5 && newValue.length() < 12) {
+        qDebug() << QStringLiteral("PM5 split the main frame to 2 frames. Discard this since there isn't any useful data. TO FIX!");
+        return;
+    }
+
     lastPacket = newValue;
 
     union flags {
@@ -559,6 +564,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if(device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
             WATER_ROWER = true;
             qDebug() << "WATER_ROWER found!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
+            PM5 = true;
+            qDebug() << "PM5 found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
