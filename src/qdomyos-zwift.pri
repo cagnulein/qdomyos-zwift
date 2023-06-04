@@ -704,12 +704,10 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
-    $$PWD/android/src/FtdiSerialDriver.java \
     $$PWD/android/src/Garmin.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
-    $$PWD/android/src/ProbeTable.java \
     $$PWD/android/src/ScreenCaptureService.java \
     .clang-format \
    AppxManifest.xml \
