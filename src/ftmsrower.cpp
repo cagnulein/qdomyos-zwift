@@ -147,11 +147,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         return;
     }
 
-    if(PM5 && newValue.length() < 12) {
-        qDebug() << QStringLiteral("PM5 split the main frame to 2 frames. Discard this since there isn't any useful data. TO FIX!");
-        return;
-    }
-
     lastPacket = newValue;
 
     union flags {

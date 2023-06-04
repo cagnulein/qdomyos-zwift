@@ -227,7 +227,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         // pace_inst = int(event[6])*60 + int(event[7:9])
         // 3243 = 180 + 243 = 713
         // speed = int(500 * 100 / pace_inst) # speed in cm/s
-        pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 3));
+        pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 2));
         qDebug() << QStringLiteral("pace_inst") << pace_inst;
         Speed = (500.0 * 100.0 / pace_inst) * 0.036 * 2.0;
 
