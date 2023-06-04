@@ -709,6 +709,7 @@ DISTFILES += \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
+    $$PWD/android/src/ProbeTable.java \
     $$PWD/android/src/ScreenCaptureService.java \
     .clang-format \
    AppxManifest.xml \

@@ -110,7 +110,7 @@ public class Usbserial {
         customTable.addProduct(0x17A4, 0x0002, FtdiSerialDriver.class);
 
         UsbSerialProber prober = new UsbSerialProber(customTable);
-        List<UsbSerialDriver> availableDrivers = prober.findAllDrivers(usbManager);
+        List<UsbSerialDriver> availableDrivers = prober.findAllDrivers(manager);
 
         if (availableDrivers.isEmpty()) {
             Log.d("QZ","UsbSerial no available drivers");
