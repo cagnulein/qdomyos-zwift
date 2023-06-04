@@ -101,6 +101,72 @@ public class Usbserial {
         Log.d("QZ","UsbSerial port opened");
     }
 
+    public static void openPM3(Context context) {
+        Log.d("QZ","UsbSerial open");
+        // Find all available drivers from attached devices.
+        UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+        // Probe for our custom FTDI device, which use VID 0x1234 and PID 0x0001 and 0x0002.
+        ProbeTable customTable = new ProbeTable();
+        customTable.addProduct(0x17A4, 0x0002, FtdiSerialDriver.class);
+
+        UsbSerialProber prober = new UsbSerialProber(customTable);
+        List<UsbSerialDriver> availableDrivers = prober.findAllDrivers(usbManager);
+
+        if (availableDrivers.isEmpty()) {
+            Log.d("QZ","UsbSerial no available drivers");
+            return;
+        }
+
+        // Open a connection to the first available driver.
+        UsbSerialDriver driver = availableDrivers.get(0);
+        if (!manager.hasPermission(driver.getDevice())) {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            RingtoneManager.getRingtone(context, notification).play();
+
+            Log.d("QZ","USB permission ...");
+            final Boolean[] granted = {null};
+            BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    granted[0] = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                }
+            };
+            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+            PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION"), flags);
+            IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION");
+            context.registerReceiver(usbReceiver, filter);
+            manager.requestPermission(driver.getDevice(), permissionIntent);
+            for(int i=0; i<5000; i++) {
+                if(granted[0] != null) break;
+                try {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e) {
+                    // Do something here
+                }
+            }
+            Log.d("QZ","USB permission "+granted[0]);
+        }
+
+        UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+        if (connection == null) {
+            Log.d("QZ","UsbSerial no permissions");
+            // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
+            return;
+        }
+
+        port = driver.getPorts().get(0); // Most devices have just one port (port 0)
+        try {
+            port.open(connection);
+            port.setParameters(2400, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+        }
+        catch (IOException e) {
+            // Do something here
+        }
+
+        Log.d("QZ","UsbSerial port opened");
+    }
+
     public static void write (byte[] bytes) {
         if(port == null)
            return;

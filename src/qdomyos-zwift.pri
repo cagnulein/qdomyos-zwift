@@ -704,6 +704,7 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/src/FtdiSerialDriver.java \
     $$PWD/android/src/Garmin.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
@@ -802,4 +803,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.68
+VERSION = 2.13.69

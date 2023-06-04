@@ -46,7 +46,7 @@ int csaferowerThread::closePort() {
 
 int csaferowerThread::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "open",
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "openPM3",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #elif !defined(WIN32)
 
