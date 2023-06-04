@@ -229,7 +229,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         // speed = int(500 * 100 / pace_inst) # speed in cm/s
         pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 2));
         qDebug() << QStringLiteral("pace_inst") << pace_inst;
-        Speed = (500.0 * 100.0 / pace_inst) * 0.036 * 2.0;
+        Speed = (500.0 * 100.0 / pace_inst) * 0.036;
 
         // average split time
         break;
