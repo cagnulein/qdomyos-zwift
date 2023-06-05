@@ -932,10 +932,12 @@ void horizontreadmill::update() {
                                         sizeof(initData03_paragon), QStringLiteral("starting"), false, true);
                 }
             } else if (gattFTMSService) {
-                uint8_t writeS[] = {FTMS_START_RESUME};
-
-                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                                    QStringLiteral("start"), false, false);
+                uint8_t write[] = {FTMS_REQUEST_CONTROL};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                    false);
+                write[0] = {FTMS_START_RESUME};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
+                                    false, false);
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
