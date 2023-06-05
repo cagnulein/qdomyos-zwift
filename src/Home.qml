@@ -32,6 +32,7 @@ HomeForm{
         property string theme_background_color: "#303030"
         property bool theme_tile_shadow_enabled: true
         property string theme_tile_shadow_color: "#9C27B0"
+        property int theme_tile_secondline_textsize: 12
     }
 
     MessageDialog {
@@ -224,7 +225,7 @@ HomeForm{
                     }
                     text: secondLine
                     horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: 12 * settings.ui_zoom / 100
+                    font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
                     font.bold: false
                     visible: !largeButton
                 }
