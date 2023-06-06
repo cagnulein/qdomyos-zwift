@@ -15,7 +15,6 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
-import com.hoho.android.usbserial.BuildConfig;
 import com.hoho.android.usbserial.util.MonotonicClock;
 
 import java.io.IOException;
@@ -340,9 +339,6 @@ public class ProlificSerialDriver implements UsbSerialDriver {
         }
 
         private int filterBaudRate(int baudRate) {
-            if(BuildConfig.DEBUG && (baudRate & (3<<29)) == (1<<29)) {
-                return baudRate & ~(1<<29); // for testing purposes accept without further checks
-            }
             if (baudRate <= 0) {
                 throw new IllegalArgumentException("Invalid baud rate: " + baudRate);
             }
