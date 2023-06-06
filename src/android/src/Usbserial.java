@@ -103,7 +103,7 @@ public class Usbserial {
     }
 
     public static void openPM3(Context context) {
-        Log.d("QZ","UsbSerial open");
+        Log.d("QZ","UsbSerial openPM3");
         // Find all available drivers from attached devices.
         UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         // Probe for our custom FTDI device, which use VID 0x1234 and PID 0x0001 and 0x0002.
