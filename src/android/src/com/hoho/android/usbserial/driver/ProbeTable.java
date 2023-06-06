@@ -4,7 +4,7 @@
  * Project home page: https://github.com/mik3y/usb-serial-for-android
  */
 
-package org.cagnulen.qdomyoszwift;
+package com.hoho.android.usbserial.driver;
 
 import android.hardware.usb.UsbDevice;
 import android.util.Pair;
