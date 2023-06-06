@@ -460,7 +460,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString b =
         settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
     qDebug() << "last device name (IC BIKE workaround)" << b;
-    if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
+    if (!schwinnIC4Bike &&
+        !b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
         (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
 
         this->stopDiscovery();
@@ -1150,11 +1151,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                  // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||          // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||              // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) ||              // FTMS
-                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) || // FMTS
+                        b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) ||       // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1396,7 +1397,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KS-WLT")) || // KS-WLT-W1
                         b.name().toUpper().startsWith(QStringLiteral("I-ROWER")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
-                        !b.name().compare(ftms_rower,Qt::CaseInsensitive) ||
+                        !b.name().compare(ftms_rower, Qt::CaseInsensitive) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
                          b.name().toUpper().endsWith(QStringLiteral("ROW")))) &&
                        !ftmsRower && filter) {

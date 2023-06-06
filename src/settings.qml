@@ -791,6 +791,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.63
             property string ftms_rower: "Disabled"
+
+            // from version 2.13.71
+            property int theme_tile_secondline_textsize: 12
         }
 
         function paddingZeros(text, limit) {
@@ -3479,6 +3482,28 @@ import QtQuick.Dialogs 1.0
                                         visible = false;
                                     }
                                     onRejected: visible = false;
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("2nd line tile text size:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: secondLineTextSizeField
+                                    text: settings.theme_tile_secondline_textsize
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onAccepted: settings.theme_tile_secondline_textsize = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.theme_tile_secondline_textsize = secondLineTextSizeField.text; window.settings_restart_to_apply = true;  toast.show("Setting saved!"); }
                                 }
                             }
                         }
