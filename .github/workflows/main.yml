@@ -75,7 +75,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
@@ -264,12 +264,12 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase6-dev qtchooser qt6-qmake qtbase6-dev-tools qtquickcontrols2-6-dev libqt6bluetooth libqt6widgets6 libqt6positioning6 libqt6xml6 qtconnectivity6-dev qtpositioning6-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
 
@@ -412,7 +412,7 @@ jobs:
           ref: "release-1.12.1"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase6-dev qtchooser qt6-qmake qtbase6-dev-tools qtquickcontrols2-6-dev libqt6bluetooth6 libqt6widgets6 libqt6positioning6 libqt6xml6 qtconnectivity6-dev qtpositioning6-dev libqt6charts6-dev libqt6charts6 libqt6networkauth6-dev libqt6websockets6* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
 #      - name: Test Peloton API
 #        if: github.event_name == 'push' || github.event_name == 'schedule'
@@ -446,7 +446,7 @@ jobs:
       - name: Install Qt Android
         uses: jurplel/install-qt-action@v2
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'linux'
           target: 'android'
           arch: 'android'
@@ -510,7 +510,7 @@ jobs:
       - name: Install Qt iOS
         uses: jurplel/install-qt-action@v2
         with:
-          version: '5.15.2'
+          version: '6.5.1'
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
