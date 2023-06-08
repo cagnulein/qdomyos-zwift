@@ -710,20 +710,6 @@ DISTFILES += \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CdcAcmSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Ch34xSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CommonUsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Cp21xxSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/FtdiSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProbeTable.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProlificSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/SerialTimeoutException.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbId.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialProber.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/MonotonicClock.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/SerialInputOutputManager.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
