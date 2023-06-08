@@ -265,6 +265,7 @@ SOURCES += \
              m3ibike.cpp \
                 domyosbike.cpp \
                scanrecordresult.cpp \
+					windows_zwift_incline_paddleocr_thread.cpp \
    zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
@@ -688,7 +689,9 @@ HEADERS += \
    wobjectimpl.h \
         yesoulbike.h \
         scanrecordresult.h \
+		  windows_zwift_incline_paddleocr_thread.h \
    zwiftworkout.h
+
 
 exists(secret.h): HEADERS += secret.h
 
@@ -805,4 +808,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.73
+VERSION = 2.13.74

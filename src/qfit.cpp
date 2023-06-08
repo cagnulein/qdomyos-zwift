@@ -331,6 +331,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         workoutStep.SetTargetType(FIT_WKT_STEP_TARGET_SPEED);
         workoutStep.SetIntensity(FIT_INTENSITY_INTERVAL);
         encode.Write(workoutStep);
+
+        fit::TrainingFileMesg trainingFile;
+        trainingFile.SetTimestamp(sessionMesg.GetTimestamp());
+        trainingFile.SetTimeCreated(sessionMesg.GetTimestamp());
+        trainingFile.SetType(FIT_FILE_WORKOUT);
+        encode.Write(trainingFile);
     }
 
     if (!encode.Close()) {
