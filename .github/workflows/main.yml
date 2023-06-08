@@ -160,7 +160,7 @@ jobs:
         with:
           name: windows-binary-no-python
           path: src/debug/output
-        if: !matrix.config.python
+        if:  ${{ ! matrix.config.python }}
 
 #  window-steam-build:
 #    runs-on: windows-latest
