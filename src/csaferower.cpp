@@ -46,7 +46,7 @@ int csaferowerThread::closePort() {
 
 int csaferowerThread::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "openPM3",
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #elif !defined(WIN32)
 
@@ -178,7 +178,7 @@ int csaferowerThread::rawWrite(uint8_t *bytes, int size) // unix!!
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -226,8 +226,9 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
     QAndroidJniEnvironment env;
     while (fullLen < size) {
         QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-        jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
+            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
+        jint len =
+            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
         if (len == 0)
             return 0;
         jbyteArray d = dd.object<jbyteArray>();
