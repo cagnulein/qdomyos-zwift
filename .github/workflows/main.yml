@@ -153,6 +153,14 @@ jobs:
         with:
           name: windows-binary
           path: src/debug/output
+        if: matrix.config.python
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary-no-python
+          path: src/debug/output
+        if: !matrix.config.python
 
 #  window-steam-build:
 #    runs-on: windows-latest
