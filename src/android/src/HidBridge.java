@@ -29,7 +29,6 @@ public class HidBridge {
 	
 	// Can be used for debugging.
 	@SuppressWarnings("unused")
-	private HidBridgeLogSupporter _logSupporter = new HidBridgeLogSupporter();
 	private static final String ACTION_USB_PERMISSION =
 	       "org.cagnulen.qdomyoszwift.app.testhid.USB_PERMISSION";
 	
