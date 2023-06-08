@@ -794,6 +794,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.71
             property int theme_tile_secondline_textsize: 12
+
+            // from version 2.13.75
+            property bool proform_bike_sb: false
         }
 
         function paddingZeros(text, limit) {
@@ -2832,6 +2835,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
+                    }                    
+                    SwitchDelegate {
+                        text: qsTr("Proform SB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_sb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {
