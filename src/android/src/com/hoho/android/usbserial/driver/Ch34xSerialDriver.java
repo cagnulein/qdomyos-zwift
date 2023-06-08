@@ -11,6 +11,8 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
 
+import com.hoho.android.usbserial.BuildConfig;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -201,6 +203,8 @@ public class Ch34xSerialDriver implements UsbSerialDriver {
 				final long BAUDBASE_FACTOR = 1532620800;
 				final int BAUDBASE_DIVMAX = 3;
 
+				if(BuildConfig.DEBUG && (baudRate & (3<<29)) == (1<<29))
+					baudRate &= ~(1<<29); // for testing purpose bypass dedicated baud rate handling
 				factor = BAUDBASE_FACTOR / baudRate;
 				divisor = BAUDBASE_DIVMAX;
 				while ((factor > 0xfff0) && divisor > 0) {
