@@ -794,6 +794,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.71
             property int theme_tile_secondline_textsize: 12
+
+            // from version 2.13.75
+            property bool zwift_workout_ocr: false
         }
 
         function paddingZeros(text, limit) {
@@ -4126,7 +4129,34 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

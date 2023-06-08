@@ -63,5 +63,5 @@ if incline_match:
 else:
     incline = 'None'
 
-print(f"{speed},{incline}")
+print(f"{speed};{incline}")
 

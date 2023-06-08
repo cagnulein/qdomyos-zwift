@@ -85,6 +85,7 @@ SOURCES += \
    $$PWD/pelotonbike.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/windows_zwift_workout_paddleocr_thread.cpp \
    $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
@@ -281,6 +282,7 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+   $$PWD/windows_zwift_workout_paddleocr_thread.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
