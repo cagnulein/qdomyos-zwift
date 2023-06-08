@@ -40,29 +40,19 @@ public class CSafeRowerUSBHID {
 		 Log.d("QZ","hidBridge.OpenDevice " + ret);
 	}
 
-public static void write (byte[] bytes) {
-	Log.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.UTF_8));
-	try {
+   public static void write (byte[] bytes) {
+		Log.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.UTF_8));
 		hidBridge.WriteData(bytes);
 		}
-	catch (IOException e) {
-		Log.d("QZ","CSafeRowerUSBHID writing exception " + e.toString());
-		}
+
+   public static int readLen() {
+		return lastReadLen;
 	}
 
-public static int readLen() {
-	return lastReadLen;
-	}
-
-public static byte[] read() {
-	try {
+   public static byte[] read() {
 		receiveData = hidBridge.GetReceivedDataFromQueue();
 		lastReadLen = receiveData.length;
 		Log.d("QZ","CSafeRowerUSBHID reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
-		}
-	   catch (IOException e) {
-		  Log.d("QZ","CSafeRowerUSBHID reading exception " + e.toString());
-		}
-	return receiveData;
+		return receiveData;
 	}
 }
