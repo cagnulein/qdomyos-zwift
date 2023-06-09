@@ -35,7 +35,7 @@ public class CSafeRowerUSBHID {
 
 	public static void open(Context context) {
 		 Log.d("QZ","CSafeRowerUSBHID open");
-		 hidBridge = new HidBridge(context, 0x17A4, 0x0002);
+                 hidBridge = new HidBridge(context, 0x0002, 0x17A4);
 		 boolean ret = hidBridge.OpenDevice();
 		 Log.d("QZ","hidBridge.OpenDevice " + ret);
 	}
