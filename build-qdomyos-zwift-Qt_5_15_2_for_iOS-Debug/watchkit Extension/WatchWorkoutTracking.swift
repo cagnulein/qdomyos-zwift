@@ -335,11 +335,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
             }
         }
         
-        if #available(watchOSApplicationExtension 10.0, *) {
-            WorkoutTracking.speed = WorkoutTracking.speed + 0.01
-            WorkoutTracking.power = WorkoutTracking.speed
-            WorkoutTracking.cadence = WorkoutTracking.speed
-            
+        if #available(watchOSApplicationExtension 10.0, *) {            
             let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                              doubleValue: WorkoutTracking.power)
             
@@ -375,7 +371,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
             }
             
             let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                              doubleValue: WorkoutTracking.speed)
+                                              doubleValue: WorkoutTracking.speed * 0.277778)
             
             guard let speedType = HKQuantityType.quantityType(
                 forIdentifier: .cyclingSpeed) else {

@@ -62,8 +62,8 @@ var pedometer = CMPedometer()
 		} else {
 			sender = "PHONE"
 		}
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)#")
         WatchKitConnection.distance = distance;
+        Server.server?.send(createString(sender: sender))
     }
     
     @objc public func setKcal(kcal: Double) -> Void
@@ -74,8 +74,48 @@ var pedometer = CMPedometer()
 		} else {
 			sender = "PHONE"
 		}
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)#")
         WatchKitConnection.kcal = kcal;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setCadence(cadence: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.cadence = cadence;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setSpeed(speed: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.speed = speed;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setPower(power: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.power = power;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    func createString(sender: String) -> String {
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#";
     }
     
     @objc func updateHeartRate() {
@@ -85,8 +125,7 @@ var pedometer = CMPedometer()
         } else {
             sender = "PHONE"
         }
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#CAD=\(WatchKitConnection.stepCadence)#")
-
+        Server.server?.send(createString(sender: sender))
     }
 }
 /*

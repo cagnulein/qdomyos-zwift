@@ -494,6 +494,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         long appleWatchHeartRate = h->heartRate();
                         h->setKcal(KCal.value());
                         h->setDistance(Distance.value());
+                        h->setSpeed(Speed.value());
+                        h->setPower(m_watt.value());
+                        h->setCadence(Cadence.value());
                         Heart = appleWatchHeartRate;
                         debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #else
