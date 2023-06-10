@@ -84,7 +84,8 @@ public class HidBridge {
 		}
 		
 		// Create and intent and request a permission.
-		PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+                PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
 		_context.registerReceiver(mUsbReceiver, filter);
  
