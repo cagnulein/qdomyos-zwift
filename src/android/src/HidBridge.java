@@ -17,6 +17,7 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
+import android.os.Build;
  
 /**
  * This class is used for talking to hid of the dongle, connecting, disconnencting and enumerating the devices.
