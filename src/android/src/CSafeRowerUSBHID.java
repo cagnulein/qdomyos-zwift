@@ -58,7 +58,7 @@ public class CSafeRowerUSBHID {
             } else {
                 Log.d("QZ","CSafeRowerUSBHID empty data");
                 lastReadLen = 0;
-                return byte[];
+                return null;
             }
 	}
 }
