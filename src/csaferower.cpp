@@ -252,12 +252,13 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
 
 #ifdef Q_OS_ANDROID
     int64_t start = QDateTime::currentMSecsSinceEpoch();
+    jint len = 0;
 
     do {
         QAndroidJniEnvironment env;
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
-        jint len =
+        len =
             QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
         if (len > 0) {
             jbyteArray d = dd.object<jbyteArray>();
@@ -267,9 +268,9 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
             }
             qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         }
-    } while(len == 0 && start + 2000 > QDateTime::currentDateTime())
+    } while(len == 0 && start + 2000 > QDateTime::currentMSecsSinceEpoch());
 
-    return fullLen;
+    return len;
 #elif defined(WIN32)
     Q_UNUSED(size);
     // Readfile deals with timeouts and readyread issues
