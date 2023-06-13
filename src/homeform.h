@@ -201,6 +201,15 @@ class homeform : public QObject {
         });
     }
 
+    double ftpValue(bluetoothdevice* bluetoothDevice) {
+        QSettings settings;
+        double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        if(bluetoothDevice && bluetoothDevice->deviceType() == bluetoothdevice::ROWING) {
+            return settings.value(QZSettings::ftp_row, QZSettings::default_ftp_row).toDouble();
+        }
+        return ftpSetting;
+    }
+
     Q_INVOKABLE void update_chart_power(QQuickItem *item) {
         if (QGraphicsScene *scene = item->findChild<QGraphicsScene *>()) {
             auto items_list = scene->items();
@@ -210,7 +219,7 @@ class homeform : public QObject {
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
                     QSettings settings;
-                    double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                    double ftpSetting = ftpValue(bluetoothManager->device());
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
@@ -432,10 +441,10 @@ class homeform : public QObject {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
             bluetoothManager->device()->wattsMetric().max() >
-                (settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2)) {
+                (ftpValue(bluetoothManager->device()) * 2)) {
             return bluetoothManager->device()->wattsMetric().max();
         } else {
-            return settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2;
+            return ftpValue(bluetoothManager->device()) * 2;
         }
     }
 

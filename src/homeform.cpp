@@ -3277,7 +3277,7 @@ void homeform::update() {
         double verticalOscillation = 0;
 
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
-        double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+        double ftpSetting = ftpValue(bluetoothManager->device());
         double unit_conversion = 1.0;
         double meter_feet_conversion = 1.0;
         double cm_inches_conversion = 1.0;
