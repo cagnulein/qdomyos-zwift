@@ -21,13 +21,15 @@ windows_zwift_workout_paddleocr_thread::windows_zwift_workout_paddleocr_thread(b
 void windows_zwift_workout_paddleocr_thread::run() {
     while (1) {
         QString ret = runPython("zwift-workout.py");
-        if (!ret.toUpper().contains("NONE") && ret.length() > 0) {
+        if (ret.length() > 0) {
             QStringList list = ret.split(";");
             if (list.length() >= 2) {
                 emit debug("windows_zwift_workout_paddleocr_thread onInclination " +
-                           QString::number(list.at(1).toFloat()) + " onSpeed " + QString::number(list.at(0).toFloat()));
-                emit onInclination(list.at(1).toFloat(), list.at(1).toFloat());
-                emit onSpeed(list.at(0).toFloat());
+                           list.at(1) + " onSpeed " + list.at(0).toFloat());
+                if(!list.at(1).toUpper().contains("NONE"))
+                    emit onInclination(list.at(1).toFloat(), list.at(1).toFloat());
+                if(!list.at(0).toUpper().contains("NONE"))
+                    emit onSpeed(list.at(0).toFloat());
             }
         }
     }
