@@ -1845,9 +1845,6 @@ class QZSettings {
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
-    static const QString ftp_row;
-    static constexpr float default_ftp_row = 100.0;
-
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -794,9 +794,6 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.71
             property int theme_tile_secondline_textsize: 12
-
-            // from version 2.13.75
-            property real ftp_row: 100.0
         }
 
         function paddingZeros(text, limit) {
@@ -6228,44 +6225,6 @@ import QtQuick.Dialogs 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
-
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            text: qsTr("FTP value:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: ftpRowTextField
-                            text: settings.ftp_row
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.ftp_row = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.ftp_row = ftpRowTextField.text; toast.show("Setting saved!"); }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
-                        font.bold: true
-                        font.italic: true
-                        font.pixelSize: 9
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        color: Material.color(Material.Lime)
-                    }
-
                     AccordionElement {
                         title: qsTr("PM3, PM4 Options")
                         indicatRectColor: Material.color(Material.Grey)
