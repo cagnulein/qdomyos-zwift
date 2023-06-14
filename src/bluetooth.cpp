@@ -393,6 +393,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
         settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
+    bool fakedevice_rower = settings.value(QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower).toBool();
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
@@ -607,6 +608,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeElliptical);
+            } else if (fakedevice_rower && !fakeRower) {
+                this->stopDiscovery();
+                fakeRower = new fakerower(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(fakeRower, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(fakeRower, &fakerower::inclinationChanged, this, &bluetooth::inclinationChanged);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
+                // #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(fakeRower);
             } else if (fakedevice_treadmill && !fakeTreadmill) {
                 this->stopDiscovery();
                 fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);

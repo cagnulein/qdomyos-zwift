@@ -794,6 +794,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.71
             property int theme_tile_secondline_textsize: 12
+
+            // from version 2.13.80
+            property bool fakedevice_rower: false
         }
 
         function paddingZeros(text, limit) {
@@ -8669,6 +8672,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates an elliptical.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Fake Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fakedevice_rower = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a rower.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
