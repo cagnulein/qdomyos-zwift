@@ -33,7 +33,7 @@ row2 = int(screenheight/2000 * 480)
 cropped_cv2 = screenshot_cv2[row1:row2, col1:col2]
 
 # OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False, use_xpu=True, use_npu=True)
+ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False, use_xpu=True, use_npu=False)
 result = ocr.ocr(cropped_cv2, cls=False, det=True, rec=True)
 
 # Extract OCR text
