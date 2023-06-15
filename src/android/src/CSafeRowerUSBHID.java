@@ -38,6 +38,8 @@ public class CSafeRowerUSBHID {
                  hidBridge = new HidBridge(context, 0x0002, 0x17A4);
 		 boolean ret = hidBridge.OpenDevice();
 		 Log.d("QZ","hidBridge.OpenDevice " + ret);
+		 hidBridge.StartReadingThread();
+		 Log.d("QZ","hidBridge.StartReadingThread");
 	}
 
    public static void write (byte[] bytes) {
