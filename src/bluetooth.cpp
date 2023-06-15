@@ -2542,6 +2542,11 @@ void bluetooth::restart() {
         delete fakeElliptical;
         fakeElliptical = nullptr;
     }
+    if (fakeRower) {
+
+        delete fakeRower;
+        fakeRower = nullptr;
+    }
     if (fakeTreadmill) {
 
         delete fakeTreadmill;
@@ -2921,6 +2926,8 @@ bluetoothdevice *bluetooth::device() {
         return fakeBike;
     } else if (fakeElliptical) {
         return fakeElliptical;
+    } else if (fakeRower) {
+        return fakeRower;
     } else if (fakeTreadmill) {
         return fakeTreadmill;
     } else if (npeCableBike) {
