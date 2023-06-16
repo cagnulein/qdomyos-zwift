@@ -283,9 +283,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[]) {
 
-#ifdef Q_OS_ANDROID
-    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-#endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
@@ -366,6 +363,13 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+    }
+#endif
+
+#ifdef Q_OS_ANDROID
+    if(settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "handling volume keys";
+        qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
 

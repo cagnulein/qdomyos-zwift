@@ -6868,7 +6868,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.volume_change_gears
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.volume_change_gears = checked
+                        onClicked: { settings.volume_change_gears = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
