@@ -84,6 +84,7 @@ class csaferowerThread : public QThread {
 
   signals:
     void onDebug(QString debug);
+    void newPacket(QByteArray p);
 
   private:
     // Utility and BG Thread functions
@@ -147,7 +148,7 @@ class csaferower : public rower {
 
   private slots:
     void update();
-
+    void newPacket(QByteArray p);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   public slots:

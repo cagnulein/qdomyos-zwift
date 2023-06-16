@@ -30,49 +30,59 @@ void csaferowerThread::run() {
         rawWrite((uint8_t *)command.buffer.data(), command.buffer.length());
         static uint8_t rx[100];
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        // csafeFrameReader r;
+        // csafeResponse rr = r.read(QByteArray::fromRawData((const char *)rx, 64));
+        // int aa = rr.contents().at(0);
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command1("PMGetWorkTime", QByteArray());
         qDebug() << " >> " << command1.buffer.toHex(' ');
         rawWrite((uint8_t *)command1.buffer.data(), command1.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command2("PMGetWorkDistance", QByteArray());
         qDebug() << " >> " << command2.buffer.toHex(' ');
         rawWrite((uint8_t *)command2.buffer.data(), command2.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command3("GetCadence", QByteArray());
         qDebug() << " >> " << command3.buffer.toHex(' ');
         rawWrite((uint8_t *)command3.buffer.data(), command3.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command4("GetPower", QByteArray());
         qDebug() << " >> " << command4.buffer.toHex(' ');
         rawWrite((uint8_t *)command4.buffer.data(), command4.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command5("GetCalories", QByteArray());
         qDebug() << " >> " << command5.buffer.toHex(' ');
         rawWrite((uint8_t *)command5.buffer.data(), command5.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
 
         csafeCommand command6("GetHRCur", QByteArray());
         qDebug() << " >> " << command6.buffer.toHex(' ');
         rawWrite((uint8_t *)command6.buffer.data(), command6.buffer.length());
         rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 30).toHex(' ');
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
     }
     closePort();
@@ -258,8 +268,7 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
         QAndroidJniEnvironment env;
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
-        len =
-            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
+        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
         if (len > 0) {
             jbyteArray d = dd.object<jbyteArray>();
             jbyte *b = env->GetByteArrayElements(d, 0);
@@ -268,7 +277,7 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
             }
             qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         }
-    } while(len == 0 && start + 2000 > QDateTime::currentMSecsSinceEpoch());
+    } while (len == 0 && start + 2000 > QDateTime::currentMSecsSinceEpoch());
 
     return len;
 #elif defined(WIN32)
@@ -421,3 +430,5 @@ bool csaferower::connected() { return true; }
 void csaferower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
 }
+
+void csaferower::newPacket(QByteArray p) {}

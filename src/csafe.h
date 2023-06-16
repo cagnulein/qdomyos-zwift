@@ -210,7 +210,7 @@ class csafeFrameReader {
   public:
     explicit csafeFrameReader() : frameBuffer(nullptr) {}
 
-    void read(const QByteArray &buffer) {
+    csafeResponse read(const QByteArray &buffer) {
         if (!buffer.isDetached()) {
             throw std::runtime_error("Invalid data passed to FrameReader, buffer expected.");
         }
@@ -226,22 +226,21 @@ class csafeFrameReader {
             frameBuffer.append(buffer);
         }
 
-        emitFrameIfComplete();
+        return emitFrameIfComplete();
     }
 
   signals:
     void frame(csafeResponse frame);
 
   private:
-    void emitFrameIfComplete() {
+    csafeResponse emitFrameIfComplete() {
         int stopFlagIdx = frameBuffer.indexOf(csafe().flags.value("StopFlag"));
         if (stopFlagIdx > -1) {
             frameBuffer = frameBuffer.left(stopFlagIdx + 1);
 
-            csafeResponse frame(frameBuffer);
-            // emit frame(frame);
-            frameBuffer.clear();
+            return (csafeResponse(frameBuffer));
         }
+        return csafeResponse(QByteArray());
     }
 
     QByteArray frameBuffer;

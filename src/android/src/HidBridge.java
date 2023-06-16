@@ -264,7 +264,11 @@ public class HidBridge {
 							
 							int i=0; 
 							for (byte b : bytes) {
-								trancatedBytes[i] = b;
+								if(i < r) {
+									trancatedBytes[i] = b;
+								} else {
+								   Log(String.format("Buffer overflow %s %s %s", r, i, packetSize));
+								}
 								i++;
 							}
 							
