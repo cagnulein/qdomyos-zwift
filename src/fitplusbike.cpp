@@ -68,10 +68,11 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     }
 
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len),
-                                                             QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(
+            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                             QByteArray((const char *)data, data_len));
     }
 
     if (!disable_log)
@@ -972,4 +973,76 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t fitplusbike::wattsFromResistance(double resistance) {
+    // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
+    /*if(currentCadence().value() < 90)
+        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
+    (double)(currentResistance().value())) ); else return (uint16_t)((3.59 * exp(0.0217 *
+    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
+
+    const double Epsilon = 4.94065645841247E-324;
+    const int wattTableFirstDimension = 24;
+    const int wattTableSecondDimension = 11;
+    double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+        {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
+        {Epsilon, 16.0, 16.0, 16.0, 22.0, 30.0, 38.0, 45.0, 53.0, 67.0, 79.0},
+        {Epsilon, 18.0, 18.0, 18.0, 26.0, 34.0, 43.0, 52.0, 62.0, 78.0, 92.0},
+        {Epsilon, 20.0, 20.0, 20.0, 28.0, 38.0, 48.0, 59.0, 71.0, 89.0, 105.0},
+        {Epsilon, 23.0, 23.0, 23.0, 32.0, 43.0, 54.0, 66.0, 80.0, 100.0, 118.0},
+        {Epsilon, 24.0, 24.0, 24.0, 35.0, 46.0, 59.0, 73.0, 89.0, 110.0, 130.0},
+        {Epsilon, 26.0, 26.0, 26.0, 37.0, 51.0, 65.0, 81.0, 98.0, 122.0, 143.0},
+        {Epsilon, 28.0, 28.0, 28.0, 41.0, 56.0, 71.0, 88.0, 107.0, 133.0, 156.0},
+        {Epsilon, 30.0, 30.0, 30.0, 44.0, 60.0, 77.0, 96.0, 116.0, 144.0, 169.0},
+        {Epsilon, 33.0, 33.0, 33.0, 47.0, 65.0, 83.0, 103.0, 125.0, 155.0, 182.0},
+        {Epsilon, 34.0, 34.0, 34.0, 50.0, 70.0, 89.0, 110.0, 134.0, 166.0, 195.0},
+        {Epsilon, 37.0, 37.0, 37.0, 54.0, 74.0, 94.0, 117.0, 143.0, 177.0, 208.0},
+        {Epsilon, 38.0, 38.0, 38.0, 56.0, 78.0, 100.0, 125.0, 152.0, 188.0, 220.0},
+        {Epsilon, 41.0, 41.0, 41.0, 60.0, 82.0, 106.0, 132.0, 161.0, 199.0, 233.0},
+        {Epsilon, 43.0, 43.0, 43.0, 62.0, 86.0, 111.0, 139.0, 170.0, 209.0, 245.0},
+        {Epsilon, 45.0, 45.0, 45.0, 66.0, 91.0, 117.0, 147.0, 180.0, 220.0, 259.0},
+        {Epsilon, 48.0, 48.0, 48.0, 70.0, 96.0, 124.0, 155.0, 190.0, 232.0, 273.0},
+        {Epsilon, 50.0, 50.0, 50.0, 73.0, 101.0, 130.0, 163.0, 200.0, 244.0, 287.0},
+        {Epsilon, 52.0, 52.0, 52.0, 76.0, 106.0, 136.0, 171.0, 210.0, 256.0, 300.0},
+        {Epsilon, 54.0, 54.0, 54.0, 80.0, 111.0, 143.0, 179.0, 220.0, 268.0, 314.0},
+        {Epsilon, 57.0, 57.0, 57.0, 84.0, 116.0, 149.0, 187.0, 230.0, 279.0, 327.0},
+        {Epsilon, 59.0, 59.0, 59.0, 87.0, 121.0, 155.0, 195.0, 240.0, 290.0, 340.0},
+        {Epsilon, 62.0, 62.0, 62.0, 91.0, 126.0, 162.0, 203.0, 250.0, 302.0, 353.0},
+        {Epsilon, 64.0, 64.0, 64.0, 94.0, 130.0, 168.0, 211.0, 260.0, 313.0, 366.0}};
+
+    int level = resistance;
+    if (level < 0) {
+        level = 0;
+    }
+    if (level >= wattTableFirstDimension) {
+        level = wattTableFirstDimension - 1;
+    }
+    double *watts_of_level = wattTable[level];
+    int watt_setp = (Cadence.value() / 10.0);
+    if (watt_setp >= 10) {
+        return (((double)Cadence.value()) / 100.0) * watts_of_level[wattTableSecondDimension - 1];
+    }
+    double watt_base = watts_of_level[watt_setp];
+    return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
+           watt_base;
+}
+
+resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < max_resistance; i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
 }
