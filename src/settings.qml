@@ -5361,6 +5361,29 @@ import QtQuick.Dialogs 1.0
                 }
 
                 AccordionElement {
+                    title: qsTr("Echelon Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_miles = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
                     id: kingsmithTreadmillAccordion
                     title: qsTr("KingSmith Options")
                     indicatRectColor: Material.color(Material.Grey)
