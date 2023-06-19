@@ -25,61 +25,19 @@ void csaferowerThread::run() {
 
     openPort();
     while (1) {
-        csafeCommand command("GetStatus", QByteArray());
-        qDebug() << " >> " << command.buffer.toHex(' ');
-        rawWrite((uint8_t *)command.buffer.data(), command.buffer.length());
+        csafe *aa = new csafe();
+        QStringList command;
+        command << "CSAFE_PM_GET_WORKTIME";
+        command << "CSAFE_PM_GET_WORKDISTANCE";
+        command << "CSAFE_GETCADENCE_CMD";
+        command << "CSAFE_GETPOWER_CMD";
+        command << "CSAFE_GETCALORIES_CMD";
+        command << "CSAFE_GETHRCUR_CMD";
+        QByteArray ret = aa->write(command);
+
+        qDebug() << " >> " << ret.toHex(' ');
+        rawWrite((uint8_t *)ret.data(), ret.length());
         static uint8_t rx[100];
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        // csafeFrameReader r;
-        // csafeResponse rr = r.read(QByteArray::fromRawData((const char *)rx, 64));
-        // int aa = rr.contents().at(0);
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command1("PMGetWorkTime", QByteArray());
-        qDebug() << " >> " << command1.buffer.toHex(' ');
-        rawWrite((uint8_t *)command1.buffer.data(), command1.buffer.length());
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command2("PMGetWorkDistance", QByteArray());
-        qDebug() << " >> " << command2.buffer.toHex(' ');
-        rawWrite((uint8_t *)command2.buffer.data(), command2.buffer.length());
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command3("GetCadence", QByteArray());
-        qDebug() << " >> " << command3.buffer.toHex(' ');
-        rawWrite((uint8_t *)command3.buffer.data(), command3.buffer.length());
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command4("GetPower", QByteArray());
-        qDebug() << " >> " << command4.buffer.toHex(' ');
-        rawWrite((uint8_t *)command4.buffer.data(), command4.buffer.length());
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command5("GetCalories", QByteArray());
-        qDebug() << " >> " << command5.buffer.toHex(' ');
-        rawWrite((uint8_t *)command5.buffer.data(), command5.buffer.length());
-        rawRead(rx, 100);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-        memset(rx, 0x00, sizeof(rx));
-        QThread::msleep(50);
-
-        csafeCommand command6("GetHRCur", QByteArray());
-        qDebug() << " >> " << command6.buffer.toHex(' ');
-        rawWrite((uint8_t *)command6.buffer.data(), command6.buffer.length());
         rawRead(rx, 100);
         qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
         memset(rx, 0x00, sizeof(rx));
