@@ -43,7 +43,7 @@ public class CSafeRowerUSBHID {
 	}
 
    public static void write (byte[] bytes) {
-		Log.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.UTF_8));
+                Log.d("QZ","CSafeRowerUSBHID writing " + new String(bytes, StandardCharsets.ISO_8859_1));
 		hidBridge.WriteData(bytes);
 		}
 
@@ -55,7 +55,7 @@ public class CSafeRowerUSBHID {
             if(hidBridge.IsThereAnyReceivedData()) {
 		receiveData = hidBridge.GetReceivedDataFromQueue();
 		lastReadLen = receiveData.length;
-		Log.d("QZ","CSafeRowerUSBHID reading " + lastReadLen + new String(receiveData, StandardCharsets.UTF_8));
+                Log.d("QZ","CSafeRowerUSBHID reading " + lastReadLen + new String(receiveData, StandardCharsets.ISO_8859_1));
 		return receiveData;
             } else {
                 Log.d("QZ","CSafeRowerUSBHID empty data");
