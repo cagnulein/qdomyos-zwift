@@ -60,10 +60,15 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -933,11 +938,11 @@ void horizontreadmill::update() {
                 }
             } else if (gattFTMSService) {
                 uint8_t write[] = {FTMS_REQUEST_CONTROL};
-                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                                    false);
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                    "requestControl", false, false);
                 write[0] = {FTMS_START_RESUME};
-                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                                    false, false);
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                    "start simulation", false, false);
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();

@@ -68,10 +68,15 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
         timeout.singleShot(2000, &loop, SLOT(quit()));
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCustomService->writeCharacteristic(gattWriteCharCustomService, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
