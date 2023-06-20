@@ -1845,6 +1845,9 @@ class QZSettings {
     static const QString ftms_rower;
     static const QString default_ftms_rower;
 
+    static const QString proform_bike_sb;
+    static constexpr bool default_proform_bike_sb = false;
+    
     static const QString fakedevice_rower;
     static constexpr bool default_fakedevice_rower = false;
 
