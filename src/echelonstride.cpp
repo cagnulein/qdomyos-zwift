@@ -245,7 +245,9 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
         writeCharacteristic((uint8_t*)newValue.constData(), newValue.length(), "reply to d3", false, false);
 
-        double miles = 1.60934;
+        double miles = 1;
+        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+            miles = 1.60934;
 
         // this line on iOS sometimes gives strange overflow values
         // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
