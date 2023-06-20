@@ -158,6 +158,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
         settings
             .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
             .toBool();
+    bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
 
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
@@ -174,7 +175,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
         writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
         writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
         writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
-    } else if (proform_hybrid_trainer_PFEL03815) {
+    } else if (proform_hybrid_trainer_PFEL03815 || proform_bike_sb) {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
                                 0x04, 0x32, 0x02, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
@@ -642,9 +643,10 @@ void proformbike::update() {
                 innerWriteResistance();
                 writeCharacteristic(noOpData4_proform_hybrid_trainer_PFEL03815,
                                     sizeof(noOpData4_proform_hybrid_trainer_PFEL03815), QStringLiteral("noOp"));
-            } else if (proform_bike_sb)
+            } else if (proform_bike_sb) {
+                innerWriteResistance();
                 writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
-            else
+            } else
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
@@ -811,6 +813,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         settings
             .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
             .toBool();
+    bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -876,7 +879,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if (proform_hybrid_trainer_PFEL03815) {
+            if (proform_hybrid_trainer_PFEL03815 || proform_bike_sb) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                     Resistance = 0;
@@ -937,6 +940,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     Resistance = 13;
                     m_pelotonResistance = 80;
                     break;
+                case 0x21:
                 case 0x22:
                     Resistance = 14;
                     m_pelotonResistance = 90;
@@ -945,6 +949,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     Resistance = 15;
                     m_pelotonResistance = 95;
                     break;
+                case 0x26:
                 case 0x27:
                     Resistance = 16;
                     m_pelotonResistance = 100;
