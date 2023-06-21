@@ -25,12 +25,23 @@ void csaferowerThread::run() {
 
     openPort();
     while (1) {
-        csafeCommand command("GetStatus", QByteArray());
-        qDebug() << " >> " << command.buffer.toHex(' ');
-        rawWrite((uint8_t *)command.buffer.data(), command.buffer.length());
+        csafe *aa = new csafe();
+        QStringList command;
+        command << "CSAFE_PM_GET_WORKTIME";
+        command << "CSAFE_PM_GET_WORKDISTANCE";
+        command << "CSAFE_GETCADENCE_CMD";
+        command << "CSAFE_GETPOWER_CMD";
+        command << "CSAFE_GETCALORIES_CMD";
+        command << "CSAFE_GETHRCUR_CMD";
+        QByteArray ret = aa->write(command);
+
+        qDebug() << " >> " << ret.toHex(' ');
+        rawWrite((uint8_t *)ret.data(), ret.length());
         static uint8_t rx[100];
-        rawRead(rx, 5);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 5).toHex(' ');
+        rawRead(rx, 100);
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+        memset(rx, 0x00, sizeof(rx));
+        QThread::msleep(50);
     }
     closePort();
 }
@@ -208,61 +219,25 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
     int rc = 0;
 
 #ifdef Q_OS_ANDROID
+    int64_t start = QDateTime::currentMSecsSinceEpoch();
+    jint len = 0;
 
-    int fullLen = 0;
-    cleanFrame = false;
-
-    // previous buffer?
-    while (bufRX.count()) {
-        bytes[fullLen++] = bufRX.at(0);
-        bufRX.removeFirst();
-        qDebug() << "byte popped from rxBuf";
-        if (fullLen >= size) {
-            qDebug() << size << QByteArray((const char *)bytes, size).toHex(' ');
-            return size;
-        }
-    }
-
-    QAndroidJniEnvironment env;
-    while (fullLen < size) {
+    do {
+        QAndroidJniEnvironment env;
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
-        jint len =
-            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
-        if (len == 0)
-            return 0;
-        jbyteArray d = dd.object<jbyteArray>();
-        jbyte *b = env->GetByteArrayElements(d, 0);
-        if (len + fullLen > size) {
-            QByteArray tmpDebug;
-            qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
-            /*for(int i=0; i<len; i++) {
-                qDebug() << b[i];
-            }*/
-
-            for (int i = fullLen; i < size; i++) {
-                bytes[i] = b[i - fullLen];
+        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
+        if (len > 0) {
+            jbyteArray d = dd.object<jbyteArray>();
+            jbyte *b = env->GetByteArrayElements(d, 0);
+            for (int i = 0; i < len; i++) {
+                bytes[i] = b[i];
             }
-            for (int i = size; i < len + fullLen; i++) {
-                jbyte bb = b[i - fullLen];
-                bufRX.append(bb);
-                tmpDebug.append(bb);
-            }
-            qDebug() << len + fullLen - size << "bytes to the rxBuf" << tmpDebug.toHex(' ');
-            qDebug() << size << QByteArray((const char *)b, size).toHex(' ');
-            return size;
+            qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         }
-        for (int i = fullLen; i < len + fullLen; i++) {
-            bytes[i] = b[i - fullLen];
-        }
-        qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
-        fullLen += len;
-    }
+    } while (len == 0 && start + 2000 > QDateTime::currentMSecsSinceEpoch());
 
-    qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char *)bytes, size).toHex(' ');
-    cleanFrame = true;
-
-    return fullLen;
+    return len;
 #elif defined(WIN32)
     Q_UNUSED(size);
     // Readfile deals with timeouts and readyread issues
@@ -413,3 +388,5 @@ bool csaferower::connected() { return true; }
 void csaferower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
 }
+
+void csaferower::newPacket(QByteArray p) {}

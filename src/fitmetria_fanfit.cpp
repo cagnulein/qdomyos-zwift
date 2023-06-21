@@ -208,16 +208,19 @@ void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
-    // not necessary, since the communication is one way only. also it could lead to crashes
-    // loop.exec();
+    loop.exec();
 }
 
 void fitmetria_fanfit::stateChanged(QLowEnergyService::ServiceState state) {
