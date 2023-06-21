@@ -479,6 +479,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         emit debug(QStringLiteral("Target Watts: ") + QString::number(watts()));
     }
 
+    if (!values[QStringLiteral("Resistance")].isUndefined()) {
+        Resistance = values[QStringLiteral("Resistance")].toString().toDouble();
+        emit debug(QStringLiteral("Resistance: ") + QString::number(Resistance.value()));
+    }
+
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
