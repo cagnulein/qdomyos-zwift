@@ -278,7 +278,7 @@ void fitplusbike::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts());
+        update_metrics(false, watts());
         bool virtufit_etappe =
             settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
         bool sportstech_sx600 =
