@@ -131,7 +131,7 @@ void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEne
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    service->writeCharacteristic(*writeChar, *writeBuffer);
+    service->writeCharacteristic(*writeChar, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
