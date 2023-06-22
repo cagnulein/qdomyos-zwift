@@ -161,12 +161,13 @@ void iconceptelliptical::rfCommConnected() {
     const uint8_t init4[] = {0x55, 0x15, 0x01, 0x00};
     const uint8_t init5[] = {0x55, 0x11, 0x01, 0x01};
     const uint8_t init6[] = {0x55, 0x0a, 0x01, 0x01, 0x55, 0x0a, 0x01, 0x01};
-    const uint8_t init6a[] = {0x55, 0x11, 0x01, 0x08};
+    const uint8_t init6a[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0x07, 0x01, 0xff};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
     QThread::msleep(2000);
     readSocket();
+    QThread::msleep(1000);
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
     QThread::msleep(1500);
@@ -195,6 +196,7 @@ void iconceptelliptical::rfCommConnected() {
     qDebug() << QStringLiteral(" init6 write");
     QThread::msleep(600);
     readSocket();
+    QThread::msleep(500);
     socket->write((char *)init6a, sizeof(init6a));
     qDebug() << QStringLiteral(" init6a write");
     QThread::msleep(1000);
