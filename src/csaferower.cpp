@@ -13,8 +13,56 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(refresh, &QTimer::timeout, this, &csaferower::update);
     refresh->start(200ms);
     csaferowerThread *t = new csaferowerThread();
+    connect(t, &csaferowerThread::onPower, this, &csaferower::onPower);
+    connect(t, &csaferowerThread::onCadence, this, &csaferower::onCadence);
+    connect(t, &csaferowerThread::onHeart, this, &csaferower::onHeart);
+    connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
+    connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
     t->start();
 }
+
+void csaferower::onPower(double power) {
+    qDebug() << "Current Power received:" << power;
+    m_watt = power;
+
+    double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
+    Speed = (60.0 / (double)(pace)) * 30.0;
+
+    qDebug() << "Current Speed calculated:" << Speed.value() << pace;
+}
+
+void csaferower::onCadence(double cadence) { qDebug() << "Current Cadence received:" << cadence; }
+
+void csaferower::onHeart(double hr) {
+    qDebug() << "Current Heart received:" << hr;
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            uint8_t heart = ((uint8_t)hr);
+            if (heart == 0 || disable_hr_frommachinery) {
+                update_hr_from_external();
+            } else
+                Heart = heart;
+        }
+    }
+}
+
+void csaferower::onCalories(double calories) {
+    qDebug() << "Current Calories received:" << calories;
+    KCal = calories;
+}
+
+void csaferower::onDistance(double distance) { qDebug() << "Current Distance received:" << distance / 1000.0; }
 
 csaferowerThread::csaferowerThread() {}
 
@@ -24,8 +72,8 @@ void csaferowerThread::run() {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
 
     openPort();
+    csafe *aa = new csafe();
     while (1) {
-        csafe *aa = new csafe();
         QStringList command;
         command << "CSAFE_PM_GET_WORKTIME";
         command << "CSAFE_PM_GET_WORKDISTANCE";
@@ -40,6 +88,27 @@ void csaferowerThread::run() {
         static uint8_t rx[100];
         rawRead(rx, 100);
         qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+
+        QVector<quint8> v;
+        for (int i = 0; i < 64; i++)
+            v.append(rx[i]);
+        QVariantMap f = aa->read(v);
+        if (f["CSAFE_GETCADENCE_CMD"].isValid()) {
+            emit onCadence(f["CSAFE_GETCADENCE_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETPOWER_CMD"].isValid()) {
+            emit onPower(f["CSAFE_GETPOWER_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETHRCUR_CMD"].isValid()) {
+            emit onHeart(f["CSAFE_GETHRCUR_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETCALORIES_CMD"].isValid()) {
+            emit onCalories(f["CSAFE_GETCALORIES_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_PM_GET_WORKDISTANCE"].isValid()) {
+            emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
+        }
+
         memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
     }
@@ -285,7 +354,7 @@ void csaferower::update() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    update_metrics(true, watts());
+    update_metrics(false, watts());
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -366,12 +435,13 @@ void csaferower::update() {
 #endif
     }
 
+    /*
     if (Heart.value()) {
         static double lastKcal = 0;
         if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
             lastKcal = abs(KCal.value());
         KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
-    }
+    }*/
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
         Resistance = requestResistance;
@@ -390,3 +460,5 @@ void csaferower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 void csaferower::newPacket(QByteArray p) {}
+
+uint16_t csaferower::watts() { return m_watt.value(); }
