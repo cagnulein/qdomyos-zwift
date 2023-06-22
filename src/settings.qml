@@ -2727,7 +2727,7 @@ import QtQuick.Dialogs 1.0
                 }
                 AccordionElement {
                     id: proformBikeAccordion
-                    title: qsTr("Proform Bike Options")
+                    title: qsTr("Proform/Norditrack Options")
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
