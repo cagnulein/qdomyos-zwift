@@ -30,9 +30,7 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
     refresh->start(300ms);
 }
 
-domyosbike::~domyosbike() {
-    qDebug() << QStringLiteral("~domyosbike()");
-}
+domyosbike::~domyosbike() { qDebug() << QStringLiteral("~domyosbike()"); }
 
 void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                      bool wait_for_response) {
@@ -53,11 +51,15 @@ void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -72,8 +74,13 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
 
     QSettings settings;
-    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display).toBool();
-    bool domyos_bike_display_calories = settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories).toBool();
+    bool distance =
+        settings
+            .value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display)
+            .toBool();
+    bool domyos_bike_display_calories =
+        settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories)
+            .toBool();
 
     if (domyos_bike_display_calories) {
         multiplier = 10;
@@ -188,11 +195,14 @@ void domyosbike::update() {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -346,7 +356,9 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
-    double cadenceFilter = settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter).toDouble();
+    double cadenceFilter =
+        settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter)
+            .toDouble();
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -366,7 +378,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     emit resistanceRead(Resistance.value());
     m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
 
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -392,7 +405,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -417,7 +431,9 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     KCal = kcal;
     Distance = distance;
@@ -632,7 +648,9 @@ bool domyosbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) {
+    return (pelotonResistance * max_resistance) / 100;
+}
 
 resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
@@ -650,26 +668,28 @@ resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
     QSettings settings;
-    if(!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1).toBool() || resistance < 8)
+    if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
+             .toBool() ||
+        resistance < 8)
         return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
     else {
-        switch((int)resistance) {
-            case 8:
-                return (13.6 * Cadence.value()) / 9.5488;
-            case 9:
-                return (15.3 * Cadence.value()) / 9.5488;
-            case 10:
-                return (17.3 * Cadence.value()) / 9.5488;
-            case 11:
-                return (19.8 * Cadence.value()) / 9.5488;
-            case 12:
-                return (22.5 * Cadence.value()) / 9.5488;
-            case 13:
-                return (25.6 * Cadence.value()) / 9.5488;
-            case 14:
-                return (28.4 * Cadence.value()) / 9.5488;
-            case 15:
-                return (35.9 * Cadence.value()) / 9.5488;
+        switch ((int)resistance) {
+        case 8:
+            return (13.6 * Cadence.value()) / 9.5488;
+        case 9:
+            return (15.3 * Cadence.value()) / 9.5488;
+        case 10:
+            return (17.3 * Cadence.value()) / 9.5488;
+        case 11:
+            return (19.8 * Cadence.value()) / 9.5488;
+        case 12:
+            return (22.5 * Cadence.value()) / 9.5488;
+        case 13:
+            return (25.6 * Cadence.value()) / 9.5488;
+        case 14:
+            return (28.4 * Cadence.value()) / 9.5488;
+        case 15:
+            return (35.9 * Cadence.value()) / 9.5488;
         }
         return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
     }

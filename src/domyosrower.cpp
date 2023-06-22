@@ -4,8 +4,8 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualbike.h"
-#include "virtualtreadmill.h"
 #include "virtualrower.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -33,9 +33,7 @@ domyosrower::domyosrower(bool noWriteResistance, bool noHeartService, bool testR
     refresh->start(300ms);
 }
 
-domyosrower::~domyosrower() {
-    qDebug() << QStringLiteral("~domyosrower()") ;
-}
+domyosrower::~domyosrower() { qDebug() << QStringLiteral("~domyosrower()"); }
 
 void domyosrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                       bool wait_for_response) {
@@ -50,11 +48,15 @@ void domyosrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -172,9 +174,13 @@ void domyosrower::update() {
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
-            bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
@@ -295,10 +301,14 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
        inclination and speed status return;*/
 
     double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+        GetSpeedFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble();
     double kcal = GetKcalFromPacket(newValue);
-    double distance = GetDistanceFromPacket(newValue) *
-                      settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+    double distance =
+        GetDistanceFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
