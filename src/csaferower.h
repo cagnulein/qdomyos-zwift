@@ -34,7 +34,6 @@
 #include <QFile>
 #include <QMutex>
 #include <QSettings>
-#include <QString>
 #include <QThread>
 
 #ifdef WIN32
