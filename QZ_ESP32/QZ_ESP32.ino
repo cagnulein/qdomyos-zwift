@@ -279,7 +279,7 @@ void softDelay(unsigned long delayTime)
   }
 }
 
-/** Define callback instances globally to use for multiple Charateristics \ Descriptors */
+/** Define callback instances globally to use for multiple Characteristics \ Descriptors */
 // This section is for the Server that will broadcast the data as Cycling Power
 static DescriptorCallbacks dscCallbacks;
 static CharacteristicCallbacks chrCallbacks;
@@ -349,7 +349,7 @@ void setup()
 #endif
 
   NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-  /** Add the services to the advertisment data **/
+  /** Add the services to the advertisement data **/
 //  pAdvertising->addServiceUUID(pHRService->getUUID());
   pAdvertising->addServiceUUID(pDeadService->getUUID());  
   pAdvertising->setScanResponse(true);
@@ -384,7 +384,7 @@ void loop()
     }
     else
     {
-      Serial.println("We have failed to connect to the server; there is nothin more we will do.");
+      Serial.println("We have failed to connect to the server; there is nothing more we will do.");
     }
     doConnect = false;
   }
