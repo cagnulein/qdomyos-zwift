@@ -4,7 +4,7 @@
 
 /**
  * @brief hex2bytes Converts a hexadecimal string to bytes, 2 characters at a time.
- * @param s A hexidecimal string e.g. "023F4A" to  { 0x02, 0x3F, 0x4A }
+ * @param s An hexadecimal string e.g. "023F4A" to  { 0x02, 0x3F, 0x4A }
  */
 static QByteArray hex2bytes(const std::string& s)
 {

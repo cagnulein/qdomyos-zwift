@@ -73,7 +73,7 @@ merge[np.where(mask==0)] = 0
 # Convert to grayscale
 gray = cv2.cvtColor(merge, cv2.COLOR_BGR2GRAY)
 
-# Convert to black/white by threshhold
+# Convert to black/white by threshold
 ret,bin = cv2.threshold(gray,30,255,cv2.THRESH_BINARY)
 
 # Closing
