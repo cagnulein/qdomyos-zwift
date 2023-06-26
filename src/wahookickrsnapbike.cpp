@@ -402,7 +402,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     if (!crank_rev_present)
                         cadence =
                             cadence /
-                            2; // I really don't like this, there is no releationship between wheel rev and crank rev
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
