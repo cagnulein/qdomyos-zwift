@@ -21,7 +21,7 @@ int CharacteristicWriteProcessorE005::writeProcess(quint16 uuid, const QByteArra
                 weight = ((double)((uint16_t)data.at(1)) + (((uint16_t)data.at(2)) >> 8)) / 100.0;
                 rrc = ((double)((uint16_t)data.at(3)) + (((uint16_t)data.at(4)) >> 8)) / 1000.0;
                 wrc = ((double)((uint16_t)data.at(5)) + (((uint16_t)data.at(6)) >> 8)) / 1000.0;
-                qDebug() << "weigth" << weight << "rrc" << rrc << "wrc" << wrc;
+                qDebug() << "weight" << weight << "rrc" << rrc << "wrc" << wrc;
             } else if (cmd == wahookickrsnapbike::_setSimGrade && data.count() >= 3) {
                 uint16_t grade;
                 double fgrade;
