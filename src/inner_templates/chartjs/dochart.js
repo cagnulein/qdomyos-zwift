@@ -31,6 +31,7 @@ var ftp = 200;
 var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
+var miles = 1;
 
 function process_arr(arr) {
     let watts = [];
@@ -54,6 +55,11 @@ function process_arr(arr) {
     let watts_max = 0;
     let heart_avg = 0;
     let heart_max = 0;
+    let jouls = 0;
+    let cadence_avg = 0;
+    let resistance_avg = 0;
+    let calories = 0;
+    let distance = 0;
     saveScreenshot[0] = false;
     saveScreenshot[1] = false;
     saveScreenshot[2] = false;
@@ -89,6 +95,11 @@ function process_arr(arr) {
         watts_max = el.watts_max;
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
+        jouls = el.jouls;
+        resistance_avg = el.resistance_avg;
+        cadence_avg = el.cadence_avg;
+        distance = el.distance;
+        calories = el.calories;
         maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
@@ -148,6 +159,13 @@ function process_arr(arr) {
     $('.watts_max').text('Watt MAX: ' + watts_max);
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
     $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
+    $('.summary_jouls').text(Math.floor(jouls) / 1000.0 + ' kJ');
+    $('.summary_calories').text(Math.floor(calories) + ' kcal');
+    $('.summary_distance').text(Math.floor(distance) * miles + (miles === 1 ? ' km' : ' mi'));
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
+    $('.summary_resistance_avg').text(Math.floor(resistance_avg) + ' lvl');    
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -1123,6 +1141,9 @@ function dochart_init() {
                     } else if (key === 'heart_rate_zone4') {
                         heart_rate_zone4 = msg.content[key];
                         heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
+                    } else if (key === 'miles_unit') {
+                        if(msg.content[key] === true || msg.content[key] === 'true')
+                            miles = 1.60934;
                     }
                 }
                 if(heart_max_override_enable) {
@@ -1188,7 +1209,7 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'req_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000, 'calories': 950, 'distance': 11, 'cadence_avg': 65, 'resistance_avg': 22},
             ]
     process_arr(arr);
 });
