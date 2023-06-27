@@ -167,7 +167,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
-        // inclination for NPE RUNN
+        // inclination for NPE RUN
 
         union flags {
             struct {
