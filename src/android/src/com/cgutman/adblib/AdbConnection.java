@@ -87,7 +87,7 @@ public class AdbConnection implements Closeable {
 	/**
 	 * Creates a AdbConnection object associated with the socket and
 	 * crypto object specified.
-	 * @param socket The socket that the connection will use for communcation.
+	 * @param socket The socket that the connection will use for communication.
 	 * @param crypto The crypto object that stores the key pair for authentication.
 	 * @return A new AdbConnection object.
 	 * @throws IOException If there is a socket error
