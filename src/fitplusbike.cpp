@@ -987,9 +987,10 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
     (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
 
     const double Epsilon = 4.94065645841247E-324;
-    const int wattTableFirstDimension = 24;
+    const int wattTableFirstDimension = 25;
     const int wattTableSecondDimension = 11;
     double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+        {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
         {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
         {Epsilon, 16.0, 16.0, 16.0, 22.0, 30.0, 38.0, 45.0, 53.0, 67.0, 79.0},
         {Epsilon, 18.0, 18.0, 18.0, 26.0, 34.0, 43.0, 52.0, 62.0, 78.0, 92.0},
