@@ -142,7 +142,7 @@ jobs:
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
 
       - name: Zip artifact for deployment
-        run: zip release.zip src/debug/output -r
+        run: Compress-Archive src/debug/output release.zip
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
