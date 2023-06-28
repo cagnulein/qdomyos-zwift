@@ -169,6 +169,7 @@ class homeform : public QObject {
   public:
     static homeform *singleton() { return m_singleton; }
 
+    QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();

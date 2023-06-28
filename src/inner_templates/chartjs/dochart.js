@@ -56,6 +56,7 @@ function process_arr(arr) {
     let heart_avg = 0;
     let heart_max = 0;
     let jouls = 0;
+    let deviceType = 0;
     let cadence_avg = 0;
     let resistance_avg = 0;
     let calories = 0;
@@ -96,6 +97,7 @@ function process_arr(arr) {
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
         jouls = el.jouls;
+        deviceType = el.deviceType;
         resistance_avg = el.resistance_avg;
         cadence_avg = el.cadence_avg;
         distance = el.distance;
@@ -155,6 +157,16 @@ function process_arr(arr) {
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
+    if(instructorName.length === 0) {
+        if(deviceType === 1)
+            $('.workout_image').attr("src","run.png");
+        else if(deviceType === 3) 
+            $('.workout_image').attr("src","row.png");
+        else if(deviceType === 4) 
+            $('.workout_image').attr("src","elliptical.png");
+        else
+            $('.workout_image').attr("src","bike.png");
+    }
     $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
     $('.watts_max').text('Watt MAX: ' + watts_max);
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
@@ -1160,6 +1172,19 @@ function dochart_init() {
     el.enqueue().then(onSettingsOK).catch(function(err) {
             console.error('Error is ' + err);
     })
+
+    let getPelotonImage = new MainWSQueueElement({
+        msg: 'getpelotonimage',
+    }, function(msg) {
+        if (msg.msg === 'R_getpelotonimage' && msg.content.length > 0) {
+            $('.workout_image').attr("src","data:image/png;base64," + msg.content);
+        }
+        return null;
+    }, 15000, 3);
+    getPelotonImage.enqueue().catch(function(err) {
+        console.error('Error is ' + err);
+    });
+
     el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
@@ -1209,7 +1234,7 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'req_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000, 'calories': 950, 'distance': 11, 'cadence_avg': 65, 'resistance_avg': 22},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000, 'calories': 950, 'distance': 11, 'cadence_avg': 65, 'resistance_avg': 22, 'deviceType': 1},
             ]
     process_arr(arr);
 });
