@@ -139,14 +139,40 @@ jobs:
             cp ../../windows/zwift-incline.py .
             mkdir adb
             mkdir python
-            if(${{ matrix.config.python }} -eq true)
-            {
-              Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
-            }
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+            
+      - name: Build without python
+        run: |
+            qmake
+            cd src
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            cd ..
+            make -j8
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            mkdir adb
             cp ../../adb/* adb/
             cd ..
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: !matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
