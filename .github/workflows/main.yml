@@ -176,18 +176,21 @@ jobs:
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
 
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output release.zip
+
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/debug/output
+          path: release.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary-no-python
-          path: src/debug/output
+          path: release.zip
         if:  ${{ ! matrix.config.python }}
 
 #  window-steam-build:
