@@ -59,7 +59,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData charDataFIT;
             charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
             QByteArray valueFIT;
-            valueFIT.append((char)0xA2); // cadence, pace and resistance level supported
+            valueFIT.append((char)0xA6); // cadence, pace and resistance level supported
             valueFIT.append((char)0x45); // stride count,heart rate, power supported
             valueFIT.append((char)0x00);
             valueFIT.append((char)0x00);
@@ -378,13 +378,16 @@ void virtualrower::rowerProvider() {
 
     if (!heart_only) {
 
-        value.append((char)0xA0); // resistance level, power and speed
+        value.append((char)0xA4); // resistance level, power and speed
         value.append((char)0x02); // heart rate
 
         value.append((char)((uint8_t)Rower->currentCadence().value() & 0xFF)); // Stroke Rate
 
         value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
         value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
+
+        value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace
+        value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) >> 8) & 0xFF); // pace
 
         value.append((char)(((uint16_t)Rower->wattsMetric().value()) & 0xFF));      // watts
         value.append((char)(((uint16_t)Rower->wattsMetric().value()) >> 8) & 0xFF); // watts
