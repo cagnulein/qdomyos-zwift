@@ -1200,7 +1200,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init();
+    dochart_init(); return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);
