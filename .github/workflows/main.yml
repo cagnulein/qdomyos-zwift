@@ -96,6 +96,8 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -289,6 +291,8 @@ jobs:
           version: '5.15.2'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-linux'                    
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -469,6 +473,8 @@ jobs:
           arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
@@ -532,6 +538,8 @@ jobs:
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/ios/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-ios'                    
           
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;
