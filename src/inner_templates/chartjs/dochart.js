@@ -1180,7 +1180,7 @@ function dochart_init() {
             $('.workout_image').attr("src","data:image/png;base64," + msg.content);
         }
         return null;
-    }, 15000, 3);
+    }, 15000, 1);
     getPelotonImage.enqueue().catch(function(err) {
         console.error('Error is ' + err);
     });
