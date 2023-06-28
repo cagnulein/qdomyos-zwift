@@ -172,7 +172,7 @@ jobs:
             cd ..
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
-        if: !matrix.config.python
+        if: matrix.config.python == false
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
