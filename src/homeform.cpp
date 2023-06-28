@@ -3684,18 +3684,18 @@ void homeform::update() {
                                                      ->speedToPace(trainProgram->currentRow().upper_speed)
                                                      .toString(QStringLiteral("m:ss")));
 
-                if(((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
-                    if(bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
-                       bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
+                if (((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
+                    if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
+                        bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                         this->pace->setValueFontColor(QStringLiteral("limegreen"));
-                    }
-                    else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) &&
-                            bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2)) {
+                    } else if (bluetoothManager->device()->currentSpeed().value() <=
+                                   (trainProgram->currentRow().upper_speed + 0.2) &&
+                               bluetoothManager->device()->currentSpeed().value() >=
+                                   (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
                         this->pace->setValueFontColor(QStringLiteral("orange"));
-                    }
-                    else {
+                    } else {
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
                         this->pace->setValueFontColor(QStringLiteral("red"));
                     }
@@ -3703,18 +3703,18 @@ void homeform::update() {
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
                     this->pace->setValueFontColor(QStringLiteral("white"));
                 }
-                switch(trainProgram->currentRow().pace_intensity) {
-                    case 0:
-                        this->target_zone->setValue(tr("Easy"));
+                switch (trainProgram->currentRow().pace_intensity) {
+                case 0:
+                    this->target_zone->setValue(tr("Easy"));
                     break;
-                    case 1:
-                        this->target_zone->setValue(tr("Moder."));
+                case 1:
+                    this->target_zone->setValue(tr("Moder."));
                     break;
-                    case 2:
-                        this->target_zone->setValue(tr("Chall."));
+                case 2:
+                    this->target_zone->setValue(tr("Chall."));
                     break;
-                    case 3:
-                        this->target_zone->setValue(tr("Max"));
+                case 3:
+                    this->target_zone->setValue(tr("Max"));
                     break;
                 }
             }
@@ -3770,7 +3770,7 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
 
             // if there is no training program, the color is based on presets
-            if(!trainProgram || trainProgram->currentRow().speed == -1) {
+            if (!trainProgram || trainProgram->currentRow().speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 8) {
                     speed->setValueFontColor(QStringLiteral("white"));
                     this->pace->setValueFontColor(QStringLiteral("white"));
@@ -3999,7 +3999,8 @@ void homeform::update() {
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
-            (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING && (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
+             (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);
@@ -4922,7 +4923,6 @@ bool homeform::getLap() {
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
-    stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     qDebug() << file.fileName();
@@ -4936,6 +4936,17 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 delete trainProgram;
             }
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+
+            stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
+            stravaPelotonInstructorName = QStringLiteral("");
+            emit workoutNameChanged(workoutName());
+            emit instructorNameChanged(instructorName());
+
+            QSettings settings;
+            if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+                m_info = workoutName();
+                emit infoChanged(m_info);
+            }
         }
 
         trainProgramSignals();

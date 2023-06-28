@@ -9,8 +9,8 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
-#include <QLowEnergyConnectionParameters>
 #include "keepawakehelper.h"
+#include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
 
@@ -35,6 +35,11 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     QEventLoop loop;
     QTimer timeout;
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattFTMSService) {
         if (wait_for_response) {
             connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
@@ -44,7 +49,7 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
             timeout.singleShot(300ms, &loop, &QEventLoop::quit);
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     } else if (customService && customWriteChar.isValid()) {
         if (wait_for_response) {
             connect(customService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
@@ -54,14 +59,14 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
             timeout.singleShot(300ms, &loop, &QEventLoop::quit);
         }
 
-        customService->writeCharacteristic(customWriteChar, QByteArray((const char *)data, data_len));
+        customService->writeCharacteristic(customWriteChar, *writeBuffer);
     } else {
         qDebug() << "writeCharacteristic error!";
         return;
     }
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -144,7 +149,8 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     static bool firstPacket = false;
 
     union flags {
@@ -185,17 +191,22 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                   3.5) /
+                ((((0.048 * ((double)watts()) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
+            Speed =
+                Cadence.value() *
+                settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio)
+                    .toDouble();
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -218,7 +229,9 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -242,7 +255,10 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            2.0) *
-                          settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
+                          settings
+                              .value(QZSettings::horizon_gr7_cadence_multiplier,
+                                     QZSettings::default_horizon_gr7_cadence_multiplier)
+                              .toDouble();
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -253,7 +269,10 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
             avgCadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0) *
-                         settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
+                         settings
+                             .value(QZSettings::horizon_gr7_cadence_multiplier,
+                                    QZSettings::default_horizon_gr7_cadence_multiplier)
+                             .toDouble();
             index += 2;
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
         }
@@ -365,13 +384,14 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
-            update_hr_from_external();
+        update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -492,11 +512,14 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -525,7 +548,12 @@ void horizongr7bike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(b);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 

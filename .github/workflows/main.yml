@@ -93,7 +93,7 @@ jobs:
           cmake-version: '3.20.x'
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'windows'
@@ -102,6 +102,8 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -301,11 +303,13 @@ jobs:
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-linux'                    
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -478,7 +482,7 @@ jobs:
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'linux'
@@ -486,6 +490,8 @@ jobs:
           arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
@@ -542,13 +548,15 @@ jobs:
           ref: "release-1.12.1"
 
       - name: Install Qt iOS
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/ios/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-ios'                    
           
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;

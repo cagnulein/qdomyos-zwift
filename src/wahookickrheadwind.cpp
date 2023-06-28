@@ -126,11 +126,15 @@ void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEne
         return;
     }
 
-    service->writeCharacteristic(*writeChar, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(*writeChar, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
     loop.exec();

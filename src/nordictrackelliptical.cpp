@@ -43,11 +43,15 @@ void nordictrackelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len,
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -940,7 +944,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
-    //const double miles = 1.60934; //not used
+    // const double miles = 1.60934; //not used
     bool proform_hybrid_trainer_xt =
         settings.value(QZSettings::proform_hybrid_trainer_xt, QZSettings::default_proform_hybrid_trainer_xt).toBool();
     bool disable_hr_frommachinery =
@@ -954,8 +958,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     lastPacket = newValue;
 
-    if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 &&
-        newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
+    if (!proform_hybrid_trainer_xt && !nordictrack_elliptical_c7_5 && newValue.length() == 20 &&
+        newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
         uint8_t c = newValue.at(2);
         if (c > 0)
             Cadence = (c * cadence_gain) + cadence_offset;
@@ -988,10 +992,9 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
 
     if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
         newValue.at(4) == 0x46 && initDone == true &&
-        !(((uint8_t)newValue.at(4)) == 0xFF && ((uint8_t)newValue.at(5)) == 0xFF &&
-         ((uint8_t)newValue.at(6)) == 0xFF && ((uint8_t)newValue.at(7)) == 0xFF &&
-         ((uint8_t)newValue.at(8)) == 0xFF && ((uint8_t)newValue.at(9)) == 0xFF &&
-         ((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(11)) == 0xFF)) {   
+        !(((uint8_t)newValue.at(4)) == 0xFF && ((uint8_t)newValue.at(5)) == 0xFF && ((uint8_t)newValue.at(6)) == 0xFF &&
+          ((uint8_t)newValue.at(7)) == 0xFF && ((uint8_t)newValue.at(8)) == 0xFF && ((uint8_t)newValue.at(9)) == 0xFF &&
+          ((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(11)) == 0xFF)) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
@@ -1044,12 +1047,12 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
     }
 
     if (!nordictrack_elliptical_c7_5) {
-        Resistance = GetResistanceFromPacket(newValue);  
-    } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 &&
-        newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
-        (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)){   
+        Resistance = GetResistanceFromPacket(newValue);
+    } else if (nordictrack_elliptical_c7_5 && newValue.length() == 20 && newValue.at(0) == 0x00 &&
+               newValue.at(1) == 0x12 && newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
+               (newValue.at(5) == 0x30 || newValue.at(5) == 0x31)) {
         Inclination = GetInclinationFromPacket(newValue);
-        Resistance = GetResistanceFromPacket(newValue);    
+        Resistance = GetResistanceFromPacket(newValue);
     }
 
     uint16_t p = qCeil((Resistance.value() * 3.33) + 10.0);
@@ -1279,7 +1282,7 @@ void nordictrackelliptical::btinit() {
             writeCharacteristic(noOpData9b, sizeof(noOpData9b), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(noOpData10b, sizeof(noOpData10b), QStringLiteral("init"), false, false);
-            QThread::msleep(400);    
+            QThread::msleep(400);
         } else {
             writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
             QThread::msleep(400);
@@ -1365,7 +1368,7 @@ void nordictrackelliptical::stateChanged(QLowEnergyService::ServiceState state) 
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
-                                                  bikeResistanceGain);
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &nordictrackelliptical::changeInclinationRequested);
                     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);

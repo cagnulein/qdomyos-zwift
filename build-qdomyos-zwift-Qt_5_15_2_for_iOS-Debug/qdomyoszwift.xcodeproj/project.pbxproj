@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -358,6 +358,8 @@
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
 		87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BE262329B500121A76 /* moc_npecablebike.cpp */; };
+		87A0D7522A3A4518005147F2 /* fakerower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0D7502A3A4517005147F2 /* fakerower.cpp */; };
+		87A0D7542A3A4547005147F2 /* moc_fakerower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */; };
 		87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F052660D5C0002D7C96 /* ftmsrower.cpp */; };
 		87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */; };
 		87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC1F2656429400D302E3 /* rower.cpp */; };
@@ -1160,6 +1162,9 @@
 		87A0C4BA262329A600121A76 /* npecablebike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = npecablebike.h; path = ../src/npecablebike.h; sourceTree = "<group>"; };
 		87A0C4BD262329B500121A76 /* moc_cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_cscbike.cpp; sourceTree = "<group>"; };
 		87A0C4BE262329B500121A76 /* moc_npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_npecablebike.cpp; sourceTree = "<group>"; };
+		87A0D7502A3A4517005147F2 /* fakerower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakerower.cpp; path = ../src/fakerower.cpp; sourceTree = "<group>"; };
+		87A0D7512A3A4517005147F2 /* fakerower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakerower.h; path = ../src/fakerower.h; sourceTree = "<group>"; };
+		87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakerower.cpp; sourceTree = "<group>"; };
 		87A18F052660D5C0002D7C96 /* ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsrower.cpp; path = ../src/ftmsrower.cpp; sourceTree = "<group>"; };
 		87A18F062660D5C1002D7C96 /* ftmsrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsrower.h; path = ../src/ftmsrower.h; sourceTree = "<group>"; };
 		87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsrower.cpp; sourceTree = "<group>"; };
@@ -1716,6 +1721,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */,
 				878D83752A1F33D900D7F004 /* moc_bkoolbike.cpp */,
 				872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */,
 				87BCE6BE29F28F94001F70EB /* moc_ypooelliptical.cpp */,
@@ -1883,6 +1889,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A0D7502A3A4517005147F2 /* fakerower.cpp */,
+				87A0D7512A3A4517005147F2 /* fakerower.h */,
 				878D83732A1F33C600D7F004 /* bkoolbike.cpp */,
 				878D83722A1F33C600D7F004 /* bkoolbike.h */,
 				872DCC382A18D4A800EC9F68 /* virtualdevice.cpp */,
@@ -3031,8 +3039,10 @@
 				87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */,
 				873824B127E64706004F1B46 /* moc_browser_p.cpp in Compile Sources */,
 				873824B627E64707004F1B46 /* moc_hostname_p.cpp in Compile Sources */,
+				87A0D7542A3A4547005147F2 /* moc_fakerower.cpp in Compile Sources */,
 				873824EA27E647A8004F1B46 /* browser.cpp in Compile Sources */,
 				87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */,
+				87A0D7522A3A4518005147F2 /* fakerower.cpp in Compile Sources */,
 				87B187BB29B8C552007EEF9D /* ziprotreadmill.cpp in Compile Sources */,
 				87BF116D298E28CA00B5B6E7 /* pelotonbike.cpp in Compile Sources */,
 				87DAE16A26E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp in Compile Sources */,
@@ -3656,7 +3666,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3824,7 +3834,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4028,7 +4038,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4124,7 +4134,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4216,7 +4226,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4330,7 +4340,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 577;
+				CURRENT_PROJECT_VERSION = 590;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;

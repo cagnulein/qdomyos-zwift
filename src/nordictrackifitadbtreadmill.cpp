@@ -2,14 +2,14 @@
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #endif
-#include "virtualtreadmill.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QProcess>
 #include <QSettings>
 #include <QThread>
-#include <QProcess>
 #include <chrono>
 #include <math.h>
 
@@ -52,6 +52,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         QString output = process->readAllStandardOutput();
         qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
+        bool wattFound = false;
         foreach (QString line, lines) {
             if (line.contains("Changed KPH")) {
                 emit debug(line);
@@ -59,9 +60,15 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
             } else if (line.contains("Changed Grade")) {
                 emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Watts")) {
+                emit debug(line);
+                watt = line.split(' ').last().toDouble();
+                wattFound = true;
             }
         }
         emit onSpeedInclination(speed, inclination);
+        if (wattFound)
+            emit onWatt(watt);
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
@@ -111,6 +118,8 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onWatt, this,
+                &nordictrackifitadbtreadmill::onWatt);
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::debug, this,
                 &nordictrackifitadbtreadmill::debug);
         logcatAdbThread->start();
@@ -286,7 +295,7 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
                                                          QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -296,6 +305,11 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
 void nordictrackifitadbtreadmill::forceIncline(double incline) {}
 
 void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
+
+void nordictrackifitadbtreadmill::onWatt(double watt) {
+    m_watt = watt;
+    wattReadFromTM = true;
+}
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
@@ -343,7 +357,7 @@ void nordictrackifitadbtreadmill::update() {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
-    update_metrics(true, watts(weight));
+    update_metrics(!wattReadFromTM, watts(weight));
 
     if (initRequest) {
         initRequest = false;
@@ -379,4 +393,3 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
-

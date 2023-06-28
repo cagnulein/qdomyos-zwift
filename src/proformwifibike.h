@@ -54,6 +54,7 @@ class proformwifibike : public bike {
     QWebSocket websocket;
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;
+    double max_incline_supported = 20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);

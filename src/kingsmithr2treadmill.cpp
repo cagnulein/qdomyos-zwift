@@ -77,6 +77,7 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     }
     encrypted.append('\x0d');
     for (int i = 0; i < encrypted.length(); i += 16) {
+        // it's missing the writeBuffer here, it could lead to crash on iOS
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, encrypted.mid(i, 16),
                                                              QLowEnergyService::WriteWithoutResponse);
     }
@@ -124,8 +125,11 @@ void kingsmithr2treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !this->hasVirtualDevice()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
 
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
