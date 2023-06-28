@@ -1,36 +1,37 @@
 window.chartColors = {
     red: 'rgb(255, 29, 0)',
-    redt: 'rgb(255, 29, 0, 0.25)',
+    redt: 'rgb(255, 29, 0, 0.55)',
     orange: 'rgb(255, 159, 64)',
-    oranget: 'rgb(255, 159, 64, 0.25)',
+    oranget: 'rgb(255, 159, 64, 0.55)',
     darkorange: 'rgb(255, 140, 0)',
-    darkoranget: 'rgb(255, 140, 0, 0.25)',
+    darkoranget: 'rgb(255, 140, 0, 0.55)',
     orangered: 'rgb(255, 69, 0)',
-    orangeredt: 'rgb(255, 69, 0, 0.25)',
+    orangeredt: 'rgb(255, 69, 0, 0.55)',
     yellow: 'rgb(255, 205, 86)',
-    yellowt: 'rgb(255, 205, 86, 0.25)',
+    yellowt: 'rgb(255, 205, 86, 0.55)',
     green: 'rgb(75, 192, 192)',
-    greent: 'rgb(75, 192, 192, 0.25)',
+    greent: 'rgb(75, 192, 192, 0.55)',
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)',
-    greyt: 'rgb(201, 203, 207, 0.25)',
+    greyt: 'rgb(201, 203, 207, 0.55)',
     white: 'rgb(255, 255, 255)',
-    whitet: 'rgb(255, 255, 255, 0.25)',
+    whitet: 'rgb(255, 255, 255, 0.55)',
     limegreen: 'rgb(50, 205, 50)',
-    limegreent: 'rgb(50, 205, 50, 0.25)',
+    limegreent: 'rgb(50, 205, 50, 0.55)',
     gold: 'rgb(255, 215, 0)',
-    goldt: 'rgb(255, 215, 0, 0.25)',
+    goldt: 'rgb(255, 215, 0, 0.55)',
     black: 'rgb(0, 0, 0)',
-    blackt: 'rgb(0, 0, 0, 0.25)',
+    blackt: 'rgb(0, 0, 0, 0.55)',
     lightsteelblue: 'rgb(176,192,222)',
-    lightsteelbluet: 'rgb(176,192,222, 0.25)',
+    lightsteelbluet: 'rgb(176,192,222, 0.55)',
 };
 
 var ftp = 200;
 var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
+var miles = 1;
 
 function process_arr(arr) {
     let watts = [];
@@ -54,6 +55,12 @@ function process_arr(arr) {
     let watts_max = 0;
     let heart_avg = 0;
     let heart_max = 0;
+    let jouls = 0;
+    let deviceType = 0;
+    let cadence_avg = 0;
+    let resistance_avg = 0;
+    let calories = 0;
+    let distance = 0;
     saveScreenshot[0] = false;
     saveScreenshot[1] = false;
     saveScreenshot[2] = false;
@@ -89,6 +96,12 @@ function process_arr(arr) {
         watts_max = el.watts_max;
         heart_avg = el.heart_avg;
         heart_max = el.heart_max;
+        jouls = el.jouls;
+        deviceType = el.deviceType;
+        resistance_avg = el.resistance_avg;
+        cadence_avg = el.cadence_avg;
+        distance = el.distance;
+        calories = el.calories;
         maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
@@ -144,10 +157,27 @@ function process_arr(arr) {
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
+    if(instructorName.length === 0) {
+        if(deviceType === 1)
+            $('.workout_image').attr("src","run.png");
+        else if(deviceType === 3) 
+            $('.workout_image').attr("src","row.png");
+        else if(deviceType === 4) 
+            $('.workout_image').attr("src","elliptical.png");
+        else
+            $('.workout_image').attr("src","bike.png");
+    }
     $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
     $('.watts_max').text('Watt MAX: ' + watts_max);
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
     $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+
+    $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
+    $('.summary_jouls').text(Math.floor(jouls) / 1000.0 + ' kJ');
+    $('.summary_calories').text(Math.floor(calories) + ' kcal');
+    $('.summary_distance').text(Math.floor(distance) * miles + (miles === 1 ? ' km' : ' mi'));
+    $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
+    $('.summary_resistance_avg').text(Math.floor(resistance_avg) + ' lvl');    
 
     const backgroundFill = {
       id: 'custom_canvas_background_color',
@@ -173,7 +203,7 @@ function process_arr(arr) {
                 data: watts,
                 fill: false,
                 pointRadius: 0,
-                borderWidth: 1,
+                borderWidth: 2,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < ftpZones[0] && ctx.p1.parsed.y < ftpZones[0] ? window.chartColors.grey :
                                                                        ctx.p0.parsed.y < ftpZones[1] && ctx.p1.parsed.y < ftpZones[1] ? window.chartColors.limegreen :
@@ -191,7 +221,7 @@ function process_arr(arr) {
                 data: reqpower,
                 fill: false,
                 pointRadius: 0,
-                borderWidth: 1,
+                borderWidth: 2,
             },
             ]
         },
@@ -226,6 +256,11 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
+                    backgroundColor: "#1d2330",
+                    padding: {
+                        top: 2,
+                        bottom: 2
+                    },
                     text:'Watt'
                 },
                 tooltips: {
@@ -333,7 +368,7 @@ function process_arr(arr) {
                         text: 'Watt'
                     },
                     min: 0,
-                    max: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
+                    max: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -370,7 +405,7 @@ function process_arr(arr) {
                 data: heart,
                 fill: false,
                 pointRadius: 0,
-                borderWidth: 1,
+                borderWidth: 2,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < heartZones[0] && ctx.p1.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
                                                                        ctx.p0.parsed.y < heartZones[1] && ctx.p1.parsed.y < heartZones[1] ? window.chartColors.green :
@@ -533,7 +568,7 @@ function process_arr(arr) {
                     data: resistance,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                     backgroundColor: window.chartColors.red,
                     borderColor: window.chartColors.red,
                 },
@@ -543,7 +578,7 @@ function process_arr(arr) {
                     data: reqresistance,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                     backgroundColor: window.chartColors.black,
                     borderColor: window.chartColors.black,
                 },
@@ -650,7 +685,7 @@ function process_arr(arr) {
                     data: pelotonresistance,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                     backgroundColor: window.chartColors.red,
                     borderColor: window.chartColors.red,
                 },
@@ -660,7 +695,7 @@ function process_arr(arr) {
                     data: pelotonreqresistance,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                     backgroundColor: window.chartColors.black,
                     borderColor: window.chartColors.black,
                 },
@@ -769,7 +804,7 @@ function process_arr(arr) {
                     data: cadence,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                 },
                 {
                     backgroundColor: window.chartColors.black,
@@ -779,7 +814,7 @@ function process_arr(arr) {
                     data: reqcadence,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                 },
             ]
         },
@@ -966,7 +1001,7 @@ function process_arr(arr) {
                     data: speed,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                 },
                 {
                     backgroundColor: window.chartColors.green,
@@ -976,7 +1011,7 @@ function process_arr(arr) {
                     data: inclination,
                     fill: false,
                     pointRadius: 0,
-                    borderWidth: 1,
+                    borderWidth: 2,
                 },
             ]
         },
@@ -1118,6 +1153,9 @@ function dochart_init() {
                     } else if (key === 'heart_rate_zone4') {
                         heart_rate_zone4 = msg.content[key];
                         heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
+                    } else if (key === 'miles_unit') {
+                        if(msg.content[key] === true || msg.content[key] === 'true')
+                            miles = 1.60934;
                     }
                 }
                 if(heart_max_override_enable) {
@@ -1134,6 +1172,19 @@ function dochart_init() {
     el.enqueue().then(onSettingsOK).catch(function(err) {
             console.error('Error is ' + err);
     })
+
+    let getPelotonImage = new MainWSQueueElement({
+        msg: 'getpelotonimage',
+    }, function(msg) {
+        if (msg.msg === 'R_getpelotonimage' && msg.content.length > 0) {
+            $('.workout_image').attr("src","data:image/png;base64," + msg.content);
+        }
+        return null;
+    }, 15000, 1);
+    getPelotonImage.enqueue().catch(function(err) {
+        console.error('Error is ' + err);
+    });
+
     el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
@@ -1183,7 +1234,7 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'req_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000, 'calories': 950, 'distance': 11, 'cadence_avg': 65, 'resistance_avg': 22, 'deviceType': 1},
             ]
     process_arr(arr);
 });

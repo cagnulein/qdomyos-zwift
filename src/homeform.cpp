@@ -5622,6 +5622,13 @@ void homeform::setVideoRate(double value) {
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
 
+QByteArray homeform::currentPelotonImage() {
+    if (pelotonHandler && pelotonHandler->current_image_downloaded &&
+        !pelotonHandler->current_image_downloaded->downloadedData().isEmpty())
+        return pelotonHandler->current_image_downloaded->downloadedData();
+    return QByteArray();
+}
+
 void homeform::sendMail() {
 
     QSettings settings;

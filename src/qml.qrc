@@ -95,5 +95,10 @@
         <file>WebStravaAuth.qml</file>
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
+        <file>inner_templates/chartjs/elliptical.png</file>
+        <file>inner_templates/chartjs/row.png</file>
+        <file>inner_templates/chartjs/run.png</file>
+        <file>inner_templates/chartjs/walk.png</file>
+        <file>inner_templates/chartjs/bike.png</file>
     </qresource>
 </RCC>
