@@ -57,10 +57,15 @@ void lifefitnesstreadmill::writeCharacteristic(QLowEnergyService *service, QLowE
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -155,7 +160,7 @@ void lifefitnesstreadmill::update() {
                 requestInclination = 0;
             else {
                 // the treadmill accepts only .5 steps
-                requestInclination = std::llround(requestInclination*2) / 2.0;
+                requestInclination = std::llround(requestInclination * 2) / 2.0;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -579,7 +584,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-                update_hr_from_external();
+            update_hr_from_external();
         } else {
             Heart = heart;
         }

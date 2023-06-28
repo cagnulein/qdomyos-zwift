@@ -16,22 +16,22 @@
 jobject getWifiManagerObj(JNIEnv *env, jobject jCtxObj) {
     qDebug() << "gotWifiMangerObj ";
     // Get the value of Context.WIFI_SERVICE
-    // jstring  jstr_wifi_serveice = env->NewStringUTF("wifi");
+    // jstring  jstr_wifi_service = env->NewStringUTF("wifi");
     jclass jCtxClz = env->FindClass("android/content/Context");
     jfieldID fid_wifi_service = env->GetStaticFieldID(jCtxClz, "WIFI_SERVICE", "Ljava/lang/String;");
-    jstring jstr_wifi_serveice = (jstring)env->GetStaticObjectField(jCtxClz, fid_wifi_service);
+    jstring jstr_wifi_service = (jstring)env->GetStaticObjectField(jCtxClz, fid_wifi_service);
 
     jclass jclz = env->GetObjectClass(jCtxObj);
     jmethodID mid_getSystemService =
         env->GetMethodID(jclz, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;");
-    jobject wifiManager = env->CallObjectMethod(jCtxObj, mid_getSystemService, jstr_wifi_serveice);
+    jobject wifiManager = env->CallObjectMethod(jCtxObj, mid_getSystemService, jstr_wifi_service);
 
     // Because jclass inherits from jobject, it needs to be released;
     // jfieldID and jmethodID are memory addresses, this memory is not allocated in our code, and we don’t need to
     // release it.
     env->DeleteLocalRef(jCtxClz);
     env->DeleteLocalRef(jclz);
-    env->DeleteLocalRef(jstr_wifi_serveice);
+    env->DeleteLocalRef(jstr_wifi_service);
 
     return wifiManager;
 }

@@ -43,12 +43,15 @@ void ziprotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     // packets sent from the characChanged event, i don't want to block everything
@@ -121,7 +124,7 @@ void ziprotreadmill::update() {
 
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
-        uint8_t noop[] = {0xfb, 0x07, 0xa1, 0x02, 0x00, 0x00, 0x00, 0xaa, 0xfc};        
+        uint8_t noop[] = {0xfb, 0x07, 0xa1, 0x02, 0x00, 0x00, 0x00, 0xaa, 0xfc};
         noop[5] = (uint8_t)(Speed.value() * 10.0);
         if (requestSpeed != -1) {
             noop[4] = 1; // force speed and inclination
@@ -195,8 +198,7 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
         uint8_t heart = ((uint8_t)value.at(15));
         if (heart == 0 || disable_hr_frommachinery) {
             update_hr_from_external();
-        }
-        else {
+        } else {
             Heart = heart;
         }
     }

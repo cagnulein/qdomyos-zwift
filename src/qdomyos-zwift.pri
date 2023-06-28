@@ -75,6 +75,7 @@ SOURCES += \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
+   $$PWD/fakerower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
@@ -283,6 +284,7 @@ HEADERS += \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
+   $$PWD/fakerower.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -710,25 +712,13 @@ RESOURCES += \
 DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
+   $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/Garmin.java \
+   $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CdcAcmSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Ch34xSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CommonUsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Cp21xxSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/FtdiSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProbeTable.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProlificSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/SerialTimeoutException.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbId.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialProber.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/MonotonicClock.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/SerialInputOutputManager.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -822,4 +812,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.73
+VERSION = 2.13.85

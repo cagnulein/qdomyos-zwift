@@ -795,7 +795,13 @@ import QtQuick.Dialogs 1.0
             // from version 2.13.71
             property int theme_tile_secondline_textsize: 12
 
-            // from version 2.13.75
+            // from version 2.13.80
+            property bool fakedevice_rower: false
+
+            // from version 2.13.81
+            property bool proform_bike_sb: false            
+
+            // from version 2.13.86
             property bool zwift_workout_ocr: false
         }
 
@@ -2724,7 +2730,7 @@ import QtQuick.Dialogs 1.0
                 }
                 AccordionElement {
                     id: proformBikeAccordion
-                    title: qsTr("Proform Bike Options")
+                    title: qsTr("Proform/Norditrack Options")
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
@@ -2835,6 +2841,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
+                    }                    
+                    SwitchDelegate {
+                        text: qsTr("Proform SB")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_sb
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {
@@ -4333,7 +4352,7 @@ import QtQuick.Dialogs 1.0
                 }
 
                 Label {
-                    text: qsTr("Alternatevely to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
+                    text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 9
@@ -5383,6 +5402,29 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.gem_module_inclination = checked; window.settings_restart_to_apply = true; }
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    title: qsTr("Echelon Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_miles = checked
                         }
                     }
                 }
@@ -6895,7 +6937,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.volume_change_gears
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.volume_change_gears = checked
+                        onClicked: { settings.volume_change_gears = checked; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -8699,6 +8741,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Same as Fake Device but instead of simulating a bike it simulates an elliptical.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Fake Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.fakedevice_rower = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Same as Fake Device but instead of simulating a bike it simulates a rower.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

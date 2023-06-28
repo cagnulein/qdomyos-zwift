@@ -52,10 +52,15 @@ void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
         timeout.singleShot(1000, &loop, SLOT(quit()));
     }
 
-    gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -397,7 +402,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     if (!crank_rev_present)
                         cadence =
                             cadence /
-                            2; // I really don't like this, there is no releationship between wheel rev and crank rev
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
@@ -638,10 +643,11 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
-            this->setVirtualDevice(virtualBike,VIRTUAL_DEVICE_MODE::PRIMARY);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;

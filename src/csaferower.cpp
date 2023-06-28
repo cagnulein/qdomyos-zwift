@@ -13,8 +13,56 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(refresh, &QTimer::timeout, this, &csaferower::update);
     refresh->start(200ms);
     csaferowerThread *t = new csaferowerThread();
+    connect(t, &csaferowerThread::onPower, this, &csaferower::onPower);
+    connect(t, &csaferowerThread::onCadence, this, &csaferower::onCadence);
+    connect(t, &csaferowerThread::onHeart, this, &csaferower::onHeart);
+    connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
+    connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
     t->start();
 }
+
+void csaferower::onPower(double power) {
+    qDebug() << "Current Power received:" << power;
+    m_watt = power;
+
+    double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
+    Speed = (60.0 / (double)(pace)) * 30.0;
+
+    qDebug() << "Current Speed calculated:" << Speed.value() << pace;
+}
+
+void csaferower::onCadence(double cadence) { qDebug() << "Current Cadence received:" << cadence; }
+
+void csaferower::onHeart(double hr) {
+    qDebug() << "Current Heart received:" << hr;
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+            uint8_t heart = ((uint8_t)hr);
+            if (heart == 0 || disable_hr_frommachinery) {
+                update_hr_from_external();
+            } else
+                Heart = heart;
+        }
+    }
+}
+
+void csaferower::onCalories(double calories) {
+    qDebug() << "Current Calories received:" << calories;
+    KCal = calories;
+}
+
+void csaferower::onDistance(double distance) { qDebug() << "Current Distance received:" << distance / 1000.0; }
 
 csaferowerThread::csaferowerThread() {}
 
@@ -24,13 +72,45 @@ void csaferowerThread::run() {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
 
     openPort();
+    csafe *aa = new csafe();
     while (1) {
-        csafeCommand command("GetStatus", QByteArray());
-        qDebug() << " >> " << command.buffer.toHex(' ');
-        rawWrite((uint8_t *)command.buffer.data(), command.buffer.length());
+        QStringList command;
+        command << "CSAFE_PM_GET_WORKTIME";
+        command << "CSAFE_PM_GET_WORKDISTANCE";
+        command << "CSAFE_GETCADENCE_CMD";
+        command << "CSAFE_GETPOWER_CMD";
+        command << "CSAFE_GETCALORIES_CMD";
+        command << "CSAFE_GETHRCUR_CMD";
+        QByteArray ret = aa->write(command);
+
+        qDebug() << " >> " << ret.toHex(' ');
+        rawWrite((uint8_t *)ret.data(), ret.length());
         static uint8_t rx[100];
-        rawRead(rx, 5);
-        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 5).toHex(' ');
+        rawRead(rx, 100);
+        qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
+
+        QVector<quint8> v;
+        for (int i = 0; i < 64; i++)
+            v.append(rx[i]);
+        QVariantMap f = aa->read(v);
+        if (f["CSAFE_GETCADENCE_CMD"].isValid()) {
+            emit onCadence(f["CSAFE_GETCADENCE_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETPOWER_CMD"].isValid()) {
+            emit onPower(f["CSAFE_GETPOWER_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETHRCUR_CMD"].isValid()) {
+            emit onHeart(f["CSAFE_GETHRCUR_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETCALORIES_CMD"].isValid()) {
+            emit onCalories(f["CSAFE_GETCALORIES_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_PM_GET_WORKDISTANCE"].isValid()) {
+            emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
+        }
+
+        memset(rx, 0x00, sizeof(rx));
+        QThread::msleep(50);
     }
     closePort();
 }
@@ -46,7 +126,7 @@ int csaferowerThread::closePort() {
 
 int csaferowerThread::openPort() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "openPM3",
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "open",
                                               "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #elif !defined(WIN32)
 
@@ -178,7 +258,7 @@ int csaferowerThread::rawWrite(uint8_t *bytes, int size) // unix!!
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Usbserial", "write", "([B)V", d);
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -208,60 +288,25 @@ int csaferowerThread::rawRead(uint8_t bytes[], int size) {
     int rc = 0;
 
 #ifdef Q_OS_ANDROID
+    int64_t start = QDateTime::currentMSecsSinceEpoch();
+    jint len = 0;
 
-    int fullLen = 0;
-    cleanFrame = false;
-
-    // previous buffer?
-    while (bufRX.count()) {
-        bytes[fullLen++] = bufRX.at(0);
-        bufRX.removeFirst();
-        qDebug() << "byte popped from rxBuf";
-        if (fullLen >= size) {
-            qDebug() << size << QByteArray((const char *)bytes, size).toHex(' ');
-            return size;
-        }
-    }
-
-    QAndroidJniEnvironment env;
-    while (fullLen < size) {
+    do {
+        QAndroidJniEnvironment env;
         QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Usbserial", "read", "()[B");
-        jint len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Usbserial", "readLen", "()I");
-        if (len == 0)
-            return 0;
-        jbyteArray d = dd.object<jbyteArray>();
-        jbyte *b = env->GetByteArrayElements(d, 0);
-        if (len + fullLen > size) {
-            QByteArray tmpDebug;
-            qDebug() << "buffer overflow! Truncate from" << len + fullLen << "requested" << size;
-            /*for(int i=0; i<len; i++) {
-                qDebug() << b[i];
-            }*/
-
-            for (int i = fullLen; i < size; i++) {
-                bytes[i] = b[i - fullLen];
+            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
+        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
+        if (len > 0) {
+            jbyteArray d = dd.object<jbyteArray>();
+            jbyte *b = env->GetByteArrayElements(d, 0);
+            for (int i = 0; i < len; i++) {
+                bytes[i] = b[i];
             }
-            for (int i = size; i < len + fullLen; i++) {
-                jbyte bb = b[i - fullLen];
-                bufRX.append(bb);
-                tmpDebug.append(bb);
-            }
-            qDebug() << len + fullLen - size << "bytes to the rxBuf" << tmpDebug.toHex(' ');
-            qDebug() << size << QByteArray((const char *)b, size).toHex(' ');
-            return size;
+            qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
         }
-        for (int i = fullLen; i < len + fullLen; i++) {
-            bytes[i] = b[i - fullLen];
-        }
-        qDebug() << len << QByteArray((const char *)b, len).toHex(' ');
-        fullLen += len;
-    }
+    } while (len == 0 && start + 2000 > QDateTime::currentMSecsSinceEpoch());
 
-    qDebug() << "FULL BUFFER RX: << " << fullLen << QByteArray((const char *)bytes, size).toHex(' ');
-    cleanFrame = true;
-
-    return fullLen;
+    return len;
 #elif defined(WIN32)
     Q_UNUSED(size);
     // Readfile deals with timeouts and readyread issues
@@ -309,7 +354,7 @@ void csaferower::update() {
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    update_metrics(true, watts());
+    update_metrics(false, watts());
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -390,12 +435,13 @@ void csaferower::update() {
 #endif
     }
 
+    /*
     if (Heart.value()) {
         static double lastKcal = 0;
         if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
             lastKcal = abs(KCal.value());
         KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
-    }
+    }*/
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
         Resistance = requestResistance;
@@ -412,3 +458,7 @@ bool csaferower::connected() { return true; }
 void csaferower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
 }
+
+void csaferower::newPacket(QByteArray p) {}
+
+uint16_t csaferower::watts() { return m_watt.value(); }

@@ -195,6 +195,33 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
+
+    if (workoutName.length() > 0) {
+        fit::TrainingFileMesg trainingFile;
+        trainingFile.SetTimestamp(sessionMesg.GetTimestamp());
+        trainingFile.SetTimeCreated(sessionMesg.GetTimestamp());
+        trainingFile.SetType(FIT_FILE_WORKOUT);
+        encode.Write(trainingFile);
+
+        fit::WorkoutMesg workout;
+        workout.SetSport(sessionMesg.GetSport());
+        workout.SetSubSport(sessionMesg.GetSubSport());
+        workout.SetWktName(workoutName.toStdWString());
+        workout.SetNumValidSteps(1);
+        encode.Write(workout);
+
+        fit::WorkoutStepMesg workoutStep;
+        workoutStep.SetDurationTime(sessionMesg.GetTotalTimerTime());
+        workoutStep.SetTargetValue(0);
+        workoutStep.SetCustomTargetValueHigh(0);
+        workoutStep.SetCustomTargetValueLow(0);
+        workoutStep.SetMessageIndex(0);
+        workoutStep.SetDurationType(FIT_WKT_STEP_DURATION_TIME);
+        workoutStep.SetTargetType(FIT_WKT_STEP_TARGET_SPEED);
+        workoutStep.SetIntensity(FIT_INTENSITY_INTERVAL);
+        encode.Write(workoutStep);
+    }
+
     encode.Write(eventMesg);
 
     fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
@@ -312,26 +339,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(lapMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
-
-    if (workoutName.length() > 0) {
-        fit::WorkoutMesg workout;
-        workout.SetSport(sessionMesg.GetSport());
-        workout.SetSubSport(sessionMesg.GetSubSport());
-        workout.SetWktName(workoutName.toStdWString());
-        workout.SetNumValidSteps(1);
-        encode.Write(workout);
-
-        fit::WorkoutStepMesg workoutStep;
-        workoutStep.SetDurationTime(sessionMesg.GetTotalTimerTime());
-        workoutStep.SetTargetValue(0);
-        workoutStep.SetCustomTargetValueHigh(0);
-        workoutStep.SetCustomTargetValueLow(0);
-        workoutStep.SetMessageIndex(0);
-        workoutStep.SetDurationType(FIT_WKT_STEP_DURATION_TIME);
-        workoutStep.SetTargetType(FIT_WKT_STEP_TARGET_SPEED);
-        workoutStep.SetIntensity(FIT_INTENSITY_INTERVAL);
-        encode.Write(workoutStep);
-    }
 
     if (!encode.Close()) {
 

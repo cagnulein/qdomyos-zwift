@@ -46,6 +46,7 @@
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
 #include "fakeelliptical.h"
+#include "fakerower.h"
 #include "faketreadmill.h"
 #include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
@@ -245,6 +246,7 @@ class bluetooth : public QObject, public SignalHandler {
     elitesterzosmart *eliteSterzoSmart = nullptr;
     fakebike *fakeBike = nullptr;
     fakeelliptical *fakeElliptical = nullptr;
+    fakerower *fakeRower = nullptr;
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;

@@ -60,11 +60,15 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -222,11 +226,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
                 // and the difference between the 2 resistances are less than 6
                 qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
 
-                    int8_t g = gears();
-                    g += (res - qRound(Resistance.value()));
-                    qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
-                    lastRawRequestedResistanceValue = -1; // in order to avoid to change resistance with the setGears
-                    setGears(g);
+                int8_t g = gears();
+                g += (res - qRound(Resistance.value()));
+                qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
+                lastRawRequestedResistanceValue = -1; // in order to avoid to change resistance with the setGears
+                setGears(g);
             }
         }
         Resistance = res;

@@ -47,10 +47,15 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -72,9 +77,11 @@ void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
     QSettings settings;
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
-    if(renpho_bike_double_resistance)
+    if (renpho_bike_double_resistance)
         write[1] = ((uint8_t)(requestResistance));
     else
         write[1] = ((uint8_t)(requestResistance * 2));
@@ -173,7 +180,9 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -267,7 +276,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             2;
-        if(renpho_bike_double_resistance)
+        if (renpho_bike_double_resistance)
             Resistance = Resistance.value() * 2;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
@@ -515,7 +524,7 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     qDebug() << QStringLiteral("to") << powerRequested;
 
     if (power_sensor && this->VirtualBike()) {
-        if(QDateTime::currentMSecsSinceEpoch() > (this->VirtualBike()->whenLastFTMSFrameReceived() + 5000)) {
+        if (QDateTime::currentMSecsSinceEpoch() > (this->VirtualBike()->whenLastFTMSFrameReceived() + 5000)) {
             double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
             lastPowerRequestedFactor = f / powerRequested;
             powerRequested = f;
@@ -565,7 +574,12 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(lastFTMSPacketReceived);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 
@@ -693,9 +707,11 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
     bool renpho_peloton_conversion_v2 =
         settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
             .toBool();
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
-    if(renpho_bike_double_resistance)
+    if (renpho_bike_double_resistance)
         resistance = resistance / 2.0;
 
     if (!renpho_peloton_conversion_v2) {

@@ -40,7 +40,7 @@ protected:
     /**
      * @brief Call bt.deviceDiscovered on the deviceInfo to try to detect and create the bluetoothdevice object for it.
      * If an exception is thrown, the test is failed with a call to FAIL().
-     * Bascially replaces EXPECT_NO_THROW, for ease of breakpoint placement.
+     * Basically replaces EXPECT_NO_THROW, for ease of breakpoint placement.
      * @param bt
      * @param deviceInfo
      */
