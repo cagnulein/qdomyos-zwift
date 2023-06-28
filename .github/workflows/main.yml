@@ -141,11 +141,14 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
 
+      - name: Zip artifact for deployment
+        run: zip release.zip src/debug/output -r
+
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/debug/output
+          path: release.zip
 
 #  window-steam-build:
 #    runs-on: windows-latest
