@@ -203,7 +203,7 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
     }
 
-    double speed = ((double)newValue.at(5)) / 10.0;
+    double speed = ((double)((uint8_t)newValue.at(5))) / 10.0;
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
     Inclination = ((double)newValue.at(6));
