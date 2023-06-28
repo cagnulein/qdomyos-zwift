@@ -4144,7 +4144,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -4171,7 +4171,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_workout_ocr = checked; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
