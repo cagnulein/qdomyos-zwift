@@ -139,7 +139,7 @@ jobs:
             cp ../../windows/zwift-incline.py .
             mkdir adb
             mkdir python
-            if(${{ matrix.config.cc }} -eq $true)
+            if(${{ matrix.config.python }} -eq true)
             {
               Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
             }
