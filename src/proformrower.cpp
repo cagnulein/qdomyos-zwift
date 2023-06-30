@@ -340,7 +340,7 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     lastPacket = newValue;
 
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
-        Cadence = newValue.at(12);
+        Cadence = (uint8_t)(newValue.at(12)) * 2;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
         if (s > 0)

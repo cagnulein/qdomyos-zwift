@@ -378,7 +378,7 @@ void virtualrower::rowerProvider() {
 
     if (!heart_only) {
 
-        value.append((char)0xA4); // resistance level, power and speed
+        value.append((char)0xA8); // resistance level, power and speed
         value.append((char)0x02); // heart rate
 
         value.append((char)((uint8_t)Rower->currentCadence().value() & 0xFF)); // Stroke Rate
