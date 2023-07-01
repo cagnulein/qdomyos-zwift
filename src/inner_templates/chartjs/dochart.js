@@ -1108,7 +1108,7 @@ function process_arr(arr) {
 
 function dochart_init() {
     onSettingsOK = true;
-    keys_arr = ['ftp', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
+    keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
