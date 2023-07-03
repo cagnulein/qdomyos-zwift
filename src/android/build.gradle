@@ -113,4 +113,8 @@ doLast {
 		}
 }
 
-build.finalizedBy(amazon64bitfix)
+tasks.whenTaskAdded { task ->
+    if (task.name == 'mergeReleaseNativeLibs') {
+	     task.dependsOn amazon64bitfix
+		}
+}
