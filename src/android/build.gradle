@@ -102,7 +102,7 @@ android {
     }
 
 tasks.all { task ->
-     if (task.name == 'mergeDebugJniLibFolders') {
+     if (task.name == 'mergeDebugJniLibFolders' && amazon == "1") {
         task.dependsOn renameLibs
         }
 }
