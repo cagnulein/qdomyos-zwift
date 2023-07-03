@@ -114,7 +114,14 @@ task renameLibs {
 doLast {
     fileTree(dir: 'libs/arm64-v8a', include: '*').visit { fileDetails ->
         println(fileDetails.file.path)
-        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("arm64-v8a.so", "armeabi-v7a.so"))
+        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("arm64-v8a.so", ".so"))
+        if (!renamedFile) {
+            throw new GradleException("Failed to rename file: ${fileDetails.file.path}")
+        }
+    }
+    fileTree(dir: 'libs/armeabi-v7a', include: '*').visit { fileDetails ->
+        println(fileDetails.file.path)
+        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("armeabi-v7a.so", ".so"))
         if (!renamedFile) {
             throw new GradleException("Failed to rename file: ${fileDetails.file.path}")
         }
