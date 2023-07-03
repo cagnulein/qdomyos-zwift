@@ -546,6 +546,12 @@ jobs:
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
+      - name: Archive android binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: android-binary
+          path: ${{ github.workspace }}/output/android/
+
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
