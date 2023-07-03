@@ -100,21 +100,25 @@ android {
 		  minSdkVersion = 21
                   targetSdkVersion = 33
     }
+
+tasks.all { task ->
+     if (task.name == 'mergeDebugJniLibFolders') {
+        task.dependsOn renameLibs
+        }
+}
 }
 
-task amazon64bitfix(type: Sync) {
+
+
+task renameLibs {
 doLast {
-    from('libs/arm64-v8a')
-	 into('libs/arm64-v8a')
-	 include '*_arm64-v8a.so'
-	 rename { String filename ->
-	     filename.replace("_arm64-v8a.so", "_armeabi-v7a.so")
-		}
-		}
+    fileTree(dir: 'libs/arm64-v8a', include: '*').visit { fileDetails ->
+        println(fileDetails.file.path)
+        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("arm64-v8a.so", "armeabi-v7a.so"))
+        if (!renamedFile) {
+            throw new GradleException("Failed to rename file: ${fileDetails.file.path}")
+        }
+    }
 }
 
-tasks.whenTaskAdded { task ->
-    if (task.name == 'mergeReleaseNativeLibs') {
-	     task.dependsOn amazon64bitfix
-		}
 }
