@@ -101,3 +101,12 @@ android {
                   targetSdkVersion = 33
     }
 }
+
+task amazon64bitfix(type: Sync) {
+    from('libs/arm64-v8a')
+	 into('libs/arm64-v8a')
+	 include '*_arm64-v8a.so'
+	 rename { String filename ->
+	     filename.replace("_arm64-v8a.so", "_armeabi-v7a.so")
+		}
+}
