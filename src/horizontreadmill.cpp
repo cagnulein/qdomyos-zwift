@@ -993,10 +993,19 @@ void horizontreadmill::update() {
                                         QStringLiteral("stopping"), false, true);
                 }
             } else if (gattFTMSService) {
-                uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x01};
+                if (requestPause == -1) {
+                    uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x01};
 
-                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                                    QStringLiteral("stop"), false, true);
+                    writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                        QStringLiteral("stop"), false, true);
+                } else {
+                    requestPause = -1;
+                    Speed = 0; // forcing the speed to be sure, maybe I could remove this
+                    uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x02};
+
+                    writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                        QStringLiteral("stop"), false, true);
+                }
             }
 
             lastStop = QDateTime::currentMSecsSinceEpoch();
