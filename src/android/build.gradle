@@ -102,30 +102,22 @@ android {
     }
 
 tasks.all { task ->
-     if (task.name == 'mergeDebugJniLibFolders' && amazon == "1") {
-        task.dependsOn renameLibs
+     if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
+        task.dependsOn copyArm64Directory
+        task.dependsOn copyArm32Directory
         }
 }
 }
 
 
-
-task renameLibs {
-doLast {
-    fileTree(dir: 'libs/arm64-v8a', include: '*').visit { fileDetails ->
-        println(fileDetails.file.path)
-        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("arm64-v8a.so", ".so"))
-        if (!renamedFile) {
-            throw new GradleException("Failed to rename file: ${fileDetails.file.path}")
-        }
-    }
-    fileTree(dir: 'libs/armeabi-v7a', include: '*').visit { fileDetails ->
-        println(fileDetails.file.path)
-        def renamedFile = fileDetails.file.renameTo(fileDetails.file.path.replace("armeabi-v7a.so", ".so"))
-        if (!renamedFile) {
-            throw new GradleException("Failed to rename file: ${fileDetails.file.path}")
-        }
-    }
+task copyArm64Directory(type: Copy) {
+    from "libs/arm64-v8a/"
+    include '*arm64-v8a.so'
+    into "libs/armeabi-v7a/"
 }
 
+task copyArm32Directory(type: Copy) {
+    from "libs/armeabi-v7a/"
+    include '*armeabi-v7a.so'
+    into "libs/arm64-v8a/"
 }
