@@ -102,11 +102,15 @@ android {
     }
 }
 
-task amazon64bitfix(type: Sync, dependsOn: mergeDebugNativeLibs) {
+task amazon64bitfix(type: Sync) {
+doLast {
     from('libs/arm64-v8a')
 	 into('libs/arm64-v8a')
 	 include '*_arm64-v8a.so'
 	 rename { String filename ->
 	     filename.replace("_arm64-v8a.so", "_armeabi-v7a.so")
 		}
+		}
 }
+
+build.finalizedBy(amazon64bitfix)
