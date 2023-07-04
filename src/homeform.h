@@ -350,20 +350,22 @@ class homeform : public QObject {
             return QLatin1String("");
         }
     }
+    QString workoutNameBasedOnBluetoothDevice() {
+        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            return QStringLiteral("Ride");
+        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            return QStringLiteral("Row");
+        } else {
+            return QStringLiteral("Run");
+        }
+    }
     QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
         } else if (!stravaWorkoutName.isEmpty()) {
             return stravaWorkoutName;
         } else {
-            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                return QStringLiteral("Ride");
-            } else if (bluetoothManager->device() &&
-                       bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                return QStringLiteral("Row");
-            } else {
-                return QStringLiteral("Run");
-            }
+            return workoutNameBasedOnBluetoothDevice();
         }
     }
     QString instructorName() { return stravaPelotonInstructorName; }
