@@ -11,6 +11,7 @@
 #include <QAndroidJniObject>
 #elif defined(Q_OS_WINDOWS)
 #include "windows_zwift_incline_paddleocr_thread.h"
+#include "windows_zwift_workout_paddleocr_thread.h"
 #endif
 #include "localipaddress.h"
 
@@ -657,6 +658,24 @@ void trainprogram::scheduler() {
                 connect(windows_zwift_ocr_thread, &windows_zwift_incline_paddleocr_thread::onInclination, this,
                         &trainprogram::changeInclination);
                 windows_zwift_ocr_thread->start();
+            }
+#endif
+        } else if (settings.value(QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr).toBool() &&
+                   bluetoothManager && bluetoothManager->device() &&
+                   (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL ||
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
+#ifdef Q_OS_WINDOWS
+            static windows_zwift_workout_paddleocr_thread *windows_zwift_workout_ocr_thread = nullptr;
+            if (!windows_zwift_workout_ocr_thread) {
+                windows_zwift_workout_ocr_thread =
+                    new windows_zwift_workout_paddleocr_thread(bluetoothManager->device());
+                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::debug,
+                        bluetoothManager, &bluetooth::debug);
+                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::onInclination, this,
+                        &trainprogram::changeInclination);
+                connect(windows_zwift_workout_ocr_thread, &windows_zwift_workout_paddleocr_thread::onSpeed, this,
+                        &trainprogram::changeSpeed);
+                windows_zwift_workout_ocr_thread->start();
             }
 #endif
         }
