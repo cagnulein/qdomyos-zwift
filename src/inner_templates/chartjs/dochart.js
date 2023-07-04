@@ -68,6 +68,7 @@ function process_arr(arr) {
     saveScreenshot[4] = false;
     saveScreenshot[5] = false;
     saveScreenshot[6] = false;
+    saveScreenshot[7] = false;
     distributionPowerZones[0] = 0;
     distributionPowerZones[1] = 0;
     distributionPowerZones[2] = 0;
@@ -167,6 +168,7 @@ function process_arr(arr) {
         else
             $('.workout_image').attr("src","bike.png");
     }
+    $('.workout_image').attr("crossOrigin","anonymous");
     $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
     $('.watts_max').text('Watt MAX: ' + watts_max);
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
@@ -228,6 +230,34 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
+                if(saveScreenshot[7] === false) {
+                    var watt_badge = document.getElementById('watt_badge');
+   
+                    // Capture the containers using html2canvas
+                    html2canvas(watt_badge).then(function(canvas1) {
+            
+                        // Convert the merged canvas to a PNG image
+                        var image = canvas1.toDataURL('image/png');
+                
+                        let el = new MainWSQueueElement({
+                            msg: 'savechart',
+                            content: {
+                                name: 'power_badge',
+                                image: image
+                            }
+                        }, function(msg) {
+                            if (msg.msg === 'R_savechart') {
+                                return msg.content;
+                            }
+                            return null;
+                        }, 15000, 3);
+                        el.enqueue().catch(function(err) {
+                            console.error('Error is ' + err);
+                        });
+                    });
+                }
+                saveScreenshot[7] = true;
+
                   if(saveScreenshot[0])
                       return;
                   saveScreenshot[0] = true;
@@ -1213,7 +1243,7 @@ $(window).on('load', function () {
     heartZones[0] = 110;
     heartZones[1] = 130;
     heartZones[2] = 150;
-    heartZones[3] = 170;
+    heartZones[3] = 170;    
 
     arr = [{'watts': 50, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'req_resistance': 15, 'cadence': 80, 'req_cadence': 90, 'speed': 10, 'inclination': 1, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 60, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'req_resistance': 30, 'cadence': 90, 'req_cadence': 100, 'speed': 8, 'inclination': 2, 'peloton_resistance': 20, 'peloton_req_resistance': 25},
