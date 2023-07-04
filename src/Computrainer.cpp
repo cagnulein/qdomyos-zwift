@@ -380,7 +380,7 @@ void Computrainer::unpackTelemetry(int &ss1, int &ss2, int &ss3, int &buttons, i
  * READING TELEMETRY AND ISSUING CONTROL COMMANDS WHILST UPDATING
  * MEMBER VARIABLES AS TELEMETRY CHANGES ARE FOUND.
  *
- * run() - bg thread continuosly reading/writing the device port
+ * run() - bg thread continuously reading/writing the device port
  *         it is kicked off by start and then examines status to check
  *         when it is time to pause or stop altogether.
  * ---------------------------------------------------------------------- */
