@@ -100,5 +100,6 @@
         <file>inner_templates/chartjs/run.png</file>
         <file>inner_templates/chartjs/walk.png</file>
         <file>inner_templates/chartjs/bike.png</file>
+        <file>inner_templates/chartjs/html2canvas.min.js</file>
     </qresource>
 </RCC>
