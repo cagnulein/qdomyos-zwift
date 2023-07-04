@@ -100,4 +100,24 @@ android {
 		  minSdkVersion = 21
                   targetSdkVersion = 33
     }
+
+tasks.all { task ->
+     if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
+        task.dependsOn copyArm64Directory
+        task.dependsOn copyArm32Directory
+        }
+}
+}
+
+
+task copyArm64Directory(type: Copy) {
+    from "libs/arm64-v8a/"
+    include '*arm64-v8a.so'
+    into "libs/armeabi-v7a/"
+}
+
+task copyArm32Directory(type: Copy) {
+    from "libs/armeabi-v7a/"
+    include '*armeabi-v7a.so'
+    into "libs/arm64-v8a/"
 }
