@@ -201,7 +201,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
 
-    if (lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
+    if (lastPacket.count() > 0 && lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
         lastPacket = lastPacket.append(newvalue);
         qDebug() << QStringLiteral(" << concatenated ") + lastPacket.toHex(' ');
     } else {
