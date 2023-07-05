@@ -199,11 +199,14 @@ public class ChannelService extends Service {
     private final BroadcastReceiver mChannelProviderStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive");
             if (AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED.equals(intent.getAction())) {
                 boolean update = false;
                 // Retrieving the data contained in the intent
                 int numChannels = intent.getIntExtra(AntChannelProvider.NUM_CHANNELS_AVAILABLE, 0);
                 boolean legacyInterfaceInUse = intent.getBooleanExtra(AntChannelProvider.LEGACY_INTERFACE_IN_USE, false);
+
+                Log.d(TAG, "onReceive" + mAllowAddChannel + " " +  numChannels + " " + legacyInterfaceInUse);
 
                 if (mAllowAddChannel) {
                     // Was a acquire channel allowed
