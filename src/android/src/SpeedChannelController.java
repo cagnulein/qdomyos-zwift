@@ -234,7 +234,7 @@ public class SpeedChannelController {
                            }
                        }
                    }
-               }, 0, 1000); // delay
+               }, 0, 500); // delay
            }
 
             // Switching on message type to handle different types of messages
