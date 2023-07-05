@@ -177,7 +177,7 @@ function process_arr(arr) {
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
     $('.summary_jouls').text(Math.floor(jouls) / 1000.0 + ' kJ');
     $('.summary_calories').text(Math.floor(calories) + ' kcal');
-    $('.summary_distance').text(Math.floor(distance) * miles + (miles === 1 ? ' km' : ' mi'));
+    $('.summary_distance').text(Math.floor(distance * miles) + (miles === 1 ? ' km' : ' mi'));
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
     $('.summary_resistance_avg').text(Math.floor(resistance_avg) + ' lvl');    
 
@@ -1185,7 +1185,7 @@ function dochart_init() {
                         heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     } else if (key === 'miles_unit') {
                         if(msg.content[key] === true || msg.content[key] === 'true')
-                            miles = 1.60934;
+                            miles = 0.621371;
                     }
                 }
                 if(heart_max_override_enable) {
