@@ -21,6 +21,12 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_ANDROID
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
+#endif
+
 class DataObject : public QObject {
 
     Q_OBJECT
@@ -686,6 +692,10 @@ class homeform : public QObject {
 
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
+
+    QMdnsEngine::Server iphone_server;
+    QMdnsEngine::Cache iphone_cache;
+
 #endif
 
   public slots:

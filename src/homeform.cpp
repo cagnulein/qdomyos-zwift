@@ -561,6 +561,35 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QBluetoothDeviceInfo b;
         deviceConnected(b);
     }
+
+#ifdef Q_OS_ANDROID
+    QMdnsEngine::Browser iphone_browser(&iphone_server, "_qz_iphone._tcp.", &iphone_cache);
+
+    QObject::connect(&iphone_browser, &QMdnsEngine::Browser::serviceAdded,
+        [](const QMdnsEngine::Service &service) {
+            qDebug() << service.name() << "discovered!";
+
+            QMdnsEngine::Resolver resolver(&homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+            QObject::connect(&resolver, &QMdnsEngine::Resolver::resolved,
+                [](const QHostAddress &address) {
+                    qDebug() << "resolved to" << address;
+                }
+            );
+        }
+    );
+    QObject::connect(&iphone_browser, &QMdnsEngine::Browser::serviceUpdated,
+        [](const QMdnsEngine::Service &service) {
+            qDebug() << service.name() << "updated!";
+
+            QMdnsEngine::Resolver resolver(&homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+            QObject::connect(&resolver, &QMdnsEngine::Resolver::resolved,
+                [](const QHostAddress &address) {
+                    qDebug() << "resolved to" << address;
+                }
+            );
+        }
+    );
+#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
