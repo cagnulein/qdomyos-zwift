@@ -584,6 +584,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                             []() {
                             qDebug() << "iphone_socket connected!";
                         });
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead,
+                            []() {
+                            QString rec = homeform::singleton()->iphone_socket->readAll();
+                            qDebug() << "iphone_socket received << " << rec;
+                            QStringList fields = rec.split("#");
+                            foreach(QString f, fields) {
+                                if(f.contains("HR")) {
+                                    QStringList values = f.split("=");
+                                    if(values.length() > 1) {
+                                        emit homeform::singleton()->heartRate(values[1].toDouble());
+                                    }
+                                }
+                            }
+                        });
 
                         homeform::singleton()->iphone_address = address;
                         homeform::singleton()->iphone_socket->connectToHost(address, homeform::singleton()->iphone_service.port());
@@ -611,6 +625,20 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                         QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::connected,
                             []() {
                             qDebug() << "iphone_socket connected!";
+                        });
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead,
+                            []() {
+                            QString rec = homeform::singleton()->iphone_socket->readAll();
+                            qDebug() << "iphone_socket received << " << rec;
+                            QStringList fields = rec.split("#");
+                            foreach(QString f, fields) {
+                                if(f.contains("HR")) {
+                                    QStringList values = f.split("=");
+                                    if(values.length() > 1) {
+                                        emit homeform::singleton()->heartRate(values[1].toDouble());
+                                    }
+                                }
+                            }
                         });
                         homeform::singleton()->iphone_address = address;
                         homeform::singleton()->iphone_socket->connectToHost(address, homeform::singleton()->iphone_service.port());
@@ -2829,6 +2857,10 @@ void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
+#ifdef Q_OS_ANDROID
+    // heart rate received from apple watch while QZ is running on android via TCP socket (iphone_socket)
+    connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
+#endif
 }
 
 void homeform::bluetoothDeviceDisconnected() {
