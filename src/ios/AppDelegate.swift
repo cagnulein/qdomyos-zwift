@@ -115,7 +115,7 @@ var pedometer = CMPedometer()
     }
     
     func createString(sender: String) -> String {
-        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#";
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO\(WatchKitConnection.distance)#";
     }
     
     @objc func updateHeartRate() {
