@@ -561,6 +561,93 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QBluetoothDeviceInfo b;
         deviceConnected(b);
     }
+
+#ifdef Q_OS_ANDROID
+    iphone_browser = new QMdnsEngine::Browser(&iphone_server, "_qz_iphone._tcp.local.", &iphone_cache);
+
+    QObject::connect(iphone_browser, &QMdnsEngine::Browser::serviceAdded,
+        [](const QMdnsEngine::Service &service) {
+            homeform::singleton()->iphone_service = service;
+            qDebug() << service.name() << service.hostname() << service.port() << "discovered!";
+
+            if(homeform::singleton()->iphone_resolver)
+                delete homeform::singleton()->iphone_resolver;
+            homeform::singleton()->iphone_resolver = new QMdnsEngine::Resolver(&homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+            QObject::connect(homeform::singleton()->iphone_resolver, &QMdnsEngine::Resolver::resolved,
+                [](const QHostAddress &address) {
+                    qDebug() << "resolved to" << address;                    
+                    if(address.protocol() == QAbstractSocket::IPv4Protocol && (homeform::singleton()->iphone_socket == nullptr || !homeform::singleton()->iphone_address.isEqual(address)) ) {
+                        if(homeform::singleton()->iphone_socket)
+                            delete homeform::singleton()->iphone_socket;
+                        homeform::singleton()->iphone_socket = new QTcpSocket();
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::connected,
+                            []() {
+                            qDebug() << "iphone_socket connected!";
+                        });
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead,
+                            []() {
+                            QString rec = homeform::singleton()->iphone_socket->readAll();
+                            qDebug() << "iphone_socket received << " << rec;
+                            QStringList fields = rec.split("#");
+                            foreach(QString f, fields) {
+                                if(f.contains("HR")) {
+                                    QStringList values = f.split("=");
+                                    if(values.length() > 1) {
+                                        emit homeform::singleton()->heartRate(values[1].toDouble());
+                                    }
+                                }
+                            }
+                        });
+
+                        homeform::singleton()->iphone_address = address;
+                        homeform::singleton()->iphone_socket->connectToHost(address, homeform::singleton()->iphone_service.port());
+                    }
+                }
+            );
+        }
+    );
+    
+    QObject::connect(iphone_browser, &QMdnsEngine::Browser::serviceUpdated,
+        [](const QMdnsEngine::Service &service) {
+            homeform::singleton()->iphone_service = service;
+            qDebug() << service.name() << service.hostname() << service.port() << "updated!";
+
+            if(homeform::singleton()->iphone_resolver)
+                delete homeform::singleton()->iphone_resolver;
+            homeform::singleton()->iphone_resolver = new QMdnsEngine::Resolver(&homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+            QObject::connect(homeform::singleton()->iphone_resolver, &QMdnsEngine::Resolver::resolved,
+                [](const QHostAddress &address) {
+                    if(address.protocol() == QAbstractSocket::IPv4Protocol && (homeform::singleton()->iphone_socket == nullptr || !homeform::singleton()->iphone_address.isEqual(address)) ) {
+                        if(homeform::singleton()->iphone_socket)
+                            delete homeform::singleton()->iphone_socket;
+                        qDebug() << "resolved to" << address;
+                        homeform::singleton()->iphone_socket = new QTcpSocket();
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::connected,
+                            []() {
+                            qDebug() << "iphone_socket connected!";
+                        });
+                        QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead,
+                            []() {
+                            QString rec = homeform::singleton()->iphone_socket->readAll();
+                            qDebug() << "iphone_socket received << " << rec;
+                            QStringList fields = rec.split("#");
+                            foreach(QString f, fields) {
+                                if(f.contains("HR")) {
+                                    QStringList values = f.split("=");
+                                    if(values.length() > 1) {
+                                        emit homeform::singleton()->heartRate(values[1].toDouble());
+                                    }
+                                }
+                            }
+                        });
+                        homeform::singleton()->iphone_address = address;
+                        homeform::singleton()->iphone_socket->connectToHost(address, homeform::singleton()->iphone_service.port());
+                    }
+                }
+            );
+        }
+    );
+#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -2770,6 +2857,10 @@ void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
+#ifdef Q_OS_ANDROID
+    // heart rate received from apple watch while QZ is running on android via TCP socket (iphone_socket)
+    connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
+#endif
 }
 
 void homeform::bluetoothDeviceDisconnected() {
@@ -4893,7 +4984,21 @@ void homeform::update() {
             if (lapTrigger) {
                 lapTrigger = false;
             }
+
+#ifdef Q_OS_ANDROID
+            if(iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
+                QString toSend = "SENDER=PAD#HR="+ QString::number(bluetoothManager->device()->currentHeart().value()) +
+                        "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
+                        "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                        "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
+                        "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +
+                        "#CAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                        "#ODO=" + QString::number(bluetoothManager->device()->odometer()) + "#";
+                int write = iphone_socket->write(toSend.toLocal8Bit(), toSend.length());
+                qDebug() << "iphone_socket send " << write << toSend;
+            }
         }
+#endif
         emit workoutStartDateChanged(workoutStartDate());
     }
 
