@@ -20,12 +20,9 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
-
-#ifdef Q_OS_ANDROID
 #include "qmdnsengine/browser.h"
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
-#endif
 
 class DataObject : public QObject {
 
@@ -693,10 +690,14 @@ class homeform : public QObject {
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
 
+    QMdnsEngine::Browser* iphone_browser = nullptr;
+    QMdnsEngine::Resolver* iphone_resolver = nullptr;
     QMdnsEngine::Server iphone_server;
     QMdnsEngine::Cache iphone_cache;
-
-#endif
+    QTcpSocket* iphone_socket = nullptr;
+    QMdnsEngine::Service iphone_service;
+    QHostAddress iphone_address;
+#endif    
 
   public slots:
     void aboutToQuit();
