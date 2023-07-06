@@ -4997,8 +4997,8 @@ void homeform::update() {
                 int write = iphone_socket->write(toSend.toLocal8Bit(), toSend.length());
                 qDebug() << "iphone_socket send " << write << toSend;
             }
-        }
 #endif
+        }
         emit workoutStartDateChanged(workoutStartDate());
     }
 
