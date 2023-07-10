@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QTime>
+#include <QTimer>
 
 #include "treadmill.h"
 
@@ -36,6 +37,8 @@ class heartratebelt : public treadmill {
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+
+    QTimer *refresh;
 
   signals:
     void disconnected();

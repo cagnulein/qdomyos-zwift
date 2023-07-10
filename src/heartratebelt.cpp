@@ -6,10 +6,22 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <chrono>
 
-heartratebelt::heartratebelt() {}
+using namespace std::chrono_literals;
 
-void heartratebelt::update() {}
+heartratebelt::heartratebelt() {
+    refresh = new QTimer(this);
+    connect(refresh, &QTimer::timeout, this, &heartratebelt::update);
+    refresh->start(500ms);
+}
+
+void heartratebelt::update() {
+    if(m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
+            gattNotifyCharacteristic.isValid() && gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)).properties() & QLowEnergyCharacteristic::Read) {
+        gattCommunicationChannelService->readCharacteristic(gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement)));
+    }
+}
 
 void heartratebelt::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
