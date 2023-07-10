@@ -14,6 +14,7 @@
     <script src="globals.js"></script>
     <script src="main_ws_manager.js"></script>
          <script src="dochart.js"></script>
+         <script src="html2canvas.min.js"></script>
     <style>
     canvas{
         -moz-user-select: none;
@@ -24,6 +25,7 @@
 </head>
 
 <body style="background-color:#1d2330">
+    <div id="watt_badge" style="background-color:#1d2330">
     <table width="100%" align="justify">
     <tr><td><img class="workout_image" style="border-radius: 15%" src="" title="peloton image" width="100"></td>
     <td width="70%">
@@ -35,8 +37,8 @@
 '></div></td></tr>
     </table>
     </br>
-    <hr width="50%" />
-    <table width="100%" align="justify">
+    <hr width="50%" style='color: white;' />
+    <table width="100%" align="justify" background="qzlogo.png" style="background-size: 15%; background-repeat: no-repeat; background-position: center;">
         <tr align="center" style='color: grey; font-size: 12px; font-weight:500; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
         '>
             <td>Avg Output</td>
@@ -71,7 +73,7 @@
             '>0 lvl</td>
         </tr>        
     </table>
-    <hr width="50%" />
+    <hr width="50%"  style='color: white;'/>
     <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
 	     <canvas id="canvas"></canvas>
 		</div>
@@ -80,6 +82,7 @@
   '></div>
       <div class="watts_max" align="right" style='display: inline-block;float: right; overflow: hidden;color: rgb(156,163,175); font-size: 14px; font-weight:700; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
 '></div>
+</div>
 </div>
                 </br></br>
          <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">

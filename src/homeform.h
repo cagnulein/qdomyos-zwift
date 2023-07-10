@@ -20,6 +20,9 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
 
 class DataObject : public QObject {
 
@@ -688,7 +691,15 @@ class homeform : public QObject {
 
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
-#endif
+
+    QMdnsEngine::Browser* iphone_browser = nullptr;
+    QMdnsEngine::Resolver* iphone_resolver = nullptr;
+    QMdnsEngine::Server iphone_server;
+    QMdnsEngine::Cache iphone_cache;
+    QTcpSocket* iphone_socket = nullptr;
+    QMdnsEngine::Service iphone_service;
+    QHostAddress iphone_address;
+#endif    
 
   public slots:
     void aboutToQuit();
@@ -806,6 +817,8 @@ class homeform : public QObject {
     void stravaWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
+
+    void heartRate(uint8_t heart);
 };
 
 #endif // HOMEFORM_H
