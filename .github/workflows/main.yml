@@ -607,4 +607,4 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: 'moc files added'
-          add: 'src/moc_*.*'
+          add: '/Users/runner/work/qdomyos-zwift/qdomyos-zwift/src/Debug-iphonesimulator/moc_*.*'
