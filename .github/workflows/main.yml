@@ -528,9 +528,6 @@ jobs:
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
-          
-      - name: fix CI
-        run: find ${{ github.workspace }} -name 'build.gradle' -exec sed -i '' 's/usb-serial-for-android:3.4.6/usb-serial-for-android:v3.4.6/g' {} \;                
 
       - name: Set Android NDK 21 && build
         run: |
