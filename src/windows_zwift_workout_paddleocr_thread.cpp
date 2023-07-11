@@ -19,9 +19,9 @@ windows_zwift_workout_paddleocr_thread::windows_zwift_workout_paddleocr_thread(b
 }
 
 void windows_zwift_workout_paddleocr_thread::run() {
+    float lastInclination = -100;
+    float lastSpeed = -100;
     while (1) {
-        float lastInclination = -100;
-        float lastSpeed = -100;
         QString ret = runPython("zwift-workout.py");
         if (ret.length() > 0) {
             QStringList list = ret.split(";");
