@@ -603,3 +603,8 @@ jobs:
       - name: Build
         run: qmake CONFIG+=debug && make -j4
 
+      - name: Commit moc files
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'moc files added'
+          add: 'moc_*.*'
