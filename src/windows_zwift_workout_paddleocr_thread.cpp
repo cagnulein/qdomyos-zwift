@@ -20,16 +20,26 @@ windows_zwift_workout_paddleocr_thread::windows_zwift_workout_paddleocr_thread(b
 
 void windows_zwift_workout_paddleocr_thread::run() {
     while (1) {
+        float lastInclination = -100;
+        float lastSpeed = -100;
         QString ret = runPython("zwift-workout.py");
         if (ret.length() > 0) {
             QStringList list = ret.split(";");
             if (list.length() >= 2) {
-                emit debug("windows_zwift_workout_paddleocr_thread onInclination " +
-                           list.at(1) + " onSpeed " + list.at(0).toFloat());
-                if(!list.at(1).toUpper().contains("NONE"))
-                    emit onInclination(list.at(1).toFloat(), list.at(1).toFloat());
-                if(!list.at(0).toUpper().contains("NONE"))
-                    emit onSpeed(list.at(0).toFloat());
+                emit debug("windows_zwift_workout_paddleocr_thread onInclination " + list.at(1) + " onSpeed " +
+                           list.at(0).toFloat());
+                if (!list.at(1).toUpper().contains("NONE")) {
+                    float inc = list.at(1).toFloat();
+                    if (inc != lastInclination)
+                        emit onInclination(inc, inc);
+                    lastInclination = inc;
+                }
+                if (!list.at(0).toUpper().contains("NONE")) {
+                    float speed = list.at(0).toFloat();
+                    if (speed != lastSpeed)
+                        emit onSpeed(speed);
+                    lastSpeed = speed;
+                }
             }
         }
     }
