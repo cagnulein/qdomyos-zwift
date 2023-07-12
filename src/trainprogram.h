@@ -91,6 +91,7 @@ class trainprogram : public QObject {
     QString tags = "";
     bool enabled = true;
     bool videoAvailable = false;
+    void setVideoAvailable(bool v) {videoAvailable = v;}
 
     void restart();
     bool isStarted() { return started; }

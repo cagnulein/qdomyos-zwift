@@ -165,6 +165,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
 
     Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
+    Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
 
     Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
     Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
@@ -525,6 +526,10 @@ class homeform : public QObject {
             return bluetoothManager->device()->currentCordinate().isValid();
         }
         return false;
+    }
+
+    bool trainProgramLoadedWithVideo() {
+        return (trainProgram && trainProgram->videoAvailable);
     }
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
