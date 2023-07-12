@@ -5039,6 +5039,20 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             if (trainProgram) {
                 delete trainProgram;
             }
+
+            QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
+            if (QFile::exists(movieName)) {
+                qDebug() << movieName << QStringLiteral("exist!");
+                movieFileName = QUrl::fromLocalFile(movieName);
+                emit videoPathChanged(movieFileName);
+                setVideoIconVisible(true);
+                setVideoRate(1);
+            } else {
+                qDebug() << movieName << QStringLiteral("doesn't exist!");
+                movieFileName = "";
+                setVideoIconVisible(false);
+            }
+
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
 
             stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
