@@ -554,7 +554,7 @@ ApplicationWindow {
 
         ToolButton {
             function loadVideo() {
-                if(rootItem.currentCoordinateValid) {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
                     rootItem.videoVisible = !rootItem.videoVisible
