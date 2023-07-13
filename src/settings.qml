@@ -4130,6 +4130,7 @@ import QtQuick.Dialogs 1.0
             }
 
             AccordionElement {
+                visible: OS_VERSION === "Other"
                 title: qsTr("Zwift Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -5625,7 +5626,7 @@ import QtQuick.Dialogs 1.0
                             Button {
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); }
+                                onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
                             }
                         }
                         Label {
