@@ -803,6 +803,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.86
             property bool zwift_workout_ocr: false
+
+            // from version 2.13.96
+            property bool zwift_ocr_climb_portal: false
         }
 
         function paddingZeros(text, limit) {
@@ -4144,7 +4147,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
@@ -4161,6 +4164,20 @@ import QtQuick.Dialogs 1.0
                     }
 
                     SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_ocr_climb_portal
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                    }
+
+                    SwitchDelegate {
                         text: qsTr("Zwift Treadmill Auto Workout")
                         spacing: 0
                         bottomPadding: 0
@@ -4171,7 +4188,7 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_workout_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {

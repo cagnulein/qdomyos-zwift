@@ -1850,9 +1850,12 @@ class QZSettings {
 
     static const QString proform_bike_sb;
     static constexpr bool default_proform_bike_sb = false;
-    
+
     static const QString fakedevice_rower;
     static constexpr bool default_fakedevice_rower = false;
+
+    static const QString zwift_ocr_climb_portal;
+    static constexpr bool default_zwift_ocr_climb_portal = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
