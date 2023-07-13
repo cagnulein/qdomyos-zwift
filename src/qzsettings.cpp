@@ -662,8 +662,9 @@ const QString QZSettings::zwift_workout_ocr = QStringLiteral("zwift_workout_ocr"
 const QString QZSettings::proform_bike_sb = QStringLiteral("proform_bike_sb");
 const QString QZSettings::fakedevice_rower = QStringLiteral("fakedevice_rower");
 const QString QZSettings::zwift_ocr_climb_portal = QStringLiteral("zwift_ocr_climb_portal");
+const QString QZSettings::poll_device_time = QStringLiteral("poll_device_time");
 
-const uint32_t allSettingsCount = 554;
+const uint32_t allSettingsCount = 555;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1224,6 +1225,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb},
     {QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower},
     {QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal},
+    {QZSettings::poll_device_time, QZSettings::default_poll_device_time},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

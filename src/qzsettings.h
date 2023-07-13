@@ -1857,6 +1857,9 @@ class QZSettings {
     static const QString zwift_ocr_climb_portal;
     static constexpr bool default_zwift_ocr_climb_portal = false;
 
+    static const QString poll_device_time;
+    static constexpr int default_poll_device_time = 200;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

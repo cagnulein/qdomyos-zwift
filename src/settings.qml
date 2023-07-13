@@ -806,6 +806,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.96
             property bool zwift_ocr_climb_portal: false
+            property int poll_device_time: 200
         }
 
         function paddingZeros(text, limit) {
@@ -5604,6 +5605,40 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.domyos_treadmill_display_invert = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Pool time (ms):")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: pollDeviceTimeTextField
+                                text: settings.poll_device_time
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.poll_device_time = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); }
+                            }
+                        }
+                        Label {
+                            text: qsTr("Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: 9
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
                         }
                     }
                 }
