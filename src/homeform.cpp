@@ -3422,7 +3422,7 @@ void homeform::update() {
                 double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
                 QTime videoCurrent = QTime(0, 0, videoTimeStampSeconds);
                 int delta = trainProgram->totalElapsedTime().secsTo(videoCurrent);
-                if (qAbs(delta) > 3) {
+                if (qAbs(delta) > 1) {
                     videoPlaybackHalfPlayer->setPosition(QTime(0, 0, 0).secsTo(trainProgram->totalElapsedTime()) *
                                                          1000.0);
                 }
