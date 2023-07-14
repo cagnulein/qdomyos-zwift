@@ -23,10 +23,13 @@ screenshot_np = np.array(screenshot)
 
 # Crop image to incline area
 screenwidth, screenheight = screenshot.size
+
+# Values for Zwift regular incline
 col1 = int(screenwidth/3000 * 2800)
 row1 = int(screenheight/2000 * 75)
 col2 = screenwidth
 row2 = int(screenheight/2000 * 200)
+
 cropped_np = screenshot_np[row1:row2, col1:col2]
 
 # Convert numpy array to PIL image
