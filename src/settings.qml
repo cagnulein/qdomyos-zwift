@@ -4166,7 +4166,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     SwitchDelegate {
-                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        text: qsTr("Zwift Treadmill Climb Portal")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
