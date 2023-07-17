@@ -1854,6 +1854,12 @@ class QZSettings {
     static const QString fakedevice_rower;
     static constexpr bool default_fakedevice_rower = false;
 
+    static const QString zwift_ocr_climb_portal;
+    static constexpr bool default_zwift_ocr_climb_portal = false;
+
+    static const QString poll_device_time;
+    static constexpr int default_poll_device_time = 200;
+
     static const QString proform_bike_PFEVEX71316_1;
     static constexpr bool default_proform_bike_PFEVEX71316_1 = false;
 
