@@ -807,6 +807,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.13.96
             property bool zwift_ocr_climb_portal: false
             property int poll_device_time: 200
+
+            // from version 2.13.99
+            property bool proform_bike_PFEVEX71316_1: false
         }
 
         function paddingZeros(text, limit) {
@@ -2803,6 +2806,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("TDF 1.0 PFEVEX71316.1")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_PFEVEX71316_1
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_PFEVEX71316_1 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: nordictrackGX27odelegate
