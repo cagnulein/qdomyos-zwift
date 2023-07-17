@@ -891,6 +891,43 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Cadence = ((uint8_t)newValue.at(2));
             }
         }
+    } else if (proform_bike_PFEVEX71316_1) {
+        if (newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 && newValue.at(2) == 0x01 &&
+            newValue.at(3) == 0x04 && newValue.at(4) == 0x02 && newValue.at(5) == 0x2f && newValue.at(6) == 0x08 &&
+            newValue.at(7) == 0x2f && newValue.at(8) == 0x02 && newValue.at(9) == 0x02 && newValue.at(10) == 0x00 &&
+            newValue.at(11) == 0x00 && newValue.at(14) == 0x5a) {
+            m_watt = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+        } else if (newValue.length() == 20 && newValue.at(0) == 0x00 && newValue.at(1) == 0x12 &&
+                   newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 &&
+                   newValue.at(5) == 0x2f && newValue.at(6) == 0x08 && newValue.at(7) == 0x2f &&
+                   newValue.at(8) == 0x02 && newValue.at(9) == 0x02 && newValue.at(10) != 0x00 &&
+                   newValue.at(11) != 0x00 && newValue.at(14) == 0x5a) {
+
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
+                         100.0);
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+
+            double incline =
+                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((uint8_t)newValue.at(10))) / 100.0);
+
+            if ((uint16_t)(qAbs(incline) * 10) % 5 == 0) {
+                Inclination = incline;
+                emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            } else {
+                emit debug(QStringLiteral("Filtering bad inclination"));
+            }
+
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((uint8_t)newValue.at(18));
+            }
+        }
     } else {
 
         if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
