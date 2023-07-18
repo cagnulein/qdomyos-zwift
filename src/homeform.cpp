@@ -5959,6 +5959,10 @@ void homeform::sendMail() {
         }
     }
 
+#ifdef SMTP_SERVER
+    textMessage += "\n\nSMTP server: " + SMTP_SERVER;
+#endif
+
     text.setText(textMessage);
     message.addPart(&text);
 
