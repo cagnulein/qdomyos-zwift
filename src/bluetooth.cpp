@@ -1,3 +1,7 @@
+#ifdef Q_OS_ANDROID
+#include <opencv2/opencv.hpp>
+#endif
+
 #include "bluetooth.h"
 #include "homeform.h"
 #include <QBluetoothLocalDevice>
@@ -10,7 +14,7 @@
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
-#include <opencv2/opencv.hpp>
+
 using namespace cv;
 #endif
 
