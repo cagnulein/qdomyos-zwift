@@ -5960,7 +5960,7 @@ void homeform::sendMail() {
     }
 
 #ifdef SMTP_SERVER
-    textMessage += "\n\nSMTP server: " + STRINGIFY(SMTP_SERVER);
+    textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
 #endif
 
     text.setText(textMessage);
