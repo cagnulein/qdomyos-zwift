@@ -3202,6 +3202,9 @@ void homeform::StopRequested() {
 
 void homeform::Stop() {
     QSettings settings;
+
+    m_startRequested = false;
+
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (stopped) {
