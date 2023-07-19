@@ -555,6 +555,8 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
     bool schwinn_bike_resistance_v2 =
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    bool schwinn_bike_resistance_v3 =
+        settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
@@ -563,6 +565,12 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
 
         // y = 0,04x2 - 1,32x + 11,8
         return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+    } else if (schwinn_bike_resistance_v3) {
+        // y = 0,0007x3 - 0,0763x2 + 4,1619x - 75,788
+        if (pelotonResistance < 30)
+            return 0;
+
+        return qRound((0.0007 * pow(pelotonResistance, 3)) - (0.0763 * pow(pelotonResistance, 2)) + (4.1619 * pelotonResistance) + 75.788);
     } else {
         if (pelotonResistance > 20)
             return (((double)pelotonResistance - 20.0) * 1.25);

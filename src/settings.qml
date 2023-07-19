@@ -810,6 +810,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.99
             property bool proform_bike_PFEVEX71316_1: false
+            property bool schwinn_bike_resistance_v3: false
         }
 
         function paddingZeros(text, limit) {
@@ -2214,7 +2215,7 @@ import QtQuick.Dialogs 1.0
                         }
                         SwitchDelegate {
                             id: schwinnBikeResistanceV2Delegate
-                            text: qsTr("Resistance Alternative Calc.")
+                            text: qsTr("Res. Alternative Calc. v2")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -2225,6 +2226,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Res. Alternative Calc. v3")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.schwinn_bike_resistance_v3
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.schwinn_bike_resistance_v3 = checked
                         }
                         RowLayout {
                             spacing: 10

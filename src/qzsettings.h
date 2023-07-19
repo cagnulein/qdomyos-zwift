@@ -1863,6 +1863,9 @@ class QZSettings {
     static const QString proform_bike_PFEVEX71316_1;
     static constexpr bool default_proform_bike_PFEVEX71316_1 = false;
 
+    static const QString schwinn_bike_resistance_v3;
+    static constexpr bool default_schwinn_bike_resistance_v3 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
