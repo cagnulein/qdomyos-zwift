@@ -64,59 +64,35 @@ android {
 
    equals(ANDROID_TARGET_ARCH,arm64-v8a) {
 	   LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_features2d
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_features2d.a
 		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_highgui
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_highgui.a
 		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_imgproc
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_imgproc.a
 		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_photo
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_photo.a
 		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_video
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_video.a
 		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_core
-		ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/arm64-v8a/libopencv_core.a
 	}
 	equals(ANDROID_TARGET_ARCH,armeabi-v7a) {
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_features2d
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_features2d.a
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_highgui
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_highgui.a
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_imgproc
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_imgproc.a
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_photo
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_photo.a
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_video
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_video.a
 	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_core
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/armeabi-v7a/libopencv_core.a
 	}
 	equals(ANDROID_TARGET_ARCH,x86) {
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_features2d
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_features2d.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_highgui
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_highgui.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_imgproc
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_imgproc.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_photo
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_photo.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_video
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_video.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_core
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86/libopencv_core.a
 	}
 	equals(ANDROID_TARGET_ARCH,x86_64) {
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_features2d
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_features2d.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_highgui
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_highgui.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_imgproc
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_imgproc.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_photo
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_photo.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_video
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_video.a
 	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_core
-	ANDROID_EXTRA_LIBS += $$PWD/opencv2/staticlibs/x86_64/libopencv_core.a
 	}
 }
 
