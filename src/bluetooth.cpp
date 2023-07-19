@@ -1,8 +1,3 @@
-#include <qsystemdetection.h>
-#ifdef Q_OS_ANDROID
-#include <opencv2/opencv.hpp>
-#endif
-
 #include "bluetooth.h"
 #include "homeform.h"
 #include <QBluetoothLocalDevice>
@@ -15,8 +10,6 @@
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
-
-using namespace cv;
 #endif
 
 bluetooth::bluetooth(const discoveryoptions &options)
@@ -2337,84 +2330,6 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject intent =
             MediaProjectionManager.callObjectMethod("createScreenCaptureIntent", "()Landroid/content/Intent;");
         QtAndroid::startActivity(intent, 100, a);
-
-        // Take Zwift screenshot
-        Mat screenshot;
-        screenshot = imread("zwift_screenshot.jpg");
-
-        // Scale image to 3000 x 2000
-        resize(screenshot, screenshot, Size(3000, 2000));
-
-        // Convert screenshot to a numpy array
-        Mat screenshot_np = screenshot;
-
-        // Crop image to incline area
-        int screenwidth = screenshot.cols;
-        int screenheight = screenshot.rows;
-        int col1 = static_cast<int>(screenwidth / 3000.0 * 2800);
-        int row1 = static_cast<int>(screenheight / 2000.0 * 75);
-        int col2 = screenwidth;
-        int row2 = static_cast<int>(screenheight / 2000.0 * 200);
-        Mat cropped_np = screenshot_np(Range(row1, row2), Range(col1, col2));
-
-        // Convert numpy array to PIL image
-        Mat cropped_pil;
-        cropped_np.convertTo(cropped_pil, CV_8UC3);
-
-        // Convert PIL Image to a cv2 image
-        Mat cropped_cv2;
-        cvtColor(cropped_pil, cropped_cv2, COLOR_RGB2BGR);
-
-        // Convert cv2 image to HSV
-        Mat result = cropped_cv2.clone();
-        Mat image;
-        cvtColor(cropped_cv2, image, COLOR_BGR2HSV);
-
-        // Isolate white mask
-        Scalar lower(0, 0, 159);
-        Scalar upper(0, 0, 255);
-        Mat mask0;
-        inRange(image, lower, upper, mask0);
-        Mat result0;
-        bitwise_and(result, result, result0, mask0);
-
-        // Isolate yellow mask
-        lower = Scalar(24, 239, 241);
-        upper = Scalar(24, 253, 255);
-        Mat mask1;
-        inRange(image, lower, upper, mask1);
-        Mat result1;
-        bitwise_and(result, result, result1, mask1);
-
-        // Isolate orange mask
-        lower = Scalar(8, 191, 243);
-        upper = Scalar(8, 192, 243);
-        Mat mask2;
-        inRange(image, lower, upper, mask2);
-        Mat result2;
-        bitwise_and(result, result, result2, mask2);
-
-        // Isolate red mask
-        lower = Scalar(0, 255, 255);
-        upper = Scalar(10, 255, 255);
-        Mat mask3;
-        inRange(image, lower, upper, mask3);
-        Mat result3;
-        bitwise_and(result, result, result3, mask3);
-
-        // Join colour masks
-        Mat mask = mask0 + mask1 + mask2 + mask3;
-
-        // Set output image to zero everywhere except mask
-        Mat merge = image.clone();
-        merge.setTo(Scalar(0, 0, 0), mask == 0);
-
-        // Convert to grayscale
-        Mat gray;
-        cvtColor(merge, gray, COLOR_BGR2GRAY);
-
-        // Save the processed image
-        imwrite("processed_screenshot.jpg", gray);
     }
 #endif
 

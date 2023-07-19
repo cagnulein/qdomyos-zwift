@@ -141,14 +141,13 @@ public class ScreenCaptureService extends Service {
 								  mHeightImage = mHeight;
                           final Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                           bitmap.copyPixelsFromBuffer(buffer);
-/*
+
                           // write bitmap to a file
-                          fos = new FileOutputStream(mStoreDir + "/myscreen.png");
-                          bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                          fos = new FileOutputStream(mStoreDir + "/myscreen.jpg");
+                          bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
                           IMAGES_PRODUCED++;
                           Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-*/
 
                           InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
                           /*InputImage inputImage = InputImage.fromByteBuffer(buffer,
