@@ -1,3 +1,4 @@
+#include <qsystemdetection.h>
 #ifdef Q_OS_ANDROID
 #include <opencv2/opencv.hpp>
 #endif
