@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -149,7 +150,9 @@ public class ScreenCaptureService extends Service {
                           IMAGES_PRODUCED++;
                           Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
 
-                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+                          Bitmap bMap = BitmapFactory.decodeFile(mStoreDir + "/processed_screenshot.jpg");
+
+                          InputImage inputImage = InputImage.fromBitmap(bMap, 0);
                           /*InputImage inputImage = InputImage.fromByteBuffer(buffer,
                                   mWidth + rowPadding / pixelStride, mHeight,
                                   0,

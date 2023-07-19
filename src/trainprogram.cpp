@@ -701,34 +701,6 @@ void trainprogram::scheduler() {
                 QString packageName = packageNameJava.toString();
                 if (packageName.contains("com.zwift.zwiftgame")) {
                     qDebug() << QStringLiteral("ZWIFT OCR ACCEPTED") << packageName << w << h << t << tExtended;
-                    foreach (QString s, tExtended.split("§§")) {
-                        // qDebug() << s;
-                        QStringList ss = s.split("$$");
-                        if (ss.length() > 1) {
-                            // (2195, 75 - 2254, 106)"
-                            qDebug() << ss[0] << ss[1];
-                            QString inc = ss[1].replace("Rect(", "").replace(")", "");
-                            if (inc.split(",").length() > 2) {
-                                int w_minbound = w * 0.93;
-                                int h_minbound = h * 0.08;
-                                int h_maxbound = h * 0.15;
-                                int x = inc.split(",").at(0).toInt();
-                                int y = inc.split(",").at(2).toInt();
-                                qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
-                                if (x > w_minbound && y < h_maxbound && y > h_minbound) {
-                                    ss[0] = ss[0].replace("%", "");
-                                    ss[0] = ss[0].replace("O", "0");
-                                    ss[0] = ss[0].replace("l", "1");
-                                    ss[0] = ss[0].replace(" ", "");
-                                    if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
-                                        bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
-                                    } else {
-                                        qDebug() << "filtering" << ss[0].toInt();
-                                    }
-                                }
-                            }
-                        }
-                    }
 
                 } else {
                     qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;
