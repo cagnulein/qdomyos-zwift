@@ -585,7 +585,7 @@ jobs:
           
       - uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ SERVICE_ACCOUNT_JSON }}
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
           packageName: org.cagnulen.qdomyoszwift
           releaseFiles: ${{steps.sign_aab.outputs.signedReleaseFile}}
           track: internal
