@@ -188,6 +188,7 @@ public class ScreenCaptureService extends Service {
                             }
                         });
                       }
+                    }
             } catch (Exception e) {
                 e.printStackTrace();
             }
