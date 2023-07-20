@@ -106,6 +106,10 @@ android {
                   targetSdkVersion = 33
     }
 
+    packagingOptions {
+        exclude 'META-INF/kotlinx_coroutines_core.version'
+    }
+
 tasks.all { task ->
      if (task.name == 'compileDebugJavaWithJavac' && amazon == "1") {
         task.dependsOn copyArm64Directory
