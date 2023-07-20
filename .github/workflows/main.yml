@@ -527,10 +527,7 @@ jobs:
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
-
-      - name: patching qt for bluetooth
-        run: find ${{ github.workspace }}/output/android/ | grep *.jar
-
+          
       - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
