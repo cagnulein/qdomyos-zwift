@@ -86,7 +86,7 @@ public class ScreenCaptureService extends Service {
 	 private static String lastTextExtended = "";
 	 private static boolean isRunning = false;
 
-	 private OcrConfig config = OcrConfig();
+	 private OcrConfig config = new OcrConfig();
 
 	 public static String getLastText() {
 		 return lastText;
@@ -245,30 +245,30 @@ public class ScreenCaptureService extends Service {
     public void onCreate() {
         super.onCreate();
 
-		  config.modelPath = "models/ch_PP-OCRv2"; // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
+		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-		  config.clsModelFilename = "cls.nb"; // cls 模型文件名
-		  config.detModelFilename = "det_db.nb"; // det 模型文件名
-		  config.recModelFilename = "rec_crnn.nb"; // rec 模型文件名
+		  config.setClsModelFilename("cls.nb"); // cls 模型文件名
+		  config.setDetModelFilename("det_db.nb"); // det 模型文件名
+		  config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
 
 		  // 运行全部模型
-		  config.runType = RunType.All;
+		  config.setRunType(RunType.All);
 
 		  // 使用所有核心运行
-		  config.cpuPowerMode = LitePowerMode.LITE_POWER_FULL;
+		  config.setCpuPowerMode(LitePowerMode.LITE_POWER_FULL);
 
 		  // 绘制文本位置
-		  config.isDrwwTextPositionBox = true;
+		  config.setIsDrwwTextPositionBox(true);
 
 		  // 如果是原始模型，则使用 FP16 精度
-		  config.recRunPrecision = RunPrecision.LiteFp16;
-		  config.detRunPrecision = RunPrecision.LiteFp16;
-		  config.clsRunPrecision = RunPrecision.LiteFp16;
+		  config.setRecRunPrecision(RunPrecision.LiteFp16);
+		  config.setDetRunPrecision(RunPrecision.LiteFp16);
+		  config.setClsRunPrecision(RunPrecision.LiteFp16);
 
 		  // 如果是量化模型则使用 int8 精度
-		  //config.recRunPrecision = RunPrecision.LiteInt8
-		  //config.detRunPrecision = RunPrecision.LiteInt8
-		  //config.clsRunPrecision = RunPrecision.LiteInt8
+		  //config.recRunPrecision(RunPrecision.LiteInt8
+		  //config.detRunPrecision(RunPrecision.LiteInt8
+		  //config.clsRunPrecision(RunPrecision.LiteInt8
 
 		  // 1.同步初始化
 		  /*ocr.initModelSync(config).fold(
