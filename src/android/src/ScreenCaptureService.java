@@ -182,6 +182,7 @@ public class ScreenCaptureService extends Service {
                                 }*/
                                 isRunning = false;
                                 bitmap.recycle();
+                                Log.e(TAG, "onSuccess: " + lastText);
                             }
                         
                             @Override
