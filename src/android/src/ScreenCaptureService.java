@@ -45,14 +45,14 @@ import android.graphics.Point;
 
 import androidx.core.util.Pair;
 
-import com.baidu.paddle.fastdeploy.LitePowerMode
-import com.equationl.fastdeployocr.OCR
-import com.equationl.fastdeployocr.OcrConfig
-import com.equationl.fastdeployocr.RunPrecision
-import com.equationl.fastdeployocr.RunType
-import com.equationl.fastdeployocr.bean.OcrResult
-import com.equationl.fastdeployocr.callback.OcrInitCallback
-import com.equationl.fastdeployocr.callback.OcrRunCallback
+import com.baidu.paddle.fastdeploy.LitePowerMode;
+import com.equationl.fastdeployocr.OCR;
+import com.equationl.fastdeployocr.OcrConfig;
+import com.equationl.fastdeployocr.RunPrecision;
+import com.equationl.fastdeployocr.RunType;
+import com.equationl.fastdeployocr.bean.OcrResult;
+import com.equationl.fastdeployocr.callback.OcrInitCallback;
+import com.equationl.fastdeployocr.callback.OcrRunCallback;
 
 public class ScreenCaptureService extends Service {
 
@@ -163,26 +163,30 @@ public class ScreenCaptureService extends Service {
 
                           Bitmap bMap = BitmapFactory.decodeFile(mStoreDir + "/processed_screenshot.jpg");
 
-								  ocr.run(bMap, object : OcrRunCallback {
-									       override fun onSuccess(result: OcrResult) {
-												  lastText = result.outputRawResult
-												  lastTextExtended = "";
-												  outputRawResult.forEachIndexed { index, ocrResultModel ->
-													   // 文字方向 ocrResultModel.clsLabel 可能为 "0" 或 "180"
-														lastTextExtended += "$index: 文字方向：${ocrResultModel.cls_label}；文字方向置信度：${ocrResultModel.cls_confidenceL}；识别置信度 ${ocrResultModel.confidence}；；文字位置：${ocrResultModel.points}\n"
-														}
-													isRunning = false;
-												  bitmap.recycle();
-												}
-
-											 override fun onFail(e: Throwable) {
-												  Log.e(TAG, "onFail: 识别失败！", e)
-												  isRunning = false;
-												  bitmap.recycle();
-												}
-
-										})
-									}
+                          ocr.run(bMap, new OcrRunCallback() {
+                            @Override
+                            public void onSuccess(OcrResult result) {
+                                lastText = result.getOutputRawResult();
+                                lastTextExtended = "";
+                                for (int index = 0; index < result.getOutputRawResult().size(); index++) {
+                                    OcrResultModel ocrResultModel = result.getOutputRawResult().get(index);
+                                    // 文字方向 ocrResultModel.clsLabel 可能为 "0" 或 "180"
+                                    lastTextExtended += index + ": 文字方向：" + ocrResultModel.getClsLabel() +
+                                            "；文字方向置信度：" + ocrResultModel.getClsConfidenceL() +
+                                            "；识别置信度 " + ocrResultModel.getConfidence() +
+                                            "；；文字位置：" + ocrResultModel.getPoints() + "\n";
+                                }
+                                isRunning = false;
+                                bitmap.recycle();
+                            }
+                        
+                            @Override
+                            public void onFail(Throwable e) {
+                                Log.e(TAG, "onFail: 识别失败！", e);
+                                isRunning = false;
+                                bitmap.recycle();
+                            }
+                        });
                       }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -240,25 +244,25 @@ public class ScreenCaptureService extends Service {
     public void onCreate() {
         super.onCreate();
 
-		  config.modelPath = "models/ch_PP-OCRv2" // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
+		  config.modelPath = "models/ch_PP-OCRv2"; // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-		  config.clsModelFilename = "cls.nb" // cls 模型文件名
-		  config.detModelFilename = "det_db.nb" // det 模型文件名
-		  config.recModelFilename = "rec_crnn.nb" // rec 模型文件名
+		  config.clsModelFilename = "cls.nb"; // cls 模型文件名
+		  config.detModelFilename = "det_db.nb"; // det 模型文件名
+		  config.recModelFilename = "rec_crnn.nb"; // rec 模型文件名
 
 		  // 运行全部模型
-		  config.runType = RunType.All
+		  config.runType = RunType.All;
 
 		  // 使用所有核心运行
-		  config.cpuPowerMode = LitePowerMode.LITE_POWER_FULL
+		  config.cpuPowerMode = LitePowerMode.LITE_POWER_FULL;
 
 		  // 绘制文本位置
-		  config.isDrwwTextPositionBox = true
+		  config.isDrwwTextPositionBox = true;
 
 		  // 如果是原始模型，则使用 FP16 精度
-		  config.recRunPrecision = RunPrecision.LiteFp16
-		  config.detRunPrecision = RunPrecision.LiteFp16
-		  config.clsRunPrecision = RunPrecision.LiteFp16
+		  config.recRunPrecision = RunPrecision.LiteFp16;
+		  config.detRunPrecision = RunPrecision.LiteFp16;
+		  config.clsRunPrecision = RunPrecision.LiteFp16;
 
 		  // 如果是量化模型则使用 int8 精度
 		  //config.recRunPrecision = RunPrecision.LiteInt8
@@ -278,16 +282,17 @@ public class ScreenCaptureService extends Service {
 		  )*/
 
 		  // 2.异步初始化
-		  ocr.initModel(config, object : OcrInitCallback {
-			  override fun onSuccess() {
-				  Log.i(TAG, "onSuccess: 初始化成功")
-				  }
-
-			  override fun onFail(e: Throwable) {
-				  Log.e(TAG, "onFail: 初始化失败", e)
-				  }
-
-			  })
+          ocr.initModel(config, new OcrInitCallback() {
+            @Override
+            public void onSuccess() {
+                Log.i(TAG, "onSuccess: 初始化成功");
+            }
+        
+            @Override
+            public void onFail(Throwable e) {
+                Log.e(TAG, "onFail: 初始化失败", e);
+            }
+        });
 
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
