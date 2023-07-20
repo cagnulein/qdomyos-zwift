@@ -168,8 +168,9 @@ public class ScreenCaptureService extends Service {
                           ocr.run(bMap, new OcrRunCallback() {
                             @Override
                             public void onSuccess(OcrResult result) {
-                                lastText = "";
+                                lastText = result.getSimpleText();
                                 lastTextExtended = "";
+                                /*
                                 for (int index = 0; index < result.getOutputRawResult().size(); index++) {
                                     OcrResultModel ocrResultModel = result.getOutputRawResult().get(index);
                                     // 文字方向 ocrResultModel.clsLabel 可能为 "0" 或 "180"
@@ -178,7 +179,7 @@ public class ScreenCaptureService extends Service {
                                             "；文字方向置信度：" + ocrResultModel.getClsConfidenceL() +
                                             "；识别置信度 " + ocrResultModel.getConfidence() +
                                             "；；文字位置：" + ocrResultModel.getPoints() + "\n";
-                                }
+                                }*/
                                 isRunning = false;
                                 bitmap.recycle();
                             }
@@ -250,9 +251,9 @@ public class ScreenCaptureService extends Service {
 
 		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-		  config.setclsModelFilename("cls.nb"); // cls 模型文件名
-		  config.setdetModelFilename("det_db.nb"); // det 模型文件名
-		  config.setrecModelFilename("rec_crnn.nb"); // rec 模型文件名
+		  //config.setClsModelFilename("cls.nb"); // cls 模型文件名
+		  //config.setDetModelFilename("det_db.nb"); // det 模型文件名
+		  //config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
 
 		  // 运行全部模型
 		  config.setRunType(RunType.All);
@@ -261,7 +262,7 @@ public class ScreenCaptureService extends Service {
 		  config.setCpuPowerMode(LitePowerMode.LITE_POWER_FULL);
 
 		  // 绘制文本位置
-		  config.setisDrwwTextPositionBox(true);
+		  //config.setIsDrwwTextPositionBox(true);
 
 		  // 如果是原始模型，则使用 FP16 精度
 		  config.setRecRunPrecision(RunPrecision.LiteFp16);
