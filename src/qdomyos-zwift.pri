@@ -907,6 +907,9 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+   $$PWD/android/assets/models/ch_PP-OCRv2/cls.nb \
+   $$PWD/android/assets/models/ch_PP-OCRv2/det_db.nb \
+   $$PWD/android/assets/models/ch_PP-OCRv2/rec_crnn.nb \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
