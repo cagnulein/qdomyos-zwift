@@ -582,7 +582,16 @@ jobs:
         env:
           # override default build-tools version (29.0.3) -- optional
           BUILD_TOOLS_VERSION: "30.0.2"
-
+          
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ SERVICE_ACCOUNT_JSON }}
+          packageName: org.cagnulen.qdomyoszwift
+          releaseFiles: ${{sign_aab.outputs.signedReleaseFile}}
+          track: internal
+          status: inProgress
+          inAppUpdatePriority: 2
+          
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
