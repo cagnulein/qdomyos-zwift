@@ -560,7 +560,21 @@ jobs:
         # ID used to access action output
         id: sign_app
         with:
-          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          # override default build-tools version (29.0.3) -- optional
+          BUILD_TOOLS_VERSION: "30.0.2"
+
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app AAB
+        # ID used to access action output
+        id: sign_aab
+        with:
+          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/bundle/debug/
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
