@@ -589,7 +589,7 @@ jobs:
           packageName: org.cagnulen.qdomyoszwift
           releaseFiles: ${{steps.sign_aab.outputs.signedReleaseFile}}
           track: internal
-          status: inProgress
+          status: draft
           inAppUpdatePriority: 2
           
   ios-build:
