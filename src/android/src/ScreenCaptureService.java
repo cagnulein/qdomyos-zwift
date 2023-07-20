@@ -51,6 +51,7 @@ import com.equationl.fastdeployocr.OcrConfig;
 import com.equationl.fastdeployocr.RunPrecision;
 import com.equationl.fastdeployocr.RunType;
 import com.equationl.fastdeployocr.bean.OcrResult;
+import com.equationl.fastdeployocr.bean.OcrResultModel;
 import com.equationl.fastdeployocr.callback.OcrInitCallback;
 import com.equationl.fastdeployocr.callback.OcrRunCallback;
 
@@ -86,7 +87,8 @@ public class ScreenCaptureService extends Service {
 	 private static String lastTextExtended = "";
 	 private static boolean isRunning = false;
 
-	 private OcrConfig config = new OcrConfig();
+     private OcrConfig config = new OcrConfig();
+     private OCR ocr = new OCR(this);
 
 	 public static String getLastText() {
 		 return lastText;
@@ -166,11 +168,12 @@ public class ScreenCaptureService extends Service {
                           ocr.run(bMap, new OcrRunCallback() {
                             @Override
                             public void onSuccess(OcrResult result) {
-                                lastText = result.getOutputRawResult();
+                                lastText = "";
                                 lastTextExtended = "";
                                 for (int index = 0; index < result.getOutputRawResult().size(); index++) {
                                     OcrResultModel ocrResultModel = result.getOutputRawResult().get(index);
                                     // 文字方向 ocrResultModel.clsLabel 可能为 "0" 或 "180"
+                                    lastText += ocrResultModel.getClsLabel(); 
                                     lastTextExtended += index + ": 文字方向：" + ocrResultModel.getClsLabel() +
                                             "；文字方向置信度：" + ocrResultModel.getClsConfidenceL() +
                                             "；识别置信度 " + ocrResultModel.getConfidence() +
@@ -247,9 +250,9 @@ public class ScreenCaptureService extends Service {
 
 		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-		  config.setClsModelFilename("cls.nb"); // cls 模型文件名
-		  config.setDetModelFilename("det_db.nb"); // det 模型文件名
-		  config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
+		  config.setclsModelFilename("cls.nb"); // cls 模型文件名
+		  config.setdetModelFilename("det_db.nb"); // det 模型文件名
+		  config.setrecModelFilename("rec_crnn.nb"); // rec 模型文件名
 
 		  // 运行全部模型
 		  config.setRunType(RunType.All);
@@ -258,7 +261,7 @@ public class ScreenCaptureService extends Service {
 		  config.setCpuPowerMode(LitePowerMode.LITE_POWER_FULL);
 
 		  // 绘制文本位置
-		  config.setIsDrwwTextPositionBox(true);
+		  config.setisDrwwTextPositionBox(true);
 
 		  // 如果是原始模型，则使用 FP16 精度
 		  config.setRecRunPrecision(RunPrecision.LiteFp16);
