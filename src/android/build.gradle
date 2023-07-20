@@ -4,11 +4,8 @@ buildscript {
         jcenter()
     }
 
-    ext.kotlin_version = '1.4.10'
-
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
-		  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -27,7 +24,6 @@ println(amazon)
 dependencies {
     compile 'com.rvalerio:fgchecker:1.1.0'
     implementation "androidx.core:core-ktx:+"
-	 implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
 
     if(amazon == "1") {
