@@ -529,6 +529,9 @@ jobs:
           java-version: '11'
 
       - name: patching qt for bluetooth
+        run: find ${{ github.workspace }}/output/android/ | grep QtBluetoothLE.java
+
+      - name: patching qt for bluetooth
         run: cp qt-patches/android/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/qtconnectivity/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/
 
       - name: Set Android NDK 21 && build
