@@ -711,7 +711,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
             } else if (!tdf_10_ip.isEmpty() && !nordictrackifitadbBike) {
                 this->stopDiscovery();
-                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                                    bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
