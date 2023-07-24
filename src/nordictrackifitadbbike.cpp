@@ -189,6 +189,11 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
