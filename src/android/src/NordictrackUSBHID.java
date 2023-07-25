@@ -1,3 +1,21 @@
+package org.cagnulen.qdomyoszwift;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.concurrent.Callable;
+import java.util.ArrayList;
+import java.util.List;
+import java.nio.charset.StandardCharsets;
+
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
