@@ -66,6 +66,14 @@ void lockscreen::setSpeed(double speed)
     [h setSpeedWithSpeed:speed];
 }
 
+void lockscreen::setWorkoutType(int workout_type)
+{
+    [h setWorkoutTypeWithWorkoutType:workout_type];
+}
+void lockscreen::setWorkoutState(int workout_state)
+{
+    [h setWorkoutStateWithWorkoutState:workout_state];
+}
 
 void lockscreen::virtualbike_ios()
 {

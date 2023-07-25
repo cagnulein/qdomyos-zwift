@@ -109,16 +109,26 @@ extension WorkoutTracking {
     func setSport(_ sport: Int) {
         self.sport = sport
     }
-    
+
+    func pauseWorkout() {
+        workoutSession.pause()
+    }
+
+    func resumeWorkout() {
+        workoutSession.resume()
+    }
+
     private func configWorkout() {
+        // enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };        
         var activityType = HKWorkoutActivityType.cycling
         if self.sport == 1 {
             activityType = HKWorkoutActivityType.running
-        } else if self.sport == 2 {
-            activityType = HKWorkoutActivityType.walking
-        } else if self.sport == 3 {
-            activityType = HKWorkoutActivityType.elliptical
+        // TODO
+        //} else if self.sport == 2 {
+        //    activityType = HKWorkoutActivityType.walking
         } else if self.sport == 4 {
+            activityType = HKWorkoutActivityType.elliptical
+        } else if self.sport == 3 {
             activityType = HKWorkoutActivityType.rowing
         }
         

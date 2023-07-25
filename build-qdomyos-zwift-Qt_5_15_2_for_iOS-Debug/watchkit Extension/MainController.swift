@@ -18,30 +18,19 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
     @IBOutlet weak var cmbSports: WKInterfacePicker!
-    static var start: Bool! = false
     let pedometer = CMPedometer()
-    var sport: Int = 0
-    
+
+    //enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
+    public static var workout_state = 3;
+
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
-        sports[0].title = "Bike"
-        sports[1].title = "Run"
-        sports[2].title = "Walk"
-        sports[3].title = "Elliptical"
-        sports[4].title = "Rowing"
-        cmbSports.setItems(sports)
-        sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
-        cmbSports.setSelectedItemIndex(sport)
+
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()        
         
         // Configure interface objects here.
         print("AWAKE")
-    }
-    
-    @IBAction func changeSport(_ value: Int) {
-        self.sport = value
-        UserDefaults.standard.set(value, forKey: "sport")
-        UserDefaults.standard.synchronize()
     }
     
     override func willActivate() {
@@ -65,26 +54,27 @@ class MainController: WKInterfaceController {
         super.didDeactivate()
         print("DID DEACTIVE")
     }
-}
 
-extension MainController {
-    
-    @IBAction func startWorkout() {
-        if(!MainController.start){
-            MainController.start = true
-            startButton.setTitle("Stop")
-            WorkoutTracking.authorizeHealthKit()
-            WorkoutTracking.shared.setSport(sport)
-            WorkoutTracking.shared.startWorkOut()
-            WorkoutTracking.shared.delegate = self
-            
-            WatchKitConnection.shared.delegate = self
-            WatchKitConnection.shared.startSession()
-        }
-        else {
-            MainController.start = false
-            startButton.setTitle("Start")
-            WorkoutTracking.shared.stopWorkOut()
+    public static func syncWorkoutState(state: Int) {
+        if(state != workout_state) {
+            switch state {
+            case 0:
+                WorkoutTracking.authorizeHealthKit()                
+                WorkoutTracking.shared.startWorkOut()
+                WorkoutTracking.shared.delegate = self            
+
+            case 1:
+                WorkoutTracking.shared.pauseWorkOut()
+
+            case 2:
+                WorkoutTracking.shared.resumeWorkOut()
+
+            case 3:
+                WorkoutTracking.shared.stopWorkOut()
+            default:
+                
+            }
+            workout_state = state
         }
     }
 }
@@ -107,6 +97,7 @@ extension MainController: WorkoutTrackingDelegate {
         WorkoutTracking.speed = WatchKitConnection.speed
         WorkoutTracking.power = WatchKitConnection.power
         WorkoutTracking.cadence = WatchKitConnection.cadence
+        WorkoutTracking.workout_state = WatchKitConnection.workout_state
                 
 		if Locale.current.measurementSystem != "Metric" {
 			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")

@@ -721,6 +721,8 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             if (heartRateBeltDisabled) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 long appleWatchHeartRate = h->heartRate();
+                h->setWorkoutType(deviceType());
+                h->setWorkoutState(lastState);                
                 h->setKcal(KCal.value());
                 h->setDistance(Distance.value());
                 h->setSpeed(Speed.value());
