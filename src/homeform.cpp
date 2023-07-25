@@ -47,17 +47,6 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
-#if __has_include("secret.h")
-#include "secret.h"
-#else
-#define STRAVA_SECRET_KEY test
-#if defined(WIN32)
-#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
-#else
-#warning "DEFINE STRAVA_SECRET_KEY!!!"
-#endif
-#endif
-
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
