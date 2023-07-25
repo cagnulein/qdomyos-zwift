@@ -76,6 +76,7 @@ SOURCES += \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
    $$PWD/fakerower.cpp \
+   $$PWD/nordictrackusbtreadmill.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
@@ -283,6 +284,7 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+   $$PWD/nordictrackusbtreadmill.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
     virtualdevice.h \
@@ -718,6 +720,7 @@ DISTFILES += \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
+   $$PWD/android/src/NordictrackUSBHID.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
     .clang-format \

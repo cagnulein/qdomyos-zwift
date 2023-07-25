@@ -74,6 +74,7 @@
 #include "nordictrackelliptical.h"
 #include "nordictrackifitadbbike.h"
 #include "nordictrackifitadbtreadmill.h"
+#include "nordictrackusbtreadmill.h"
 #include "npecablebike.h"
 #include "octaneelliptical.h"
 #include "octanetreadmill.h"
@@ -180,6 +181,7 @@ class bluetooth : public QObject, public SignalHandler {
     flywheelbike *flywheelBike = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
+    nordictrackusbtreadmill *nordictrackusbTreadmill = nullptr;
     nordictrackifitadbbike *nordictrackifitadbBike = nullptr;
     octaneelliptical *octaneElliptical = nullptr;
     octanetreadmill *octaneTreadmill = nullptr;
