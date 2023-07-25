@@ -146,11 +146,6 @@ class nordictrackusbtreadmill : public treadmill {
     void update();
     void newPacket(QByteArray p);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void onPower(double power);
-    void onCadence(double cadence);
-    void onHeart(double hr);
-    void onCalories(double calories);
-    void onDistance(double distance);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
