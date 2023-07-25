@@ -513,7 +513,7 @@ jobs:
       - name: Install Qt Android
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '5.15.0'
           host: 'linux'
           target: 'android'
           arch: 'android'
@@ -527,6 +527,9 @@ jobs:
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: Set Android NDK 21 && build
         run: |
@@ -538,6 +541,13 @@ jobs:
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define LICENSE" >> secret.h
+          cd ..          
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -545,6 +555,12 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Archive apk binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: fdroid-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   ios-build:
     # The type of runner that the job will run on

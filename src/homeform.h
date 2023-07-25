@@ -24,6 +24,18 @@
 #include "qmdnsengine/cache.h"
 #include "qmdnsengine/resolver.h"
 
+#if __has_include("secret.h")
+#include "secret.h"
+#else
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+#endif
+
+
 class DataObject : public QObject {
 
     Q_OBJECT
