@@ -182,7 +182,7 @@ int nordictrackusbtreadmillThread::rawWrite(uint8_t *bytes, int size) // unix!!
     for (int i = 0; i < size; i++)
         b[i] = bytes[i];
     env->SetByteArrayRegion(d, 0, size, b);
-    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "write", "([B)V", d);
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "write", "([B)V", d);
 #elif defined(WIN32)
     DWORD cBytes;
     rc = WriteFile(devicePort, bytes, size, &cBytes, NULL);
@@ -218,8 +218,8 @@ int nordictrackusbtreadmillThread::rawRead(uint8_t bytes[], int size) {
     do {
         QAndroidJniEnvironment env;
         QAndroidJniObject dd =
-            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "read", "()[B");
-        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/CSafeRowerUSBHID", "readLen", "()I");
+            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "read", "()[B");
+        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "readLen", "()I");
         if (len > 0) {
             jbyteArray d = dd.object<jbyteArray>();
             jbyte *b = env->GetByteArrayElements(d, 0);
