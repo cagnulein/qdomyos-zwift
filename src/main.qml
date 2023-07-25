@@ -554,7 +554,7 @@ ApplicationWindow {
 
         ToolButton {
             function loadVideo() {
-                if(rootItem.currentCoordinateValid) {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
                     rootItem.videoVisible = !rootItem.videoVisible
@@ -737,7 +737,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.83"
+                text: "version 2.14.1"
                 width: parent.width
             }
 

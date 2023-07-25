@@ -39,7 +39,7 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     QEventLoop loop;
     QTimer timeout;
 
-    if(!gattCustomService) {
+    if (!gattCustomService) {
         qDebug() << "gattCustomService nullptr";
         return;
     }
@@ -52,11 +52,15 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -130,7 +134,7 @@ void ypooelliptical::update() {
             }
 
             if (requestResistance != currentResistance().value()) {
-                auto virtualBike = dynamic_cast<virtualbike*>(this->VirtualDevice());
+                auto virtualBike = dynamic_cast<virtualbike *>(this->VirtualDevice());
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);

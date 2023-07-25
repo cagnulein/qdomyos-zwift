@@ -31,9 +31,7 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
     refresh->start(300ms);
 }
 
-domyoselliptical::~domyoselliptical() {
-    qDebug() << QStringLiteral("~domyoselliptical()");
-}
+domyoselliptical::~domyoselliptical() { qDebug() << QStringLiteral("~domyoselliptical()"); }
 
 void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
@@ -48,11 +46,15 @@ void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -184,7 +186,7 @@ void domyoselliptical::update() {
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
-                                                  bikeResistanceGain);
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
@@ -333,8 +335,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
-        }
-        else if(heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
         }
     }

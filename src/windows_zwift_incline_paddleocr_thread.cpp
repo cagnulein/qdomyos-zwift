@@ -20,7 +20,12 @@ windows_zwift_incline_paddleocr_thread::windows_zwift_incline_paddleocr_thread(b
 
 void windows_zwift_incline_paddleocr_thread::run() {
     while (1) {
-        QString ret = runPython("zwift-incline.py");
+        QSettings settings;
+        QString ret;
+        if (settings.value(QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal).toBool())
+            ret = runPython("zwift-incline-climb-portal.py");
+        else
+            ret = runPython("zwift-incline.py");
         if (!ret.toUpper().contains("NONE") && ret.length() > 0) {
             emit debug("windows_zwift_incline_paddleocr_thread onInclination " + QString::number(ret.toFloat()));
             emit onInclination(ret.toFloat(), ret.toFloat());

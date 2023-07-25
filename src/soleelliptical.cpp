@@ -32,9 +32,7 @@ soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool
     refresh->start(300ms);
 }
 
-soleelliptical::~soleelliptical() {
-    qDebug() << QStringLiteral("~soleelliptical()");
-}
+soleelliptical::~soleelliptical() { qDebug() << QStringLiteral("~soleelliptical()"); }
 
 void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
@@ -49,12 +47,15 @@ void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -170,10 +171,11 @@ void soleelliptical::update() {
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
-        } else {            
-            bool sole_elliptical_e55 = settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
+        } else {
+            bool sole_elliptical_e55 =
+                settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
 
-            if(!sole_elliptical_e55) {
+            if (!sole_elliptical_e55) {
                 uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
                 uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
 
@@ -362,8 +364,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
-        }
-        else {
+        } else {
             update_hr_from_external();
         }
     }
@@ -417,9 +418,10 @@ void soleelliptical::btinit(bool startTape) {
 
     QSettings settings;
     Q_UNUSED(startTape)
-    bool sole_elliptical_e55 = settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
+    bool sole_elliptical_e55 =
+        settings.value(QZSettings::sole_elliptical_e55, QZSettings::default_sole_elliptical_e55).toBool();
 
-    if(!sole_elliptical_e55) {
+    if (!sole_elliptical_e55) {
         // set speed and incline to 0
         uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
         uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};

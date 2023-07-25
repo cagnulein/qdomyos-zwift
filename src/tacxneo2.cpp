@@ -38,11 +38,15 @@ void tacxneo2::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -119,7 +123,7 @@ void tacxneo2::update() {
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                auto virtualBike =this->VirtualBike();
+                auto virtualBike = this->VirtualBike();
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     requestInclination = requestResistance / 10.0;

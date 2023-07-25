@@ -56,10 +56,15 @@ void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -76,60 +81,59 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool() &&
-       !settings.value(QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill).toBool())
+    if (!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool() &&
+        !settings.value(QZSettings::zero_zt2500_treadmill, QZSettings::default_zero_zt2500_treadmill).toBool())
         writeSpeed[6] = writeSpeed[1] + 1;
     else {
-        switch(writeSpeed[1] & 0x0F) {
-            case 0x00:
-                writeSpeed[6] = writeSpeed[1] + 5;
-                break;
-            case 0x01:
-                writeSpeed[6] = writeSpeed[1] + 3;
-                break;
-            case 0x02:
-                writeSpeed[6] = writeSpeed[1] + 1;
-                break;
-            case 0x03:
-                writeSpeed[6] = writeSpeed[1] - 1;
-                break;
-            case 0x04:
-                writeSpeed[6] = writeSpeed[1] + 5;
-                break;
-            case 0x05:
-                writeSpeed[6] = writeSpeed[1] + 3;
-                break;
-            case 0x06:
-                writeSpeed[6] = writeSpeed[1] + 1;
-                break;
-            case 0x07:
-                writeSpeed[6] = writeSpeed[1] - 1;
-                break;
-            case 0x08:
-                writeSpeed[6] = writeSpeed[1] + 5;
-                break;
-            case 0x09:
-                writeSpeed[6] = writeSpeed[1] + 3;
-                break;
-            case 0x0A:
-                writeSpeed[6] = writeSpeed[1] + 1;
-                break;
-            case 0x0B:
-                writeSpeed[6] = writeSpeed[1] - 1;
-                break;
-            case 0x0C:
-                writeSpeed[6] = writeSpeed[1] + 5;
-                break;
-            case 0x0D:
-                writeSpeed[6] = writeSpeed[1] + 3;
-                break;
-            case 0x0E:
-                writeSpeed[6] = writeSpeed[1] + 1;
-                break;
-            case 0x0F:
-                writeSpeed[6] = writeSpeed[1] - 1;
-                break;
-
+        switch (writeSpeed[1] & 0x0F) {
+        case 0x00:
+            writeSpeed[6] = writeSpeed[1] + 5;
+            break;
+        case 0x01:
+            writeSpeed[6] = writeSpeed[1] + 3;
+            break;
+        case 0x02:
+            writeSpeed[6] = writeSpeed[1] + 1;
+            break;
+        case 0x03:
+            writeSpeed[6] = writeSpeed[1] - 1;
+            break;
+        case 0x04:
+            writeSpeed[6] = writeSpeed[1] + 5;
+            break;
+        case 0x05:
+            writeSpeed[6] = writeSpeed[1] + 3;
+            break;
+        case 0x06:
+            writeSpeed[6] = writeSpeed[1] + 1;
+            break;
+        case 0x07:
+            writeSpeed[6] = writeSpeed[1] - 1;
+            break;
+        case 0x08:
+            writeSpeed[6] = writeSpeed[1] + 5;
+            break;
+        case 0x09:
+            writeSpeed[6] = writeSpeed[1] + 3;
+            break;
+        case 0x0A:
+            writeSpeed[6] = writeSpeed[1] + 1;
+            break;
+        case 0x0B:
+            writeSpeed[6] = writeSpeed[1] - 1;
+            break;
+        case 0x0C:
+            writeSpeed[6] = writeSpeed[1] + 5;
+            break;
+        case 0x0D:
+            writeSpeed[6] = writeSpeed[1] + 3;
+            break;
+        case 0x0E:
+            writeSpeed[6] = writeSpeed[1] + 1;
+            break;
+        case 0x0F:
+            writeSpeed[6] = writeSpeed[1] - 1;
+            break;
         }
     }
 
@@ -171,8 +175,11 @@ void activiotreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !this->hasVirtualDevice()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();           
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -206,7 +213,7 @@ void activiotreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -100) {
-                if(requestInclination < 0)
+                if (requestInclination < 0)
                     requestInclination = 0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
@@ -302,10 +309,10 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double speed = GetSpeedFromPacket(value);
     double incline = 1.0; // "fitfiu_mc_v460" has 1.0 fixed inclination
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
+    if (!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
         incline = GetInclinationFromPacket(value);
-    // double kcal = GetKcalFromPacket(value);
-    // double distance = GetDistanceFromPacket(value);
+        // double kcal = GetKcalFromPacket(value);
+        // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -327,7 +334,8 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
@@ -513,9 +521,9 @@ void activiotreadmill::btinit(bool startTape) {
     uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
     writeCharacteristic(gattWrite2Characteristic, initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    
+
     // starts the tape
-    //writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    // writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
     }

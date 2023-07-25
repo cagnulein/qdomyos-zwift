@@ -60,19 +60,24 @@ void fitshowtreadmill::scheduleWrite(const uint8_t *data, uint8_t data_len, cons
 void fitshowtreadmill::writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info) {
     QEventLoop loop;
     QTimer timeout;
-    QByteArray qba((const char *)data, data_len);
-    if (!info.isEmpty()) {
-        emit debug(QStringLiteral(" >>") + qba.toHex(' ') + QStringLiteral(" // ") + info);
-    }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (!info.isEmpty()) {
+        emit debug(QStringLiteral(" >>") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+    }
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba,
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
     loop.exec();
@@ -440,7 +445,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));                
+                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));

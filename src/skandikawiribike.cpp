@@ -29,9 +29,7 @@ skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, 
     refresh->start(300ms);
 }
 
-skandikawiribike::~skandikawiribike() {
-    qDebug() << QStringLiteral("~skandikawiribike()");
-}
+skandikawiribike::~skandikawiribike() { qDebug() << QStringLiteral("~skandikawiribike()"); }
 
 void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
@@ -46,12 +44,15 @@ void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();

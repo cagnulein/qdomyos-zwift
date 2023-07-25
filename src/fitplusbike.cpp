@@ -67,17 +67,20 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
         return;
     }
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                             QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
     if (!disable_log)
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
 
     loop.exec();
 }
@@ -274,7 +277,7 @@ void fitplusbike::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts());
+        update_metrics(false, watts());
         bool virtufit_etappe =
             settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
         bool sportstech_sx600 =
@@ -587,7 +590,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 Cadence = ((uint8_t)newValue.at(6));
-            m_watt = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 10.0;
+            m_watt = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 10.0;
 
             /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
@@ -672,6 +675,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
+    qDebug() << QStringLiteral("Current Resistance: ") + QString::number(Resistance.value());
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -983,9 +987,10 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
     (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
 
     const double Epsilon = 4.94065645841247E-324;
-    const int wattTableFirstDimension = 24;
+    const int wattTableFirstDimension = 25;
     const int wattTableSecondDimension = 11;
     double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+        {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
         {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
         {Epsilon, 16.0, 16.0, 16.0, 22.0, 30.0, 38.0, 45.0, 53.0, 67.0, 79.0},
         {Epsilon, 18.0, 18.0, 18.0, 26.0, 34.0, 43.0, 52.0, 62.0, 78.0, 92.0},

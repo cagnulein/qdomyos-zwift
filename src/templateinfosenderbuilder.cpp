@@ -734,6 +734,17 @@ void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, Templa
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetPelotonImage(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    QString base64 = "";
+    if (homeform::singleton() && !homeform::singleton()->currentPelotonImage().isEmpty())
+        base64 = homeform::singleton()->currentPelotonImage().toBase64();
+    main[QStringLiteral("content")] = base64;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpelotonimage");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     TemplateInfoSender *sender = qobject_cast<TemplateInfoSender *>(this->sender());
     if (!sender) {
@@ -790,6 +801,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savechart")) {
                     onSaveChart(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("getpelotonimage")) {
+                    onGetPelotonImage(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("lap")) {
                     onLap(jsonObject[QStringLiteral("content")], sender);
