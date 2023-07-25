@@ -559,7 +559,7 @@ jobs:
       - name: Archive apk binary
         uses: actions/upload-artifact@v2
         with:
-          name: nordictrack-usb-treadmill-android-binary
+          name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   ios-build:
