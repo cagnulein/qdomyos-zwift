@@ -6,6 +6,9 @@
 #include "fit_profile.hpp"
 #include "gpx.h"
 #include "peloton.h"
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
 #include "screencapture.h"
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
@@ -20,9 +23,17 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
-#include "qmdnsengine/browser.h"
-#include "qmdnsengine/cache.h"
-#include "qmdnsengine/resolver.h"
+
+#if __has_include("secret.h")
+#include "secret.h"
+#else
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+#endif
 
 class DataObject : public QObject {
 
@@ -528,9 +539,7 @@ class homeform : public QObject {
         return false;
     }
 
-    bool trainProgramLoadedWithVideo() {
-        return (trainProgram && trainProgram->videoAvailable);
-    }
+    bool trainProgramLoadedWithVideo() { return (trainProgram && trainProgram->videoAvailable); }
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
@@ -697,14 +706,14 @@ class homeform : public QObject {
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
 
-    QMdnsEngine::Browser* iphone_browser = nullptr;
-    QMdnsEngine::Resolver* iphone_resolver = nullptr;
+    QMdnsEngine::Browser *iphone_browser = nullptr;
+    QMdnsEngine::Resolver *iphone_resolver = nullptr;
     QMdnsEngine::Server iphone_server;
     QMdnsEngine::Cache iphone_cache;
-    QTcpSocket* iphone_socket = nullptr;
+    QTcpSocket *iphone_socket = nullptr;
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
-#endif    
+#endif
 
   public slots:
     void aboutToQuit();
