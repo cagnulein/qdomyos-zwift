@@ -27,13 +27,12 @@ void nordictrackusbtreadmillThread::run() {
     while (1) {
 
         uint8_t command[64];
-        memset(command, 0x00, sizeof(command));
+        memset(command, 0xFF, sizeof(command));
         rawWrite(command, sizeof(command));
         static uint8_t rx[100];
+        memset(rx, 0x00, sizeof(rx));
         rawRead(rx, 100);
         qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
-
-        memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
     }
     closePort();
@@ -219,7 +218,8 @@ int nordictrackusbtreadmillThread::rawRead(uint8_t bytes[], int size) {
         QAndroidJniEnvironment env;
         QAndroidJniObject dd =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "read", "()[B");
-        len = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "readLen", "()I");
+        len =
+            QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/NordictrackUSBHID", "readLen", "()I");
         if (len > 0) {
             jbyteArray d = dd.object<jbyteArray>();
             jbyte *b = env->GetByteArrayElements(d, 0);
