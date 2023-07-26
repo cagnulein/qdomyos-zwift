@@ -749,7 +749,7 @@ void homeform::peloton_start_workout() {
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
             QString path = getWritableAppDir() + "training/" + workoutNameBasedOnBluetoothDevice() + "/" +
                            stravaPelotonInstructorName + "/";
-            QDir().mkdir(path);
+            QDir().mkpath(path);
             lastTrainProgramFileSaved =
                 path + stravaPelotonActivityName.replace("/", "-") + " - " + stravaPelotonInstructorName + ".xml";
             trainProgram->save(lastTrainProgramFileSaved);
@@ -3525,7 +3525,22 @@ void homeform::update() {
         wattKg->setSecondLine(
             QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
             QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
-        datetime->setValue(QTime::currentTime().toString(QStringLiteral("hh:mm:ss")));
+        QLocale locale = QLocale::system();
+
+        // Format the time based on the locale
+        QString timeFormat = locale.timeFormat(QLocale::ShortFormat);
+        bool usesAMPMFormat = timeFormat.toUpper().contains("A");
+        QDateTime currentTime = QDateTime::currentDateTime();
+
+        QString formattedTime;
+        if (usesAMPMFormat) {
+            // The locale uses 12-hour format with AM/PM
+            formattedTime = currentTime.toString("h:mm:ss AP");
+        } else {
+            // The locale uses 24-hour format
+            formattedTime = currentTime.toString("H:mm:ss");
+        }
+        datetime->setValue(formattedTime);
         if (power5s)
             watts = bluetoothManager->device()->wattsMetric().average5s();
         else

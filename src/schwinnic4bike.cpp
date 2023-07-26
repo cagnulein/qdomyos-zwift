@@ -570,7 +570,7 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         if (pelotonResistance < 30)
             return 0;
 
-        return qRound((0.0007 * pow(pelotonResistance, 3)) - (0.0763 * pow(pelotonResistance, 2)) + (4.1619 * pelotonResistance) + 75.788);
+        return qRound((0.0007 * pow(pelotonResistance, 3)) - (0.0763 * pow(pelotonResistance, 2)) + (4.1619 * pelotonResistance) - 75.788);
     } else {
         if (pelotonResistance > 20)
             return (((double)pelotonResistance - 20.0) * 1.25);
