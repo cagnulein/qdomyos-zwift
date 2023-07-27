@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -39,10 +37,7 @@ class bhfitnesselliptical : public elliptical {
   public:
     bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                         double bikeResistanceGain);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -52,9 +47,6 @@ class bhfitnesselliptical : public elliptical {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
-
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;

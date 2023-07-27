@@ -1,6 +1,9 @@
 #include "kingsmithr1protreadmill.h"
-#include "ios/lockscreen.h"
+
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -52,15 +55,19 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
         return;
     }
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::Write)
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                             QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     else
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info + " " + gattWriteCharacteristic.properties());
     }
 
@@ -104,7 +111,7 @@ void kingsmithr1protreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -113,13 +120,15 @@ void kingsmithr1protreadmill::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr1protreadmill::debug);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr1protreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -531,10 +540,6 @@ bool kingsmithr1protreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *kingsmithr1protreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *kingsmithr1protreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr1protreadmill::searchingStop() { searchStopped = true; }
 

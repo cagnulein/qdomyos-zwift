@@ -31,7 +31,7 @@ class wahookickrheadwind : public bluetoothdevice {
     Q_OBJECT
   public:
     wahookickrheadwind(bluetoothdevice *parentDevice);
-    bool connected();
+    bool connected() override;
 
   private:
     QList<QLowEnergyService *> gattCommunicationChannelService;

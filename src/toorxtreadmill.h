@@ -28,14 +28,11 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class toorxtreadmill : public treadmill {
     Q_OBJECT
   public:
     explicit toorxtreadmill();
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -51,8 +48,6 @@ class toorxtreadmill : public treadmill {
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
-
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

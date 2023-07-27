@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -39,10 +38,7 @@ class tacxneo2 : public bike {
     tacxneo2(bool noWriteResistance, bool noHeartService);
     void changePower(int32_t power) override;
     bool connected() override;
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-
-    void *VirtualBike();
-    void *VirtualDevice() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -53,7 +49,6 @@ class tacxneo2 : public bike {
     double bikeResistanceToPeloton(double resistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
 
     const int max_resistance = 100;
 

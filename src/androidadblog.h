@@ -12,7 +12,7 @@ class androidadblog : public QThread
   public:
     explicit androidadblog();
 
-    void run();
+    void run() override;
 
   private:
     void runAdbTailCommand(QString command);

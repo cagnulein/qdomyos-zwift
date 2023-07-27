@@ -1,6 +1,5 @@
 #include "shuaa5treadmill.h"
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -11,9 +10,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -43,10 +43,15 @@ void shuaa5treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStri
         timeout.singleShot(2000, &loop, SLOT(quit()));
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -333,7 +338,7 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-                update_hr_from_external();
+            update_hr_from_external();
         } else {
             Heart = heart;
         }
@@ -429,7 +434,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -443,10 +448,11 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
+            auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &shuaa5treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &shuaa5treadmill::changeInclinationRequested);
+            this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -555,10 +561,6 @@ bool shuaa5treadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *shuaa5treadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *shuaa5treadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void shuaa5treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

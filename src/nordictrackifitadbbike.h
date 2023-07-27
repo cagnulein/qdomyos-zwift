@@ -28,21 +28,18 @@
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool inclinationAvailableByHardware();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                           double bikeResistanceGain);
+    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

@@ -2,6 +2,7 @@
 #define BIKE_H
 
 #include "bluetoothdevice.h"
+#include "virtualbike.h"
 #include <QObject>
 
 class bike : public bluetoothdevice {
@@ -10,31 +11,33 @@ class bike : public bluetoothdevice {
 
   public:
     bike();
+
+    virtualbike * VirtualBike();
+
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
-    virtual metric currentResistance();
-    virtual uint8_t fanSpeed();
-    virtual double currentCrankRevolutions();
-    virtual uint16_t lastCrankEventTime();
-    virtual bool connected();
+    metric currentResistance() override;
+    uint8_t fanSpeed() override;
+    double currentCrankRevolutions() override;
+    uint16_t lastCrankEventTime() override;
+    bool connected() override;
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
-    void clearStats();
-    void setLap();
-    void setPaused(bool p);
-    uint8_t metrics_override_heartrate();
+    void clearStats() override;
+    void setLap() override;
+    void setPaused(bool p) override;
+    uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
     void setSpeedLimit(double speed) {m_speedLimit = speed;}
     double speedLimit() {return m_speedLimit;}
-
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -45,13 +48,13 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableByHardware();
 
   public Q_SLOTS:
-    virtual void changeResistance(resistance_t res);
+    void changeResistance(resistance_t res) override;
     virtual void changeCadence(int16_t cad);
-    virtual void changePower(int32_t power);
+    void changePower(int32_t power) override;
     virtual void changeRequestedPelotonResistance(int8_t resistance);
-    virtual void cadenceSensor(uint8_t cadence);
-    virtual void powerSensor(uint16_t power);
-    virtual void changeInclination(double grade, double percentage);
+    void cadenceSensor(uint8_t cadence) override;
+    void powerSensor(uint16_t power) override;
+    void changeInclination(double grade, double percentage) override;
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
     virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }
 

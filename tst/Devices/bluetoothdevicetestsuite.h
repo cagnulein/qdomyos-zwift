@@ -28,7 +28,7 @@ protected:
     QStringList names;
 
     /**
-     * @brief The default options for dicovery by an instance of the bluetooth class.
+     * @brief The default options for discovery by an instance of the bluetooth class.
      */
     discoveryoptions defaultDiscoveryOptions;
 
@@ -40,7 +40,7 @@ protected:
     /**
      * @brief Call bt.deviceDiscovered on the deviceInfo to try to detect and create the bluetoothdevice object for it.
      * If an exception is thrown, the test is failed with a call to FAIL().
-     * Bascially replaces EXPECT_NO_THROW, for ease of breakpoint placement.
+     * Basically replaces EXPECT_NO_THROW, for ease of breakpoint placement.
      * @param bt
      * @param deviceInfo
      */
@@ -94,13 +94,13 @@ public:
 
 
     /**
-     * @brief Tests that a device is not detected if its exluding devices have already been detected.
+     * @brief Tests that a device is not detected if its excluding devices have already been detected.
      */
     void test_deviceDetection_exclusions();
 
     /**
      * @brief Test that if a device is enabled in the settings, and no excluding devices have already been detected,
-     * the device under test will be created if a valud bluetooth name is provided.
+     * the device under test will be created if a valid bluetooth name is provided.
      */
     void test_deviceDetection_validNames_enabled();
 
@@ -118,7 +118,7 @@ public:
 
     /**
      * @brief Test that if a device is enabled in the settings, and no excluding devices have already been detected,
-     * the device under test will NOT be created if an invald name is provided.
+     * the device under test will NOT be created if an invalid name is provided.
      * e.g.starts with correct text, but not the right length and/or wrong case.
      */
     void test_deviceDetection_invalidNames_enabled();

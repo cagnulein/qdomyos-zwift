@@ -1,6 +1,9 @@
 #include "proformrower.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
+#include "virtualrower.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -36,12 +39,15 @@ void proformrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -334,9 +340,13 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     lastPacket = newValue;
 
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
-        Cadence = newValue.at(12);
+        Cadence = (uint8_t)(newValue.at(12));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-        Speed = (double)(((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13))) / 10.0;
+        uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
+        if (s > 0)
+            Speed = (60.0 / (double)(s)) * 30.0;
+        else
+            Speed = 0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
@@ -513,26 +523,33 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        bool virtual_device_rower = settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
-        if (!firstStateChanged && !virtualTreadmill && !virtualBike && !virtualRower) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+        if (!firstStateChanged && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
-                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformrower::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformrower::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstStateChanged = 1;
             }
@@ -626,10 +643,6 @@ bool proformrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *proformrower::VirtualTreadmill() { return virtualTreadmill; }
-
-void *proformrower::VirtualDevice() { return VirtualTreadmill(); }
 
 void proformrower::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

@@ -52,11 +52,15 @@ void apexbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -258,7 +262,7 @@ void apexbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &apexbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -283,10 +287,12 @@ void apexbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&apexbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &apexbike::changeInclination);
+
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -380,13 +386,7 @@ bool apexbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *apexbike::VirtualBike() { return virtualBike; }
-
-void *apexbike::VirtualDevice() { return VirtualBike(); }
-
-uint16_t apexbike::watts() {
-    return wattFromHR(true);
-}
+uint16_t apexbike::watts() { return wattFromHR(true); }
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

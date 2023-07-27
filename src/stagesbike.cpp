@@ -1,5 +1,4 @@
 #include "stagesbike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -11,7 +10,9 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -438,7 +439,7 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -463,9 +464,10 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&stagesbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &stagesbike::inclinationChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -570,9 +572,6 @@ bool stagesbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *stagesbike::VirtualBike() { return virtualBike; }
-
-void *stagesbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t stagesbike::watts() {
     if (currentCadence().value() == 0) {

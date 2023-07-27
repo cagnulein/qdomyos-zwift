@@ -37,20 +37,16 @@ class ftmsrower : public rower {
     Q_OBJECT
   public:
     ftmsrower(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -70,6 +66,7 @@ class ftmsrower : public rower {
     bool filterWattNull = false;
     bool WHIPR = false;
     bool KINGSMITH = false;
+    bool PM5 = false;
 
     bool WATER_ROWER = false;
     QDateTime lastStroke = QDateTime::currentDateTime();

@@ -1821,6 +1821,51 @@ class QZSettings {
     static const QString proform_treadmill_8_0;
     static constexpr bool default_proform_treadmill_8_0 = false;
 
+    static const QString zero_zt2500_treadmill;
+    static constexpr bool default_zero_zt2500_treadmill = false;
+
+    static const QString kingsmith_encrypt_v5;
+    static constexpr bool default_kingsmith_encrypt_v5 = false;
+
+    static const QString peloton_rower_level;
+    static constexpr int default_peloton_rower_level = 1;
+
+    static const QString tile_target_pace_enabled;
+    static constexpr bool default_tile_target_pace_enabled = false;
+
+    static const QString tile_target_pace_order;
+    static constexpr int default_tile_target_pace_order = 50;
+
+    static const QString tts_act_target_pace;
+    static constexpr bool default_tts_act_target_pace = false;
+
+    static const QString csafe_rower;
+    static const QString default_csafe_rower;
+
+    static const QString ftms_rower;
+    static const QString default_ftms_rower;
+
+    static const QString zwift_workout_ocr;
+    static constexpr bool default_zwift_workout_ocr = false;
+
+    static const QString proform_bike_sb;
+    static constexpr bool default_proform_bike_sb = false;
+
+    static const QString fakedevice_rower;
+    static constexpr bool default_fakedevice_rower = false;
+
+    static const QString zwift_ocr_climb_portal;
+    static constexpr bool default_zwift_ocr_climb_portal = false;
+
+    static const QString poll_device_time;
+    static constexpr int default_poll_device_time = 200;
+
+    static const QString proform_bike_PFEVEX71316_1;
+    static constexpr bool default_proform_bike_PFEVEX71316_1 = false;
+
+    static const QString schwinn_bike_resistance_v3;
+    static constexpr bool default_schwinn_bike_resistance_v3 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

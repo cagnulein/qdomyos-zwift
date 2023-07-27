@@ -45,10 +45,15 @@ void schwinn170bike::writeCharacteristic(QLowEnergyService *service, QLowEnergyC
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -336,7 +341,7 @@ void schwinn170bike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -361,10 +366,11 @@ void schwinn170bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinn170bike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -465,10 +471,6 @@ bool schwinn170bike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *schwinn170bike::VirtualBike() { return virtualBike; }
-
-void *schwinn170bike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t schwinn170bike::watts() {
     if (currentCadence().value() == 0) {

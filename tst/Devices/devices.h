@@ -8,6 +8,7 @@
 #include "bluetoothdevicetestdata.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
 #include "ApexBike/apexbiketestdata.h"
+#include "BkoolBike/bkoolbiketestdata.h"
 #include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
 #include "Bike/biketestdata.h"
 #include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
@@ -95,6 +96,7 @@
 using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
 ApexBikeTestData,
+BkoolBikeTestData,
 BHFitnessEllipticalTestData,
 BikeTestData,
 BowflexT216TreadmillTestData,
@@ -169,6 +171,7 @@ SnodeBike2TestData,
 SoleBikeTestData,
 SoleEllipticalTestData,
 SoleF80TreadmillTestData,
+SoleF85TreadmillTestData,
 SpiritTreadmillTestData,
 SportsPlusBikeTestData,
 SportsTechBikeTestData,

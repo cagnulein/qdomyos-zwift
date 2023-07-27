@@ -5,10 +5,25 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
+virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
+
 void bike::changeResistance(resistance_t resistance) {
+    QSettings settings;
+    double zwift_erg_resistance_up =
+        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
+    double zwift_erg_resistance_down =
+        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
+
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
+        if ((double)v > zwift_erg_resistance_up) {
+            qDebug() << "zwift_erg_resistance_up filter enabled!";
+            v = (resistance_t)zwift_erg_resistance_up;
+        } else if ((double)v < zwift_erg_resistance_down) {
+            qDebug() << "zwift_erg_resistance_down filter enabled!";
+            v = (resistance_t)zwift_erg_resistance_down;
+        }
         requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
@@ -36,12 +51,13 @@ void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPeloto
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
 
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
     if (!autoResistanceEnable) {
         qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
         return;
     }
 
-    RequestedPower = power;
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
     bool force_resistance =
@@ -53,11 +69,6 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
         settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
-    double zwift_erg_resistance_up =
-        settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();
-    double zwift_erg_resistance_down =
-        settings.value(QZSettings::zwift_erg_resistance_down, QZSettings::default_zwift_erg_resistance_down).toDouble();
-
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
@@ -65,13 +76,6 @@ void bike::changePower(int32_t power) {
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
         (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
-        if ((double)r > zwift_erg_resistance_up) {
-            qDebug() << "zwift_erg_resistance_up filter enabled!";
-            r = (resistance_t)zwift_erg_resistance_up;
-        } else if ((double)r < zwift_erg_resistance_down) {
-            qDebug() << "zwift_erg_resistance_down filter enabled!";
-            r = (resistance_t)zwift_erg_resistance_down;
-        }
         changeResistance(r); // resistance start from 1
     }
 }
@@ -250,6 +254,8 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(RequestedPower.value());
     } else if (!setting.compare(QStringLiteral("Watt/Kg"))) {
         return qRound(wattKg().value());
+    } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
+        return qRound(RequestedCadence.value());
     }
     return qRound(currentHeart().value());
 }

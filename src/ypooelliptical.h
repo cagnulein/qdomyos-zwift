@@ -39,10 +39,7 @@ class ypooelliptical : public elliptical {
   public:
     ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -52,8 +49,6 @@ class ypooelliptical : public elliptical {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
