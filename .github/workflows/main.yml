@@ -60,10 +60,15 @@ jobs:
           cache: 'true'
           cache-key-prefix: 'install-qt-action-windows'          
 
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          toolset: 14.2
+          arch: x64
+
       - name: Build
-        shell: cmd
         run: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
             qmake
             cd src
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
