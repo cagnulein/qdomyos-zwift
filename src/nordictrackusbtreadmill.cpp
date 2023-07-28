@@ -24,16 +24,20 @@ void nordictrackusbtreadmillThread::run() {
         settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();*/
 
     openPort();
+    int countError = 0;
     while (1) {
 
         uint8_t command[64];
         memset(command, 0xFF, sizeof(command));
-        rawWrite(command, sizeof(command));
+        if(countError == 0)
+            rawWrite(command, sizeof(command));
         static uint8_t rx[100];
         memset(rx, 0x00, sizeof(rx));
         rawRead(rx, 100);
         qDebug() << " << " << QByteArray::fromRawData((const char *)rx, 64).toHex(' ');
         QThread::msleep(50);
+        if(countError++>10)
+            countError = 0;        
     }
     closePort();
 }
