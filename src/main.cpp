@@ -235,7 +235,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
-    static bool logdebug = true;
+    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
