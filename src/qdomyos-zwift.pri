@@ -49,7 +49,7 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += debug
-#win32: CONFIG += debug
+win32: CONFIG += debug
 macx: CONFIG += static
 macx {
     QMAKE_INFO_PLIST = macx/Info.plist
