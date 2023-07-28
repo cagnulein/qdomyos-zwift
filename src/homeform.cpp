@@ -647,17 +647,6 @@ void homeform::chartSaved(QString fileName) {
     }
 }
 
-double homeform::wattMaxChart() {
-    QSettings settings;
-    if (bluetoothManager && bluetoothManager->device() &&
-        bluetoothManager->device()->wattsMetric().max() >
-            (settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2)) {
-        return bluetoothManager->device()->wattsMetric().max();
-    } else {
-        return settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2;
-    }
-}
-
 void homeform::keyMediaPrevious() {
     qDebug() << QStringLiteral("keyMediaPrevious");
     QSettings settings;

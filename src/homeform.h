@@ -6,9 +6,6 @@
 #include "fit_profile.hpp"
 #include "gpx.h"
 #include "peloton.h"
-#include "qmdnsengine/browser.h"
-#include "qmdnsengine/cache.h"
-#include "qmdnsengine/resolver.h"
 #include "screencapture.h"
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
@@ -23,6 +20,9 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
 
 #if __has_include("secret.h")
 #include "secret.h"
@@ -34,6 +34,7 @@
 #warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
 #endif
+
 
 class DataObject : public QObject {
 
@@ -446,7 +447,16 @@ class homeform : public QObject {
     Q_INVOKABLE static QString getProfileDir();
     Q_INVOKABLE static void clearFiles();
 
-    double wattMaxChart();
+    double wattMaxChart() {
+        QSettings settings;
+        if (bluetoothManager && bluetoothManager->device() &&
+            bluetoothManager->device()->wattsMetric().max() >
+                (settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2)) {
+            return bluetoothManager->device()->wattsMetric().max();
+        } else {
+            return settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2;
+        }
+    }
 
     Q_INVOKABLE void sendMail();
 
@@ -530,7 +540,9 @@ class homeform : public QObject {
         return false;
     }
 
-    bool trainProgramLoadedWithVideo() { return (trainProgram && trainProgram->videoAvailable); }
+    bool trainProgramLoadedWithVideo() {
+        return (trainProgram && trainProgram->videoAvailable);
+    }
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
@@ -697,14 +709,14 @@ class homeform : public QObject {
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
 
-    QMdnsEngine::Browser *iphone_browser = nullptr;
-    QMdnsEngine::Resolver *iphone_resolver = nullptr;
+    QMdnsEngine::Browser* iphone_browser = nullptr;
+    QMdnsEngine::Resolver* iphone_resolver = nullptr;
     QMdnsEngine::Server iphone_server;
     QMdnsEngine::Cache iphone_cache;
-    QTcpSocket *iphone_socket = nullptr;
+    QTcpSocket* iphone_socket = nullptr;
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
-#endif
+#endif    
 
   public slots:
     void aboutToQuit();
