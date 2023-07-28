@@ -6,11 +6,6 @@
 #include <QDateTime>
 #include <math.h>
 
-#ifdef WIN32
-#undef max
-#undef min
-#endif
-
 class metric {
 
   public:
