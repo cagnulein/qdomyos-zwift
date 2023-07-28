@@ -88,7 +88,7 @@ public class ScreenCaptureService extends Service {
 	 private static boolean isRunning = false;
 
      private OcrConfig config = new OcrConfig();
-     private OCR ocr = new OCR(this);
+     private OCR ocr = null;
 
 	 public static String getLastText() {
 		 return lastText;
@@ -250,11 +250,17 @@ public class ScreenCaptureService extends Service {
     public void onCreate() {
         super.onCreate();
 
+                  Log.i(TAG, "onCreate1");
 		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-		  //config.setClsModelFilename("cls.nb"); // cls 模型文件名
-		  //config.setDetModelFilename("det_db.nb"); // det 模型文件名
-		  //config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
+                  config.setClsModelFilenameCustom("cls.nb"); // cls 模型文件名
+                  config.setDetModelFilename("det_db.nb"); // det 模型文件名
+                  config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
+
+                  config.setIsRunDet(true);
+                  config.setIsRunCls(true);
+                  config.setIsRunRec(true);
+
 
 		  // 运行全部模型
 		  config.setRunType(RunType.All);
@@ -269,6 +275,8 @@ public class ScreenCaptureService extends Service {
 		  config.setRecRunPrecision(RunPrecision.LiteFp16);
 		  config.setDetRunPrecision(RunPrecision.LiteFp16);
 		  config.setClsRunPrecision(RunPrecision.LiteFp16);
+
+                  Log.i(TAG, "onCreate2");
 
 		  // 如果是量化模型则使用 int8 精度
 		  //config.recRunPrecision(RunPrecision.LiteInt8
@@ -288,6 +296,7 @@ public class ScreenCaptureService extends Service {
 		  )*/
 
 		  // 2.异步初始化
+                  ocr = new OCR(this);
           ocr.initModel(config, new OcrInitCallback() {
             @Override
             public void onSuccess() {
@@ -299,6 +308,8 @@ public class ScreenCaptureService extends Service {
                 Log.e(TAG, "onFail: 初始化失败", e);
             }
         });
+
+        Log.i(TAG, "onCreate3");
 
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);

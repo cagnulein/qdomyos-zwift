@@ -907,11 +907,11 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
-    $$PWD/android/assets/models/ch_PP-OCRv2/cls \
    $$PWD/android/assets/models/ch_PP-OCRv2/cls.nb \
-    $$PWD/android/assets/models/ch_PP-OCRv2/det \
+    $$PWD/android/assets/models/ch_PP-OCRv2/cls.pdmodel \
+    $$PWD/android/assets/models/ch_PP-OCRv2/det.pdmodel \
    $$PWD/android/assets/models/ch_PP-OCRv2/det_db.nb \
-    $$PWD/android/assets/models/ch_PP-OCRv2/rec \
+    $$PWD/android/assets/models/ch_PP-OCRv2/rec.pdmodel \
    $$PWD/android/assets/models/ch_PP-OCRv2/rec_crnn.nb \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
