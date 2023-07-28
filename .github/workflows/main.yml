@@ -54,7 +54,7 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
-          arch: win64_msvc2019_64
+          arch: win64_msvc2015_64
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
           cache: 'true'
@@ -64,7 +64,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with: 
           # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
-          toolset: 14.2
+          toolset: 14.0
           arch: x64
 
       - name: Build
