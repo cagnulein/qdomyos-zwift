@@ -182,61 +182,7 @@ int csaferowerThread::openPort() {
 
     tcflush(devicePort, TCIOFLUSH); // clear out the garbage
 #else
-    // WINDOWS USES SET/GETCOMMSTATE AND READ/WRITEFILE
 
-    COMMTIMEOUTS timeouts; // timeout settings on serial ports
-
-    // if deviceFilename references a port above COM9
-    // then we need to open "\\.\COMX" not "COMX"
-    QString portSpec;
-    int portnum = deviceFilename.midRef(3).toString().toInt();
-    if (portnum < 10)
-        portSpec = deviceFilename;
-    else
-        portSpec = "\\\\.\\" + deviceFilename;
-    wchar_t deviceFilenameW[32]; // \\.\COM32 needs 9 characters, 32 should be enough?
-    MultiByteToWideChar(CP_ACP, 0, portSpec.toLatin1(), -1, (LPWSTR)deviceFilenameW, sizeof(deviceFilenameW));
-
-    // win32 commport API
-    devicePort = CreateFile(deviceFilenameW, GENERIC_READ | GENERIC_WRITE,
-                            FILE_SHARE_DELETE | FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-
-    if (devicePort == INVALID_HANDLE_VALUE)
-        return -1;
-
-    if (GetCommState(devicePort, &deviceSettings) == false)
-        return -1;
-
-    // so we've opened the comm port lets set it up for
-    deviceSettings.BaudRate = CBR_2400;
-    deviceSettings.fParity = NOPARITY;
-    deviceSettings.ByteSize = 8;
-    deviceSettings.StopBits = ONESTOPBIT;
-    deviceSettings.XonChar = 11;
-    deviceSettings.XoffChar = 13;
-    deviceSettings.EofChar = 0x0;
-    deviceSettings.ErrorChar = 0x0;
-    deviceSettings.EvtChar = 0x0;
-    deviceSettings.fBinary = true;
-    deviceSettings.fOutX = 0;
-    deviceSettings.fInX = 0;
-    deviceSettings.XonLim = 0;
-    deviceSettings.XoffLim = 0;
-    deviceSettings.fRtsControl = RTS_CONTROL_ENABLE;
-    deviceSettings.fDtrControl = DTR_CONTROL_ENABLE;
-    deviceSettings.fOutxCtsFlow = FALSE; // TRUE;
-
-    if (SetCommState(devicePort, &deviceSettings) == false) {
-        CloseHandle(devicePort);
-        return -1;
-    }
-
-    timeouts.ReadIntervalTimeout = 0;
-    timeouts.ReadTotalTimeoutConstant = 1000;
-    timeouts.ReadTotalTimeoutMultiplier = 50;
-    timeouts.WriteTotalTimeoutConstant = 2000;
-    timeouts.WriteTotalTimeoutMultiplier = 0;
-    SetCommTimeouts(devicePort, &timeouts);
 
 #endif
 
