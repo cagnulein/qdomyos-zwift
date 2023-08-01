@@ -201,13 +201,13 @@ public class SDMChannelController {
                    public void run() {
                        Log.d(TAG, "Tx Unsollicited");
                        long realtimeMillis = SystemClock.elapsedRealtime();
-                       float speedM_s = speed / 3.6;
+                       double speedM_s = speed / 3.6;
                        long deltaTime = (realtimeMillis - lastTime);
                        // in case the treadmill doesn't provide cadence, I have to force it. ANT+ requires cadence
                        if(speed > 0 && cadence == 0) {
                           cadence = 90;
                        }
-                       stride_count += ((((float)cadence) / 60000) * deltaTime);
+                       stride_count += ((((double)cadence) / 60000.0) * deltaTime);
                        lastTime = realtimeMillis;
 
                        byte[] payload = new byte[8];
@@ -217,7 +217,7 @@ public class SDMChannelController {
                        payload[2] = (byte) ((lastTime % 256000) / 1000);
                        payload[3] = (byte) 0x00;
                        payload[4] = (byte) speedM_s;
-                       payload[5] = (byte) ((speedM_s - (float)((int)speedM_s)) / (1.0/256.0));
+                       payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
                        payload[6] = (byte) ((int)(stride_count) & 0xFF);
                        payload[7] = (byte) (deltaTime * 0.03125);
 
@@ -254,13 +254,13 @@ public class SDMChannelController {
                     switch (code) {
                         case TX:
                             long realtimeMillis = SystemClock.elapsedRealtime();
-                            float speedM_s = speed / 3.6;
+                            double speedM_s = speed / 3.6;
                             long deltaTime = (realtimeMillis - lastTime);
                             // in case the treadmill doesn't provide cadence, I have to force it. ANT+ requires cadence
                             if(speed > 0 && cadence == 0) {
                                 cadence = 90;
                             }                            
-                            stride_count += ((((float)cadence) / 60000) * deltaTime);
+                            stride_count += ((((double)cadence) / 60000.0) * deltaTime);
                             lastTime = realtimeMillis;
     
                             byte[] payload = new byte[8];
@@ -270,7 +270,7 @@ public class SDMChannelController {
                             payload[2] = (byte) ((lastTime % 256000) / 1000);
                             payload[3] = (byte) 0x00;
                             payload[4] = (byte) speedM_s;
-                            payload[5] = (byte) ((speedM_s - (float)((int)speedM_s)) / (1.0/256.0));
+                            payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
                             payload[6] = (byte) ((int)(stride_count) & 0xFF);
                             payload[7] = (byte) (deltaTime * 0.03125);
 
