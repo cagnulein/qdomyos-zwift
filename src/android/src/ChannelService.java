@@ -149,7 +149,7 @@ public class ChannelService extends Service {
 
         if (Ant.speedRequest) {
             if(Ant.treadmill) {
-                sdmChannelController = new sdmChannelController(acquireChannel());
+                sdmChannelController = new SDMChannelController(acquireChannel());
             } else {
                 powerChannelController = new PowerChannelController(acquireChannel());
                 speedChannelController = new SpeedChannelController(acquireChannel());
