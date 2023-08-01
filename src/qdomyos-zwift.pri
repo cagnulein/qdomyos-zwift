@@ -743,6 +743,7 @@ DISTFILES += \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+   android/src/SDMChannelController.java \
     android/src/Usbserial.java \
    android/src/com/cgutman/adblib/AdbBase64.java \
    android/src/com/cgutman/adblib/AdbConnection.java \
