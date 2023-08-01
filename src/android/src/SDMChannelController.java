@@ -43,7 +43,7 @@ public class SDMChannelController {
     private static final int CHANNEL_SPEED_TRANSMISSION_TYPE = 1;
 
     // The period and frequency values the channel will be configured to
-    private static final int CHANNEL_SPEED_PERIOD = 8086; // 1 Hz
+    private static final int CHANNEL_SPEED_PERIOD = 8134; // 1 Hz
     private static final int CHANNEL_SPEED_FREQUENCY = 57;
 
     private static final String TAG = SDMChannelController.class.getSimpleName();
@@ -58,7 +58,7 @@ public class SDMChannelController {
     private boolean mIsOpen;
     double speed = 0.0;
     int cadence = 0;
-    float stride_count = 0;
+    byte stride_count = 0;
 
     public SDMChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -203,11 +203,6 @@ public class SDMChannelController {
                        long realtimeMillis = SystemClock.elapsedRealtime();
                        double speedM_s = speed / 3.6;
                        long deltaTime = (realtimeMillis - lastTime);
-                       // in case the treadmill doesn't provide cadence, I have to force it. ANT+ requires cadence
-                       if(speed > 0 && cadence == 0) {
-                          cadence = 90;
-                       }
-                       stride_count += ((((double)cadence) / 60000.0) * deltaTime);
                        lastTime = realtimeMillis;
 
                        byte[] payload = new byte[8];
@@ -218,8 +213,8 @@ public class SDMChannelController {
                        payload[3] = (byte) 0x00;
                        payload[4] = (byte) speedM_s;
                        payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
-                       payload[6] = (byte) ((int)(stride_count) & 0xFF);
-                       payload[7] = (byte) (deltaTime * 0.03125);
+                       payload[6] = (byte) stride_count++; // bad but it works on zwift
+                       payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                        if (mIsOpen) {
                            try {
@@ -230,7 +225,7 @@ public class SDMChannelController {
                            }
                        }
                    }
-               }, 0, 500); // delay
+               }, 0, 250); // delay
            }
 
             // Switching on message type to handle different types of messages
@@ -257,10 +252,6 @@ public class SDMChannelController {
                             double speedM_s = speed / 3.6;
                             long deltaTime = (realtimeMillis - lastTime);
                             // in case the treadmill doesn't provide cadence, I have to force it. ANT+ requires cadence
-                            if(speed > 0 && cadence == 0) {
-                                cadence = 90;
-                            }                            
-                            stride_count += ((((double)cadence) / 60000.0) * deltaTime);
                             lastTime = realtimeMillis;
     
                             byte[] payload = new byte[8];
@@ -271,8 +262,8 @@ public class SDMChannelController {
                             payload[3] = (byte) 0x00;
                             payload[4] = (byte) speedM_s;
                             payload[5] = (byte) ((speedM_s - (double)((int)speedM_s)) / (1.0/256.0));
-                            payload[6] = (byte) ((int)(stride_count) & 0xFF);
-                            payload[7] = (byte) (deltaTime * 0.03125);
+                            payload[6] = (byte) stride_count;
+                            payload[7] = (byte) ((double)deltaTime * 0.03125);
 
                             if (mIsOpen) {
                                 try {
