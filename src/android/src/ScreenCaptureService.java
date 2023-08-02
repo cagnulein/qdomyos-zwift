@@ -253,13 +253,17 @@ public class ScreenCaptureService extends Service {
                   Log.i(TAG, "onCreate1");
 		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
 		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
-                  config.setClsModelFilenameCustom("cls.nb"); // cls 模型文件名
+                  
+                /*
+                  config.setClsModelFilename("cls.nb"); // cls 模型文件名
                   config.setDetModelFilename("det_db.nb"); // det 模型文件名
                   config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
+                  */
 
+                  /* already true by default
                   config.setIsRunDet(true);
                   config.setIsRunCls(true);
-                  config.setIsRunRec(true);
+                  config.setIsRunRec(true);*/
 
 
 		  // 运行全部模型
