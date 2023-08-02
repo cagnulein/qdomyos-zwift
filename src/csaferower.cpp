@@ -337,17 +337,19 @@ void csaferower::update() {
         } else
 #endif
 #endif
+        {
             if (virtual_device_enabled) {
-            if (!virtual_device_rower) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-            } else {
-                qDebug() << QStringLiteral("creating virtual rower interface...");
-                auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
-                // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
-                this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                if (!virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual bike interface...");
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
             }
         }
     }
