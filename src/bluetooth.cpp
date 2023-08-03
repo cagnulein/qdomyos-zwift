@@ -54,7 +54,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     if(fakedevice_treadmill) {
         fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
-        emit deviceConnected(b);
+        emit deviceConnected(QBluetoothDeviceInfo());
         connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                 &bluetooth::connectedAndDiscovered);
         connect(fakeTreadmill, &faketreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
