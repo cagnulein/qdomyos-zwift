@@ -913,6 +913,7 @@ DISTFILES += \
    $$PWD/android/assets/models/rec.pdmodel \
    $$PWD/android/assets/models/det.pdiparams \
    $$PWD/android/assets/models/det.pdmodel \   
+   $$PWD/android/assets/models/ppocr_keys_v1.txt \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
