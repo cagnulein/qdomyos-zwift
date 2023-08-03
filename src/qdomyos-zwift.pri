@@ -907,9 +907,12 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
-   $$PWD/android/assets/models/ch_ppocr_mobile_v2.0_cls_opt.nb \
-    $$PWD/android/assets/models/ch_PP-OCRv2/ch_ppocr_mobile_v2.0_rec_opt.nb \
-    $$PWD/android/assets/models/ch_PP-OCRv2/ch_ppocr_mobile_v2.0_det_opt.nb \
+   $$PWD/android/assets/models/cls.pdiparams \
+   $$PWD/android/assets/models/cls.pdmodel \
+   $$PWD/android/assets/models/rec.pdiparams \
+   $$PWD/android/assets/models/rec.pdmodel \
+   $$PWD/android/assets/models/det.pdiparams \
+   $$PWD/android/assets/models/det.pdmodel \   
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
