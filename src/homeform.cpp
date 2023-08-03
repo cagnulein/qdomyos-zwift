@@ -557,7 +557,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     deviceConnected(b);
 #endif
 
-    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool()) {
+    // TO RESTORE
+    if (settings.value(QZSettings::peloton_bike_ocr, QZSettings::default_peloton_bike_ocr).toBool() || 
+        settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool()) {
         QBluetoothDeviceInfo b;
         deviceConnected(b);
     }
