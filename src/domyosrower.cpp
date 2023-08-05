@@ -367,8 +367,8 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 double domyosrower::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
-    double data = (double)convertedData / 10.0f;
-    return data;
+    if(convertedData > 65000) return 0;
+    return (60.0 / (double)(convertedData)) * 30.0;
 }
 
 double domyosrower::GetKcalFromPacket(const QByteArray &packet) {
