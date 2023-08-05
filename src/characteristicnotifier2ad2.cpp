@@ -7,12 +7,17 @@ CharacteristicNotifier2AD2::CharacteristicNotifier2AD2(bluetoothdevice *Bike, QO
     : CharacteristicNotifier(0x2ad2, parent), Bike(Bike) {}
 
 int CharacteristicNotifier2AD2::notify(QByteArray &value) {
+    QSettings settings;
+    bool virtual_device_rower =
+        settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
+    bool rowerAsABike = !virtual_device_rower && Bike->deviceType() == bluetoothdevice::ROWING;
+
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
-    if (dt == bluetoothdevice::BIKE) {
+    if (dt == bluetoothdevice::BIKE || rowerAsABike) {
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
         value.append((char)0x64); // speed, inst. cadence, resistance lvl, instant power
         value.append((char)0x02); // heart rate
