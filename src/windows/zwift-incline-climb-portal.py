@@ -1,6 +1,6 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
-# Revised: April 22, 2023
+# Revised: August 4, 2023
 
 # process-image.py - take Zwift screenshot, crop incline, OCR incline
 
@@ -18,10 +18,7 @@ screenshot = ImageGrab.grab()
 # Scale image to 3000 x 2000
 screenshot = screenshot.resize((3000, 2000))
 
-# Convert screenshot to a numpy array
-screenshot_np = np.array(screenshot)
-
-# Crop image to incline area
+# Crop image to incline area (don't crop without % symbol - gives worse OCR results)
 screenwidth, screenheight = screenshot.size
 
 # Values for Zwift climb portal incline
@@ -30,12 +27,19 @@ row1 = int(screenheight/2000 * 218)
 col2 = int(screenwidth/3000 * 2980)
 row2 = int(screenheight/2000 * 302)
 
-cropped_np = screenshot_np[row1:row2, col1:col2]
+cropped = screenshot.crop((col1, row1, col2, row2))
 
-# Convert numpy array to PIL image
+# Scale image to correct size for borderless window mode
+width, height = cropped.size
+cropped = cropped.resize((int(width * 1.04), int(height * 1.04)))
+
+# Convert image to np array
+cropped_np = np.array(cropped)
+
+# Convert np array to PIL image
 cropped_pil = Image.fromarray(cropped_np)
 
-# Convert PIL Image to a cv2 image
+# Convert PIL image to cv2 image
 cropped_cv2 = cv2.cvtColor(np.array(cropped_pil), cv2.COLOR_RGB2BGR)
 
 # Convert cv2 image to HSV

@@ -1,6 +1,6 @@
 # iFit-Workout - Auto-incline and auto-speed control of treadmill via ADB and OCR for Zwift workouts
 # Author: Al Udell
-# Revised: April 27, 2023
+# Revised: August 4, 2023
 
 # process-image.py - take Zwift screenshot, crop speed/incline instruction, OCR speed/incline
 
@@ -18,23 +18,27 @@ screenshot = ImageGrab.grab()
 # Scale image to 3000 x 2000
 screenshot = screenshot.resize((3000, 2000))
 
-# Convert screenshot to a numpy array
-screenshot_np = np.array(screenshot)
-
-# Convert numpy array to a cv2 RGB image
-screenshot_cv2 = cv2.cvtColor(screenshot_np, cv2.COLOR_BGR2RGB)
-
 # Crop image to workout instruction area
 screenwidth, screenheight = screenshot.size
+
+# Values for Zwift workout instructions
 col1 = int(screenwidth/3000 * 1010)
 row1 = int(screenheight/2000 * 260)
 col2 = int(screenwidth/3000 * 1285)
 row2 = int(screenheight/2000 * 480)
-cropped_cv2 = screenshot_cv2[row1:row2, col1:col2]
+
+cropped = screenshot.crop((col1, row1, col2, row2))
+
+# Scale image to correct size for borderless window mode
+width, height = cropped.size
+cropped = cropped.resize((int(width * 1.04), int(height * 1.04)))
+
+# Convert image to np array
+cropped_np = np.array(cropped)
 
 # OCR image
 ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False)
-result = ocr.ocr(cropped_cv2, cls=False, det=True, rec=True)
+result = ocr.ocr(cropped_np, cls=False, det=True, rec=True)
 
 # Extract OCR text
 ocr_text = ''
