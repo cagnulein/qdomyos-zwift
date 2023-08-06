@@ -196,7 +196,7 @@ void domyosrower::update() {
                     this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
