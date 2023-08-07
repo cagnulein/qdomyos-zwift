@@ -2231,6 +2231,12 @@ void homeform::sortTiles() {
                 target_pace->setGridId(i);
                 dataList.append(target_pace);
             }
+
+            if (settings.value(QZSettings::tile_pace_enabled, true).toBool() &&
+                settings.value(QZSettings::tile_pace_order, 51).toInt() == i) {
+                pace->setGridId(i);
+                dataList.append(pace);
+            }
         }
     }
 
