@@ -191,9 +191,10 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
         display[26] += display[i]; // the last byte is a sort of a checksum
     }
 
+    /*
     writeCharacteristic(display, 20, QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
     writeCharacteristic(&display[20], sizeof(display) - 20,
-                        QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, true);
+                        QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, true);*/
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
