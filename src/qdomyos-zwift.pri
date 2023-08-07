@@ -813,4 +813,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.15.3
+VERSION = 2.15.4
