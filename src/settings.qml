@@ -814,6 +814,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.15.2
             property bool watt_ignore_builtin: true
+
+            // from version 2.15.5
+            property bool sole_treadmill_pound: true
         }
 
         function paddingZeros(text, limit) {

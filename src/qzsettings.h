@@ -1869,6 +1869,9 @@ class QZSettings {
     static const QString watt_ignore_builtin;
     static constexpr bool default_watt_ignore_builtin = true;
 
+    static const QString sole_treadmill_pound;
+    static constexpr bool default_sole_treadmill_pound = true;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
