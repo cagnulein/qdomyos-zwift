@@ -30,7 +30,9 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
-    Garmin = [[GarminConnect alloc] init];
+    if (@available(iOS 13, *)) {
+        Garmin = [[GarminConnect alloc] init];
+    }
 }
 
 long lockscreen::heartRate()

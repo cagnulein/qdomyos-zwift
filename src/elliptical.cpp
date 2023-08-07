@@ -56,6 +56,21 @@ uint16_t elliptical::watts() {
     m_watt.setValue(watts);
     return m_watt.value();
 }
+
+double elliptical::speedFromWatts() {
+
+    QSettings settings;
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    double speed = 0;
+    if (wattsMetric().value() > 0) {
+        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        speed = 210.0 / ((wattsMetric().value() - vwatts) / 75.0 / weight * 1000.0);
+    }
+    return speed;
+}
+
 void elliptical::changeResistance(resistance_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     requestResistance = resistance + gears();

@@ -1,7 +1,7 @@
 #include "domyostreadmill.h"
 #include "keepawakehelper.h"
-#include "virtualtreadmill.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -100,11 +100,15 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ')
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ')
                  << QStringLiteral(" // ") + info;
     }
 

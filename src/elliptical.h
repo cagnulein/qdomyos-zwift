@@ -27,7 +27,8 @@ class elliptical : public bluetoothdevice {
     void clearStats() override;
     void setPaused(bool p) override;
     void setLap() override;
-    uint16_t watts();
+    virtual uint16_t watts();
+    double speedFromWatts();
     void setGears(double d);
     double gears();
     virtual double minStepInclination() { return 0.5; }

@@ -29,6 +29,12 @@ import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
+
 import java.util.Random;
 
 public class SpeedChannelController {
@@ -174,6 +180,7 @@ public class SpeedChannelController {
         int rotations;
         int rev;
         double wheel = 0.1;
+        Timer carousalTimer = null;
 
         @Override
         public void onChannelDeath() {
@@ -185,6 +192,50 @@ public class SpeedChannelController {
         public void onReceiveMessage(MessageFromAntType messageType, AntMessageParcel antParcel) {
             Log.d(TAG, "Rx: " + antParcel);
             Log.d(TAG, "Message Type: " + messageType);
+
+            if(carousalTimer == null) {
+               carousalTimer = new Timer(); // At this line a new Thread will be created
+               carousalTimer.scheduleAtFixedRate(new TimerTask() {
+                   @Override
+                   public void run() {
+                       Log.d(TAG, "Tx Unsollicited");
+                       long realtimeMillis = SystemClock.elapsedRealtime();
+
+                       if (lastTime != 0) {
+                           elapsedMillis = realtimeMillis - lastTime;
+                           totalWay += speed * elapsedMillis / 3_600L;
+                           totalRotations += (double) cadence * elapsedMillis / 60_000L;
+                           rev = (int) (totalWay / wheel);
+                           rotations = (int) totalRotations;
+                           lastCadenceEventTime = realtimeMillis - (long) ((totalRotations - rotations) / cadence * 60_000);
+                           lastSpeedEventTime = realtimeMillis - (long) ((totalWay - (rev * wheel)) / speed * 3_600);
+                       }
+                       lastTime = realtimeMillis;
+
+                       byte[] payload = new byte[8];
+
+                       int lastCadenceEventTime1024 = (int) ((double) lastCadenceEventTime / MILLISECOND_TO_1_1024_CONVERSION);
+                       int lastSpeedEventTime1024 = (int) ((double) lastSpeedEventTime / MILLISECOND_TO_1_1024_CONVERSION);
+                       payload[0] = (byte) (lastCadenceEventTime1024 & 0xFF);
+                       payload[1] = (byte) ((lastCadenceEventTime1024 >> 8) & 0xFF);
+                       payload[2] = (byte) (rotations & 0xFF);
+                       payload[3] = (byte) ((rotations >> 8) & 0xFF);
+                       payload[4] = (byte) (lastSpeedEventTime1024 & 0xFF);
+                       payload[5] = (byte) ((lastSpeedEventTime1024 >> 8) & 0xFF);
+                       payload[6] = (byte) (rev & 0xFF);
+                       payload[7] = (byte) ((rev >> 8) & 0xFF);
+
+                       if (mIsOpen) {
+                           try {
+                               // Setting the data to be broadcast on the next channel period
+                               mAntChannel.setBroadcastData(payload);
+                           } catch (RemoteException e) {
+                               channelError(e);
+                           }
+                       }
+                   }
+               }, 0, 500); // delay
+           }
 
             // Switching on message type to handle different types of messages
             switch (messageType) {

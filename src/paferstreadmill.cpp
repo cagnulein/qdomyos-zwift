@@ -54,11 +54,15 @@ void paferstreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 

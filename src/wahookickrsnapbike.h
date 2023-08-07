@@ -67,7 +67,6 @@ class wahookickrsnapbike : public bike {
     QByteArray setSimWindSpeed(double metersPerSecond);
     QByteArray setWheelCircumference(double millimeters);
 
-    QByteArray *writeBuffer = nullptr;
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
@@ -84,6 +83,8 @@ class wahookickrsnapbike : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    double lastGearValue = -1;
+    double lastGrade = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;

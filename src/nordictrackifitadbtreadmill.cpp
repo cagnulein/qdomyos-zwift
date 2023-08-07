@@ -295,7 +295,7 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
                                                          QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 

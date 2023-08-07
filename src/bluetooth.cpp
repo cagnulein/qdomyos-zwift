@@ -711,7 +711,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(nordictrackifitadbTreadmill);
             } else if (!tdf_10_ip.isEmpty() && !nordictrackifitadbBike) {
                 this->stopDiscovery();
-                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService,
+                                                                    bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
@@ -1089,7 +1090,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(trueTreadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) ||
+            } else if (((b.name().toUpper().startsWith(QStringLiteral("F80")) && sole_inclination) ||
                         b.name().toUpper().startsWith(QStringLiteral("F65")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TT8")) ||
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
@@ -1170,6 +1171,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) ||       // FMTS
+                        (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1314,10 +1316,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
                         (b.name().toUpper().startsWith("KICKR CORE")) ||
-                        (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
-                        (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
-                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1")) ||
-                        (b.name().toUpper().startsWith("INRIDE"))) &&
+                        (b.name().toUpper().startsWith("XS08-")) || (b.name().toUpper().startsWith("B94")) ||
+                        (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
+                        (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
+                        (b.name().toUpper().startsWith("SMB1")) || (b.name().toUpper().startsWith("INRIDE"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2305,10 +2307,11 @@ void bluetooth::connectedAndDiscovered() {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
-            "antStart", "(Landroid/app/Activity;ZZZ)V", activity.object<jobject>(),
+            "antStart", "(Landroid/app/Activity;ZZZZ)V", activity.object<jobject>(),
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
-            settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool());
+            settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool(),
+            device()->deviceType() == bluetoothdevice::TREADMILL || device()->deviceType() == bluetoothdevice::ELLIPTICAL);
     }
 
     if (settings.value(QZSettings::android_notification, QZSettings::default_android_notification).toBool()) {

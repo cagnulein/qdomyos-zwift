@@ -44,8 +44,6 @@ class fitmetria_fanfit : public bluetoothdevice {
     bluetoothdevice *parentDevice = nullptr;
     QString lastValueSent = "";
 
-    QByteArray *writeBuffer = nullptr;
-
   signals:
     void disconnected();
     void debug(QString string);

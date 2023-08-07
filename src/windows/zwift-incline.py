@@ -23,10 +23,13 @@ screenshot_np = np.array(screenshot)
 
 # Crop image to incline area
 screenwidth, screenheight = screenshot.size
+
+# Values for Zwift regular incline
 col1 = int(screenwidth/3000 * 2800)
 row1 = int(screenheight/2000 * 75)
 col2 = screenwidth
 row2 = int(screenheight/2000 * 200)
+
 cropped_np = screenshot_np[row1:row2, col1:col2]
 
 # Convert numpy array to PIL image
@@ -73,7 +76,7 @@ merge[np.where(mask==0)] = 0
 # Convert to grayscale
 gray = cv2.cvtColor(merge, cv2.COLOR_BGR2GRAY)
 
-# Convert to black/white by threshhold
+# Convert to black/white by threshold
 ret,bin = cv2.threshold(gray,30,255,cv2.THRESH_BINARY)
 
 # Closing
@@ -87,7 +90,7 @@ inv = cv2.bitwise_not(closing)
 averageBlur = cv2.blur(inv, (3, 3))
 
 # OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False, use_xpu=True, use_npu=True)
+ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False)
 result = ocr.ocr(averageBlur, cls=False, det=True, rec=True)
 
 # Extract OCR text

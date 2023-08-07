@@ -47,17 +47,6 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
-#if __has_include("secret.h")
-#include "secret.h"
-#else
-#define STRAVA_SECRET_KEY test
-#if defined(WIN32)
-#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
-#else
-#warning "DEFINE STRAVA_SECRET_KEY!!!"
-#endif
-#endif
-
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -561,6 +550,89 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QBluetoothDeviceInfo b;
         deviceConnected(b);
     }
+
+#ifdef Q_OS_ANDROID
+    iphone_browser = new QMdnsEngine::Browser(&iphone_server, "_qz_iphone._tcp.local.", &iphone_cache);
+
+    QObject::connect(iphone_browser, &QMdnsEngine::Browser::serviceAdded, [](const QMdnsEngine::Service &service) {
+        homeform::singleton()->iphone_service = service;
+        qDebug() << service.name() << service.hostname() << service.port() << "discovered!";
+
+        if (homeform::singleton()->iphone_resolver)
+            delete homeform::singleton()->iphone_resolver;
+        homeform::singleton()->iphone_resolver = new QMdnsEngine::Resolver(
+            &homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+        QObject::connect(homeform::singleton()->iphone_resolver, &QMdnsEngine::Resolver::resolved,
+                         [](const QHostAddress &address) {
+                             qDebug() << "resolved to" << address;
+                             if (address.protocol() == QAbstractSocket::IPv4Protocol &&
+                                 (homeform::singleton()->iphone_socket == nullptr ||
+                                  !homeform::singleton()->iphone_address.isEqual(address))) {
+                                 if (homeform::singleton()->iphone_socket)
+                                     delete homeform::singleton()->iphone_socket;
+                                 homeform::singleton()->iphone_socket = new QTcpSocket();
+                                 QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::connected,
+                                                  []() { qDebug() << "iphone_socket connected!"; });
+                                 QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
+                                     QString rec = homeform::singleton()->iphone_socket->readAll();
+                                     qDebug() << "iphone_socket received << " << rec;
+                                     QStringList fields = rec.split("#");
+                                     foreach (QString f, fields) {
+                                         if (f.contains("HR")) {
+                                             QStringList values = f.split("=");
+                                             if (values.length() > 1) {
+                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                             }
+                                         }
+                                     }
+                                 });
+
+                                 homeform::singleton()->iphone_address = address;
+                                 homeform::singleton()->iphone_socket->connectToHost(
+                                     address, homeform::singleton()->iphone_service.port());
+                             }
+                         });
+    });
+
+    QObject::connect(iphone_browser, &QMdnsEngine::Browser::serviceUpdated, [](const QMdnsEngine::Service &service) {
+        homeform::singleton()->iphone_service = service;
+        qDebug() << service.name() << service.hostname() << service.port() << "updated!";
+
+        if (homeform::singleton()->iphone_resolver)
+            delete homeform::singleton()->iphone_resolver;
+        homeform::singleton()->iphone_resolver = new QMdnsEngine::Resolver(
+            &homeform::singleton()->iphone_server, service.hostname(), &homeform::singleton()->iphone_cache);
+        QObject::connect(homeform::singleton()->iphone_resolver, &QMdnsEngine::Resolver::resolved,
+                         [](const QHostAddress &address) {
+                             if (address.protocol() == QAbstractSocket::IPv4Protocol &&
+                                 (homeform::singleton()->iphone_socket == nullptr ||
+                                  !homeform::singleton()->iphone_address.isEqual(address))) {
+                                 if (homeform::singleton()->iphone_socket)
+                                     delete homeform::singleton()->iphone_socket;
+                                 qDebug() << "resolved to" << address;
+                                 homeform::singleton()->iphone_socket = new QTcpSocket();
+                                 QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::connected,
+                                                  []() { qDebug() << "iphone_socket connected!"; });
+                                 QObject::connect(homeform::singleton()->iphone_socket, &QTcpSocket::readyRead, []() {
+                                     QString rec = homeform::singleton()->iphone_socket->readAll();
+                                     qDebug() << "iphone_socket received << " << rec;
+                                     QStringList fields = rec.split("#");
+                                     foreach (QString f, fields) {
+                                         if (f.contains("HR")) {
+                                             QStringList values = f.split("=");
+                                             if (values.length() > 1) {
+                                                 emit homeform::singleton()->heartRate(values[1].toDouble());
+                                             }
+                                         }
+                                     }
+                                 });
+                                 homeform::singleton()->iphone_address = address;
+                                 homeform::singleton()->iphone_socket->connectToHost(
+                                     address, homeform::singleton()->iphone_service.port());
+                             }
+                         });
+    });
+#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -569,7 +641,7 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 7) {
+    if (chartImagesFilenames.length() >= 8) {
         sendMail();
         chartImagesFilenames.clear();
     }
@@ -675,7 +747,9 @@ void homeform::peloton_start_workout() {
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         if (!stravaPelotonActivityName.isEmpty() && !stravaPelotonInstructorName.isEmpty()) {
-            QString path = getWritableAppDir() + "training/";
+            QString path = getWritableAppDir() + "training/" + workoutNameBasedOnBluetoothDevice() + "/" +
+                           stravaPelotonInstructorName + "/";
+            QDir().mkpath(path);
             lastTrainProgramFileSaved =
                 path + stravaPelotonActivityName.replace("/", "-") + " - " + stravaPelotonInstructorName + ".xml";
             trainProgram->save(lastTrainProgramFileSaved);
@@ -2157,6 +2231,12 @@ void homeform::sortTiles() {
                 target_pace->setGridId(i);
                 dataList.append(target_pace);
             }
+
+            if (settings.value(QZSettings::tile_pace_enabled, true).toBool() &&
+                settings.value(QZSettings::tile_pace_order, 51).toInt() == i) {
+                pace->setGridId(i);
+                dataList.append(pace);
+            }
         }
     }
 
@@ -2770,6 +2850,10 @@ void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
+#ifdef Q_OS_ANDROID
+    // heart rate received from apple watch while QZ is running on android via TCP socket (iphone_socket)
+    connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
+#endif
 }
 
 void homeform::bluetoothDeviceDisconnected() {
@@ -3113,6 +3197,9 @@ void homeform::StopRequested() {
 
 void homeform::Stop() {
     QSettings settings;
+
+    m_startRequested = false;
+
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (stopped) {
@@ -3324,6 +3411,21 @@ void homeform::update() {
         moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
 
         if (trainProgram) {
+            // sync the video with the zwo workout file
+            if (videoVisible() == true && !bluetoothManager->device()->currentCordinate().isValid()) {
+                QObject *rootObject = engine->rootObjects().constFirst();
+                auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+                auto videoPlaybackHalfPlayer =
+                    qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+                double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
+                QTime videoCurrent = QTime(0, 0, videoTimeStampSeconds);
+                int delta = trainProgram->totalElapsedTime().secsTo(videoCurrent);
+                if (qAbs(delta) > 1) {
+                    videoPlaybackHalfPlayer->setPosition(QTime(0, 0, 0).secsTo(trainProgram->totalElapsedTime()) *
+                                                         1000.0);
+                }
+            }
+
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
             peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) +
@@ -3429,7 +3531,22 @@ void homeform::update() {
         wattKg->setSecondLine(
             QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
             QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
-        datetime->setValue(QTime::currentTime().toString(QStringLiteral("hh:mm:ss")));
+        QLocale locale = QLocale::system();
+
+        // Format the time based on the locale
+        QString timeFormat = locale.timeFormat(QLocale::ShortFormat);
+        bool usesAMPMFormat = timeFormat.toUpper().contains("A");
+        QDateTime currentTime = QDateTime::currentDateTime();
+
+        QString formattedTime;
+        if (usesAMPMFormat) {
+            // The locale uses 12-hour format with AM/PM
+            formattedTime = currentTime.toString("h:mm:ss AP");
+        } else {
+            // The locale uses 24-hour format
+            formattedTime = currentTime.toString("H:mm:ss");
+        }
+        datetime->setValue(formattedTime);
         if (power5s)
             watts = bluetoothManager->device()->wattsMetric().average5s();
         else
@@ -3684,18 +3801,18 @@ void homeform::update() {
                                                      ->speedToPace(trainProgram->currentRow().upper_speed)
                                                      .toString(QStringLiteral("m:ss")));
 
-                if(((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
-                    if(bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
-                       bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
+                if (((rower *)bluetoothManager->device())->lastRequestedCadence().value() > 0) {
+                    if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
+                        bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
                         this->target_zone->setValueFontColor(QStringLiteral("limegreen"));
                         this->pace->setValueFontColor(QStringLiteral("limegreen"));
-                    }
-                    else if(bluetoothManager->device()->currentSpeed().value() <= (trainProgram->currentRow().upper_speed + 0.2) &&
-                            bluetoothManager->device()->currentSpeed().value() >= (trainProgram->currentRow().lower_speed - 0.2)) {
+                    } else if (bluetoothManager->device()->currentSpeed().value() <=
+                                   (trainProgram->currentRow().upper_speed + 0.2) &&
+                               bluetoothManager->device()->currentSpeed().value() >=
+                                   (trainProgram->currentRow().lower_speed - 0.2)) {
                         this->target_zone->setValueFontColor(QStringLiteral("orange"));
                         this->pace->setValueFontColor(QStringLiteral("orange"));
-                    }
-                    else {
+                    } else {
                         this->target_zone->setValueFontColor(QStringLiteral("red"));
                         this->pace->setValueFontColor(QStringLiteral("red"));
                     }
@@ -3703,18 +3820,18 @@ void homeform::update() {
                     this->target_zone->setValueFontColor(QStringLiteral("white"));
                     this->pace->setValueFontColor(QStringLiteral("white"));
                 }
-                switch(trainProgram->currentRow().pace_intensity) {
-                    case 0:
-                        this->target_zone->setValue(tr("Easy"));
+                switch (trainProgram->currentRow().pace_intensity) {
+                case 0:
+                    this->target_zone->setValue(tr("Easy"));
                     break;
-                    case 1:
-                        this->target_zone->setValue(tr("Moder."));
+                case 1:
+                    this->target_zone->setValue(tr("Moder."));
                     break;
-                    case 2:
-                        this->target_zone->setValue(tr("Chall."));
+                case 2:
+                    this->target_zone->setValue(tr("Chall."));
                     break;
-                    case 3:
-                        this->target_zone->setValue(tr("Max"));
+                case 3:
+                    this->target_zone->setValue(tr("Max"));
                     break;
                 }
             }
@@ -3770,7 +3887,7 @@ void homeform::update() {
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
 
             // if there is no training program, the color is based on presets
-            if(!trainProgram || trainProgram->currentRow().speed == -1) {
+            if (!trainProgram || trainProgram->currentRow().speed == -1) {
                 if (bluetoothManager->device()->currentSpeed().value() < 8) {
                     speed->setValueFontColor(QStringLiteral("white"));
                     this->pace->setValueFontColor(QStringLiteral("white"));
@@ -3999,7 +4116,8 @@ void homeform::update() {
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
-            (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING && (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
+             (!trainProgram || trainProgram->currentRow().pace_intensity == -1))) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);
@@ -4892,6 +5010,21 @@ void homeform::update() {
             if (lapTrigger) {
                 lapTrigger = false;
             }
+
+#ifdef Q_OS_ANDROID
+            if (iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
+                QString toSend =
+                    "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
+                    "#KCAL=" + QString::number(bluetoothManager->device()->calories().value()) +
+                    "#BCAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                    "#SPD=" + QString::number(bluetoothManager->device()->currentSpeed().value()) +
+                    "#PWR=" + QString::number(bluetoothManager->device()->wattsMetric().value()) +
+                    "#CAD=" + QString::number(bluetoothManager->device()->currentCadence().value()) +
+                    "#ODO=" + QString::number(bluetoothManager->device()->odometer()) + "#";
+                int write = iphone_socket->write(toSend.toLocal8Bit(), toSend.length());
+                qDebug() << "iphone_socket send " << write << toSend;
+            }
+#endif
         }
         emit workoutStartDateChanged(workoutStartDate());
     }
@@ -4922,7 +5055,6 @@ bool homeform::getLap() {
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
-    stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     qDebug() << file.fileName();
@@ -4935,7 +5067,34 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
             if (trainProgram) {
                 delete trainProgram;
             }
+
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+
+            QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
+            if (QFile::exists(movieName)) {
+                qDebug() << movieName << QStringLiteral("exist!");
+                movieFileName = QUrl::fromLocalFile(movieName);
+                emit videoPathChanged(movieFileName);
+                setVideoIconVisible(true);
+                setVideoRate(1);
+                trainingProgram()->setVideoAvailable(true);
+            } else {
+                qDebug() << movieName << QStringLiteral("doesn't exist!");
+                movieFileName = "";
+                setVideoIconVisible(false);
+                trainingProgram()->setVideoAvailable(false);
+            }
+
+            stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
+            stravaPelotonInstructorName = QStringLiteral("");
+            emit workoutNameChanged(workoutName());
+            emit instructorNameChanged(instructorName());
+
+            QSettings settings;
+            if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+                m_info = workoutName();
+                emit infoChanged(m_info);
+            }
         }
 
         trainProgramSignals();
@@ -5611,6 +5770,13 @@ void homeform::setVideoRate(double value) {
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
 
+QByteArray homeform::currentPelotonImage() {
+    if (pelotonHandler && pelotonHandler->current_image_downloaded &&
+        !pelotonHandler->current_image_downloaded->downloadedData().isEmpty())
+        return pelotonHandler->current_image_downloaded->downloadedData();
+    return QByteArray();
+}
+
 void homeform::sendMail() {
 
     QSettings settings;
@@ -5805,6 +5971,10 @@ void homeform::sendMail() {
                 QStringLiteral("\nHR Device: ") + bluetoothManager->heartRateDevice()->bluetoothDevice.name();
         }
     }
+
+#ifdef SMTP_SERVER
+    textMessage += QStringLiteral("\n\nSMTP server: ") + QString(STRINGIFY(SMTP_SERVER));
+#endif
 
     text.setText(textMessage);
     message.addPart(&text);

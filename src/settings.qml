@@ -800,6 +800,20 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.13.81
             property bool proform_bike_sb: false            
+
+            // from version 2.13.86
+            property bool zwift_workout_ocr: false
+
+            // from version 2.13.96
+            property bool zwift_ocr_climb_portal: false
+            property int poll_device_time: 200
+
+            // from version 2.13.99
+            property bool proform_bike_PFEVEX71316_1: false
+            property bool schwinn_bike_resistance_v3: false
+
+            // from version 2.15.2
+            property bool watt_ignore_builtin: true
         }
 
         function paddingZeros(text, limit) {
@@ -2204,7 +2218,7 @@ import QtQuick.Dialogs 1.0
                         }
                         SwitchDelegate {
                             id: schwinnBikeResistanceV2Delegate
-                            text: qsTr("Resistance Alternative Calc.")
+                            text: qsTr("Res. Alternative Calc. v2")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -2215,6 +2229,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Res. Alternative Calc. v3")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.schwinn_bike_resistance_v3
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.schwinn_bike_resistance_v3 = checked
                         }
                         RowLayout {
                             spacing: 10
@@ -2727,7 +2754,7 @@ import QtQuick.Dialogs 1.0
                 }
                 AccordionElement {
                     id: proformBikeAccordion
-                    title: qsTr("Proform Bike Options")
+                    title: qsTr("Proform/Norditrack Options")
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
@@ -2796,6 +2823,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("TDF 1.0 PFEVEX71316.1")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_PFEVEX71316_1
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_PFEVEX71316_1 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: nordictrackGX27odelegate
@@ -4123,6 +4163,7 @@ import QtQuick.Dialogs 1.0
             }
 
             AccordionElement {
+                visible: OS_VERSION === "Other"
                 title: qsTr("Zwift Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
@@ -4141,11 +4182,52 @@ import QtQuick.Dialogs 1.0
                         checked: settings.zwift_ocr
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: { settings.zwift_ocr = checked; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                        onClicked: { settings.zwift_ocr = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
                     }
 
                     Label {
-                        text: qsTr("Only for Android where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination from the Zwift app and will adjust the inclination on your treadmill. A popup about screen recording will appear in order to notify this.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Climb Portal")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_ocr_climb_portal
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_ocr_climb_portal = checked; settings.zwift_workout_ocr = false; settings.zwift_ocr = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_workout_ocr
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_workout_ocr = checked; settings.zwift_ocr = false; settings.zwift_ocr_climb_portal = false; settings.android_notification = true; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for PC where QZ is running on the same Zwift device. This setting enables the AI (Artificial Intelligence) on QZ that will read the Zwift inclination and speed from the Zwift app during a workout and will adjust the inclination and the speed on your treadmill. A popup about screen recording will appear in order to notify this.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -4322,7 +4404,7 @@ import QtQuick.Dialogs 1.0
                 }
 
                 Label {
-                    text: qsTr("Alternatevely to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
+                    text: qsTr("Alternatively to 'PID on Heart Zone' setting you can use this couple of settings in order to specify a HR range.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 9
@@ -5557,6 +5639,40 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.domyos_treadmill_display_invert = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Pool time (ms):")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: pollDeviceTimeTextField
+                                text: settings.poll_device_time
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.poll_device_time = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.poll_device_time = pollDeviceTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+                        Label {
+                            text: qsTr("Default: 200. Change this only if you have random issues with speed or inclination (try to put 300)")
+                            font.bold: true
+                            font.italic: true
+                            font.pixelSize: 9
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            color: Material.color(Material.Lime)
                         }
                     }
                 }
@@ -7072,6 +7188,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("The number you enter as a Gain is a multiplier applied to the inclination sent from Zwift or any other 3rd party app. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Disable Wattage from Machinery")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.watt_ignore_builtin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.watt_ignore_builtin = checked
+                    }
+
+                    Label {
+                        text: qsTr("This prevents your fitness device from sending its wattage calculation to QZ and defaults to QZ’s more accurate calculation.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

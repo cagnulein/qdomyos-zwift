@@ -317,7 +317,7 @@ HomeForm{
 
                         videoPlaybackHalf.seek(rootItem.videoPosition)
                         videoPlaybackHalf.play()
-                        videoPlaybackHalf.muted = true
+                        videoPlaybackHalf.muted = rootItem.currentCoordinateValid
                     } else {
                         videoPlaybackHalf.stop()
                     }

@@ -60,7 +60,7 @@ void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
     gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -234,7 +234,10 @@ void wahookickrsnapbike::update() {
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
+            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
         if (requestStart != -1) {
@@ -402,7 +405,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     if (!crank_rev_present)
                         cadence =
                             cadence /
-                            2; // I really don't like this, there is no releationship between wheel rev and crank rev
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
@@ -789,8 +792,9 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
-    QByteArray a = setSimGrade(grade);
+    QByteArray a = setSimGrade(grade + gears());
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);

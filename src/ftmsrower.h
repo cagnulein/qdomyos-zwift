@@ -28,6 +28,7 @@
 
 #include "rower.h"
 #include "virtualbike.h"
+#include "virtualrower.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"

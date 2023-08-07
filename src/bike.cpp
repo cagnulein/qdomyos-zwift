@@ -254,6 +254,8 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(RequestedPower.value());
     } else if (!setting.compare(QStringLiteral("Watt/Kg"))) {
         return qRound(wattKg().value());
+    } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
+        return qRound(RequestedCadence.value());
     }
     return qRound(currentHeart().value());
 }
