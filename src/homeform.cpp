@@ -3458,7 +3458,7 @@ void homeform::update() {
                 else if (next.speed != -1)
                     nextRows->setValue(QStringLiteral("S") + QString::number(next.speed) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.inclination != -1)
+                else if (next.inclination != -200)
                     nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
@@ -3914,6 +3914,16 @@ void homeform::update() {
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
+            if (((elliptical *)bluetoothManager->device())->currentSpeed().value() > 2)
+                this->pace->setValue(
+                    ((elliptical *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            else
+                this->pace->setValue("N/A");
+            this->pace->setSecondLine(
+                QStringLiteral("AVG: ") +
+                ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
+                QStringLiteral(" MAX: ") +
+                ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((elliptical *)bluetoothManager->device())->pelotonResistance().value();

@@ -15,8 +15,6 @@ int CharacteristicNotifier2AD2::notify(QByteArray &value) {
         settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
     bool rowerAsABike = !virtual_device_rower && dt == bluetoothdevice::ROWING;
 
-    qDebug() << "virtual_device_rower" << virtual_device_rower << "rowerAsABike" << rowerAsABike << dt;
-
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
         normalizeWattage = 0;

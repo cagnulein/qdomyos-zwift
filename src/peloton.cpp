@@ -521,7 +521,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
                     } else {
-                        if(len > 0) {
+                        if(len > 0 && atLeastOnePower) {
                             r.duration = QTime(0, len / 60, len % 60, 0);
                             r.power = -1;
                             if (r.power != -1) {
