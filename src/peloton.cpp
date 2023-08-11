@@ -367,7 +367,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
 
     bool atLeastOnePower = false;
     if (trainrows.empty() && !segments_segment_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
