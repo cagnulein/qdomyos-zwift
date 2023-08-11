@@ -90,6 +90,27 @@ extension MainController {
 }
 
 extension MainController: WorkoutTrackingDelegate {
+    func didReceiveHealthKitStrideLength(_ strideLength: Double) {
+        if self.sport == 1 {
+            WatchKitConnection.shared.sendMessage(message: ["strideLength":
+                                                                "\(strideLength)" as AnyObject])
+        }
+    }
+    
+    func didReceiveHealthKitGroundTime(_ groundTime: Double) {
+        if self.sport == 1 {
+            WatchKitConnection.shared.sendMessage(message: ["groundTime":
+                                                                "\(groundTime)" as AnyObject])
+        }
+    }
+    
+    func didReceiveHealthKitVerticalOscillation(_ verticalOscillation: Double) {
+        if self.sport == 1 {
+            WatchKitConnection.shared.sendMessage(message: ["verticalOscillation":
+                                                                "\(verticalOscillation)" as AnyObject])
+        }
+    }
+    
     
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double) {
         
@@ -112,6 +133,10 @@ extension MainController: WorkoutTrackingDelegate {
 		}
         self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         //WorkoutTracking.cadenceSteps = pedometer.
+        
+        WorkoutTracking.shared.fetchGroundContactTime()
+        WorkoutTracking.shared.fetchVerticalOscillation()
+        WorkoutTracking.shared.fetchStrideLength()
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {

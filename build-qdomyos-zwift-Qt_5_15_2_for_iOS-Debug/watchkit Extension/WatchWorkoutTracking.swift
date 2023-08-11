@@ -12,6 +12,9 @@ import HealthKit
 protocol WorkoutTrackingDelegate: class {
     func didReceiveHealthKitHeartRate(_ heartRate: Double)
     func didReceiveHealthKitStepCounts(_ stepCounts: Double)
+    func didReceiveHealthKitStrideLength(_ strideLength: Double)
+    func didReceiveHealthKitGroundTime(_ groundTime: Double)
+    func didReceiveHealthKitVerticalOscillation(_ verticalOscillation: Double)
     func didReceiveHealthKitStepCadence(_ stepCadence: Double)
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double)
     func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double)
@@ -22,6 +25,9 @@ protocol WorkoutTrackingProtocol {
     func startWorkOut()
     func stopWorkOut()
     func fetchStepCounts()
+    func fetchVerticalOscillation()
+    func fetchGroundContactTime()
+    func fetchStrideLength()
 }
 
 class WorkoutTracking: NSObject {
@@ -138,22 +144,52 @@ extension WorkoutTracking {
 extension WorkoutTracking: WorkoutTrackingProtocol {
     static func authorizeHealthKit() {
         if HKHealthStore.isHealthDataAvailable() {
-            let infoToRead = Set([
-                HKSampleType.quantityType(forIdentifier: .stepCount)!,
-                HKSampleType.quantityType(forIdentifier: .heartRate)!,
-                /*HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
-                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,*/
-                HKSampleType.workoutType()
-                ])
+            var infoToRead: Set<HKSampleType>
+            if #available(watchOSApplicationExtension 9.0, *) {
+                infoToRead = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    /*HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,*/
+                    HKSampleType.quantityType(forIdentifier: .runningGroundContactTime)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.workoutType()
+                    ])
+            } else {
+                infoToRead = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    /*HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                     HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,*/
+                    HKSampleType.workoutType()
+                    ])
+            }
             
-            let infoToShare = Set([
+            var infoToShare: Set<HKSampleType>
+            if #available(watchOSApplicationExtension 9.0, *) {
+                infoToShare = Set([
+                    HKSampleType.quantityType(forIdentifier: .stepCount)!,
+                    HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                    HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                    HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                    HKSampleType.quantityType(forIdentifier: .runningGroundContactTime)!,
+                    HKSampleType.quantityType(forIdentifier: .runningStrideLength)!,
+                    HKSampleType.quantityType(forIdentifier: .runningVerticalOscillation)!,
+                    HKSampleType.workoutType()
+                    ])
+            } else {
+                // Fallback on earlier versions
+                infoToShare = Set([
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
                 HKSampleType.quantityType(forIdentifier: .heartRate)!,
                 HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
                 HKSampleType.quantityType(forIdentifier: .distanceWalkingRunning)!,
-                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,				
+                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
                 HKSampleType.workoutType()
                 ])
+            }
             
             HKHealthStore().requestAuthorization(toShare: infoToShare, read: infoToRead) { (success, error) in
                 if success {
@@ -297,6 +333,88 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
         healthStore.execute(query)
+    }
+    
+    func fetchStrideLength() {
+        if #available(watchOSApplicationExtension 9.0, *) {
+            guard let stepCounts = HKQuantityType.quantityType(forIdentifier: .runningStrideLength) else {
+                return
+            }
+            let startOfDay = Calendar.current.startOfDay(for: workoutSession.startDate ?? Date())
+            let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+            
+            let query = HKStatisticsQuery(quantityType: stepCounts, quantitySamplePredicate: predicate, options: .mostRecent) { [weak self] (_, result, error) in
+                guard let weakSelf = self else {
+                    return
+                }
+                guard let result = result else {
+                    print("Failed to fetch stride length")
+                    return
+                }
+                
+                result.mostRecentQuantity()
+                let r = result.mostRecentQuantity()?.doubleValue(for: .meter()) ?? 0
+                print("stride length \(r)")
+                weakSelf.delegate?.didReceiveHealthKitStrideLength(r)
+            }
+            healthStore.execute(query)
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    func fetchGroundContactTime() {
+        if #available(watchOSApplicationExtension 9.0, *) {
+            guard let stepCounts = HKQuantityType.quantityType(forIdentifier: .runningGroundContactTime) else {
+                return
+            }
+            let startOfDay = Calendar.current.startOfDay(for: workoutSession.startDate ?? Date())
+            let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+            
+            let query = HKStatisticsQuery(quantityType: stepCounts, quantitySamplePredicate: predicate, options: .mostRecent) { [weak self] (_, result, error) in
+                guard let weakSelf = self else {
+                    return
+                }
+                guard let result = result else {
+                    print("Failed to fetch contact time")
+                    return
+                }
+                
+                let r = result.mostRecentQuantity()?.doubleValue(for: .second()) ?? 0
+                print("ground contact time \(r)")
+                weakSelf.delegate?.didReceiveHealthKitGroundTime(r)
+            }
+            healthStore.execute(query)
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    func fetchVerticalOscillation() {
+        if #available(watchOSApplicationExtension 9.0, *) {
+            guard let stepCounts = HKQuantityType.quantityType(forIdentifier: .runningVerticalOscillation) else {
+                return
+            }
+            let startOfDay = Calendar.current.startOfDay(for: workoutSession.startDate ?? Date())
+            let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: Date(), options: .strictStartDate)
+            
+            let query = HKStatisticsQuery(quantityType: stepCounts, quantitySamplePredicate: predicate, options: .mostRecent) { [weak self] (_, result, error) in
+                guard let weakSelf = self else {
+                    return
+                }
+                guard let result = result else {
+                    print("Failed to fetch vertical oscillation")
+                    return
+                }
+                
+                let r = result.mostRecentQuantity()?.doubleValue(for: .meter()) ?? 0
+                print("vertical oscillation \(r)")
+                weakSelf.delegate?.didReceiveHealthKitVerticalOscillation(r)
+            }
+            healthStore.execute(query)
+        } else {
+            // Fallback on earlier versions
+        }
     }
 }
 
