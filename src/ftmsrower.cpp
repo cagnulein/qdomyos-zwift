@@ -11,8 +11,8 @@
 #include <math.h>
 
 #ifdef Q_OS_ANDROID
-#include <QLowEnergyConnectionParameters>
 #include "keepawakehelper.h"
+#include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
 
@@ -46,11 +46,15 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -181,7 +185,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        if(WATER_ROWER && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
+        if (WATER_ROWER && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
         } else {
@@ -191,7 +195,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         StrokesCount =
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
-        if(lastStrokesCount != StrokesCount.value()) {
+        if (lastStrokesCount != StrokesCount.value()) {
             lastStroke = QDateTime::currentDateTime();
         }
         lastStrokesCount = StrokesCount.value();
@@ -308,7 +312,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     {
         if (Flags.heartRate && !disable_hr_frommachinery) {
             if (index < newValue.length()) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else
@@ -461,6 +465,8 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_rower =
+            settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence =
@@ -476,16 +482,25 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 
 #endif
 #endif
+        {
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
+                if (!virtual_device_rower) {
+                    emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
-            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                } else {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::PRIMARY);
+                }
+            }
         }
+        firstStateChanged = 1;
+        // ********************************************************************************************************
     }
-    firstStateChanged = 1;
-    // ********************************************************************************************************
 }
 
 void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -556,9 +571,12 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KS-WLT"))) { // KS-WLT-W1
             KINGSMITH = true;
             qDebug() << "KINGSMITH found! cadence multiplier 1x";
-        } else if(device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
             WATER_ROWER = true;
             qDebug() << "WATER_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
+            PM5 = true;
+            qDebug() << "PM5 found!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

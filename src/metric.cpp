@@ -43,7 +43,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     }
 
     QDateTime now = QDateTime::currentDateTime();
-    if (v != m_value) {
+    if (v != m_value && v != INFINITY) {
         m_valueChanged = now;
         if (m_last5.count() > 1) {
             double diff = v - m_value;
@@ -64,7 +64,7 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         return;
     }
 
-    if (value() != 0) {
+    if (value() != 0 && value() != INFINITY) {
         m_countValue++;
         m_lapCountValue++;
         m_totValue += value();
@@ -81,14 +81,14 @@ void metric::setValue(double v, bool applyGainAndOffset) {
         if (value() < m_lapMin) {
             m_lapMin = value();
         }
-    }
 
-    if (value() > m_max) {
-        m_max = value();
-    }
+        if (value() > m_max) {
+            m_max = value();
+        }
 
-    if (value() > m_lapMax) {
-        m_lapMax = value();
+        if (value() > m_lapMax) {
+            m_lapMax = value();
+        }
     }
 }
 

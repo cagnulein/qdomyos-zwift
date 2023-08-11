@@ -64,12 +64,14 @@ void iconceptelliptical::serviceDiscovered(const QBluetoothServiceInfo &service)
     }
 
     qDebug() << QStringLiteral("iconceptelliptical::serviceDiscovered") << service;
-    if (service.device().address() == bluetoothDevice.address()) {
+    /*if (service.device().address() == bluetoothDevice.address())*/ {
         emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
                    service.serviceUuid().toString() + ')');
 
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
-            service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+            service.serviceName().startsWith(QStringLiteral("Serial Port")) ||
+            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
+
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
@@ -108,7 +110,7 @@ void iconceptelliptical::update() {
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
-                                                  bikeResistanceGain);
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
@@ -158,39 +160,47 @@ void iconceptelliptical::rfCommConnected() {
     const uint8_t init3b[] = {0x55, 0x17, 0x01, 0x01};
     const uint8_t init4[] = {0x55, 0x15, 0x01, 0x00};
     const uint8_t init5[] = {0x55, 0x11, 0x01, 0x01};
-    const uint8_t init6[] = {0x55, 0x0a, 0x01, 0x01};
+    const uint8_t init6[] = {0x55, 0x0a, 0x01, 0x01, 0x55, 0x0a, 0x01, 0x01};
     const uint8_t init6a[] = {0x55, 0x07, 0x01, 0xff};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
     QThread::msleep(2000);
+    readSocket();
+    QThread::msleep(1000);
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
-    QThread::msleep(1000);
+    QThread::msleep(1500);
+    readSocket();
     socket->write((char *)init3, sizeof(init3));
     qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(200);
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init3b, sizeof(init3b));
     qDebug() << QStringLiteral(" init3b write");
-    QThread::msleep(200);
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init4, sizeof(init4));
     qDebug() << QStringLiteral(" init4 write");
     QThread::msleep(700);
+    readSocket();
     socket->write((char *)init5, sizeof(init5));
     qDebug() << QStringLiteral(" init5 write");
     QThread::msleep(600);
+    readSocket();
     socket->write((char *)init3b, sizeof(init3b));
     qDebug() << QStringLiteral(" init3b write");
     QThread::msleep(400);
+    readSocket();
     socket->write((char *)init6, sizeof(init6));
     qDebug() << QStringLiteral(" init6 write");
     QThread::msleep(600);
+    readSocket();
+    QThread::msleep(500);
     socket->write((char *)init6a, sizeof(init6a));
     qDebug() << QStringLiteral(" init6a write");
-    QThread::msleep(100);
-    socket->write((char *)init3b, sizeof(init3b));
-    qDebug() << QStringLiteral(" init3b write");
-    QThread::msleep(400);
+    QThread::msleep(1000);
+    readSocket();
 
     initDone = true;
     // requestStart = 1;

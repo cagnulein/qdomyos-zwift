@@ -52,11 +52,15 @@ void apexbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -382,9 +386,7 @@ bool apexbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-uint16_t apexbike::watts() {
-    return wattFromHR(true);
-}
+uint16_t apexbike::watts() { return wattFromHR(true); }
 
 void apexbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

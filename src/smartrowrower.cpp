@@ -61,12 +61,20 @@ void smartrowrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
     loop.exec();
@@ -191,7 +199,9 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     double distance = GetDistanceFromPacket(newValue);
     QTime localTime;
+    int pace_inst;
 
+    // https://github.com/inonoob/pirowflo/blob/6ea5f3a9d224ed594b23c25c186737bc0cae7ac3/src/adapters/smartrow/smartrowtobleant.py
     switch (newValue.at(0)) {
     case 'a':
         // elapsed time
@@ -218,6 +228,13 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         break;
     case 'e':
         // actual split time
+        // pace_inst = int(event[6])*60 + int(event[7:9])
+        // 3243 = 180 + 243 = 713
+        // speed = int(500 * 100 / pace_inst) # speed in cm/s
+        pace_inst = (atoi(newValue.mid(6, 1)) * 60) + atoi(newValue.mid(7, 2));
+        qDebug() << QStringLiteral("pace_inst") << pace_inst;
+        Speed = (500.0 * 100.0 / pace_inst) * 0.036;
+
         // average split time
         break;
     case 'f':
@@ -234,10 +251,10 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         break;
     }
 
-    Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -267,7 +284,8 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -343,11 +361,14 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();

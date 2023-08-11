@@ -57,10 +57,18 @@ void lifefitnesstreadmill::writeCharacteristic(QLowEnergyService *service, QLowE
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (characteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+        service->writeCharacteristic(characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
+    else
+        service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -81,32 +89,43 @@ void lifefitnesstreadmill::btinit() {
     uint8_t initData3[1] = {0x00};
     uint8_t initData4[7] = {0x00, 0x00, 0x00, 0x01, 0xb8, 0x5b, 0x5d};
     uint8_t initData5[1] = {0x02};
-    writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
-                        QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2a, sizeof(initData2a),
-                        QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2b, sizeof(initData2b),
-                        QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService2, gattWriteChar4CustomService2, initData3, sizeof(initData3),
-                        QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
-                        QStringLiteral("init"), false, false);
-    writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
-                        QStringLiteral("init"), false, false);
+
+    if (gattWriteChar4CustomService2.isValid()) {
+
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData1, sizeof(initData1),
+                            QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2a, sizeof(initData2a),
+                            QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCustomService2, gattWriteChar3CustomService2, initData2b, sizeof(initData2b),
+                            QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCustomService2, gattWriteChar4CustomService2, initData3, sizeof(initData3),
+                            QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCustomService1, gattWriteChar2CustomService1, initData4, sizeof(initData4),
+                            QStringLiteral("init"), false, false);
+        writeCharacteristic(gattCustomService1, gattWriteChar1CustomService1, initData5, sizeof(initData5),
+                            QStringLiteral("init"), false, false);
+    }
 
     QByteArray descriptor;
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattTrainingStatusId((quint16)0x2AD3);
+    QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
     QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
     QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
+    QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);
     descriptor.append((char)0x01);
     descriptor.append((char)0x00);
     gattFTMSService->writeDescriptor(gattTrainingStatus.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
                                      descriptor);
-    gattFTMSService->writeDescriptor(gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
-                                     descriptor);
-    gattFTMSService->writeDescriptor(gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
-                                     descriptor);
+    if (gattTreadmillData.isValid()) {
+        gattFTMSService->writeDescriptor(
+            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        gattFTMSService->writeDescriptor(
+            gattTreadmillData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+    } else if (gattCrossTrainerData.isValid()) {
+        gattFTMSService->writeDescriptor(
+            gattCrossTrainerData.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+    }
 
     initDone = true;
 }
@@ -155,7 +174,7 @@ void lifefitnesstreadmill::update() {
                 requestInclination = 0;
             else {
                 // the treadmill accepts only .5 steps
-                requestInclination = std::llround(requestInclination*2) / 2.0;
+                requestInclination = std::llround(requestInclination * 2) / 2.0;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -579,7 +598,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-                update_hr_from_external();
+            update_hr_from_external();
         } else {
             Heart = heart;
         }

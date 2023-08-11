@@ -67,6 +67,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetPelotonImage(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

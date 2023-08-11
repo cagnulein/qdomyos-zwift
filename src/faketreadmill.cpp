@@ -55,10 +55,11 @@ void faketreadmill::update() {
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
-		bool virtual_device_enabled = 
-			settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-        bool virtual_device_force_bike = 
-			settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -72,7 +73,7 @@ void faketreadmill::update() {
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
-            }            
+            }
         }
         if (!firstStateChanged)
             emit connectedAndDiscovered();
@@ -106,7 +107,10 @@ void faketreadmill::update() {
     }
 
     if (Heart.value()) {
-        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
     }
 }
 

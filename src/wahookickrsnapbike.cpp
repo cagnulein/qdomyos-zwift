@@ -52,10 +52,15 @@ void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
         timeout.singleShot(1000, &loop, SLOT(quit()));
     }
 
-    gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattPowerChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -172,11 +177,13 @@ void wahookickrsnapbike::update() {
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
         writeCharacteristic(b, a.length(), "init", false, true);
+        QThread::msleep(700);
 
         QByteArray c = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), 0.004,
                                   0.4); // wind and rolling should arrive from FTMS
         memcpy(b, c.constData(), c.length());
         writeCharacteristic(b, c.length(), "setSimMode", false, true);
+        QThread::msleep(700);
 
         // required to the SS2K only one time
         Resistance = 0;
@@ -227,7 +234,10 @@ void wahookickrsnapbike::update() {
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
+            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
         if (requestStart != -1) {
@@ -395,7 +405,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                     if (!crank_rev_present)
                         cadence =
                             cadence /
-                            2; // I really don't like this, there is no releationship between wheel rev and crank rev
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
@@ -636,10 +646,11 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&wahookickrsnapbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &wahookickrsnapbike::inclinationChanged);
-            this->setVirtualDevice(virtualBike,VIRTUAL_DEVICE_MODE::PRIMARY);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -781,8 +792,9 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
-    QByteArray a = setSimGrade(grade);
+    QByteArray a = setSimGrade(grade + gears());
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);

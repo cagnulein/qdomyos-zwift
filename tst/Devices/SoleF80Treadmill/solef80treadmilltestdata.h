@@ -7,7 +7,6 @@ class SoleF80TreadmillTestData : public BluetoothDeviceTestData {
 
 public:
     SoleF80TreadmillTestData() : BluetoothDeviceTestData("Sole F80") {
-        this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
         this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
@@ -40,6 +39,7 @@ class SoleF85TreadmillTestData : public BluetoothDeviceTestData {
   public:
     SoleF85TreadmillTestData() : BluetoothDeviceTestData("Sole F85 Treadmill") {
         this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::SoleF80Treadmill; }

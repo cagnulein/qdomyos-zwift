@@ -38,9 +38,9 @@ class wahookickrsnapbike : public bike {
   public:
     wahookickrsnapbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                        double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool connected();
-    resistance_t maxResistance() { return 100; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool connected() override;
+    resistance_t maxResistance() override { return 100; }
 
     enum OperationCode : uint8_t {
         _unlock = 32,
@@ -72,7 +72,7 @@ class wahookickrsnapbike : public bike {
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -83,6 +83,8 @@ class wahookickrsnapbike : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    double lastGearValue = -1;
+    double lastGrade = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
@@ -115,7 +117,7 @@ class wahookickrsnapbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(resistance_t res);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

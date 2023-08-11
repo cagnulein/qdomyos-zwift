@@ -52,11 +52,14 @@ void fakeelliptical::update() {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -68,7 +71,8 @@ void fakeelliptical::update() {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakeelliptical::changeInclinationRequested);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakeelliptical::ftmsCharacteristicChanged);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                    &fakeelliptical::ftmsCharacteristicChanged);
             this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
@@ -90,8 +94,10 @@ void fakeelliptical::update() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -101,7 +107,10 @@ void fakeelliptical::update() {
     }
 
     if (Heart.value()) {
-        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
     }
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
@@ -109,7 +118,8 @@ void fakeelliptical::update() {
     }
 }
 
-void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                               const QByteArray &newValue) {
     QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 }
@@ -121,5 +131,3 @@ void fakeelliptical::changeInclinationRequested(double grade, double percentage)
 }
 
 bool fakeelliptical::connected() { return true; }
-
-

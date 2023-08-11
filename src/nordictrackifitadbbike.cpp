@@ -13,7 +13,8 @@
 
 using namespace std::chrono_literals;
 
-nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHeartService) {
+nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                               double bikeResistanceGain) {
     QSettings settings;
     bool nordictrack_ifit_adb_remote = settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote).toBool();
     m_watt.setType(metric::METRIC_WATT);
@@ -36,15 +37,29 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-        if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
-                auto virtualBike = new virtualbike(this);
-                connect(virtualBike, &virtualbike::changeInclination, this,
-                        &nordictrackifitadbbike::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
-            firstStateChanged = 1;
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadence) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        } else
+#endif
+#endif
+            if (virtual_device_enabled) {
+            qDebug() << QStringLiteral("creating virtual bike interface...");
+            auto virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+            connect(virtualBike, &virtualbike::changeInclination, this, &nordictrackifitadbbike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
+    firstStateChanged = 1;
     // ********************************************************************************************************
 
 #ifdef Q_OS_ANDROID
@@ -174,6 +189,11 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -187,6 +207,18 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 update_hr_from_external();
             }
         }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadencep = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadencep && h && firstStateChanged) {
+            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+#endif
+#endif
 
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));        

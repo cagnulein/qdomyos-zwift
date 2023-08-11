@@ -39,7 +39,6 @@ class concept2skierg : public rower {
     concept2skierg(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
-
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

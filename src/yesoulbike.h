@@ -42,7 +42,7 @@ class yesoulbike : public bike {
 
     yesoulbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
   private:
     double GetDistanceFromPacket(const QByteArray &packet);
@@ -52,7 +52,7 @@ class yesoulbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
 

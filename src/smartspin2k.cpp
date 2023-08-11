@@ -112,12 +112,15 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -143,12 +146,15 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelServiceFTMS->writeCharacteristic(gattWriteCharControlPointId,
-                                                             QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelServiceFTMS->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -196,11 +202,15 @@ void smartspin2k::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
 
-    double ss2k_min_resistance = settings.value(QZSettings::ss2k_min_resistance, QZSettings::default_ss2k_min_resistance).toDouble();
-    double ss2k_max_resistance = settings.value(QZSettings::ss2k_max_resistance, QZSettings::default_ss2k_max_resistance).toDouble();
+    double ss2k_min_resistance =
+        settings.value(QZSettings::ss2k_min_resistance, QZSettings::default_ss2k_min_resistance).toDouble();
+    double ss2k_max_resistance =
+        settings.value(QZSettings::ss2k_max_resistance, QZSettings::default_ss2k_max_resistance).toDouble();
 
-    if(requestResistance > ss2k_max_resistance) requestResistance = ss2k_max_resistance;
-    if(requestResistance < ss2k_min_resistance) requestResistance = ss2k_min_resistance;
+    if (requestResistance > ss2k_max_resistance)
+        requestResistance = ss2k_max_resistance;
+    if (requestResistance < ss2k_min_resistance)
+        requestResistance = ss2k_min_resistance;
 
     // if not calibrated, slope=0 and intercept is the configured shift step
     uint16_t steps = slope * requestResistance + intercept;

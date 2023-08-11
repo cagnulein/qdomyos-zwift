@@ -44,16 +44,17 @@ class proformwifibike : public bike {
   public:
     proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                     double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance() { return max_resistance; }
-    bool inclinationAvailableByHardware();
-    bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool inclinationAvailableByHardware() override;
+    bool connected() override;
 
   private:
     QWebSocket websocket;
     resistance_t max_resistance = 100;
     resistance_t min_resistance = -20;
+    double max_incline_supported = 20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
@@ -63,7 +64,7 @@ class proformwifibike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
     void forceResistance(double requestResistance);
     void innerWriteResistance();
     void setTargetWatts(double watts);

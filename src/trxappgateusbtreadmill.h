@@ -31,9 +31,9 @@ class trxappgateusbtreadmill : public treadmill {
     Q_OBJECT
   public:
     trxappgateusbtreadmill();
-    bool connected();
+    bool connected() override;
 
-    double minStepInclination();
+    double minStepInclination() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

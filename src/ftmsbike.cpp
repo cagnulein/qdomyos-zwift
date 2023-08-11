@@ -47,10 +47,15 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -356,7 +361,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -546,7 +551,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -764,7 +769,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(b);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 

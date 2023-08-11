@@ -12,8 +12,8 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
-#include <QLowEnergyConnectionParameters>
 #include "keepawakehelper.h"
+#include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
 
@@ -60,10 +60,15 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(characteristic, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -857,7 +862,7 @@ void horizontreadmill::update() {
                 requestInclination = 0;
             else {
                 // the treadmill accepts only .5 steps
-                requestInclination = std::llround(requestInclination*2) / 2.0;
+                requestInclination = std::llround(requestInclination * 2) / 2.0;
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -931,6 +936,13 @@ void horizontreadmill::update() {
                     writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
                                         sizeof(initData03_paragon), QStringLiteral("starting"), false, true);
                 }
+            } else if (gattFTMSService) {
+                uint8_t write[] = {FTMS_REQUEST_CONTROL};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                    "requestControl", false, false);
+                write[0] = {FTMS_START_RESUME};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                    "start simulation", false, false);
             }
             horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
@@ -979,6 +991,20 @@ void horizontreadmill::update() {
                     uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
                     writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                         QStringLiteral("stopping"), false, true);
+                }
+            } else if (gattFTMSService) {
+                if (requestPause == -1) {
+                    uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x01};
+
+                    writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                        QStringLiteral("stop"), false, true);
+                } else {
+                    requestPause = -1;
+                    Speed = 0; // forcing the speed to be sure, maybe I could remove this
+                    uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x02};
+
+                    writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                        QStringLiteral("stop"), false, true);
                 }
             }
 
@@ -1142,14 +1168,13 @@ void horizontreadmill::forceIncline(double requestIncline) {
                             false, false);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        if(kettler_treadmill) {
+        if (kettler_treadmill) {
             int16_t r = ((int16_t)(requestIncline * 10.0));
 
-            if(r < 0)
+            if (r < 0)
                 r = 0;
-            else if(r > 100) // max 10% inclination
+            else if (r > 100) // max 10% inclination
                 r = 100;
-
 
             // send:  1/0 a  14 1e 28 32 3c 46 50 5a 64 6e 78 82 8c 96
             // recv:  0   5   a 14 19 1e 28 2d 32 3c 41 46 50 55 5a 64
@@ -1926,7 +1951,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("MOBVOI TM"))) {
             mobvoi_treadmill = true;
             qDebug() << QStringLiteral("MOBVOI TM workaround ON!");
-        } else if(device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
         }
@@ -2632,7 +2657,7 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if(kettler_treadmill)
+    if (kettler_treadmill)
         return 1.0;
     else
         return 0.5;

@@ -9,7 +9,7 @@ class CharacteristicNotifier2ACC : public CharacteristicNotifier {
 
   public:
     explicit CharacteristicNotifier2ACC(bluetoothdevice *Bike, QObject *parent = nullptr);
-    virtual int notify(QByteArray &out);
+    int notify(QByteArray &out) override;
 };
 
 #endif // CHARACTERISTICNOTIFIES2ACC_H

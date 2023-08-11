@@ -4,6 +4,7 @@ name: CI
 
 env:
   DISPLAY: ':99'
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -20,6 +21,11 @@ on:
 jobs:
   window-build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - {python: true}
+          - {python: false}
 
     steps:
       - uses: actions/checkout@v2
@@ -61,6 +67,20 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.10.11
+      - name: download python and paddleocr
+        run: |
+          python -VV
+          python -m pip install opencv-python
+          python -m pip install pywin32
+          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
+          python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
+          python -m pip install paddleocr>=2.0.1
+        if: matrix.config.python
+
       - uses: msys2/setup-msys2@v2
         with:
           install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
@@ -73,7 +93,7 @@ jobs:
           cmake-version: '3.20.x'
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'windows'
@@ -82,6 +102,8 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -116,17 +138,63 @@ jobs:
             cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
+            cp ../../windows/*.py .
+            mkdir adb
+            mkdir python
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+            
+      - name: Build without python
+        run: |
+            qmake
+            cd src
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            cd ..
+            make -j8
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/ProgramData/Chocolatey/lib/mingw/tools/install/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
             mkdir adb
             cp ../../adb/* adb/
             cd ..
             cd appx
-            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: matrix.config.python == false
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output release.zip
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/debug/output
+          path: release.zip
+        if: matrix.config.python
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary-no-python
+          path: release.zip
+        if:  ${{ ! matrix.config.python }}
 
 #  window-steam-build:
 #    runs-on: windows-latest
@@ -256,15 +324,36 @@ jobs:
           path: "tst/googletest/"
           ref: "release-1.12.1"
 
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'linux'
           modules: 'qtnetworkauth qtcharts'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-linux'                    
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src/qthttpserver 
+            qmake
+            make -j8
+            make install
+            cd ../..
 
       - name: Compile Linux Desktop
         run: qmake; make -j8
@@ -425,20 +514,25 @@ jobs:
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.2'
+          version: '5.15.0'
           host: 'linux'
           target: 'android'
           arch: 'android'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/android/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-android'                    
 
       - name: Install Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '11'
+          
+      - name: patching qt for bluetooth
+        run: cp qt-patches/android/5.15.0/jar/*.* ${{ github.workspace }}/output/android/Qt/5.15.0/android/jar/
 
       - name: Set Android NDK 21 && build
         run: |
@@ -450,6 +544,13 @@ jobs:
           echo "y" | $SDKMANAGER "ndk;21.4.7075529"
           export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
           export ANDROID_NDK_ROOT="${ANDROID_NDK}"
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "#define LICENSE" >> secret.h
+          cd ..          
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
@@ -457,6 +558,12 @@ jobs:
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
+
+      - name: Archive apk binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: fdroid-android-trial
+          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
   ios-build:
     # The type of runner that the job will run on
@@ -489,13 +596,15 @@ jobs:
           ref: "release-1.12.1"
 
       - name: Install Qt iOS
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           host: 'mac'
           target: 'ios'
           modules: 'qtcharts  qtnetworkauth'
           dir: '${{ github.workspace }}/output/ios/'
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-ios'                    
           
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;

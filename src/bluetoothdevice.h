@@ -438,7 +438,6 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
-
     /**
      * @brief Mode of operation for the virtual device with the bluetoothdevice object.
      */
@@ -677,12 +676,17 @@ class bluetoothdevice : public QObject {
      */
     double calculateMETS();
 
-
     /**
-     * @brief setVirtualDevice Set the virtual device, and the way it is being used. Deletes the existing one, if present.
+     * @brief setVirtualDevice Set the virtual device, and the way it is being used. Deletes the existing one, if
+     * present.
      * @param virtualDevice The virtual device.
      */
-    void setVirtualDevice(virtualdevice * virtualDevice, VIRTUAL_DEVICE_MODE mode);
+    void setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode);
+
+    /**
+     * @brief writeBuffer contains the last byte array request via bluetooth to the fitness devices
+     */
+    QByteArray *writeBuffer = nullptr;
 
   private:
     /**

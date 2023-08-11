@@ -43,16 +43,19 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
     else
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                             QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -285,7 +288,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             }
             if (heart == 0.0 ||
                 settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-                    update_hr_from_external();
+                update_hr_from_external();
             } else {
                 Heart = heart;
             }
@@ -770,7 +773,8 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
 
-                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                auto virtualBike =
+                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::changeInclination);
                 this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
