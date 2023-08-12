@@ -1869,6 +1869,9 @@ class QZSettings {
     static const QString watt_ignore_builtin;
     static constexpr bool default_watt_ignore_builtin = true;
 
+    static const QString proform_bike_csx325;
+    static constexpr bool default_proform_bike_csx325 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

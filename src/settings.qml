@@ -814,6 +814,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.15.2
             property bool watt_ignore_builtin: true
+
+            // from version 2.16.1
+            property bool proform_bike_csx325: false
         }
 
         function paddingZeros(text, limit) {
@@ -2891,6 +2894,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("Proform CSX 325")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_csx325
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_csx325 = checked; window.settings_restart_to_apply = true; }
                     }
 
                     RowLayout {

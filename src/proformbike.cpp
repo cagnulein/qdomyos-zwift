@@ -845,6 +845,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
     bool proform_bike_PFEVEX71316_1 =
         settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1).toBool();
+    bool proform_bike_csx325 = settings.value(QZSettings::proform_bike_csx325, QZSettings::default_proform_bike_csx325).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -947,7 +948,99 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (m_watts > 3000) {
             m_watts = 0;
         } else {
-            if (proform_hybrid_trainer_PFEL03815 || proform_bike_sb) {
+            if(proform_bike_csx325) {
+                switch ((uint8_t)newValue.at(11)) {
+                case 0x01:
+                    Resistance = 1;
+                    m_pelotonResistance = 1;
+                    break;
+                case 0x3:
+                    Resistance = 2;
+                    m_pelotonResistance = 5;
+                    break;
+                case 0x05:
+                    Resistance = 3;
+                    m_pelotonResistance = 10;
+                    break;
+                case 0x07:
+                    Resistance = 4;
+                    m_pelotonResistance = 15;
+                    break;
+                case 0x08:
+                    Resistance = 5;
+                    m_pelotonResistance = 20;
+                    break;
+                case 0x0a:
+                    Resistance = 6;
+                    m_pelotonResistance = 25;
+                    break;
+                case 0x0c:
+                    Resistance = 7;
+                    m_pelotonResistance = 30;
+                    break;
+                case 0x0e:
+                    Resistance = 8;
+                    m_pelotonResistance = 35;
+                    break;
+                case 0x0f:
+                    Resistance = 9;
+                    m_pelotonResistance = 40;
+                    break;
+                case 0x11:
+                    Resistance = 10;
+                    m_pelotonResistance = 45;
+                    break;
+                case 0x13:
+                    Resistance = 11;
+                    m_pelotonResistance = 50;
+                    break;
+                case 0x15:
+                    Resistance = 12;
+                    m_pelotonResistance = 55;
+                    break;
+                case 0x17:
+                    Resistance = 13;
+                    m_pelotonResistance = 60;
+                    break;
+                case 0x18:
+                    Resistance = 14;
+                    m_pelotonResistance = 65;
+                    break;
+                case 0x1a:
+                    Resistance = 15;
+                    m_pelotonResistance = 70;
+                    break;
+                case 0x1c:
+                    Resistance = 16;
+                    m_pelotonResistance = 75;
+                    break;
+                case 0x1e:
+                    Resistance = 17;
+                    m_pelotonResistance = 80;
+                    break;
+                case 0x1f:
+                    Resistance = 18;
+                    m_pelotonResistance = 84;
+                    break;
+                case 0x21:
+                    Resistance = 19;
+                    m_pelotonResistance = 88;
+                    break;
+                case 0x23:
+                    Resistance = 20;
+                    m_pelotonResistance = 92;
+                    break;
+                case 0x25:
+                    Resistance = 21;
+                    m_pelotonResistance = 96;
+                    break;
+                case 0x27:
+                    Resistance = 22;
+                    m_pelotonResistance = 100;
+                    break;
+                }
+            }
+            else if (proform_hybrid_trainer_PFEL03815 || proform_bike_sb) {
                 switch ((uint8_t)newValue.at(11)) {
                 case 0:
                     Resistance = 0;
