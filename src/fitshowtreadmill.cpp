@@ -471,7 +471,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         .toBool())
                     miles = 1.60934;
 
-                Speed = speed * miles;
+                if(IS_RUNNING)
+                    Speed = speed * miles;
+                else
+                    Speed = 0;
+
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
