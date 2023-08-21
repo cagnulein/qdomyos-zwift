@@ -30,12 +30,8 @@ import java.util.List;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import com.samsung.health.sdk.HealthConnectClient;
-import com.samsung.health.sdk.PermissionController;
-import com.samsung.health.sdk.model.ReadRecordsRequest;
-import com.samsung.health.sdk.model.StepsRecord;
-import com.samsung.health.sdk.permission.HealthPermission;
-import com.samsung.health.sdk.filter.TimeRangeFilter;
+import androidx.health.connect.client.HealthConnectClient;
+import androidx.health.connect.client.PermissionController;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -44,7 +40,7 @@ import java.util.Set;
 public class HealthConnect {
 
 	private static final Set<HealthPermission> PERMISSIONS = new HashSet<>();
-	    private final ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
+	    private ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
 		 private static HealthConnectClient healthConnectClient;
 
 		 public void checkAndRun(Context context) {

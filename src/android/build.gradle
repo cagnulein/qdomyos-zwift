@@ -47,6 +47,7 @@ dependencies {
          implementation 'com.github.mik3y:usb-serial-for-android:v3.4.6'
 	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
 	 implementation "androidx.health.connect:connect-client:1.1.0-alpha03"
+	 implementation "androidx.activity:activity:1.2.0"
 }
 
 android {
