@@ -96,8 +96,44 @@
                                     android:value="ocr" />
 
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
+
+				<!-- =============================================
+					Health Connect 
+					=============================================
+					
+					For supported versions through Android 13, create an activity to show the rationale
+					of Health Connect permissions once users click the privacy policy link. -->
+				<activity
+					android:name=".PermissionsRationaleActivity"
+					android:exported="true">
+					<intent-filter>
+					<action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+					</intent-filter>
+				</activity>
+
+				<!-- For versions starting Android 14, create an activity alias to show the rationale
+					of Health Connect permissions once users click the privacy policy link. -->
+				<activity-alias
+					android:name="ViewPermissionUsageActivity"
+					android:exported="true"
+					android:targetActivity=".PermissionsRationaleActivity"
+					android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+					<intent-filter>
+					<action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+					<category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+					</intent-filter>
+				</activity-alias>				
+				<!-- =============================================
+					End Health Connect 
+					============================================= -->
+
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>
+
+<!-- Check if Health Connect is installed -->
+<queries>
+    <package android:name="com.google.android.apps.healthdata" />
+</queries>
 
 <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -116,4 +152,21 @@
 	 <uses-permission android:name="android.permission.GET_TASKS" />
 	 <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
 	     tools:ignore="ProtectedPermissions" />
+
+<uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+<uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>
+<uses-permission android:name="android.permission.health.READ_STEPS"/>
+<uses-permission android:name="android.permission.health.WRITE_STEPS"/>
+<uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED"/>
+<uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
+<uses-permission android:name="android.permission.health.WRITE_DISTANCE"/>
+<uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED"/>
+<uses-permission android:name="android.permission.health.READ_HEIGHT"/>
+<uses-permission android:name="android.permission.health.WRITE_POWER"/>
+<uses-permission android:name="android.permission.health.WRITE_SPEED"/>
+<uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED"/>
+<uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+<uses-permission android:name="android.permission.health.WRITE_WEIGHT"/>
+<uses-permission android:name="android.permission.health.READ_VO2_MAX"/>
+
 </manifest>

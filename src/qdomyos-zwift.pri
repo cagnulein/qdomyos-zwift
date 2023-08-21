@@ -715,6 +715,7 @@ DISTFILES += \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/Garmin.java \
+   $$PWD/android/src/HealthConnect.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
