@@ -47,11 +47,8 @@ public class HealthConnect {
 	    private final ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
 		 private static HealthConnectClient healthConnectClient;
 
-		 public HealthConnectJava() {
-			  requestPermissions = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::handlePermissionsResult);
-			}
-
 		 public void checkAndRun(Context context) {
+			  requestPermissions = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::handlePermissionsResult);
 			  int availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName);
 			  if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
 				   return; // early return as there is no viable integration
