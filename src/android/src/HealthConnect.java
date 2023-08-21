@@ -40,7 +40,7 @@ import java.util.Set;
 public class HealthConnect {
 
 	private static final Set<HealthPermission> PERMISSIONS = new HashSet<>();
-	    private ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
+	    private ActivityResultLauncher<Set<PermissionController.HealthPermission>> requestPermissions;
 		 private static HealthConnectClient healthConnectClient;
 
 		 public void checkAndRun(Context context) {
@@ -63,10 +63,10 @@ public class HealthConnect {
 				healthConnectClient = HealthConnectClient.getOrCreate(context);
 			  // Issue operations with healthConnectClient
 
-			  PERMISSIONS.add(HealthPermission.getReadPermission(StepsRecord.class));
-			  PERMISSIONS.add(HealthPermission.getWritePermission(StepsRecord.class));
-			  PERMISSIONS.add(HealthPermission.getReadPermission(HeartRateRecord.class));
-			  PERMISSIONS.add(HealthPermission.getWritePermission(HeartRateRecord.class));
+			  PERMISSIONS.add(PermissionController.HealthPermission.getReadPermission(StepsRecord.class));
+			  PERMISSIONS.add(PermissionController.HealthPermission.getWritePermission(StepsRecord.class));
+			  PERMISSIONS.add(PermissionController.HealthPermission.getReadPermission(HeartRateRecord.class));
+			  PERMISSIONS.add(PermissionController.HealthPermission.getWritePermission(HeartRateRecord.class));
 
 			  checkPermissionsAndRun(healthConnectClient);
 			}
