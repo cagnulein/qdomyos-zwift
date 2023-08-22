@@ -846,7 +846,7 @@ void horizontreadmill::update() {
 
         if (requestSpeed != -1) {
             bool minSpeed =
-                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() + 0.999999);
+                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
                      << float_one_point_round(currentSpeed().value());
