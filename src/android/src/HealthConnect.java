@@ -45,8 +45,7 @@ public class HealthConnect {
 		 private static HealthConnectClient healthConnectClient;
 
 		 public void checkAndRun(Context context) {
-			  requestPermissions = registerForActivityResult(new ActivityResultContracts.RequestPermission(), this::handlePermissionsResult);
-			  int availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName);
+			  int availabilityStatus = HealthConnectClient.sdkStatus(context, "com.google.android.apps.healthdata");
 			  if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
 				   return; // early return as there is no viable integration
 					}
@@ -80,16 +79,27 @@ public class HealthConnect {
 					}
 		 }
 
-	    private void checkPermissionsAndRun(HealthConnectClient healthConnectClient) {
-			  Set<HealthPermission> granted = healthConnectClient.getPermissionController().getGrantedPermissions();
-			  if (granted.containsAll(PERMISSIONS)) {
-				   // Permissions already granted; proceed with inserting or reading data
-					} else {
-					requestPermissions.launch(PERMISSIONS);
-					}
-		 }
+	 private void checkPermissionsAndRun() {
+		  Set<HealthPermission> granted = permissionController.getGrantedPermissions();
+		  if (granted.containsAll(PERMISSIONS)) {
+			   // Permissions already granted; proceed with inserting or reading data
+				} else {
+				Intent intent = permissionController.createPermissionRequestIntent(PERMISSIONS);
+				startActivityForResult(intent, PERMISSION_REQUEST_CODE);
+				}
+	 }
 
-	    public void readStepsByTimeRange(HealthConnectClient healthConnectClient, Instant startTime, Instant endTime) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		  if (requestCode == PERMISSION_REQUEST_CODE) {
+			   if (resultCode == Activity.RESULT_OK) {
+					 // Permissions successfully granted
+					} else {
+					 // Lack of required permissions
+					}
+			}
+	 }
+
+       public void readStepsByTimeRange(HealthConnectClient healthConnectClient, Instant startTime, Instant endTime) {
 			  try {
 				   ReadRecordsRequest request = new ReadRecordsRequest(
 					        StepsRecord.class,
