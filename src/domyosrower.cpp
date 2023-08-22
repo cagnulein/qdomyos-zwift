@@ -56,8 +56,7 @@ void domyosrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -196,7 +195,8 @@ void domyosrower::update() {
                     this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
@@ -367,7 +367,8 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 double domyosrower::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
-    if(convertedData > 65000) return 0;
+    if (convertedData > 65000 || convertedData == 0 || currentCadence().value() == 0)
+        return 0;
     return (60.0 / (double)(convertedData)) * 30.0;
 }
 
