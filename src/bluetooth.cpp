@@ -1161,6 +1161,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||      // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("MATRIXTF50")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T01_")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TF-")) &&
                          horizon_treadmill_force_ftms) || // FTMS, TF-769DF2
                         ((b.name().toUpper().startsWith(QStringLiteral("TOORX")) ||
@@ -1847,13 +1848,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 trxappgateusb->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(trxappgateusb);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("FITHIWAY")) ||
                         ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("VIFHTR2.1")) ||
-                          b.name().toUpper().contains(QStringLiteral("CR011R")) ||
+                          b.name().toUpper().contains(QStringLiteral("CR011R")) ||                          
                           b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
                        !trxappgateusb && !toorx_ftms_treadmill && !trxappgateusbBike && filter) {
@@ -1917,6 +1919,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 skandikaWiriBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(skandikaWiriBike);
             } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
+                        (b.name().toUpper().startsWith("R-Q") && b.name().length() > 6) ||
                         (b.name().toUpper().startsWith("SCH130")) || // not a renpho bike an FTMS one
                         ((b.name().startsWith(QStringLiteral("TOORX"))) && toorx_ftms && !toorx_ftms_treadmill)) &&
                        !renphoBike && !snodeBike && !fitPlusBike && filter) {

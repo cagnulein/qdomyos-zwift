@@ -133,9 +133,12 @@ void soleelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
 
-        update_metrics(true, watts());
-
         QSettings settings;
+        bool watt_ignore_builtin =
+            settings.value(QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin).toBool();
+
+        update_metrics(watt_ignore_builtin, watts());
+
         bool sole_elliptical_inclination =
             settings.value(QZSettings::sole_elliptical_inclination, QZSettings::default_sole_elliptical_inclination)
                 .toBool();
@@ -339,16 +342,19 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value(QZSettings::domyos_elliptical_speed_ratio,
     // QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
-    uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    uint16_t watt = ((uint16_t)((uint8_t)newValue.at(13)) << 8) | (uint16_t)((uint8_t)newValue.at(14));
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool watt_ignore_builtin =
+        settings.value(QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin).toBool();
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    // m_watt = watt;
+    if(!watt_ignore_builtin)
+        m_watt = watt;
 
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
@@ -364,7 +370,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
             Heart = ((uint8_t)newValue.at(18));
-        } else {
+        } else if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
         }
     }

@@ -2231,6 +2231,12 @@ void homeform::sortTiles() {
                 target_pace->setGridId(i);
                 dataList.append(target_pace);
             }
+
+            if (settings.value(QZSettings::tile_pace_enabled, true).toBool() &&
+                settings.value(QZSettings::tile_pace_order, 51).toInt() == i) {
+                pace->setGridId(i);
+                dataList.append(pace);
+            }
         }
     }
 
@@ -3347,7 +3353,7 @@ void homeform::update() {
         double resistance = 0;
         double watts = 0;
         double pace = 0;
-        double peloton_resistance = 0;
+        double peloton_resistance = 0;        
         uint8_t cadence = 0;
         uint32_t totalStrokes = 0;
         double avgStrokesRate = 0;
@@ -3452,7 +3458,7 @@ void homeform::update() {
                 else if (next.speed != -1)
                     nextRows->setValue(QStringLiteral("S") + QString::number(next.speed) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.inclination != -1)
+                else if (next.inclination != -200)
                     nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
@@ -3908,6 +3914,16 @@ void homeform::update() {
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
+            if (((elliptical *)bluetoothManager->device())->currentSpeed().value() > 2)
+                this->pace->setValue(
+                    ((elliptical *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            else
+                this->pace->setValue("N/A");
+            this->pace->setSecondLine(
+                QStringLiteral("AVG: ") +
+                ((elliptical *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
+                QStringLiteral(" MAX: ") +
+                ((elliptical *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((elliptical *)bluetoothManager->device())->pelotonResistance().value();
@@ -3960,6 +3976,14 @@ void homeform::update() {
         if (trainProgram) {
             int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
             int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
+            double lower_requested_peloton_resistance_to_bike_resistance = 0;
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                lower_requested_peloton_resistance_to_bike_resistance = ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_requested_peloton_resistance);
+            else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                lower_requested_peloton_resistance_to_bike_resistance = ((rower *)bluetoothManager->device())->pelotonToBikeResistance(lower_requested_peloton_resistance);
+            else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+                lower_requested_peloton_resistance_to_bike_resistance = ((elliptical *)bluetoothManager->device())->pelotonToEllipticalResistance(lower_requested_peloton_resistance);
+
             if (lower_requested_peloton_resistance != -1) {
                 this->target_peloton_resistance->setSecondLine(
                     QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
@@ -3974,7 +3998,9 @@ void homeform::update() {
                     .toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                } else if (((int8_t)qRound(peloton_resistance)) < lower_requested_peloton_resistance) {
+                } else if (resistance < lower_requested_peloton_resistance_to_bike_resistance) {
+                    // we need to compare the real resistance and not the peloton resistance because most of the bikes have a 1:3 conversion so this
+                    // compare will be always true even if the actual resistance is the same #1608
                     this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
                 } else if (((int8_t)qRound(peloton_resistance)) <= upper_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
