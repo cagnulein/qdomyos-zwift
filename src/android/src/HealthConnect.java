@@ -36,6 +36,7 @@ import androidx.health.connect.client.permission.HealthPermission;
 import androidx.health.connect.client.records.*;
 import androidx.health.connect.client.request.*;
 import androidx.health.connect.client.time.*;
+import kotlin.jvm.JvmClassMappingKt;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -46,9 +47,10 @@ public class HealthConnect {
 	private static final Set<HealthPermission> PERMISSIONS = new HashSet<>();
 	    private ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
 		 private static HealthConnectClient healthConnectClient;
+		 private static final int PERMISSION_REQUEST_CODE = 123; // Define your request code
 
 		 private static void checkAndRun(Context context) {
-			  int availabilityStatus = HealthConnectClient.sdkStatus(context, "com.google.android.apps.healthdata");
+			  int availabilityStatus = HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata");
 			  if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
 				   return; // early return as there is no viable integration
 					}
@@ -66,12 +68,12 @@ public class HealthConnect {
 				healthConnectClient = HealthConnectClient.getOrCreate(context);
 			  // Issue operations with healthConnectClient
 
-			  PERMISSIONS.add(HealthPermission.getReadPermission(StepsRecord.class));
-			  PERMISSIONS.add(HealthPermission.getWritePermission(StepsRecord.class));
-			  PERMISSIONS.add(HealthPermission.getReadPermission(HeartRateRecord.class));
-			  PERMISSIONS.add(HealthPermission.getWritePermission(HeartRateRecord.class));
+			  PERMISSIONS.add(HealthPermission.getReadPermission(kotlin.jvm.JvmClassMappingKt.getKotlinClass(StepsRecord.class)));
+			  PERMISSIONS.add(HealthPermission.getWritePermission(kotlin.jvm.JvmClassMappingKt.getKotlinClass(StepsRecord.class)));
+			  PERMISSIONS.add(HealthPermission.getReadPermission(kotlin.jvm.JvmClassMappingKt.getKotlinClass(HeartRateRecord.class)));
+			  PERMISSIONS.add(HealthPermission.getWritePermission(kotlin.jvm.JvmClassMappingKt.getKotlinClass(HeartRateRecord.class)));
 
-			  checkPermissionsAndRun(healthConnectClient);
+			  checkPermissionsAndRun(context);
 			}
 
 		 private void handlePermissionsResult(Boolean granted) {
@@ -82,7 +84,8 @@ public class HealthConnect {
 					}
 		 }
 
-	 private static void checkPermissionsAndRun() {
+	 private static void checkPermissionsAndRun(Context context) {
+		 permissionController = HealthConnectClient.getOrCreate(context).getPermissionController();
 		  Set<HealthPermission> granted = permissionController.getGrantedPermissions();
 		  if (granted.containsAll(PERMISSIONS)) {
 			   // Permissions already granted; proceed with inserting or reading data
@@ -106,9 +109,9 @@ public class HealthConnect {
 			  try {
 				   ReadRecordsRequest request = new ReadRecordsRequest(
 					        StepsRecord.class,
-							  new TimeRangeFilter(startTime, endTime)
+							  new TimeRangeFilter.between(startTime, endTime)
 							);
-					ReadRecordsRequest.Response response = healthConnectClient.readRecords(request);
+					ReadRecordsResponse response = healthConnectClient.readRecords(request);
 					for (StepsRecord stepRecord : response.getRecords()) {
 						 // Process each step record
 						}
