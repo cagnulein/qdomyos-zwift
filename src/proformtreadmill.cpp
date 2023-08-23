@@ -279,7 +279,8 @@ void proformtreadmill::update() {
                     requestInclination = -100;
                 }
                 if (requestSpeed != -1) {
-                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 &&
+                        requestSpeed <= (proform_treadmill_z1300i ? 19.3 : 22)) {
                         emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                         forceSpeed(requestSpeed);
                     }
