@@ -32,7 +32,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
-import androidx.health.connect.client.permission;
+import androidx.health.connect.client.permission.HealthPermission;
+import androidx.health.connect.client.records.*;
+import androidx.health.connect.client.request.*;
+import androidx.health.connect.client.time.*;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -44,7 +47,7 @@ public class HealthConnect {
 	    private ActivityResultLauncher<Set<HealthPermission>> requestPermissions;
 		 private static HealthConnectClient healthConnectClient;
 
-		 public void checkAndRun(Context context) {
+		 private static void checkAndRun(Context context) {
 			  int availabilityStatus = HealthConnectClient.sdkStatus(context, "com.google.android.apps.healthdata");
 			  if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
 				   return; // early return as there is no viable integration
@@ -79,7 +82,7 @@ public class HealthConnect {
 					}
 		 }
 
-	 private void checkPermissionsAndRun() {
+	 private static void checkPermissionsAndRun() {
 		  Set<HealthPermission> granted = permissionController.getGrantedPermissions();
 		  if (granted.containsAll(PERMISSIONS)) {
 			   // Permissions already granted; proceed with inserting or reading data
@@ -99,7 +102,7 @@ public class HealthConnect {
 			}
 	 }
 
-       public void readStepsByTimeRange(HealthConnectClient healthConnectClient, Instant startTime, Instant endTime) {
+       private static void readStepsByTimeRange(HealthConnectClient healthConnectClient, Instant startTime, Instant endTime) {
 			  try {
 				   ReadRecordsRequest request = new ReadRecordsRequest(
 					        StepsRecord.class,
