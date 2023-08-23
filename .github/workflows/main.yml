@@ -177,7 +177,7 @@ jobs:
         if: matrix.config.python == false
 
       - name: patching qt for bluetooth
-        run: cp qt-patches/windows/5.15.2/binary/*.* ${{ github.workspace }}/src/debug/output/
+        run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output release.zip
@@ -757,6 +757,9 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false            
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output release.zip
