@@ -624,6 +624,11 @@ jobs:
 
   window-msvc2019-build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - {python: true}
+          - {python: false}    
 
     steps:
       - uses: actions/checkout@v2
