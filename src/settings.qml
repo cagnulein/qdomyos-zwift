@@ -814,6 +814,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.15.2
             property bool watt_ignore_builtin: true
+
+            // from version 2.16.4
+            property bool proform_treadmill_z1300i: false
         }
 
         function paddingZeros(text, limit) {
@@ -5243,6 +5246,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Proform z1300i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_z1300i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_z1300i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proformSEDelegate
