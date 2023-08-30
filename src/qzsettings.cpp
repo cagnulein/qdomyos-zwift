@@ -668,7 +668,9 @@ const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_b
 const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_builtin");
 const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
 const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
+const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
 const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
+const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 
 const uint32_t allSettingsCount = 561;
 
