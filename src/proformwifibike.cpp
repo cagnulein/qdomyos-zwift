@@ -458,17 +458,20 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-        double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled")))
+    // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
+    if (Cadence.value() > 0) {
+        if (!values[QStringLiteral("Current Watts")].isUndefined()) {
+            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = watt;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
+            double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
             m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-    } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
-        double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
-        m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        }
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
