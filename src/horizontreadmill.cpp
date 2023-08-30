@@ -1923,11 +1923,17 @@ void horizontreadmill::serviceScanDone(void) {
         if (s == ftmsService || s == _gattWriteCharCustomService)
 #endif
         {
+            qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
             gattCommunicationChannelService.constLast()->discoverDetails();
         }
+#ifdef Q_OS_WIN
+        else {
+            qDebug() << s << "NOT discovering!";
+        }
+#endif
     }
 }
 
