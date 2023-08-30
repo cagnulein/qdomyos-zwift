@@ -667,8 +667,10 @@ const QString QZSettings::proform_bike_PFEVEX71316_1 = QStringLiteral("proform_b
 const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_bike_resistance_v3");
 const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_builtin");
 const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
+const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
+const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
 
-const uint32_t allSettingsCount = 559;
+const uint32_t allSettingsCount = 561;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1234,6 +1236,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3},
     {QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin},
     {QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i},
+    {QZSettings::ftms_bike, QZSettings::default_ftms_bike},
+    {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

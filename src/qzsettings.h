@@ -1872,6 +1872,12 @@ class QZSettings {
     static const QString proform_treadmill_z1300i;
     static constexpr bool default_proform_treadmill_z1300i = false;
 
+    static const QString ftms_bike;
+    static const QString default_ftms_bike;
+
+    static const QString ftms_treadmill;
+    static const QString default_ftms_treadmill;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

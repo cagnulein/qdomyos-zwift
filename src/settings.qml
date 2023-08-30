@@ -817,6 +817,10 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.4
             property bool proform_treadmill_z1300i: false
+
+            // from version 2.16.5
+            property string ftms_bike: "Disabled"
+            property string ftms_treadmill: "Disabled"
         }
 
         function paddingZeros(text, limit) {
@@ -2172,6 +2176,45 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Applies a multiplier to the gears tile. Default is 1.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    Label {
+                        text: qsTr("FTMS Bike:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: ftmsBikeTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_bike
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsBikeTextField.currentIndex)
+                                displayText = ftmsBikeTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_bike = ftmsBikeTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -5102,6 +5145,45 @@ import QtQuick.Dialogs 1.0
 
                 Label {
                     text: qsTr("For treadmills without inclination: turning this on and QZ will transform inclination requests into speed changes.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                Label {
+                    text: qsTr("FTMS Treadmill:")
+                    Layout.fillWidth: true
+                }
+                RowLayout {
+                    spacing: 10
+                    ComboBox {
+                        id: ftmsTreadmillTextField
+                        model: rootItem.bluetoothDevices
+                        displayText: settings.ftms_treadmill
+                        Layout.fillHeight: false
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
+                            displayText = ftmsTreadmillTextField.currentValue
+                         }
+
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.ftms_treadmill = ftmsTreadmillTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
                     font.bold: true
                     font.italic: true
                     font.pixelSize: 9
