@@ -53,6 +53,9 @@ class lockscreen {
     void garminconnect_init();
     int getHR();
     int getFootCad();
+    
+    // debug
+    static void debug(const char* debugstring);
 };
 
 #endif // LOCKSCREEN_H
