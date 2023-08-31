@@ -1879,6 +1879,18 @@ class QZSettings {
     static const QString default_ftms_treadmill;
 
     /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_offset;
+    static constexpr float default_ant_speed_offset = 0;
+
+    /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_gain;
+    static constexpr float default_ant_speed_gain = 1;
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
