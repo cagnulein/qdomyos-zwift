@@ -253,7 +253,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                                                                   command.object<jstring>());
 #elif defined(Q_OS_WIN)
                         if (logcatAdbThread)
-                            logcatAdbThread->runAdbCommand(lastCommand);
+                            logcatAdbThread->runAdbCommand("shell " + lastCommand);
 #endif
                     }
                 }
