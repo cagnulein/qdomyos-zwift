@@ -4356,8 +4356,8 @@ void homeform::update() {
         if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() &&
             KeepAwakeHelper::antObject(false)) {
             double v = bluetoothManager->device()->currentSpeed().value();
-            v *= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
-            v += settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
+            v *= settings.value(QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain).toDouble();
+            v += settings.value(QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset).toDouble();
             KeepAwakeHelper::antObject(false)->callMethod<void>(
                 "setCadenceSpeedPower", "(FII)V", (float)v, (int)watts,
                 (int)cadence);
