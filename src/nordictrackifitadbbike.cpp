@@ -22,7 +22,8 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 
     while (1) {
-        runAdbTailCommand("logcat");
+        // runAdbTailCommand("logcat");
+        msleep(1000);
     }
 }
 
