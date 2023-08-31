@@ -7,6 +7,7 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
+#include <QDebug>
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -254,3 +255,7 @@ double lockscreen::getVolume()
     return [[AVAudioSession sharedInstance] outputVolume];
 }
 #endif
+
+void lockscreen::debug(const char* debugstring) {
+    qDebug() << debugstring;
+}

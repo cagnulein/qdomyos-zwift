@@ -3353,7 +3353,7 @@ void homeform::update() {
         double resistance = 0;
         double watts = 0;
         double pace = 0;
-        double peloton_resistance = 0;
+        double peloton_resistance = 0;        
         uint8_t cadence = 0;
         uint32_t totalStrokes = 0;
         double avgStrokesRate = 0;
@@ -3976,6 +3976,14 @@ void homeform::update() {
         if (trainProgram) {
             int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
             int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
+            double lower_requested_peloton_resistance_to_bike_resistance = 0;
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                lower_requested_peloton_resistance_to_bike_resistance = ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_requested_peloton_resistance);
+            else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                lower_requested_peloton_resistance_to_bike_resistance = ((rower *)bluetoothManager->device())->pelotonToBikeResistance(lower_requested_peloton_resistance);
+            else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+                lower_requested_peloton_resistance_to_bike_resistance = ((elliptical *)bluetoothManager->device())->pelotonToEllipticalResistance(lower_requested_peloton_resistance);
+
             if (lower_requested_peloton_resistance != -1) {
                 this->target_peloton_resistance->setSecondLine(
                     QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
@@ -3990,7 +3998,9 @@ void homeform::update() {
                     .toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                } else if (((int8_t)qRound(peloton_resistance)) < lower_requested_peloton_resistance) {
+                } else if (resistance < lower_requested_peloton_resistance_to_bike_resistance) {
+                    // we need to compare the real resistance and not the peloton resistance because most of the bikes have a 1:3 conversion so this
+                    // compare will be always true even if the actual resistance is the same #1608
                     this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
                 } else if (((int8_t)qRound(peloton_resistance)) <= upper_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
@@ -4345,8 +4355,11 @@ void homeform::update() {
 #ifdef Q_OS_ANDROID
         if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() &&
             KeepAwakeHelper::antObject(false)) {
+            double v = bluetoothManager->device()->currentSpeed().value();
+            v *= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+            v += settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();
             KeepAwakeHelper::antObject(false)->callMethod<void>(
-                "setCadenceSpeedPower", "(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts,
+                "setCadenceSpeedPower", "(FII)V", (float)v, (int)watts,
                 (int)cadence);
         }
 #endif

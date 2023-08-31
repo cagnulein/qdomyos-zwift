@@ -814,6 +814,17 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.15.2
             property bool watt_ignore_builtin: true
+
+            // from version 2.16.4
+            property bool proform_treadmill_z1300i: false
+
+            // from version 2.16.5
+            property string ftms_bike: "Disabled"
+            property string ftms_treadmill: "Disabled"
+
+            // from version 2.16.6
+            property real ant_speed_offset: 0
+            property real ant_speed_gain: 1
         }
 
         function paddingZeros(text, limit) {
@@ -2179,6 +2190,45 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    Label {
+                        text: qsTr("FTMS Bike:")
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        spacing: 10
+                        ComboBox {
+                            id: ftmsBikeTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_bike
+                            Layout.fillHeight: false
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsBikeTextField.currentIndex)
+                                displayText = ftmsBikeTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftms_bike = ftmsBikeTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
                 }
 
                 Label {
@@ -3125,6 +3175,79 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Turn this on if you need to use ANT+ along with Bluetooth. Power is also sent.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Speed Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antspeedOffsetTextField
+                            text: settings.ant_speed_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ant_speed_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_speed_offset = antspeedOffsetTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("You can increase/decrease your speed sent over ANT+. The number you enter as an Offset adds that amount to your speed.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("ANT+ Speed Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: antspeedGainTextField
+                            text: settings.ant_speed_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.ant_speed_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ant_speed_gain = antspeedGainTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("You can increase/decrease your speed output sent over ANT+. For example, to use a rower to cycle in Zwift, you could double your speed output to better match your cycling speed. The number you enter is a multiplier applied to your actual speed.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -5111,6 +5234,45 @@ import QtQuick.Dialogs 1.0
                 }
 
                 Label {
+                    text: qsTr("FTMS Treadmill:")
+                    Layout.fillWidth: true
+                }
+                RowLayout {
+                    spacing: 10
+                    ComboBox {
+                        id: ftmsTreadmillTextField
+                        model: rootItem.bluetoothDevices
+                        displayText: settings.ftms_treadmill
+                        Layout.fillHeight: false
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            console.log("combomodel activated" + ftmsTreadmillTextField.currentIndex)
+                            displayText = ftmsTreadmillTextField.currentValue
+                         }
+
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.ftms_treadmill = ftmsTreadmillTextField.displayText; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("If you have a generic FTMS bike and the tiles doesn't appear on the main QZ screen, select here the bluetooth name of your bike.")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }
+
+                Label {
                     text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
                     font.bold: true
                     font.italic: true
@@ -5243,6 +5405,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Proform z1300i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_z1300i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_z1300i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: proformSEDelegate
