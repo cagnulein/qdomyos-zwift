@@ -79,6 +79,10 @@
 				    android:name=".ForegroundService"
 					 android:enabled="true"
 					 android:exported="true"></service>
+                <service
+                    android:name=".WearableMessageListenerService"
+                    android:exported="false">
+                </service>
 				<service android:name=".ChannelService"></service>
 				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
 
