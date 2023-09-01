@@ -2342,6 +2342,13 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (settings.value(QZSettings::floating_startup, QZSettings::default_floating_startup).toBool()) {
         floatingOpen();
     }
+
+    if(!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().compare(QZSettings::default_heart_rate_belt_name) &&
+            !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/WearableController", "start", "(Landroid/content/Context;)V",
+            QtAndroid::androidContext().object());
+    }
 #endif
 
     if (settings.value(QZSettings::gears_restore_value, QZSettings::default_gears_restore_value).toBool()) {
