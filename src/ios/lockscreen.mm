@@ -254,8 +254,8 @@ double lockscreen::getVolume()
     [[AVAudioSession sharedInstance] setActive:true error:0];
     return [[AVAudioSession sharedInstance] outputVolume];
 }
-#endif
 
 void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
 }
+#endif

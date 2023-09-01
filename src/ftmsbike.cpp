@@ -88,7 +88,7 @@ void ftmsbike::forcePower(int16_t requestPower) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() && resistance_lvl_mode == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -850,6 +850,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
+        } else if((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
+            qDebug() << QStringLiteral("MAGNUS found");
+            resistance_lvl_mode = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
