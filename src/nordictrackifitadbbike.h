@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QUdpSocket>
 
 #include "bike.h"
@@ -24,6 +25,33 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+class nordictrackifitadbbikeLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbbikeLogcatAdbThread(QString s);
+    QString runAdbCommand(QString command);
+
+    void run() override;
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+    void debug(QString message);
+    void onWatt(double watt);
+
+  private:
+    double speed = 0;
+    double inclination = 0;
+    double watt = 0;
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    void runAdbTailCommand(QString command);
+};
 
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
@@ -56,9 +84,9 @@ class nordictrackifitadbbike : public bike {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
-#ifdef Q_OS_ANDROID
+    nordictrackifitadbbikeLogcatAdbThread *logcatAdbThread = nullptr;
+
     QString lastCommand;
-#endif
 
     QString ip;
 
