@@ -56,6 +56,20 @@ void lockscreen::setDistance(double distance)
     [h setDistanceWithDistance:distance * 0.621371];
 }
 
+void lockscreen::setPower(double power)
+{
+    [h setPowerWithPower:power];
+}
+void lockscreen::setCadence(double cadence)
+{
+    [h setCadenceWithCadence:cadence];
+}
+void lockscreen::setSpeed(double speed)
+{
+    [h setSpeedWithSpeed:speed];
+}
+
+
 void lockscreen::virtualbike_ios()
 {
     _virtualbike = [[virtualbike_ios_swift alloc] init];
