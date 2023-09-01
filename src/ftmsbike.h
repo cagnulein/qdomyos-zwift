@@ -104,6 +104,8 @@ class ftmsbike : public bike {
 
     bool powerForced = false;
 
+    bool resistance_lvl_mode = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

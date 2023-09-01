@@ -367,7 +367,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
 
     bool atLeastOnePower = false;
     if (trainrows.empty() && !segments_segment_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING) {
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -432,6 +433,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             trainrows.append(row);
                             atLeastOnePower = true;
                         }
+                    } else if (!zone.toUpper().compare(QStringLiteral("RECOVERY"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.45;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
@@ -512,6 +521,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
+                    } else {
+                        if(len > 0 && atLeastOnePower) {
+                            r.duration = QTime(0, len / 60, len % 60, 0);
+                            r.power = -1;
+                            if (r.power != -1) {
+                                atLeastOnePower = true;
+                            }
+                            qDebug() << "ERROR not handled!" << zone;
+                            trainrows.append(r);
+                        }
                     }
                 }
             }

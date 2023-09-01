@@ -55,8 +55,7 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -89,7 +88,7 @@ void ftmsbike::forcePower(int16_t requestPower) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() && resistance_lvl_mode == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -272,15 +271,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.totDistance) {
+
+            /*
+             * the distance sent from the most trainers is a total distance, so it's useless for QZ
+             *
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
+                       1000.0;*/
             index += 3;
-        } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         }
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -847,6 +850,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
+        } else if((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
+            qDebug() << QStringLiteral("MAGNUS found");
+            resistance_lvl_mode = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

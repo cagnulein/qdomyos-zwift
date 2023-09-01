@@ -67,6 +67,7 @@ double elliptical::speedFromWatts() {
     if (wattsMetric().value() > 0) {
         double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
         speed = 210.0 / ((wattsMetric().value() - vwatts) / 75.0 / weight * 1000.0);
+        speed = 60.0 / speed;
     }
     return speed;
 }

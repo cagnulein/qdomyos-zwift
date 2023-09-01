@@ -50,6 +50,7 @@ public class ChannelService extends Service {
     HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
+    SDMChannelController sdmChannelController = null;
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -104,6 +105,9 @@ public class ChannelService extends Service {
             if (null != speedChannelController) {
                 speedChannelController.speed = speed;
             }
+            if (null != sdmChannelController) {
+                sdmChannelController.speed = speed;
+            }
         }
 
         void setPower(int power) {
@@ -118,6 +122,9 @@ public class ChannelService extends Service {
             }
             if (null != speedChannelController) {
                 speedChannelController.cadence = cadence;
+            }
+            if (null != sdmChannelController) {
+                sdmChannelController.cadence = cadence;
             }
         }
 
@@ -141,8 +148,12 @@ public class ChannelService extends Service {
             heartChannelController = new HeartChannelController(acquireChannel());
 
         if (Ant.speedRequest) {
-            powerChannelController = new PowerChannelController(acquireChannel());
-            speedChannelController = new SpeedChannelController(acquireChannel());
+            if(Ant.treadmill) {
+                sdmChannelController = new SDMChannelController(acquireChannel());
+            } else {
+                powerChannelController = new PowerChannelController(acquireChannel());
+                speedChannelController = new SpeedChannelController(acquireChannel());
+            }
         }
     }
 
@@ -153,9 +164,12 @@ public class ChannelService extends Service {
             powerChannelController.close();
         if (speedChannelController != null)
             speedChannelController.close();
+        if (sdmChannelController != null)
+            sdmChannelController.close();
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
+        sdmChannelController = null;
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
