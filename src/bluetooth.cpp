@@ -109,8 +109,9 @@ void bluetooth::finished() {
     QSettings settings;
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
+    QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty()) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty()) {
         // faking a bluetooth device
         qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());
