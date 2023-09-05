@@ -362,11 +362,13 @@ function refresh() {
     }, 2000, 1);
     el.enqueue().then(process_workout).catch(function(err) {
         console.error('Error is ' + err);
+        refresh();
     });    
 }
 
-function process_workout(arr) {
-    powerChart.data.push(arr.watts);
+function process_workout(arr) {    
+    powerChart.data.datasets.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    powerChart.update();
     refresh();
 }
 
