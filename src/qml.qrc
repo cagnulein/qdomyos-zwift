@@ -104,5 +104,6 @@
         <file>inner_templates/chartjs/qzlogo.png</file>
         <file>inner_templates/chartjs/dochartlivewatt.js</file>
         <file>inner_templates/chartjs/livewatt.html</file>
+        <file>ChartFooter.qml</file>
     </qresource>
 </RCC>
