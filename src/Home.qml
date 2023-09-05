@@ -308,9 +308,10 @@ HomeForm{
                                         videoPlaybackHalf.pause()) } }
                 }
                 */
+                /*
                 ChartFooter {
                     visible: false
-                }
+                }*/
 
                 onVisibleChanged: {
                     if(visible === true) {
