@@ -32,8 +32,7 @@ var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
-
-let watts = [];
+var powerChart = null;
 
 function process_arr(arr) {    
     let reqpower = [];
@@ -43,6 +42,7 @@ function process_arr(arr) {
     let speed = [];
     let inclination = [];
     let resistance = [];
+    let watts = [];
     let reqresistance = [];
     let pelotonresistance = [];
     let pelotonreqresistance = [];
@@ -346,7 +346,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    var powerChart = new Chart(ctx, config);
+    powerChart = new Chart(ctx, config);
 
     refresh();
 }
@@ -366,7 +366,7 @@ function refresh() {
 }
 
 function process_workout(arr) {
-    watts.push(arr.watts);
+    powerChart.data.push(arr.watts);
     refresh();
 }
 
