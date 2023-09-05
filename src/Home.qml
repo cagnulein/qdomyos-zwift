@@ -6,6 +6,7 @@ import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 import QtMultimedia 5.15
+import QtWebView 1.1
 
 HomeForm{
     objectName: "home"
@@ -291,9 +292,10 @@ HomeForm{
         }
 
         footer:
+
             Rectangle {
                 objectName: "footerrectangle"
-                visible: rootItem.videoVisible
+                visible: true //rootItem.videoVisible
                 anchors.top: gridView.bottom
                 width: parent.width
                 height: parent.height / 2
@@ -308,6 +310,19 @@ HomeForm{
                 }
                 */
 
+                WebView {
+                        id: webView
+                        anchors.fill: parent
+                        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/livewatt.html"
+                        visible: true
+                        onLoadingChanged: {
+                            if (loadRequest.errorString) {
+                                console.error(loadRequest.errorString);
+                                console.error("port " + settings.value("template_inner_QZWS_port"));
+                            }
+                        }
+                    }                
+/*
                 onVisibleChanged: {
                     if(visible === true) {
                         console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
@@ -343,6 +358,7 @@ HomeForm{
                          anchors.fill: parent
                          source: videoPlaybackHalf
                      }
+                     */
             }
 
     MouseArea {

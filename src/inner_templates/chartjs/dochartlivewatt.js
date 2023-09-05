@@ -367,7 +367,7 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
+    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
     powerChart.update();
     refresh();
 }
