@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart</title>
+	 <meta charset="utf-8">
+	 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="resize-observer.min.js"></script>
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="chartjs.3.4.1.min.js"></script>
+    <script src="moment.js"></script>
+    <script src="chartjs-adapter-moment.js"></script>
+    <script src="chartjs-plugin-annotation.min.js"></script>
+    <script src="globals.js"></script>
+    <script src="main_ws_manager.js"></script>
+         <script src="dochartlivewatt.js"></script>
+         <script src="html2canvas.min.js"></script>
+    <style>
+    canvas{
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body style="background-color:#1d2330">    
+    <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+	     <canvas id="canvas"></canvas>
+		</div>
+</body>
+</html>
