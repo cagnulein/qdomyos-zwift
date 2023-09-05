@@ -102,8 +102,8 @@
         <file>inner_templates/chartjs/bike.png</file>
         <file>inner_templates/chartjs/html2canvas.min.js</file>
         <file>inner_templates/chartjs/qzlogo.png</file>
-        <file>inner_templates/chartjs/dochartlivewatt.js</file>
-        <file>inner_templates/chartjs/livewatt.html</file>
+        <file>inner_templates/chartjs/dochartlivewatt-powerzoneworkout.js</file>
+        <file>inner_templates/chartjs/livewatt-powerzoneworkout.htm</file>
         <file>ChartFooter.qml</file>
     </qresource>
 </RCC>
