@@ -343,12 +343,12 @@ void nordictrackifitadbbike::onHRM(int hrm) {
 
     if (
 #ifdef Q_OS_ANDROID
-        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
 #endif
-            heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        !disable_hr_frommachinery) {
+        heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
 
         Heart = hrm;
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 }
 
