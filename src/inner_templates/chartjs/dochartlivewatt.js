@@ -33,8 +33,9 @@ var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
 
-function process_arr(arr) {
-    let watts = [];
+let watts = [];
+
+function process_arr(arr) {    
     let reqpower = [];
     let reqcadence = [];
     let heart = [];
@@ -346,6 +347,27 @@ function process_arr(arr) {
 
     let ctx = document.getElementById('canvas').getContext('2d');
     var powerChart = new Chart(ctx, config);
+
+    refresh();
+}
+
+function refresh() {
+    el = new MainWSQueueElement({
+        msg: null
+    }, function(msg) {
+        if (msg.msg === 'workout') {
+            return msg.content;
+        }
+        return null;
+    }, 2000, 1);
+    el.enqueue().then(process_workout).catch(function(err) {
+        console.error('Error is ' + err);
+    });    
+}
+
+function process_workout(arr) {
+    watts.push(arr.watts);
+    refresh();
 }
 
 function dochart_init() {
