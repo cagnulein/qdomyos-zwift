@@ -105,5 +105,7 @@
         <file>inner_templates/chartjs/dochartlive.js</file>
         <file>inner_templates/chartjs/chartlive.htm</file>
         <file>ChartFooter.qml</file>
+        <file>ChartFooterInnerJS.qml</file>
+        <file>ChartFooterInnerNoJS.qml</file>
     </qresource>
 </RCC>
