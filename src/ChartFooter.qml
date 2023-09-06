@@ -13,12 +13,18 @@ ColumnLayout {
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/livewatt.html"
-        visible: true
+        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chartlive.htm"
+        visible: rootItem.chartFooterVisible
         onLoadingChanged: {
             if (loadRequest.errorString) {
                 console.error(loadRequest.errorString);
                 console.error("port " + settings.value("template_inner_QZWS_port"));
+            }
+        }
+        onVisibleChanged: {
+            console.log("onVisibleChanged" + visible)
+            if(visible === true) {
+                reload();
             }
         }
     }

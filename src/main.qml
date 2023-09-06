@@ -570,6 +570,14 @@ ApplicationWindow {
         }
 
         ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/watt.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonVideo.left
+            visible: true
+        }
+
+        ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }

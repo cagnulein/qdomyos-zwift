@@ -149,6 +149,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(bool videoIconVisible READ videoIconVisible NOTIFY videoIconVisibleChanged WRITE setVideoIconVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
+    Q_PROPERTY(bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
@@ -396,6 +397,7 @@ class homeform : public QObject {
     bool mapsVisible();
     bool videoIconVisible();
     bool videoVisible() { return m_VideoVisible; }
+    bool chartFooterVisible() { return m_ChartFooterVisible; }
     int videoPosition();
     double videoRate();
     double currentSpeed() {
@@ -430,6 +432,10 @@ class homeform : public QObject {
     void setVideoVisible(bool value) {
         m_VideoVisible = value;
         emit videoVisibleChanged(m_VideoVisible);
+    }
+    void setChartFooterVisible(bool value) {
+        m_ChartFooterVisible = value;
+        emit chartFooterVisibleChanged(m_ChartFooterVisible);
     }
     void setVideoPosition(int position); // on startup
     void videoSeekPosition(int ms);      // in realtime
@@ -571,6 +577,7 @@ class homeform : public QObject {
     bool m_MapsVisible = false;
     bool m_VideoIconVisible = false;
     bool m_VideoVisible = false;
+    bool m_ChartFooterVisible = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
@@ -816,6 +823,7 @@ class homeform : public QObject {
     void videoPositionChanged(int value);
     void videoPathChanged(QUrl value);
     void videoRateChanged(double value);
+    void chartFooterVisibleChanged(bool value);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);

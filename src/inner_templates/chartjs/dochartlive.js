@@ -34,6 +34,22 @@ var heartZones = [];
 var miles = 1;
 var powerChart = null;
 
+function process_trainprogram(arr) {
+    let powerWorkout = false;
+    let elapsed = 0;
+
+    for (let el of arr.list) {
+        if(el.power != -1) {
+            powerWorkout = true;
+            for (i=0; i<el.duration_s; i++) {
+                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});                                            
+            }
+        }
+    }
+    powerChart.options.scales.x.max = elapsed;
+    powerChart.update();
+}
+
 function process_arr(arr) {    
     let reqpower = [];
     let reqcadence = [];
@@ -124,7 +140,9 @@ function process_arr(arr) {
             distributionPowerZones[6]++;
         reqpowerel.x = time;
         reqpowerel.y = el.req_power;
-        reqpower.push(reqpowerel);
+        // they are added from the process_trainprogram()
+        //reqpower.push(reqpowerel);
+
         reqcadenceel.x = time;
         reqcadenceel.y = el.req_cadence;
         reqcadence.push(reqcadenceel);
@@ -204,11 +222,12 @@ function process_arr(arr) {
         },
         options: {           
             responsive: true,
-            aspectRatio: 1.5,
+            /*aspectRatio: 1.5,*/
             grid: {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
             plugins: {
+                /*
                 title:{
                     display:true,
                     backgroundColor: "#1d2330",
@@ -217,7 +236,7 @@ function process_arr(arr) {
                         bottom: 2
                     },
                     text:'Watt'
-                },
+                },*/
                 tooltips: {
                     mode: 'index',
                     intersect: false,
@@ -231,7 +250,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: 0,
                             yMax: ftpZones[0],
                             backgroundColor: "#d6d6d620"
@@ -240,7 +259,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[0],
                             yMax: ftpZones[1],
                             backgroundColor: window.chartColors.limegreent,
@@ -249,7 +268,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[1],
                             yMax: ftpZones[2],
                             backgroundColor: window.chartColors.goldt,
@@ -258,7 +277,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[2],
                             yMax: ftpZones[3],
                             backgroundColor: window.chartColors.oranget,
@@ -267,7 +286,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[3],
                             yMax: ftpZones[4],
                             backgroundColor: window.chartColors.darkoranget,
@@ -276,7 +295,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[4],
                             yMax: ftpZones[5],
                             backgroundColor: window.chartColors.orangeredt,
@@ -285,7 +304,7 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: ftpZones[5],
                             yMax: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
                             backgroundColor: window.chartColors.redt,
@@ -314,7 +333,7 @@ function process_arr(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
-                    max: maxEl,
+                    //max: maxEl,
                 },
                 y: {
                     display: true,
@@ -343,7 +362,7 @@ function process_arr(arr) {
                 }
             }
         }
-    };
+    };    
 
     let ctx = document.getElementById('canvas').getContext('2d');
     powerChart = new Chart(ctx, config);
@@ -448,6 +467,18 @@ function dochart_init() {
         return null;
     }, 15000, 3);
     el.enqueue().then(process_arr).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+
+    el = new MainWSQueueElement({
+        msg: 'gettrainingprogram'
+    }, function(msg) {
+        if (msg.msg === 'R_gettrainingprogram') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_trainprogram).catch(function(err) {
         console.error('Error is ' + err);
     });
 }

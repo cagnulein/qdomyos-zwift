@@ -293,6 +293,16 @@ HomeForm{
         footer:
 
             Rectangle {
+                id: chartFooterRectangle
+                visible: rootItem.chartFooterVisible
+                width: parent.width
+                height: parent.height / 4
+                ChartFooter {
+                    visible: rootItem.chartFooterVisible
+                }
+            }
+
+            Rectangle {
                 objectName: "footerrectangle"
                 visible: rootItem.videoVisible
                 anchors.top: gridView.bottom
@@ -308,10 +318,6 @@ HomeForm{
                                         videoPlaybackHalf.pause()) } }
                 }
                 */
-                /*
-                ChartFooter {
-                    visible: false
-                }*/
 
                 onVisibleChanged: {
                     if(visible === true) {
