@@ -4,7 +4,7 @@
 <head>
     <title>Line Chart</title>
 	 <meta charset="utf-8">
-	 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="resize-observer.min.js"></script>
     <script src="jquery-3.6.0.min.js"></script>
     <script src="chartjs.3.4.1.min.js"></script>
@@ -21,11 +21,22 @@
         -webkit-user-select: none;
         -ms-user-select: none;
     }
+    html, body
+        {
+          -ms-content-zooming:none;
+          touch-action: none;
+          content-zooming: none;
+          overflow-y: hidden;
+        overflow-x: hidden;
+        overflow-y: none;
+        overflow-x: none;
+        margin: 0px;
+        }
     </style>
 </head>
 
 <body style="background-color:#1d2330">    
-    <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden;">
+    <div style="background-color:white; border: 0px solid #aaa; overflow: hidden;">
 	     <canvas id="canvas"></canvas>
 		</div>
 </body>

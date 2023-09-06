@@ -298,6 +298,7 @@ HomeForm{
                 width: parent.width
                 height: parent.height / 4
                 ChartFooter {
+                    anchors.fill: parent
                     visible: rootItem.chartFooterVisible
                 }
             }

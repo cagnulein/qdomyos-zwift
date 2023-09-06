@@ -548,7 +548,7 @@ ApplicationWindow {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
-            anchors.right: toolButtonLockTiles.left
+            anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
         }      
 
@@ -571,10 +571,10 @@ ApplicationWindow {
 
         ToolButton {
             id: toolButtonChart
-            icon.source: ( "icons/icons/watt.png" )
+            icon.source: ( "icons/icons/chart.png" )
             onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
-            anchors.right: toolButtonVideo.left
-            visible: true
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
         }
 
         ToolButton {

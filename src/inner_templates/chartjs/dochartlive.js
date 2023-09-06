@@ -222,7 +222,7 @@ function process_arr(arr) {
         },
         options: {           
             responsive: true,
-            /*aspectRatio: 1.5,*/
+            aspectRatio: 4,
             grid: {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },

@@ -149,6 +149,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(bool videoIconVisible READ videoIconVisible NOTIFY videoIconVisibleChanged WRITE setVideoIconVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
+    Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
     Q_PROPERTY(bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
@@ -394,9 +395,10 @@ class homeform : public QObject {
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
-    bool mapsVisible();
+    bool mapsVisible();    
     bool videoIconVisible();
     bool videoVisible() { return m_VideoVisible; }
+    bool chartIconVisible();
     bool chartFooterVisible() { return m_ChartFooterVisible; }
     int videoPosition();
     double videoRate();
@@ -429,6 +431,7 @@ class homeform : public QObject {
     }
     void setLicensePopupVisible(bool value);
     void setVideoIconVisible(bool value);
+    void setChartIconVisible(bool value);
     void setVideoVisible(bool value) {
         m_VideoVisible = value;
         emit videoVisibleChanged(m_VideoVisible);
@@ -578,6 +581,7 @@ class homeform : public QObject {
     bool m_VideoIconVisible = false;
     bool m_VideoVisible = false;
     bool m_ChartFooterVisible = false;
+    bool m_ChartIconVisible = false;
     int m_VideoPosition = 0;
     double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
@@ -823,6 +827,7 @@ class homeform : public QObject {
     void videoPositionChanged(int value);
     void videoPathChanged(QUrl value);
     void videoRateChanged(double value);
+    void chartIconVisibleChanged(bool value);
     void chartFooterVisibleChanged(bool value);
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
