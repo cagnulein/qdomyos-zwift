@@ -51,6 +51,9 @@ function process_trainprogram(arr) {
 }
 
 function process_arr(arr) {    
+    let ctx = document.getElementById('canvas').getContext('2d');
+    let div = document.getElementById('divcanvas');
+
     let reqpower = [];
     let reqcadence = [];
     let heart = [];
@@ -222,7 +225,7 @@ function process_arr(arr) {
         },
         options: {           
             responsive: true,
-            aspectRatio: 4,
+            aspectRatio: div.width / div.height,
             grid: {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
@@ -363,8 +366,6 @@ function process_arr(arr) {
             }
         }
     };    
-
-    let ctx = document.getElementById('canvas').getContext('2d');
     powerChart = new Chart(ctx, config);
 
     refresh();
