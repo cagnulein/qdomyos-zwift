@@ -5125,6 +5125,17 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 m_info = workoutName();
                 emit infoChanged(m_info);
             }
+
+            setChartIconVisible(trainProgram->powerzoneWorkout());
+            if(chartFooterVisible()) {
+                if(trainProgram->powerzoneWorkout()) {
+                    // reloading
+                    setChartFooterVisible(false);
+                    setChartFooterVisible(true);
+                } else {
+                    setChartFooterVisible(false);
+                }
+            }
         }
 
         trainProgramSignals();
@@ -5780,6 +5791,14 @@ void homeform::setVideoIconVisible(bool value) {
 
     m_VideoIconVisible = value;
     emit videoIconVisibleChanged(m_VideoIconVisible);
+}
+
+bool homeform::chartIconVisible() { return m_ChartIconVisible; }
+
+void homeform::setChartIconVisible(bool value) {
+
+    m_ChartIconVisible = value;
+    emit chartIconVisibleChanged(m_ChartIconVisible);
 }
 
 int homeform::videoPosition() { return m_VideoPosition; }
