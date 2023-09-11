@@ -22,13 +22,14 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 
     while (1) {
-        // runAdbTailCommand("logcat");
-        msleep(1000);
+        runAdbTailCommand("logcat");
+        msleep(100);
     }
 }
 
 QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 #ifdef Q_OS_WINDOWS
+    mutex.lock();
     QProcess process;
     emit debug("adb >> " + command);
     process.start("adb/adb.exe", QStringList(command.split(' ')));
@@ -39,6 +40,7 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 
     emit debug("adb << OUT " + out);
     emit debug("adb << ERR" + err);
+    mutex.unlock();
 #else
     QString out;
 #endif
@@ -47,12 +49,14 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 
 void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
 #ifdef Q_OS_WINDOWS
+    mutex.lock();
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
-        qDebug() << "adbLogCat STDOUT << " << output;
+        // qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
+        bool hrmFound = false;
         foreach (QString line, lines) {
             if (line.contains("Changed KPH")) {
                 emit debug(line);
@@ -64,11 +68,20 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
                 emit debug(line);
                 watt = line.split(' ').last().toDouble();
                 wattFound = true;
+            } else if (line.contains("HeartRateDataUpdate")) {
+                emit debug(line);
+                QStringList splitted = line.split(' ');
+                if (splitted.length() > 17) {
+                    hrm = splitted[16].toInt();
+                    hrmFound = true;
+                }
             }
         }
         emit onSpeedInclination(speed, inclination);
         if (wattFound)
             emit onWatt(watt);
+        if (hrmFound)
+            emit onHRM(hrm);
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
@@ -77,6 +90,7 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
     emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
+    mutex.unlock();
 #endif
 }
 
@@ -143,6 +157,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
                 &nordictrackifitadbbike::onSpeedInclination);
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onWatt, this,
                 &nordictrackifitadbbike::onWatt);*/
+        connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onHRM, this, &nordictrackifitadbbike::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
         logcatAdbThread->start();
 #endif
@@ -316,6 +331,24 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+    }
+}
+
+void nordictrackifitadbbike::onHRM(int hrm) {
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+    if (
+#ifdef Q_OS_ANDROID
+        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
+#endif
+        heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
+
+        Heart = hrm;
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 }
 

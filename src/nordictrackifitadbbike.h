@@ -39,11 +39,14 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
     void onSpeedInclination(double speed, double inclination);
     void debug(QString message);
     void onWatt(double watt);
+    void onHRM(int hrm);
 
   private:
+    QMutex mutex;
     double speed = 0;
     double inclination = 0;
     double watt = 0;
+    int hrm = 0;
     QString name;
     struct adbfile {
         QDateTime date;
@@ -102,6 +105,7 @@ class nordictrackifitadbbike : public bike {
 
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
+    void onHRM(int hrm);
 
     void update();
 };
