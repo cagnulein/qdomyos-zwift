@@ -30,8 +30,8 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
     Q_OBJECT
 
   public:
-    explicit nordictrackifitadbbikeLogcatAdbThread(QString s);
-    QString runAdbCommand(QString command);
+    explicit nordictrackifitadbbikeLogcatAdbThread(QString s);    
+    bool runCommand(QString command);
 
     void run() override;
 
@@ -42,7 +42,8 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
     void onHRM(int hrm);
 
   private:
-    QMutex mutex;
+    QString adbCommandPending = "";
+    QString runAdbCommand(QString command);
     double speed = 0;
     double inclination = 0;
     double watt = 0;

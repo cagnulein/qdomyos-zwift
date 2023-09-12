@@ -23,13 +23,16 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
 
     while (1) {
         runAdbTailCommand("logcat");
+        if(adbCommandPending.length() != 0) {
+            runAdbCommand(adbCommandPending);
+            adbCommandPending = "";
+        }
         msleep(100);
     }
 }
 
 QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 #ifdef Q_OS_WINDOWS
-    mutex.lock();
     QProcess process;
     emit debug("adb >> " + command);
     process.start("adb/adb.exe", QStringList(command.split(' ')));
@@ -40,16 +43,22 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 
     emit debug("adb << OUT " + out);
     emit debug("adb << ERR" + err);
-    mutex.unlock();
 #else
     QString out;
 #endif
     return out;
 }
 
+bool nordictrackifitadbbikeLogcatAdbThread::runCommand(QString command) {
+    if(adbCommandPending.length() == 0) {
+        adbCommandPending = command;
+        return true;
+    }
+    return false;
+}
+
 void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
 #ifdef Q_OS_WINDOWS
-    mutex.lock();
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
         QString output = process->readAllStandardOutput();
@@ -90,7 +99,6 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
     emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
-    mutex.unlock();
 #endif
 }
 
@@ -268,7 +276,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                                                                   command.object<jstring>());
 #elif defined(Q_OS_WIN)
                         if (logcatAdbThread)
-                            logcatAdbThread->runAdbCommand("shell " + lastCommand);
+                            logcatAdbThread->runCommand("shell " + lastCommand);
 #endif
                     }
                 }
