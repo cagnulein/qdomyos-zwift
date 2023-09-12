@@ -79,6 +79,19 @@
 				    android:name=".ForegroundService"
 					 android:enabled="true"
 					 android:exported="true"></service>
+                <service
+                    android:name=".WearableMessageListenerService"
+                    android:enabled="true"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                        <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                        <data
+                            android:host="*"
+                            android:pathPrefix="/qz"
+                            android:scheme="wear" />
+                    </intent-filter>
+                </service>
 				<service android:name=".ChannelService"></service>
 				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
 

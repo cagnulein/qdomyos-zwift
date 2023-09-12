@@ -254,6 +254,9 @@ void bluetoothdevice::update_hr_from_external() {
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+#endif
     }
 }
 
