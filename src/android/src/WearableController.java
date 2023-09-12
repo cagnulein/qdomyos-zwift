@@ -26,12 +26,17 @@ public class WearableController {
     static Context _context;
     static Intent _intent = null;
 
-        public static void start(Context context) {
+        public static void start(Context context) {            
             _context = context;
 
              if(_intent == null)
                 _intent = new Intent(context, WearableMessageListenerService.class);
              // FloatingWindowGFG service is started
              context.startService(_intent);
+             Log.v("WearableController", "started");
+        }
+
+        public static int getHeart() {
+            return WearableMessageListenerService.getHeart();
         }
 }
