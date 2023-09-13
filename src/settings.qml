@@ -825,6 +825,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.6
             property real ant_speed_offset: 0
             property real ant_speed_gain: 1
+
+            // from version 2.16.12
+            property bool proform_rower_sport_rl: false
         }
 
         function paddingZeros(text, limit) {
@@ -6630,6 +6633,27 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
+                    }
+
+                    AccordionElement {
+                        title: qsTr("Proform/Nordictrack Rower Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent:
+                        SwitchDelegate {
+                            text: qsTr("Proform Sport RL")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_rower_sport_rl
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_rower_sport_rl = checked; window.settings_restart_to_apply = true; }
+                        }
                     }
                 }
             }

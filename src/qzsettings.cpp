@@ -673,8 +673,9 @@ const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
 const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
 const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
 const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
+const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
 
-const uint32_t allSettingsCount = 563;
+const uint32_t allSettingsCount = 564;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1244,6 +1245,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},
     {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
     {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
+    {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
