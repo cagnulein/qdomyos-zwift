@@ -79,9 +79,9 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
                 wattFound = true;
             } else if (line.contains("HeartRateDataUpdate")) {
                 emit debug(line);
-                QStringList splitted = line.split(' ');
-                if (splitted.length() > 17) {
-                    hrm = splitted[16].toInt();
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    hrm = splitted[14].toInt();
                     hrmFound = true;
                 }
             }
