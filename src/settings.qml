@@ -3830,7 +3830,7 @@ import QtQuick.Dialogs 1.0
                         }
                         ComboBox {
                             id: pelotonRowerLevelTextField
-                            model: [ "1", "2", "3", "4", "5", "6" ]
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
                             displayText: settings.peloton_rower_level
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
