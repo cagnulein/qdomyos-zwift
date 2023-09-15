@@ -300,7 +300,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
             resistance_received = true;
-        } else if (!resistance_received) {
+        }
             double ac = 0.01243107769;
             double bc = 1.145964912;
             double cc = -23.50977444;
@@ -318,11 +318,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
-                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                if (!resistance_received) {
+                    Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                }
             }
-        }
+   
 
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
