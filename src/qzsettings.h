@@ -1881,6 +1881,9 @@ class QZSettings {
     static const QString proform_rower_sport_rl;
     static constexpr bool default_proform_rower_sport_rl = false;
 
+    static const QString strava_date_prefix;
+    static constexpr bool default_strava_date_prefix = false;
+
     /**
      * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
      */

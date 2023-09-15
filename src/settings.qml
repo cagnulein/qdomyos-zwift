@@ -828,6 +828,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.12
             property bool proform_rower_sport_rl: false
+
+            // from version 2.16.13
+            property bool strava_date_prefix: false
         }
 
         function paddingZeros(text, limit) {
@@ -7199,6 +7202,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Append the Virtual Tag to the Strava Activity")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Date Prefix on Strava Workout")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.strava_date_prefix
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.strava_date_prefix = checked
+                    }
+
+                    Label {
+                        text: qsTr("Append the Date to the Strava Activity as a prefix only for non-peloton workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
