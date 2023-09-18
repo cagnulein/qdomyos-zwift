@@ -288,6 +288,8 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
         } else {
             watt = 0;
         }
+    } else {
+        watt = currentCadence().value() * 1.2; // random value cloned from Zwift when HR is not available
     }
     return watt;
 }
