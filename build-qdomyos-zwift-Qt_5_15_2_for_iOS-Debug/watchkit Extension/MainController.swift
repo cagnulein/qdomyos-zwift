@@ -29,8 +29,15 @@ class MainController: WKInterfaceController {
         WatchKitConnection.shared.delegate = self
         WatchKitConnection.shared.startSession()
         
+        _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(MainController.onesec), userInfo: nil, repeats: true)
+                
         // Configure interface objects here.
         print("AWAKE")
+    }
+    
+    @objc func onesec() {
+        WatchKitConnection.shared.sendMessage(message: ["ping":
+            "0" as AnyObject])
     }
     
     override func willActivate() {
