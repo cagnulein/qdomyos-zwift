@@ -25,8 +25,9 @@ class MainController: WKInterfaceController {
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-
+        
         WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
         
         // Configure interface objects here.
         print("AWAKE")
