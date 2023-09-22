@@ -52,7 +52,12 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
@@ -88,7 +93,8 @@ void ftmsbike::forcePower(int16_t requestPower) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() && resistance_lvl_mode == false) {
+    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
+        resistance_lvl_mode == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -293,7 +299,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        } else {
+            resistance_received = true;
+        }
             double ac = 0.01243107769;
             double bc = 1.145964912;
             double cc = -23.50977444;
@@ -311,10 +318,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
+                if (!resistance_received) {
+                    Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                }
             }
-        }
+   
 
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -850,7 +860,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
-        } else if((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
+        } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
             qDebug() << QStringLiteral("MAGNUS found");
             resistance_lvl_mode = true;
         }

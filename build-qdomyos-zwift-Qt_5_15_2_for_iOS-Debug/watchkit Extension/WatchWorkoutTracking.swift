@@ -349,6 +349,10 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
             let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                              doubleValue: WorkoutTracking.power)
             
+            if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
+                return
+            }
+            
             guard let powerType = HKQuantityType.quantityType(
                 forIdentifier: .cyclingPower) else {
               return
