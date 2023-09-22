@@ -70,21 +70,27 @@ extension MainController {
         if(state != workout_state) {
             switch state {
             case 0:
-                WorkoutTracking.authorizeHealthKit()
-                WorkoutTracking.shared.startWorkOut()
+                if(WorkoutTracking.speed > 0) {
+                    WorkoutTracking.authorizeHealthKit()
+                    WorkoutTracking.shared.startWorkOut()
+                    
+                    workout_state = state
+                }
 
             case 1:
                 WorkoutTracking.shared.pauseWorkout()
+                workout_state = state
 
             case 2:
                 WorkoutTracking.shared.resumeWorkout()
+                workout_state = state
 
             case 3:
                 WorkoutTracking.shared.stopWorkOut()
+                workout_state = state
             default:
                 print("error!")
             }
-            workout_state = state
         }
     }
 }
