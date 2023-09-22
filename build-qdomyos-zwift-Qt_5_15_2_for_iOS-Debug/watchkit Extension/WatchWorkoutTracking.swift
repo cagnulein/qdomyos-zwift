@@ -21,6 +21,8 @@ protocol WorkoutTrackingProtocol {
     static func authorizeHealthKit()
     func startWorkOut()
     func stopWorkOut()
+    func pauseWorkout()
+    func resumeWorkout()
     func fetchStepCounts()
 }
 
@@ -34,6 +36,7 @@ class WorkoutTracking: NSObject {
     public static var speed = Double()
     public static var power = Double()
     public static var cadence = Double()
+    public static var workout_state = 3;
     public static var lastDateMetric = Date()
     var sport: Int = 0
     let healthStore = HKHealthStore()
@@ -108,14 +111,6 @@ extension WorkoutTracking {
     
     func setSport(_ sport: Int) {
         self.sport = sport
-    }
-
-    func pauseWorkout() {
-        workoutSession.pause()
-    }
-
-    func resumeWorkout() {
-        workoutSession.resume()
     }
 
     private func configWorkout() {
@@ -196,6 +191,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         } else {
             print("HealthKit not avaiable")
         }
+    }
+    
+    func pauseWorkout() {
+        workoutSession.pause()
+    }
+
+    func resumeWorkout() {
+        workoutSession.resume()
     }
     
     func startWorkOut() {

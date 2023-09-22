@@ -86,7 +86,7 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
 
             let iWorkout_state = Int(result["workout_state"] as! Int)
             WatchKitConnection.workout_state = iWorkout_state
-            MainController.syncWorkoutState(WatchKitConnection.workout_state)            
+            MainController.syncWorkoutState(state: WatchKitConnection.workout_state)            
         }, errorHandler: { (error) in
             print(error)
         })

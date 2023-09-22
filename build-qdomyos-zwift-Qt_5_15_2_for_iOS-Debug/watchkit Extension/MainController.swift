@@ -27,7 +27,6 @@ class MainController: WKInterfaceController {
         super.awake(withContext: context)
 
         WatchKitConnection.shared.delegate = self
-        WatchKitConnection.shared.startSession()        
         
         // Configure interface objects here.
         print("AWAKE")
@@ -38,6 +37,8 @@ class MainController: WKInterfaceController {
         super.willActivate()
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
+        WorkoutTracking.shared.delegate = self
+
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
@@ -54,25 +55,26 @@ class MainController: WKInterfaceController {
         super.didDeactivate()
         print("DID DEACTIVE")
     }
+}
 
+extension MainController {
     public static func syncWorkoutState(state: Int) {
         if(state != workout_state) {
             switch state {
             case 0:
-                WorkoutTracking.authorizeHealthKit()                
+                WorkoutTracking.authorizeHealthKit()
                 WorkoutTracking.shared.startWorkOut()
-                WorkoutTracking.shared.delegate = self            
 
             case 1:
-                WorkoutTracking.shared.pauseWorkOut()
+                WorkoutTracking.shared.pauseWorkout()
 
             case 2:
-                WorkoutTracking.shared.resumeWorkOut()
+                WorkoutTracking.shared.resumeWorkout()
 
             case 3:
                 WorkoutTracking.shared.stopWorkOut()
             default:
-                
+                print("error!")
             }
             workout_state = state
         }

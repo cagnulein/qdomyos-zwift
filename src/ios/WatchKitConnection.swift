@@ -142,8 +142,8 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["cadence"] = WatchKitConnection.cadence
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
-        replyValues["workout_state"] = WatchKitConnection.workout_state
-        replyValues["workout_type"] = WatchKitConnection.workout_type
+        replyValues["workout_state"] = Double(WatchKitConnection.workout_state)
+        replyValues["workout_type"] = Double(WatchKitConnection.workout_type)
         
         replyHandler(replyValues)
                 
