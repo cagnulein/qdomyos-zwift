@@ -30,6 +30,7 @@ void windows_zwift_incline_paddleocr_thread::run() {
             emit debug("windows_zwift_incline_paddleocr_thread onInclination " + QString::number(ret.toFloat()));
             emit onInclination(ret.toFloat(), ret.toFloat());
         }
+        msleep(100);
     }
 }
 

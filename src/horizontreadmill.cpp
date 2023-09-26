@@ -1929,7 +1929,7 @@ void horizontreadmill::serviceScanDone(void) {
                     &horizontreadmill::stateChanged);
 #ifdef Q_OS_WIN
             // https://bugreports.qt.io/browse/QTBUG-78488
-            QTimer::singleShot(0, [=]() {
+            QTimer::singleShot(100, [=]() {
 #endif
                 gattCommunicationChannelService.constLast()->discoverDetails();
 #ifdef Q_OS_WIN
