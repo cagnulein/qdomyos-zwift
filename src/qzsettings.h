@@ -1878,6 +1878,24 @@ class QZSettings {
     static const QString ftms_treadmill;
     static const QString default_ftms_treadmill;
 
+    static const QString proform_rower_sport_rl;
+    static constexpr bool default_proform_rower_sport_rl = false;
+
+    static const QString strava_date_prefix;
+    static constexpr bool default_strava_date_prefix = false;
+
+    /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_offset;
+    static constexpr float default_ant_speed_offset = 0;
+
+    /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_gain;
+    static constexpr float default_ant_speed_gain = 1;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

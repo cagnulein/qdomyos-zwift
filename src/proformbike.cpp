@@ -1042,6 +1042,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 30;
                     break;
                 case 0x0b:
+                case 0x0c:
                     Resistance = 5;
                     m_pelotonResistance = 35;
                     break;
@@ -1050,6 +1051,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 40;
                     break;
                 case 0x10:
+                case 0x11:
                     Resistance = 7;
                     m_pelotonResistance = 45;
                     break;
@@ -1078,6 +1080,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 75;
                     break;
                 case 0x21:
+                case 0x22:
                     Resistance = 14;
                     m_pelotonResistance = 80;
                     break;

@@ -291,6 +291,18 @@ HomeForm{
         }
 
         footer:
+
+            Rectangle {
+                id: chartFooterRectangle
+                visible: rootItem.chartFooterVisible
+                width: parent.width
+                height: parent.height / 4
+                ChartFooter {
+                    anchors.fill: parent
+                    visible: rootItem.chartFooterVisible
+                }
+            }
+
             Rectangle {
                 objectName: "footerrectangle"
                 visible: rootItem.videoVisible
@@ -343,6 +355,7 @@ HomeForm{
                          anchors.fill: parent
                          source: videoPlaybackHalf
                      }
+
             }
 
     MouseArea {

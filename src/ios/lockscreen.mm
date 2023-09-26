@@ -7,6 +7,7 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
+#include <QDebug>
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -54,6 +55,20 @@ void lockscreen::setDistance(double distance)
 {
     [h setDistanceWithDistance:distance * 0.621371];
 }
+
+void lockscreen::setPower(double power)
+{
+    [h setPowerWithPower:power];
+}
+void lockscreen::setCadence(double cadence)
+{
+    [h setCadenceWithCadence:cadence];
+}
+void lockscreen::setSpeed(double speed)
+{
+    [h setSpeedWithSpeed:speed];
+}
+
 
 void lockscreen::virtualbike_ios()
 {
@@ -238,5 +253,9 @@ double lockscreen::getVolume()
 {
     [[AVAudioSession sharedInstance] setActive:true error:0];
     return [[AVAudioSession sharedInstance] outputVolume];
+}
+
+void lockscreen::debug(const char* debugstring) {
+    qDebug() << debugstring;
 }
 #endif

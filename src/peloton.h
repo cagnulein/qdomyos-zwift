@@ -94,10 +94,11 @@ class peloton : public QObject {
     typedef struct _peloton_rower_pace_intensities {
         QString display_name;
         int value;
-        _peloton_rower_pace_intensities_level levels[6];
+        _peloton_rower_pace_intensities_level levels[10];
     } _peloton_rower_pace_intensities;
 
-    _peloton_rower_pace_intensities rower_pace[4];
+    _peloton_rower_pace_intensities rower_pace[5];
+    int rower_pace_offset = 0;
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
