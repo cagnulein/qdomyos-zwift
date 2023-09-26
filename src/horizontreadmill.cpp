@@ -1927,14 +1927,7 @@ void horizontreadmill::serviceScanDone(void) {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
             connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                     &horizontreadmill::stateChanged);
-#ifdef Q_OS_WIN
-            // https://bugreports.qt.io/browse/QTBUG-78488
-            QTimer::singleShot(100, [=]() {
-#endif
-                gattCommunicationChannelService.constLast()->discoverDetails();
-#ifdef Q_OS_WIN
-            });
-#endif
+            gattCommunicationChannelService.constLast()->discoverDetails();
         }
 #ifdef Q_OS_WIN
         else {

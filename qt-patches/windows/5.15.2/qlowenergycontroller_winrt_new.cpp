@@ -787,11 +787,21 @@ HRESULT QLowEnergyControllerPrivateWinRTNew::onServiceDiscoveryFinished(ABI::Win
 
         obtainIncludedServices(pointer, deviceService);
 
-        emit q->serviceDiscovered(service);
+        // If QLowEnergyService::discoverDetails is called from this callback,
+        // deviceService3->GetIncludedServicesAsync can fail with AccessDenied
+        // error. To work around this, we defer emitting the signal.
+        QTimer::singleShot(0, [q, service] () {
+            emit q->serviceDiscovered(service);
+        });
     }
 
     setState(QLowEnergyController::DiscoveredState);
-    emit q->discoveryFinished();
+     // If QLowEnergyService::discoverDetails is called from this callback,
+    // deviceService3->GetIncludedServicesAsync can fail with AccessDenied
+    // error. To work around this, we defer emitting the signal.
+    QTimer::singleShot(0, [q] () {
+        emit q->discoveryFinished();
+    });
 
     return S_OK;
 }
