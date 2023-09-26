@@ -329,6 +329,9 @@ void proformrower::update() {
         update_metrics(true, watts());
 
         {
+            bool proform_rower_sport_rl =
+                settings.value(QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl).toBool();
+
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x14, 0x13, 0x02, 0x00,
                                    0x0d, 0x1c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
@@ -349,10 +352,18 @@ void proformrower::update() {
                 break;
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                if (requestResistance != -1 && proform_rower_sport_rl) {
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= max_resistance) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
                 break;
             case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
-                if (requestResistance != -1) {
+                if (requestResistance != -1 && !proform_rower_sport_rl) {
                     if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
                         requestResistance <= max_resistance) {
                         emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
