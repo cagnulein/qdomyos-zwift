@@ -351,7 +351,9 @@ void proformrower::update() {
                 writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
                 break;
             case 2:
-                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"), false, proform_rower_sport_rl);
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
                 if (requestResistance != -1 && proform_rower_sport_rl) {
                     if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
                         requestResistance <= max_resistance) {
@@ -360,8 +362,6 @@ void proformrower::update() {
                     }
                     requestResistance = -1;
                 }
-                break;
-            case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
                 if (requestResistance != -1 && !proform_rower_sport_rl) {
                     if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
