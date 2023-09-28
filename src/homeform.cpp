@@ -2870,8 +2870,8 @@ void homeform::pelotonOffset_Minus() { Minus(QStringLiteral("peloton_offset")); 
 void homeform::bluetoothDeviceConnected(bluetoothdevice *b) {
     this->innerTemplateManager->start(b);
     this->userTemplateManager->start(b);
-#ifdef Q_OS_ANDROID
-    // heart rate received from apple watch while QZ is running on android via TCP socket (iphone_socket)
+#ifndef Q_OS_IOS
+    // heart rate received from apple watch while QZ is running on a different device via TCP socket (iphone_socket)
     connect(this, SIGNAL(heartRate(uint8_t)), b, SLOT(heartRate(uint8_t)));
 #endif
 }
@@ -5064,7 +5064,7 @@ void homeform::update() {
                 lapTrigger = false;
             }
 
-#ifdef Q_OS_ANDROID
+#ifndef Q_OS_IOS
             if (iphone_socket && iphone_socket->state() == QAbstractSocket::ConnectedState) {
                 QString toSend =
                     "SENDER=PAD#HR=" + QString::number(bluetoothManager->device()->currentHeart().value()) +
