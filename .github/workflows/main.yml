@@ -196,27 +196,26 @@ jobs:
           path: release.zip
         if:  ${{ ! matrix.config.python }}
 
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        if:  ${{ ! matrix.config.python && startsWith(github.ref, 'refs/tags/') }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload Files to a GitHub Release No Python (Windows)
+        if: ${{ ! matrix.config.python  }}
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release.zip
-          asset_name: windows-binary-no-python.zip
-          asset_content_type: application/zip        
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release.zip
+          asset_name: windows-binary-no-pyhton.zip
+          tag: latest
+          overwrite: true
+  
 
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        if:  ${{ matrix.config.python && startsWith(github.ref, 'refs/tags/') }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload Files to a GitHub Release (Windows)
+        if: ${{ matrix.config.python  }}
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release.zip
           asset_name: windows-binary.zip
-          asset_content_type: application/zip        
+          tag: latest
+          overwrite: true
 
 #  window-steam-build:
 #    runs-on: windows-latest
@@ -302,19 +301,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: release
-        uses: actions/create-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        id: create_release
-        with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
-          body_path: CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
 #      - name: Cache Qt Linux Desktop
 #        id: cache-qt-linux-desktop
 #        uses: actions/cache@v1
@@ -617,17 +603,17 @@ jobs:
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
-
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        if:  ${{ startsWith(github.ref, 'refs/tags/') }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          
+      - name: Upload Files to a GitHub Release (Windows)
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
           asset_name: fdroid-android-trial.zip
-          asset_content_type: application/zip                  
+          tag: latest
+          overwrite: true   
+
+          
 
   ios-build:
     # The type of runner that the job will run on
