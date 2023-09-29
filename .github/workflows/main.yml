@@ -196,6 +196,10 @@ jobs:
           path: release.zip
         if:  ${{ ! matrix.config.python }}
 
+      - name: Exit if not on master branch
+        if: github.ref == 'refs/heads/main'
+        run: exit 1
+
       - name: Get previous tag
         id: previoustag
         uses: 'WyriHaximus/github-action-get-previous-tag@v1'
@@ -634,6 +638,10 @@ jobs:
         with:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+
+      - name: Exit if not on master branch
+        if: github.ref == 'refs/heads/main'
+        run: exit 1
 
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
