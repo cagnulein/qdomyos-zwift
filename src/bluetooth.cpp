@@ -1304,6 +1304,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+                        (b.name().toUpper().startsWith("DI") && b.name().length() == 2) ||   // Elite smart trainer #1682
                         (b.name().toUpper().startsWith("DHZ-")) ||   // JK fitness 577
                         (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
                         (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
