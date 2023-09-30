@@ -491,7 +491,10 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
         Cadence = (uint8_t)(newValue.at(12));
+        StrokesCount += (Cadence.value()) *
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
         uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
         if (s > 0)
             Speed = (60.0 / (double)(s)) * 30.0;
