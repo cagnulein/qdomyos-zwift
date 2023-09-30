@@ -196,53 +196,53 @@ jobs:
           path: release.zip
         if:  ${{ ! matrix.config.python }}
 
-      - name: Exit if not on master branch
-        if: github.ref == 'refs/heads/main'
-        run: exit 1
+      # - name: Exit if not on master branch
+      #   if: github.ref == 'refs/heads/main'
+      #   run: exit 1
 
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Required due to the way Git works, without it this action won't be able to find any or the correct tags
+      # - uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0 # Required due to the way Git works, without it this action won't be able to find any or the correct tags
 
-      - name: Get previous tag
-        id: previoustag
-        uses: 'WyriHaximus/github-action-get-previous-tag@v1'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
+      # - name: Get previous tag
+      #   id: previoustag
+      #   uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
 
-      - name: Create Release
-        if:  ${{ ! matrix.config.python }}
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.previoustag.outputs.tag }}
-          release_name: Release ${{ steps.previoustag.outputs.tag }}
-          draft: false
-          prerelease: false
+      # - name: Create Release
+      #   if:  ${{ ! matrix.config.python }}
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ steps.previoustag.outputs.tag }}
+      #     release_name: Release ${{ steps.previoustag.outputs.tag }}
+      #     draft: false
+      #     prerelease: false
 
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        if:  ${{ ! matrix.config.python }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release.zip
-          asset_name: windows-binary-no-python.zip
-          asset_content_type: application/zip        
+      # - name: upload windows artifact
+      #   uses: actions/upload-release-asset@v1
+      #   if:  ${{ ! matrix.config.python }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: release.zip
+      #     asset_name: windows-binary-no-python.zip
+      #     asset_content_type: application/zip        
 
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        if:  ${{ matrix.config.python }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release.zip
-          asset_name: windows-binary.zip
-          asset_content_type: application/zip        
+      # - name: upload windows artifact
+      #   uses: actions/upload-release-asset@v1
+      #   if:  ${{ matrix.config.python }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: release.zip
+      #     asset_name: windows-binary.zip
+      #     asset_content_type: application/zip        
 
 #  window-steam-build:
 #    runs-on: windows-latest
@@ -644,19 +644,19 @@ jobs:
           name: fdroid-android-trial
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
-      - name: Exit if not on master branch
-        if: github.ref == 'refs/heads/main'
-        run: exit 1
+      # - name: Exit if not on master branch
+      #   if: github.ref == 'refs/heads/main'
+      #   run: exit 1
 
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
-          asset_name: fdroid-android-trial.zip
-          asset_content_type: application/zip                  
+      # - name: upload windows artifact
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/android-debug.apk
+      #     asset_name: fdroid-android-trial.zip
+      #     asset_content_type: application/zip                  
 
   ios-build:
     # The type of runner that the job will run on
