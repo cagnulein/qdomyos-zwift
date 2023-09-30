@@ -59,12 +59,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData charDataFIT;
             charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
             QByteArray valueFIT;
-            valueFIT.append((char)0xA6); // cadence, pace and resistance level supported
-            valueFIT.append((char)0x45); // stride count,heart rate, power supported
+
+            valueFIT.append((char)0x83);
+            valueFIT.append((char)0x14);
             valueFIT.append((char)0x00);
             valueFIT.append((char)0x00);
-            valueFIT.append((char)0x0C); // resistance and power target supported
-            valueFIT.append((char)0x00);
+            valueFIT.append((char)0x0C);
+            valueFIT.append((char)0xe0);
             valueFIT.append((char)0x00);
             valueFIT.append((char)0x00);
             charDataFIT.setValue(valueFIT);
