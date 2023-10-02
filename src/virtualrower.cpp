@@ -387,9 +387,9 @@ void virtualrower::rowerProvider() {
         value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
         value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
 
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer())) & 0xFF)); // Distance
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer()) >> 8) & 0xFF)); // Distance
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer()) >> 16) & 0xFF)); // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0)) & 0xFF)); // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 8) & 0xFF)); // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
 
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) >> 8) & 0xFF); // pace
