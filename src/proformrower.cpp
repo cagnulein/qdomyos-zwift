@@ -59,6 +59,8 @@ void proformrower::forceResistance(resistance_t requestResistance) {
         settings.value(QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl).toBool();
 
     if (proform_rower_sport_rl) {
+        const uint8_t unlock_res[] = {0xfe, 0x02, 0x0d, 0x02};
+
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x14, 0x09, 0x02, 0x01,
                                 0x04, 0x76, 0x01, 0x00, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x14, 0x09, 0x02, 0x01,
@@ -107,6 +109,8 @@ void proformrower::forceResistance(resistance_t requestResistance) {
                                  0x04, 0x45, 0x25, 0x00, 0x8e, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res24[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x14, 0x09, 0x02, 0x01,
                                  0x04, 0xe6, 0x26, 0x00, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic((uint8_t*)unlock_res, sizeof(unlock_res), QStringLiteral("unlock_resistance"), false, false);
 
         switch (requestResistance) {
         case 1:
@@ -325,6 +329,9 @@ void proformrower::update() {
         update_metrics(true, watts());
 
         {
+            bool proform_rower_sport_rl =
+                settings.value(QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl).toBool();
+
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x14, 0x13, 0x02, 0x00,
                                    0x0d, 0x1c, 0x9e, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
@@ -347,8 +354,16 @@ void proformrower::update() {
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 break;
             case 3:
+                if (requestResistance != -1 && proform_rower_sport_rl) {
+                    if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
+                        requestResistance <= max_resistance) {
+                        emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                        forceResistance(requestResistance);
+                    }
+                    requestResistance = -1;
+                }
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
-                if (requestResistance != -1) {
+                if (requestResistance != -1 && !proform_rower_sport_rl) {
                     if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
                         requestResistance <= max_resistance) {
                         emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -414,12 +429,14 @@ double proformrower::GetResistanceFromPacket(QByteArray packet) {
     case 6:
         return 4;
     case 7:
+    case 8:
         return 5;
     case 9:
         return 6;
     case 0x0b:
         return 7;
     case 0x0c:
+    case 0x0d:
         return 8;
     case 0x0e:
         return 9;
@@ -430,12 +447,14 @@ double proformrower::GetResistanceFromPacket(QByteArray packet) {
     case 0x13:
         return 12;
     case 0x14:
+    case 0x15:
         return 13;
     case 0x16:
         return 14;
     case 0x18:
         return 15;
     case 0x19:
+    case 0x1a:
         return 16;
     case 0x1b:
         return 17;
@@ -452,6 +471,7 @@ double proformrower::GetResistanceFromPacket(QByteArray packet) {
     case 0x25:
         return 23;
     case 0x26:
+    case 0x27:
         return 24;
     }
     return 1;
@@ -471,7 +491,10 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
         Cadence = (uint8_t)(newValue.at(12));
+        StrokesCount += (Cadence.value()) *
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
         uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
         if (s > 0)
             Speed = (60.0 / (double)(s)) * 30.0;
@@ -528,6 +551,9 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 }
 
 void proformrower::btinit() {
+    QSettings settings;
+    bool proform_rower_sport_rl =
+        settings.value(QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl).toBool();
 
     {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -545,6 +571,7 @@ void proformrower::btinit() {
         uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+
         uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x14, 0x28, 0x90, 0x07,
                                 0x01, 0xed, 0xe8, 0xe9, 0xe8, 0xf5, 0xf0, 0x09, 0x00, 0x1d};
         uint8_t initData11[] = {0x01, 0x12, 0x28, 0x39, 0x48, 0x55, 0x60, 0x99, 0xb0, 0xad,
@@ -567,6 +594,13 @@ void proformrower::btinit() {
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData9[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x13, 0x13, 0x02, 0x0c,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        uint8_t initData10_proform_rower_sport_rl[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x14, 0x28, 0x90, 0x07, 0x01, 0xf2, 0xf4, 0xf4, 0xf2, 0xfe, 0x08, 0x00, 0x1e, 0x2a};
+        uint8_t initData11_proform_rower_sport_rl[] = {0x01, 0x12, 0x3c, 0x4c, 0x5a, 0x66, 0x90, 0x88, 0xa6, 0xc2, 0xe4, 0x04, 0x22, 0x4e, 0x98, 0xb0, 0xce, 0x1a, 0x2c, 0x7c};
+        uint8_t initData12_proform_rower_sport_rl[] = {0xff, 0x08, 0x8a, 0xd6, 0x20, 0x98, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        uint8_t noOpData7_proform_rower_sport_rl[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x14, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData8_proform_rower_sport_rl[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
@@ -594,26 +628,53 @@ void proformrower::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+        if (proform_rower_sport_rl) {
+            writeCharacteristic(initData10_proform_rower_sport_rl, sizeof(initData10_proform_rower_sport_rl), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11_proform_rower_sport_rl, sizeof(initData11_proform_rower_sport_rl), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12_proform_rower_sport_rl, sizeof(initData12_proform_rower_sport_rl), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData7_proform_rower_sport_rl, sizeof(noOpData7_proform_rower_sport_rl), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData8_proform_rower_sport_rl, sizeof(noOpData8_proform_rower_sport_rl), QStringLiteral("init"), false, true);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        } else {
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        }
         /*writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
             QThread::msleep(400);
             writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);

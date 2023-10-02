@@ -719,7 +719,9 @@ class homeform : public QObject {
 
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
+#endif
 
+#ifndef Q_OS_IOS
     QMdnsEngine::Browser* iphone_browser = nullptr;
     QMdnsEngine::Resolver* iphone_resolver = nullptr;
     QMdnsEngine::Server iphone_server;
