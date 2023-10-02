@@ -185,9 +185,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        if (WATER_ROWER && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
+        if ((WATER_ROWER || DFIT_L_R) && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
+            m_watt = 0;
+            Speed = 0;
         } else {
             Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
         }
@@ -241,8 +243,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        Speed = (60.0 / instantPace) *
+        if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
+            Speed = (60.0 / instantPace) *
                 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
@@ -260,7 +264,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         if (!filterWattNull || watt != 0) {
-            m_watt = watt;
+            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
+                m_watt = watt;
         }
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }
@@ -574,6 +579,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
             WATER_ROWER = true;
             qDebug() << "WATER_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("DFIT-L-R"))) {
+            DFIT_L_R = true;
+            qDebug() << "DFIT_L_R found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";
