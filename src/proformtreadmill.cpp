@@ -43,7 +43,12 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
