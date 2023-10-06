@@ -357,8 +357,8 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
                 }
             }
 
-            let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.minute()),
-                                                doubleValue: WorkoutTracking.cadence)
+            let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
+                                                doubleValue: WorkoutTracking.cadence / 60.0)
             
             guard let cadenceType = HKQuantityType.quantityType(
                 forIdentifier: .cyclingCadence) else {
