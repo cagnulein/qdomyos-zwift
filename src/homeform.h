@@ -6,6 +6,9 @@
 #include "fit_profile.hpp"
 #include "gpx.h"
 #include "peloton.h"
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
 #include "screencapture.h"
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
@@ -20,9 +23,6 @@
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
-#include "qmdnsengine/browser.h"
-#include "qmdnsengine/cache.h"
-#include "qmdnsengine/resolver.h"
 
 #if __has_include("secret.h")
 #include "secret.h"
@@ -34,7 +34,6 @@
 #warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
 #endif
-
 
 class DataObject : public QObject {
 
@@ -150,7 +149,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool videoIconVisible READ videoIconVisible NOTIFY videoIconVisibleChanged WRITE setVideoIconVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
     Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
-    Q_PROPERTY(bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
+    Q_PROPERTY(
+        bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
     Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
@@ -395,7 +395,7 @@ class homeform : public QObject {
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
-    bool mapsVisible();    
+    bool mapsVisible();
     bool videoIconVisible();
     bool videoVisible() { return m_VideoVisible; }
     bool chartIconVisible();
@@ -549,9 +549,7 @@ class homeform : public QObject {
         return false;
     }
 
-    bool trainProgramLoadedWithVideo() {
-        return (trainProgram && trainProgram->videoAvailable);
-    }
+    bool trainProgramLoadedWithVideo() { return (trainProgram && trainProgram->videoAvailable); }
 
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
@@ -617,6 +615,7 @@ class homeform : public QObject {
     bool m_autoresistance = true;
     bool m_stopRequested = false;
     bool m_startRequested = false;
+    bool m_overridePower = false;
 
     DataObject *speed;
     DataObject *inclination;
@@ -722,14 +721,14 @@ class homeform : public QObject {
 #endif
 
 #ifndef Q_OS_IOS
-    QMdnsEngine::Browser* iphone_browser = nullptr;
-    QMdnsEngine::Resolver* iphone_resolver = nullptr;
+    QMdnsEngine::Browser *iphone_browser = nullptr;
+    QMdnsEngine::Resolver *iphone_resolver = nullptr;
     QMdnsEngine::Server iphone_server;
     QMdnsEngine::Cache iphone_cache;
-    QTcpSocket* iphone_socket = nullptr;
+    QTcpSocket *iphone_socket = nullptr;
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
-#endif    
+#endif
 
   public slots:
     void aboutToQuit();

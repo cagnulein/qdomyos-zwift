@@ -1944,7 +1944,7 @@ void homeform::sortTiles() {
                 dataList.append(target_pace);
             }
 
-             if (settings
+            if (settings
                     .value(QZSettings::tile_preset_resistance_1_enabled,
                            QZSettings::default_tile_preset_resistance_1_enabled)
                     .toBool() &&
@@ -2407,11 +2407,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
         floatingOpen();
     }
 
-    if(!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().compare(QZSettings::default_heart_rate_belt_name) &&
-            !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
-        QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/WearableController", "start", "(Landroid/content/Context;)V",
-            QtAndroid::androidContext().object());
+    if (!settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
+             .toString()
+             .compare(QZSettings::default_heart_rate_belt_name) &&
+        !settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/WearableController", "start",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
     }
 #endif
 
@@ -2876,6 +2877,7 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                m_overridePower = true;
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() + 10);
                 if (trainProgram) {
@@ -3117,6 +3119,7 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("target_power"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                m_overridePower = true;
                 ((bike *)bluetoothManager->device())
                     ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value() - 10);
                 if (trainProgram) {
@@ -3163,6 +3166,8 @@ void homeform::Start() { Start_inner(true); }
 void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+
+    m_overridePower = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
         m_speech.say("Start pressed");
@@ -3839,6 +3844,14 @@ void homeform::update() {
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
+
+            if ((!trainProgram || (trainProgram && !trainProgram->isStarted())) &&
+                !((bike *)bluetoothManager->device())->ergModeSupportedAvailableByHardware() &&
+                ((bike *)bluetoothManager->device())->lastRequestedPower().value() > 0 && m_overridePower) {
+                qDebug() << QStringLiteral("using target power tile for ERG workout manually");
+                ((bike *)bluetoothManager->device())
+                    ->changePower(((bike *)bluetoothManager->device())->lastRequestedPower().value());
+            }
 
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             if (bluetoothManager->device()->currentSpeed().value()) {
@@ -5542,7 +5555,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
                                QVariant(QStringLiteral("form-data; name=\"name\"")));
 
     QString prefix = QStringLiteral("");
-    if(settings.value(QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix).toBool())
+    if (settings.value(QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix).toBool())
         prefix = " " + QDate::currentDate().toString(Qt::TextDate);
 
     // use metadata config if the user selected it
