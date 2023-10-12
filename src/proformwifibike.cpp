@@ -502,7 +502,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             QJsonValue code = key.value("code");
             QJsonValue name = key.value("name");
             QJsonValue held = key.value("held");
-            if(held.toString().contains(QStirngLiteral("-1"))) {
+            if(held.toString().contains(QStringLiteral("-1"))) {
                 double value = 0;
                 if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
                     qDebug() << "LEFT EXTERNAL GEAR DOWN";
