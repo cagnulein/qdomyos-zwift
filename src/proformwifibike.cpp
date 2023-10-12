@@ -502,23 +502,25 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             QJsonValue code = key.value("code");
             QJsonValue name = key.value("name");
             QJsonValue held = key.value("held");
-            double value = 0;
-            if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
-                qDebug() << "LEFT EXTERNAL GEAR DOWN";
-                value = -0.5;
-            } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
-                qDebug() << "LEFT EXTERNAL GEAR UP";
-                value = 0.5;
-            } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
-                qDebug() << "RIGHT EXTERNAL GEAR UP";
-                value = 5.0;
-            } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
-                qDebug() << "RIGHT EXTERNAL GEAR DOWN";
-                value = -5.0;
-            }
-            if (value != 0.0) {
-                forceResistance(currentInclination().value() + value); // to force an immediate change
-                setGears(gears() + value);
+            if(held.toString().contains(QStirngLiteral("-1"))) {
+                double value = 0;
+                if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                    qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                    value = -0.5;
+                } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                    qDebug() << "LEFT EXTERNAL GEAR UP";
+                    value = 0.5;
+                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                    qDebug() << "RIGHT EXTERNAL GEAR UP";
+                    value = 5.0;
+                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                    qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                    value = -5.0;
+                }
+                if (value != 0.0) {
+                    forceResistance(currentInclination().value() + value); // to force an immediate change
+                    setGears(gears() + value);
+                }
             }
         }
     }
