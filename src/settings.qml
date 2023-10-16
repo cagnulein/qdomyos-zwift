@@ -831,6 +831,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.13
             property bool strava_date_prefix: false
+
+            // from version 2.16.17
+            property bool race_mode: false
         }
 
         function paddingZeros(text, limit) {
@@ -8879,6 +8882,33 @@ import QtQuick.Dialogs 1.0
                                 }
                             }
                         }
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Race Mode")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.race_mode
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.race_mode = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("By default QZ sends the info to Zwift or any other 3rd party apps with a 1000ms interval rate. Enabling the Race Mode setting will cause QZ to send them to 100ms (10hz). Of course the bottleneck will be always your bike/treadmill.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
                     }
 
                     SwitchDelegate {
