@@ -316,6 +316,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered &&
+            // some sensors has some custom services, if you subscribe to them they will not send cadence
             (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == BatteryService)) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &cscbike::characteristicChanged);
