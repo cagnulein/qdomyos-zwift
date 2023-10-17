@@ -1269,6 +1269,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith("TACX NEO") ||
                         b.name().toUpper().startsWith(QStringLiteral("TACX FLOW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
+                        b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                        !tacxneo2Bike && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1304,12 +1305,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 npeCableBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(npeCableBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
-                        (b.name().toUpper().startsWith("DI") && b.name().length() == 2) ||   // Elite smart trainer #1682
-                        (b.name().toUpper().startsWith("DHZ-")) ||   // JK fitness 577
-                        (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
-                        (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
-                        (b.name().toUpper().startsWith("YS_G1_")) || // Yesoul S3
-                        (b.name().toUpper().startsWith("DS25-")) ||  // Bodytone DS25
+                        (b.name().toUpper().startsWith("DI") && b.name().length() == 2) || // Elite smart trainer #1682
+                        (b.name().toUpper().startsWith("DHZ-")) ||                         // JK fitness 577
+                        (b.name().toUpper().startsWith("MKSM")) ||                         // MKSM3600036
+                        (b.name().toUpper().startsWith("YS_C1_")) ||                       // Yesoul C1H
+                        (b.name().toUpper().startsWith("YS_G1_")) ||                       // Yesoul S3
+                        (b.name().toUpper().startsWith("DS25-")) ||                        // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
                         (b.name().toUpper().startsWith("HAMMER ")) ||                        // HAMMER 64123
