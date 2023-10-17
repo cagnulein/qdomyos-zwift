@@ -227,6 +227,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 if (aValues.length()) {
                     gear = getDouble(aValues.last());
                     Resistance = gear;
+                    gearsAvailable = true;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
                 QStringList aValues = line.split(" ");
@@ -235,7 +236,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     m_pelotonResistance = (100 / 32) * resistance;
                     qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value()
                              << resistance;
-                    // Resistance = resistance;
+                    if(!gearsAvailable)
+                        Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
                 QStringList aValues = line.split(" ");
