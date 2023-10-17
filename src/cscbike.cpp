@@ -311,8 +311,12 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+    QBluetoothUuid BatteryService(QBluetoothUuid::BatteryService);
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+        if (s->state() == QLowEnergyService::ServiceDiscovered &&
+            (s->serviceUuid() == CyclingSpeedAndCadence || s->serviceUuid() == BatteryService)) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &cscbike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &cscbike::characteristicWritten);
