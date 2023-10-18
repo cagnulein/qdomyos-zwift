@@ -47,13 +47,15 @@ class cscbike : public bike {
     QTimer *refresh;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyService* cadenceService = nullptr;
+    QLowEnergyCharacteristic cadenceChar;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    bool charNotified = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -61,6 +63,8 @@ class cscbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+
+    bool readMethod = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
