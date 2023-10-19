@@ -6891,7 +6891,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelwattOffset
-                            text: qsTr("Watt Offset (only <0):")
+                            text: qsTr("Watt Offset:")
                             Layout.fillWidth: true
                         }
                         TextField {
