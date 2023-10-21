@@ -772,7 +772,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == 0x11) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
             qDebug() << "applying gears mod" << m_gears;
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if (m_gears != 0) {
