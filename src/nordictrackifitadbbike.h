@@ -85,6 +85,8 @@ class nordictrackifitadbbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool gearsAvailable = false;
+
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 

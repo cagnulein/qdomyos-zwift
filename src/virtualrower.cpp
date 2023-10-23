@@ -1,6 +1,6 @@
 #include "virtualrower.h"
-#include "rower.h"
 #include "qsettings.h"
+#include "rower.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -176,7 +176,11 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     //! [Provide Heartbeat]
     QObject::connect(&rowerTimer, &QTimer::timeout, this, &virtualrower::rowerProvider);
-    rowerTimer.start(1s);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        rowerTimer.start(100ms);
+    else
+        rowerTimer.start(1s);
+
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
@@ -387,8 +391,8 @@ void virtualrower::rowerProvider() {
         value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
         value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
 
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0)) & 0xFF)); // Distance
-        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 8) & 0xFF)); // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0)) & 0xFF));       // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
         value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
 
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace

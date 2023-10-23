@@ -25,12 +25,10 @@ void metric::setValue(double v, bool applyGainAndOffset) {
                     }
                     v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
                 }
-                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                        qDebug()
-                            << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
-                            << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                    }
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                    qDebug()
+                        << QStringLiteral("watt value was ") << v << QStringLiteral("but it will be transformed to")
+                        << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                     v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
                 }
             }

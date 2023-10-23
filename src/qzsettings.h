@@ -1896,6 +1896,9 @@ class QZSettings {
     static const QString ant_speed_gain;
     static constexpr float default_ant_speed_gain = 1;
 
+    static const QString race_mode;
+    static constexpr bool default_race_mode = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

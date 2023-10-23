@@ -675,8 +675,9 @@ const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
 const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
 const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
 const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
+const QString QZSettings::race_mode = QStringLiteral("race_mode");
 
-const uint32_t allSettingsCount = 565;
+const uint32_t allSettingsCount = 566;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1248,6 +1249,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
     {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
     {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
+    {QZSettings::race_mode, QZSettings::default_race_mode},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

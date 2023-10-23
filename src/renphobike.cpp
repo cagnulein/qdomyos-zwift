@@ -109,7 +109,7 @@ void renphobike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (!autoResistanceEnable) {
             uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
@@ -572,6 +572,15 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             lastFTMSPacketReceived.append(r & 0xFF);
             lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
+        // handling gears
+        } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            qDebug() << "applying gears mod" << m_gears;
+            int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
+            if (m_gears != 0) {
+                slope += (m_gears * 50);
+                lastFTMSPacketReceived[3] = slope & 0xFF;
+                lastFTMSPacketReceived[4] = slope >> 8;
+            }
         }
 
         if (writeBuffer) {
