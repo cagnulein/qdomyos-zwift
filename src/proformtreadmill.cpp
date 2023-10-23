@@ -1217,7 +1217,11 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void proformtreadmill::btinit() {
+#ifdef Q_OS_WIN
     const int sleepms = 600;
+#else
+    const int sleepms = 400;
+#endif    
 
     QSettings settings;
     bool nordictrack10 =
