@@ -745,7 +745,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.16.19"
+                text: "version 2.16.20"
                 width: parent.width
             }
 
