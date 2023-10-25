@@ -101,8 +101,14 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
 }
 
 uint16_t treadmill::watts(double weight) {
-    uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
-    m_watt.setValue(watts);
+    QSettings settings;
+    bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                              .toString()
+                              .startsWith(QStringLiteral("Disabled")));
+    if(!power_sensor) {
+        uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
+        m_watt.setValue(watts);
+    }
     return m_watt.value();
 }
 
