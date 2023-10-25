@@ -864,7 +864,7 @@ void homeform::backup() {
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType);
+                   stravaPelotonWorkoutType, dev->bluetoothDevice.name());
 
         index++;
         if (index > 1) {
@@ -5307,7 +5307,7 @@ void homeform::fit_save_clicked() {
 
         qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
-                   stravaPelotonWorkoutType, workoutName);
+                   stravaPelotonWorkoutType, workoutName, dev->bluetoothDevice.name());
         lastFitFileSaved = filename;
 
         QSettings settings;
