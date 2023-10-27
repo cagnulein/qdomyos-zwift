@@ -6050,8 +6050,18 @@ void homeform::sendMail() {
         QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
     textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
                    QStringLiteral("\n");
-    textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(metric::calculateVO2Max(&Session), 'f', 1) +
+    textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(metric::calculateVO2Max(&Session), 'f', 0) +
                    QStringLiteral("\n");
+    double peak = metric::powerPeak(&Session, 5);
+    double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    textMessage += QStringLiteral("5 Seconds Power: ") + QString::number(peak, 'f', 0) +
+                   QStringLiteral("W") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    peak = metric::powerPeak(&Session, 60);
+    textMessage += QStringLiteral("1 Minute Power: ") + QString::number(peak, 'f', 0) +
+                   QStringLiteral("W") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
+    peak = metric::powerPeak(&Session, 5 * 60);
+    textMessage += QStringLiteral("5 Minutes Power: ") + QString::number(peak, 'f', 0) +
+                   QStringLiteral("W") + QString::number(peak/weightKg, 'f', 1) + QStringLiteral("W/Kg\n");
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         textMessage += QStringLiteral("Average Cadence: ") +
                        QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +

@@ -282,20 +282,18 @@ struct CompareBests {
     }
 };
 
-// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
-// power = 5 min peak power for a specific ride
-double metric::calculateVO2Max(QList<SessionLine> *session) {
+double metric::powerPeak(QList<SessionLine> *session, int seconds) {
     QList<IntervalBest> bests;
     QList<IntervalBest> _results;
 
-    uint windowSize = 5 * 60; // 5 mins
+    uint windowSize = seconds;
     double total = 0.0;
     QList<const SessionLine *> window;
 
     if (session->count() == 0)
         return -1;
 
-    // ride is shorter than the window size!
+           // ride is shorter than the window size!
     if (windowSize > session->last().elapsedTime)
         return -1;
 
@@ -325,7 +323,13 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
 
     std::sort(bests.begin(), bests.end(), CompareBests());
 
-    double peak = bests.first().avg;
+    return bests.first().avg;
+}
+
+// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
+// power = 5 min peak power for a specific ride
+double metric::calculateVO2Max(QList<SessionLine> *session) {       
+    double peak = powerPeak(session, 5*60);
     QSettings settings;
     return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
             settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *
