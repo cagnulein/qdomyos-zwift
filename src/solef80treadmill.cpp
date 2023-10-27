@@ -328,6 +328,10 @@ void solef80treadmill::update() {
             }
         } while (requestSpeed != -1 && sole_treadmill_inclination_fast && max_speed_loop);
 
+        int max_inclination_loop = 0;
+        if(requestInclination != -100) {
+            max_inclination_loop = abs(requestInclination - (int)currentInclination().value());
+        }
         do {
             if (requestInclination != -100) {
                 if (requestInclination < 0)
@@ -335,7 +339,7 @@ void solef80treadmill::update() {
                 // this treadmill has only 1% step inclination
                 if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
-                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination) + " " + QString::number(max_inclination_loop)));
                     forceIncline(requestInclination);
                 } else if ((int)requestInclination == (int)currentInclination().value()) {
                     qDebug() << "int inclination match the current one" << requestInclination
@@ -345,7 +349,7 @@ void solef80treadmill::update() {
                 // i have to do the reset on when the inclination is equal to the current
                 // requestInclination = -100;
             }
-        } while (requestInclination != -100 && sole_treadmill_inclination_fast);
+        } while (requestInclination != -100 && sole_treadmill_inclination_fast && max_inclination_loop);
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
