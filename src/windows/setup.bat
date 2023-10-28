@@ -9,6 +9,7 @@ echo !PATH! | find /i "!script_dir!python\x64\Scripts\;!script_dir!python\x64\" 
 if errorlevel 1 (
   REM Append the directory to the PATH variable
   set "PATH=!PATH!;!script_dir!python\x64\Scripts\;!script_dir!python\x64\"
+  echo !PATH!
   echo The script directory has been added to the PATH.
 ) else (
   echo The script directory is already in the PATH.
