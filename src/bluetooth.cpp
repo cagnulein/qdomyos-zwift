@@ -1318,6 +1318,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("XBR55")) ||                          // Sprint XBR555
                         (b.name().toUpper().startsWith("EW-JS-")) ||                         // EW-JS-4990
                         (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
+                        (b.name().toUpper().startsWith("URSB") && b.name().length() == 7) || // URSB005
                         (b.name().toUpper().startsWith("DBF") && b.name().length() == 6) ||  // DBF135
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
