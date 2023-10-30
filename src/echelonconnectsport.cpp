@@ -158,7 +158,7 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
