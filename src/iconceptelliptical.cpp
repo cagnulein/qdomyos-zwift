@@ -64,12 +64,14 @@ void iconceptelliptical::serviceDiscovered(const QBluetoothServiceInfo &service)
     }
 
     qDebug() << QStringLiteral("iconceptelliptical::serviceDiscovered") << service;
-    if (service.device().address() == bluetoothDevice.address()) {
+    /*if (service.device().address() == bluetoothDevice.address())*/ {
         emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
                    service.serviceUuid().toString() + ')');
 
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
-            service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+            service.serviceName().startsWith(QStringLiteral("Serial Port")) ||
+            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
+
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
@@ -91,7 +93,7 @@ void iconceptelliptical::update() {
     if (initDone) {
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+        if (!firstStateChanged && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
@@ -100,17 +102,19 @@ void iconceptelliptical::update() {
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, true);
+                    auto virtualTreadmill = new virtualtreadmill(this, true);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &iconceptelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
-                                                  bikeResistanceGain);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                       bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &iconceptelliptical::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &iconceptelliptical::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstStateChanged = 1;
             }
@@ -153,34 +157,50 @@ void iconceptelliptical::rfCommConnected() {
         0x01, 0xff, 0x55, 0x18, 0x01, 0xff, 0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
     const uint8_t init2[] = {0x55, 0x0a, 0x01, 0x02, 0x55, 0x17, 0x01, 0x01};
     const uint8_t init3[] = {0x55, 0x01, 0x06, 0x34, 0x01, 0x63, 0x00, 0xb4, 0x00};
+    const uint8_t init3b[] = {0x55, 0x17, 0x01, 0x01};
     const uint8_t init4[] = {0x55, 0x15, 0x01, 0x00};
     const uint8_t init5[] = {0x55, 0x11, 0x01, 0x01};
-    const uint8_t init6[] = {0x55, 0x0a, 0x01, 0x01};
-    const uint8_t init7[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0x07, 0x01, 0xff};
+    const uint8_t init6[] = {0x55, 0x0a, 0x01, 0x01, 0x55, 0x0a, 0x01, 0x01};
+    const uint8_t init6a[] = {0x55, 0x07, 0x01, 0xff};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
+    QThread::msleep(2000);
+    readSocket();
+    QThread::msleep(1000);
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
-    QThread::msleep(2000);
+    QThread::msleep(1500);
+    readSocket();
     socket->write((char *)init3, sizeof(init3));
     qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(2000);
-    socket->write((char *)init3, sizeof(init3));
-    qDebug() << QStringLiteral(" init3 write");
-    QThread::msleep(500);
+    QThread::msleep(700);
+    readSocket();
+    socket->write((char *)init3b, sizeof(init3b));
+    qDebug() << QStringLiteral(" init3b write");
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init4, sizeof(init4));
     qDebug() << QStringLiteral(" init4 write");
-    QThread::msleep(600);
+    QThread::msleep(700);
+    readSocket();
     socket->write((char *)init5, sizeof(init5));
     qDebug() << QStringLiteral(" init5 write");
     QThread::msleep(600);
+    readSocket();
+    socket->write((char *)init3b, sizeof(init3b));
+    qDebug() << QStringLiteral(" init3b write");
+    QThread::msleep(400);
+    readSocket();
     socket->write((char *)init6, sizeof(init6));
     qDebug() << QStringLiteral(" init6 write");
     QThread::msleep(600);
-    socket->write((char *)init7, sizeof(init7));
-    qDebug() << QStringLiteral(" init7 write");
-    QThread::msleep(600);
+    readSocket();
+    QThread::msleep(500);
+    socket->write((char *)init6a, sizeof(init6a));
+    qDebug() << QStringLiteral(" init6a write");
+    QThread::msleep(1000);
+    readSocket();
 
     initDone = true;
     // requestStart = 1;
@@ -266,10 +286,6 @@ uint16_t iconceptelliptical::GetElapsedTimeFromPacket(const QByteArray &packet) 
 void iconceptelliptical::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
-
-void *iconceptelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *iconceptelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t iconceptelliptical::watts() {
     if (currentCadence().value() == 0) {

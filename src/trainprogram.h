@@ -29,6 +29,7 @@ class trainrow {
     int8_t lower_requested_peloton_resistance = -1;
     int8_t average_requested_peloton_resistance = -1; // used for peloton
     int8_t upper_requested_peloton_resistance = -1;
+    int8_t pace_intensity = -1; // used for peloton
     int16_t cadence = -1;
     int16_t lower_cadence = -1;
     int16_t average_cadence = -1; // used for peloton
@@ -83,6 +84,12 @@ class trainprogram : public QObject {
     double weightedInclination(int step);
     double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
+    bool powerzoneWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.power != -1) return true;
+        }
+        return false;
+    }
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -90,6 +97,7 @@ class trainprogram : public QObject {
     QString tags = "";
     bool enabled = true;
     bool videoAvailable = false;
+    void setVideoAvailable(bool v) {videoAvailable = v;}
 
     void restart();
     bool isStarted() { return started; }

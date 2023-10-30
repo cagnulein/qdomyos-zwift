@@ -1,5 +1,4 @@
 #include "cscbike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +8,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -90,6 +89,15 @@ void cscbike::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
+        if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
+            readMethod = true;
+            qDebug() << "no cadence for 5 secs, switching to reading method";
+        }
+
+        if(readMethod && cadenceService) {
+            cadenceService->readCharacteristic(cadenceChar);
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
@@ -141,6 +149,8 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     uint16_t _LastWheelEventTime = 0;
     double _WheelRevs = 0;
     uint8_t battery = 0;
+
+    charNotified = true;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -312,8 +322,16 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
+
+            if(s->serviceUuid() == CyclingSpeedAndCadence) {
+                qDebug() << "CyclingSpeedAndCadence found";
+                cadenceService = s;
+            }
+
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &cscbike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &cscbike::characteristicWritten);
@@ -328,7 +346,11 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                if(c.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+                    qDebug() << "CyclingSpeedAndCadence char found";
+                    cadenceChar = c;
+                }
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << QStringLiteral("properties") << c.properties();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
@@ -372,7 +394,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -397,9 +419,10 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &cscbike::changeInclination);
             // connect(virtualBike,&virtualbike::debug ,this,&cscbike::debug);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -424,6 +447,8 @@ void cscbike::characteristicWritten(const QLowEnergyCharacteristic &characterist
 
 void cscbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+
+    characteristicChanged(characteristic, newValue);
 }
 
 void cscbike::serviceScanDone(void) {
@@ -515,10 +540,6 @@ bool cscbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *cscbike::VirtualBike() { return virtualBike; }
-
-void *cscbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t cscbike::watts() {
     if (currentCadence().value() == 0) {

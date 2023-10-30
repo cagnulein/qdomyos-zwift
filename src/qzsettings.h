@@ -1652,7 +1652,7 @@ class QZSettings {
     static constexpr bool default_gears_restore_value = false;
 
     static const QString gears_current_value;
-    static constexpr int default_gears_current_value = 0;
+    static constexpr double default_gears_current_value = 0;
 
     static const QString tile_pace_last500m_enabled;
     static constexpr bool default_tile_pace_last500m_enabled = true;
@@ -1814,6 +1814,90 @@ class QZSettings {
 
     static const QString iconcept_elliptical;
     static constexpr bool default_iconcept_elliptical = false;
+
+    static const QString gears_gain;
+    static constexpr double default_gears_gain = 1.0;
+
+    static const QString proform_treadmill_8_0;
+    static constexpr bool default_proform_treadmill_8_0 = false;
+
+    static const QString zero_zt2500_treadmill;
+    static constexpr bool default_zero_zt2500_treadmill = false;
+
+    static const QString kingsmith_encrypt_v5;
+    static constexpr bool default_kingsmith_encrypt_v5 = false;
+
+    static const QString peloton_rower_level;
+    static constexpr int default_peloton_rower_level = 1;
+
+    static const QString tile_target_pace_enabled;
+    static constexpr bool default_tile_target_pace_enabled = false;
+
+    static const QString tile_target_pace_order;
+    static constexpr int default_tile_target_pace_order = 50;
+
+    static const QString tts_act_target_pace;
+    static constexpr bool default_tts_act_target_pace = false;
+
+    static const QString csafe_rower;
+    static const QString default_csafe_rower;
+
+    static const QString ftms_rower;
+    static const QString default_ftms_rower;
+
+    static const QString zwift_workout_ocr;
+    static constexpr bool default_zwift_workout_ocr = false;
+
+    static const QString proform_bike_sb;
+    static constexpr bool default_proform_bike_sb = false;
+
+    static const QString fakedevice_rower;
+    static constexpr bool default_fakedevice_rower = false;
+
+    static const QString zwift_ocr_climb_portal;
+    static constexpr bool default_zwift_ocr_climb_portal = false;
+
+    static const QString poll_device_time;
+    static constexpr int default_poll_device_time = 200;
+
+    static const QString proform_bike_PFEVEX71316_1;
+    static constexpr bool default_proform_bike_PFEVEX71316_1 = false;
+
+    static const QString schwinn_bike_resistance_v3;
+    static constexpr bool default_schwinn_bike_resistance_v3 = false;
+
+    static const QString watt_ignore_builtin;
+    static constexpr bool default_watt_ignore_builtin = true;
+
+    static const QString proform_treadmill_z1300i;
+    static constexpr bool default_proform_treadmill_z1300i = false;
+
+    static const QString ftms_bike;
+    static const QString default_ftms_bike;
+
+    static const QString ftms_treadmill;
+    static const QString default_ftms_treadmill;
+
+    static const QString proform_rower_sport_rl;
+    static constexpr bool default_proform_rower_sport_rl = false;
+
+    static const QString strava_date_prefix;
+    static constexpr bool default_strava_date_prefix = false;
+
+    /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_offset;
+    static constexpr float default_ant_speed_offset = 0;
+
+    /**
+     * @brief Adjusts value in a metric object that's configured specifically for measuring SPEED on ANT+.
+     */
+    static const QString ant_speed_gain;
+    static constexpr float default_ant_speed_gain = 1;
+
+    static const QString race_mode;
+    static constexpr bool default_race_mode = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -28,14 +28,11 @@
 #include <QObject>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class iconceptbike : public bike {
     Q_OBJECT
   public:
     explicit iconceptbike();
-    void *VirtualBike();
-    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -53,8 +50,6 @@ class iconceptbike : public bike {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
-    virtualbike *virtualBike = nullptr;
-
     QTimer *refresh;
     bool initDone = false;
     uint8_t firstStateChanged = 0;
@@ -63,10 +58,11 @@ class iconceptbike : public bike {
     uint16_t GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
+    double GetWattFromPacket(const QByteArray &packet);
 
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    uint16_t watts();
+    uint16_t watts() override;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

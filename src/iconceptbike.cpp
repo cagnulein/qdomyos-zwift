@@ -1,5 +1,6 @@
 #include "iconceptbike.h"
 #include "keepawakehelper.h"
+#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -63,8 +64,10 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
         emit debug(QStringLiteral("Found new service: ") + service.serviceName() + '(' +
                    service.serviceUuid().toString() + ')');
 
-        if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
-            service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+        if ((service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
+             service.serviceName().startsWith(QStringLiteral("Serial Port"))) &&
+            // android 13 workaround
+            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
@@ -85,14 +88,15 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualBike) {
+        if (!firstStateChanged && !hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, true);
+                auto virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -194,9 +198,9 @@ void iconceptbike::readSocket() {
             Distance = GetDistanceFromPacket(line);
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
-                m_watt = GetSpeedFromPacket(line) * 0.24 * (1.0 + (Resistance.value() / 20.0));
+                m_watt = GetWattFromPacket(line);
                 if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                    Speed = GetSpeedFromPacket(line);
+                    Speed = GetSpeedFromPacket(line) / 2.0;
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
@@ -268,6 +272,11 @@ double iconceptbike::GetSpeedFromPacket(const QByteArray &packet) {
     return convertedData;
 }
 
+double iconceptbike::GetWattFromPacket(const QByteArray &packet) {
+    double convertedData = ((double)(((double)((uint8_t)packet.at(14))) * 256) + ((double)packet.at(15)));
+    return convertedData;
+}
+
 uint16_t iconceptbike::GetCaloriesFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
     return convertedData;
@@ -286,10 +295,6 @@ uint16_t iconceptbike::GetElapsedTimeFromPacket(const QByteArray &packet) {
 void iconceptbike::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
-
-void *iconceptbike::VirtualBike() { return virtualBike; }
-
-void *iconceptbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t iconceptbike::watts() {
     if (currentCadence().value() == 0) {

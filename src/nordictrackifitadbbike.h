@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QUdpSocket>
 
 #include "bike.h"
@@ -25,24 +26,52 @@
 #include "ios/lockscreen.h"
 #endif
 
+class nordictrackifitadbbikeLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbbikeLogcatAdbThread(QString s);    
+    bool runCommand(QString command);
+
+    void run() override;
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+    void debug(QString message);
+    void onWatt(double watt);
+    void onHRM(int hrm);
+
+  private:
+    QString adbCommandPending = "";
+    QString runAdbCommand(QString command);
+    double speed = 0;
+    double inclination = 0;
+    double watt = 0;
+    int hrm = 0;
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    void runAdbTailCommand(QString command);
+};
+
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    bool inclinationAvailableByHardware();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                           double bikeResistanceGain);
+    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -56,12 +85,14 @@ class nordictrackifitadbbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool gearsAvailable = false;
+
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
-#ifdef Q_OS_ANDROID
+    nordictrackifitadbbikeLogcatAdbThread *logcatAdbThread = nullptr;
+
     QString lastCommand;
-#endif
 
     QString ip;
 
@@ -77,6 +108,7 @@ class nordictrackifitadbbike : public bike {
 
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
+    void onHRM(int hrm);
 
     void update();
 };

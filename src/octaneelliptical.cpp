@@ -170,10 +170,10 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPace2Sign.clear();
 
     // SPEED
-    actualPaceSign.append(0x02);
     actualPaceSign.append(0x07);
-    actualPace2Sign.append(0x01);
+    actualPaceSign.append(0x03);
     actualPace2Sign.append(0x07);
+    actualPace2Sign.append(0x03);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -199,11 +199,15 @@ void octaneelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -260,15 +264,16 @@ void octaneelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
-                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &octaneelliptical::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -335,8 +340,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x06) {
-        Resistance = (uint8_t)newValue[5];
+    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x09) {
+        Resistance = (uint8_t)newValue[4];
         emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
         return;
     }
@@ -397,8 +402,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 double octaneelliptical::GetSpeedFromPacket(const QByteArray &packet, int index) {
-    uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
-    return ((double)convertedData) / 1000.0;
+    uint16_t convertedData = (packet.at(index + 4) << 8) | ((uint8_t)packet.at(index + 5));
+    return ((double)convertedData) / 100.0;
 }
 
 void octaneelliptical::btinit(bool startTape) {
@@ -537,10 +542,6 @@ bool octaneelliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *octaneelliptical::VirtualTreadMill() { return virtualTreadMill; }
-
-void *octaneelliptical::VirtualDevice() { return VirtualTreadMill(); }
 
 bool octaneelliptical::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

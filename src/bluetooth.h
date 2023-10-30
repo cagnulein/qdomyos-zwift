@@ -23,12 +23,14 @@
 #include "activiotreadmill.h"
 #include "apexbike.h"
 #include "bhfitnesselliptical.h"
+#include "bkoolbike.h"
 #include "bluetoothdevice.h"
 #include "bowflext216treadmill.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
 #ifndef Q_OS_IOS
 #include "computrainerbike.h"
+#include "csaferower.h"
 #endif
 #include "concept2skierg.h"
 #include "cscbike.h"
@@ -44,6 +46,7 @@
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
 #include "fakeelliptical.h"
+#include "fakerower.h"
 #include "faketreadmill.h"
 #include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
@@ -148,12 +151,14 @@ class bluetooth : public QObject, public SignalHandler {
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
     apexbike *apexBike = nullptr;
+    bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
+    csaferower *csafeRower = nullptr;
 #endif
     concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
@@ -241,6 +246,7 @@ class bluetooth : public QObject, public SignalHandler {
     elitesterzosmart *eliteSterzoSmart = nullptr;
     fakebike *fakeBike = nullptr;
     fakeelliptical *fakeElliptical = nullptr;
+    fakerower *fakeRower = nullptr;
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;

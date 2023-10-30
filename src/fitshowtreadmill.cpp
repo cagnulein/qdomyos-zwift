@@ -1,6 +1,7 @@
 #include "fitshowtreadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -44,9 +45,6 @@ fitshowtreadmill::~fitshowtreadmill() {
         refresh->stop();
         delete refresh;
     }
-    if (virtualTreadMill) {
-        delete virtualTreadMill;
-    }
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
         delete h;
@@ -62,19 +60,24 @@ void fitshowtreadmill::scheduleWrite(const uint8_t *data, uint8_t data_len, cons
 void fitshowtreadmill::writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info) {
     QEventLoop loop;
     QTimer timeout;
-    QByteArray qba((const char *)data, data_len);
-    if (!info.isEmpty()) {
-        emit debug(QStringLiteral(" >>") + qba.toHex(' ') + QStringLiteral(" // ") + info);
-    }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (!info.isEmpty()) {
+        emit debug(QStringLiteral(" >>") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+    }
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba,
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
     loop.exec();
@@ -161,16 +164,16 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
+        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -273,7 +276,8 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     QBluetoothUuid nobleproconnect(QStringLiteral("0000ae00-0000-1000-8000-00805f9b34fb"));
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString() + QStringLiteral(" ") +
                QString::number(servRepr));
-    if (gatt == nobleproconnect || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+    if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+        qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
 }
@@ -442,7 +446,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
-                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));                
+                emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
@@ -467,7 +471,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         .toBool())
                     miles = 1.60934;
 
-                Speed = speed * miles;
+                if(IS_RUNNING)
+                    Speed = speed * miles;
+                else
+                    Speed = 0;
+
                 if (Speed.value() != speed) {
                     emit speedChanged(speed);
                 }
@@ -496,6 +504,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                         long appleWatchHeartRate = h->heartRate();
                         h->setKcal(KCal.value());
                         h->setDistance(Distance.value());
+                        h->setSpeed(Speed.value());
+                        h->setPower(m_watt.value());
+                        h->setCadence(Cadence.value());
                         Heart = appleWatchHeartRate;
                         debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #else
@@ -804,10 +815,6 @@ bool fitshowtreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *fitshowtreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *fitshowtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void fitshowtreadmill::searchingStop() { searchStopped = true; }
 

@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class nautilusbike : public bike {
     Q_OBJECT
@@ -35,23 +34,20 @@ class nautilusbike : public bike {
     nautilusbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                  uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~nautilusbike();
-    bool connected();
-
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetWattFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t watts();
+    uint16_t watts() override;
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
     uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 

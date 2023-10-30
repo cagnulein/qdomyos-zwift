@@ -1,6 +1,4 @@
 #include "fitplusbike.h"
-#include "ios/lockscreen.h"
-#include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,6 +7,10 @@
 #include <QSettings>
 #include <chrono>
 #include <math.h>
+
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#endif
 
 using namespace std::chrono_literals;
 
@@ -65,12 +67,20 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log)
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
 
     loop.exec();
 }
@@ -267,7 +277,7 @@ void fitplusbike::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts());
+        update_metrics(false, watts());
         bool virtufit_etappe =
             settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
         bool sportstech_sx600 =
@@ -580,7 +590,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 Cadence = ((uint8_t)newValue.at(6));
-            m_watt = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 10.0;
+            m_watt = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 10.0;
 
             /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
@@ -665,6 +675,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
+    qDebug() << QStringLiteral("Current Resistance: ") + QString::number(Resistance.value());
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -788,7 +799,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &fitplusbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -813,10 +824,11 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&fitplusbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &fitplusbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -910,6 +922,7 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
 
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
+            qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
         }
 
@@ -953,10 +966,6 @@ bool fitplusbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *fitplusbike::VirtualBike() { return virtualBike; }
-
-void *fitplusbike::VirtualDevice() { return VirtualBike(); }
-
 uint16_t fitplusbike::watts() {
     if (currentCadence().value() == 0) {
         return 0;
@@ -973,4 +982,118 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t fitplusbike::wattsFromResistance(double resistance) {
+    // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
+    /*if(currentCadence().value() < 90)
+        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
+    (double)(currentResistance().value())) ); else return (uint16_t)((3.59 * exp(0.0217 *
+    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
+
+    const double Epsilon = 4.94065645841247E-324;
+
+    if (merach_MRK) {
+        const int wattTableFirstDimension = 17;
+        const int wattTableSecondDimension = 11;
+        double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+            {Epsilon, 14.3, 28.6, 42.9, 57.2, 71.5, 85.8, 100.1, 114.4, 128.7, 143.0}, 
+            {Epsilon, 14.3, 28.6, 42.9, 57.2, 71.5, 85.8, 100.1, 114.4, 128.7, 143.0}, 
+            {Epsilon, 16.4, 32.8, 49.2, 65.6, 82.0, 98.4, 114.8, 131.2, 147.6, 164.0}, 
+            {Epsilon, 18.7, 37.4, 56.1, 74.8, 93.5, 112.2, 130.9, 149.6, 168.3, 187.0}, 
+            {Epsilon, 21.0, 42.0, 63.0, 84.0, 105.0, 126.0, 147.0, 168.0, 189.0, 210.0}, 
+            {Epsilon, 23.2, 46.4, 69.6, 92.8, 116.0, 139.2, 162.4, 185.6, 208.8, 232.0}, 
+            {Epsilon, 25.3, 50.6, 75.9, 101.2, 126.5, 151.8, 177.1, 202.4, 227.7, 253.0}, 
+            {Epsilon, 27.6, 55.2, 82.8, 110.4, 138.0, 165.6, 193.2, 220.8, 248.4, 276.0}, 
+            {Epsilon, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0, 210.0, 240.0, 270.0, 300.0}, 
+            {Epsilon, 31.9, 63.8, 95.7, 127.6, 159.5, 191.4, 223.3, 255.2, 287.1, 319.0}, 
+            {Epsilon, 34.2, 68.4, 102.6, 136.8, 171.0, 205.2, 239.4, 273.6, 307.8, 342.0}, 
+            {Epsilon, 36.5, 73.0, 109.5, 146.0, 182.5, 219.0, 255.5, 292.0, 328.5, 365.0}, 
+            {Epsilon, 38.5, 77.0, 115.5, 154.0, 192.5, 231.0, 269.5, 308.0, 346.5, 385.0}, 
+            {Epsilon, 40.8, 81.6, 122.4, 163.2, 204.0, 244.8, 285.6, 326.4, 367.2, 408.0}, 
+            {Epsilon, 43.1, 86.2, 129.3, 172.4, 215.5, 258.6, 301.7, 344.8, 387.9, 431.0}, 
+            {Epsilon, 45.1, 90.2, 135.3, 180.4, 225.5, 270.6, 315.7, 360.8, 405.9, 451.0}, 
+            {Epsilon, 47.2, 94.4, 141.6, 188.8, 236.0, 283.2, 330.4, 377.6, 424.8, 472.0}};
+
+        int level = resistance;
+        if (level < 0) {
+            level = 0;
+        }
+        if (level >= wattTableFirstDimension) {
+            level = wattTableFirstDimension - 1;
+        }
+        double *watts_of_level = wattTable[level];
+        int watt_setp = (Cadence.value() / 10.0);
+        if (watt_setp >= 10) {
+            return (((double)Cadence.value()) / 100.0) * watts_of_level[wattTableSecondDimension - 1];
+        }
+        double watt_base = watts_of_level[watt_setp];
+        return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
+               watt_base;
+    } else {
+        // VirtuFit Etappe 2.0i Spinbike ERG Table #1526
+        const int wattTableFirstDimension = 25;
+        const int wattTableSecondDimension = 11;
+        double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+            {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
+            {Epsilon, 15.0, 15.0, 15.0, 20.0, 30.0, 32.0, 38.0, 44.0, 56.0, 66.0},
+            {Epsilon, 16.0, 16.0, 16.0, 22.0, 30.0, 38.0, 45.0, 53.0, 67.0, 79.0},
+            {Epsilon, 18.0, 18.0, 18.0, 26.0, 34.0, 43.0, 52.0, 62.0, 78.0, 92.0},
+            {Epsilon, 20.0, 20.0, 20.0, 28.0, 38.0, 48.0, 59.0, 71.0, 89.0, 105.0},
+            {Epsilon, 23.0, 23.0, 23.0, 32.0, 43.0, 54.0, 66.0, 80.0, 100.0, 118.0},
+            {Epsilon, 24.0, 24.0, 24.0, 35.0, 46.0, 59.0, 73.0, 89.0, 110.0, 130.0},
+            {Epsilon, 26.0, 26.0, 26.0, 37.0, 51.0, 65.0, 81.0, 98.0, 122.0, 143.0},
+            {Epsilon, 28.0, 28.0, 28.0, 41.0, 56.0, 71.0, 88.0, 107.0, 133.0, 156.0},
+            {Epsilon, 30.0, 30.0, 30.0, 44.0, 60.0, 77.0, 96.0, 116.0, 144.0, 169.0},
+            {Epsilon, 33.0, 33.0, 33.0, 47.0, 65.0, 83.0, 103.0, 125.0, 155.0, 182.0},
+            {Epsilon, 34.0, 34.0, 34.0, 50.0, 70.0, 89.0, 110.0, 134.0, 166.0, 195.0},
+            {Epsilon, 37.0, 37.0, 37.0, 54.0, 74.0, 94.0, 117.0, 143.0, 177.0, 208.0},
+            {Epsilon, 38.0, 38.0, 38.0, 56.0, 78.0, 100.0, 125.0, 152.0, 188.0, 220.0},
+            {Epsilon, 41.0, 41.0, 41.0, 60.0, 82.0, 106.0, 132.0, 161.0, 199.0, 233.0},
+            {Epsilon, 43.0, 43.0, 43.0, 62.0, 86.0, 111.0, 139.0, 170.0, 209.0, 245.0},
+            {Epsilon, 45.0, 45.0, 45.0, 66.0, 91.0, 117.0, 147.0, 180.0, 220.0, 259.0},
+            {Epsilon, 48.0, 48.0, 48.0, 70.0, 96.0, 124.0, 155.0, 190.0, 232.0, 273.0},
+            {Epsilon, 50.0, 50.0, 50.0, 73.0, 101.0, 130.0, 163.0, 200.0, 244.0, 287.0},
+            {Epsilon, 52.0, 52.0, 52.0, 76.0, 106.0, 136.0, 171.0, 210.0, 256.0, 300.0},
+            {Epsilon, 54.0, 54.0, 54.0, 80.0, 111.0, 143.0, 179.0, 220.0, 268.0, 314.0},
+            {Epsilon, 57.0, 57.0, 57.0, 84.0, 116.0, 149.0, 187.0, 230.0, 279.0, 327.0},
+            {Epsilon, 59.0, 59.0, 59.0, 87.0, 121.0, 155.0, 195.0, 240.0, 290.0, 340.0},
+            {Epsilon, 62.0, 62.0, 62.0, 91.0, 126.0, 162.0, 203.0, 250.0, 302.0, 353.0},
+            {Epsilon, 64.0, 64.0, 64.0, 94.0, 130.0, 168.0, 211.0, 260.0, 313.0, 366.0}};
+
+        int level = resistance;
+        if (level < 0) {
+            level = 0;
+        }
+        if (level >= wattTableFirstDimension) {
+            level = wattTableFirstDimension - 1;
+        }
+        double *watts_of_level = wattTable[level];
+        int watt_setp = (Cadence.value() / 10.0);
+        if (watt_setp >= 10) {
+            return (((double)Cadence.value()) / 100.0) * watts_of_level[wattTableSecondDimension - 1];
+        }
+        double watt_base = watts_of_level[watt_setp];
+        return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
+               watt_base;
+    }
+}
+
+resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < max_resistance; i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
 }

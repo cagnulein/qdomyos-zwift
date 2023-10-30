@@ -1,7 +1,9 @@
 #include "nautilusbike.h"
 
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#include "virtualtreadmill.h"
+#endif
+#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -29,13 +31,7 @@ nautilusbike::nautilusbike(bool noWriteResistance, bool noHeartService, bool tes
     refresh->start(300ms);
 }
 
-nautilusbike::~nautilusbike() {
-    qDebug() << QStringLiteral("~nautilusbike()") << virtualBike;
-    if (virtualBike) {
-
-        delete virtualBike;
-    }
-}
+nautilusbike::~nautilusbike() { qDebug() << QStringLiteral("~nautilusbike()"); }
 
 void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                        bool wait_for_response) {
@@ -50,11 +46,15 @@ void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -91,13 +91,14 @@ void nautilusbike::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && !virtualBike) {
+        if (!firstVirtual && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstVirtual = 1;
             }
         }
@@ -325,9 +326,14 @@ void nautilusbike::serviceScanDone(void) {
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
-            qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
-			m_control->disconnectFromDevice();
-            return;
+            _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("44f8d44f-7e03-4baf-9cc1-bd5a9c7a076b"));
+            B616 = false;
+
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (!gattCommunicationChannelService) {
+                qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+                return;
+            }
         }
     }
 
@@ -397,8 +403,6 @@ bool nautilusbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *nautilusbike::VirtualDevice() { return virtualBike; }
 
 void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

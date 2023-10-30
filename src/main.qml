@@ -37,6 +37,7 @@ ApplicationWindow {
     signal keyMediaPrevious()
     signal keyMediaNext()
     signal floatingOpen()
+    signal openFloatingWindowBrowser();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -45,6 +46,7 @@ ApplicationWindow {
         id: settings
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
+        property bool volume_change_gears: false
     }
 
     Store {
@@ -546,13 +548,13 @@ ApplicationWindow {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
-            anchors.right: toolButtonLockTiles.left
+            anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
         }      
 
         ToolButton {
             function loadVideo() {
-                if(rootItem.currentCoordinateValid) {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
                     rootItem.videoVisible = !rootItem.videoVisible
@@ -565,6 +567,14 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
+        }
+
+        ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/chart.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
         }
 
         ToolButton {
@@ -735,7 +745,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.40"
+                text: "version 2.16.20"
                 width: parent.width
             }
 
@@ -780,13 +790,15 @@ ApplicationWindow {
         initialItem: "Home.qml"
         anchors.fill: parent
         focus: true
-        Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
-        Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
-        Keys.onPressed: {
+        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+
+            event.accepted = settings.volume_change_gears;
         }
     }
 }

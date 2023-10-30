@@ -19,6 +19,40 @@
 
 using namespace std::chrono_literals;
 
+#define TRAINPROGRAM_FIELD_TO_STRING()                                                                      \
+    item[QStringLiteral("duration")] = row.duration.toString();                                             \
+    item[QStringLiteral("duration_s")] = QTime(0,0,0).secsTo(row.duration);                                 \
+    item[QStringLiteral("distance")] = row.distance;                                                        \
+    item[QStringLiteral("speed")] = row.speed;                                                              \
+    item[QStringLiteral("minspeed")] = row.minSpeed;                                                        \
+    item[QStringLiteral("maxspeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("fanspeed")] = row.fanspeed;                                                        \
+    item[QStringLiteral("inclination")] = row.inclination;                                                  \
+    item[QStringLiteral("resistance")] = row.resistance;                                                    \
+    item[QStringLiteral("maxresistance")] = row.maxResistance;                                              \
+    item[QStringLiteral("mets")] = row.mets;                                                                \
+    item[QStringLiteral("pace_intensity")] = row.pace_intensity;                                            \
+    item[QStringLiteral("lower_resistance")] = row.lower_resistance;                                        \
+    item[QStringLiteral("upper_resistance")] = row.upper_resistance;                                        \
+    item[QStringLiteral("requested_peloton_resistance")] = row.requested_peloton_resistance;                \
+    item[QStringLiteral("lower_requested_peloton_resistance")] = row.lower_requested_peloton_resistance;    \
+    item[QStringLiteral("upper_requested_peloton_resistance")] = row.upper_requested_peloton_resistance;    \
+    item[QStringLiteral("power")] = row.power;                                                              \
+    item[QStringLiteral("cadence")] = row.cadence;                                                          \
+    item[QStringLiteral("lower_cadence")] = row.lower_cadence;                                              \
+    item[QStringLiteral("upper_cadence")] = row.upper_cadence;                                              \
+    item[QStringLiteral("forcespeed")] = row.forcespeed;                                                    \
+    item[QStringLiteral("loopTimeHR")] = row.loopTimeHR;                                                    \
+    item[QStringLiteral("zoneHR")] = row.zoneHR;                                                            \
+    item[QStringLiteral("HRmin")] = row.HRmin;                                                              \
+    item[QStringLiteral("HRmax")] = row.HRmax;                                                              \
+    item[QStringLiteral("maxSpeed")] = row.maxSpeed;                                                        \
+    item[QStringLiteral("latitude")] = row.latitude;                                                        \
+    item[QStringLiteral("longitude")] = row.longitude;                                                      \
+    item[QStringLiteral("altitude")] = row.altitude;                                                        \
+    item[QStringLiteral("azimuth")] = row.azimuth;
+
+
 QHash<QString, TemplateInfoSenderBuilder *> TemplateInfoSenderBuilder::instanceMap;
 TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject *parent) : QObject(parent) {
     engine = new QJSEngine(this);
@@ -428,21 +462,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
                                                     fileXml + QStringLiteral(".xml"));
         for (auto &row : lst) {
             QJsonObject item;
-            item[QStringLiteral("duration")] = row.duration.toString();
-            item[QStringLiteral("speed")] = row.speed;
-            item[QStringLiteral("fanspeed")] = row.fanspeed;
-            item[QStringLiteral("inclination")] = row.inclination;
-            item[QStringLiteral("resistance")] = row.resistance;
-            item[QStringLiteral("requested_peloton_resistance")] = row.requested_peloton_resistance;
-            item[QStringLiteral("cadence")] = row.cadence;
-            item[QStringLiteral("forcespeed")] = row.forcespeed;
-            item[QStringLiteral("loopTimeHR")] = row.loopTimeHR;
-            item[QStringLiteral("zoneHR")] = row.zoneHR;
-            item[QStringLiteral("HRmin")] = row.HRmin;
-            item[QStringLiteral("HRmax")] = row.HRmax;
-            item[QStringLiteral("maxSpeed")] = row.maxSpeed;
-            item[QStringLiteral("latitude")] = row.latitude;
-            item[QStringLiteral("longitude")] = row.longitude;
+            TRAINPROGRAM_FIELD_TO_STRING();
             outArr.append(item);
         }
     }
@@ -450,6 +470,27 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     outObj[QStringLiteral("name")] = fileXml;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_loadtrainingprograms");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    QJsonArray outArr;
+    QJsonObject outObj;
+    QString fileXml;
+    if (homeform::singleton() && homeform::singleton()->trainingProgram()) {
+        QList<trainrow> lst = homeform::singleton()->trainingProgram()->loadedRows;
+        for (auto &row : lst) {
+            QJsonObject item;
+            TRAINPROGRAM_FIELD_TO_STRING();
+            outArr.append(item);
+        }
+    }
+    outObj[QStringLiteral("list")] = outArr;
+    outObj[QStringLiteral("name")] = fileXml;
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_gettrainingprogram");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -734,6 +775,17 @@ void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, Templa
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetPelotonImage(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    QString base64 = "";
+    if (homeform::singleton() && !homeform::singleton()->currentPelotonImage().isEmpty())
+        base64 = homeform::singleton()->currentPelotonImage().toBase64();
+    main[QStringLiteral("content")] = base64;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpelotonimage");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     TemplateInfoSender *sender = qobject_cast<TemplateInfoSender *>(this->sender());
     if (!sender) {
@@ -782,6 +834,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("loadtrainingprograms")) {
                     onLoadTrainingPrograms(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("gettrainingprogram")) {
+                    onGetTrainingProgram(jsonObject[QStringLiteral("content")], sender);
+                    return;                    
                 } else if (msg == QStringLiteral("appendactivitydescription")) {
                     onAppendActivityDescription(jsonObject[QStringLiteral("content")], sender);
                     return;
@@ -790,6 +845,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savechart")) {
                     onSaveChart(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("getpelotonimage")) {
+                    onGetPelotonImage(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("lap")) {
                     onLap(jsonObject[QStringLiteral("content")], sender);
@@ -926,11 +984,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         el = device->averagePace();
         obj.setProperty(QStringLiteral("avgpace_s"), el.second());
         obj.setProperty(QStringLiteral("avgpace_m"), el.minute());
-        obj.setProperty(QStringLiteral("avgpace_h"), el.hour());        
+        obj.setProperty(QStringLiteral("avgpace_h"), el.hour());
         el = device->maxPace();
         obj.setProperty(QStringLiteral("maxpace_s"), el.second());
         obj.setProperty(QStringLiteral("maxpace_m"), el.minute());
-        obj.setProperty(QStringLiteral("maxpace_h"), el.hour());                
+        obj.setProperty(QStringLiteral("maxpace_h"), el.hour());
         el = device->movingTime();
         obj.setProperty(QStringLiteral("moving_s"), el.second());
         obj.setProperty(QStringLiteral("moving_m"), el.minute());
@@ -1020,6 +1078,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
+            el = ((rower *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_pace_s"), el.second());
+            obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
+            obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((rower *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -1028,6 +1090,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
+            obj.setProperty(QStringLiteral("req_cadence"), (dep = ((rower *)device)->lastRequestedCadence()).value());
             obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
@@ -1036,6 +1099,10 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else if (tp == bluetoothdevice::TREADMILL) {
             obj.setProperty(QStringLiteral("target_speed"), ((treadmill *)device)->lastRequestedSpeed().value());
+            el = ((treadmill *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_pace_s"), el.second());
+            obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
+            obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
             obj.setProperty(QStringLiteral("target_inclination"),
                             ((treadmill *)device)->lastRequestedInclination().value());
             obj.setProperty(QStringLiteral("cadence"), (dep = ((treadmill *)device)->currentCadence()).value());

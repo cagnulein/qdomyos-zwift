@@ -29,19 +29,15 @@ class pelotonbike : public bike {
     Q_OBJECT
   public:
     pelotonbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    bool inclinationAvailableByHardware();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

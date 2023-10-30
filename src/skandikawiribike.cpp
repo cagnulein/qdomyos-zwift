@@ -1,5 +1,7 @@
 #include "skandikawiribike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -27,12 +29,7 @@ skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, 
     refresh->start(300ms);
 }
 
-skandikawiribike::~skandikawiribike() {
-    qDebug() << QStringLiteral("~skandikawiribike()") << virtualBike;
-    if (virtualBike) {
-        delete virtualBike;
-    }
-}
+skandikawiribike::~skandikawiribike() { qDebug() << QStringLiteral("~skandikawiribike()"); }
 
 void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
@@ -47,12 +44,15 @@ void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -343,7 +343,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
                 &skandikawiribike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -368,10 +368,11 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &skandikawiribike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -474,10 +475,6 @@ bool skandikawiribike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *skandikawiribike::VirtualBike() { return virtualBike; }
-
-void *skandikawiribike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t skandikawiribike::watts() {
     QSettings settings;
