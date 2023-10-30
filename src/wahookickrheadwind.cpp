@@ -18,6 +18,10 @@ wahookickrheadwind::wahookickrheadwind(bluetoothdevice *parentDevice) {
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     this->parentDevice = parentDevice;
+
+    refresh = new QTimer(this);
+    connect(refresh, &QTimer::timeout, this, &wahookickrheadwind::update);
+    refresh->start(1000ms);
 }
 
 void wahookickrheadwind::update() {
