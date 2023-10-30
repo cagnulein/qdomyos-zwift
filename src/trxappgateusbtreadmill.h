@@ -68,7 +68,7 @@ class trxappgateusbtreadmill : public treadmill {
     bool initRequest = false;
     bool readyToStart = false;
 
-    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6 } TYPE;
+    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7 } TYPE;
     TYPE treadmill_type = TRXAPPGATE;
 
   signals:
