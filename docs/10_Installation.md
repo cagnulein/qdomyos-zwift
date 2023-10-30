@@ -77,7 +77,7 @@ Apply the changes `sudo systemctl restart dhcpcd.service` and ensure you have in
 
 #### Enable SSH access
 
-You might want to access your raspberry remotely while it is attached to your fitness equipement. 
+You might want to access your raspberry remotely while it is attached to your fitness equipment. 
 
 `sudo raspi-config` > `Interface Options` > `SSH`
 
@@ -175,7 +175,7 @@ Then reboot to check operations (`sudo reboot`)
 
 ### (optional) Enable overlay FS
 
-Once that everything is working as expected, and if you dedicate your raspeberry pi to this usage, you might want to enable the read-only overlay FS.
+Once that everything is working as expected, and if you dedicate your Raspberry pi to this usage, you might want to enable the read-only overlay FS.
 
 By enabling the overlay read-only system, your SD card will be read-only only and every file written will be to RAM.
 Then at each reboot the RAM is erased and you'll revert to the initial status of the overlay file-system.
