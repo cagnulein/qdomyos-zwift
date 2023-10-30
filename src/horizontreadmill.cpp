@@ -1935,6 +1935,7 @@ void horizontreadmill::serviceScanDone(void) {
             } else {
                 m_control->disconnectFromDevice();
             }
+        }
 #ifdef Q_OS_WIN
         else {
             qDebug() << s << "NOT discovering!";
