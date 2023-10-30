@@ -659,7 +659,7 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
                 treadmill_type = TYPE::IRUNNING_2;
                 qDebug() << QStringLiteral("treadmill_type IRUNNING_2");
             }
-        else if (treadmill_type == TYPE::REEBOK) {
+        } else if (treadmill_type == TYPE::REEBOK) {
             uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
             QBluetoothUuid _gattCommunicationChannelServiceId2((QString)uuid);
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
