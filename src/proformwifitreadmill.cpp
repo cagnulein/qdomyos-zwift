@@ -219,6 +219,12 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
 
+    if (!values[QStringLiteral("Incline")].isUndefined()) {
+        double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    }
+
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
