@@ -884,8 +884,7 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
   upload_to_release:
-    permissions:
-      contents: write
+    permissions: write-all
     runs-on: ubuntu-latest
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:
