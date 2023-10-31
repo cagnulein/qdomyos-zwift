@@ -1899,6 +1899,9 @@ class QZSettings {
     static const QString race_mode;
     static constexpr bool default_race_mode = false;
 
+    static const QString proform_pro_1000_treadmill;
+    static constexpr bool default_proform_pro_1000_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

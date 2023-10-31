@@ -834,6 +834,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.17
             property bool race_mode: false
+
+            // from version 2.16.22
+            property bool proform_pro_1000_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5343,6 +5346,19 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
+                        SwitchDelegate {
+                            text: qsTr("Proform Pro 1000")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_pro_1000_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_pro_1000_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                        
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
                             text: qsTr("Nordictrack T6.5S v81")
