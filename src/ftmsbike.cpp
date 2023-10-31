@@ -39,6 +39,12 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if(!gattFTMSService) {
+        qDebug() << QStringLiteral("gattFTMSService is null!");
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
