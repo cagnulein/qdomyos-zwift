@@ -89,7 +89,7 @@ void echelonrower::forceResistance(resistance_t requestResistance) {
 }
 
 void echelonrower::sendPoll() {
-    uint8_t noOpData[] = {0xf0, 0xa0, 0x01, 0x00, 0x00};
+     uint8_t noOpData[] = {0xf0, 0xa0, 0x01, 0x00, 0x00};
 
     noOpData[3] = counterPoll;
 
@@ -103,6 +103,20 @@ void echelonrower::sendPoll() {
     if (!counterPoll) {
         counterPoll = 1;
     }
+
+    static uint8_t test = 0;
+    double requestSpeed = 5;
+
+    uint8_t noOpData1[] = {0xf0, test++, 0x02, 0x00, 0x00, 0x00};
+
+    noOpData1[3] = (uint8_t)(((uint16_t)(requestSpeed * 1000.0)) >> 8);
+    noOpData1[4] = ((uint8_t)(requestSpeed * 1000.0));
+
+    for (uint8_t i = 0; i < sizeof(noOpData1) - 1; i++) {
+        noOpData1[5] += noOpData1[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("force speed"), false, true);
 }
 
 void echelonrower::update() {
