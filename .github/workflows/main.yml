@@ -14,8 +14,8 @@ on:
     branches: [ master,  github-workflow-playground ]
   pull_request:
     branches: [ master ]
-#  schedule:
-#    - cron: "0 */12 * * *"
+  schedule:
+    - cron: "0 0 * * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -885,3 +885,31 @@ jobs:
           path: release.zip
         if:  ${{ ! matrix.config.python }}
 
+  upload_to_release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+      - name: Update nightly release
+        uses: andelf/nightly-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+          prerelease: true
+          name: 'QZ nightly build $$'
+          body: |
+            This is a nightly build of QZ.
+
+            You can use this if you want to try new features without waiting for releases.
+            From time to time, in development builds, old difficult-to-reproduce bugs are
+            fixed, but it is also true that in the development process with the introduction
+            of new complex code, the stability of the program may suffer compared to
+            official releases, so **use it with caution**!
+
+            __Please help us improve QZ by reporting any issues you encounter!__ :wink:
+          files: |
+            artifact/*          
