@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions
+moc# This is a basic workflow to help you get started with Actions
 
 name: CI
 
@@ -722,7 +722,7 @@ jobs:
         run: |
           git config --global user.name 'Roberto Viola'
           git config --global user.email 'cagnulein@gmail.com'
-          git add src/moc_*.*
+          git add -f src/moc_*.*
           git commit src/moc_*.* -m "moc update"
           git push
 
