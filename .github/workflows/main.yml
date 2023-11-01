@@ -17,6 +17,9 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: write
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   window-build:
@@ -714,6 +717,14 @@ jobs:
 
       - name: Build
         run: qmake CONFIG+=debug && make -j4
+
+      - name: Commit moc
+        run: |
+          git config --global user.name 'Roberto Viola'
+          git config --global user.email 'cagnulein@gmail.com'
+          git add moc_*.*
+          git commit moc_*.* -m "moc update"
+          git push
 
 
   window-msvc2019-build:
