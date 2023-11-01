@@ -593,8 +593,9 @@ void trainprogram::scheduler() {
 
         // in case no workout has been selected
         // Zwift OCR
-        if (settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() && bluetoothManager &&
-            bluetoothManager->device() &&
+        if ((settings.value(QZSettings::zwift_ocr, QZSettings::default_zwift_ocr).toBool() ||
+             settings.value(QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal).toBool()) &&
+            bluetoothManager && bluetoothManager->device() &&
             (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL ||
              bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)) {
 

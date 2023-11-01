@@ -53,6 +53,8 @@ class metric {
     static double calculateVO2Max(QList<SessionLine> *session);
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
 
+    static double powerPeak(QList<SessionLine> *session, int seconds);
+
   private:
     double m_value = 0;
     double m_totValue = 0;

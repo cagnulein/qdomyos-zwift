@@ -178,6 +178,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
+        bool crank_rev_present = false;
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
@@ -207,26 +208,42 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         {
             cadence_present = true;
             wheel_revs = true;
-            time_division = 2048;
-        } else if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+        }
+
+        if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
         {
             cadence_present = true;
+            crank_rev_present = true;
         }
 
         if (cadence_present) {
-            if (!wheel_revs) {
-                CrankRevs =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
-            } else {
+            if (wheel_revs && !crank_rev_present) {
+                time_division = 2048;
                 CrankRevs =
                     (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
                      ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                      ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
                 index += 4;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+                index += 2; // wheel event time
+
+            } else if (wheel_revs && crank_rev_present) {
+                index += 4; // wheel revs
+                index += 2; // wheel event time
             }
-            LastCrankEventTime =
-                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+            if (crank_rev_present) {
+                CrankRevs =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                index += 2;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                index += 2;
+            }
 
             int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
             if (deltaT < 0) {
@@ -238,6 +255,10 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    if (!crank_rev_present)
+                        cadence =
+                            cadence /
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
@@ -247,7 +268,8 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 }
             }
 
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
 
             oldLastCrankEventTime = LastCrankEventTime;
             oldCrankRevs = CrankRevs;
@@ -333,11 +355,6 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
                 update_hr_from_external();
         }
-    }
-
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

@@ -320,10 +320,19 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (isnan(res)) {
         res = 0;
     }
-    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
+
+    bool schwinn_bike_resistance_v2 =
+        settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    bool schwinn_bike_resistance_v3 =
+        settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
+
+    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool() || schwinn_bike_resistance_v2 ||
+        schwinn_bike_resistance_v3) {
         resistance = pelotonToBikeResistance(res);
-    else
+    } else {
         resistance = res;
+    }
+
     if (qFabs(resistance - Resistance.value()) >=
         (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
             .toInt()) {
@@ -361,6 +370,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
 #endif
 
+    emit debug(QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value()));
     emit debug(QStringLiteral("Current Calculated Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -555,7 +565,15 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
     bool schwinn_bike_resistance_v2 =
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
-    if (!schwinn_bike_resistance_v2) {
+    bool schwinn_bike_resistance_v3 =
+        settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
+    if (schwinn_bike_resistance_v3) {
+        // y = -35,3 + 1,91x + -0,0358x^2 + 4,3E-04x^3
+        if (pelotonResistance < 30)
+           return 0;
+
+        return -35.3 + 1.91 * pelotonResistance - 0.0358 * pow(pelotonResistance, 2) + 4.3E-04 * pow(pelotonResistance, 3);
+    } else if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
         if (pelotonResistance < 26)

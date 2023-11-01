@@ -290,10 +290,10 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
-    #ifdef Q_OS_IOS
-    HandleURL* URLHandler = new HandleURL();
+#ifdef Q_OS_IOS
+    HandleURL *URLHandler = new HandleURL();
     QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
-    #endif
+#endif
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
@@ -349,6 +349,7 @@ int main(int argc, char *argv[]) {
         bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
         bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
         deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+        pollDeviceTime = settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
@@ -367,7 +368,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef Q_OS_ANDROID
-    if(settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
         qDebug() << "handling volume keys";
         qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }

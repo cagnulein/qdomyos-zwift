@@ -51,6 +51,8 @@ class wahookickrheadwind : public bluetoothdevice {
     bool initDone = false;
     bool initRequest = false;
 
+    QTimer *refresh;
+
   signals:
     void disconnected();
     void debug(QString string);

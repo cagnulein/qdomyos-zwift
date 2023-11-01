@@ -214,7 +214,13 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
         ((newValue.at(2) == 0x46) || (newValue.at(2) == 0x5a))) {
-        Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+        double speed_from_machinery =
+            (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = speed_from_machinery;
+        } else {
+            Speed = speedFromWatts();
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
@@ -230,6 +236,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     Resistance = GetResistanceFromPacket(newValue);
     Cadence = (newValue.at(18) * cadence_gain) + cadence_offset;
+    m_watt = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -513,3 +520,5 @@ void proformelliptical::controllerStateChanged(QLowEnergyController::ControllerS
         m_control->connectToDevice();
     }
 }
+
+uint16_t proformelliptical::watts() { return m_watt.value(); }

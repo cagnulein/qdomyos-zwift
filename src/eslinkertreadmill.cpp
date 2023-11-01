@@ -390,7 +390,10 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     } else if (treadmill_type == COSTAWAY) {
         const double miles = 1.60934;
-        Speed = newValue.at(3) * miles;
+        if(newValue.at(3) == 0xFF)
+            Speed = 0;
+        else
+            Speed = (double)((uint8_t)newValue.at(3)) / 10.0 * miles;
         Inclination = 0; // this treadmill doesn't have inclination
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }

@@ -835,7 +835,10 @@ void horizontreadmill::update() {
             settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
         bool horizon_paragon_x =
             settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
+        bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+             .toString()
+             .startsWith(QStringLiteral("Disabled")));
+        update_metrics(!power_sensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -845,7 +848,8 @@ void horizontreadmill::update() {
         }
 
         if (requestSpeed != -1) {
-            bool minSpeed = fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= minStepSpeed();
+            bool minSpeed =
+                fabs(requestSpeed - float_one_point_round(currentSpeed().value())) >= (minStepSpeed() - 0.09);
             bool forceSpeedNeed = checkIfForceSpeedNeeding(requestSpeed);
             qDebug() << "requestSpeed=" << requestSpeed << minSpeed << forceSpeedNeed
                      << float_one_point_round(currentSpeed().value());
@@ -1915,11 +1919,24 @@ void horizontreadmill::serviceScanDone(void) {
     firstStateChanged = 0;
     auto services_list = m_control->services();
     QBluetoothUuid ftmsService((quint16)0x1826);
+    QBluetoothUuid CustomService((quint16)0xFFF0);
+
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &horizontreadmill::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+#ifdef Q_OS_WIN
+        if (s == ftmsService || s == CustomService)
+#endif
+        {
+            qDebug() << s << "discovering...";
+            gattCommunicationChannelService.append(m_control->createServiceObject(s));
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &horizontreadmill::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        }
+#ifdef Q_OS_WIN
+        else {
+            qDebug() << s << "NOT discovering!";
+        }
+#endif
     }
 }
 

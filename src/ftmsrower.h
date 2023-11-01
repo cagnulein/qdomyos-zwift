@@ -28,6 +28,7 @@
 
 #include "rower.h"
 #include "virtualbike.h"
+#include "virtualrower.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -69,6 +70,7 @@ class ftmsrower : public rower {
     bool PM5 = false;
 
     bool WATER_ROWER = false;
+    bool DFIT_L_R = false;
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
 

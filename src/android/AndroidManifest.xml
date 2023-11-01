@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.13.95" android:versionCode="610" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.16.21" android:versionCode="655" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
@@ -79,6 +79,19 @@
 				    android:name=".ForegroundService"
 					 android:enabled="true"
 					 android:exported="true"></service>
+                <service
+                    android:name=".WearableMessageListenerService"
+                    android:enabled="true"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                        <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                        <data
+                            android:host="*"
+                            android:pathPrefix="/qz"
+                            android:scheme="wear" />
+                    </intent-filter>
+                </service>
 				<service android:name=".ChannelService"></service>
 				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
 

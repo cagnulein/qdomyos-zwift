@@ -234,7 +234,10 @@ void wahookickrsnapbike::update() {
                 uint8_t b[20];
                 memcpy(b, a.constData(), a.length());
                 writeCharacteristic(b, a.length(), "setResistance", false, true);
+            } else if (virtualBike && virtualBike->ftmsDeviceConnected() && lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
             }
+            lastGearValue = gears();
             requestResistance = -1;
         }
         if (requestStart != -1) {
@@ -502,11 +505,6 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             update_hr_from_external();
         }
-    }
-
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     {
@@ -789,8 +787,9 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
 
 void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
+    lastGrade = grade;
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
-    QByteArray a = setSimGrade(grade);
+    QByteArray a = setSimGrade(grade + gears());
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);

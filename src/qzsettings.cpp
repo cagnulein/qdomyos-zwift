@@ -661,8 +661,24 @@ const QString QZSettings::default_ftms_rower = QStringLiteral("Disabled");
 const QString QZSettings::zwift_workout_ocr = QStringLiteral("zwift_workout_ocr");
 const QString QZSettings::proform_bike_sb = QStringLiteral("proform_bike_sb");
 const QString QZSettings::fakedevice_rower = QStringLiteral("fakedevice_rower");
+const QString QZSettings::zwift_ocr_climb_portal = QStringLiteral("zwift_ocr_climb_portal");
+const QString QZSettings::poll_device_time = QStringLiteral("poll_device_time");
+const QString QZSettings::proform_bike_PFEVEX71316_1 = QStringLiteral("proform_bike_PFEVEX71316_1");
+const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_bike_resistance_v3");
+const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_builtin");
+const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
+const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
+const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
+const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
+const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
+const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
+const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
+const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
+const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
+const QString QZSettings::race_mode = QStringLiteral("race_mode");
+const QString QZSettings::proform_pro_1000_treadmill = QStringLiteral("proform_pro_1000_treadmill");
 
-const uint32_t allSettingsCount = 553;
+const uint32_t allSettingsCount = 567;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1222,6 +1238,20 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_workout_ocr, QZSettings::default_zwift_workout_ocr},
     {QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb},
     {QZSettings::fakedevice_rower, QZSettings::default_fakedevice_rower},
+    {QZSettings::zwift_ocr_climb_portal, QZSettings::default_zwift_ocr_climb_portal},
+    {QZSettings::poll_device_time, QZSettings::default_poll_device_time},
+    {QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1},
+    {QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3},
+    {QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin},
+    {QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i},
+    {QZSettings::ftms_bike, QZSettings::default_ftms_bike},
+    {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},
+    {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
+    {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
+    {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
+    {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
+    {QZSettings::race_mode, QZSettings::default_race_mode},
+    {QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -578,7 +578,7 @@ void tacxneo2::controllerStateChanged(QLowEnergyController::ControllerState stat
 
 resistance_t tacxneo2::pelotonToBikeResistance(int pelotonResistance) {
     for (resistance_t i = 0; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }

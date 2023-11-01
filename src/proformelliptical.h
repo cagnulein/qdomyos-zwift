@@ -49,6 +49,7 @@ class proformelliptical : public elliptical {
     void sendPoll();
     void forceIncline(double incline);
     void forceSpeed(double speed);
+    uint16_t watts() override;
 
     QTimer *refresh;
     uint8_t counterPoll = 0;

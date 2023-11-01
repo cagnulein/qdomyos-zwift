@@ -18,7 +18,7 @@ using namespace std;
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName) {
+                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -59,7 +59,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
-    fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
+    if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
+        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
+    else
+        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     fileIdMesg.SetProduct(1);
     fileIdMesg.SetSerialNumber(12345);
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);

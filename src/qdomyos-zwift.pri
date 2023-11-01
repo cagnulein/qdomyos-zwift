@@ -60,7 +60,7 @@ INCLUDEPATH += qmdnsengine/src/include
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -720,6 +720,8 @@ DISTFILES += \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/WearableController.java \
+    $$PWD/android/src/WearableMessageListenerService.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -743,6 +745,7 @@ DISTFILES += \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+   android/src/SDMChannelController.java \
     android/src/Usbserial.java \
    android/src/com/cgutman/adblib/AdbBase64.java \
    android/src/com/cgutman/adblib/AdbConnection.java \
@@ -812,4 +815,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.95
+VERSION = 2.16.21
