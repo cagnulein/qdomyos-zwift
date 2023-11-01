@@ -722,8 +722,8 @@ jobs:
         run: |
           git config --global user.name 'Roberto Viola'
           git config --global user.email 'cagnulein@gmail.com'
-          git add moc_*.*
-          git commit moc_*.* -m "moc update"
+          git add src/moc_*.*
+          git commit src/moc_*.* -m "moc update"
           git push
 
 
