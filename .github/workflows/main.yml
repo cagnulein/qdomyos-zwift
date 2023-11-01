@@ -912,4 +912,8 @@ jobs:
 
             __Please help us improve QZ by reporting any issues you encounter!__ :wink:
           files: |
-            artifact/*          
+            windows-msvc2019-binary-no-python/*
+            windows-msvc2019-binary/*
+            windows-binary-no-python/*
+            windows-binary/*
+            fdroid-android-trial/*
