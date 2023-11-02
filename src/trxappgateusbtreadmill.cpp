@@ -165,9 +165,9 @@ void trxappgateusbtreadmill::update() {
                 if(fabs(requestInclination - currentInclination().value()) > 1) {
                     reset_inclination = false;
                     if(requestInclination > currentInclination().value()) {
-                        r = currentInclination().value + 0.5;
+                        r = currentInclination().value() + 0.5;
                     } else {
-                        r = currentInclination().value - 0.5;
+                        r = currentInclination().value() - 0.5;
                     }
                 }
                 emit debug(QStringLiteral("writing incline ") + QString::number(r));
