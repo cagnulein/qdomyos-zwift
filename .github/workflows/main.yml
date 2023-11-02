@@ -181,20 +181,25 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output release.zip
+        run: Compress-Archive src/debug/output windows-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: release.zip
+          path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary-no-python
-          path: release.zip
+          path: windows-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
@@ -862,27 +867,25 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output release.zip
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows-binary
-          path: release.zip
+        run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
         if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-msvc2019-binary
-          path: release.zip
+          path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-msvc2019-binary-no-python
-          path: release.zip
+          path: windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
   upload_to_release:
