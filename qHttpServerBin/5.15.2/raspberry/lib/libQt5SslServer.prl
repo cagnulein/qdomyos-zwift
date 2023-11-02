@@ -1,0 +1,7 @@
+QMAKE_PRL_BUILD_DIR = /home/pi/qdomyos-zwift/src/qthttpserver/src/sslserver
+QMAKE_PRO_INPUT = sslserver.pro
+QMAKE_PRL_TARGET = libQt5SslServer.so.5.12.0
+QMAKE_PRL_CONFIG = lex yacc depend_includepath testcase_targets import_plugins import_qpa_plugin prepare_docs qt_docs_targets qt_build_extra file_copies qmake_use qt warn_on release link_prl incremental shared shared release linux unix posix gcc compile_examples enable_new_dtags largefile nostrip prefix_build force_independent utf8_source create_prl link_prl no_private_qt_headers_warning QTDIR_build qt_example_installs exceptions_off testcase_exceptions explicitlib relative_qt_rpath target_qt c++11 strict_c++ c++14 c++1z c99 c11 hide_symbols qt_install_headers need_fwd_pri qt_install_module create_cmake compiler_supports_fpmath create_pc create_libtool have_target dll thread moc resources
+QMAKE_PRL_VERSION = 5.12.0
+QMAKE_PRL_LIBS = /usr/lib/arm-linux-gnueabihf/libQt5Network.so /usr/lib/arm-linux-gnueabihf/libQt5Core.so -lpthread -latomic
+QMAKE_PRL_LIBS_FOR_CMAKE = /usr/lib/arm-linux-gnueabihf/libQt5Network.so;/usr/lib/arm-linux-gnueabihf/libQt5Core.so;-lpthread;-latomic;

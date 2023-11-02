@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include/arm-linux-gnueabihf/qt5
+
+
+Name: Qt5 SslServer
+Description: Qt SslServer module
+Version: 5.12.0
+Libs: -lQt5SslServer 
+Cflags: -DQT_SSLSERVER_LIB -I${includedir}/QtSslServer -I${includedir}
+Requires: Qt5Network Qt5Core
+
