@@ -719,7 +719,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: 'moc files added'
-          add: '/Users/runner/work/qdomyos-zwift/qdomyos-zwift/src/moc_*.*'
+          add: 'src/moc_*.cpp'
 
   window-msvc2019-build:
     runs-on: windows-latest
