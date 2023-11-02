@@ -84,6 +84,7 @@ void trxappgateusbtreadmill::forceIncline(double requestIncline) {
         write[7] = write[4] + 0x38;
 
         writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
     } else {
         uint8_t write[] = {0xf0, 0xac, 0x32, 0xd3, 0x01, 0x64, 0x64, 0x6a};
         write[4] = (requestIncline + 1);
@@ -158,11 +159,22 @@ void trxappgateusbtreadmill::update() {
             if (jtx_fitness_sprint_treadmill)
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
 
+            bool reset_inclination = true;
             if (requestInclination != currentInclination().value()) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
+                double r = requestInclination;
+                if(fabs(requestInclination - currentInclination().value()) > 1) {
+                    reset_inclination = false;
+                    if(requestInclination > currentInclination().value()) {
+                        r = currentInclination().value + 0.5;
+                    } else {
+                        r = currentInclination().value - 0.5;
+                    }
+                }
+                emit debug(QStringLiteral("writing incline ") + QString::number(r));
+                forceIncline(r);
             }
-            requestInclination = -100;
+            if(reset_inclination)
+                requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
