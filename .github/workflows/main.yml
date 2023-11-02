@@ -724,7 +724,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: 'moc files added'
-          add: 'src/moc_*.cpp'
+          add: 'src/moc_*.cpp --force'
 
   window-msvc2019-build:
     runs-on: windows-latest
