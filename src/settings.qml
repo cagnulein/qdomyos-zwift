@@ -837,6 +837,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.22
             property bool proform_pro_1000_treadmill: false
+            property bool saris_trainer: false
         }
 
         function paddingZeros(text, limit) {
@@ -2574,6 +2575,27 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.hammer_racer_s = checked; window.settings_restart_to_apply = true; }
                     }
                 }
+
+                AccordionElement {
+                    title: qsTr("Saris/Cycleops Hammer trainer Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        text: qsTr("Enable support")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.saris_trainer
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.saris_trainer = checked; window.settings_restart_to_apply = true; }
+                    }
+                }
+                
                 AccordionElement {
                     id: cardioFitBikeAccordion
                     title: qsTr("CardioFIT Bike Options")
