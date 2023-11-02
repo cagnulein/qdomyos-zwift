@@ -667,6 +667,8 @@ jobs:
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -720,6 +722,13 @@ jobs:
       - name: Build
         run: qmake CONFIG+=debug && make -j4
 
+      - name: Commit moc files
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'moc files added'
+          add: 'src/moc_*.cpp --force'
+          push: origin HEAD:${{ github.head_ref }} 
+        if: github.ref == 'refs/heads/master'
 
   window-msvc2019-build:
     runs-on: windows-latest
