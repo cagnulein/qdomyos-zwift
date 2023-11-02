@@ -425,6 +425,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString ftms_rower = settings.value(QZSettings::ftms_rower, QZSettings::default_ftms_rower).toString();
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
+    bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();    
 
     if (!heartRateBeltFound) {
 
@@ -1312,7 +1313,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||                        // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
-                        (b.name().toUpper().startsWith("HAMMER ") && !power_as_bike) ||      // HAMMER 64123
+                        (b.name().toUpper().startsWith("HAMMER ") && !power_as_bike && !saris_trainer) ||      // HAMMER 64123
                         (b.name().toUpper().startsWith("FLXCY-")) ||                         // Pro FlexBike
                         (b.name().toUpper().startsWith("QB-WC01")) ||                        // Nexgim QB-C01 smart bike
                         (b.name().toUpper().startsWith("XBR55")) ||                          // Sprint XBR555
@@ -1342,6 +1343,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(ftmsBike);
             } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
+                        (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && filter) {
                 this->setLastBluetoothDevice(b);
