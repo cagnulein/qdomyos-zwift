@@ -125,6 +125,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             make -j8
             cd src/debug
@@ -157,6 +158,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             make -j8
             cd src/debug
@@ -300,6 +302,7 @@ jobs:
 #            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
 #            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
 #            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+#            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
 #            echo "#define STEAM_STORE" >> secret.h
 #            cd ..
 #            make -j8
@@ -634,6 +637,7 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..          
 
@@ -720,7 +724,15 @@ jobs:
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
       - name: Build
-        run: qmake CONFIG+=debug && make -j4
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..
+          qmake CONFIG+=debug && make -j4
 
       - name: Commit moc files
         uses: EndBug/add-and-commit@v9
@@ -822,6 +834,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             nmake
             cd src/debug
@@ -851,6 +864,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             nmake
             cd src/debug
