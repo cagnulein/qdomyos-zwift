@@ -734,12 +734,13 @@ jobs:
           cd ..
           qmake CONFIG+=debug && make -j4
 
-      - name: Commit moc files
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: 'moc files added'
-          add: 'src/moc_*.cpp --force'
-        if: github.ref == 'refs/heads/master'
+      # causes iOS build on Mac to fail
+      # - name: Commit moc files
+      #   uses: EndBug/add-and-commit@v9
+      #   with:
+      #     message: 'moc files added'
+      #     add: 'src/moc_*.cpp --force'
+      #   if: github.ref == 'refs/heads/master'
 
   window-msvc2019-build:
     runs-on: windows-latest
