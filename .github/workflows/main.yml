@@ -725,7 +725,7 @@ jobs:
         with:
           message: 'moc files added'
           add: 'src/moc_*.cpp --force'
-          push: origin HEAD:master
+          push: origin HEAD:${{ github.head_ref }} 
 
   window-msvc2019-build:
     runs-on: windows-latest
