@@ -184,9 +184,12 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+        bool disable_hr_frommachinery =
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
         double speed = 0;
         double incline = 0;
+        bool hrmFound = false;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
@@ -201,6 +204,17 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 if (aValues.length()) {
                     incline = getDouble(aValues.last());
                     Inclination = incline;
+                }
+            } else if (line.contains("HeartRateDataUpdate") && 
+#ifdef Q_OS_ANDROID
+                        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
+#endif
+                        heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
+            ) {                
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    Heart = splitted[14].toInt();
+                    hrmFound = true;
                 }
             }
         }
@@ -277,6 +291,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
     }
 }
