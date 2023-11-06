@@ -925,7 +925,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly
-          prerelease: true
+          prerelease: false
           name: 'QZ nightly build $$'
           body: |
             This is a nightly build of QZ.
