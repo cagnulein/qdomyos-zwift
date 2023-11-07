@@ -9,6 +9,7 @@ public:
     TrueTreadmillTestData() : BluetoothDeviceTestData("True Treadmill") {
         this->addDeviceName("TRUE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TREADMILL", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ASSAULT TREADMILL ", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TrueTreadmill; }

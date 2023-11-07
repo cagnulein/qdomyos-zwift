@@ -1,11 +1,13 @@
 #include "nordictrackifitadbtreadmill.h"
-#include "homeform.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+#include <QProcess>
 #include <QSettings>
 #include <QThread>
 #include <chrono>
@@ -28,15 +30,15 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
 QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString command) {
 #ifdef Q_OS_WINDOWS
     QProcess process;
-    qDebug() << "adb >> " << command;
+    emit debug("adb >> " + command);
     process.start("adb/adb.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
 
     QString out = process.readAllStandardOutput();
     QString err = process.readAllStandardError();
 
-    qDebug() << "adb << OUT" << out;
-    qDebug() << "adb << ERR" << err;
+    emit debug("adb << OUT " + out);
+    emit debug("adb << ERR" + err);
 #else
     QString out;
 #endif
@@ -50,22 +52,29 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         QString output = process->readAllStandardOutput();
         qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
+        bool wattFound = false;
         foreach (QString line, lines) {
             if (line.contains("Changed KPH")) {
-                qDebug() << line;
+                emit debug(line);
                 speed = line.split(' ').last().toDouble();
             } else if (line.contains("Changed Grade")) {
-                qDebug() << line;
+                emit debug(line);
                 inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Watts")) {
+                emit debug(line);
+                watt = line.split(' ').last().toDouble();
+                wattFound = true;
             }
         }
         emit onSpeedInclination(speed, inclination);
+        if (wattFound)
+            emit onWatt(watt);
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
-        qDebug() << "adbLogCat ERROR << " << output;
+        emit debug("adbLogCat ERROR << " + output);
     });
-    qDebug() << "adbLogCat >> " << command;
+    emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
 #endif
@@ -109,6 +118,10 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onWatt, this,
+                &nordictrackifitadbtreadmill::onWatt);
+        connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::debug, this,
+                &nordictrackifitadbtreadmill::debug);
         logcatAdbThread->start();
     }
 #endif
@@ -125,7 +138,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     initRequest = true;
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -134,15 +147,17 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &nordictrackifitadbtreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
             firstStateChanged = 1;
         }
@@ -169,9 +184,12 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+        bool disable_hr_frommachinery =
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
         double speed = 0;
         double incline = 0;
+        bool hrmFound = false;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
@@ -186,6 +204,17 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 if (aValues.length()) {
                     incline = getDouble(aValues.last());
                     Inclination = incline;
+                }
+            } else if (line.contains("HeartRateDataUpdate") && 
+#ifdef Q_OS_ANDROID
+                        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
+#endif
+                        heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
+            ) {                
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    Heart = splitted[14].toInt();
+                    hrmFound = true;
                 }
             }
         }
@@ -252,16 +281,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 #endif
         {
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+                update_hr_from_external();
             }
         }
 
@@ -271,6 +291,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
     }
 }
@@ -289,7 +310,7 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
                                                          QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -299,6 +320,11 @@ disable_log, bool wait_for_response) { QEventLoop loop; QTimer timeout; if (wait
 void nordictrackifitadbtreadmill::forceIncline(double incline) {}
 
 void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
+
+void nordictrackifitadbtreadmill::onWatt(double watt) {
+    m_watt = watt;
+    wattReadFromTM = true;
+}
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
@@ -328,16 +354,7 @@ void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclin
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -355,7 +372,7 @@ void nordictrackifitadbtreadmill::update() {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
-    update_metrics(true, watts(weight));
+    update_metrics(!wattReadFromTM, watts(weight));
 
     if (initRequest) {
         initRequest = false;
@@ -391,7 +408,3 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
-
-void *nordictrackifitadbtreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *nordictrackifitadbtreadmill::VirtualDevice() { return VirtualTreadmill(); }

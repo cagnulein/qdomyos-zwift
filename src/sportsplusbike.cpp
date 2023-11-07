@@ -1,5 +1,7 @@
 #include "sportsplusbike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -36,11 +38,15 @@ void sportsplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + " // " + info);
     }
 
     loop.exec();
@@ -143,7 +149,9 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = speed;
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             lastTimeCharChanged = QDateTime::currentDateTime();
         } else if (newValue.at(1) == 0x30) {
@@ -160,7 +168,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         cadence = (uint8_t)newValue.at(8);
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
-    } else if(carefitness_bike) {
+    } else if (carefitness_bike) {
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
@@ -183,12 +191,15 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
         if (!firstCharChanged) {
-            Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
+            Distance +=
+                ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
         }
 
         lastTimeCharChanged = QDateTime::currentDateTime();
@@ -220,7 +231,9 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         lastTimeCharChanged = QDateTime::currentDateTime();
         kcal = GetKcalFromPacket(newValue);
@@ -335,7 +348,7 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("0000fff3-0000-1000-8000-00805f9b34fb"));
 
-        if(!carefitness_bike)
+        if (!carefitness_bike)
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         else
             gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
@@ -357,14 +370,16 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &sportsplusbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtualBike && !virtualBike) {
+        if (!firstVirtualBike && !this->hasVirtualDevice()) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&sportsplusbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstVirtualBike = 1;
@@ -440,8 +455,8 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-        if((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
-            bluetoothDevice.name().length() == 11)) // CARE9040177 - Carefitness CV-351)
+        if ((bluetoothDevice.name().toUpper().contains(QStringLiteral("CARE")) &&
+             bluetoothDevice.name().length() == 11)) // CARE9040177 - Carefitness CV-351)
         {
             carefitness_bike = true;
         }
@@ -494,10 +509,6 @@ bool sportsplusbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *sportsplusbike::VirtualBike() { return virtualBike; }
-
-void *sportsplusbike::VirtualDevice() { return VirtualBike(); }
-
 void sportsplusbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
@@ -511,30 +522,14 @@ uint16_t sportsplusbike::wattsFromResistance(double resistance) {
     const int wattTableFirstDimension = 24;
     const int wattTableSecondDimension = 6;
     double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
-        {13,17,22,27,33,39},
-        {14,19,24,30,36,42},
-        {15,21,26,33,39,45},
-        {16,22,28,34,42,49},
-        {18,24,30,37,45,53},
-        {20,27,34,42,51,60},
-        {22,30,38,47,57,67},
-        {24,33,42,53,63,75},
-        {27,36,46,58,70,83},
-        {31,41,53,67,81,96},
-        {35,47,60,76,92,110},
-        {39,53,67,85,104,124},
-        {33,59,75,95,116,138},
-        {47,63,81,103,126,151},
-        {50,68,88,111,136,164},
-        {54,74,95,120,147,178},
-        {58,80,103,129,158,192},
-        {63,86,111,139,169,206},
-        {68,92,119,149,181,220},
-        {73,98,127,159,193,234},
-        {77,104,134,168,205,248},
-        {81,110,141,177,217,262},
-        {86,116,149,187,229,276},
-        {91,122,157,197,240,290}};
+        {13, 17, 22, 27, 33, 39},      {14, 19, 24, 30, 36, 42},      {15, 21, 26, 33, 39, 45},
+        {16, 22, 28, 34, 42, 49},      {18, 24, 30, 37, 45, 53},      {20, 27, 34, 42, 51, 60},
+        {22, 30, 38, 47, 57, 67},      {24, 33, 42, 53, 63, 75},      {27, 36, 46, 58, 70, 83},
+        {31, 41, 53, 67, 81, 96},      {35, 47, 60, 76, 92, 110},     {39, 53, 67, 85, 104, 124},
+        {33, 59, 75, 95, 116, 138},    {47, 63, 81, 103, 126, 151},   {50, 68, 88, 111, 136, 164},
+        {54, 74, 95, 120, 147, 178},   {58, 80, 103, 129, 158, 192},  {63, 86, 111, 139, 169, 206},
+        {68, 92, 119, 149, 181, 220},  {73, 98, 127, 159, 193, 234},  {77, 104, 134, 168, 205, 248},
+        {81, 110, 141, 177, 217, 262}, {86, 116, 149, 187, 229, 276}, {91, 122, 157, 197, 240, 290}};
 
     int level = resistance;
     if (level < 0) {

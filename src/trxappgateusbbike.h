@@ -26,7 +26,6 @@
 #include <QTime>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,10 +36,7 @@ class trxappgateusbbike : public bike {
   public:
     trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                       double bikeResistanceGain);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -54,13 +50,12 @@ class trxappgateusbbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -105,6 +100,7 @@ class trxappgateusbbike : public bike {
         VIRTUFIT_2 = 15,
         TUNTURI = 16,
         TUNTURI_2 = 17,
+        FITHIWAY = 18,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

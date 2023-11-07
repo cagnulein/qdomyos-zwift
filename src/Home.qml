@@ -9,6 +9,12 @@ import QtMultimedia 5.15
 
 HomeForm{
     objectName: "home"
+    background: Rectangle {
+        anchors.fill: parent
+        width: parent.fill
+        height: parent.fill
+        color: settings.theme_background_color
+    }
     signal start_clicked;
     signal stop_clicked;
     signal lap_clicked;
@@ -21,6 +27,12 @@ HomeForm{
     Settings {
         id: settings
         property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_tile_background_color: "#303030"
+        property string theme_background_color: "#303030"
+        property bool theme_tile_shadow_enabled: true
+        property string theme_tile_shadow_color: "#9C27B0"
+        property int theme_tile_secondline_textsize: 12
     }
 
     MessageDialog {
@@ -154,26 +166,27 @@ HomeForm{
                     height: 123 * settings.ui_zoom / 100
                     radius: 3
                     border.width: 1
-                    border.color: "purple"
-                    color: Material.backgroundColor
+                    border.color: (settings.theme_tile_shadow_enabled ? settings.theme_tile_shadow_color : settings.theme_tile_background_color)
+                    color: settings.theme_tile_background_color
                     id: rect
                 }
 
                 DropShadow {
+                    visible: settings.theme_tile_shadow_enabled
                     anchors.fill: rect
                     cached: true
                     horizontalOffset: 3
                     verticalOffset: 3
                     radius: 8.0
                     samples: 16
-                    color: Material.color(Material.Purple)
+                    color: settings.theme_tile_shadow_color
                     source: rect
                 }
 
                 Timer {
                     id: toggleIconTimer
                     interval: 500; running: true; repeat: true
-                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = true; }
+                    onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = settings.theme_tile_icon_enabled && !largeButton; }
                 }
 
                 Image {
@@ -185,7 +198,7 @@ HomeForm{
                     width: 48 * settings.ui_zoom / 100
                     height: 48 * settings.ui_zoom / 100
                     source: icon
-                    visible: !largeButton
+                    visible: settings.theme_tile_icon_enabled && !largeButton
                 }
                 Text {
                     objectName: "value"
@@ -212,7 +225,7 @@ HomeForm{
                     }
                     text: secondLine
                     horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: 12 * settings.ui_zoom / 100
+                    font.pointSize: settings.theme_tile_secondline_textsize * settings.ui_zoom / 100
                     font.bold: false
                     visible: !largeButton
                 }
@@ -278,57 +291,75 @@ HomeForm{
         }
 
         footer:
-            Rectangle {
-                objectName: "footerrectangle"
-                visible: rootItem.videoVisible
-                anchors.top: gridView.bottom
+            Item {
                 width: parent.width
-                height: parent.height / 2
+                height: (rootItem.chartFooterVisible ? parent.height / 4 : parent.height / 2)
+                anchors.top: gridView.bottom
+                visible: rootItem.chartFooterVisible || rootItem.videoVisible
 
-                Timer {
-                    id: pauseTimer
-                    interval: 1000; running: true; repeat: true
-                    onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
-                                        videoPlaybackHalf.play() :
-                                        videoPlaybackHalf.pause()) } }
+                Rectangle {
+                    id: chartFooterRectangle
+                    visible: rootItem.chartFooterVisible
+                    anchors.fill: parent
+                    ChartFooter {
+                        anchors.fill: parent
+                        visible: rootItem.chartFooterVisible
+                    }
                 }
 
-                onVisibleChanged: {
-                    if(visible === true) {
-                        console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
-                        console.log("videoRate: " + rootItem.videoRate)
-                        videoPlaybackHalf.source = rootItem.videoPath
-                        //videoPlaybackHalf.playbackRate = rootItem.videoRate
+                Rectangle {
+                    objectName: "footerrectangle"
+                    visible: rootItem.videoVisible
+                    anchors.fill: parent
+                    // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
+                    /*
+                    Timer {
+                        id: pauseTimer
+                        interval: 1000; running: true; repeat: true
+                        onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
+                                            videoPlaybackHalf.play() :
+                                            videoPlaybackHalf.pause()) } }
+                    }
+                    */
 
-                        videoPlaybackHalf.seek(rootItem.videoPosition)
-                        videoPlaybackHalf.play()
-                        videoPlaybackHalf.muted = true
-                    } else {
-                        videoPlaybackHalf.stop()
+                    onVisibleChanged: {
+                        if(visible === true) {
+                            console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
+                            console.log("videoRate: " + rootItem.videoRate)
+                            videoPlaybackHalf.source = rootItem.videoPath
+                            //videoPlaybackHalf.playbackRate = rootItem.videoRate
+
+                            videoPlaybackHalf.seek(rootItem.videoPosition)
+                            videoPlaybackHalf.play()
+                            videoPlaybackHalf.muted = rootItem.currentCoordinateValid
+                        } else {
+                            videoPlaybackHalf.stop()
+                        }
+
                     }
 
-                }
+                    MediaPlayer {
+                           id: videoPlaybackHalf
+                           objectName: "videoplaybackhalf"
+                           autoPlay: false
+                           playbackRate: rootItem.videoRate
 
-                MediaPlayer {
-                       id: videoPlaybackHalf
-                       objectName: "videoplaybackhalf"
-                       autoPlay: false
-                       playbackRate: rootItem.videoRate
-
-                       onError: {
-                           if (videoPlaybackHalf.NoError !== error) {
-                               console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+                           onError: {
+                               if (videoPlaybackHalf.NoError !== error) {
+                                   console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+                               }
                            }
+
                        }
 
-                   }
+                    VideoOutput {
+                             id:videoPlayer
+                             anchors.fill: parent
+                             source: videoPlaybackHalf
+                         }
+                }
 
-                VideoOutput {
-                         id:videoPlayer
-                         anchors.fill: parent
-                         source: videoPlaybackHalf
-                     }
-            }
+        }
 
     MouseArea {
         property int currentId: -1 // Original position in model

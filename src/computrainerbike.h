@@ -34,14 +34,11 @@ class computrainerbike : public bike {
   public:
     computrainerbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                      double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance() { return max_resistance; }
-    bool inclinationAvailableByHardware();
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool inclinationAvailableByHardware() override;
+    bool connected() override;
 
   private:
     resistance_t max_resistance = 100;
@@ -52,7 +49,7 @@ class computrainerbike : public bike {
     void btinit();
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
     void forceResistance(double requestResistance);
     void innerWriteResistance();
 

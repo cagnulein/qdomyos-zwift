@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,13 +36,10 @@ class mcfbike : public bike {
     Q_OBJECT
   public:
     mcfbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
     const resistance_t max_resistance = 14;
@@ -56,10 +52,9 @@ class mcfbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

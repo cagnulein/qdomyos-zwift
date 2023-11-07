@@ -1,6 +1,7 @@
 #include "proformwifibike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QDateTime>
 #include <QFile>
@@ -43,7 +44,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     initRequest = true;
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -68,10 +69,11 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,& proformwifibike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &proformwifibike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -103,7 +105,7 @@ void proformwifibike::writeCharacteristic(uint8_t *data, uint8_t data_len, const
                                                          QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -209,7 +211,7 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
 // must be double because it's an inclination
 void proformwifibike::forceResistance(double requestResistance) {
 
-    if(tdf2) {
+    if (tdf2) {
         QString send = "{\"type\":\"set\",\"values\":{\"Master State\":\"4\"}}";
         qDebug() << "forceResistance" << send;
         websocket.sendTextMessage(send);
@@ -217,6 +219,9 @@ void proformwifibike::forceResistance(double requestResistance) {
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
+    if (!inclinationAvailableByHardware())
+        send = "{\"type\":\"set\",\"values\":{\"Resistance\":\"" + QString::number(requestResistance) + "\"}}";
+
     qDebug() << "forceResistance" << send;
     websocket.sendTextMessage(send);
 }
@@ -251,6 +256,7 @@ void proformwifibike::innerWriteResistance() {
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+            auto virtualBike = this->VirtualBike();
             if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                 (requestPower == 0 || requestPower == -1)) {
                 forceResistance(requestResistance);
@@ -260,7 +266,7 @@ void proformwifibike::innerWriteResistance() {
     }
 
     if (requestPower > 0 && erg_mode) {
-        if(last_mode.compare("WATTS_GOAL")) {
+        if (last_mode.compare("WATTS_GOAL")) {
             last_mode = "WATTS_GOAL";
             setWorkoutType(last_mode);
         }
@@ -275,17 +281,17 @@ void proformwifibike::innerWriteResistance() {
         }
         if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
             if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                qDebug()
-                    << QStringLiteral("request watt value was ") << r << QStringLiteral("but it will be transformed to")
-                    << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                qDebug() << QStringLiteral("request watt value was ") << r
+                         << QStringLiteral("but it will be transformed to")
+                         << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
             }
             r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
         }
         setTargetWatts(r);
     }
 
-    if (requestInclination != -100 && !erg_mode) {
-        if(last_mode.compare("MANUAL")) {
+    if (requestInclination != -100 && !erg_mode && inclinationAvailableByHardware()) {
+        if (last_mode.compare("MANUAL")) {
             last_mode = "MANUAL";
             setWorkoutType(last_mode);
         }
@@ -330,16 +336,7 @@ void proformwifibike::update() {
     }
 }
 
-bool proformwifibike::inclinationAvailableByHardware() {
-    QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
-
-    if (proform_studio || proform_tdf_10)
-        return true;
-    else
-        return false;
-}
+bool proformwifibike::inclinationAvailableByHardware() { return max_incline_supported > 0; }
 
 resistance_t proformwifibike::pelotonToBikeResistance(int pelotonResistance) {
     if (pelotonResistance <= 10) {
@@ -461,14 +458,20 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-        double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-        m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-    } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
-        double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
-        m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
+    if (Cadence.value() > 0) {
+        if (!values[QStringLiteral("Current Watts")].isUndefined()) {
+            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = watt;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
+            double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
+            m_watt = watt;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        }
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
@@ -481,6 +484,45 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         double watt = values[QStringLiteral("Target Watts")].toString().toDouble();
         target_watts = watt;
         emit debug(QStringLiteral("Target Watts: ") + QString::number(watts()));
+    }
+
+    if (!values[QStringLiteral("Resistance")].isUndefined()) {
+        Resistance = values[QStringLiteral("Resistance")].toString().toDouble();
+        emit debug(QStringLiteral("Resistance: ") + QString::number(Resistance.value()));
+    }
+
+    if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
+        max_incline_supported = values[QStringLiteral("Maximum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum Incline Supported: ") + QString::number(max_incline_supported));
+    }
+
+    if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
+        if (!values[QStringLiteral("key")].isUndefined()) {
+            QJsonObject key = values[QStringLiteral("key")].toObject();
+            QJsonValue code = key.value("code");
+            QJsonValue name = key.value("name");
+            QJsonValue held = key.value("held");
+            if(held.toString().contains(QStringLiteral("-1"))) {
+                double value = 0;
+                if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                    qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                    value = -0.5;
+                } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                    qDebug() << "LEFT EXTERNAL GEAR UP";
+                    value = 0.5;
+                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                    qDebug() << "RIGHT EXTERNAL GEAR UP";
+                    value = 5.0;
+                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                    qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                    value = -5.0;
+                }
+                if (value != 0.0) {
+                    forceResistance(currentInclination().value() + value); // to force an immediate change
+                    setGears(gears() + value);
+                }
+            }
+        }
     }
 
     if (watts())
@@ -502,8 +544,6 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -511,18 +551,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 #endif
     {
         if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
+
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -551,10 +584,4 @@ void proformwifibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool proformwifibike::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
 
-void *proformwifibike::VirtualBike() { return virtualBike; }
-
-void *proformwifibike::VirtualDevice() { return VirtualBike(); }
-
-uint16_t proformwifibike::watts() {
-    return m_watt.value();
-}
+uint16_t proformwifibike::watts() { return m_watt.value(); }

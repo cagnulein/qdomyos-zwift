@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.13.3" android:versionCode="507" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:versionName="2.16.22" android:versionCode="656" android:installLocation="auto">
 <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
           Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
@@ -15,6 +15,12 @@
 				    <action android:name="android.intent.action.MAIN"/>
 					 <category android:name="android.intent.category.LAUNCHER"/>
 					</intent-filter>
+                                        <intent-filter>
+                                            <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                                        </intent-filter>
+                                        <meta-data
+                                            android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                                            android:resource="@xml/device_filter" />
 					<!-- Application arguments -->
 				<!-- meta-data android:name="android.app.arguments" android:value="arg1 arg2 arg3"/ -->
 				<!-- Application arguments -->
@@ -73,6 +79,19 @@
 				    android:name=".ForegroundService"
 					 android:enabled="true"
 					 android:exported="true"></service>
+                <service
+                    android:name=".WearableMessageListenerService"
+                    android:enabled="true"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                        <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                        <data
+                            android:host="*"
+                            android:pathPrefix="/qz"
+                            android:scheme="wear" />
+                    </intent-filter>
+                </service>
 				<service android:name=".ChannelService"></service>
 				<service android:name=".FloatingWindowGFG" android:enabled="true" android:exported="true"/>
 

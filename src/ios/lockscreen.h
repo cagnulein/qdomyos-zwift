@@ -9,13 +9,16 @@ class lockscreen {
     long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
+    void setSpeed(double speed);
+    void setPower(double power);
+    void setCadence(double cadence);
 
     // virtualbike
     void virtualbike_ios();
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios();
+    void virtualbike_zwift_ios(bool disable_hr);
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
@@ -47,6 +50,15 @@ class lockscreen {
 
     // volume
     double getVolume();
+
+    // garmin
+    bool urlParser(const char *url);
+    void garminconnect_init();
+    int getHR();
+    int getFootCad();
+    
+    // debug
+    static void debug(const char* debugstring);
 };
 
 #endif // LOCKSCREEN_H
