@@ -893,6 +893,13 @@ jobs:
         run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
         if: matrix.config.python
 
+      - name: Test Peloton API
+        #if: github.event_name == 'push' || github.event_name == 'schedule'
+        run: |
+            cd src/output/
+            qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+        timeout-minutes: 2
+
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
