@@ -897,7 +897,7 @@ jobs:
         #if: github.event_name == 'push' || github.event_name == 'schedule'
         run: |
             cd src/debug/output/
-            qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+            ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         timeout-minutes: 2
 
       - name: Zip artifact for deployment
