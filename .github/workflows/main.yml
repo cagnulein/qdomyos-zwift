@@ -896,7 +896,7 @@ jobs:
       - name: Test Peloton API
         #if: github.event_name == 'push' || github.event_name == 'schedule'
         run: |
-            cd src/output/
+            cd src/debug/output/
             qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         timeout-minutes: 2
 
