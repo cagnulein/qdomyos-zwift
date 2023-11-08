@@ -141,6 +141,7 @@ jobs:
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
@@ -172,6 +173,7 @@ jobs:
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -848,6 +850,7 @@ jobs:
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
@@ -879,6 +882,7 @@ jobs:
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             cp ../../adb/* adb/
             cd ..
