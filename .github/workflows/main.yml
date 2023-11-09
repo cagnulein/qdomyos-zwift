@@ -714,7 +714,7 @@ jobs:
           cache-key-prefix: 'install-qt-action-ios'                    
           
       - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphone/g' {} \;
+        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphoneos/g' {} \;
 #       run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;        
       
       - name: fix qt
