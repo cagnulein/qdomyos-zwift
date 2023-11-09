@@ -255,6 +255,7 @@
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
 		8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8745B2752AFCB4A300991A39 /* android */; };
+		8745B2782AFCB87B00991A39 /* libadb.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8745B2742AFCB3B300991A39 /* libadb.a */; };
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
 		874D272029AFA11F0007C079 /* apexbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 874D271E29AFA11F0007C079 /* apexbike.cpp */; };
@@ -1568,6 +1569,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8745B2782AFCB87B00991A39 /* libadb.a in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
 				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
 				879F740C2893D4FA009A64C8 /* libqtaudio_coreaudio.a in Link Binary With Libraries */,
@@ -3748,6 +3750,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
+					"/Users/cagnulein/qdomyos-zwift/src/ios",
 				);
 				MARKETING_VERSION = 2.16;
 				OTHER_CFLAGS = (
@@ -3918,6 +3921,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
+					"/Users/cagnulein/qdomyos-zwift/src/ios",
 				);
 				MARKETING_VERSION = 2.16;
 				ONLY_ACTIVE_ARCH = YES;
