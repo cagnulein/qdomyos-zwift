@@ -168,6 +168,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onHRM, this, &nordictrackifitadbbike::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
         logcatAdbThread->start();
+#elif defined Q_OS_IOS
+        h->adb_connect(ip.toStdString().c_str());
 #endif
     }
 }
@@ -293,6 +295,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 #elif defined(Q_OS_WIN)
                         if (logcatAdbThread)
                             logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+                        h->adb_sendcommand(lastCommand.toStdString().c_str());
 #endif
                     }
                 }

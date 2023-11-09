@@ -59,6 +59,10 @@ class lockscreen {
     
     // debug
     static void debug(const char* debugstring);
+    
+    //adb
+    void adb_connect(const char* IP);
+    void adb_sendcommand(const char* command);
 };
 
 #endif // LOCKSCREEN_H
