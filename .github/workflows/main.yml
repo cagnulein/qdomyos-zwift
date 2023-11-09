@@ -714,12 +714,10 @@ jobs:
           cache-key-prefix: 'install-qt-action-ios'                    
           
       - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphoneos/g' {} \;
-#       run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;        
+        run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;        
 
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'qmake.conf' -exec sed -i '' 's/x86_64/arm64/g' {} \;
-
 
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
