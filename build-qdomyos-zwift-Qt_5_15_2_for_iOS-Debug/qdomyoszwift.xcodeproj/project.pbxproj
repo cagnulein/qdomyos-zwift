@@ -3750,7 +3750,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
-					"/Users/cagnulein/qdomyos-zwift/src/ios",
+					../src/ios,
 				);
 				MARKETING_VERSION = 2.16;
 				OTHER_CFLAGS = (
@@ -3921,7 +3921,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
-					"/Users/cagnulein/qdomyos-zwift/src/ios",
+					../src/ios,
 				);
 				MARKETING_VERSION = 2.16;
 				ONLY_ACTIVE_ARCH = YES;
