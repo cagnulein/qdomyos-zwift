@@ -425,6 +425,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString ftms_rower = settings.value(QZSettings::ftms_rower, QZSettings::default_ftms_rower).toString();
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
+    bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();    
 
     if (!heartRateBeltFound) {
 
@@ -1266,9 +1267,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     this->signalBluetoothDeviceConnected(technogymmyrunrfcommTreadmill);
                 }
 #endif
-            } else if ((b.name().toUpper().startsWith("TACX NEO") ||
-                        b.name().toUpper().startsWith(QStringLiteral("TACX FLOW")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("TACX FLUX")) ||
+            } else if ((b.name().toUpper().startsWith("TACX ") ||
                         b.name().toUpper().startsWith(QStringLiteral("THINK X")) ||
                         b.address() == QBluetoothAddress("C1:14:D9:9C:FB:01") || // specific TACX NEO 2 #1707
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
@@ -1314,12 +1313,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DS25-")) ||                        // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
-                        (b.name().toUpper().startsWith("HAMMER ") && !power_as_bike) ||      // HAMMER 64123
+                        (b.name().toUpper().startsWith("HAMMER ") && !power_as_bike && !saris_trainer) ||      // HAMMER 64123
                         (b.name().toUpper().startsWith("FLXCY-")) ||                         // Pro FlexBike
                         (b.name().toUpper().startsWith("QB-WC01")) ||                        // Nexgim QB-C01 smart bike
                         (b.name().toUpper().startsWith("XBR55")) ||                          // Sprint XBR555
                         (b.name().toUpper().startsWith("EW-JS-")) ||                         // EW-JS-4990
                         (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
+                        (b.name().toUpper().startsWith("URSB") && b.name().length() == 7) || // URSB005
                         (b.name().toUpper().startsWith("DBF") && b.name().length() == 6) ||  // DBF135
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
@@ -1343,6 +1343,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(ftmsBike);
             } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
                         b.name().toUpper().startsWith("KICKR ROLLR") ||
+                        (b.name().toUpper().startsWith("HAMMER ") && saris_trainer) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !wahooKickrSnapBike && filter) {
                 this->setLastBluetoothDevice(b);

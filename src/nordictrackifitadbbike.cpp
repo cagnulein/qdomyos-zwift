@@ -210,7 +210,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
-            if (line.contains(QStringLiteral("Changed KPH"))) {
+
+            if (line.contains(QStringLiteral("Changed KPH")) && !settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     speed = getDouble(aValues.last());
@@ -252,6 +253,12 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     Inclination = grade;
                 }
             }
+        }
+
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds

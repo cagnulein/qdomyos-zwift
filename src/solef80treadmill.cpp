@@ -312,17 +312,26 @@ void solef80treadmill::update() {
                 writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
+        int max_speed_loop = 0;
+        if(requestSpeed != -1) {
+            max_speed_loop = (fabs(requestSpeed - currentSpeed().value()) * 10.0) - 1;
+        }
+
         do {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed) + " " + QString::number(max_speed_loop));
                     forceSpeed(requestSpeed);
                 }
                 // i have to do the reset on when the speed is equal to the current
                 // requestSpeed = -1;
             }
-        } while (requestSpeed != -1 && sole_treadmill_inclination_fast);
+        } while (requestSpeed != -1 && sole_treadmill_inclination_fast && max_speed_loop);
 
+        int max_inclination_loop = 0;
+        if(requestInclination != -100) {
+            max_inclination_loop = abs(requestInclination - (int)currentInclination().value());
+        }
         do {
             if (requestInclination != -100) {
                 if (requestInclination < 0)
@@ -330,7 +339,7 @@ void solef80treadmill::update() {
                 // this treadmill has only 1% step inclination
                 if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
-                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination) + " " + QString::number(max_inclination_loop));
                     forceIncline(requestInclination);
                 } else if ((int)requestInclination == (int)currentInclination().value()) {
                     qDebug() << "int inclination match the current one" << requestInclination
@@ -340,7 +349,7 @@ void solef80treadmill::update() {
                 // i have to do the reset on when the inclination is equal to the current
                 // requestInclination = -100;
             }
-        } while (requestInclination != -100 && sole_treadmill_inclination_fast);
+        } while (requestInclination != -100 && sole_treadmill_inclination_fast && max_inclination_loop);
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -364,18 +373,32 @@ void solef80treadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
-            uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
-            uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
+            if(treadmill_type == F63) {
+                uint8_t stop[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
+                uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
 
-            if (gattCustomService) {
-                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
-                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                if (gattCustomService) {
+                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                }
+            } else {
+                uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
+                uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+                uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
+
+                if (gattCustomService) {
+                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                }
             }
 
             requestStop = -1;

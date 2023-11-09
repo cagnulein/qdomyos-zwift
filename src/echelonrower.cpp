@@ -236,7 +236,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
     // instant pace to km/h
-    if (((uint8_t)lastPacket.at(14)) > 0)
+    if (((uint8_t)lastPacket.at(14)) > 0 && Cadence.value() > 0)
         Speed = (60.0 / (double)((uint8_t)lastPacket.at(14))) * 30.0;
     else
         Speed = 0;
