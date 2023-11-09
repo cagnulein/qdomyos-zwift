@@ -723,6 +723,9 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
 
       - name: fix qt
+        run: find ${{ github.workspace }}/output/ios/ -exec sed -i '' 's/F64133C2-BE52-4F12-8671-2C0277F10A36/dvtdevice-DVTiPhonePlaceholder-iphoneos/g' {} \;        
+
+      - name: fix qt
         run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/TARGET = qdomyos-zwift/TARGET = qdomyoszwift/g' {} \;                
 
       - name: patching qt for bluetooth
