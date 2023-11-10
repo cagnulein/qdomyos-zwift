@@ -717,16 +717,7 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;        
 
       - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'qmake.conf' -exec sed -i '' 's/x86_64/arm64/g' {} \;
-
-      - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
-
-      - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_DEVICE_DESTINATION := $(EXPORT_GENERIC_DEVICE_DESTINATION)/GENERIC_DEVICE_DESTINATION := platform=iOS Simulator,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder,name=Any iOS Simulator Device/g' {} \;        
-
-      - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_SIMULATOR_DESTINATION := "id=$(shell $(MAKEFILE_DIR)devices.py $(EXPORT_DEVICE_FILTER) | tail -n 1)"/GENERIC_SIMULATOR_DESTINATION := "platform=iOS Simulator,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder,name=Any iOS Simulator Device"/g' {} \;        
 
       - name: fix qt
         run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/TARGET = qdomyos-zwift/TARGET = qdomyoszwift/g' {} \;                
@@ -734,8 +725,14 @@ jobs:
       - name: patching qt for bluetooth
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
+      - name: fix qt
+        run: file src/ios/libadb_simulator.a
+
       - name: patching adb for simulator
         run: cp src/ios/libadb_simulator.a src/ios/libadb.a
+
+      - name: fix qt
+        run: file src/ios/libadb.a
 
       - name: Build
         run: |
