@@ -723,10 +723,10 @@ jobs:
         run: find ${{ github.workspace }}/output/ios/ -name 'devices.py' -exec sed -i '' 's/\/usr\/bin\/python/\/usr\/bin\/python3/g' {} \;        
 
       - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_DEVICE_DESTINATION := $(EXPORT_GENERIC_DEVICE_DESTINATION)/GENERIC_DEVICE_DESTINATION := platform=iOS Simulator/g' {} \;        
+        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_DEVICE_DESTINATION := $(EXPORT_GENERIC_DEVICE_DESTINATION)/GENERIC_DEVICE_DESTINATION := platform=iOS Simulator,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder,name=Any iOS Simulator Device/g' {} \;        
 
       - name: fix qt
-        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_SIMULATOR_DESTINATION := "id=$(shell $(MAKEFILE_DIR)devices.py $(EXPORT_DEVICE_FILTER) | tail -n 1)"/GENERIC_SIMULATOR_DESTINATION := "platform=iOS Simulator"/g' {} \;        
+        run: find ${{ github.workspace }}/output/ios/ -name 'xcodebuild.mk' -exec sed -i '' 's/GENERIC_SIMULATOR_DESTINATION := "id=$(shell $(MAKEFILE_DIR)devices.py $(EXPORT_DEVICE_FILTER) | tail -n 1)"/GENERIC_SIMULATOR_DESTINATION := "platform=iOS Simulator,id=dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder,name=Any iOS Simulator Device"/g' {} \;        
 
       - name: fix qt
         run: find ./ -name 'qdomyos-zwift-lib.pro' -exec sed -i '' 's/TARGET = qdomyos-zwift/TARGET = qdomyoszwift/g' {} \;                
