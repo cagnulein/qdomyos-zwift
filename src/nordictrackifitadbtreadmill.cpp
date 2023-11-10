@@ -134,7 +134,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                                                   IP.object<jstring>(), QtAndroid::androidContext().object());
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-        h->adb_connect(IP.toStdString().c_str());
+        h->adb_connect(ip.toStdString().c_str());
 #endif
 #endif
     }
