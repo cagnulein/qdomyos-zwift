@@ -25,7 +25,7 @@ wahookickrheadwind::wahookickrheadwind(bluetoothdevice *parentDevice) {
 }
 
 void wahookickrheadwind::update() {
-    if (initRequest) {
+    if (initRequest && initDone == false) {
         initRequest = false;
 
         uint8_t init1[] = {0x01};
@@ -60,6 +60,37 @@ void wahookickrheadwind::update() {
 
         initDone = true;
     }
+    qDebug() << m_control->state();
+    if(m_control->state() == QLowEnergyController::DiscoveredState) {
+        if(speedRequest != -1 && timeout > 2) {
+            if (speedRequest > 100)
+                speedRequest = 100;
+            QSettings settings;
+            double max = settings.value(QZSettings::fitmetria_fanfit_max, QZSettings::default_fitmetria_fanfit_max).toDouble();
+            double min = settings.value(QZSettings::fitmetria_fanfit_min, QZSettings::default_fitmetria_fanfit_min).toDouble();
+
+            uint16_t speed8 = (uint8_t)((double)speedRequest * (max - min) / 100.0 + min);
+
+            uint8_t init9[] = {0x04, 0x04};
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, init9, sizeof(init9), "init", false, true);
+            
+            uint8_t init10[] = {0x02, 0x00};
+            init10[1] = speed8;
+            writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, init10, sizeof(init10),
+                                "forcing fan" + QString::number(speedRequest));
+            
+            speedRequest = -1;
+        }
+        if(timeout++ > 10) {
+            qDebug() << "disconnecting to idle";
+            m_control->disconnectFromDevice();
+            timeout = 0;
+        }
+    } else if(speedRequest != -1 && m_control->state() == QLowEnergyController::UnconnectedState) {
+        qDebug() << "connecting in order to change the fan speed";
+        m_control->connectToDevice();
+        timeout = 0;
+    }
 }
 
 void wahookickrheadwind::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -84,17 +115,7 @@ void wahookickrheadwind::characteristicChanged(const QLowEnergyCharacteristic &c
 
 void wahookickrheadwind::fanSpeedRequest(uint8_t speed) {
     QSettings settings;
-    if (speed > 100)
-        speed = 100;
-    double max = settings.value(QZSettings::fitmetria_fanfit_max, QZSettings::default_fitmetria_fanfit_max).toDouble();
-    double min = settings.value(QZSettings::fitmetria_fanfit_min, QZSettings::default_fitmetria_fanfit_min).toDouble();
-
-    uint16_t speed8 = (uint8_t)((double)speed * (max - min) / 100.0 + min);
-
-    uint8_t init10[] = {0x02, 0x00};
-    init10[1] = speed8;
-    writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, init10, sizeof(init10),
-                        "forcing fan" + QString::number(speed));
+    speedRequest = speed;
 }
 
 void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar,
@@ -140,6 +161,8 @@ void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEne
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
+    
+    this->timeout = 0;
 
     loop.exec();
 }
@@ -323,11 +346,11 @@ bool wahookickrheadwind::connected() {
 
 void wahookickrheadwind::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    /*if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
         initRequest = false;
         initDone = false;
 
         m_control->connectToDevice();
-    }
+    }*/
 }
