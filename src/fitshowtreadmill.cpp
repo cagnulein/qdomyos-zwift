@@ -736,6 +736,7 @@ void fitshowtreadmill::serviceScanDone(void) {
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
     if (!gattCommunicationChannelService) {
         qDebug() << "service not valid";
+        m_control->disconnectFromDevice();
         return;
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);

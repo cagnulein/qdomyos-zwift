@@ -898,7 +898,7 @@ void trxappgateusbbike::serviceScanDone(void) {
 
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << QStringLiteral("invalid service") << uuid;
-
+		m_control->disconnectFromDevice();
         return;
     }
 

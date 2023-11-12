@@ -579,8 +579,13 @@ void eslinkertreadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &eslinkertreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+                &eslinkertreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void eslinkertreadmill::errorService(QLowEnergyService::ServiceError err) {

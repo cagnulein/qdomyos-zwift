@@ -517,6 +517,7 @@ void spirittreadmill::serviceScanDone(void) {
 
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+		m_control->disconnectFromDevice();
         return;
     }
 

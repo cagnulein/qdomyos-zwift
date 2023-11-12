@@ -322,8 +322,12 @@ void ziprotreadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &ziprotreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if(gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &ziprotreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void ziprotreadmill::errorService(QLowEnergyService::ServiceError err) {

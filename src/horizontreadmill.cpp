@@ -1928,9 +1928,13 @@ void horizontreadmill::serviceScanDone(void) {
         {
             qDebug() << s << "discovering...";
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &horizontreadmill::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+            if (gattCommunicationChannelService.constLast()) {
+                connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                        &horizontreadmill::stateChanged);
+                gattCommunicationChannelService.constLast()->discoverDetails();
+            } else {
+                m_control->disconnectFromDevice();
+            }
         }
 #ifdef Q_OS_WIN
         else {

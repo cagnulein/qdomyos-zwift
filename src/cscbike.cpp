@@ -471,9 +471,14 @@ void cscbike::serviceScanDone(void) {
 #endif
         {
             gattCommunicationChannelService.append(m_control->createServiceObject(s));
-            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                    &cscbike::stateChanged);
-            gattCommunicationChannelService.constLast()->discoverDetails();
+	        if (gattCommunicationChannelService.constLast()) {
+	            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+	                    &cscbike::stateChanged);
+	            gattCommunicationChannelService.constLast()->discoverDetails();
+	        } else {
+	            m_control->disconnectFromDevice();
+	            return;
+	        }
         }
     }
 }

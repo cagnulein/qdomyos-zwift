@@ -457,9 +457,13 @@ void kingsmithr1protreadmill::serviceScanDone(void) {
     ignoreFirstPackage = true;
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-            &kingsmithr1protreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+                &kingsmithr1protreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void kingsmithr1protreadmill::errorService(QLowEnergyService::ServiceError err) {

@@ -413,8 +413,12 @@ void smartrowrower::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0x1234);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &smartrowrower::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &smartrowrower::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        m_control->disconnectFromDevice();
+    }
 }
 
 void smartrowrower::errorService(QLowEnergyService::ServiceError err) {

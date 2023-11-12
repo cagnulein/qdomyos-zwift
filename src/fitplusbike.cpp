@@ -886,18 +886,22 @@ void fitplusbike::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitplusbike::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+	    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitplusbike::stateChanged);
+	    gattCommunicationChannelService->discoverDetails();
 
-    if (sportstech_sx600) {
-        gattCommunicationChannelServiceFTMS = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-        if (gattCommunicationChannelServiceFTMS) {
-            qDebug() << "FTMS found!";
-            connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::stateChanged, this,
-                    &fitplusbike::stateChanged);
-            gattCommunicationChannelServiceFTMS->discoverDetails();
-        }
-    }
+	    if (sportstech_sx600) {
+	        gattCommunicationChannelServiceFTMS = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
+	        if (gattCommunicationChannelServiceFTMS) {
+	            qDebug() << "FTMS found!";
+	            connect(gattCommunicationChannelServiceFTMS, &QLowEnergyService::stateChanged, this,
+	                    &fitplusbike::stateChanged);
+	            gattCommunicationChannelServiceFTMS->discoverDetails();
+	        }
+	    }
+    } else {		
+        m_control->disconnectFromDevice();
+    }	
 }
 
 void fitplusbike::errorService(QLowEnergyService::ServiceError err) {
