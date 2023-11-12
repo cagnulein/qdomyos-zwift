@@ -49,6 +49,25 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         this->signalBluetoothDeviceConnected(pelotonBike);
     }
 
+    // TO REMOVE
+    bool fakedevice_treadmill =
+        settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
+    if(fakedevice_treadmill) {
+        fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
+        emit deviceConnected(QBluetoothDeviceInfo());
+        connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                &bluetooth::connectedAndDiscovered);
+        connect(fakeTreadmill, &faketreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+        // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+        // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
+        // #358
+        if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+            emit searchingStop();
+        }
+        this->signalBluetoothDeviceConnected(fakeTreadmill);
+        return;        
+    }
+
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     // this signal is not associated to anything in this moment, since the homeform is not loaded yet

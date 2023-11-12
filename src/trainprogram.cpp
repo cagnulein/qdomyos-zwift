@@ -1,3 +1,9 @@
+#include <qsystemdetection.h>
+#ifdef Q_OS_ANDROID
+#include <opencv2/opencv.hpp>
+#endif
+
+#include "homeform.h"
 #include "trainprogram.h"
 #include "zwiftworkout.h"
 #include <QFile>
@@ -9,6 +15,7 @@
 #include "androidactivityresultreceiver.h"
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
+using namespace cv;
 #elif defined(Q_OS_WINDOWS)
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
@@ -601,6 +608,83 @@ void trainprogram::scheduler() {
 
 #ifdef Q_OS_ANDROID
             {
+                // Take Zwift screenshot
+                Mat screenshot;
+                screenshot = imread((homeform::getWritableAppDir() + "/screenshots/myscreen.jpg").toStdString());
+                if(!screenshot.data) return;
+
+                // Scale image to 3000 x 2000
+                resize(screenshot, screenshot, Size(3000, 2000));
+
+                // Crop image to incline area
+                int screenwidth = screenshot.cols;
+                int screenheight = screenshot.rows;
+
+                // Values for Zwift regular incline
+                int col1 = int(screenwidth / 3000 * 2800);
+                int row1 = int(screenheight / 2000 * 75);
+                int col2 = screenwidth;
+                int row2 = int(screenheight / 2000 * 200);
+
+                Rect roi(col1, row1, col2 - col1, row2 - row1);
+                Mat cropped_np = screenshot(roi).clone();
+
+                // Convert cv2 image to HSV
+                Mat result = cropped_np.clone();
+                Mat image;
+                cvtColor(cropped_np, image, COLOR_BGR2HSV);
+
+                // Isolate white mask
+                Mat mask0, result0;
+                inRange(image, Scalar(0, 0, 159), Scalar(0, 0, 255), mask0);
+                bitwise_and(result, result, result0, mask0);
+
+                // Isolate yellow mask
+                Mat mask1, result1;
+                inRange(image, Scalar(24, 239, 241), Scalar(24, 253, 255), mask1);
+                bitwise_and(result, result, result1, mask1);
+
+                // Isolate orange mask
+                Mat mask2, result2;
+                inRange(image, Scalar(8, 191, 243), Scalar(8, 192, 243), mask2);
+                bitwise_and(result, result, result2, mask2);
+
+                // Isolate red mask
+                Mat mask3, result3;
+                inRange(image, Scalar(0, 255, 255), Scalar(10, 255, 255), mask3);
+                bitwise_and(result, result, result3, mask3);
+
+                // Join colour masks
+                Mat mask = mask0 + mask1 + mask2 + mask3;
+
+                // Set output image to zero everywhere except mask
+                Mat merge = image.clone();
+                merge.setTo(Scalar(0, 0, 0), mask == 0);
+
+                // Convert to grayscale
+                Mat gray;
+                cvtColor(merge, gray, COLOR_BGR2GRAY);
+
+                // Convert to black/white by threshold
+                Mat bin;
+                threshold(gray, bin, 30, 255, THRESH_BINARY);
+
+                // Closing
+                Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+                Mat closing;
+                morphologyEx(bin, closing, MORPH_CLOSE, kernel);
+
+                // Invert black/white
+                Mat inv;
+                bitwise_not(closing, inv);
+
+                // Apply average blur
+                Mat averageBlur;
+                blur(inv, averageBlur, Size(3, 3));
+
+                // Save the processed image
+                imwrite((homeform::getWritableAppDir() + "screenshots/processed_screenshot.jpg").toStdString(), inv);
+
                 QAndroidJniObject text = QAndroidJniObject::callStaticObjectMethod<jstring>(
                     "org/cagnulen/qdomyoszwift/ScreenCaptureService", "getLastText");
                 QString t = text.toString();
@@ -617,34 +701,6 @@ void trainprogram::scheduler() {
                 QString packageName = packageNameJava.toString();
                 if (packageName.contains("com.zwift.zwiftgame")) {
                     qDebug() << QStringLiteral("ZWIFT OCR ACCEPTED") << packageName << w << h << t << tExtended;
-                    foreach (QString s, tExtended.split("§§")) {
-                        // qDebug() << s;
-                        QStringList ss = s.split("$$");
-                        if (ss.length() > 1) {
-                            // (2195, 75 - 2254, 106)"
-                            qDebug() << ss[0] << ss[1];
-                            QString inc = ss[1].replace("Rect(", "").replace(")", "");
-                            if (inc.split(",").length() > 2) {
-                                int w_minbound = w * 0.93;
-                                int h_minbound = h * 0.08;
-                                int h_maxbound = h * 0.15;
-                                int x = inc.split(",").at(0).toInt();
-                                int y = inc.split(",").at(2).toInt();
-                                qDebug() << x << w_minbound << h_maxbound << y << h_minbound;
-                                if (x > w_minbound && y < h_maxbound && y > h_minbound) {
-                                    ss[0] = ss[0].replace("%", "");
-                                    ss[0] = ss[0].replace("O", "0");
-                                    ss[0] = ss[0].replace("l", "1");
-                                    ss[0] = ss[0].replace(" ", "");
-                                    if (ss[0].toInt() < 15 && ss[0].toInt() > -15) {
-                                        bluetoothManager->device()->changeInclination(ss[0].toInt(), ss[0].toInt());
-                                    } else {
-                                        qDebug() << "filtering" << ss[0].toInt();
-                                    }
-                                }
-                            }
-                        }
-                    }
 
                 } else {
                     qDebug() << QStringLiteral("ZWIFT OCR IGNORING") << packageName << t;

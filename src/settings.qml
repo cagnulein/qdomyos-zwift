@@ -4320,7 +4320,6 @@ import QtQuick.Dialogs 1.0
             }
 
             AccordionElement {
-                visible: OS_VERSION === "Other"
                 title: qsTr("Zwift Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)

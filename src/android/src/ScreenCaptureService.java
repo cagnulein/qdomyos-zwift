@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -44,6 +45,16 @@ import android.graphics.Point;
 
 import androidx.core.util.Pair;
 
+import com.baidu.paddle.fastdeploy.LitePowerMode;
+import com.equationl.fastdeployocr.OCR;
+import com.equationl.fastdeployocr.OcrConfig;
+import com.equationl.fastdeployocr.RunPrecision;
+import com.equationl.fastdeployocr.RunType;
+import com.equationl.fastdeployocr.bean.OcrResult;
+import com.equationl.fastdeployocr.bean.OcrResultModel;
+import com.equationl.fastdeployocr.callback.OcrInitCallback;
+import com.equationl.fastdeployocr.callback.OcrRunCallback;
+
 public class ScreenCaptureService extends Service {
 
     private static final String TAG = "ScreenCaptureService";
@@ -75,6 +86,9 @@ public class ScreenCaptureService extends Service {
 	 private static String lastText = "";
 	 private static String lastTextExtended = "";
 	 private static boolean isRunning = false;
+
+     private OcrConfig config = new OcrConfig();
+     private OCR ocr = null;
 
 	 public static String getLastText() {
 		 return lastText;
@@ -141,72 +155,45 @@ public class ScreenCaptureService extends Service {
 								  mHeightImage = mHeight;
                           final Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                           bitmap.copyPixelsFromBuffer(buffer);
-/*
+
                           // write bitmap to a file
-                          fos = new FileOutputStream(mStoreDir + "/myscreen.png");
-                          bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                          fos = new FileOutputStream(mStoreDir + "/myscreen.jpg");
+                          bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
                           IMAGES_PRODUCED++;
                           Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-*/
 
-                          InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
-                          /*InputImage inputImage = InputImage.fromByteBuffer(buffer,
-                                  mWidth + rowPadding / pixelStride, mHeight,
-                                  0,
-                                  InputImage.IMAGE_FORMAT_NV21 // or IMAGE_FORMAT_YV12
-                          );*/
+                          Bitmap bMap = BitmapFactory.decodeFile(mStoreDir + "/processed_screenshot.jpg");
 
-                          Task<Text> result =
-                          recognizer.process(inputImage)
-                          .addOnSuccessListener(new OnSuccessListener<Text>() {
-                                  @Override
-                                  public void onSuccess(Text result) {
-                                          // Task completed successfully
-
-                                          //Log.e(TAG, "Image done!");
-
-                                          String resultText = result.getText();
-                                          lastText = resultText;
-                                          lastTextExtended = "";
-                                          for (Text.TextBlock block : result.getTextBlocks()) {
-                                                   String blockText = block.getText();
-                                                        Point[] blockCornerPoints = block.getCornerPoints();
-                                                        Rect blockFrame = block.getBoundingBox();
-                                                          lastTextExtended = lastTextExtended + blockText + "$$" + blockFrame.toString() + "§§";
-							  /*for (Text.Line line : block.getLines()) {
-                                                                 String lineText = line.getText();
-                                                                 Point[] lineCornerPoints = line.getCornerPoints();
-                                                                 Rect lineFrame = line.getBoundingBox();
-                                                                 for (Text.Element element : line.getElements()) {
-                                                                          String elementText = element.getText();
-                                                                          Point[] elementCornerPoints = element.getCornerPoints();
-                                                                          Rect elementFrame = element.getBoundingBox();
-                                                                          for (Text.Symbol symbol : element.getSymbols()) {
-                                                                                   String symbolText = symbol.getText();
-                                                                                        Point[] symbolCornerPoints = symbol.getCornerPoints();
-                                                                                        Rect symbolFrame = symbol.getBoundingBox();
-                                                                                        }
-                                                                 }
-																				}*/
-																	}
-                                     bitmap.recycle();
-                                     isRunning = false;
-                                          }
-                                  })
-                          .addOnFailureListener(
-                          new OnFailureListener() {
-                                  @Override
-                                  public void onFailure(Exception e) {
-                                          // Task failed with an exception
-                                          //Log.e(TAG, "Image fail");
-                                          isRunning = false;
-                                          }
-                                  });
-                          } else {
-                            //Log.e(TAG, "Image ignored");
-                          }
+                          ocr.run(bMap, new OcrRunCallback() {
+                            @Override
+                            public void onSuccess(OcrResult result) {
+                                lastText = result.getSimpleText();
+                                lastTextExtended = "";
+                                /*
+                                for (int index = 0; index < result.getOutputRawResult().size(); index++) {
+                                    OcrResultModel ocrResultModel = result.getOutputRawResult().get(index);
+                                    // 文字方向 ocrResultModel.clsLabel 可能为 "0" 或 "180"
+                                    lastText += ocrResultModel.getClsLabel(); 
+                                    lastTextExtended += index + ": 文字方向：" + ocrResultModel.getClsLabel() +
+                                            "；文字方向置信度：" + ocrResultModel.getClsConfidenceL() +
+                                            "；识别置信度 " + ocrResultModel.getConfidence() +
+                                            "；；文字位置：" + ocrResultModel.getPoints() + "\n";
+                                }*/
+                                isRunning = false;
+                                bitmap.recycle();
+                                Log.e(TAG, "onSuccess: " + lastText);
+                            }
+                        
+                            @Override
+                            public void onFail(Throwable e) {
+                                Log.e(TAG, "onFail: 识别失败！", e);
+                                isRunning = false;
+                                bitmap.recycle();
+                            }
+                        });
                       }
+                    }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -262,6 +249,71 @@ public class ScreenCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+                  Log.i(TAG, "onCreate1");
+		  config.setModelPath("models/ch_PP-OCRv2"); // 不使用 "/" 开头的路径表示安装包中 assets 目录下的文件，例如当前表示 assets/models/ocr_v2_for_cpu
+		  //config.modelPath = "/sdcard/Android/data/com.equationl.paddleocr4android.app/files/models" // 使用 "/" 表示手机储存路径，测试时请将下载的三个模型放置于该目录下
+                  
+                /*
+                  config.setClsModelFilename("cls.nb"); // cls 模型文件名
+                  config.setDetModelFilename("det_db.nb"); // det 模型文件名
+                  config.setRecModelFilename("rec_crnn.nb"); // rec 模型文件名
+                  */
+
+                  /* already true by default
+                  config.setIsRunDet(true);
+                  config.setIsRunCls(true);
+                  config.setIsRunRec(true);*/
+
+
+		  // 运行全部模型
+		  config.setRunType(RunType.All);
+
+		  // 使用所有核心运行
+		  config.setCpuPowerMode(LitePowerMode.LITE_POWER_FULL);
+
+		  // 绘制文本位置
+		  //config.setIsDrwwTextPositionBox(true);
+
+		  // 如果是原始模型，则使用 FP16 精度
+		  config.setRecRunPrecision(RunPrecision.LiteFp16);
+		  config.setDetRunPrecision(RunPrecision.LiteFp16);
+		  config.setClsRunPrecision(RunPrecision.LiteFp16);
+
+                  Log.i(TAG, "onCreate2");
+
+		  // 如果是量化模型则使用 int8 精度
+		  //config.recRunPrecision(RunPrecision.LiteInt8
+		  //config.detRunPrecision(RunPrecision.LiteInt8
+		  //config.clsRunPrecision(RunPrecision.LiteInt8
+
+		  // 1.同步初始化
+		  /*ocr.initModelSync(config).fold(
+		  {
+			  if (it) {
+				  Log.i(TAG, "onCreate: init success")
+				  }
+			  },
+		  {
+			  it.printStackTrace()
+			  }
+		  )*/
+
+		  // 2.异步初始化
+                  ocr = new OCR(this);
+          ocr.initModel(config, new OcrInitCallback() {
+            @Override
+            public void onSuccess() {
+                Log.i(TAG, "onSuccess: 初始化成功");
+            }
+        
+            @Override
+            public void onFail(Throwable e) {
+                Log.e(TAG, "onFail: 初始化失败", e);
+            }
+        });
+
+        Log.i(TAG, "onCreate3");
 
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);

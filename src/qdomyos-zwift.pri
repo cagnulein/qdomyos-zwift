@@ -43,6 +43,8 @@ win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
+android:QMAKE_CXXFLAGS += -fopenmp -static-openmp
+android:QMAKE_LFLAGS += -fopenmp -static-openmp
 unix:android: {
     CONFIG -= optimize_size
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
@@ -55,6 +57,45 @@ macx {
     QMAKE_INFO_PLIST = macx/Info.plist
 }
 INCLUDEPATH += qmdnsengine/src/include
+
+android {
+
+   #QMAKE_LINK += -nostdlib++
+
+   equals(ANDROID_TARGET_ARCH,arm64-v8a) {
+	   LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_features2d
+		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_highgui
+		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_imgproc
+		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_photo
+		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_video
+		LIBS += -L$$PWD/opencv2/staticlibs/arm64-v8a/ -lopencv_core
+	}
+	equals(ANDROID_TARGET_ARCH,armeabi-v7a) {
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_features2d
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_highgui
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_imgproc
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_photo
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_video
+	LIBS += -L$$PWD/opencv2/staticlibs/armeabi-v7a/ -lopencv_core
+	}
+	equals(ANDROID_TARGET_ARCH,x86) {
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_features2d
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_highgui
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_imgproc
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_photo
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_video
+	LIBS += -L$$PWD/opencv2/staticlibs/x86/ -lopencv_core
+	}
+	equals(ANDROID_TARGET_ARCH,x86_64) {
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_features2d
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_highgui
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_imgproc
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_photo
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_video
+	LIBS += -L$$PWD/opencv2/staticlibs/x86_64/ -lopencv_core
+	}
+}
+
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -283,6 +324,162 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+   $$PWD/opencv2/core.hpp \
+   $$PWD/opencv2/core/affine.hpp \
+   $$PWD/opencv2/core/async.hpp \
+   $$PWD/opencv2/core/base.hpp \
+   $$PWD/opencv2/core/bindings_utils.hpp \
+   $$PWD/opencv2/core/bufferpool.hpp \
+   $$PWD/opencv2/core/check.hpp \
+   $$PWD/opencv2/core/core.hpp \
+   $$PWD/opencv2/core/core_c.h \
+   $$PWD/opencv2/core/cuda.hpp \
+   $$PWD/opencv2/core/cuda.inl.hpp \
+   $$PWD/opencv2/core/cuda/block.hpp \
+   $$PWD/opencv2/core/cuda/border_interpolate.hpp \
+   $$PWD/opencv2/core/cuda/color.hpp \
+   $$PWD/opencv2/core/cuda/common.hpp \
+   $$PWD/opencv2/core/cuda/datamov_utils.hpp \
+   $$PWD/opencv2/core/cuda/detail/color_detail.hpp \
+   $$PWD/opencv2/core/cuda/detail/reduce.hpp \
+   $$PWD/opencv2/core/cuda/detail/reduce_key_val.hpp \
+   $$PWD/opencv2/core/cuda/detail/transform_detail.hpp \
+   $$PWD/opencv2/core/cuda/detail/type_traits_detail.hpp \
+   $$PWD/opencv2/core/cuda/detail/vec_distance_detail.hpp \
+   $$PWD/opencv2/core/cuda/dynamic_smem.hpp \
+   $$PWD/opencv2/core/cuda/emulation.hpp \
+   $$PWD/opencv2/core/cuda/filters.hpp \
+   $$PWD/opencv2/core/cuda/funcattrib.hpp \
+   $$PWD/opencv2/core/cuda/functional.hpp \
+   $$PWD/opencv2/core/cuda/limits.hpp \
+   $$PWD/opencv2/core/cuda/reduce.hpp \
+   $$PWD/opencv2/core/cuda/saturate_cast.hpp \
+   $$PWD/opencv2/core/cuda/scan.hpp \
+   $$PWD/opencv2/core/cuda/simd_functions.hpp \
+   $$PWD/opencv2/core/cuda/transform.hpp \
+   $$PWD/opencv2/core/cuda/type_traits.hpp \
+   $$PWD/opencv2/core/cuda/utility.hpp \
+   $$PWD/opencv2/core/cuda/vec_distance.hpp \
+   $$PWD/opencv2/core/cuda/vec_math.hpp \
+   $$PWD/opencv2/core/cuda/vec_traits.hpp \
+   $$PWD/opencv2/core/cuda/warp.hpp \
+   $$PWD/opencv2/core/cuda/warp_reduce.hpp \
+   $$PWD/opencv2/core/cuda/warp_shuffle.hpp \
+   $$PWD/opencv2/core/cuda_stream_accessor.hpp \
+   $$PWD/opencv2/core/cuda_types.hpp \
+   $$PWD/opencv2/core/cv_cpu_dispatch.h \
+   $$PWD/opencv2/core/cv_cpu_helper.h \
+   $$PWD/opencv2/core/cvdef.h \
+   $$PWD/opencv2/core/cvstd.hpp \
+   $$PWD/opencv2/core/cvstd.inl.hpp \
+   $$PWD/opencv2/core/cvstd_wrapper.hpp \
+   $$PWD/opencv2/core/detail/async_promise.hpp \
+   $$PWD/opencv2/core/detail/dispatch_helper.impl.hpp \
+   $$PWD/opencv2/core/detail/exception_ptr.hpp \
+   $$PWD/opencv2/core/directx.hpp \
+   $$PWD/opencv2/core/dualquaternion.hpp \
+   $$PWD/opencv2/core/dualquaternion.inl.hpp \
+   $$PWD/opencv2/core/eigen.hpp \
+   $$PWD/opencv2/core/fast_math.hpp \
+   $$PWD/opencv2/core/hal/hal.hpp \
+   $$PWD/opencv2/core/hal/interface.h \
+   $$PWD/opencv2/core/hal/intrin.hpp \
+   $$PWD/opencv2/core/hal/intrin_avx.hpp \
+   $$PWD/opencv2/core/hal/intrin_avx512.hpp \
+   $$PWD/opencv2/core/hal/intrin_cpp.hpp \
+   $$PWD/opencv2/core/hal/intrin_forward.hpp \
+   $$PWD/opencv2/core/hal/intrin_msa.hpp \
+   $$PWD/opencv2/core/hal/intrin_neon.hpp \
+   $$PWD/opencv2/core/hal/intrin_rvv.hpp \
+   $$PWD/opencv2/core/hal/intrin_rvv071.hpp \
+   $$PWD/opencv2/core/hal/intrin_sse.hpp \
+   $$PWD/opencv2/core/hal/intrin_sse_em.hpp \
+   $$PWD/opencv2/core/hal/intrin_vsx.hpp \
+   $$PWD/opencv2/core/hal/intrin_wasm.hpp \
+   $$PWD/opencv2/core/hal/msa_macros.h \
+   $$PWD/opencv2/core/hal/simd_utils.impl.hpp \
+   $$PWD/opencv2/core/mat.hpp \
+   $$PWD/opencv2/core/mat.inl.hpp \
+   $$PWD/opencv2/core/matx.hpp \
+   $$PWD/opencv2/core/neon_utils.hpp \
+   $$PWD/opencv2/core/ocl.hpp \
+   $$PWD/opencv2/core/ocl_genbase.hpp \
+   $$PWD/opencv2/core/opencl/ocl_defs.hpp \
+   $$PWD/opencv2/core/opencl/opencl_info.hpp \
+   $$PWD/opencv2/core/opencl/opencl_svm.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_clblas.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_clfft.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_core.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_core_wrappers.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_gl.hpp \
+   $$PWD/opencv2/core/opencl/runtime/autogenerated/opencl_gl_wrappers.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_clblas.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_clfft.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_core.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_core_wrappers.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_gl.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_gl_wrappers.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_svm_20.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_svm_definitions.hpp \
+   $$PWD/opencv2/core/opencl/runtime/opencl_svm_hsa_extension.hpp \
+   $$PWD/opencv2/core/opengl.hpp \
+   $$PWD/opencv2/core/operations.hpp \
+   $$PWD/opencv2/core/optim.hpp \
+   $$PWD/opencv2/core/ovx.hpp \
+   $$PWD/opencv2/core/parallel/backend/parallel_for.openmp.hpp \
+   $$PWD/opencv2/core/parallel/backend/parallel_for.tbb.hpp \
+   $$PWD/opencv2/core/parallel/parallel_backend.hpp \
+   $$PWD/opencv2/core/persistence.hpp \
+   $$PWD/opencv2/core/quaternion.hpp \
+   $$PWD/opencv2/core/quaternion.inl.hpp \
+   $$PWD/opencv2/core/saturate.hpp \
+   $$PWD/opencv2/core/simd_intrinsics.hpp \
+   $$PWD/opencv2/core/softfloat.hpp \
+   $$PWD/opencv2/core/sse_utils.hpp \
+   $$PWD/opencv2/core/traits.hpp \
+   $$PWD/opencv2/core/types.hpp \
+   $$PWD/opencv2/core/types_c.h \
+   $$PWD/opencv2/core/utility.hpp \
+   $$PWD/opencv2/core/utils/allocator_stats.hpp \
+   $$PWD/opencv2/core/utils/allocator_stats.impl.hpp \
+   $$PWD/opencv2/core/utils/filesystem.hpp \
+   $$PWD/opencv2/core/utils/fp_control_utils.hpp \
+   $$PWD/opencv2/core/utils/instrumentation.hpp \
+   $$PWD/opencv2/core/utils/logger.defines.hpp \
+   $$PWD/opencv2/core/utils/logger.hpp \
+   $$PWD/opencv2/core/utils/logtag.hpp \
+   $$PWD/opencv2/core/utils/tls.hpp \
+   $$PWD/opencv2/core/utils/trace.hpp \
+   $$PWD/opencv2/core/va_intel.hpp \
+   $$PWD/opencv2/core/version.hpp \
+   $$PWD/opencv2/core/vsx_utils.hpp \
+   $$PWD/opencv2/cvconfig.h \
+   $$PWD/opencv2/features2d.hpp \
+   $$PWD/opencv2/features2d/features2d.hpp \
+   $$PWD/opencv2/features2d/hal/interface.h \
+   $$PWD/opencv2/highgui.hpp \
+   $$PWD/opencv2/highgui/highgui.hpp \
+   $$PWD/opencv2/imgproc.hpp \
+   $$PWD/opencv2/imgproc/bindings.hpp \
+   $$PWD/opencv2/imgproc/detail/gcgraph.hpp \
+   $$PWD/opencv2/imgproc/hal/hal.hpp \
+   $$PWD/opencv2/imgproc/hal/interface.h \
+   $$PWD/opencv2/imgproc/imgproc.hpp \
+   $$PWD/opencv2/imgproc/imgproc_c.h \
+   $$PWD/opencv2/imgproc/segmentation.hpp \
+   $$PWD/opencv2/imgproc/types_c.h \
+   $$PWD/opencv2/opencv.hpp \
+   $$PWD/opencv2/opencv_modules.hpp \
+   $$PWD/opencv2/photo.hpp \
+   $$PWD/opencv2/photo/cuda.hpp \
+   $$PWD/opencv2/photo/legacy/constants_c.h \
+   $$PWD/opencv2/photo/photo.hpp \
+   $$PWD/opencv2/video.hpp \
+   $$PWD/opencv2/video/background_segm.hpp \
+   $$PWD/opencv2/video/detail/tracking.detail.hpp \
+   $$PWD/opencv2/video/legacy/constants_c.h \
+   $$PWD/opencv2/video/tracking.hpp \
+   $$PWD/opencv2/video/video.hpp \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
     virtualdevice.h \
@@ -710,6 +907,13 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+   $$PWD/android/assets/models/ch_PP-OCRv2/cls.pdiparams \
+   $$PWD/android/assets/models/ch_PP-OCRv2/cls.pdmodel \
+   $$PWD/android/assets/models/ch_PP-OCRv2/rec.pdiparams \
+   $$PWD/android/assets/models/ch_PP-OCRv2/rec.pdmodel \
+   $$PWD/android/assets/models/ch_PP-OCRv2/det.pdiparams \
+   $$PWD/android/assets/models/ch_PP-OCRv2/det.pdmodel \
+   $$PWD/android/assets/models/ch_PP-OCRv2/ppocr_keys_v1.txt \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
