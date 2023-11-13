@@ -233,6 +233,15 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
+    double w = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+    if(w == 0 && !filterWattHole) {
+        filterWattHole = true;
+        qDebug() << QStringLiteral("filtering watt hole");
+        return;
+    } else if(w > 0) {
+        filterWattHole = false;
+    }
+
     Resistance = GetResistanceFromPacket(newValue);
     Cadence = (newValue.at(18) * cadence_gain) + cadence_offset;
     m_watt = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
