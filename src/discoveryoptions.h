@@ -49,11 +49,6 @@ public:
      * @brief Use to suppress starting discovery in the constructor, e.g. for testing.
      */
     bool startDiscovery = true;
-
-    /**
-     * @brief Used to suppress the creation of the tempalte managers to decouple from the UI.
-     */
-    bool createTemplateManagers = true;
 };
 
 

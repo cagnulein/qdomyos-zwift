@@ -38,16 +38,10 @@ class faketreadmill : public treadmill {
     Q_OBJECT
   public:
     faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
-    virtualtreadmill *virtualTreadmill = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

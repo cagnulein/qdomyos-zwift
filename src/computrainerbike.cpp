@@ -39,7 +39,7 @@ computrainerbike::computrainerbike(bool noWriteResistance, bool noHeartService, 
     initRequest = true;
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -64,10 +64,10 @@ computrainerbike::computrainerbike(bool noWriteResistance, bool noHeartService, 
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
-                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,& computrainerbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &computrainerbike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -282,16 +282,7 @@ void computrainerbike::update() {
 #endif
         {
             if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+                update_hr_from_external();
             }
         }
 
@@ -410,9 +401,5 @@ void computrainerbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool computrainerbike::connected() { return true; }
-
-void *computrainerbike::VirtualBike() { return virtualBike; }
-
-void *computrainerbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t computrainerbike::watts() { return m_watt.value(); }

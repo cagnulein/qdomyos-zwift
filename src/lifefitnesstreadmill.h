@@ -40,15 +40,12 @@ class lifefitnesstreadmill : public treadmill {
     Q_OBJECT
   public:
     lifefitnesstreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination();
-    double minStepSpeed();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-    virtual bool canStartStop() { return false; }
+    double minStepInclination() override;
+    double minStepSpeed() override;
+    virtual bool canStartStop()  override{ return false; }
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
@@ -58,8 +55,6 @@ class lifefitnesstreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

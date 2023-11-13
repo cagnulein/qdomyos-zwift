@@ -29,6 +29,7 @@ class trainrow {
     int8_t lower_requested_peloton_resistance = -1;
     int8_t average_requested_peloton_resistance = -1; // used for peloton
     int8_t upper_requested_peloton_resistance = -1;
+    int8_t pace_intensity = -1; // used for peloton
     int16_t cadence = -1;
     int16_t lower_cadence = -1;
     int16_t average_cadence = -1; // used for peloton
@@ -78,15 +79,25 @@ class trainprogram : public QObject {
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedFromGpxStep(int gpxStep, int seconds);
-    double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed);
+    double TimeRateFromGPX(double gpxsecs, double videosecs, double currentspeed, int recordingFactor);
     int TotalGPXSecs();
+    double weightedInclination(int step);
+    double medianInclination(int step);
     bool overridePowerForCurrentRow(double power);
+    bool powerzoneWorkout() {
+        foreach(trainrow r, rows) {
+            if(r.power != -1) return true;
+        }
+        return false;
+    }
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
     QString description = "";
     QString tags = "";
     bool enabled = true;
+    bool videoAvailable = false;
+    void setVideoAvailable(bool v) {videoAvailable = v;}
 
     void restart();
     bool isStarted() { return started; }
@@ -97,6 +108,9 @@ class trainprogram : public QObject {
   public slots:
     void onTapeStarted();
     void scheduler();
+
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
 
   signals:
     void start();
@@ -113,6 +127,7 @@ class trainprogram : public QObject {
     void changeSpeedAndInclination(double speed, double inclination);
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     void changeTimestamp(QTime source, QTime actual);
+    void toastRequest(QString message);
 
   private:
     mutable QRecursiveMutex schedulerMutex;
@@ -137,6 +152,9 @@ class trainprogram : public QObject {
     int lastStepTimestampChanged = 0;
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
+
+    QUdpSocket* pelotonOCRsocket = nullptr;
+    void pelotonOCRcomputeTime(QString t);
 };
 
 #endif // TRAINPROGRAM_H

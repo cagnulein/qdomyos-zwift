@@ -1,6 +1,7 @@
 #include "echelonconnectsport.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -59,11 +60,15 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -153,7 +158,7 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
@@ -210,16 +215,17 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
         resistance_t res = newValue.at(3);
         if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
             qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears()
-                     << lastRawRequestedResistanceValue;
+                     << lastRawRequestedResistanceValue << lastRequestedResistance().value();
             if (
                 // if the resistance is different from the previous one
                 res != qRound(Resistance.value()) &&
                 // and the last target resistance is different from the current one or there is no any pending last
                 // requested resistance
-                ((lastRawRequestedResistanceValue != res && lastRawRequestedResistanceValue != -1) ||
+                ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0) ||
                  lastRawRequestedResistanceValue == -1) &&
                 // and the difference between the 2 resistances are less than 6
                 qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
+
                 int8_t g = gears();
                 g += (res - qRound(Resistance.value()));
                 qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
@@ -281,16 +287,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -397,7 +394,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonconnectsport::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -407,6 +404,8 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence =
@@ -421,11 +420,19 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                    if (virtual_device_rower) {
+                        qDebug() << QStringLiteral("creating virtual rower interface...");
+                        auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                        // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                        this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                    } else {
+                        qDebug() << QStringLiteral("creating virtual bike interface...");
+                        auto virtualBike =
+                            new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                        // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                        connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                        this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    }
             }
         }
         firstStateChanged = 1;
@@ -522,10 +529,6 @@ bool echelonconnectsport::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *echelonconnectsport::VirtualBike() { return virtualBike; }
-
-void *echelonconnectsport::VirtualDevice() { return VirtualBike(); }
 
 uint16_t echelonconnectsport::watts() {
     if (currentCadence().value() == 0) {

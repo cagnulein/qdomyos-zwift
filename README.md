@@ -35,7 +35,7 @@ UI on MacOS
 
 ### Installation 
 
-You can install on multiple platforms.
+You can install it on multiple platforms.
 Read the [installation procedure](docs/10_Installation.md)
 
 
@@ -45,7 +45,7 @@ You can run the app on [Macintosh or Linux devices](docs/10_Installation.md). IO
 
 QDomyos-Zwift works on every [FTMS-compatible application](docs/20_supported_devices_and_applications.md), and virtually any [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
-### No gui version
+### No GUI version
 
 run as
 
@@ -57,7 +57,7 @@ https://github.com/ProH4Ck/treadmill-bridge
 
 https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/
 
-Icons used in this documentation comes from [flaticon.com](https://www.flaticon.com)
+Icons used in this documentation come from [flaticon.com](https://www.flaticon.com)
 
 ### Blog
 

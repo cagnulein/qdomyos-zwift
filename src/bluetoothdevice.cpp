@@ -4,7 +4,21 @@
 #include <QSettings>
 #include <QTime>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 bluetoothdevice::bluetoothdevice() {}
+
+bluetoothdevice::~bluetoothdevice() {
+    if(this->virtualDevice) {
+        delete this->virtualDevice;
+        this->virtualDevice = nullptr;
+    }
+}
 
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; }
@@ -34,6 +48,8 @@ metric bluetoothdevice::currentResistance() { return Resistance; }
 metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
+
+virtualdevice *bluetoothdevice::VirtualDevice() { return this->virtualDevice; }
 void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
@@ -94,7 +110,6 @@ double bluetoothdevice::odometer() { return Distance.value(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
-void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
     if (speed > 230 && FanSpeed < 20) {
@@ -137,7 +152,20 @@ void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
+bool bluetoothdevice::hasVirtualDevice() { return this->virtualDevice!=nullptr; }
+
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
+
+void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode) {
+
+    if(mode!=VIRTUAL_DEVICE_MODE::NONE && !virtualDevice)
+        throw "Virtual device mode should be NONE when no virtual device is specified.";
+
+    if(this->virtualDevice)
+        delete this->virtualDevice;
+    this->virtualDevice = virtualDevice;
+    this->virtualDeviceMode=mode;
+}
 
 // keiser m3i has a separate management of this, so please check it
 void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
@@ -145,6 +173,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool power_as_bike =
         settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
     bool power_as_treadmill =
@@ -195,6 +225,39 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
+}
+
+void bluetoothdevice::update_hr_from_external() {
+    QSettings settings;
+    if(settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getHR", "()I");
+#endif
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        lockscreen h;
+        Heart = h.getHR();
+#endif
+#endif
+        qDebug() << "Garmin Companion Heart:" << Heart.value();
+    } else {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            h.setSpeed(Speed.value());
+            h.setPower(m_watt.value());
+            h.setCadence(Cadence.value());
+            Heart = appleWatchHeartRate;
+            qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
+#endif
+#endif
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+#endif
+    }
 }
 
 void bluetoothdevice::clearStats() {

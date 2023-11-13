@@ -1,7 +1,9 @@
 #include "nautilusbike.h"
 
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
-#include "virtualtreadmill.h"
+#endif
+#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -29,13 +31,7 @@ nautilusbike::nautilusbike(bool noWriteResistance, bool noHeartService, bool tes
     refresh->start(300ms);
 }
 
-nautilusbike::~nautilusbike() {
-    qDebug() << QStringLiteral("~nautilusbike()") << virtualBike;
-    if (virtualBike) {
-
-        delete virtualBike;
-    }
-}
+nautilusbike::~nautilusbike() { qDebug() << QStringLiteral("~nautilusbike()"); }
 
 void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                        bool wait_for_response) {
@@ -50,11 +46,15 @@ void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -91,12 +91,14 @@ void nautilusbike::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        if (!firstVirtual && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstVirtual = 1;
             }
         }
@@ -174,13 +176,14 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
-    // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble(); uint16_t watt = (newValue.at(13) << 8) |
+    // newValue.at(14);
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = speed * 2.6; // this device doesn't send cadence so I'm calculating it from the speed
+        Cadence = newValue.at(1);
     }
 
     Speed = speed;
@@ -214,7 +217,8 @@ double nautilusbike::GetSpeedFromPacket(const QByteArray &packet) {
     double data = 0;
     convertedData = (packet.at(4) << 8) | packet.at(3);
     data = (double)convertedData / 100.0f;
-    data = data * miles;
+    if (!B616)
+        data = data * miles;
 
     return data;
 }
@@ -316,11 +320,23 @@ void nautilusbike::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
-    if (gattCommunicationChannelService == nullptr) {
-        qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
-        return;
+    if (!gattCommunicationChannelService) {
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("f755c9cf-e1fc-4ecd-8d90-f2d7ebf56b81"));
+        B616 = true;
+
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if (!gattCommunicationChannelService) {
+            _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("44f8d44f-7e03-4baf-9cc1-bd5a9c7a076b"));
+            B616 = false;
+
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (!gattCommunicationChannelService) {
+                qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+                return;
+            }
+        }
     }
-    
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilusbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -388,8 +404,6 @@ bool nautilusbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *nautilusbike::VirtualDevice() { return virtualBike; }
-
 void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
@@ -399,3 +413,5 @@ void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState 
         m_control->connectToDevice();
     }
 }
+
+uint16_t nautilusbike::watts() { return m_watt.value(); }

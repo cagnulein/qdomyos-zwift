@@ -1,6 +1,8 @@
 #include "proformelliptical.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -36,12 +38,15 @@ void proformelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -85,7 +90,7 @@ void proformelliptical::update() {
             case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
                 if (requestInclination != -100) {
-                    if(requestInclination < 0)
+                    if (requestInclination < 0)
                         requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
@@ -207,9 +212,14 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
-        ((newValue.at(2) == 0x46) || (newValue.at(2) == 0x5a))) {
-        Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(4) != 0xFF) {
+        double speed_from_machinery =
+            (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = speed_from_machinery;
+        } else {
+            Speed = speedFromWatts();
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
@@ -223,8 +233,18 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
+    double w = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+    if(w == 0 && !filterWattHole) {
+        filterWattHole = true;
+        qDebug() << QStringLiteral("filtering watt hole");
+        return;
+    } else if(w > 0) {
+        filterWattHole = false;
+    }
+
     Resistance = GetResistanceFromPacket(newValue);
     Cadence = (newValue.at(18) * cadence_gain) + cadence_offset;
+    m_watt = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -243,16 +263,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
@@ -394,21 +405,26 @@ void proformelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+        if (!firstStateChanged && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstStateChanged = 1;
             }
@@ -504,10 +520,6 @@ bool proformelliptical::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *proformelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *proformelliptical::VirtualDevice() { return VirtualTreadmill(); }
-
 void proformelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
@@ -516,3 +528,5 @@ void proformelliptical::controllerStateChanged(QLowEnergyController::ControllerS
         m_control->connectToDevice();
     }
 }
+
+uint16_t proformelliptical::watts() { return m_watt.value(); }

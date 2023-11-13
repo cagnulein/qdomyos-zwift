@@ -1,6 +1,6 @@
 #include "schwinnic4bike.h"
 
-#include "ios/lockscreen.h"
+
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -11,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -319,10 +320,19 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (isnan(res)) {
         res = 0;
     }
-    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool())
+
+    bool schwinn_bike_resistance_v2 =
+        settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+    bool schwinn_bike_resistance_v3 =
+        settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
+
+    if (settings.value(QZSettings::schwinn_bike_resistance, QZSettings::default_schwinn_bike_resistance).toBool() || schwinn_bike_resistance_v2 ||
+        schwinn_bike_resistance_v3) {
         resistance = pelotonToBikeResistance(res);
-    else
+    } else {
         resistance = res;
+    }
+
     if (qFabs(resistance - Resistance.value()) >=
         (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
             .toInt()) {
@@ -341,19 +351,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }
@@ -371,6 +370,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
 #endif
 
+    emit debug(QStringLiteral("Current Peloton Resistance: ") + QString::number(m_pelotonResistance.value()));
     emit debug(QStringLiteral("Current Calculated Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -408,7 +408,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -442,10 +442,11 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             double bikeResistanceGain =
                 settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f)
                     .toDouble();
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -542,10 +543,6 @@ bool schwinnic4bike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *schwinnic4bike::VirtualBike() { return virtualBike; }
-
-void *schwinnic4bike::VirtualDevice() { return VirtualBike(); }
-
 uint16_t schwinnic4bike::watts() {
     if (currentCadence().value() == 0) {
         return 0;
@@ -568,7 +565,15 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
     bool schwinn_bike_resistance_v2 =
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
-    if (!schwinn_bike_resistance_v2) {
+    bool schwinn_bike_resistance_v3 =
+        settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
+    if (schwinn_bike_resistance_v3) {
+        // y = -35,3 + 1,91x + -0,0358x^2 + 4,3E-04x^3
+        if (pelotonResistance < 30)
+           return 0;
+
+        return -35.3 + 1.91 * pelotonResistance - 0.0358 * pow(pelotonResistance, 2) + 4.3E-04 * pow(pelotonResistance, 3);
+    } else if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
         if (pelotonResistance < 26)

@@ -27,9 +27,7 @@
 #include <QString>
 
 #include "rower.h"
-#include "virtualbike.h"
-#include "virtualrower.h"
-#include "virtualtreadmill.h"
+
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -39,10 +37,7 @@ class proformrower : public rower {
     Q_OBJECT
   public:
     proformrower(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     const resistance_t max_resistance = 24;
@@ -57,11 +52,8 @@ class proformrower : public rower {
     void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
-    virtualrower *virtualRower = nullptr;
     uint8_t counterPoll = 0;
-    uint16_t watts();
+    uint16_t watts() override;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

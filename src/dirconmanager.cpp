@@ -1,6 +1,9 @@
 #include "dirconmanager.h"
 #include <QNetworkInterface>
 #include <QSettings>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 #define DM_MACHINE_TYPE_BIKE 1
 #define DM_MACHINE_TYPE_TREADMILL 2
@@ -166,7 +169,10 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    bikeTimer.start(1000);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        bikeTimer.start(100ms);
+    else
+        bikeTimer.start(1s);
 }
 
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \

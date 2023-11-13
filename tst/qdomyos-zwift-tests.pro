@@ -20,6 +20,7 @@ SOURCES += \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
+        Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
@@ -98,6 +99,7 @@ HEADERS += \
     Devices/ProFormWiFiTreadmill/proformwifitreadmilltestdata.h \
     Devices/RenphoBike/renphobiketestdata.h \
     Devices/Rower/rowertestdata.h \
+    Devices/Schwinn170Bike/schwinn170biketestdata.h \
     Devices/SchwinnIC4Bike/schwinnic4biketestdata.h \
     Devices/Shuaa5Treadmill/shuaa5treadmilltestdata.h \
     Devices/SkandikaWiryBike/skandikawirybiketestdata.h \
@@ -122,10 +124,14 @@ HEADERS += \
     Devices/UltrasportBike/ultrasportbiketestdata.h \
     Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.h \
     Devices/YesoulBike/yesoulbiketestdata.h \
+    Devices/ZiproTreadmill/ziprotreadmilltestdata.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestsuite.h \
+    Devices/bluetoothsignalreceiver.h \
     Devices/devicediscoveryinfo.h \
     Devices/devices.h \
     Devices/iConceptBike/iconceptbiketestdata.h \
+    Devices/iConceptElliptical/iconceptellipticaltestdata.h \
+    Devices/YpooElliptical/ypooellipticaltestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h
