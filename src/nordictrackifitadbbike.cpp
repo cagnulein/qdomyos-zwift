@@ -176,7 +176,16 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     }
 }
 
-bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
+bool nordictrackifitadbbike::inclinationAvailableByHardware() { 
+    QSettings settings;
+    bool proform_studio_NTEX71021 =
+    settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
+        .toBool();
+    if(proform_studio_NTEX71021)
+        return false;   
+    else
+        return true; 
+}
 
 double nordictrackifitadbbike::getDouble(QString v) {
     QChar d = QLocale().decimalPoint();
@@ -265,8 +274,17 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
+        bool proform_studio_NTEX71021 =
+            settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
+        // only resistance
+        if(proform_studio_NTEX71021) {
+            QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
+            requestResistance = -1;
+            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;                
+        }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
+        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
             lastInclinationChanged = QDateTime::currentDateTime();
             bool nordictrack_ifit_adb_remote =
                 settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
