@@ -838,6 +838,10 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.22
             property bool proform_pro_1000_treadmill: false
             property bool saris_trainer: false
+
+            // from version 2.16.23
+            property bool proform_studio_NTEX71021: false
+            property bool nordictrack_x22i: false
         }
 
         function paddingZeros(text, limit) {
@@ -2893,6 +2897,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_studio = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("Proform Studio Bike NTEX71021")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_studio_NTEX71021
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_studio_NTEX71021 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: proformTDF10odelegate
@@ -5354,6 +5371,19 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_incline_trainer_x7i = checked; window.settings_restart_to_apply = true; }
                         }
+                        SwitchDelegate {
+                            text: qsTr("NordicTrack X22i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_x22i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; }
+                        }                        
                         SwitchDelegate {
                             id: nordictrack10Delegate
                             text: qsTr("Nordictrack 10")

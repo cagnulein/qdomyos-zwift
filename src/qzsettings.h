@@ -1905,6 +1905,12 @@ class QZSettings {
     static const QString saris_trainer;
     static constexpr bool default_saris_trainer = false;
 
+    static const QString proform_studio_NTEX71021;
+    static constexpr bool default_proform_studio_NTEX71021 = false;
+
+    static const QString nordictrack_x22i;
+    static constexpr bool default_nordictrack_x22i = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
