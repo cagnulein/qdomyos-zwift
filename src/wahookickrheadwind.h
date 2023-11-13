@@ -50,8 +50,6 @@ class wahookickrheadwind : public bluetoothdevice {
 
     bool initDone = false;
     bool initRequest = false;
-    int timeout = 0;
-    int16_t speedRequest = -1;
 
     QTimer *refresh;
 
