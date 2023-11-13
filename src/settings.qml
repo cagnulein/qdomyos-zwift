@@ -5382,7 +5382,7 @@ import QtQuick.Dialogs 1.0
                             checked: settings.nordictrack_x22i
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; }
+                            onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; settings.nordictrack_ifit_adb_remote = true; }
                         }                        
                         SwitchDelegate {
                             id: nordictrack10Delegate
