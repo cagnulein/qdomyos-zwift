@@ -392,8 +392,6 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("peloton::workoutlist_onfinish") << current_workout;
     }
     qDebug() << QStringLiteral("peloton::workoutlist_onfinish current workout id") << current_workout_id;
-
-    getPackets();
 }
 
 void peloton::summary_onfinish(QNetworkReply *reply) {
@@ -447,12 +445,6 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
         getPerformance(current_workout_id);
     } else*/
     { getRide(current_ride_id); }
-}
-
-void peloton::packets_onfinish(QNetworkReply *reply) {
-    disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::packets_onfinish);
-
-    qDebug() << reply->readAll();
 }
 
 void peloton::workout_onfinish(QNetworkReply *reply) {
@@ -1142,24 +1134,6 @@ void peloton::getWorkoutList(int num) {
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
     qDebug() << "peloton::getWorkoutList" << url;
-    QNetworkRequest request(url);
-
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
-
-    mgr->get(request);
-}
-
-void peloton::getPackets() {
-    connect(mgr, &QNetworkAccessManager::finished, this, &peloton::packets_onfinish);
-
-    if(current_workout_id.isEmpty()) {
-        return;
-    }
-
-    QUrl url(QStringLiteral("https://api.onepeloton.com/stats/workout/") + current_workout_id +
-             QStringLiteral("/packets");
-    qDebug() << "peloton::getPackets" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
