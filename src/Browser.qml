@@ -23,7 +23,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width        
 
-        url: "https://members.onepeloton.com"
+        url: "https://onepeloton.com"
         visible: true
         onLoadingChanged: {
             if (loadRequest.errorString)
