@@ -840,7 +840,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(ypooElliptical);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E")) || 
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M"))) &&
                        !nautilusElliptical && // NAUTILUS E616
                        filter) {
                 this->setLastBluetoothDevice(b);
