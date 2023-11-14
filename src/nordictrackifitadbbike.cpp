@@ -276,6 +276,10 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 
         bool proform_studio_NTEX71021 =
             settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+
         // only resistance
         if(proform_studio_NTEX71021) {
             if (nordictrack_ifit_adb_remote) {
@@ -314,9 +318,6 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
         else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
             lastInclinationChanged = QDateTime::currentDateTime();
-            bool nordictrack_ifit_adb_remote =
-                settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
-                    .toBool();
             if (nordictrack_ifit_adb_remote) {
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
