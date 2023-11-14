@@ -1207,7 +1207,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
                         ) &&
-                       !technogymmyrunTreadmill && !technogymmyrunrfcommTreadmill && filter) {
+                       !technogymmyrunTreadmill 
+#ifndef Q_OS_IOS                
+                        && !technogymmyrunrfcommTreadmill 
+#endif                
+                        && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bool technogym_myrun_treadmill_experimental =
