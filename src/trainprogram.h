@@ -90,6 +90,8 @@ class trainprogram : public QObject {
         }
         return false;
     }
+    
+    void pelotonOCRcomputeTime(QString t);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -153,8 +155,7 @@ private slots:
     double lastCurrentStepDistance = 0.0;
     QTime lastCurrentStepTime = QTime(0, 0, 0);
 
-    QUdpSocket* pelotonOCRsocket = nullptr;
-    void pelotonOCRcomputeTime(QString t);
+    QUdpSocket* pelotonOCRsocket = nullptr;    
 };
 
 #endif // TRAINPROGRAM_H

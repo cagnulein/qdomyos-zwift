@@ -757,6 +757,8 @@ class homeform : public QObject {
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
+    void browser_peloton_time_to_complete(const QString time_to_complete);
+    void browser_peloton_time_to_start(const QString time_to_start);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);

@@ -690,12 +690,11 @@ ApplicationWindow {
 
             ItemDelegate {
                 id: gpx_save
-                text: qsTr("Save GPX")
+                text: qsTr("Open Browser")
                 width: parent.width
                 onClicked: {
-                    gpx_save_clicked()
                     drawer.close()
-                    popupSaveFile.open()
+                    stackView.push("browser.qml")
                 }
             }
             ItemDelegate {

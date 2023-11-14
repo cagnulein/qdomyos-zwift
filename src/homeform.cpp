@@ -498,6 +498,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
+    QObject::connect(stack, SIGNAL(browser_peloton_time_to_complete(QString)), this, SLOT(browser_peloton_time_to_complete(QString)));
+    QObject::connect(stack, SIGNAL(browser_peloton_time_to_start(QString)), this, SLOT(browser_peloton_time_to_start(QString)));
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -5188,6 +5190,18 @@ bool homeform::getLap() {
         return false;
     }
     return true;
+}
+
+void homeform::browser_peloton_time_to_complete(const QString time_to_complete) {
+    qDebug() << QStringLiteral("browser_peloton_time_to_complete") << time_to_complete << trainingProgram;
+    if(trainingProgram)
+        trainingProgram->pelotonOCRcomputeTime(time_to_complete);
+}
+
+void homeform::browser_peloton_time_to_start(const QString time_to_start) {
+    qDebug() << QStringLiteral("browser_peloton_time_to_start") << time_to_start << trainingProgram;
+    if(trainingProgram)
+        trainingProgram->pelotonOCRcomputeTime("INTRO");
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {

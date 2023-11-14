@@ -107,5 +107,6 @@
         <file>ChartFooter.qml</file>
         <file>ChartFooterInnerJS.qml</file>
         <file>ChartFooterInnerNoJS.qml</file>
+        <file>Browser.qml</file>
     </qresource>
 </RCC>
