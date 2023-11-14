@@ -604,6 +604,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
         }
 
+        QDateTime now = QDateTime::currentDateTime();
         if (Flags.totalDistance) {
             // ignoring the distance, because it's a total life odometer
             // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
@@ -613,7 +614,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         // else
         {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -658,7 +659,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                       200.0) /
                      (60000.0 /
                       ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
         }
 
@@ -698,7 +699,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             // todo
         }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {

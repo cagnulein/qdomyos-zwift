@@ -88,12 +88,14 @@ void proformwifitreadmill::forceSpeed(double requestSpeed) {
     QString send = "{\"type\":\"set\",\"values\":{\"KPH\":\"" + QString::number(requestSpeed) + "\"}}";
     qDebug() << "forceSpeed" << send;
     websocket.sendTextMessage(send);
+    waitStatePkg = true;
 }
 
 void proformwifitreadmill::forceIncline(double requestIncline) {
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestIncline) + "\"}}";
     qDebug() << "forceIncline" << send;
     websocket.sendTextMessage(send);
+    waitStatePkg = true;
 }
 
 void proformwifitreadmill::update() {
@@ -106,14 +108,14 @@ void proformwifitreadmill::update() {
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
 
-        if (requestSpeed != -1) {
+        if (requestSpeed != -1 && waitStatePkg == false) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -100) {
+        if (requestInclination != -100 && waitStatePkg == false) {
             if (requestInclination < 0)
                 requestInclination = 0;
             // only 0.5 steps ara available
@@ -224,6 +226,8 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
+
+    waitStatePkg = false;
 
     if (watts())
         KCal +=

@@ -840,7 +840,8 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    path = getAndroidDataAppDir() + "/";
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
+    QDir().mkdir(path);
 #elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)

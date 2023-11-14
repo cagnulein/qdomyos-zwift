@@ -840,7 +840,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(ypooElliptical);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E")) || 
+                        b.name().toUpper().startsWith(QStringLiteral("NAUTILUS M"))) &&
                        !nautilusElliptical && // NAUTILUS E616
                        filter) {
                 this->setLastBluetoothDevice(b);
@@ -1207,7 +1208,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) // FTMS
                         ) &&
-                       !technogymmyrunTreadmill && filter) {
+                       !technogymmyrunTreadmill 
+#ifndef Q_OS_IOS                
+                        && !technogymmyrunrfcommTreadmill 
+#endif                
+                        && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bool technogym_myrun_treadmill_experimental =
