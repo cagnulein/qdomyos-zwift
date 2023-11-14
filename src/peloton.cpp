@@ -1158,7 +1158,7 @@ void peloton::getPackets() {
     }
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/stats/workout/") + current_workout_id +
-             QStringLiteral("/packets"));
+             QStringLiteral("/packets");
     qDebug() << "peloton::getPackets" << url;
     QNetworkRequest request(url);
 
