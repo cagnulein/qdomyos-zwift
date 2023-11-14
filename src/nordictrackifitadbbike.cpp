@@ -278,6 +278,34 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
         // only resistance
         if(proform_studio_NTEX71021) {
+            if (nordictrack_ifit_adb_remote) {
+                if (requestResistance != -100) {
+                    if (requestResistance != currentResistance().value()) {
+                        int x1 = 950;
+                        int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
+                        int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
+
+                        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
+                                      QString::number(x1) + " " + QString::number(y2) + " 200";
+                        qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                                                  "sendCommand", "(Ljava/lang/String;)V",
+                                                                  command.object<jstring>());
+#elif defined(Q_OS_WIN)
+                        if (logcatAdbThread)
+                            logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+                        h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+                    }
+                }
+
+                requestResistance = -1;
+            }            
             QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
             requestResistance = -1;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
