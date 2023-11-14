@@ -5193,15 +5193,15 @@ bool homeform::getLap() {
 }
 
 void homeform::browser_peloton_time_to_complete(const QString time_to_complete) {
-    qDebug() << QStringLiteral("browser_peloton_time_to_complete") << time_to_complete << trainingProgram;
-    if(trainingProgram)
-        trainingProgram->pelotonOCRcomputeTime(time_to_complete);
+    qDebug() << QStringLiteral("browser_peloton_time_to_complete") << time_to_complete << trainProgram;
+    if(trainProgram)
+        trainProgram->pelotonOCRcomputeTime(time_to_complete);
 }
 
 void homeform::browser_peloton_time_to_start(const QString time_to_start) {
-    qDebug() << QStringLiteral("browser_peloton_time_to_start") << time_to_start << trainingProgram;
-    if(trainingProgram)
-        trainingProgram->pelotonOCRcomputeTime("INTRO");
+    qDebug() << QStringLiteral("browser_peloton_time_to_start") << time_to_start << trainProgram;
+    if(trainProgram)
+        trainProgram->pelotonOCRcomputeTime("INTRO");
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
