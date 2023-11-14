@@ -694,7 +694,7 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     drawer.close()
-                    stackView.push("browser.qml")
+                    stackView.push("Browser.qml")
                 }
             }
             ItemDelegate {
