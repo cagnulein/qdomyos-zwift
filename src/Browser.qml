@@ -8,8 +8,8 @@ import QtWebView 1.1
 Item {
     id: column1
     
-    signal browser_peloton_time_to_complete(time_to_complete)
-    signal browser_peloton_time_to_start(time_to_start)
+    signal browser_peloton_time_to_complete(string time_to_complete)
+    signal browser_peloton_time_to_start(string time_to_start)
 
     Settings {
         id: settings
