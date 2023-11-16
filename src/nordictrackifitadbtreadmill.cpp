@@ -254,30 +254,33 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 #endif
                 requestSpeed = -1;
             } else if (requestInclination != -100) {
-                int x1 = 75;
-                int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
-                // set speed slider to target position
-                int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 29.9);
+                double inc = qRound(requestInclination / 0.5) * 0.5;
+                if(inc != currentInclination().value() {
+                    requestInclination = inc;
+                    int x1 = 75;
+                    int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
+                    // set speed slider to target position
+                    int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 29.9);
 
-                if(nordictrack_x22i) {
-                    x1 = 75;
-                    y1Inclination = (int) (785 - (11.304 * (currentInclination().value() + 6)));
-                    y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 11.304);
-                }
+                    if(nordictrack_x22i) {
+                        x1 = 75;
+                        y1Inclination = (int) (785 - (11.304 * (currentInclination().value() + 6)));
+                        y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 11.304);
+                    }
 
-                lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
-                              QString::number(x1) + " " + QString::number(y2) + " 200";
-                qDebug() << " >> " + lastCommand;
+                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
+                                QString::number(x1) + " " + QString::number(y2) + " 200";
+                    qDebug() << " >> " + lastCommand;
 #ifdef Q_OS_ANDROID
-                QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                          "(Ljava/lang/String;)V", command.object<jstring>());
+                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                            "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-                h->adb_sendcommand(lastCommand.toStdString().c_str());
+                    h->adb_sendcommand(lastCommand.toStdString().c_str());
 #endif
 #endif
-
+                }
                 requestInclination = -100;
             }
         }
