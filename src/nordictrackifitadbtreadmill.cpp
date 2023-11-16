@@ -255,7 +255,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 requestSpeed = -1;
             } else if (requestInclination != -100) {
                 double inc = qRound(requestInclination / 0.5) * 0.5;
-                if(inc != currentInclination().value() {
+                if(inc != currentInclination().value()) {
                     requestInclination = inc;
                     int x1 = 75;
                     int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
