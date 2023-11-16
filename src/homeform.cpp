@@ -539,6 +539,18 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         }
     }
 
+#ifdef Q_OS_ANDROID
+    QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
+    QDir().mkdir(getWritableAppDir());
+    QDir().mkdir(getProfileDir());
+    while (itAndroid.hasNext()) {
+        qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
+        if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
+            QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+        }
+    }
+#endif
+
     m_speech.setLocale(QLocale::English);
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
