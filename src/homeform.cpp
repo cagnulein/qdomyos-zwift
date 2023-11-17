@@ -5205,12 +5205,12 @@ bool homeform::getLap() {
 
 void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
 #ifdef Q_OS_ANDROID    
-    QString filename = file.fileName();
+    QString filename = file->fileName();
     int substr = filename.lastIndexOf("%2F");
     if(substr) {
         filename = filename.mid(substr + 3);
     }
-    bool copy = file.copy(getWritableAppDir() + subfolder + "/" + filename);
+    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
     qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
 }
