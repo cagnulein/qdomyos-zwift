@@ -20,6 +20,7 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
+    signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
@@ -613,6 +614,7 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
                     stackView.push("profiles.qml")
+                    stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                     drawer.close()
                 }
             }

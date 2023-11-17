@@ -8,9 +8,29 @@ import Qt.labs.settings 1.0
 
 ColumnLayout {
 
+    anchors.top: parent.top
+    anchors.fill: parent
+
+    signal profile_open_clicked(url name)
+
     Settings {
         id: settings
         property string profile_name: "default"
+    }
+
+    FileDialog {
+        id: fileDialogTrainProgram
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
+            profile_open_clicked(fileDialogTrainProgram.fileUrl)
+            fileDialogTrainProgram.close()
+        }
+        onRejected: {
+            console.log("Canceled")
+            fileDialogTrainProgram.close()
+        }
     }
 
     MessageDialog {
@@ -181,6 +201,21 @@ ColumnLayout {
                     }
                 }
             }
+        }
+    }
+
+    Button {
+        id: searchButton
+        height: 50
+        width: parent.width
+        text: "Other folders"
+        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        onClicked: {
+            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+            fileDialogTrainProgram.visible = true
+        }
+        anchors {
+            bottom: parent.bottom
         }
     }
 }
