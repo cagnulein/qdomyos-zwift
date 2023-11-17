@@ -5206,6 +5206,15 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+
+    QString filename = file.fileName();
+    int substr = filename.lastIndexOf("%2F");
+    if(substr) {
+        filename = filename.mid(substr + 3);
+    }
+    bool copy = file.copy(getWritableAppDir() + "training/" + filename);
+    qDebug() << "copy" << getWritableAppDir() + "training/" + filename << copy;
+
     qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
