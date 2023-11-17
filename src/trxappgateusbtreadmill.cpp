@@ -227,7 +227,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     qDebug() << "actual lastPacket" << lastPacket.toHex(' ');
 
-    if(newValue.length() < 18 && lastPacket.at(0) != 0xf0) {
+    if((newValue.length() < 18 && lastPacket.at(0) != 0xf0) || lastPacket.length() > 19) {
         lastPacket.clear();
         return;
     }
