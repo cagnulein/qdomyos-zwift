@@ -5213,16 +5213,13 @@ bool homeform::getLap() {
 
 void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
 #ifdef Q_OS_ANDROID    
-    // Android 14 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
-        QString filename = file->fileName();
-        int substr = filename.lastIndexOf("%2F");
-        if(substr) {
-            filename = filename.mid(substr + 3);
-        }
-        bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
-        qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
+    QString filename = file->fileName();
+    int substr = filename.lastIndexOf("%2F");
+    if(substr) {
+        filename = filename.mid(substr + 3);
     }
+    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
+    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
 }
 
