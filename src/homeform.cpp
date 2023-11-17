@@ -541,13 +541,16 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
-    QDir().mkdir(getWritableAppDir());
-    QDir().mkdir(getProfileDir());
-    while (itAndroid.hasNext()) {
-        qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
-        if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
-            QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+    // Android 14 restrics access to /Android/data folder
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+        QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
+        QDir().mkdir(getWritableAppDir());
+        QDir().mkdir(getProfileDir());
+        while (itAndroid.hasNext()) {
+            qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
+            if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
+                QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+            }
         }
     }
 #endif
@@ -853,8 +856,13 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
-    QDir().mkdir(path);
+    // Android 14 restrics access to /Android/data folder
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
+        QDir().mkdir(path);
+    } else {
+        path = getAndroidDataAppDir() + "/";
+    }
 #elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
@@ -5205,13 +5213,16 @@ bool homeform::getLap() {
 
 void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
 #ifdef Q_OS_ANDROID    
-    QString filename = file->fileName();
-    int substr = filename.lastIndexOf("%2F");
-    if(substr) {
-        filename = filename.mid(substr + 3);
+    // Android 14 restrics access to /Android/data folder
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+        QString filename = file->fileName();
+        int substr = filename.lastIndexOf("%2F");
+        if(substr) {
+            filename = filename.mid(substr + 3);
+        }
+        bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
+        qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
     }
-    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
-    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
 }
 
