@@ -984,7 +984,8 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::DKN_MOTION;
             qDebug() << QStringLiteral("DKN MOTION bike found");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("FITHIWAY"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FITHIWAY")) ||
+                    device.name().toUpper().startsWith(QStringLiteral("FIT HI WAY"))) {
             bike_type = TYPE::FITHIWAY;
             qDebug() << QStringLiteral("FITHIWAY bike found");
         }
