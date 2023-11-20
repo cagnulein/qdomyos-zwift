@@ -426,6 +426,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString ftms_bike = settings.value(QZSettings::ftms_bike, QZSettings::default_ftms_bike).toString();
     QString ftms_treadmill = settings.value(QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill).toString();
     bool saris_trainer = settings.value(QZSettings::saris_trainer, QZSettings::default_saris_trainer).toBool();    
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -824,7 +825,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(domyosElliptical);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) && !ypooElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
+                        (b.name().startsWith(QStringLiteral("FS-")) && iconsole_elliptical)) && !ypooElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 ypooElliptical =
@@ -1992,7 +1994,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 fitPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(fitPlusBike);
-            } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
+            } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')')) ||

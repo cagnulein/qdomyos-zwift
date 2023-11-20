@@ -842,6 +842,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.23
             property bool proform_studio_NTEX71021: false
             property bool nordictrack_x22i: false
+
+            // from version 2.16.25
+            property bool iconsole_elliptical: false
         }
 
         function paddingZeros(text, limit) {
@@ -6625,6 +6628,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.hertz_xr_770 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("iConsole Elliptical")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconsole_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
+                    }                    
                 }
             }
 

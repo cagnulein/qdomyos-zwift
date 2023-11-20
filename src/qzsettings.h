@@ -1911,6 +1911,9 @@ class QZSettings {
     static const QString nordictrack_x22i;
     static constexpr bool default_nordictrack_x22i = false;
 
+    static const QString iconsole_elliptical;
+    static constexpr bool default_iconsole_elliptical = false;    
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
