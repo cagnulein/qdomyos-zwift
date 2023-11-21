@@ -605,6 +605,28 @@ void proformrower::btinit() {
         uint8_t noOpData7_proform_rower_sport_rl[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x14, 0x15, 0x02, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData8_proform_rower_sport_rl[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x4a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        uint8_t start1[] = {
+            0xfe, 0x02, 0x20, 0x03
+        };
+        uint8_t start2[] = {
+            0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x14, 0x1c, 
+            0x02, 0x09, 0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 
+            0x00, 0x00, 0x80, 0x30
+        };
+        uint8_t start3[] = {
+            0xff, 0x0e, 0x2a, 0x00, 0x00, 0x6c, 0x20, 0x58, 
+            0x02, 0x01, 0xb4, 0x00, 0x58, 0x02, 0x00, 0xa4, 
+            0x00, 0x00, 0x00, 0x00
+        };
+        uint8_t start4[] = {
+            0xfe, 0x02, 0x0f, 0x02
+        };
+        uint8_t start5[] = {
+            0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x14, 0x0b, 
+            0x02, 0x02, 0x04, 0x10, 0x76, 0x01, 0x0a, 0x00, 
+            0xb8, 0x00, 0x00, 0x00
+        };
+
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
@@ -662,6 +684,16 @@ void proformrower::btinit() {
             QThread::msleep(400);       
             writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
             QThread::msleep(400);     
+            writeCharacteristic(start1, sizeof(start1), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(start2, sizeof(start2), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(start3, sizeof(start3), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(start4, sizeof(start4), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(start5, sizeof(start5), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
         } else {
             writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
             QThread::msleep(400);
