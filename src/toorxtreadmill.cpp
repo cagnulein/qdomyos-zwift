@@ -21,7 +21,7 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")) || 
-        b.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) {
+        device.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) {
         bluetoothDevice = device;
 
         // Create a discovery agent and connect to its signals
