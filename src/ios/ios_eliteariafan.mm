@@ -1,6 +1,6 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@interface ios_eliteariafan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
+@interface ios_internal_eliteariafan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 @property (strong, nonatomic) CBCentralManager *centralManager;
 @property (strong, nonatomic) CBPeripheral *connectedPeripheral;
@@ -10,7 +10,7 @@
 
 @end
 
-@implementation ios_eliteariafan
+@implementation ios_internal_eliteariafan
 
 - (instancetype)init {
     self = [super init];
