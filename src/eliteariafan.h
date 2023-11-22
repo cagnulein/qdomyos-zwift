@@ -17,6 +17,9 @@
 #else
 #include <QtGui/qguiapplication.h>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/ios_eliteariafan.h"
+#endif
 #include <QtCore/qlist.h>
 #include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
@@ -51,6 +54,11 @@ class eliteariafan : public bluetoothdevice {
     bool initRequest = false;
 
     QTimer *refresh;
+
+#ifdef Q_OS_IOS
+    ios_eliteariafan* iOS_EliteAriaFan = nullptr;
+#endif
+
 
   signals:
     void disconnected();

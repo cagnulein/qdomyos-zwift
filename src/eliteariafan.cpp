@@ -13,15 +13,19 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
+// this module on iOS is completely handled from the ObjectiveC module in order to test if it's more stable than the Qt Bluetooth Implementation (crash midride)
+
 eliteariafan::eliteariafan(bluetoothdevice *parentDevice) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     this->parentDevice = parentDevice;
 
+#ifndef Q_OS_IOS
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &eliteariafan::update);
     refresh->start(1000ms);
+#endif
 }
 
 void eliteariafan::update() {
@@ -67,10 +71,14 @@ void eliteariafan::fanSpeedRequest(uint8_t speed) {
 
     uint16_t speed8 = (uint8_t)((double)speed * (max - min) / 100.0 + min);
 
+#ifdef Q_OS_IOS
+    iOS_EliteAriaFan->setFanSpeed(speed8);
+#else
     uint8_t init10[] = {0x03, 0x01, 0x0e};
     init10[2] = speed8;
     writeCharacteristic(gattWrite1Service, &gattWrite2Characteristic, init10, sizeof(init10),
                         "forcing fan" + QString::number(speed));
+#endif                        
 }
 
 void eliteariafan::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar,
@@ -254,6 +262,10 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+
+#ifdef Q_OS_IOS
+    iOS_EliteAriaFan = new ios_eliteariafan();
+#endif               
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -290,6 +302,10 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool eliteariafan::connected() {
+#ifdef Q_OS_IOS
+    return true;
+#endif               
+
     if (!m_control) {
         return false;
     }
@@ -297,6 +313,10 @@ bool eliteariafan::connected() {
 }
 
 void eliteariafan::controllerStateChanged(QLowEnergyController::ControllerState state) {
+#ifdef Q_OS_IOS
+    return;
+#endif     
+    
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");

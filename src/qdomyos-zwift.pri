@@ -787,6 +787,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
