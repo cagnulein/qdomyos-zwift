@@ -2001,7 +2001,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          !b.name().contains('(') && !b.name().contains(')')) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
                         (b.name().startsWith(QStringLiteral("BF70")))) &&
-                       !fitshowTreadmill && filter) {
+                       !fitshowTreadmill && !iconsole_elliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
