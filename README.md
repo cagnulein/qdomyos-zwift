@@ -29,14 +29,73 @@ Zwift bridge for Treadmills and Bike!
 
 ### Features
 
-1. Domyos compatible
-2. Toorx TRX Route Key compatible
-3. Echelon Connect Sport compatible
-4. Zwift compatible
-5. Create, load and save train programs
-6. Measure distance, elevation gain and watts
-7. Gpx import (with difficulty slider)
-8. Realtime Charts
+# UI Features
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Tiles Customization|X|X|X|X|Order and visibility of each tile|
+|Profiles|X|X|X|X|Different user or different fitness device profiles|
+|UI Zoom Customization|X|X|X|X||
+
+# Peloton Features
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Bike metrics on the peloton app|X||X|||
+|Power zone with auto resistance|X|||||
+|Peloton real-time resistance conversion|X||X||with the possibility to customize it|
+|Peloton real-time auto-resistance|X||X||with the possibility to customize it|
+|Peloton auto speed and auto inclination||X|X||with the possibility to customize it|
+
+# Heart Rate Features
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Heart Rate support|X|X|X|X|Apple Watch, ANT+ devices and Bluetooth devices|
+|Heart Rate Zones Customizations|X|X|X|X||
+|Ability to calculate Wattage from HR and Cadence|X||||for the bikes that doesn't have a power sensor|
+
+# 3rd Apps Compatibility
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Zwift Compatibility|X|X|X|X||
+|Zwift Auto resistance|X||X|||
+|Zwift Auto inclination and speed||X|X||https://www.youtube.com/watch?v=KTQ2n7yeDbo|
+|Wahoo RGT Compatibility|X|X|X|X||
+|VzFit Compatibility|X|X|X|X||
+|Rouvy Compatibility|X|X|X|X||
+|IFIT app Compatibility|X|||||
+|Echelon app Compatibility|X|||||
+|Wahoo Dircon Compatibility|X|X|X|X|in order to send data to Zwift or RGT with Wifi only!|
+|One device only support for Zwift and Wahoo RGT|X|X|X|X|using Wahoo Dircon https://www.youtube.com/watch?v=gYYUXNWFAok|
+
+# Training Program
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Builtin video support (Kinomap like)|X|X|X|X|Files could be local or on the cloud!|
+|GPX auto following|X|X|X|X||
+|2D/3D maps for GPX|X|X|X|X||
+|ZWO (Zwift workout file) compatibility|X|X|X|X||
+|XML Workout file compatibility|X|X|X|X||
+|Auto follow workout based on your heart rate|X|X|X|X||
+|Random workout|X|X|X|X||
+
+
+# Statistics 
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|E-Mail report|X|X|X|X|at the end of the workout|
+|Strava integration|X|X|X|X|press stop at the end of the workout to auto upload it|
+
+# Misc
+
+|Feature|Bike|Treadmill|Elliptical|Rower|Notes|
+|:---|:---:|:---:|:---:|:---:|---:|
+|Resistance shifting with bluetooth remote|X||X|||
+|TTS support|X|X|X|X||
+
 
 ### Installation 
 
