@@ -2211,6 +2211,16 @@ void bluetooth::connectedAndDiscovered() {
                     f->deviceDiscovered(b);
                     wahookickrHeadWind.append(f);
                     break;
+                } else if (((b.name().toUpper().startsWith("ARIA")) && b.name().length() == 4) && !fitmetria_fanfit_isconnected(b.name())) {
+                    eliteariafan *f = new eliteariafan(this->device());
+
+                    connect(f, &eliteariafan::debug, this, &bluetooth::debug);
+
+                    connect(this->device(), SIGNAL(fanSpeedChanged(uint8_t)), f, SLOT(fanSpeedRequest(uint8_t)));
+
+                    f->deviceDiscovered(b);
+                    eliteAriaFan.append(f);
+                    break;
                 }
             }
         }
@@ -2883,6 +2893,14 @@ void bluetooth::restart() {
         }
         wahookickrHeadWind.clear();
     }
+    if (eliteAriaFan.length()) {
+
+        foreach (eliteariafan *f, eliteAriaFan) {
+            delete f;
+            f = nullptr;
+        }
+        eliteAriaFan.clear();
+    }
     if (cadenceSensor) {
 
         // heartRateBelt->disconnectBluetooth(); // to test
@@ -3208,6 +3226,10 @@ bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
             return true;
     }
     foreach (wahookickrheadwind *f, wahookickrHeadWind) {
+        if (!name.compare(f->bluetoothDevice.name()))
+            return true;
+    }
+    foreach (eliteariafan *f, eliteAriaFan) {
         if (!name.compare(f->bluetoothDevice.name()))
             return true;
     }

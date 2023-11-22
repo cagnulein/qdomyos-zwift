@@ -75,6 +75,7 @@ SOURCES += \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
+    $$PWD/eliteariafan.cpp \
    $$PWD/fakerower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
@@ -283,6 +284,7 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+    $$PWD/eliteariafan.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
     virtualdevice.h \
