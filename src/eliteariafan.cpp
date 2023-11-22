@@ -72,7 +72,7 @@ void eliteariafan::fanSpeedRequest(uint8_t speed) {
     uint16_t speed8 = (uint8_t)((double)speed * (max - min) / 100.0 + min);
 
 #ifdef Q_OS_IOS
-    iOS_EliteAriaFan->setFanSpeed(speed8);
+    iOS_EliteAriaFan->fanSpeedRequest(speed8);
 #else
     uint8_t init10[] = {0x03, 0x01, 0x0e};
     init10[2] = speed8;
