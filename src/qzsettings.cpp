@@ -219,6 +219,7 @@ const QString QZSettings::pafers_treadmill = QStringLiteral("pafers_treadmill");
 const QString QZSettings::yesoul_peloton_formula = QStringLiteral("yesoul_peloton_formula");
 const QString QZSettings::nordictrack_10_treadmill = QStringLiteral("nordictrack_10_treadmill");
 const QString QZSettings::nordictrack_t65s_treadmill = QStringLiteral("nordictrack_t65s_treadmill");
+const QString QZSettings::nordictrack_z1300i_treadmill = QStringLiteral("nordictrack_z1300i_treadmill");
 // const QString QZSettings:: proform_treadmill_995i = QStringLiteral("proform_treadmill_995i");
 //
 const QString QZSettings::toorx_3_0 = QStringLiteral("toorx_3_0");
@@ -866,6 +867,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::yesoul_peloton_formula, QZSettings::default_yesoul_peloton_formula},
     {QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill},
     {QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill},
+    {QZSettings::nordictrack_z1300i_treadmill, QZSettings::default_nordictrack_z1300i_treadmill},
     {QZSettings::toorx_3_0, QZSettings::default_toorx_3_0},
     {QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo},
     {QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill},

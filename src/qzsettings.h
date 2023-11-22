@@ -675,6 +675,9 @@ class QZSettings {
     static const QString nordictrack_t65s_treadmill;
     static constexpr bool default_nordictrack_t65s_treadmill = false;
 
+    static const QString nordictrack_z1300i_treadmill;
+    static constexpr bool default_nordictrack_z1300i_treadmill = false;
+
     // static const QString proform_treadmill_995i;
     // static constexpr bool default_proform_treadmill_995i = false;
 
@@ -1912,7 +1915,7 @@ class QZSettings {
     static constexpr bool default_nordictrack_x22i = false;
 
     static const QString iconsole_elliptical;
-    static constexpr bool default_iconsole_elliptical = false;    
+    static constexpr bool default_iconsole_elliptical = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
