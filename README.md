@@ -7,18 +7,25 @@ Zwift bridge for Treadmills and Bike!
 [<img src="docs/img/app_store.png">](https://apps.apple.com/app/id1543684531?fbclid=IwAR10H6y3mEgwkTlGJON3e8voYOh2wt3kLFOpFzoIXaYZ_N0y0pDvKxHMUaM)
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-![UI](docs/img/treadmill-bridge-schema.png)
-
-[![Video](https://img.youtube.com/vi/GgG3dMhmo2Y/0.jpg)](https://www.youtube.com/watch?v=GgG3dMhmo2Y)
-
-![UI](docs/img/ui.png)
-![UI](docs/img/realtime-chart.png)
-
-UI on Linux
-
-![UI](docs/img/ui-mac.png)
-
-UI on MacOS
+<table>
+<tr>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot1.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot2.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot3.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot4.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  <td>
+<img src="icons/AppScreen/iOS%20Phones%20-%206.5_/screenshot5.jpeg" style="height: 400px !important; box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+    </td>
+  </tr>
+</table>
 
 ### Features
 
@@ -30,8 +37,6 @@ UI on MacOS
 6. Measure distance, elevation gain and watts
 7. Gpx import (with difficulty slider)
 8. Realtime Charts
-
-![First Success](docs/img/first_success.jpg)
 
 ### Installation 
 
