@@ -266,9 +266,11 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     iOS_EliteAriaFan = new lockscreen();
     iOS_EliteAriaFan->eliteAriaFan();
     return;
+#endif
 #endif
     {
         bluetoothDevice = device;
