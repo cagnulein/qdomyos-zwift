@@ -13,3 +13,6 @@
 	path = tst/googletest
 	url = https://github.com/google/googletest.git
 	branch = tags/release-1.12.1
+[submodule "src/qthttpserver"]
+	path = src/qthttpserver
+	url = https://github.com/qt-labs/qthttpserver
