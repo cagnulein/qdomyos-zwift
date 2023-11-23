@@ -136,6 +136,9 @@ public class FloatingWindowGFG extends Service {
                   floatWindowLayoutParam.x = sharedPreferences.getInt(PREF_NAME_X, floatWindowLayoutParam.x);
                   floatWindowLayoutParam.y = sharedPreferences.getInt(PREF_NAME_Y, floatWindowLayoutParam.y);
 
+			// Set the alpha for the floatView
+			floatView.setAlpha(Float.valueOf(FloatingHandler._alpha) / 100.0f); /				  
+
 		  // The ViewGroup that inflates the floating_layout.xml is
 		  // added to the WindowManager with all the parameters
 		  windowManager.addView(floatView, floatWindowLayoutParam);
