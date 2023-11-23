@@ -646,6 +646,8 @@ jobs:
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          sed -i '$s/{/,\n   "android-extra-libs": "../android_openssl/no-asm/latest/arm/libcrypto_1_1.so,../android_openssl/no-asm/latest/arm/libssl_1_1.so,../android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,../android_openssl/no-asm/latest/arm64/libssl_1_1.so,../android_openssl/no-asm/latest/x86/libcrypto_1_1.so,../android_openssl/no-asm/latest/x86/libssl_1_1.so,../android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,../android_openssl/no-asm/latest/x86_64/libssl_1_1.so"\n}/' android-qdomyos-zwift-deployment-settings.json
+          cat android-qdomyos-zwift-deployment-settings.json
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
