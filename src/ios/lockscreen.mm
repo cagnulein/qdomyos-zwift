@@ -9,6 +9,7 @@
 #include "ios/lockscreen.h"
 #include <QDebug>
 #include "ios/AdbClient.h"
+#include "ios/ios_eliteariafan.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -25,6 +26,8 @@ static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
+
+static iOS_EliteAriaFan* ios_eliteAriaFan = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -284,5 +287,15 @@ void lockscreen::adb_sendcommand(const char* command) {
         qDebug() << result;
 
     }];
+}
+
+void lockscreen::eliteAriaFan() {
+    ios_eliteAriaFan = [[iOS_EliteAriaFan alloc] init];
+}
+
+void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
+    if(ios_eliteAriaFan) {
+        [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
 }
 #endif

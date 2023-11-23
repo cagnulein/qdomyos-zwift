@@ -1,4 +1,5 @@
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "ios_eliteariafan.h"
 
 @interface ios_internal_eliteariafan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 

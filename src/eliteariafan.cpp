@@ -73,7 +73,7 @@ void eliteariafan::fanSpeedRequest(uint8_t speed) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    iOS_EliteAriaFan->fanSpeedRequest(speed8);
+    iOS_EliteAriaFan->eliteAriaFan_fanSpeedRequest(speed8);
 #endif
 #else
     uint8_t init10[] = {0x03, 0x01, 0x0e};
@@ -266,7 +266,7 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
 
 #ifdef Q_OS_IOS
-    iOS_EliteAriaFan = new ios_eliteariafan();
+    iOS_EliteAriaFan = new lockscreen();
 #endif               
     {
         bluetoothDevice = device;

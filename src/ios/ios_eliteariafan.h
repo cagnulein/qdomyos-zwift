@@ -1,20 +1,20 @@
 #ifndef IOSELITEARIAFAN_H
 #define IOSELITEARIAFAN_H
 
-class ios_eliteariafan {
-  public:
-    ios_eliteariafan() {
-        m_control = [[ios_interal_eliteariafan alloc] init];
-    }
+#import <Foundation/Foundation.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
-    void fanSpeedRequest(unsigned char speed) {
-        if (m_control != nullptr) {
-            m_control->setFanSpeed(speed);
-        }
-    }
+@interface iOS_EliteAriaFan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-   private:
-    ios_interal_eliteariafan *m_control = nullptr;
-};
+@property (strong, nonatomic) CBCentralManager *centralManager;
+@property (strong, nonatomic) CBPeripheral *connectedPeripheral;
+@property (strong, nonatomic) NSString *targetDeviceName;
+@property (strong, nonatomic) CBCharacteristic *characteristicUUID1;
+@property (strong, nonatomic) CBCharacteristic *characteristicUUID2;
+
+- (instancetype)init;
+- (void)fanSpeedRequest:(uint8_t)speed;
+
+@end
 
 #endif // IOSELITEARIAFAN_H
