@@ -267,7 +267,9 @@ void eliteariafan::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 #ifdef Q_OS_IOS
     iOS_EliteAriaFan = new lockscreen();
-#endif               
+    iOS_EliteAriaFan->eliteAriaFan();
+    return;
+#endif
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

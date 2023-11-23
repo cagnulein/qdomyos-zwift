@@ -4,7 +4,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
-@interface iOS_EliteAriaFan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
+@interface ios_eliteariafan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 @property (strong, nonatomic) CBCentralManager *centralManager;
 @property (strong, nonatomic) CBPeripheral *connectedPeripheral;

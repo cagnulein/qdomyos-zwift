@@ -1,17 +1,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "ios_eliteariafan.h"
 
-@interface ios_internal_eliteariafan : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
-
-@property (strong, nonatomic) CBCentralManager *centralManager;
-@property (strong, nonatomic) CBPeripheral *connectedPeripheral;
-@property (strong, nonatomic) NSString *targetDeviceName;
-@property (strong, nonatomic) CBCharacteristic *characteristicUUID1;
-@property (strong, nonatomic) CBCharacteristic *characteristicUUID2;
-
-@end
-
-@implementation ios_internal_eliteariafan
+@implementation ios_eliteariafan
 
 - (instancetype)init {
     self = [super init];
@@ -70,6 +60,8 @@
         uint8_t init2[] = {0x05, 0x00};
         NSData *dataToSend2 = [NSData dataWithBytes:init2 length:sizeof(init2)];
         [peripheral writeValue:dataToSend2 forCharacteristic:self.characteristicUUID2 type:CBCharacteristicWriteWithResponse];
+        
+        [self fanSpeedRequest:0];
     }
 }
 

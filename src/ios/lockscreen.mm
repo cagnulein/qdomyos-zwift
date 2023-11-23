@@ -27,7 +27,7 @@ static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
 
-static iOS_EliteAriaFan* ios_eliteAriaFan = nil;
+static ios_eliteariafan* ios_eliteAriaFan = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -290,7 +290,7 @@ void lockscreen::adb_sendcommand(const char* command) {
 }
 
 void lockscreen::eliteAriaFan() {
-    ios_eliteAriaFan = [[iOS_EliteAriaFan alloc] init];
+    ios_eliteAriaFan = [[ios_eliteariafan alloc] init];
 }
 
 void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
