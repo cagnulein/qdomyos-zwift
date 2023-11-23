@@ -223,28 +223,43 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    lastPacket = newValue;
-    if ((newValue.length() != 19 && treadmill_type != TYPE::DKN_2) ||
-        (newValue.length() != 18 && treadmill_type == TYPE::DKN_2)) {
+    lastPacket.append(newValue);
+
+    qDebug() << "actual lastPacket" << lastPacket.toHex(' ');
+
+    // Focus Fitness Senator 54 iplus #1790
+    if((newValue.length() < 18 && lastPacket.length() > 2 && (lastPacket.at(0) != 0xf0 || lastPacket.at(1) != 0xb2)) || lastPacket.length() > 19) {
+        if(lastPacket.length() == 3 && lastPacket.at(1) == 0xf0 && lastPacket.at(2) == 0xb2) {
+            lastPacket.clear();
+            lastPacket.append(0xf0);
+            lastPacket.append(0xb2);
+            return;
+        }
+        lastPacket.clear();
+        return;
+    }
+
+    if ((lastPacket.length() != 19 && treadmill_type != TYPE::DKN_2) ||
+        (lastPacket.length() != 18 && treadmill_type == TYPE::DKN_2)) {
         return;
     }
 
     if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::IRUNNING_2) {
-        if (newValue.at(15) == 0x03 && newValue.at(16) == 0x02 && readyToStart == false) {
+        if (lastPacket.at(15) == 0x03 && lastPacket.at(16) == 0x02 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
         }
     } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::REEBOK_2 && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2) {
-        if (newValue.at(16) == 0x04 && newValue.at(17) == 0x03 && readyToStart == false) {
+        if (lastPacket.at(16) == 0x04 && lastPacket.at(17) == 0x03 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
         }
     }
 
-    double speed = GetSpeedFromPacket(newValue);
-    double incline = GetInclinationFromPacket(newValue);
-    double kcal = GetKcalFromPacket(newValue);
-    double distance = GetDistanceFromPacket(newValue);
+    double speed = GetSpeedFromPacket(lastPacket);
+    double incline = GetInclinationFromPacket(lastPacket);
+    double kcal = GetKcalFromPacket(lastPacket);
+    double distance = GetDistanceFromPacket(lastPacket);
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -272,7 +287,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Elapsed from the treadmill (not used): ") +
-               QString::number(GetElapsedFromPacket(newValue)));
+               QString::number(GetElapsedFromPacket(lastPacket)));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -285,6 +300,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Distance = distance;
 
     firstCharChanged = false;
+
+    lastPacket.clear();
 }
 
 uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(const QByteArray &packet) {

@@ -63,6 +63,10 @@ class lockscreen {
     //adb
     void adb_connect(const char* IP);
     void adb_sendcommand(const char* command);
+    
+    // Elite Aria Fan
+    void eliteAriaFan();
+    void eliteAriaFan_fanSpeedRequest(unsigned char speed);
 };
 
 #endif // LOCKSCREEN_H

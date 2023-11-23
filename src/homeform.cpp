@@ -474,6 +474,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
@@ -540,6 +541,21 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
     }
+
+#ifdef Q_OS_ANDROID
+    // Android 14 restrics access to /Android/data folder
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+        QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
+        QDir().mkdir(getWritableAppDir());
+        QDir().mkdir(getProfileDir());
+        while (itAndroid.hasNext()) {
+            qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
+            if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
+                QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+            }
+        }
+    }
+#endif
 
     m_speech.setLocale(QLocale::English);
 
@@ -842,8 +858,13 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
-    QDir().mkdir(path);
+    // Android 14 restrics access to /Android/data folder
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
+        QDir().mkdir(path);
+    } else {
+        path = getAndroidDataAppDir() + "/";
+    }
 #elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
@@ -5204,10 +5225,29 @@ void homeform::browser_peloton_time_to_start(const QString time_to_start) {
         trainProgram->pelotonOCRcomputeTime("INTRO");
 }
 
+void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
+#ifdef Q_OS_ANDROID    
+    QString filename = file->fileName();
+    int substr = filename.lastIndexOf("%2F");
+    if(substr) {
+        filename = filename.mid(substr + 3);
+    }
+    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
+    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
+#endif
+}
+
+void homeform::profile_open_clicked(const QUrl &fileName) {
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(&file, "profiles");
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(&file, "training");
+
     qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
@@ -5343,6 +5383,8 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(&file, "gpx");
+
     qDebug() << file.fileName();
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
@@ -6341,10 +6383,14 @@ void homeform::saveSettings(const QUrl &filename) {
 }
 
 void homeform::loadSettings(const QUrl &filename) {
-    qDebug() << "homeform::loadSettings" << filename;
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
+    copyAndroidContentsURI(&file, "settings");
+
+    qDebug() << "homeform::loadSettings" << file.fileName();
 
     QSettings settings;
-    QSettings settings2Load(filename.toLocalFile(), QSettings::IniFormat);
+    QSettings settings2Load(file.fileName(), QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {

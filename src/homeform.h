@@ -694,6 +694,8 @@ class homeform : public QObject {
 
     static quint64 cryptoKeySettingsProfiles();
 
+    static void copyAndroidContentsURI(QFile* file, QString subfolder);
+
     int16_t fanOverride = 0;
 
     void update();
@@ -760,6 +762,7 @@ class homeform : public QObject {
     void browser_peloton_time_to_complete(const QString time_to_complete);
     void browser_peloton_time_to_start(const QString time_to_start);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void profile_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
