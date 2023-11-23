@@ -131,7 +131,7 @@ void toorxtreadmill::update() {
                         break;
                     }
                     case 1: {
-                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x1f, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x2f, 0x01, 0x4f, 0x00, 0xb4};
                         socket->write((char *)start, sizeof(start));
                         start_phase++;
                         break;
