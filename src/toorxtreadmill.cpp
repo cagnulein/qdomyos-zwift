@@ -14,7 +14,7 @@ toorxtreadmill::toorxtreadmill() {
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &toorxtreadmill::update);
-    refresh->start(1s);
+    refresh->start(500ms);
 }
 
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -131,7 +131,7 @@ void toorxtreadmill::update() {
                         break;
                     }
                     case 1: {
-                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x2f, 0x01, 0x4f, 0x00, 0xb4};
+                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x2f, 0x01, 0x4f, 0x00, 0xb4, 0  x00};
                         socket->write((char *)start, sizeof(start));
                         start_phase++;
                         break;
