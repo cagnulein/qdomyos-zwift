@@ -13,7 +13,7 @@ import QtQuick.Dialogs 1.0
         anchors.fill: parent
         //anchors.bottom: footerSettings.top
         //anchors.bottomMargin: footerSettings.height + 10
-        id: settingsPane        
+        id: settingsPane
 
         Settings {
             id: settings
@@ -799,7 +799,7 @@ import QtQuick.Dialogs 1.0
             property bool fakedevice_rower: false
 
             // from version 2.13.81
-            property bool proform_bike_sb: false            
+            property bool proform_bike_sb: false
 
             // from version 2.13.86
             property bool zwift_workout_ocr: false
@@ -1907,7 +1907,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }
 
                     RowLayout {
                         spacing: 10
@@ -2602,7 +2602,7 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.saris_trainer = checked; window.settings_restart_to_apply = true; }
                     }
                 }
-                
+
                 AccordionElement {
                     id: cardioFitBikeAccordion
                     title: qsTr("CardioFIT Bike Options")
@@ -2823,7 +2823,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: settings.domyos_bike_500_profile_v1 = checked
                     }
-                }                
+                }
                 AccordionElement {
                     title: qsTr("Tacx Neo Options")
                     indicatRectColor: Material.color(Material.Grey)
@@ -2982,7 +2982,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_cycle_trainer_400 = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
                     SwitchDelegate {
                         text: qsTr("Proform SB")
                         spacing: 0
@@ -5346,7 +5346,7 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0                        
+                        spacing: 0
                         SwitchDelegate {
                             id: nordictrackS25iDelegate
                             text: qsTr("Nordictrack S25i")
@@ -5386,7 +5386,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; settings.nordictrack_ifit_adb_remote = settings.nordictrack_x22i; }
-                        }                        
+                        }
                         SwitchDelegate {
                             id: nordictrack10Delegate
                             text: qsTr("Nordictrack 10")
@@ -5413,7 +5413,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.proform_pro_1000_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
                             text: qsTr("Nordictrack T6.5S v81")
@@ -5427,7 +5427,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_t65s_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
 
                         SwitchDelegate {
                             id: nordictrackT65S_83Delegate
@@ -5487,7 +5487,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
-                            text: qsTr("Proform z1300i")
+                            text: qsTr("Proform/NordicTrack z1300i")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -6174,7 +6174,7 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.eslinker_costaway = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
                     }
                 }
 
@@ -6540,7 +6540,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.toorx_bike = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
 
                     SwitchDelegate {
                         id: toorxFTMSTreadmillDelegate
@@ -6640,7 +6640,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
-                    }                    
+                    }
                 }
             }
 
@@ -6850,7 +6850,7 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_elliptical_c7_5 = checked; window.settings_restart_to_apply = true; }
                         }
-                    }                    
+                    }
 
                     AccordionElement {
                         id: soleEllipticalAccordion
@@ -8024,7 +8024,7 @@ import QtQuick.Dialogs 1.0
                                 text: "Refresh Devices List"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: refresh_bluetooth_devices_clicked();
-                            }                                                        
+                            }
 
                             SwitchDelegate {
                                 id: ss2kPelotonDelegate
