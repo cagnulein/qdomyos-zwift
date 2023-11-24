@@ -170,6 +170,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
     emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
 
@@ -207,15 +208,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
 
-        if (newvalue.length() == 18) {
-            qDebug() << QStringLiteral("let's wait for the next piece of frame");
-            lastPacket = newvalue;
-            return;
-        } else if (newvalue.length() == 17) {
-            lastPacket.append(newvalue);
-        } else {
-            qDebug() << "packet not handled!!";
-            return;
+        if(!iconsole_elliptical) {
+            if (newvalue.length() == 18) {
+                qDebug() << QStringLiteral("let's wait for the next piece of frame");
+                lastPacket = newvalue;
+                return;
+            } else if (newvalue.length() == 17) {
+                lastPacket.append(newvalue);
+            } else {
+                qDebug() << "packet not handled!!";
+                return;
+            }
         }
 
         int index = 0;
