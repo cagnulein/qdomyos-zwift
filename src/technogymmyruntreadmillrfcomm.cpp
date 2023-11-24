@@ -38,8 +38,8 @@ void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo 
         // the full discovery works but it requires 2 or more minutes to complete.
         // if you have issue finding your device, open the Technogym app, connect to your
         // treadmill, and then you should be safe to use QZ for that moment on
-        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
-        //discoveryAgent->start(QBluetoothServiceDiscoveryAgent::MinimalDiscovery);
+        //discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
+        discoveryAgent->start(QBluetoothServiceDiscoveryAgent::MinimalDiscovery);
         return;
     }
 }
@@ -61,7 +61,12 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
 #endif
 
         emit debug(QStringLiteral("Create socket"));
-        socket->connectToService(serialPortService);
+        if(!found) {
+            qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceFinished, no service found, trying workaround");
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+        } else {
+            socket->connectToService(serialPortService);
+        }
         emit debug(QStringLiteral("ConnectToService done"));
     }
 }
