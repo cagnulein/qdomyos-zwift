@@ -5487,7 +5487,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
-                            text: qsTr("Proform z1300i")
+                            text: qsTr("Proform/NordicTrack z1300i")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
