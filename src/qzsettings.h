@@ -1914,6 +1914,9 @@ class QZSettings {
     static const QString iconsole_elliptical;
     static constexpr bool default_iconsole_elliptical = false;    
 
+    static const QString autolap_distance;
+    static constexpr float default_autolap_distance = 0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
