@@ -85,6 +85,7 @@ void ypooelliptical::update() {
         return;
     }
 
+    QSettings settings;
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
     if (initRequest) {
