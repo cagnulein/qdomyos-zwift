@@ -385,18 +385,37 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             // todo
         }
     } else if (iconsole_elliptical) {
-        if (newValue.length() == 15) {
-            Speed = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 100.0;
-            Cadence = newValue.at(6);
+        if (lastPacket.length() == 15) {
+            Speed = (double)((((uint8_t)lastPacket.at(10)) << 8) | ((uint8_t)lastPacket.at(9))) / 100.0;
+            Cadence = lastPacket.at(6);
 
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));            
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
+
+#ifdef Q_OS_ANDROID
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+            else
+#endif
+            {
+
+            }
+
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
-            emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-            emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         }
     } else {
         return;
