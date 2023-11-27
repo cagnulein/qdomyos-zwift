@@ -116,9 +116,6 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
 
     refresh->start(200ms);
-#ifdef Q_OS_WIN32
-    if (!nordictrack_ifit_adb_remote)
-#endif
     {
         socket = new QUdpSocket(this);
         bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
@@ -127,7 +124,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
         connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
     }
 #ifdef Q_OS_WIN32
-    else {
+    {
         logcatAdbThread = new nordictrackifitadbtreadmillLogcatAdbThread("logcatAdbThread");
         connect(logcatAdbThread, &nordictrackifitadbtreadmillLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbtreadmill::onSpeedInclination);
