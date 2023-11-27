@@ -19,7 +19,19 @@ nordictrackifitadbbikeLogcatAdbThread::nordictrackifitadbbikeLogcatAdbThread(QSt
 void nordictrackifitadbbikeLogcatAdbThread::run() {
     QSettings settings;
     QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
+                                                "(Ljava/lang/String;Landroid/content/Context;)V",
+                                                IP.object<jstring>(), QtAndroid::androidContext().object());
+#elif defined Q_OS_WIN
     runAdbCommand("connect " + ip);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+    h->adb_connect(ip.toStdString().c_str());
+#endif
+#endif    
 
     while (1) {
         runAdbTailCommand("logcat");
@@ -43,10 +55,21 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 
     emit debug("adb << OUT " + out);
     emit debug("adb << ERR" + err);
-#else
-    QString out;
-#endif
+
     return out;
+#elif defined Q_OS_ANDROID
+    // TODO
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+    unsigned char* tailMemoryBuffer = nullptr;
+    int size = h->adb_sendcommand(command.toStdString().c_str(), tailMemoryBuffer);
+    if(tailMemoryBuffer) {
+        QString output = QString(tailMemoryBuffer, size);
+        delete tailMemoryBuffer;
+    }
+    return output;
+#endif
+#endif    
 }
 
 bool nordictrackifitadbbikeLogcatAdbThread::runCommand(QString command) {
@@ -99,6 +122,46 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
     emit debug("adbLogCat >> " + command);
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
+#elif defined Q_OS_ANDROID
+    // TODO
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+    unsigned char* tailMemoryBuffer = nullptr;  
+    int size = h->adb_sendcommand("logcat", tailMemoryBuffer);
+
+    if(tailMemoryBuffer) {
+        QString output = QString(tailMemoryBuffer, size);
+        QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
+        bool wattFound = false;
+        bool hrmFound = false;
+        foreach (QString line, lines) {
+            if (line.contains("Changed KPH")) {
+                emit debug(line);
+                speed = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Grade")) {
+                emit debug(line);
+                inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Watts")) {
+                emit debug(line);
+                watt = line.split(' ').last().toDouble();
+                wattFound = true;
+            } else if (line.contains("HeartRateDataUpdate")) {
+                emit debug(line);
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    hrm = splitted[14].toInt();
+                    hrmFound = true;
+                }
+            }
+        }
+        emit onSpeedInclination(speed, inclination);
+        if (wattFound)
+            emit onWatt(watt);
+        if (hrmFound)
+            emit onHRM(hrm);
+        delete tailMemoryBuffer;
+    }    
+#endif
 #endif
 }
 
@@ -154,12 +217,6 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     // ********************************************************************************************************
 
     if (nordictrack_ifit_adb_remote) {
-#ifdef Q_OS_ANDROID
-        QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
-                                                  "(Ljava/lang/String;Landroid/content/Context;)V",
-                                                  IP.object<jstring>(), QtAndroid::androidContext().object());
-#elif defined Q_OS_WIN
         logcatAdbThread = new nordictrackifitadbbikeLogcatAdbThread("logcatAdbThread");
         /*connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onSpeedInclination, this,
                 &nordictrackifitadbbike::onSpeedInclination);
@@ -168,11 +225,6 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onHRM, this, &nordictrackifitadbbike::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
         logcatAdbThread->start();
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-        h->adb_connect(ip.toStdString().c_str());
-#endif
-#endif
     }
 }
 
@@ -292,19 +344,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
                         qDebug() << " >> " + lastCommand;
-#ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
-                                                                  "sendCommand", "(Ljava/lang/String;)V",
-                                                                  command.object<jstring>());
-#elif defined(Q_OS_WIN)
+
                         if (logcatAdbThread)
                             logcatAdbThread->runCommand("shell " + lastCommand);
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-                        h->adb_sendcommand(lastCommand.toStdString().c_str());
-#endif
-#endif
                     }
                 }
 
@@ -336,19 +378,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
                                       QString::number(x1) + " " + QString::number(y2) + " 200";
                         qDebug() << " >> " + lastCommand;
-#ifdef Q_OS_ANDROID
-                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
-                                                                  "sendCommand", "(Ljava/lang/String;)V",
-                                                                  command.object<jstring>());
-#elif defined(Q_OS_WIN)
+
                         if (logcatAdbThread)
                             logcatAdbThread->runCommand("shell " + lastCommand);
-#elif defined Q_OS_IOS
-#ifndef IO_UNDER_QT
-                        h->adb_sendcommand(lastCommand.toStdString().c_str());
-#endif
-#endif
                     }
                 }
 

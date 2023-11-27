@@ -279,12 +279,26 @@ void lockscreen::adb_connect(const char*  IP) {
     }];
 }
     
-void lockscreen::adb_sendcommand(const char* command) {
+int lockscreen::adb_sendcommand(const char* command, unsigned char* buffer) {
     if(_adb == 0) return;
     
     [_adb shell:[NSString stringWithCString:command encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
         
         qDebug() << result;
+        NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+
+        // Allocate memory for the unsigned char*
+        unsigned char *buffer = (unsigned char *)malloc(length + 1);
+
+        // Copy the string into the buffer
+        if (buffer) {
+            BOOL result = [string getCString:(char *)buffer maxLength:length + 1 encoding:NSUTF8StringEncoding];
+            if (!result) {
+                // Handle the error if the string couldn't be copied
+                free(buffer);
+                buffer = NULL;
+            }
+        }
 
     }];
 }

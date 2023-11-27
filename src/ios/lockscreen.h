@@ -62,7 +62,7 @@ class lockscreen {
     
     //adb
     void adb_connect(const char* IP);
-    void adb_sendcommand(const char* command);
+    int adb_sendcommand(const char* command, unsigned char* buffer);
     
     // Elite Aria Fan
     void eliteAriaFan();

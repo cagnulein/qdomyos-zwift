@@ -54,7 +54,7 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
         QString name;
     };
 
-    void runAdbTailCommand(QString command);
+    void runAdbTailCommand(QString command);    
 };
 
 class nordictrackifitadbbike : public bike {
