@@ -85,30 +85,34 @@ void ypooelliptical::update() {
         return;
     }
 
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+
     if (initRequest) {
         initRequest = false;
-        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
-        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-        uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
-        uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+        if (!iconsole_elliptical) {
+            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+            uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        }
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        update_metrics(iconsole_elliptical, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -170,7 +174,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+    bool iconsole_elliptical =
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
     emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
 
@@ -206,19 +211,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     flags Flags;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if(!iconsole_elliptical) {
-            if (newvalue.length() == 18) {
-                qDebug() << QStringLiteral("let's wait for the next piece of frame");
-                lastPacket = newvalue;
-                return;
-            } else if (newvalue.length() == 17) {
-                lastPacket.append(newvalue);
-            } else {
-                qDebug() << "packet not handled!!";
-                return;
-            }
+        if (newvalue.length() == 18) {
+            qDebug() << QStringLiteral("let's wait for the next piece of frame");
+            lastPacket = newvalue;
+            return;
+        } else if (newvalue.length() == 17) {
+            lastPacket.append(newvalue);
+        } else {
+            qDebug() << "packet not handled!!";
+            return;
         }
 
         int index = 0;
@@ -380,6 +383,20 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.remainingTime) {
             // todo
         }
+    } else if (iconsole_elliptical) {
+        if (newValue.length() == 15) {
+            Speed = (double)((((uint8_t)newValue.at(10)) << 8) | ((uint8_t)newValue.at(9))) / 100.0;
+            Cadence = newValue.at(6);
+
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));            
+
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        }
     } else {
         return;
     }
@@ -391,18 +408,18 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         update_hr_from_external();
     }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-/*
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround,
-   QZSettings::default_ios_peloton_workaround).toBool(); if (ios_peloton_workaround && cadence && h &&
-   firstStateChanged) { h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
- */
-#endif
-#endif
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+    /*
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround,
+    QZSettings::default_ios_peloton_workaround).toBool(); if (ios_peloton_workaround && cadence && h &&
+    firstStateChanged) { h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+    */
+    #endif
+    #endif
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -427,6 +444,12 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        QBluetoothUuid _gattCustomService((quint16)0xFFF0);
+        if (s->serviceUuid() != _gattCustomService && iconsole_elliptical) {
+            qDebug() << "skipping service" << s->serviceUuid();
+            continue;
+        }
+
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ypooelliptical::characteristicChanged);
