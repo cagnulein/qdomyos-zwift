@@ -40,6 +40,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
     void onWatt(double watt);
 
   private:
+    QString adbCommandPending = "";
     double speed = 0;
     double inclination = 0;
     double watt = 0;
