@@ -229,6 +229,15 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             requestInclination = -100;
         }
 
+        int currentRequestInclination = requestInclination;
+
+        // since the motor of the treadmill is slow, let's filter the inclination changes to more than 2 seconds
+        if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 2) {
+            lastInclinationChanged = QDateTime::currentDateTime();
+        } else {
+            currentRequestInclination = -100;
+        }
+
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
@@ -259,7 +268,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 #endif
 #endif
                 requestSpeed = -1;
-            } else if (requestInclination != -100) {
+            } else if (currentRequestInclination != -100) {
                 requestInclination = inc;
                 int x1 = 75;
                 int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
@@ -288,7 +297,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
-        QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
+        QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
         // we have to separate the 2 commands
         if (requestSpeed == -1)
             requestInclination = -100;
