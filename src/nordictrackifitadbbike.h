@@ -53,6 +53,10 @@ class nordictrackifitadbbikeLogcatAdbThread : public QThread {
         QDateTime date;
         QString name;
     };
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
     void runAdbTailCommand(QString command);    
 };
@@ -99,7 +103,7 @@ class nordictrackifitadbbike : public bike {
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-
+    
   signals:
     void disconnected();
     void debug(QString string);

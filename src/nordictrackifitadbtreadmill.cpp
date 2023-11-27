@@ -249,7 +249,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-                h->adb_sendcommand(lastCommand.toStdString().c_str());
+                unsigned char* tailMemoryBuffer = nullptr;
+                h->adb_sendcommand(lastCommand.toStdString().c_str(), &tailMemoryBuffer);
+                if(tailMemoryBuffer) {
+                    delete tailMemoryBuffer;
+                }
 #endif
 #endif
                 requestSpeed = -1;
@@ -277,7 +281,11 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                                                             "(Ljava/lang/String;)V", command.object<jstring>());
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-                    h->adb_sendcommand(lastCommand.toStdString().c_str());
+                    unsigned char* tailMemoryBuffer = nullptr;
+                    h->adb_sendcommand(lastCommand.toStdString().c_str(), &tailMemoryBuffer);
+                    if(tailMemoryBuffer) {
+                        delete tailMemoryBuffer;
+                    }
 #endif
 #endif
                 }

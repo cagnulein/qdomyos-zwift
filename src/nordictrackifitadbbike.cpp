@@ -29,6 +29,7 @@ void nordictrackifitadbbikeLogcatAdbThread::run() {
     runAdbCommand("connect " + ip);
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
+    h = new lockscreen();
     h->adb_connect(ip.toStdString().c_str());
 #endif
 #endif    
@@ -62,12 +63,13 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
     unsigned char* tailMemoryBuffer = nullptr;
-    int size = h->adb_sendcommand(command.toStdString().c_str(), tailMemoryBuffer);
+    int size = h->adb_sendcommand(command.toStdString().c_str(), &tailMemoryBuffer);
     if(tailMemoryBuffer) {
-        QString output = QString(tailMemoryBuffer, size);
+        QString output = QString::fromUtf8((const char*)tailMemoryBuffer);
         delete tailMemoryBuffer;
+        return output;
     }
-    return output;
+    return "";
 #endif
 #endif    
 }
@@ -127,10 +129,10 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
     unsigned char* tailMemoryBuffer = nullptr;  
-    int size = h->adb_sendcommand("logcat", tailMemoryBuffer);
+    int size = h->adb_sendcommand("logcat", &tailMemoryBuffer);
 
     if(tailMemoryBuffer) {
-        QString output = QString(tailMemoryBuffer, size);
+        QString output = QString::fromUtf8((const char*)tailMemoryBuffer);
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
         bool hrmFound = false;

@@ -114,6 +114,9 @@
 		7EC1321DD83EAAFAA2B7109C /* domyosbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 7944A61A6F17291731CE6F84 /* domyosbike.cpp */; settings = {ATTRIBUTES = (); }; };
 		8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */; settings = {ATTRIBUTES = (); }; };
 		868B65D0AB5114A4A0D5479E /* qmldbg_messages in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 008F20821C7E4D5F7DB55754 /* qmldbg_messages */; };
+		8701142A2B14D5A800193FC6 /* moc_eliteariafan.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 870114292B14D5A800193FC6 /* moc_eliteariafan.cpp */; };
+		8701142D2B14D5C600193FC6 /* eliteariafan.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8701142C2B14D5C600193FC6 /* eliteariafan.cpp */; };
+		870114302B14D5F400193FC6 /* ios_eliteariafan.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8701142E2B14D5F400193FC6 /* ios_eliteariafan.mm */; };
 		8703BAEB273C67A90058E206 /* pafersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8703BAE9273C67A90058E206 /* pafersbike.cpp */; };
 		8703BAED273C67B60058E206 /* moc_pafersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */; };
 		87061390286D8B4F00D2446E /* libQt5PositioningQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */; };
@@ -816,6 +819,11 @@
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		870114292B14D5A800193FC6 /* moc_eliteariafan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_eliteariafan.cpp; sourceTree = "<group>"; };
+		8701142B2B14D5C600193FC6 /* eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliteariafan.h; path = ../src/eliteariafan.h; sourceTree = "<group>"; };
+		8701142C2B14D5C600193FC6 /* eliteariafan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = eliteariafan.cpp; path = ../src/eliteariafan.cpp; sourceTree = "<group>"; };
+		8701142E2B14D5F400193FC6 /* ios_eliteariafan.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_eliteariafan.mm; path = ../src/ios/ios_eliteariafan.mm; sourceTree = "<group>"; };
+		8701142F2B14D5F400193FC6 /* ios_eliteariafan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ios_eliteariafan.h; path = ../src/ios/ios_eliteariafan.h; sourceTree = "<group>"; };
 		8703BAE9273C67A90058E206 /* pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersbike.cpp; path = ../src/pafersbike.cpp; sourceTree = "<group>"; };
 		8703BAEA273C67A90058E206 /* pafersbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersbike.h; path = ../src/pafersbike.h; sourceTree = "<group>"; };
 		8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersbike.cpp; sourceTree = "<group>"; };
@@ -1895,6 +1903,11 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8701142F2B14D5F400193FC6 /* ios_eliteariafan.h */,
+				8701142E2B14D5F400193FC6 /* ios_eliteariafan.mm */,
+				8701142C2B14D5C600193FC6 /* eliteariafan.cpp */,
+				8701142B2B14D5C600193FC6 /* eliteariafan.h */,
+				870114292B14D5A800193FC6 /* moc_eliteariafan.cpp */,
 				8745B2772AFCB52800991A39 /* AdbClient.h */,
 				87A0D7502A3A4517005147F2 /* fakerower.cpp */,
 				87A0D7512A3A4517005147F2 /* fakerower.h */,
@@ -2995,6 +3008,8 @@
 				87DF68BD25E2675100FCDA46 /* moc_eslinkertreadmill.cpp in Compile Sources */,
 				87646C2027B5064600F82131 /* bhfitnesselliptical.cpp in Compile Sources */,
 				8718CBAD263063CE004BF4EE /* moc_templateinfosender.cpp in Compile Sources */,
+				8701142A2B14D5A800193FC6 /* moc_eliteariafan.cpp in Compile Sources */,
+				870114302B14D5F400193FC6 /* ios_eliteariafan.mm in Compile Sources */,
 				87C5F0D326285E7E0067A1B5 /* moc_mimecontentformatter.cpp in Compile Sources */,
 				8718CBAB263063CE004BF4EE /* moc_templateinfosenderbuilder.cpp in Compile Sources */,
 				C6B3CD471768392E18F85819 /* fit_accumulated_field.cpp in Compile Sources */,
@@ -3002,6 +3017,7 @@
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
 				87E2F85D291ED308002BDC65 /* lifefitnesstreadmill.cpp in Compile Sources */,
+				8701142D2B14D5C600193FC6 /* eliteariafan.cpp in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,

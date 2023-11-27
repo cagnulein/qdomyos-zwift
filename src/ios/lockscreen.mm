@@ -10,6 +10,7 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
+#import <dispatch/dispatch.h>
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -279,29 +280,43 @@ void lockscreen::adb_connect(const char*  IP) {
     }];
 }
     
-int lockscreen::adb_sendcommand(const char* command, unsigned char* buffer) {
-    if(_adb == 0) return;
+int lockscreen::adb_sendcommand(const char* command, unsigned char** outBuffer) {
+    if(_adb == 0) return -1; // or some error code
+
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
+    __block int resultStatus = 0; // Use this to store the result status
+    __block NSUInteger length = 0;
     
     [_adb shell:[NSString stringWithCString:command encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
         
         qDebug() << result;
-        NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        NSUInteger length = [result lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
 
         // Allocate memory for the unsigned char*
-        unsigned char *buffer = (unsigned char *)malloc(length + 1);
+        *outBuffer = (unsigned char *)malloc(length + 1);
 
         // Copy the string into the buffer
-        if (buffer) {
-            BOOL result = [string getCString:(char *)buffer maxLength:length + 1 encoding:NSUTF8StringEncoding];
-            if (!result) {
+        if (*outBuffer) {
+            BOOL resultCopy = [result getCString:(char *)*outBuffer maxLength:length + 1 encoding:NSUTF8StringEncoding];
+            if (!resultCopy) {
                 // Handle the error if the string couldn't be copied
-                free(buffer);
-                buffer = NULL;
+                free(*outBuffer);
+                *outBuffer = NULL;
+                resultStatus = -2; // or some error code
             }
+        } else {
+            resultStatus = -3; // or some error code
         }
 
+        dispatch_semaphore_signal(sem);
     }];
+
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+    return length;
 }
+
 
 void lockscreen::eliteAriaFan() {
     ios_eliteAriaFan = [[ios_eliteariafan alloc] init];
