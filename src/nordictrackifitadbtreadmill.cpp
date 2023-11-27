@@ -24,6 +24,11 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
 
     while (1) {
         runAdbTailCommand("logcat");
+        if(adbCommandPending.length() != 0) {
+            runAdbCommand(adbCommandPending);
+            adbCommandPending = "";
+        }
+        msleep(100);        
     }
 }
 
@@ -43,6 +48,14 @@ QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString comman
     QString out;
 #endif
     return out;
+}
+
+bool nordictrackifitadbtreadmillLogcatAdbThread::runCommand(QString command) {
+    if(adbCommandPending.length() == 0) {
+        adbCommandPending = command;
+        return true;
+    }
+    return false;
 }
 
 void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString command) {
@@ -262,6 +275,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+                        if (logcatAdbThread)
+                            logcatAdbThread->runCommand("shell " + lastCommand);                                                          
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
                 h->adb_sendcommand(lastCommand.toStdString().c_str());
@@ -288,6 +304,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                         "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined(Q_OS_WIN)
+                        if (logcatAdbThread)
+                            logcatAdbThread->runCommand("shell " + lastCommand);                                                        
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
                 h->adb_sendcommand(lastCommand.toStdString().c_str());

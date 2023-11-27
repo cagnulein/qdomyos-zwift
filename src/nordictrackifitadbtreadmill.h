@@ -30,6 +30,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 
   public:
     explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
+    bool runCommand(QString command);
 
     void run() override;
 
