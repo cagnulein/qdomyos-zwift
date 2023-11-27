@@ -431,6 +431,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
+    QSettings settings;
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
