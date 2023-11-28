@@ -1006,7 +1006,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C")) ||
-                           b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
+                           b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C")) ||
+                           // KingSmith Walking Pad G1
+                           b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) &&
                        !kingsmithR2Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1324,6 +1326,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("FLXCY-")) ||                         // Pro FlexBike
                         (b.name().toUpper().startsWith("QB-WC01")) ||                        // Nexgim QB-C01 smart bike
                         (b.name().toUpper().startsWith("XBR55")) ||                          // Sprint XBR555
+                        (b.name().toUpper().startsWith("ECHO_BIKE_")) ||                          // Rogue echo bike V3.0
                         (b.name().toUpper().startsWith("EW-JS-")) ||                         // EW-JS-4990
                         (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
                         (b.name().toUpper().startsWith("URSB") && b.name().length() == 7) || // URSB005
@@ -1379,6 +1382,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 horizonGr7Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(horizonGr7Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
