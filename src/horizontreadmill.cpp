@@ -27,10 +27,6 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
 
     testProfileCRC();
 
-#ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
-#endif
-
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -1960,6 +1956,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     // horizon treadmill and F80 treadmill, so if we want to add inclination support we have to separate the 2
     // devices
     // ***************************************************************************************************************
+
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
@@ -1971,6 +1968,12 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
+        }
+
+        if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
+            QZ_EnableDiscoveryCharsAndDescripttors = false;
+        } else {
+            QZ_EnableDiscoveryCharsAndDescripttors = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
