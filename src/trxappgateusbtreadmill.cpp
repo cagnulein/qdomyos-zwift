@@ -729,6 +729,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("K80_")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
         device.name().toUpper().startsWith(QStringLiteral("ADIDAS ")) ||
+        device.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {
             treadmill_type = TYPE::DKN;
@@ -740,6 +741,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
                    device.name().startsWith(QStringLiteral("F63")) ||
                    device.name().toUpper().startsWith(QStringLiteral("DKN RUN")) ||
                    device.name().toUpper().startsWith(QStringLiteral("XT900")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||
                    device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
             treadmill_type = TYPE::IRUNNING;
         } else if (device.name().toUpper().startsWith(QStringLiteral("REEBOK"))) {

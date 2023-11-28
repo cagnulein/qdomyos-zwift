@@ -15,7 +15,6 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         // FTMS
         this->addDeviceName("T318_", comparison::StartsWithIgnoreCase);
         this->addDeviceName("T218_", comparison::StartsWithIgnoreCase);
-        this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);
         this->addDeviceName("JFTMPARAGON", comparison::StartsWithIgnoreCase);        
         this->addDeviceName("PARAGON X", comparison::StartsWithIgnoreCase); 
         this->addDeviceName("JFTM", comparison::StartsWithIgnoreCase);
