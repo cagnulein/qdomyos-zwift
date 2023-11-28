@@ -1970,11 +1970,13 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
         }
 
+#ifdef Q_OS_IOS
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
             QZ_EnableDiscoveryCharsAndDescripttors = false;
         } else {
             QZ_EnableDiscoveryCharsAndDescripttors = true;
         }
+#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
