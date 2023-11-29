@@ -715,13 +715,7 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..
           qmake CONFIG+=debug && make -j4
-
-      # causes iOS build on Mac to fail
-      - name: Commit moc files
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: 'moc files added'
-          add: 'src/moc_*.cpp --force'
+          xcodebuild build -scheme qdomyoszwift -project build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj -destination generic/platform=iOS -resultBundleVersion 3 -resultBundlePath resultbundle.xcresult -resultStreamPath resultBundleStream7c78e839-9677-48db-b119-e8e21527ae75.json -IDEPostProgressNotifications=YES CODE_SIGN_IDENTITY=- AD_HOC_CODE_SIGNING_ALLOWED=YES COMPILER_INDEX_STORE_ENABLE=NO -hideShellScriptEnvironment
 
   window-msvc2019-build:
     runs-on: windows-latest
