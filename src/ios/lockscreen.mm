@@ -271,6 +271,9 @@ void lockscreen::debug(const char* debugstring) {
 }
 
 void lockscreen::adb_connect(const char*  IP) {
+    
+    qDebug() << "adb_connect" << IP << _adb;
+    
     if(_adb == 0) return;
     
     [_adb connect:[NSString stringWithCString:IP encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
@@ -281,9 +284,13 @@ void lockscreen::adb_connect(const char*  IP) {
 }
     
 int lockscreen::adb_sendcommand(const char* command, unsigned char** outBuffer) {
+    qDebug() << "adb_sendcommand" << command << _adb;
+    
     if(_adb == 0) return -1; // or some error code
 
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    
+    qDebug() << "adb_sendcommand after semaphore";
 
     __block int resultStatus = 0; // Use this to store the result status
     __block NSUInteger length = 0;

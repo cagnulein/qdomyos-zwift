@@ -62,7 +62,7 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
     // TODO
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-    qDebug() << "adb >> " + command;
+    qDebug() << "adb >> " << command;
     unsigned char* tailMemoryBuffer = nullptr;
     int size = h->adb_sendcommand(command.toStdString().c_str(), &tailMemoryBuffer);
     if(tailMemoryBuffer) {
@@ -129,7 +129,7 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
     // TODO
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
-    qDebug() << "adbLogCat >> " + command;
+    qDebug() << "adbLogCat >> " << command;
     unsigned char* tailMemoryBuffer = nullptr;
     int size = h->adb_sendcommand("logcat", &tailMemoryBuffer);
 
