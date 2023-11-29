@@ -313,13 +313,15 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
-        QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
-        // we have to separate the 2 commands
-        if (requestSpeed == -1)
-            requestInclination = -100;
-        requestSpeed = -1;
-        int ret = socket->writeDatagram(message, message.size(), sender, 8003);
-        qDebug() << QString::number(ret) + " >> " + message;
+        if(!nordictrack_ifit_adb_remote) {
+            QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(currentRequestInclination)).toLocal8Bit();
+            // we have to separate the 2 commands
+            if (requestSpeed == -1)
+                requestInclination = -100;
+            requestSpeed = -1;
+            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;
+        }
 
         if (watts(weight))
             KCal +=
