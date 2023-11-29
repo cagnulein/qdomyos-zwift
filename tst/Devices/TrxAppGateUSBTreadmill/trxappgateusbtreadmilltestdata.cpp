@@ -17,5 +17,6 @@ TrxAppGateUSBTreadmillTestData::TrxAppGateUSBTreadmillTestData() : BluetoothDevi
     this->addDeviceName("I-RUNNING", comparison::StartsWithIgnoreCase);
     this->addDeviceName("DKN RUN", comparison::StartsWithIgnoreCase);
     this->addDeviceName("REEBOK", comparison::StartsWithIgnoreCase);
+    this->addDeviceName("TRX3500", comparison::StartsWithIgnoreCase);
 
 }
