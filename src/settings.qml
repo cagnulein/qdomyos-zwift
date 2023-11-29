@@ -837,6 +837,14 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.22
             property bool proform_pro_1000_treadmill: false
+            property bool saris_trainer: false
+
+            // from version 2.16.23
+            property bool proform_studio_NTEX71021: false
+            property bool nordictrack_x22i: false
+
+            // from version 2.16.25
+            property bool iconsole_elliptical: false
         }
 
         function paddingZeros(text, limit) {
@@ -2574,6 +2582,27 @@ import QtQuick.Dialogs 1.0
                         onClicked: { settings.hammer_racer_s = checked; window.settings_restart_to_apply = true; }
                     }
                 }
+
+                AccordionElement {
+                    title: qsTr("Saris/Cycleops Hammer trainer Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        text: qsTr("Enable support")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.saris_trainer
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.saris_trainer = checked; window.settings_restart_to_apply = true; }
+                    }
+                }
+                
                 AccordionElement {
                     id: cardioFitBikeAccordion
                     title: qsTr("CardioFIT Bike Options")
@@ -2871,6 +2900,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_studio = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("Proform Studio Bike NTEX71021")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_studio_NTEX71021
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_studio_NTEX71021 = checked; window.settings_restart_to_apply = true; }
                     }
                     SwitchDelegate {
                         id: proformTDF10odelegate
@@ -5333,6 +5375,19 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.nordictrack_incline_trainer_x7i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
+                            text: qsTr("NordicTrack X22i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_x22i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; settings.nordictrack_ifit_adb_remote = settings.nordictrack_x22i; }
+                        }                        
+                        SwitchDelegate {
                             id: nordictrack10Delegate
                             text: qsTr("Nordictrack 10")
                             spacing: 0
@@ -5432,7 +5487,7 @@ import QtQuick.Dialogs 1.0
                             onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
-                            text: qsTr("Proform z1300i")
+                            text: qsTr("Proform/NordicTrack z1300i")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
@@ -6573,6 +6628,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.hertz_xr_770 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("iConsole Elliptical")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.iconsole_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.iconsole_elliptical = checked; window.settings_restart_to_apply = true; }
+                    }                    
                 }
             }
 
@@ -8436,6 +8504,99 @@ import QtQuick.Dialogs 1.0
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: { settings.fitmetria_fanfit_max = headWindMaxTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                        }
+                    }
+
+                    AccordionElement {
+                        title: qsTr("Elite Aria Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            SwitchDelegate {
+                                text: qsTr("Enable")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.fitmetria_fanfit_enable
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.fitmetria_fanfit_enable = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Mode:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: eliteAriaModeTextField
+                                    model: [ "Heart", "Power", "Manual" ]
+                                    displayText: settings.fitmetria_fanfit_mode
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        console.log("combomodel activated" + eliteAriaModeTextField.currentIndex)
+                                        displayText = eliteAriaModeTextField.currentValue
+                                    }
+
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.fitmetria_fanfit_mode = eliteAriaModeTextField.displayText; toast.show("Setting saved!"); }
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Min. value (0-100):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: eliteAriaMinTextField
+                                    text: settings.fitmetria_fanfit_min
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.fitmetria_fanfit_min = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.fitmetria_fanfit_min = eliteAriaMinTextField.text; toast.show("Setting saved!"); }
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    text: qsTr("Max value (0-100):")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: eliteAriaMaxTextField
+                                    text: settings.fitmetria_fanfit_max
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.fitmetria_fanfit_max = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: { settings.fitmetria_fanfit_max = eliteAriaMaxTextField.text; toast.show("Setting saved!"); }
                                 }
                             }
                         }

@@ -503,23 +503,44 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             QJsonValue name = key.value("name");
             QJsonValue held = key.value("held");
             if(held.toString().contains(QStringLiteral("-1"))) {
-                double value = 0;
-                if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
-                    qDebug() << "LEFT EXTERNAL GEAR DOWN";
-                    value = -0.5;
-                } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
-                    qDebug() << "LEFT EXTERNAL GEAR UP";
-                    value = 0.5;
-                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
-                    qDebug() << "RIGHT EXTERNAL GEAR UP";
-                    value = 5.0;
-                } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
-                    qDebug() << "RIGHT EXTERNAL GEAR DOWN";
-                    value = -5.0;
-                }
-                if (value != 0.0) {
-                    forceResistance(currentInclination().value() + value); // to force an immediate change
-                    setGears(gears() + value);
+                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                if(!erg_mode) {
+                    double value = 0;
+                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                        value = -0.5;
+                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR UP";
+                        value = 0.5;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR UP";
+                        value = -5.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                        value = 5.0;
+                    }
+                    if (value != 0.0) {
+                        forceResistance(currentInclination().value() + value); // to force an immediate change
+                        setGears(gears() + value);
+                    }
+                } else {
+                    double value = 0;
+                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                        value = -10.0;
+                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR UP";
+                        value = 10.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR UP";
+                        value = -50.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                        value = 50.0;
+                    }
+                    if (value != 0.0) {
+                        changePower(requestPower + value);
+                    }
                 }
             }
         }

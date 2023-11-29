@@ -126,14 +126,18 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     }
 #endif
 
-#ifdef Q_OS_ANDROID
     if (nordictrack_ifit_adb_remote) {
+#ifdef Q_OS_ANDROID
         QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
                                                   "(Ljava/lang/String;Landroid/content/Context;)V",
                                                   IP.object<jstring>(), QtAndroid::androidContext().object());
-    }
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+        h->adb_connect(ip.toStdString().c_str());
 #endif
+#endif
+    }
 
     initRequest = true;
 
@@ -184,9 +188,12 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+        bool disable_hr_frommachinery =
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
         double speed = 0;
         double incline = 0;
+        bool hrmFound = false;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
@@ -202,43 +209,81 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     incline = getDouble(aValues.last());
                     Inclination = incline;
                 }
+            } else if (line.contains("HeartRateDataUpdate") && 
+#ifdef Q_OS_ANDROID
+                        (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
+#endif
+                        heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
+            ) {                
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    Heart = splitted[14].toInt();
+                    hrmFound = true;
+                }
             }
         }
 
-#ifdef Q_OS_ANDROID
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
         if (nordictrack_ifit_adb_remote) {
+            bool nordictrack_x22i =
+                settings.value(QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i).toBool();
             if (requestSpeed != -1) {
                 int x1 = 1845;
                 int y1Speed = 807 - (int)((Speed.value() - 1) * 29.78);
                 // set speed slider to target position
                 int y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 29.78);
+                if(nordictrack_x22i) {
+                    x1 = 1845;
+                    y1Speed = (int) (785 - (23.636 * (Speed.value() - 1)));
+                    y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 23.636);
+                }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Speed) + " " +
                               QString::number(x1) + " " + QString::number(y2) + " 200";
                 qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
                 QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
                 QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
                                                           "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+                h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
                 requestSpeed = -1;
             } else if (requestInclination != -100) {
-                int x1 = 75;
-                int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
-                // set speed slider to target position
-                int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 29.9);
+                double inc = qRound(requestInclination / 0.5) * 0.5;
+                if(inc != currentInclination().value()) {
+                    requestInclination = inc;
+                    int x1 = 75;
+                    int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
+                    // set speed slider to target position
+                    int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 29.9);
 
-                lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
-                              QString::number(x1) + " " + QString::number(y2) + " 200";
-                qDebug() << " >> " + lastCommand;
-                QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
-                QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
-                                                          "(Ljava/lang/String;)V", command.object<jstring>());
+                    if(nordictrack_x22i) {
+                        x1 = 75;
+                        y1Inclination = (int) (785 - (11.304 * (currentInclination().value() + 6)));
+                        y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 11.304);
+                    }
+
+                    lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
+                                QString::number(x1) + " " + QString::number(y2) + " 200";
+                    qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+                    QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "sendCommand",
+                                                            "(Ljava/lang/String;)V", command.object<jstring>());
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+                    h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+                }
                 requestInclination = -100;
             }
         }
-#endif
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
         // we have to separate the 2 commands
@@ -277,6 +322,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
     }
 }

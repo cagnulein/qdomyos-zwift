@@ -168,11 +168,24 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::onHRM, this, &nordictrackifitadbbike::onHRM);
         connect(logcatAdbThread, &nordictrackifitadbbikeLogcatAdbThread::debug, this, &nordictrackifitadbbike::debug);
         logcatAdbThread->start();
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+        h->adb_connect(ip.toStdString().c_str());
+#endif
 #endif
     }
 }
 
-bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
+bool nordictrackifitadbbike::inclinationAvailableByHardware() { 
+    QSettings settings;
+    bool proform_studio_NTEX71021 =
+    settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021)
+        .toBool();
+    if(proform_studio_NTEX71021)
+        return false;   
+    else
+        return true; 
+}
 
 double nordictrackifitadbbike::getDouble(QString v) {
     QChar d = QLocale().decimalPoint();
@@ -210,7 +223,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
-            if (line.contains(QStringLiteral("Changed KPH"))) {
+
+            if (line.contains(QStringLiteral("Changed KPH")) && !settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     speed = getDouble(aValues.last());
@@ -254,12 +268,56 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             }
         }
 
+        if (settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        }
+
+        bool proform_studio_NTEX71021 =
+            settings.value(QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021).toBool();
+        bool nordictrack_ifit_adb_remote =
+            settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
+                .toBool();
+
+        // only resistance
+        if(proform_studio_NTEX71021) {
+            if (nordictrack_ifit_adb_remote) {
+                if (requestResistance != -100) {
+                    if (requestResistance != currentResistance().value()) {
+                        int x1 = 950;
+                        int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
+                        int y1Resistance = (int)(493 - (13.57 * currentResistance().value()));
+
+                        lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
+                                      QString::number(x1) + " " + QString::number(y2) + " 200";
+                        qDebug() << " >> " + lastCommand;
+#ifdef Q_OS_ANDROID
+                        QAndroidJniObject command = QAndroidJniObject::fromString(lastCommand).object<jstring>();
+                        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                                                  "sendCommand", "(Ljava/lang/String;)V",
+                                                                  command.object<jstring>());
+#elif defined(Q_OS_WIN)
+                        if (logcatAdbThread)
+                            logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+                        h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
+#endif
+                    }
+                }
+
+                requestResistance = -1;
+            }            
+            QByteArray message = (QString::number(requestResistance).toLocal8Bit()) + ";";
+            requestResistance = -1;
+            int ret = socket->writeDatagram(message, message.size(), sender, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;                
+        }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
+        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
             lastInclinationChanged = QDateTime::currentDateTime();
-            bool nordictrack_ifit_adb_remote =
-                settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
-                    .toBool();
             if (nordictrack_ifit_adb_remote) {
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
@@ -286,6 +344,10 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 #elif defined(Q_OS_WIN)
                         if (logcatAdbThread)
                             logcatAdbThread->runCommand("shell " + lastCommand);
+#elif defined Q_OS_IOS
+#ifndef IO_UNDER_QT
+                        h->adb_sendcommand(lastCommand.toStdString().c_str());
+#endif
 #endif
                     }
                 }

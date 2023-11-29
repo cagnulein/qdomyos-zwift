@@ -212,8 +212,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     lastPacket = newValue;
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 &&
-        ((newValue.at(2) == 0x46) || (newValue.at(2) == 0x5a))) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(4) != 0xFF) {
         double speed_from_machinery =
             (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
@@ -232,6 +231,15 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
          ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
         return;
+    }
+
+    double w = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+    if(w == 0 && !filterWattHole) {
+        filterWattHole = true;
+        qDebug() << QStringLiteral("filtering watt hole");
+        return;
+    } else if(w > 0) {
+        filterWattHole = false;
     }
 
     Resistance = GetResistanceFromPacket(newValue);

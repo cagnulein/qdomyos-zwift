@@ -694,6 +694,8 @@ class homeform : public QObject {
 
     static quint64 cryptoKeySettingsProfiles();
 
+    static void copyAndroidContentsURI(QFile* file, QString subfolder);
+
     int16_t fanOverride = 0;
 
     void update();
@@ -758,6 +760,7 @@ class homeform : public QObject {
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void profile_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);

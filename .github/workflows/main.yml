@@ -128,6 +128,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             make -j8
             cd src/debug
@@ -143,6 +144,7 @@ jobs:
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
@@ -160,6 +162,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             make -j8
             cd src/debug
@@ -173,6 +176,7 @@ jobs:
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -184,20 +188,25 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output release.zip
+        run: Compress-Archive src/debug/output windows-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: release.zip
+          path: windows-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary-no-python
-          path: release.zip
+          path: windows-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
@@ -298,6 +307,7 @@ jobs:
 #            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
 #            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
 #            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+#            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
 #            echo "#define STEAM_STORE" >> secret.h
 #            cd ..
 #            make -j8
@@ -521,37 +531,12 @@ jobs:
           sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
+      - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          repository: bluetiger9/SmtpClient-for-Qt
-          path: "src/smtpclient/"
-          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: cagnulein/qmdnsengine
-          path: "src/qmdnsengine/"
-          ref: "zwift"
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodule repo
-        uses: actions/checkout@v2
-        with:
-          repository: google/googletest
-          path: "tst/googletest/"
-          ref: "release-1.12.1"
-
-      - uses: actions/checkout@v2
-      - name: Checkout qHttpServer
-        uses: actions/checkout@v2
-        with:
-          repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"         
+          # This token is provided by Actions, you do not need to create your own token
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive # or 'true' if you want to check out only immediate submodules
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -632,12 +617,15 @@ jobs:
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           echo "#define LICENSE" >> secret.h
           cd ..          
 
           ln -sfn $ANDROID_SDK_ROOT/ndk/21.4.7075529 $ANDROID_NDK
           rm -rf /usr/local/lib/android/sdk/ndk/25.1.8937393
           qmake -spec android-clang 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64' 'ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/21.4.7075529' && make -j4 && make INSTALL_ROOT=${{ github.workspace }}/output/android/ install
+          sed -i '1s|{|{\n   "android-extra-libs": "${{ github.workspace }}/android_openssl/no-asm/latest/arm/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/arm64/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86/libssl_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libcrypto_1_1.so,${{ github.workspace }}/android_openssl/no-asm/latest/x86_64/libssl_1_1.so",|' src/android-qdomyos-zwift-deployment-settings.json
+          cat src/android-qdomyos-zwift-deployment-settings.json
 
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
@@ -665,6 +653,8 @@ jobs:
   ios-build:
     # The type of runner that the job will run on
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -716,16 +706,22 @@ jobs:
         run: cp qt-patches/ios/5.15.2/binary/*.* ${{ github.workspace }}/output/ios/Qt/5.15.2/ios/lib/
 
       - name: Build
-        run: qmake CONFIG+=debug && make -j4
-
-      - name: Commit moc
         run: |
-          git config --global user.name 'Roberto Viola'
-          git config --global user.email 'cagnulein@gmail.com'
-          git add -f src/moc_*.*
-          git commit src/moc_*.* -m "moc update"
-          git push
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..
+          qmake CONFIG+=debug && make -j4
 
+      # causes iOS build on Mac to fail
+      - name: Commit moc files
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'moc files added'
+          add: 'src/moc_*.cpp --force'
 
   window-msvc2019-build:
     runs-on: windows-latest
@@ -820,6 +816,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             nmake
             cd src/debug
@@ -832,6 +829,7 @@ jobs:
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.10.11\x64 -Destination python -Recurse
@@ -849,6 +847,7 @@ jobs:
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
             cd ..
             nmake
             cd src/debug
@@ -862,6 +861,7 @@ jobs:
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -873,27 +873,25 @@ jobs:
         run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
 
       - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output release.zip
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows-binary
-          path: release.zip
+        run: Compress-Archive src/debug/output windows-msvc2019-binary.zip
         if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-msvc2019-binary
-          path: release.zip
+          path: windows-msvc2019-binary.zip
         if: matrix.config.python
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-msvc2019-binary-no-python
-          path: release.zip
+          path: windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
   upload_to_release:
@@ -910,7 +908,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly
-          prerelease: true
+          prerelease: false
           name: 'QZ nightly build $$'
           body: |
             This is a nightly build of QZ.

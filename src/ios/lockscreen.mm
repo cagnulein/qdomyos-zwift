@@ -8,6 +8,8 @@
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 #include <QDebug>
+#include "ios/AdbClient.h"
+#include "ios/ios_eliteariafan.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -23,6 +25,10 @@ static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 static GarminConnect* Garmin = 0;
 
+static AdbClient *_adb = 0;
+
+static ios_eliteariafan* ios_eliteAriaFan = nil;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -33,6 +39,10 @@ void lockscreen::request()
     [h request];
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
+    }
+    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
+    if (@available(iOS 17, *)) {
+        _adb = [[AdbClient alloc] initWithVerbose:YES];
     }
 }
 
@@ -257,5 +267,35 @@ double lockscreen::getVolume()
 
 void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
+}
+
+void lockscreen::adb_connect(const char*  IP) {
+    if(_adb == 0) return;
+    
+    [_adb connect:[NSString stringWithCString:IP encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
+        
+        qDebug() << result;
+
+    }];
+}
+    
+void lockscreen::adb_sendcommand(const char* command) {
+    if(_adb == 0) return;
+    
+    [_adb shell:[NSString stringWithCString:command encoding:NSASCIIStringEncoding] didResponse:^(BOOL succ, NSString *result) {
+        
+        qDebug() << result;
+
+    }];
+}
+
+void lockscreen::eliteAriaFan() {
+    ios_eliteAriaFan = [[ios_eliteariafan alloc] init];
+}
+
+void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
+    if(ios_eliteAriaFan) {
+        [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
 }
 #endif
