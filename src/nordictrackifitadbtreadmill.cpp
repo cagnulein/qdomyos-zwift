@@ -22,14 +22,18 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
     QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     runAdbCommand("connect " + ip);
 
-    while (1) {
+    while (1) 
+    {
         runAdbTailCommand("logcat");
+#ifndef Q_OS_WINDOWS        
         if(adbCommandPending.length() != 0) {
             runAdbCommand(adbCommandPending);
             adbCommandPending = "";
         }
         msleep(100);        
+#endif        
     }
+
 }
 
 QString nordictrackifitadbtreadmillLogcatAdbThread::runAdbCommand(QString command) {
@@ -82,6 +86,12 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         emit onSpeedInclination(speed, inclination);
         if (wattFound)
             emit onWatt(watt);
+#ifdef Q_OS_WINDOWS        
+        if(adbCommandPending.length() != 0) {
+            runAdbCommand(adbCommandPending);
+            adbCommandPending = "";
+        }
+#endif                    
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
