@@ -1162,7 +1162,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11 &&
                          !toorx_bike) ||                                            // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS                        
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("PARAGON X")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MX-TM ")) ||     // FTMS
@@ -1859,7 +1860,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ADIDAS "))) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TRX3500"))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill &&
                        filter) {
