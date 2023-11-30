@@ -549,7 +549,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         while (itAndroid.hasNext()) {
             qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
             if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
-                QFile::move(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+                if(QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), "")))
+                       QFile::remove(itAndroid.filePath());
             }
         }
     }
