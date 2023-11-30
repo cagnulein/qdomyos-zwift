@@ -1,6 +1,6 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
-# Revised: August 16, 2023
+# Revised: November 25, 2023
 
 # zwift-incline.py - take Zwift screenshot, crop incline, OCR incline
 
@@ -8,12 +8,24 @@
 import cv2
 import numpy as np
 import re
-from datetime import datetime
-from paddleocr import PaddleOCR
 from PIL import Image, ImageGrab
+import requests
+import win32gui
 
-# Take Zwift screenshot
-screenshot = ImageGrab.grab()
+# Enable DPI aware on Windows
+from ctypes import windll
+user32 = windll.user32
+user32.SetProcessDPIAware()
+
+# Take Zwift screenshot - windowed mode only
+hwnd = win32gui.FindWindow(None, 'Zwift')
+if not hwnd:
+    print("Zwift is not running")
+    exit()
+x, y, x1, y1 = win32gui.GetClientRect(hwnd)
+x, y = win32gui.ClientToScreen(hwnd, (x, y))
+x1, y1 = win32gui.ClientToScreen(hwnd, (x1, y1))
+screenshot = ImageGrab.grab((x, y, x1, y1))
 
 # Scale image to 3000 x 2000
 screenshot = screenshot.resize((3000, 2000))
@@ -82,19 +94,20 @@ ret,bin = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY_INV)
 # Apply gaussian blur
 gaussianBlur = cv2.GaussianBlur(bin,(3,3),0)
 
-# OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False)
-result = ocr.ocr(gaussianBlur, cls=False, det=True, rec=True)
+# Write zwift image
+cv2.imwrite('zwift.png', gaussianBlur, [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
-# Extract OCR text
-ocr_text = ''
-for line in result:
-    for word in line:
-        ocr_text += f"{word[1][0]}"
+# OCR image
+image_data = open("zwift.png","rb").read()
+ocr = requests.post("http://localhost:32168/v1/image/ocr", files={"image":image_data}).json()
+
+# Extract label values from the 'predictions' list and merge into a single string
+labels = [prediction['label'] for prediction in ocr.get('predictions', [])]
+result = ''.join(labels)
 
 # Remove all characters that are not "-" and integers from OCR text
 pattern = r"[^-\d]+"
-ocr_text = re.sub(pattern, "", ocr_text)
+ocr_text = re.sub(pattern, "", result)
 if ocr_text:
     incline = ocr_text
 else:
