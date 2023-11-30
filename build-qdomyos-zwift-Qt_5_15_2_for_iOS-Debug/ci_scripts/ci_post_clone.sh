@@ -10,3 +10,7 @@ brew install qt@5
 
 #cat /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 
+cd /Volumes/workspace/repository/src/qthttpserver 
+qmake
+make -j8
+make install
