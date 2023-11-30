@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.9.20'
     repositories {
         google()
         jcenter()
@@ -7,12 +6,6 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
-    }
-}
-
-configurations.all {
-    resolutionStrategy {
-        force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     }
 }
 
@@ -90,19 +83,6 @@ android {
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
        }
-    }
-
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        // Escludi i file Kotlin che causano il conflitto
-        exclude 'META-INF/*.kotlin_module' 
     }    
 
     lintOptions {
