@@ -72,6 +72,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/QTelnet.cpp \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
@@ -281,6 +282,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/QTelnet.h \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
