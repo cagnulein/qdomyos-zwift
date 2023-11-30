@@ -3371,7 +3371,7 @@
 					../../Qt/5.15.2/ios/include/QtCore,
 					.,
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
-					"/usr/local/opt/qt@5/",
+					"/usr/local/opt/qt@5/include/",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -3379,6 +3379,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
 					/System/Library/Frameworks/,
+					"/usr/local/opt/qt@5/lib/"
 					/Users/cagnulein/Qt/5.15.2/ios/lib,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
