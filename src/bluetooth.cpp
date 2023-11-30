@@ -644,12 +644,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
                 this->stopDiscovery();
                 proformWifiBike =
-                    new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    new proformtelnetbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
+                connect(proformWifiBike, &proformtelnetbike::debug, this, &bluetooth::debug);
                 proformWifiBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
                 if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
