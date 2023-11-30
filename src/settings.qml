@@ -7560,7 +7560,6 @@ import QtQuick.Dialogs 1.0
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
-                            id: okTreadmillSpeedStepButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: { settings.autolap_distance = (settings.miles_unit?autoLapOnDistanceTextField.text * 1.60934:autoLapOnDistanceTextField.text); toast.show("Setting saved!"); }
