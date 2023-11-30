@@ -11,7 +11,6 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 6CC3B5D2136C7CD6A5CF5A59 /* Build configuration list for PBXNativeTarget "qdomyoszwift" */;
 			buildPhases = (
-				7EF0942E79C014DCEC8976BC /* Qt Preprocessors */,
 			);
 			dependencies = (
 			);
@@ -557,13 +556,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		876E4E0E2594739400BD5714 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E9F0AFC024A6F2D65CE84E08;
-			remoteInfo = "Qt Preprocess";
-		};
 		876E4E1C2594748000BD5714 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
@@ -619,7 +611,7 @@
 /* Begin PBXFileReference section */
 		008F20821C7E4D5F7DB55754 /* qmldbg_messages */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_messages; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_messages$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		00A66E87B971A9455AEB1889 /* fit_field_definition.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_definition.hpp; path = "../src/fit-sdk/fit_field_definition.hpp"; sourceTree = "<absolute>"; };
-		00FB26C33AA756668FB601BC /* virtualbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualbike.cpp; path = "../src/virtualbike.cpp"; sourceTree = "<absolute>"; };
+		00FB26C33AA756668FB601BC /* virtualbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualbike.cpp; path = ../src/virtualbike.cpp; sourceTree = "<absolute>"; };
 		00FFE5A43EB1EC67C4880C7C /* fit_segment_file_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_file_mesg.hpp; path = "../src/fit-sdk/fit_segment_file_mesg.hpp"; sourceTree = "<absolute>"; };
 		012665AF9C691B42EC2C8B5D /* fit_bike_profile_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_bike_profile_mesg.hpp; path = "../src/fit-sdk/fit_bike_profile_mesg.hpp"; sourceTree = "<absolute>"; };
 		0255F6D10FE690DA4AC7024B /* fit_field_capabilities_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_capabilities_mesg.hpp; path = "../src/fit-sdk/fit_field_capabilities_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -628,18 +620,18 @@
 		04BA913AA397245DFE470F0A /* fit_buffer_encode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffer_encode.hpp; path = "../src/fit-sdk/fit_buffer_encode.hpp"; sourceTree = "<absolute>"; };
 		04C46A9C2C431CD47F412DEC /* qicns */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qicns; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats/libqicns$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		0536AB7B4EA34BA5058C4232 /* fit_segment_point_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_point_mesg.hpp; path = "../src/fit-sdk/fit_segment_point_mesg.hpp"; sourceTree = "<absolute>"; };
-		05E49719C55F36AF26811317 /* echelonconnectsport.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = echelonconnectsport.cpp; path = "../src/echelonconnectsport.cpp"; sourceTree = "<absolute>"; };
+		05E49719C55F36AF26811317 /* echelonconnectsport.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = echelonconnectsport.cpp; path = ../src/echelonconnectsport.cpp; sourceTree = "<absolute>"; };
 		065DDC58C9522E1543A947AA /* moc_homeform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_homeform.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_homeform.cpp"; sourceTree = "<absolute>"; };
 		069A8AD683D05D500F8DEC03 /* Qt5QuickControls2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickControls2; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5QuickControls2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		06BE5EDC8785D846B747D8E0 /* fit.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit.hpp; path = "../src/fit-sdk/fit.hpp"; sourceTree = "<absolute>"; };
 		0704892AB1DE33A40735790C /* fit_accumulated_field.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accumulated_field.hpp; path = "../src/fit-sdk/fit_accumulated_field.hpp"; sourceTree = "<absolute>"; };
 		0843667DD0EDF81D0590FC92 /* dialogsprivateplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = dialogsprivateplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Dialogs/Private/libdialogsprivateplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		0A9EC1FC3849D0A2C3CA27CE /* signalhandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = signalhandler.h; path = "../src/signalhandler.h"; sourceTree = "<absolute>"; };
+		0A9EC1FC3849D0A2C3CA27CE /* signalhandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = signalhandler.h; path = ../src/signalhandler.h; sourceTree = "<absolute>"; };
 		0B00B1D2C98836C311CD929F /* FitMesg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitMesg.h; path = "../src/fit-sdk/FitMesg.h"; sourceTree = "<absolute>"; };
 		0C44F737E8A1E47FAFD2CA80 /* fit_ant_tx_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_tx_mesg.hpp; path = "../src/fit-sdk/fit_ant_tx_mesg.hpp"; sourceTree = "<absolute>"; };
 		0CBC58328B13B864BBEBC59B /* fit_segment_id_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_id_mesg.hpp; path = "../src/fit-sdk/fit_segment_id_mesg.hpp"; sourceTree = "<absolute>"; };
 		0DC4D824D91E60B5C0A374FB /* fit_exd_screen_configuration_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exd_screen_configuration_mesg.hpp; path = "../src/fit-sdk/fit_exd_screen_configuration_mesg.hpp"; sourceTree = "<absolute>"; };
-		0E54D576FF30E5D766DB7E68 /* homeform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = homeform.h; path = "../src/homeform.h"; sourceTree = "<absolute>"; };
+		0E54D576FF30E5D766DB7E68 /* homeform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = homeform.h; path = ../src/homeform.h; sourceTree = "<absolute>"; };
 		101034AAD8EFB3F400299EC9 /* fit_video_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_mesg_listener.hpp; path = "../src/fit-sdk/fit_video_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		117D1FC4DDE73408BFF87152 /* fit_gps_metadata_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gps_metadata_mesg.hpp; path = "../src/fit-sdk/fit_gps_metadata_mesg.hpp"; sourceTree = "<absolute>"; };
 		135A80908694E5CEEC1AB964 /* qtquickcontrols2imaginestyleplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2imaginestyleplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine/libqtquickcontrols2imaginestyleplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
@@ -651,13 +643,13 @@
 		1827547F95745BC4D6C2727F /* fit_mesg_with_event_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_with_event_listener.hpp; path = "../src/fit-sdk/fit_mesg_with_event_listener.hpp"; sourceTree = "<absolute>"; };
 		185CC485873E3D5F2F64BF88 /* fit_dive_settings_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_settings_mesg.hpp; path = "../src/fit-sdk/fit_dive_settings_mesg.hpp"; sourceTree = "<absolute>"; };
 		19AC644219C28E685A67AA13 /* qmldbg_preview */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_preview; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_preview$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		1A6BA62A2B82EB1C0DFB5CB9 /* qfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qfit.cpp; path = "../src/qfit.cpp"; sourceTree = "<absolute>"; };
+		1A6BA62A2B82EB1C0DFB5CB9 /* qfit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qfit.cpp; path = ../src/qfit.cpp; sourceTree = "<absolute>"; };
 		1AAAC7848769891E5EC471CE /* fit_buffered_record_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffered_record_mesg_listener.hpp; path = "../src/fit-sdk/fit_buffered_record_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		1ACEA3D73A1E87FCFD9CCB05 /* modelsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = modelsplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQml/Models.2/libmodelsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		1B2543FCC48E9436F21C4F63 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = /System/Library/Frameworks/Metal.framework; sourceTree = "<absolute>"; };
 		1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_bluetoothdevice.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_bluetoothdevice.cpp"; sourceTree = "<absolute>"; };
-		1C4AD3809DA5653F548BD9E9 /* toorxtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = toorxtreadmill.h; path = "../src/toorxtreadmill.h"; sourceTree = "<absolute>"; };
-		1C92B50A87636149B47EB993 /* trxappgateusbtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trxappgateusbtreadmill.h; path = "../src/trxappgateusbtreadmill.h"; sourceTree = "<absolute>"; };
+		1C4AD3809DA5653F548BD9E9 /* toorxtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = toorxtreadmill.h; path = ../src/toorxtreadmill.h; sourceTree = "<absolute>"; };
+		1C92B50A87636149B47EB993 /* trxappgateusbtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trxappgateusbtreadmill.h; path = ../src/trxappgateusbtreadmill.h; sourceTree = "<absolute>"; };
 		1EC4A2B7D3361913F0BB49C7 /* fit_developer_data_id_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_developer_data_id_mesg.hpp; path = "../src/fit-sdk/fit_developer_data_id_mesg.hpp"; sourceTree = "<absolute>"; };
 		1F450A55E8CA5BA61AC2F561 /* fit_developer_field_definition.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_developer_field_definition.cpp; path = "../src/fit-sdk/fit_developer_field_definition.cpp"; sourceTree = "<absolute>"; };
 		1FC21BB8B130AE413ABBCB9F /* fit_date_time.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_date_time.hpp; path = "../src/fit-sdk/fit_date_time.hpp"; sourceTree = "<absolute>"; };
@@ -673,31 +665,31 @@
 		290AC0A0F85AB82B1F5AF3FA /* fit_decode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_decode.cpp; path = "../src/fit-sdk/fit_decode.cpp"; sourceTree = "<absolute>"; };
 		29DD6991C4C8E48D1A087A9D /* fit_goal_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_goal_mesg.hpp; path = "../src/fit-sdk/fit_goal_mesg.hpp"; sourceTree = "<absolute>"; };
 		2A99164831522C634B71DAAA /* fit_field_capabilities_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_field_capabilities_mesg_listener.hpp; path = "../src/fit-sdk/fit_field_capabilities_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		2BE69BEA9F24349FDB2EB8D2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../src/main.cpp"; sourceTree = "<absolute>"; };
+		2BE69BEA9F24349FDB2EB8D2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/main.cpp; sourceTree = "<absolute>"; };
 		2C74C087B513071B0EBA6BDD /* fit_speed_zone_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_speed_zone_mesg.hpp; path = "../src/fit-sdk/fit_speed_zone_mesg.hpp"; sourceTree = "<absolute>"; };
 		2CB37BB3C0F7FC83AB283C79 /* moc_domyostreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_domyostreadmill.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_domyostreadmill.cpp"; sourceTree = "<absolute>"; };
 		2CD2AC95573B9196A11D8B5D /* fit_weather_conditions_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg.hpp; path = "../src/fit-sdk/fit_weather_conditions_mesg.hpp"; sourceTree = "<absolute>"; };
 		2D4A13931169E5681CE465F0 /* Qt5NetworkAuth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5NetworkAuth; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5NetworkAuth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		2E6B7E1FF5E6A5461E7B7C44 /* fit_dive_summary_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg.hpp; path = "../src/fit-sdk/fit_dive_summary_mesg.hpp"; sourceTree = "<absolute>"; };
-		2E99CE78422C13B5E8F1EB53 /* qfit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qfit.h; path = "../src/qfit.h"; sourceTree = "<absolute>"; };
+		2E99CE78422C13B5E8F1EB53 /* qfit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qfit.h; path = ../src/qfit.h; sourceTree = "<absolute>"; };
 		2E9A703E620AD39818182E87 /* FitField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitField.h; path = "../src/fit-sdk/FitField.h"; sourceTree = "<absolute>"; };
 		2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualbike_zwift.swift; path = ../src/ios/virtualbike_zwift.swift; sourceTree = "<group>"; };
-		2F875FD21B3CE91076B48D2D /* domyostreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyostreadmill.h; path = "../src/domyostreadmill.h"; sourceTree = "<absolute>"; };
+		2F875FD21B3CE91076B48D2D /* domyostreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyostreadmill.h; path = ../src/domyostreadmill.h; sourceTree = "<absolute>"; };
 		302316BD81D103EDFB1BBFF4 /* fit_event_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_event_mesg.hpp; path = "../src/fit-sdk/fit_event_mesg.hpp"; sourceTree = "<absolute>"; };
 		306373050762B159D8FBFD7A /* fit_timestamp_correlation_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_timestamp_correlation_mesg_listener.hpp; path = "../src/fit-sdk/fit_timestamp_correlation_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qquicklayoutsplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Layouts/libqquicklayoutsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		3088C65BF5992B009FFC93B5 /* virtualtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualtreadmill.cpp; path = "../src/virtualtreadmill.cpp"; sourceTree = "<absolute>"; };
+		3088C65BF5992B009FFC93B5 /* virtualtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = virtualtreadmill.cpp; path = ../src/virtualtreadmill.cpp; sourceTree = "<absolute>"; };
 		310AB027BBBCDE72251E1C01 /* qdomyoszwift_qml_plugin_import.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_qml_plugin_import.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_qml_plugin_import.cpp"; sourceTree = "<absolute>"; };
 		312916F66E95C74844AAD1A0 /* fit_segment_leaderboard_entry_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_leaderboard_entry_mesg_listener.hpp; path = "../src/fit-sdk/fit_segment_leaderboard_entry_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		3150B34288B1FA8AAAB9A4AA /* fit_mesg_capabilities_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_capabilities_mesg_listener.hpp; path = "../src/fit-sdk/fit_mesg_capabilities_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		31DBAF11B8FC133BA589991A /* fit_file_capabilities_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_capabilities_mesg.hpp; path = "../src/fit-sdk/fit_file_capabilities_mesg.hpp"; sourceTree = "<absolute>"; };
 		333DBB8CBD805C83589F1491 /* fit_gps_metadata_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gps_metadata_mesg_listener.hpp; path = "../src/fit-sdk/fit_gps_metadata_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		341BDF9D6DB8211DE6C975B9 /* fit_set_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_set_mesg_listener.hpp; path = "../src/fit-sdk/fit_set_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		3427833FFD001B59545D14B0 /* gpx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gpx.cpp; path = "../src/gpx.cpp"; sourceTree = "<absolute>"; };
+		3427833FFD001B59545D14B0 /* gpx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gpx.cpp; path = ../src/gpx.cpp; sourceTree = "<absolute>"; };
 		344F66310C19536DB4886D8F /* qtpcre2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtpcre2; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libqtpcre2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		3486021539E7698F1162C086 /* fit_mesg_broadcaster.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_broadcaster.hpp; path = "../src/fit-sdk/fit_mesg_broadcaster.hpp"; sourceTree = "<absolute>"; };
 		35777185ADBC4A7A18525562 /* fit_user_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_user_profile_mesg_listener.hpp; path = "../src/fit-sdk/fit_user_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		35E903698E72424585D33829 /* virtualtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualtreadmill.h; path = "../src/virtualtreadmill.h"; sourceTree = "<absolute>"; };
+		35E903698E72424585D33829 /* virtualtreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualtreadmill.h; path = ../src/virtualtreadmill.h; sourceTree = "<absolute>"; };
 		35F5C0867B2C81E7F0DB71EE /* moc_toorxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_toorxtreadmill.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_toorxtreadmill.cpp"; sourceTree = "<absolute>"; };
 		3753039C93CD7D4769118D7B /* moc_trxappgateusbtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_trxappgateusbtreadmill.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_trxappgateusbtreadmill.cpp"; sourceTree = "<absolute>"; };
 		3786EF67BA4E4308F21A5657 /* Qt5PacketProtocol */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5PacketProtocol; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5PacketProtocol$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
@@ -709,9 +701,9 @@
 		3F0A8F2C74AB4315543BEE28 /* qmldbg_profiler */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_profiler; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_profiler$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		40CAD50AA01A6BE35F8601A5 /* qtiff */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtiff; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats/libqtiff$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		415F1B1F4DDA94A9F2D91814 /* fit_protocol_validator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_protocol_validator.hpp; path = "../src/fit-sdk/fit_protocol_validator.hpp"; sourceTree = "<absolute>"; };
-		42C97553CD7E951C38EB8FA0 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = "../src/ios/lockscreen.h"; sourceTree = "<absolute>"; };
+		42C97553CD7E951C38EB8FA0 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = ../src/ios/lockscreen.h; sourceTree = "<absolute>"; };
 		437D460977197971C01BFDB7 /* fit_length_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_length_mesg_listener.hpp; path = "../src/fit-sdk/fit_length_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		43B640BF6D577F6B03F84A64 /* homeform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = homeform.cpp; path = "../src/homeform.cpp"; sourceTree = "<absolute>"; };
+		43B640BF6D577F6B03F84A64 /* homeform.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = homeform.cpp; path = ../src/homeform.cpp; sourceTree = "<absolute>"; };
 		44AD083473A1949D2A3599DD /* fit_hrm_profile_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrm_profile_mesg.hpp; path = "../src/fit-sdk/fit_hrm_profile_mesg.hpp"; sourceTree = "<absolute>"; };
 		461C8CAF1F08FD05CC8DA459 /* FitMesgDefinition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitMesgDefinition.h; path = "../src/fit-sdk/FitMesgDefinition.h"; sourceTree = "<absolute>"; };
 		462823ECDEB82CF0E93E1D5E /* fit_jump_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_jump_mesg_listener.hpp; path = "../src/fit-sdk/fit_jump_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -721,7 +713,7 @@
 		47781FA2D15F1A571CAA5F7C /* fit_zones_target_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_zones_target_mesg.hpp; path = "../src/fit-sdk/fit_zones_target_mesg.hpp"; sourceTree = "<absolute>"; };
 		47EE6598F3E62A8A44426497 /* fit_accelerometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accelerometer_data_mesg_listener.hpp; path = "../src/fit-sdk/fit_accelerometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		481A55073CF86828646C558B /* Qt5Core */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Core; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Core$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		4820A6CE9EED8109189EB2E7 /* bluetoothdevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetoothdevice.cpp; path = "../src/bluetoothdevice.cpp"; sourceTree = "<absolute>"; };
+		4820A6CE9EED8109189EB2E7 /* bluetoothdevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetoothdevice.cpp; path = ../src/bluetoothdevice.cpp; sourceTree = "<absolute>"; };
 		488243DD156BC975CEAC66A7 /* FitField.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitField.mm; path = "../src/fit-sdk/FitField.mm"; sourceTree = "<absolute>"; };
 		48C79275AE824799BF80117F /* fit_hrm_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrm_profile_mesg_listener.hpp; path = "../src/fit-sdk/fit_hrm_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		49789298954386B0E136DA23 /* qrc_qml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_qml.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_qml.cpp"; sourceTree = "<absolute>"; };
@@ -737,7 +729,7 @@
 		517FD620BBA26AF79A39821A /* fit_config.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_config.hpp; path = "../src/fit-sdk/fit_config.hpp"; sourceTree = "<absolute>"; };
 		51F4248BD2B00BD11CDF7DA3 /* fit_workout_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_workout_mesg_listener.hpp; path = "../src/fit-sdk/fit_workout_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		52CEECC02EB33B92FA6793DC /* fit_sport_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sport_mesg.hpp; path = "../src/fit-sdk/fit_sport_mesg.hpp"; sourceTree = "<absolute>"; };
-		5316C24095FFE9C3C9ECA922 /* bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bike.cpp; path = "../src/bike.cpp"; sourceTree = "<absolute>"; };
+		5316C24095FFE9C3C9ECA922 /* bike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bike.cpp; path = ../src/bike.cpp; sourceTree = "<absolute>"; };
 		53805E9A66055D7ED2ED6959 /* fit_exd_screen_configuration_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exd_screen_configuration_mesg_listener.hpp; path = "../src/fit-sdk/fit_exd_screen_configuration_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		53AA2A31E70D31F208CB1D15 /* qtga */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtga; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats/libqtga$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		5409E3B9F811B3B2B9964442 /* fit_hrv_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hrv_mesg.hpp; path = "../src/fit-sdk/fit_hrv_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -770,7 +762,7 @@
 		66675BC7F6B17B0B2434A1F4 /* fit_mesg_definition.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_mesg_definition.cpp; path = "../src/fit-sdk/fit_mesg_definition.cpp"; sourceTree = "<absolute>"; };
 		67533650BD0A45B5BCE1A8C7 /* qtquickcontrols2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquickcontrols2plugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/libqtquickcontrols2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		67E53FD43BE69489B0434897 /* qmldbg_inspector */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_inspector; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_inspector$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		68418A2D51B69FC30BF5A41C /* virtualbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualbike.h; path = "../src/virtualbike.h"; sourceTree = "<absolute>"; };
+		68418A2D51B69FC30BF5A41C /* virtualbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualbike.h; path = ../src/virtualbike.h; sourceTree = "<absolute>"; };
 		6868E40D2FA50923FAFB4420 /* fit_event_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_event_mesg_listener.hpp; path = "../src/fit-sdk/fit_event_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		68EB28D7D813667CFB43E541 /* windowplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = windowplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		698885E01BE828C9D48D57CD /* fit_slave_device_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_slave_device_mesg_listener.hpp; path = "../src/fit-sdk/fit_slave_device_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -779,8 +771,8 @@
 		6A7457664134956B7DCD2C1B /* fit_workout_step_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_workout_step_mesg_listener.hpp; path = "../src/fit-sdk/fit_workout_step_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		6A9D8B1EA208E9F92BF4767B /* fit_stress_level_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_stress_level_mesg_listener.hpp; path = "../src/fit-sdk/fit_stress_level_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		6AE3EC31EE5BB1FCEE84137C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = /System/Library/Frameworks/CoreGraphics.framework; sourceTree = "<absolute>"; };
-		6B1DBA773C9B51B94344EC61 /* trainprogram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = trainprogram.cpp; path = "../src/trainprogram.cpp"; sourceTree = "<absolute>"; };
-		6CAA4E912DD5732B087D9A96 /* trxappgateusbtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbtreadmill.cpp; path = "../src/trxappgateusbtreadmill.cpp"; sourceTree = "<absolute>"; };
+		6B1DBA773C9B51B94344EC61 /* trainprogram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = trainprogram.cpp; path = ../src/trainprogram.cpp; sourceTree = "<absolute>"; };
+		6CAA4E912DD5732B087D9A96 /* trxappgateusbtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbtreadmill.cpp; path = ../src/trxappgateusbtreadmill.cpp; sourceTree = "<absolute>"; };
 		6D5B30258D7BDC5B2BDE802C /* fit_accumulator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_accumulator.hpp; path = "../src/fit-sdk/fit_accumulator.hpp"; sourceTree = "<absolute>"; };
 		6DE6790646303C53B78AAC19 /* fit_aviation_attitude_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_aviation_attitude_mesg.hpp; path = "../src/fit-sdk/fit_aviation_attitude_mesg.hpp"; sourceTree = "<absolute>"; };
 		6EE3BFFC16D697805D28E5F2 /* fit_watchface_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_watchface_settings_mesg_listener.hpp; path = "../src/fit-sdk/fit_watchface_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -797,7 +789,7 @@
 		7741BE9E4D31600C04591D53 /* fit_sdm_profile_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sdm_profile_mesg.hpp; path = "../src/fit-sdk/fit_sdm_profile_mesg.hpp"; sourceTree = "<absolute>"; };
 		78B64A85CA2D2447CCAE46FB /* fit_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_unicode.cpp; path = "../src/fit-sdk/fit_unicode.cpp"; sourceTree = "<absolute>"; };
 		78FE5BD5B6281B7A61CCCF92 /* Qt5Quick */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Quick; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Quick$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		7944A61A6F17291731CE6F84 /* domyosbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyosbike.cpp; path = "../src/domyosbike.cpp"; sourceTree = "<absolute>"; };
+		7944A61A6F17291731CE6F84 /* domyosbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyosbike.cpp; path = ../src/domyosbike.cpp; sourceTree = "<absolute>"; };
 		7A3FA4569540D446E8FA4CF2 /* Qt5QuickTemplates2 */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5QuickTemplates2; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5QuickTemplates2$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		7ADAEE5BCA8194CC2A85A633 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/LaunchScreen.storyboard"; sourceTree = "<absolute>"; };
 		7B244F450C6BD59DEF4FB3C5 /* qmlsettingsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmlsettingsplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/Qt/labs/settings/libqmlsettingsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
@@ -811,8 +803,8 @@
 		817195CFDC8E8DFCA1A5AFF9 /* fit_course_point_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_course_point_mesg.hpp; path = "../src/fit-sdk/fit_course_point_mesg.hpp"; sourceTree = "<absolute>"; };
 		82AF77CFC5E50AC0DFE98958 /* fit_exercise_title_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exercise_title_mesg_listener.hpp; path = "../src/fit-sdk/fit_exercise_title_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		832794624AF0EDF8BA97B6EB /* fit_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg.hpp; path = "../src/fit-sdk/fit_mesg.hpp"; sourceTree = "<absolute>"; };
-		844547E10F82729ADCEB8592 /* gpx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gpx.h; path = "../src/gpx.h"; sourceTree = "<absolute>"; };
-		844F0603BC6EA83EF920104F /* domyostreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyostreadmill.cpp; path = "../src/domyostreadmill.cpp"; sourceTree = "<absolute>"; };
+		844547E10F82729ADCEB8592 /* gpx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gpx.h; path = ../src/gpx.h; sourceTree = "<absolute>"; };
+		844F0603BC6EA83EF920104F /* domyostreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = domyostreadmill.cpp; path = ../src/domyostreadmill.cpp; sourceTree = "<absolute>"; };
 		84AF4FFBA8FDC16E6A54D667 /* qmldbg_local */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_local; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_local$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		84F09EF77545C4D757DB6DE8 /* fit_record_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_record_mesg_listener.hpp; path = "../src/fit-sdk/fit_record_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "../src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1372,9 +1364,9 @@
 		89A39FC11EDB19EAA47B6F76 /* qtfreetype */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtfreetype; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libqtfreetype$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		8A1522D42ABB161A9A09FF59 /* Qt5Gui */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Gui; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Gui$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		8A55AD20C6936E085932580C /* fit_speed_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_speed_zone_mesg_listener.hpp; path = "../src/fit-sdk/fit_speed_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		8B0816603DB339FD29187CF0 /* trainprogram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trainprogram.h; path = "../src/trainprogram.h"; sourceTree = "<absolute>"; };
+		8B0816603DB339FD29187CF0 /* trainprogram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trainprogram.h; path = ../src/trainprogram.h; sourceTree = "<absolute>"; };
 		8B4D3E8297D9B0A3F6D0E502 /* fit_exercise_title_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_exercise_title_mesg.hpp; path = "../src/fit-sdk/fit_exercise_title_mesg.hpp"; sourceTree = "<absolute>"; };
-		8D4707FE7D1DA58A70A11CF8 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = "../src/macos/lockscreen.h"; sourceTree = "<absolute>"; };
+		8D4707FE7D1DA58A70A11CF8 /* lockscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lockscreen.h; path = ../src/macos/lockscreen.h; sourceTree = "<absolute>"; };
 		8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qdomyoszwift_plugin_import.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift_plugin_import.cpp"; sourceTree = "<absolute>"; };
 		8E28393138FD66362FE1D92E /* fit_accumulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_accumulator.cpp; path = "../src/fit-sdk/fit_accumulator.cpp"; sourceTree = "<absolute>"; };
 		8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = qrc_icons.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qrc_icons.cpp"; sourceTree = "<absolute>"; };
@@ -1398,7 +1390,7 @@
 		9960319B8768EF4DFB248E6E /* fit_gyroscope_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_gyroscope_data_mesg_listener.hpp; path = "../src/fit-sdk/fit_gyroscope_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		9AAC17C5410E722893871A19 /* fit_timestamp_correlation_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_timestamp_correlation_mesg.hpp; path = "../src/fit-sdk/fit_timestamp_correlation_mesg.hpp"; sourceTree = "<absolute>"; };
 		9AF23152E858A0D5AEF1654D /* fit_bike_profile_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_bike_profile_mesg_listener.hpp; path = "../src/fit-sdk/fit_bike_profile_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		9C042EE785E37E4C45C94A92 /* icons.qrc */ = {isa = PBXFileReference; lastKnownFileType = text; name = icons.qrc; path = "../src/icons.qrc"; sourceTree = "<absolute>"; };
+		9C042EE785E37E4C45C94A92 /* icons.qrc */ = {isa = PBXFileReference; lastKnownFileType = text; name = icons.qrc; path = ../src/icons.qrc; sourceTree = "<absolute>"; };
 		9C1607DFCA6D86481389ACD0 /* qmldbg_server */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_server; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_server$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		9C5820C2D054F5B3B6DA4797 /* fit_three_d_sensor_calibration_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_three_d_sensor_calibration_mesg.hpp; path = "../src/fit-sdk/fit_three_d_sensor_calibration_mesg.hpp"; sourceTree = "<absolute>"; };
 		9D38D4E171C8AB0083B37CBE /* fit_segment_leaderboard_entry_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_leaderboard_entry_mesg.hpp; path = "../src/fit-sdk/fit_segment_leaderboard_entry_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -1414,9 +1406,9 @@
 		A476EBDA6D9C717A83740D5E /* fit_mesg_definition_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_definition_listener.hpp; path = "../src/fit-sdk/fit_mesg_definition_listener.hpp"; sourceTree = "<absolute>"; };
 		A4E4DB5B562076805BA75579 /* qtgraphicaleffectsplugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsplugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		A50AE6FF3FCCB21C33FBBFA3 /* qtharfbuzz */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtharfbuzz; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libqtharfbuzz$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		A59EA4D453581E7D5FB8C0A2 /* toorxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = toorxtreadmill.cpp; path = "../src/toorxtreadmill.cpp"; sourceTree = "<absolute>"; };
+		A59EA4D453581E7D5FB8C0A2 /* toorxtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = toorxtreadmill.cpp; path = ../src/toorxtreadmill.cpp; sourceTree = "<absolute>"; };
 		A5E70F638A0465104A5E627A /* fit_training_file_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_training_file_mesg_listener.hpp; path = "../src/fit-sdk/fit_training_file_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		A606E3B1B35A677B552BC3CA /* bluetoothdevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bluetoothdevice.h; path = "../src/bluetoothdevice.h"; sourceTree = "<absolute>"; };
+		A606E3B1B35A677B552BC3CA /* bluetoothdevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bluetoothdevice.h; path = ../src/bluetoothdevice.h; sourceTree = "<absolute>"; };
 		A6A03C984528339A954CB611 /* fit_factory.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_factory.hpp; path = "../src/fit-sdk/fit_factory.hpp"; sourceTree = "<absolute>"; };
 		A882FE4F7367E9AA0D46E8C1 /* moc_virtualbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_virtualbike.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_virtualbike.cpp"; sourceTree = "<absolute>"; };
 		A989020C3BE82C8DD25B3BEE /* fit_monitoring_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_mesg.hpp; path = "../src/fit-sdk/fit_monitoring_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -1429,9 +1421,9 @@
 		ADB18142DC1ADD985F3AB71F /* fit_file_capabilities_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_capabilities_mesg_listener.hpp; path = "../src/fit-sdk/fit_file_capabilities_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		AE37AD08DD922A0FC4A12F06 /* fit_unicode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_unicode.hpp; path = "../src/fit-sdk/fit_unicode.hpp"; sourceTree = "<absolute>"; };
 		AE97F20BE885247F4A71B35D /* fit_activity_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_activity_mesg_listener.hpp; path = "../src/fit-sdk/fit_activity_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		AEBE317CF9A38D517217A518 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "../src/ios/Images.xcassets"; sourceTree = "<absolute>"; };
-		AF3D02835DF1EBAAA7EDC3E1 /* sessionline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sessionline.cpp; path = "../src/sessionline.cpp"; sourceTree = "<absolute>"; };
-		B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetooth.cpp; path = "../src/bluetooth.cpp"; sourceTree = "<absolute>"; };
+		AEBE317CF9A38D517217A518 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../src/ios/Images.xcassets; sourceTree = "<absolute>"; };
+		AF3D02835DF1EBAAA7EDC3E1 /* sessionline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sessionline.cpp; path = ../src/sessionline.cpp; sourceTree = "<absolute>"; };
+		B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = bluetooth.cpp; path = ../src/bluetooth.cpp; sourceTree = "<absolute>"; };
 		B0CED98BD11B76B1058DC400 /* fit_file_creator_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_file_creator_mesg.hpp; path = "../src/fit-sdk/fit_file_creator_mesg.hpp"; sourceTree = "<absolute>"; };
 		B17592D78E01BCF06F1BE2CE /* qmldbg_native */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qmldbg_native; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/qmltooling/libqmldbg_native$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		B195F7B46E0D216CD199265D /* fit_segment_lap_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_lap_mesg_listener.hpp; path = "../src/fit-sdk/fit_segment_lap_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1451,7 +1443,7 @@
 		BBBF307E2FE441F071177CEF /* fit_sport_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_sport_mesg_listener.hpp; path = "../src/fit-sdk/fit_sport_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		BC3A8C3E433A8FA00BB15F07 /* qios */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qios; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms/libqios$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		BDADBFB8B26EC3CDA415285D /* qtgraphicaleffectsprivate */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtgraphicaleffectsprivate; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
-		BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = lockscreen.mm; path = "../src/ios/lockscreen.mm"; sourceTree = "<absolute>"; };
+		BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = lockscreen.mm; path = ../src/ios/lockscreen.mm; sourceTree = "<absolute>"; };
 		BDE58BCA9ABD5DF101B0E0FF /* fit_field_base.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_field_base.cpp; path = "../src/fit-sdk/fit_field_base.cpp"; sourceTree = "<absolute>"; };
 		BE9F7ACBD999C64167C2A8F7 /* fit_met_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_met_zone_mesg_listener.hpp; path = "../src/fit-sdk/fit_met_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		BF8BB634741A846807A575CD /* fit_schedule_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_schedule_mesg_listener.hpp; path = "../src/fit-sdk/fit_schedule_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1469,8 +1461,8 @@
 		C6D33DC84707A080999C35B8 /* fit_blood_pressure_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_blood_pressure_mesg.hpp; path = "../src/fit-sdk/fit_blood_pressure_mesg.hpp"; sourceTree = "<absolute>"; };
 		C714C1AF3FA78E2DABBC17E8 /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = /System/Library/Frameworks/GSS.framework; sourceTree = "<absolute>"; };
 		C844746963EDB427F8421941 /* fit_memo_glob_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_memo_glob_mesg.hpp; path = "../src/fit-sdk/fit_memo_glob_mesg.hpp"; sourceTree = "<absolute>"; };
-		C8C06A457EDC9CEAA9A93891 /* signalhandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = signalhandler.cpp; path = "../src/signalhandler.cpp"; sourceTree = "<absolute>"; };
-		C8CE72E7B224D8B886614E3F /* domyosbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyosbike.h; path = "../src/domyosbike.h"; sourceTree = "<absolute>"; };
+		C8C06A457EDC9CEAA9A93891 /* signalhandler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = signalhandler.cpp; path = ../src/signalhandler.cpp; sourceTree = "<absolute>"; };
+		C8CE72E7B224D8B886614E3F /* domyosbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyosbike.h; path = ../src/domyosbike.h; sourceTree = "<absolute>"; };
 		C92901A50585DAC2A5D43A2F /* qtquicktemplates2plugin */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtquicktemplates2plugin; path = "/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Templates.2/libqtquicktemplates2plugin$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		CA35DDC56ACD982A52226071 /* fit_developer_field_description.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_developer_field_description.cpp; path = "../src/fit-sdk/fit_developer_field_description.cpp"; sourceTree = "<absolute>"; };
 		CA44C08759DF30D7DC9CA598 /* moc_treadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_treadmill.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_treadmill.cpp"; sourceTree = "<absolute>"; };
@@ -1483,11 +1475,11 @@
 		CEE9BCF40C081381EAA58866 /* fit_stress_level_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_stress_level_mesg.hpp; path = "../src/fit-sdk/fit_stress_level_mesg.hpp"; sourceTree = "<absolute>"; };
 		CFA97521725D52AB610D8FE4 /* fit_field_definition.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_field_definition.cpp; path = "../src/fit-sdk/fit_field_definition.cpp"; sourceTree = "<absolute>"; };
 		CFD6F26C7B3734E2E3176BF7 /* fit_record_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_record_mesg.hpp; path = "../src/fit-sdk/fit_record_mesg.hpp"; sourceTree = "<absolute>"; };
-		D04C8CA82297659A08A948F4 /* qml.qrc */ = {isa = PBXFileReference; lastKnownFileType = text; name = qml.qrc; path = "../src/qml.qrc"; sourceTree = "<absolute>"; };
+		D04C8CA82297659A08A948F4 /* qml.qrc */ = {isa = PBXFileReference; lastKnownFileType = text; name = qml.qrc; path = ../src/qml.qrc; sourceTree = "<absolute>"; };
 		D0728125D9C98A60DD2C0710 /* fit_pad_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_pad_mesg.hpp; path = "../src/fit-sdk/fit_pad_mesg.hpp"; sourceTree = "<absolute>"; };
 		D10C965D624762F34A097473 /* fit_buffered_mesg_broadcaster.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_buffered_mesg_broadcaster.hpp; path = "../src/fit-sdk/fit_buffered_mesg_broadcaster.hpp"; sourceTree = "<absolute>"; };
 		D1352BC2FA5630CA705C6385 /* fit_developer_field_definition.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_developer_field_definition.hpp; path = "../src/fit-sdk/fit_developer_field_definition.hpp"; sourceTree = "<absolute>"; };
-		D1C9B603026AB12395E6AC08 /* bike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bike.h; path = "../src/bike.h"; sourceTree = "<absolute>"; };
+		D1C9B603026AB12395E6AC08 /* bike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bike.h; path = ../src/bike.h; sourceTree = "<absolute>"; };
 		D28BB313D740AB36C8A57B2A /* fit_slave_device_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_slave_device_mesg.hpp; path = "../src/fit-sdk/fit_slave_device_mesg.hpp"; sourceTree = "<absolute>"; };
 		D39E5F932A559993FEFB6FA2 /* fit_dive_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_settings_mesg_listener.hpp; path = "../src/fit-sdk/fit_dive_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		D53B44F1A36DBDF71393476C /* Qt5Bluetooth */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Bluetooth; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Bluetooth$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
@@ -1502,16 +1494,16 @@
 		D8946F0AC74D2A64CFE1B341 /* fit_mesg_capabilities_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_capabilities_mesg.hpp; path = "../src/fit-sdk/fit_mesg_capabilities_mesg.hpp"; sourceTree = "<absolute>"; };
 		D9138949E6E9FBB803204F0A /* qtlibpng */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qtlibpng; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libqtlibpng$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		D9351243669C23205F386CE1 /* fit_power_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_power_zone_mesg_listener.hpp; path = "../src/fit-sdk/fit_power_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		D95B4E8B3F1AEB4D59A86FDE /* echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = echelonconnectsport.h; path = "../src/echelonconnectsport.h"; sourceTree = "<absolute>"; };
+		D95B4E8B3F1AEB4D59A86FDE /* echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = echelonconnectsport.h; path = ../src/echelonconnectsport.h; sourceTree = "<absolute>"; };
 		DA39C782450459CE876C7BB0 /* Qt5GraphicsSupport */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5GraphicsSupport; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5GraphicsSupport$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		DA62E7E176F8188DADBD1310 /* moc_virtualtreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_virtualtreadmill.cpp; path = "../build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_virtualtreadmill.cpp"; sourceTree = "<absolute>"; };
 		DCC868EE625793828AA48429 /* fit_hr_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hr_mesg_listener.hpp; path = "../src/fit-sdk/fit_hr_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		DCCCA1B5E2A006C74BEFA2AD /* sessionline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sessionline.h; path = "../src/sessionline.h"; sourceTree = "<absolute>"; };
+		DCCCA1B5E2A006C74BEFA2AD /* sessionline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sessionline.h; path = ../src/sessionline.h; sourceTree = "<absolute>"; };
 		DCE85394048F261FAFEB8D22 /* Qt5Qml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Qml; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Qml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		DE606F27929E48257858E3FE /* fit_mesg_with_event.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_mesg_with_event.hpp; path = "../src/fit-sdk/fit_mesg_with_event.hpp"; sourceTree = "<absolute>"; };
-		DE705A0CE85F2684E5B87639 /* treadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = treadmill.h; path = "../src/treadmill.h"; sourceTree = "<absolute>"; };
-		DEBF0D8A499A60123F8BC482 /* keepawakehelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keepawakehelper.h; path = "../src/keepawakehelper.h"; sourceTree = "<absolute>"; };
-		DEF999DD1C2A9DF5E4B0E248 /* keepawakehelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = keepawakehelper.cpp; path = "../src/keepawakehelper.cpp"; sourceTree = "<absolute>"; };
+		DE705A0CE85F2684E5B87639 /* treadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = treadmill.h; path = ../src/treadmill.h; sourceTree = "<absolute>"; };
+		DEBF0D8A499A60123F8BC482 /* keepawakehelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keepawakehelper.h; path = ../src/keepawakehelper.h; sourceTree = "<absolute>"; };
+		DEF999DD1C2A9DF5E4B0E248 /* keepawakehelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = keepawakehelper.cpp; path = ../src/keepawakehelper.cpp; sourceTree = "<absolute>"; };
 		E065566B8301A4E4612060A1 /* fit_field.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_field.cpp; path = "../src/fit-sdk/fit_field.cpp"; sourceTree = "<absolute>"; };
 		E14DDD77D8D15343FCD06014 /* fit_nmea_sentence_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg_listener.hpp; path = "../src/fit-sdk/fit_nmea_sentence_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		E1BCBD0B82BBD27DE2102D7F /* FitEncode.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitEncode.mm; path = "../src/fit-sdk/FitEncode.mm"; sourceTree = "<absolute>"; };
@@ -1531,12 +1523,12 @@
 		EEAF419252E924461C832253 /* Qt5Xml */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Xml; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Xml$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		F0037505674C49C45594B144 /* fit_schedule_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_schedule_mesg.hpp; path = "../src/fit-sdk/fit_schedule_mesg.hpp"; sourceTree = "<absolute>"; };
 		F01E20E169E36DD89A22DA25 /* fit_zones_target_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_zones_target_mesg_listener.hpp; path = "../src/fit-sdk/fit_zones_target_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		F1258BF0439627ACBCBEB926 /* treadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = treadmill.cpp; path = "../src/treadmill.cpp"; sourceTree = "<absolute>"; };
+		F1258BF0439627ACBCBEB926 /* treadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = treadmill.cpp; path = ../src/treadmill.cpp; sourceTree = "<absolute>"; };
 		F1975B00D8A5E32E70D7A66D /* fit_hr_zone_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_hr_zone_mesg_listener.hpp; path = "../src/fit-sdk/fit_hr_zone_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F1BAA68E28416ADC7A51CF36 /* fit_crc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_crc.hpp; path = "../src/fit-sdk/fit_crc.hpp"; sourceTree = "<absolute>"; };
 		F1D990DA4CA86363D75D79AF /* fit_memo_glob_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_memo_glob_mesg_listener.hpp; path = "../src/fit-sdk/fit_memo_glob_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F1FF0B7FA312D6CABD501205 /* fit_video_frame_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_video_frame_mesg_listener.hpp; path = "../src/fit-sdk/fit_video_frame_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		F21213E1557D542A5833B7C4 /* mainwindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mainwindow.h; path = "../src/mainwindow.h"; sourceTree = "<absolute>"; };
+		F21213E1557D542A5833B7C4 /* mainwindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mainwindow.h; path = ../src/mainwindow.h; sourceTree = "<absolute>"; };
 		F291D2A65EBED1D41CE3A6E4 /* FitDeveloperField.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = FitDeveloperField.mm; path = "../src/fit-sdk/FitDeveloperField.mm"; sourceTree = "<absolute>"; };
 		F2D2AC7BC610D06D226CEC34 /* qjpeg */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = qjpeg; path = "/Users/cagnulein/Qt/5.15.2/ios/plugins/imageformats/libqjpeg$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		F34B9C4429B8A4C4AB280EA9 /* fit_segment_file_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_segment_file_mesg_listener.hpp; path = "../src/fit-sdk/fit_segment_file_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1544,7 +1536,7 @@
 		F6549F48587D80D5A8731CC9 /* fit_ant_tx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_tx_mesg_listener.hpp; path = "../src/fit-sdk/fit_ant_tx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		F753A96D8DEED8080EF04E3D /* qdomyos-zwift.pro */ = {isa = PBXFileReference; lastKnownFileType = text; name = "qdomyos-zwift.pro"; path = "../src/qdomyos-zwift.pro"; sourceTree = "<absolute>"; };
 		F851E97B24E2799C8F96201E /* fit_jump_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_jump_mesg.hpp; path = "../src/fit-sdk/fit_jump_mesg.hpp"; sourceTree = "<absolute>"; };
-		F87046DE0CFAC61EB6CFC66B /* bluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bluetooth.h; path = "../src/bluetooth.h"; sourceTree = "<absolute>"; };
+		F87046DE0CFAC61EB6CFC66B /* bluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bluetooth.h; path = ../src/bluetooth.h; sourceTree = "<absolute>"; };
 		F8D4CA28A8C0C032B4615022 /* fit_barometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_barometer_data_mesg_listener.hpp; path = "../src/fit-sdk/fit_barometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		FA0538BA347355980216F7DA /* fit_developer_field.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_developer_field.cpp; path = "../src/fit-sdk/fit_developer_field.cpp"; sourceTree = "<absolute>"; };
 		FA2C6EAFFD729B120AE44312 /* fit_capabilities_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_capabilities_mesg_listener.hpp; path = "../src/fit-sdk/fit_capabilities_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -2788,7 +2780,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				F8E0E95C27758CAC67EF1CD4 /* PBXTargetDependency */,
 				876E4E312594748100BD5714 /* PBXTargetDependency */,
 			);
 			name = qdomyoszwift;
@@ -3338,11 +3329,6 @@
 			target = 876E4E102594747F00BD5714 /* watchkit */;
 			targetProxy = 876E4E302594748100BD5714 /* PBXContainerItemProxy */;
 		};
-		F8E0E95C27758CAC67EF1CD4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E9F0AFC024A6F2D65CE84E08 /* Qt Preprocess */;
-			targetProxy = 876E4E0E2594739400BD5714 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -3740,7 +3726,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
-					"../src/ios",
+					../src/ios,
 				);
 				MARKETING_VERSION = 2.16;
 				OTHER_CFLAGS = (
@@ -3911,7 +3897,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
-					"../src/ios",
+					../src/ios,
 				);
 				MARKETING_VERSION = 2.16;
 				ONLY_ACTIVE_ARCH = YES;
