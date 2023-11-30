@@ -3371,6 +3371,7 @@
 					../../Qt/5.15.2/ios/include/QtCore,
 					.,
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
+					"/usr/local/opt/qt@5/",
 				);
 				INFOPLIST_FILE = ../src/ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
