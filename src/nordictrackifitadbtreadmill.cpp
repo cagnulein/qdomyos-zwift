@@ -266,9 +266,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 settings.value(QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i).toBool();
             if (requestSpeed != -1) {
                 int x1 = 1845;
-                int y1Speed = 807 - (int)((Speed.value() - 1) * 29.78);
+                int y1Speed = 807 - (int)((Speed.value() - 1) * 31);
                 // set speed slider to target position
-                int y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 29.78);
+                int y2 = y1Speed - (int)((requestSpeed - Speed.value()) * 31);
                 if(nordictrack_x22i) {
                     x1 = 1845;
                     y1Speed = (int) (785 - (23.636 * (Speed.value() - 1)));
@@ -294,9 +294,9 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             } else if (currentRequestInclination != -100) {
                 requestInclination = inc;
                 int x1 = 75;
-                int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 29.9);
+                int y1Inclination = 807 - (int)((currentInclination().value() + 3) * 31.1);
                 // set speed slider to target position
-                int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 29.9);
+                int y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 31.1);
 
                 if(nordictrack_x22i) {
                     x1 = 75;
