@@ -31,6 +31,14 @@
     [peripheral discoverServices:nil];
 }
 
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+    NSLog(@"Peripheral disconnected: %@. Error: %@", peripheral, error);
+    if ([peripheral.name isEqualToString:self.targetDeviceName]) {
+        NSLog(@"Attempting to reconnect to %@", self.targetDeviceName);
+        [self.centralManager connectPeripheral:peripheral options:nil];
+    }
+}
+
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
     for (CBService *service in peripheral.services) {
         [peripheral discoverCharacteristics:nil forService:service];
@@ -66,6 +74,11 @@
 }
 
 - (void)fanSpeedRequest:(uint8_t)speed {
+    if (self.connectedPeripheral.state != CBPeripheralStateConnected) {
+        NSLog(@"Cannot send fan speed request: Peripheral is not connected.");
+        return;
+    }
+    
     uint8_t init10[] = {0x03, 0x01, 0x0e};
     init10[2] = speed;
     NSData *dataToSend = [NSData dataWithBytes:init10 length:sizeof(init10)];
