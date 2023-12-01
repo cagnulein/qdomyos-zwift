@@ -572,7 +572,7 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
-    QDateNow now = QDateTime::currentDateTime();
+    QDateTime now = QDateTime::currentDateTime();
     currentTimerJitter += now.msecsTo(lastSchedulerCall) - 1000;
     lastSchedulerCall = now;
 
