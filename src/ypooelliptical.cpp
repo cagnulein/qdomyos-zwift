@@ -58,10 +58,10 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     writeBuffer = new QByteArray((const char *)data, data_len);
 
     if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 
     if (!disable_log) {
