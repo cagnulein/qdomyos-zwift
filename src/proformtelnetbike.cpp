@@ -79,7 +79,7 @@ void proformtelnetbike::connectToDevice() {
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
     telnet.connectToHost(settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString(), 23);
     telnet.waitForConnected();
-    telnet.sendData("./utconfig");
+    telnet.sendData("./utconfig\n");
 }
 
 /*
