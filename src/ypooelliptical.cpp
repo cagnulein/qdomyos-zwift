@@ -106,6 +106,9 @@ void ypooelliptical::update() {
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
             writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        } else {
+            uint8_t init1[] = {0x02, 0x44, 0x05, 0x06, 0x00, 0x47, 0x03};
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
         }
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
