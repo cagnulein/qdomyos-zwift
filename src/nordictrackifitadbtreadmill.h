@@ -66,6 +66,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     void forceIncline(double incline);
     void forceSpeed(double speed);
     double getDouble(QString v);
+    void initiateThreadStop();
 
     QTimer *refresh;
 
@@ -106,14 +107,9 @@ class nordictrackifitadbtreadmill : public treadmill {
     void changeInclinationRequested(double grade, double percentage);
 
     void update();
+    
+  public slots:
+    void stopLogcatAdbThread();
 };
 
 #endif // NORDICTRACKIFITADBTREADMILL_H
-
-public slots:
-    void stopLogcatAdbThread();
-
-private:
-    void initiateThreadStop();
-
-// Add these declarations at an appropriate place in the class declaration
