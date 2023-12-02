@@ -33,6 +33,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
     bool runCommand(QString command);
 
     void run() override;
+    bool stop = false;
 
   signals:
     void onSpeedInclination(double speed, double inclination);
@@ -108,3 +109,11 @@ class nordictrackifitadbtreadmill : public treadmill {
 };
 
 #endif // NORDICTRACKIFITADBTREADMILL_H
+
+public slots:
+    void stopLogcatAdbThread();
+
+private:
+    void initiateThreadStop();
+
+// Add these declarations at an appropriate place in the class declaration

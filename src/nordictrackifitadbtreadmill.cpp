@@ -22,7 +22,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::run() {
     QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     runAdbCommand("connect " + ip);
 
-    while (1) 
+    while (!stop) 
     {
         runAdbTailCommand("logcat");
 #ifndef Q_OS_WINDOWS        
@@ -66,6 +66,10 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
 #ifdef Q_OS_WINDOWS
     auto process = new QProcess;
     QObject::connect(process, &QProcess::readyReadStandardOutput, [process, this]() {
+        if(stop) {
+            process->close();
+            return;
+        }
         QString output = process->readAllStandardOutput();
         qDebug() << "adbLogCat STDOUT << " << output;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
@@ -123,6 +127,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &nordictrackifitadbtreadmill::stopLogcatAdbThread);
     QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
 
     refresh->start(200ms);
@@ -479,3 +484,13 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() { return true; }
+
+void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
+    initiateThreadStop();
+    logcatAdbThread->quit();
+    logcatAdbThread->wait();
+}
+
+void nordictrackifitadbtreadmill::initiateThreadStop() {
+    logcatAdbThread->stop = true;
+}
