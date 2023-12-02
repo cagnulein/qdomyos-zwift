@@ -280,7 +280,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
         fit::RecordMesg newRecord;
         sl = session.at(i);
-        // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
+        fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
         uint8_t cad = sl.cadence;
         if (powr_sensor_running_cadence_half_on_strava)
@@ -314,7 +314,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         // using just the start point as reference in order to avoid pause time
         // strava ignore the elapsed field
         // this workaround could leads an accuracy issue.
-        newRecord.SetTimestamp(sl.time);
+        newRecord.SetTimestamp(date);
         encode.Write(newRecord);
 
         if (sl.lapTrigger) {
