@@ -175,6 +175,7 @@ void tacxneo2::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -236,8 +237,8 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;
             }
-            lastGoodCadence = QDateTime::currentDateTime();
-        } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+            lastGoodCadence = now;
+        } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
 
@@ -249,7 +250,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                     .toDouble();
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
@@ -284,9 +285,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
         emit debug(QStringLiteral("Current CrankRevsRead: ") + QString::number(CrankRevsRead));
         emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));

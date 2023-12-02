@@ -192,6 +192,7 @@ void bkoolbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -202,6 +203,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    QDateTime now = now;
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
@@ -253,8 +255,8 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;
             }
-            lastGoodCadence = QDateTime::currentDateTime();
-        } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+            lastGoodCadence = now;
+        } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
 
@@ -266,7 +268,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     .toDouble();
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
@@ -301,9 +303,9 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
         emit debug(QStringLiteral("Current CrankRevsRead: ") + QString::number(CrankRevsRead));
         emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -384,8 +386,8 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
-                    lastGoodCadence = QDateTime::currentDateTime();
-                } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
                     Cadence = 0;
                 }
             }
@@ -403,12 +405,12 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
             // if we change this, also change the wattsFromResistance function. We can create a standard function in
@@ -456,7 +458,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }

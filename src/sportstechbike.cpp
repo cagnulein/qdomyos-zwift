@@ -116,6 +116,7 @@ void sportstechbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -171,7 +172,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());

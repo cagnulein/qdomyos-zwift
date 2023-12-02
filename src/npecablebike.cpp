@@ -111,6 +111,7 @@ void npecablebike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -167,8 +168,8 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 if (cadence >= 0) {
                     Cadence = cadence;
                 }
-                lastGoodCadence = QDateTime::currentDateTime();
-            } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+                lastGoodCadence = now;
+            } else if (lastGoodCadence.msecsTo(now) > 2000) {
                 Cadence = 0;
             }
         }
@@ -181,12 +182,12 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -200,7 +201,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                    3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
@@ -250,7 +251,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
             } else {
-                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
+                Speed = metric::calculateSpeedFromPower(watts(), Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),  this->speedLimit());
             }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -294,7 +295,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -362,7 +363,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                        3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                       // kg * 3.5) / 200 ) / 60
         }
 
@@ -411,7 +412,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
