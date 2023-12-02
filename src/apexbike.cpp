@@ -135,7 +135,6 @@ void apexbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    QDateTime now = now;
 
     qDebug() << " << " + newValue.toHex(' ');
 
