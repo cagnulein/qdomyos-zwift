@@ -286,7 +286,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         if (Flags.heartRate) {
             if (index < newValue.length()) {
 
-                double heart = ((double)((newValue.at(index))));
+                double heart = ((double)(((uint8_t)newValue.at(index))));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
             } else {
                 emit debug(QStringLiteral("Error on parsing heart!"));

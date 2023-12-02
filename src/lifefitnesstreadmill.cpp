@@ -398,7 +398,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
             if (Flags.heartRate) {
                 if (index < newValue.length()) {
 
-                    heart = ((double)((newValue.at(index))));
+                    heart = ((double)(((uint8_t)newValue.at(index))));
                     emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
@@ -573,7 +573,7 @@ void lifefitnesstreadmill::characteristicChanged(const QLowEnergyCharacteristic 
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {

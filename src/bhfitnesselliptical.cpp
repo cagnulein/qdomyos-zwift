@@ -301,7 +301,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     {
         if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-            Heart = ((double)((newValue.at(index))));
+            Heart = ((double)(((uint8_t)newValue.at(index))));
             // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
             emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         } else {

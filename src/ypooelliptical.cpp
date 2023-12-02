@@ -373,7 +373,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                Heart = ((double)((lastPacket.at(index))));
+                Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
