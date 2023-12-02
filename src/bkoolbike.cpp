@@ -203,7 +203,6 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
-    QDateTime now = now;
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
