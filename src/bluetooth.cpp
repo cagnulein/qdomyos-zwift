@@ -1413,22 +1413,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 smartrowRower->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(smartrowRower);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                        !b.name().toUpper().endsWith(QStringLiteral("ROW"))) &&
-                       !concept2Skierg && filter) {
-                this->setLastBluetoothDevice(b);
-                this->stopDiscovery();
-                concept2Skierg = new concept2skierg(noWriteResistance, noHeartService);
-                // stateFileRead();
-                emit deviceConnected(b);
-                connect(concept2Skierg, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                // connect(concept2Skierg, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(concept2Skierg, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-                concept2Skierg->deviceDiscovered(b);
-                this->signalBluetoothDeviceConnected(concept2Skierg);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
@@ -1438,8 +1422,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("SF-RW")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DFIT-L-R")) ||
                         !b.name().compare(ftms_rower, Qt::CaseInsensitive) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                         b.name().toUpper().endsWith(QStringLiteral("ROW")))) &&
+                        b.name().toUpper().startsWith(QStringLiteral("PM5"))) &&
                        !ftmsRower && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
