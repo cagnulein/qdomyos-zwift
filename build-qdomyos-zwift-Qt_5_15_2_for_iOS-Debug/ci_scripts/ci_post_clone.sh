@@ -17,7 +17,7 @@ make -j8
 make install
 
 cd /Volumes/workspace/repository/
-qmake CONFIG+=debug
+qmake -spec macx-ios-clang CONFIG+=iphoneos CONFIG+=device CONFIG+=qml_debug -after
 make -j8
 make install
 
