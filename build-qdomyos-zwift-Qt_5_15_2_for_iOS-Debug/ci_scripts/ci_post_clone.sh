@@ -17,12 +17,12 @@ make -j8
 make install
 
 cd /Volumes/workspace/repository/
-qmake
+qmake CONFIG+=debug
 make -j8
 make install
 
 mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/*.* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
+cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
 
 ls -ltr /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
 
