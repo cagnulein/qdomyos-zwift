@@ -144,7 +144,7 @@ jobs:
             cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7\x64 -Destination python -Recurse
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
@@ -830,7 +830,7 @@ jobs:
             cp ../../../windows_openssl/*.* .
             mkdir adb
             mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7\x64 -Destination python -Recurse
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
