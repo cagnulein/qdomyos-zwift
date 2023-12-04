@@ -683,17 +683,12 @@ void proformtreadmill::update() {
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1) {
-                    uint8_t stop1[] = {0xfe, 0x02, 0x0f, 0x02};
-                    uint8_t stop2[] = {0xff, 0x0f, 0x02, 0x04, 0x02, 0x0b, 0x04, 0x0b, 
-                                        0x02, 0x02, 0x02, 0x10, 0x00, 0x00, 0x01, 0x00, 
-                                        0x26, 0x00, 0x00, 0x00
-                                      };
-                    writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"));
-                    writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"));
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
 
                     emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
+                    requestPause = -1;
                 }
                 break;
             }
