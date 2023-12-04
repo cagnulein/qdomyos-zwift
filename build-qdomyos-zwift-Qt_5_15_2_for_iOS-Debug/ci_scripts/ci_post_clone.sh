@@ -1,5 +1,5 @@
 curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/67e7aa02813056543f2d31dcd643e7418eb329cb/Formula/qt%405.rb
-brew install ./qt%405.rb
+brew install ./qt@5.rb
 #awk '
 #    /\/\* Begin PBXShellScriptBuildPhase section \*\// {p=1}
 #    /\/\* End PBXShellScriptBuildPhase section \*\// {p=0; next}
@@ -22,12 +22,12 @@ qmake -spec macx-ios-clang CONFIG+=iphoneos CONFIG+=device CONFIG+=qml_debug -af
 make -j8
 make install
 
-mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
-mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtSslServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer/
+mkdir /usr/local/Cellar/qt@5/5.15.2_1/include/QtHttpServer
+mkdir /usr/local/Cellar/qt@5/5.15.2_1/include/QtSslServer
+cp -a /usr/local/Cellar/qt@5/5.15.2_1/lib/QtHttpServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.2_1/include/QtHttpServer/
+cp -a /usr/local/Cellar/qt@5/5.15.2_1/lib/QtSslServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.2_1/include/QtSslServer/
 
-ls -ltr /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
+ls -ltr /usr/local/Cellar/qt@5/5.15.2_1/include/QtHttpServer/
 
 git reset -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 
