@@ -80,6 +80,9 @@ void proformtelnetbike::connectToDevice() {
     telnet.connectToHost(settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString(), 23);
     telnet.waitForConnected();
     telnet.sendData("./utconfig\n");
+    QThread::sleep(1);
+    telnet.sendData("2\n"); // modify variables
+
 }
 
 /*
@@ -297,6 +300,35 @@ void proformtelnetbike::update() {
     } else if (telnet.isConnected()) {
         update_metrics(false, watts());
 
+        switch (poolIndex)
+        {
+        case 0:
+            telnet.sendData("124\n"); // current watt
+            break;
+
+        case 1:
+            telnet.sendData("q\n"); // quit
+
+        case 2:
+            telnet.sendData("40\n"); // current rpm
+            break;
+
+        case 3:
+            telnet.sendData("q\n"); // quit
+
+        case 4:
+            telnet.sendData("34\n"); // current speed
+            break;
+
+        case 5:
+            telnet.sendData("q\n"); // quit
+        default:
+            break;
+        }
+        poolIndex++;
+        if(poolIndex > 5)
+            poolIndex = 0;
+
                // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
@@ -389,6 +421,33 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
 
     QByteArray newValue = QByteArray::fromRawData(buff, len);
     emit debug(QStringLiteral(" << ") + newValue);
+
+    QStringList packet = QString::fromLocal8Bit(newValue).split(" ");
+    qDebug() << packet;
+    foreach(QString p, packet) {
+        if (p.contains("Current Watts")) {
+            double watt = packet[3].toDouble();
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = watt;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        } else if (p.contains("Current RPM")) {
+            double RPM = packet[3].toDouble();
+            Cadence = RPM;
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+            if (Cadence.value() > 0) {
+                CrankRevs++;
+                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+            }
+        } else if (p.contains("Current KPH")) {
+            double kph = packet[3].toDouble();
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+    }
+
     /////////////////////////////////////////
     return;
     /////////////////////////////////////////

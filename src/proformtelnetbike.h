@@ -90,6 +90,8 @@ class proformtelnetbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    uint8_t poolIndex = 0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
