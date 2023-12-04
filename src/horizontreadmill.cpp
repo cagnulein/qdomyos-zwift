@@ -836,6 +836,22 @@ void horizontreadmill::update() {
              .startsWith(QStringLiteral("Disabled")));
         update_metrics(!power_sensor, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
+        if (firstDistanceCalculated) {
+            QDateTime now = QDateTime::currentDateTime();
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+            1.19) *
+            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+            200.0) /
+            (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                        now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60    
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+            lastRefreshCharacteristicChanged = now;
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
 
