@@ -177,6 +177,7 @@ double mcfbike::bikeResistanceToPeloton(double resistance) {
 }
 
 void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -210,11 +211,11 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         m_watt = (((uint16_t)newValue.at(9) << 8) | (uint16_t)((uint8_t)newValue.at(10)));
 
@@ -222,14 +223,14 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
             KCal += ((((0.048 * ((double)watts()) + 1.19) *
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
 
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());

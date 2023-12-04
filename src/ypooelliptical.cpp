@@ -57,7 +57,12 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
@@ -106,6 +111,9 @@ void ypooelliptical::update() {
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
             writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        } else {
+            uint8_t init1[] = {0x02, 0x44, 0x05, 0x06, 0x00, 0x47, 0x03};
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
         }
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -365,7 +373,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                Heart = ((double)((lastPacket.at(index))));
+                Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {

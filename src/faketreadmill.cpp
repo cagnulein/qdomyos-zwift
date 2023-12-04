@@ -32,6 +32,7 @@ void faketreadmill::update() {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    QDateTime now = QDateTime::currentDateTime();
 
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -50,8 +51,8 @@ void faketreadmill::update() {
     cadenceFromAppleWatch();
 
     Distance += ((Speed.value() / (double)3600.0) /
-                 ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+                 ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
+    lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {

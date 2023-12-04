@@ -120,6 +120,7 @@ void sportsplusbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -142,7 +143,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (newValue.at(1) == 0x20) {
             double speed = GetSpeedFromPacket(newValue);
             if (!firstCharChanged) {
-                Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
+                Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
             }
             emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
@@ -151,9 +152,9 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
-            lastTimeCharChanged = QDateTime::currentDateTime();
+            lastTimeCharChanged = now;
         } else if (newValue.at(1) == 0x30) {
             double watt = GetWattFromPacket(newValue);
             emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
@@ -193,22 +194,22 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
         if (!firstCharChanged) {
             Distance +=
-                ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
+                ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
         }
 
-        lastTimeCharChanged = QDateTime::currentDateTime();
+        lastTimeCharChanged = now;
         kcal +=
             ((((0.048 * ((double)watts()) + 1.19) *
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     } else {
         if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -224,7 +225,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         double speed = GetSpeedFromPacket(newValue);
         cadence = speed * 2.685185;
         if (!firstCharChanged) {
-            Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
+            Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
@@ -233,13 +234,13 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
-        lastTimeCharChanged = QDateTime::currentDateTime();
+        lastTimeCharChanged = now;
         kcal = GetKcalFromPacket(newValue);
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
