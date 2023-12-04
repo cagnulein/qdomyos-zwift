@@ -42,6 +42,7 @@
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
 #include "eliteariafan.h"
+#include "elitebike.h"
 #include "eliterizer.h"
 #include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
@@ -245,6 +246,7 @@ class bluetooth : public QObject, public SignalHandler {
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
+    elitebike *eliteBike = nullptr;
     fakebike *fakeBike = nullptr;
     fakeelliptical *fakeElliptical = nullptr;
     fakerower *fakeRower = nullptr;

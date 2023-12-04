@@ -1381,8 +1381,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(horizonGr7Bike, &horizongr7bike::debug, this, &bluetooth::debug);
                 horizonGr7Bike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(horizonGr7Bike);
+            } else if((b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2)) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                eliteBike = new elitebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(eliteBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(stagesBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(eliteBike, &elitebike::debug, this, &bluetooth::debug);
+                // connect(stagesBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                eliteBike->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(eliteBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("QD")) && b.name().length() == 2) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
@@ -2612,6 +2624,12 @@ void bluetooth::restart() {
 
         stagesBike = nullptr;
     }
+    if (eliteBike) {
+
+        delete eliteBike;
+
+        eliteBike = nullptr;
+    }
     if (toorx) {
 
         delete toorx;
@@ -2988,6 +3006,8 @@ bluetoothdevice *bluetooth::device() {
         return tacxneo2Bike;
     } else if (stagesBike) {
         return stagesBike;
+    } else if (eliteBike) {
+        return eliteBike;
     } else if (toorx) {
         return toorx;
     } else if (iConceptBike) {

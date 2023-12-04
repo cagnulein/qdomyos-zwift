@@ -76,6 +76,7 @@ SOURCES += \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
     $$PWD/eliteariafan.cpp \
+    $$PWD/elitebike.cpp \
    $$PWD/fakerower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
@@ -285,6 +286,7 @@ HEADERS += \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
     $$PWD/eliteariafan.h \
+    $$PWD/elitebike.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
     virtualdevice.h \
