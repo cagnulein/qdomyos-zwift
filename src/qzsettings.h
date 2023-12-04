@@ -1914,6 +1914,9 @@ class QZSettings {
     static const QString iconsole_elliptical;
     static constexpr bool default_iconsole_elliptical = false;    
 
+    static const QString nordictrack_s20_treadmill;
+    static constexpr bool default_nordictrack_s20_treadmill = false;    
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
