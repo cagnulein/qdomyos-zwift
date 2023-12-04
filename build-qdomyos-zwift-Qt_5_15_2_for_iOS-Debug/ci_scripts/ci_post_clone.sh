@@ -22,7 +22,9 @@ make -j8
 make install
 
 mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
+mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer
 cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
+cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtSslServer.framework/Versions/5/Headers/* /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer/
 
 ls -ltr /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
 
