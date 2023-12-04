@@ -1,4 +1,4 @@
-brew install qt@5
+brew install qt@5.15.2
 #awk '
 #    /\/\* Begin PBXShellScriptBuildPhase section \*\// {p=1}
 #    /\/\* End PBXShellScriptBuildPhase section \*\// {p=0; next}
