@@ -270,7 +270,7 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 #endif
     {
         if (Flags.heartRate) {
-            heart = ((double)((newValue.at(index))));
+            heart = ((double)(((uint8_t)newValue.at(index))));
             // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
             emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
         }

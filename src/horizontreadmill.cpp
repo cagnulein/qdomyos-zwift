@@ -1283,6 +1283,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
+    QDateTime now = QDateTime::currentDateTime();
+
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
@@ -1330,14 +1332,14 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
         if (firstDistanceCalculated)
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
@@ -1357,14 +1359,14 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
         if (firstDistanceCalculated)
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
@@ -1381,14 +1383,14 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
         // kg * 3.5) / 200 ) / 60
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
         if (firstDistanceCalculated)
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 10 &&
@@ -1459,7 +1461,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         {
             if (firstDistanceCalculated)
                 Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
         }
 
@@ -1506,7 +1508,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                       200.0) /
                      (60000.0 /
                       ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
             distanceEval = true;
         }
@@ -1522,7 +1524,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             if (Flags.heartRate) {
                 if (index < newValue.length()) {
 
-                    heart = ((double)((newValue.at(index))));
+                    heart = ((double)(((uint8_t)newValue.at(index))));
                     emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
@@ -1602,7 +1604,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         } else {
             if (firstDistanceCalculated)
                 Distance += ((Speed.value() / 3600000.0) *
-                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             distanceEval = true;
         }
 
@@ -1681,7 +1683,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                       200.0) /
                      (60000.0 /
                       ((double)lastRefreshCharacteristicChanged.msecsTo(
-                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                          now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                             // kg * 3.5) / 200 ) / 60
             distanceEval = true;
         }
@@ -1695,7 +1697,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -1736,7 +1738,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (distanceEval) {
         firstDistanceCalculated = true;
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
     }
 
     if (m_control->error() != QLowEnergyController::NoError) {

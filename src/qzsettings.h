@@ -1914,6 +1914,9 @@ class QZSettings {
     static const QString iconsole_elliptical;
     static constexpr bool default_iconsole_elliptical = false;    
 
+    static const QString autolap_distance;
+    static constexpr float default_autolap_distance = 0;
+
     static const QString nordictrack_s20_treadmill;
     static constexpr bool default_nordictrack_s20_treadmill = false;    
 

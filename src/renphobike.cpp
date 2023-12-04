@@ -333,7 +333,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (Flags.heartRate) {
-            Heart = ((double)((newValue.at(index))));
+            Heart = ((double)(((uint8_t)newValue.at(index))));
             index += 1;
             debug("Current Heart: " + QString::number(Heart.value()));
         }

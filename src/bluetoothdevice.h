@@ -100,6 +100,7 @@ class bluetoothdevice : public QObject {
      * @return
      */
     virtual double odometer();
+    virtual metric currentDistance() {return Distance;}
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
