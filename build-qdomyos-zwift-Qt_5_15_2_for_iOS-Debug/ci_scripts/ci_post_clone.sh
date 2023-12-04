@@ -16,7 +16,7 @@ qmake
 make -j8
 make install
 
-cd /Volumes/workspace/repository/
+cd /Volumes/workspace/repository/src/
 qmake
 make -j8
 make install
