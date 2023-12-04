@@ -21,10 +21,10 @@ qmake
 make -j8
 make install
 
-mkdir /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/QtHttpServer
-cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/*.* /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/QtHttpServer/
+mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
+cp -a /usr/local/Cellar/qt@5/5.15.10_1/lib/QtHttpServer.framework/Versions/5/Headers/*.* /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
 
-ls -ltr /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/QtHttpServer/
+ls -ltr /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer/
 
 git reset -- /Volumes/workspace/repository/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/qdomyoszwift.xcodeproj/project.pbxproj
 
