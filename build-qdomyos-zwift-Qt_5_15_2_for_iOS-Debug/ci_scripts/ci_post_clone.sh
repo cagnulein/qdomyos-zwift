@@ -1,4 +1,5 @@
-brew install qt@5.15.2
+curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/67e7aa02813056543f2d31dcd643e7418eb329cb/Formula/qt%405.rb
+brew install ./qt%405.rb
 #awk '
 #    /\/\* Begin PBXShellScriptBuildPhase section \*\// {p=1}
 #    /\/\* End PBXShellScriptBuildPhase section \*\// {p=0; next}
