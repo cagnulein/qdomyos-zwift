@@ -1917,6 +1917,9 @@ class QZSettings {
     static const QString autolap_distance;
     static constexpr float default_autolap_distance = 0;
 
+    static const QString nordictrack_s20_treadmill;
+    static constexpr bool default_nordictrack_s20_treadmill = false;    
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

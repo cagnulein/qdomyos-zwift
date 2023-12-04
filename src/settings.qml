@@ -844,8 +844,9 @@ import QtQuick.Dialogs 1.0
             property bool nordictrack_x22i: false
 
             // from version 2.16.25
-            property bool iconsole_elliptical: false
+            property bool iconsole_elliptical: false            
             property real autolap_distance: 0
+            property bool nordictrack_s20_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5458,7 +5459,20 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_t70_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
+                        }                        
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack S20")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_s20_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.nordictrack_s20_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                        
                         SwitchDelegate {
                             id: nordictrackS30Delegate
                             text: qsTr("Nordictrack S30")
