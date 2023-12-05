@@ -20,8 +20,8 @@ make install
 
 cd /Volumes/workspace/repository/
 qmake -spec macx-ios-clang CONFIG+=iphoneos CONFIG+=device CONFIG+=qml_debug -after
-make -j8
-make install
+#make -j8
+#make install
 
 mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtHttpServer
 mkdir /usr/local/Cellar/qt@5/5.15.10_1/include/QtSslServer
