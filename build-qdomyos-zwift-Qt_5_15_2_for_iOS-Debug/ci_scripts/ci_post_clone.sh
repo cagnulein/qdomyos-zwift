@@ -1,4 +1,4 @@
-wget https://raw.githubusercontent.com/Homebrew/homebrew-core/67e7aa02813056543f2d31dcd643e7418eb329cb/Formula/qt%405.rb
+curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/67e7aa02813056543f2d31dcd643e7418eb329cb/Formula/qt%405.rb
 brew install --HEAD -s qt%405.rb
 #awk '
 #    /\/\* Begin PBXShellScriptBuildPhase section \*\// {p=1}
