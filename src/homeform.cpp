@@ -5253,7 +5253,7 @@ void homeform::copyAndroidContentsURI(QUrl* file, QString subfolder) {
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "profiles");
+    copyAndroidContentsURI(fileName, "profiles");
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
@@ -5399,7 +5399,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "gpx");
+    copyAndroidContentsURI(fileName, "gpx");
 
     qDebug() << file.fileName();
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
@@ -6401,7 +6401,7 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(&file, "settings");
+    copyAndroidContentsURI(fileName, "settings");
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
