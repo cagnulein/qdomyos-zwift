@@ -314,7 +314,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         // using just the start point as reference in order to avoid pause time
         // strava ignore the elapsed field
         // this workaround could leads an accuracy issue.
-        newRecord.SetTimestamp(sl.time);
+        newRecord.SetTimestamp(date.GetTimeStamp() + i);
         encode.Write(newRecord);
 
         if (sl.lapTrigger) {

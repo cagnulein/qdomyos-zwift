@@ -5171,7 +5171,7 @@ void homeform::update() {
                     (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, bluetoothManager->device()->currentDistance().lastChanged());
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation);
 
             Session.append(s);
 
