@@ -5241,11 +5241,11 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 void homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = getFileNameFromContentUri(file->fileName());
+    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
     QFileInfo f(fileNameLocal);
     QString filename = f.fileName();
     QFile fileFile(filename);
-    qDebug() << file->fileName() << fileNameLocal << filename;
+    qDebug() << file.fileName() << fileNameLocal << filename;
     bool copy = fileFile.copy(getWritableAppDir() + subfolder + "/" + filename);
     qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
