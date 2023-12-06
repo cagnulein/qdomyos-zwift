@@ -101,6 +101,8 @@ class bluetoothdevice : public QObject {
      */
     virtual double odometer();
     virtual metric currentDistance() {return Distance;}
+    virtual metric currentDistance1s() {return Distance1s;}
+    void setCurrentDistance1s(double distance) { Distance1s = distance; }
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
@@ -496,6 +498,7 @@ class bluetoothdevice : public QObject {
      *      the length of belt traversed on a treadmill.
      */
     metric Distance;
+    metric Distance1s; // used to populate the distance on the FIT file. Since Strava is using the distance to graph it, it has to have 1s trigger.
 
     /**
      * @brief FanSpeed The currently requested fan speed. Units: revolutions per second

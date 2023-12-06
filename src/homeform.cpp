@@ -5161,8 +5161,10 @@ void homeform::update() {
                 }
             }
 
+            bluetoothManager->device()->setCurrentDistance1s(bluetoothManager->device()->currentDistance1s().value() + (bluetoothManager->device()->currentSpeed().value() / 3600.0));
+
             SessionLine s(
-                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->odometer(),
+                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
