@@ -142,6 +142,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    QDateTime now = QDateTime::currentDateTime();
 
     if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
         Heart = (uint8_t)newValue[1];
@@ -191,7 +192,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),
                 0 /* not useful for elliptical*/);
         }
         index += 2;
@@ -241,7 +242,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -288,7 +289,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -326,7 +327,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
