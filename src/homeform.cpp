@@ -5241,7 +5241,9 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
 #ifdef Q_OS_ANDROID    
-    QString filename = file->fileName();
+    QString fileNameLocal = getFileNameFromContentUri(file->fileName());
+    QFileInfo f(fileNameLocal);
+    QString filename = f.fileName();
     bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
     qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
