@@ -5239,12 +5239,14 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 #endif
 }
 
-void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
-#ifdef Q_OS_ANDROID    
+void homeform::copyAndroidContentsURI(QUrl* file, QString subfolder) {
+#ifdef Q_OS_ANDROID        
     QString fileNameLocal = getFileNameFromContentUri(file->fileName());
     QFileInfo f(fileNameLocal);
     QString filename = f.fileName();
-    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
+    QFile fileFile(filename);
+    qDebug() << file->fileName() << fileNameLocal << filename;
+    bool copy = fileFile.copy(getWritableAppDir() + subfolder + "/" + filename);
     qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
 }
@@ -5258,7 +5260,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "training");
+    copyAndroidContentsURI(fileName, "training");
     QString fileNameLocal = getFileNameFromContentUri(file.fileName());
 
     qDebug() << fileNameLocal;
