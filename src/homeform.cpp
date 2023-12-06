@@ -5,6 +5,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAndroidJniObject>
 #endif
 #include "material.h"
 #include "qfit.h"
@@ -5222,13 +5223,25 @@ bool homeform::getLap() {
     return true;
 }
 
+QString homeform::getFileNameFromContentUri(const QString &uriString) {
+#ifdef Q_OS_ANDROID
+
+    QAndroidJniObject javaUri = QAndroidJniObject::fromString(uriString);
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "ContentHelper",
+        "getFileName",
+        "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
+        QtAndroid::androidContext().object(),
+        javaUri.object());
+    return result.toString();
+#else
+    return uriString;
+#endif
+}
+
 void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
 #ifdef Q_OS_ANDROID    
     QString filename = file->fileName();
-    int substr = filename.lastIndexOf("%2F");
-    if(substr) {
-        filename = filename.mid(substr + 3);
-    }
     bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
     qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
 #endif
@@ -5244,9 +5257,10 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     copyAndroidContentsURI(&file, "training");
+    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
 
-    qDebug() << file.fileName();
-    if (!file.fileName().isEmpty()) {
+    qDebug() << fileNameLocal;
+    if (!fileNameLocal.isEmpty()) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
@@ -5256,9 +5270,9 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 delete trainProgram;
             }
 
-            trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            trainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
 
-            QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
+            QString movieName = fileNameLocal.left(fileNameLocal.length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
                 qDebug() << movieName << QStringLiteral("exist!");
                 movieFileName = QUrl::fromLocalFile(movieName);
@@ -5273,7 +5287,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 trainingProgram()->setVideoAvailable(false);
             }
 
-            stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
+            stravaWorkoutName = QFileInfo(fileNameLocal).baseName();
             stravaPelotonInstructorName = QStringLiteral("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
@@ -5293,14 +5307,15 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_preview") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    qDebug() << file.fileName();
-    if (!file.fileName().isEmpty()) {
+    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
+    qDebug() << fileNameLocal;
+    if (!fileNameLocal.isEmpty()) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
                 previewTrainProgram = 0;
             }
-            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
             emit previewWorkoutPointsChanged(preview_workout_points());
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());

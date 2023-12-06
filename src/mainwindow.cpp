@@ -356,7 +356,7 @@ void MainWindow::loadTrainProgram(const QString &fileName) {
 
                 delete trainProgram;
             }
-            trainProgram = trainprogram::load(fileName, bluetoothManager);
+            trainProgram = trainprogram::load(fileName, bluetoothManager, fileName.right(3).toUpper());
         } else if (fileName.endsWith(QStringLiteral("gpx"))) {
             if (trainProgram) {
                 delete trainProgram;
