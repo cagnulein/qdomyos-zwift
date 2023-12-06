@@ -1115,12 +1115,14 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        /*uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, false);*/
+        if(!anplus_treadmill) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+            write[0] = {FTMS_START_RESUME};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
+                                false, false);
+        }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         writeS[1] = ((uint16_t)(requestSpeed * 100)) & 0xFF;
@@ -1176,12 +1178,14 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        /*uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
-                            false);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
-                            false, false);*/
+        if(!anplus_treadmill) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
+                                false);
+            write[0] = {FTMS_START_RESUME};
+            writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "start simulation",
+                                false, false);
+        }
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
         if (kettler_treadmill) {
@@ -1986,6 +1990,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
+            anplus_treadmill = true;
+            qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
         }
 
 #ifdef Q_OS_IOS
