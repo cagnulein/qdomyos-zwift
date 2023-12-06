@@ -5239,7 +5239,7 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 #endif
 }
 
-void homeform::copyAndroidContentsURI(QUrl* file, QString subfolder) {
+void homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
     QString fileNameLocal = getFileNameFromContentUri(file->fileName());
     QFileInfo f(fileNameLocal);
@@ -6401,7 +6401,7 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(fileName, "settings");
+    copyAndroidContentsURI(filename, "settings");
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 

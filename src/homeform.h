@@ -694,7 +694,7 @@ class homeform : public QObject {
 
     static quint64 cryptoKeySettingsProfiles();
 
-    static void copyAndroidContentsURI(QUrl* file, QString subfolder);
+    static void copyAndroidContentsURI(QUrl file, QString subfolder);
     static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
