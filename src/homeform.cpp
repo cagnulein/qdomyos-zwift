@@ -475,6 +475,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
+    QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
     QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
@@ -5277,16 +5279,20 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
     copyAndroidContentsURI(fileName, "profiles");
 }
 
+void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(fileName, "training");
+}
+
+void homeform::gpx_open_other_folder(const QUrl &fileName) {
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(fileName, "gpx");
+}
+
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
-#ifdef Q_OS_ANDROID
-    QString f = copyAndroidContentsURI(fileName, "training");
-    QFile file(f);
-    qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
-#else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-#endif
 
     if (!file.fileName().isEmpty()) {
         {
@@ -5422,13 +5428,7 @@ void homeform::fit_save_clicked() {
 void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
-#ifdef Q_OS_ANDROID
-    QString f = copyAndroidContentsURI(fileName, "gpx");
-    QFile file(f);
-    qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
-#else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-#endif
 
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
