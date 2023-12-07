@@ -307,26 +307,18 @@ void proformtelnetbike::update() {
             break;
 
         case 1:
-            telnet.sendData("q\n"); // quit
-
-        case 2:
             telnet.sendData("40\n"); // current rpm
             break;
 
-        case 3:
-            telnet.sendData("q\n"); // quit
-
-        case 4:
+        case 2:
             telnet.sendData("34\n"); // current speed
             break;
 
-        case 5:
-            telnet.sendData("q\n"); // quit
         default:
             break;
         }
         poolIndex++;
-        if(poolIndex > 5)
+        if(poolIndex > 2)
             poolIndex = 0;
 
                // updating the treadmill console every second
@@ -426,14 +418,14 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     qDebug() << packet;
     foreach(QString p, packet) {
         if (p.contains("Current Watts")) {
-            double watt = packet[3].toDouble();
+            double watt = packet[10].toDouble();
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 m_watt = watt;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-        } else if (p.contains("Current RPM")) {
-            double RPM = packet[3].toDouble();
+        } else if (p.contains("Cur RPM")) {
+            double RPM = packet[10].toDouble();
             Cadence = RPM;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -442,7 +434,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
                 LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
             }
         } else if (p.contains("Current KPH")) {
-            double kph = packet[3].toDouble();
+            double kph = packet[10].toDouble();
             Speed = kph;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
