@@ -5224,15 +5224,20 @@ bool homeform::getLap() {
 }
 
 QString homeform::getFileNameFromContentUri(const QString &uriString) {
+    qDebug() << "getFileNameFromContentUri" << uriString;
+    if(!uriString.startsWith("content")) {
+        return uriString;
+    }
 #ifdef Q_OS_ANDROID
 
-    QAndroidJniObject javaUri = QAndroidJniObject::fromString(uriString);
+    QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
+    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
     QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
-        "ContentHelper",
+        "org/cagnulen/qdomyoszwift/ContentHelper",
         "getFileName",
         "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
         QtAndroid::androidContext().object(),
-        javaUri.object());
+        jUri.object());
     return result.toString();
 #else
     return uriString;
@@ -5241,13 +5246,15 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 void homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
+    QString fileNameLocal = getFileNameFromContentUri(file.toString());
     QFileInfo f(fileNameLocal);
     QString filename = f.fileName();
-    QFile fileFile(filename);
+    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
+    QString dest = getWritableAppDir() + subfolder + "/" + filename;
     qDebug() << file.fileName() << fileNameLocal << filename;
-    bool copy = fileFile.copy(getWritableAppDir() + subfolder + "/" + filename);
-    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
+    QFile::remove(dest);
+    bool copy = fileFile.copy(dest);
+    qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
 #endif
 }
 
