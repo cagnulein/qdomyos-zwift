@@ -716,6 +716,7 @@ DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
+    $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \

@@ -5,6 +5,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAndroidJniObject>
 #endif
 #include "material.h"
 #include "qfit.h"
@@ -3349,6 +3350,10 @@ void homeform::Stop() {
         emit startIconChanged(startIcon());
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
+
+        // clearing the label on top because if it was running a training program, with stop the program will be terminated
+        m_info = workoutName();
+        emit infoChanged(m_info);
     }
 
     if (trainProgram) {
@@ -5222,30 +5227,63 @@ bool homeform::getLap() {
     return true;
 }
 
-void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
-#ifdef Q_OS_ANDROID    
-    QString filename = file->fileName();
-    int substr = filename.lastIndexOf("%2F");
-    if(substr) {
-        filename = filename.mid(substr + 3);
+QString homeform::getFileNameFromContentUri(const QString &uriString) {
+    qDebug() << "getFileNameFromContentUri" << uriString;
+    if(!uriString.startsWith("content")) {
+        return uriString;
     }
-    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
-    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
+#ifdef Q_OS_ANDROID
+
+    QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
+    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/ContentHelper",
+        "getFileName",
+        "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
+        QtAndroid::androidContext().object(),
+        jUri.object());
+    return result.toString();
+#else
+    return uriString;
 #endif
+}
+
+QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
+#ifdef Q_OS_ANDROID        
+    QString fileNameLocal = getFileNameFromContentUri(file.toString());
+    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+        qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
+        return file.toString();
+    }
+    QFileInfo f(fileNameLocal);
+    QString filename = f.fileName();
+    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
+    QString dest = getWritableAppDir() + subfolder + "/" + filename;
+    qDebug() << file.fileName() << fileNameLocal << filename;
+    QFile::remove(dest);
+    bool copy = fileFile.copy(dest);
+    qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
+    return dest;
+#endif
+    return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "profiles");
+    copyAndroidContentsURI(fileName, "profiles");
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
+#ifdef Q_OS_ANDROID
+    QString f = copyAndroidContentsURI(fileName, "training");
+    QFile file(f);
+    qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
+#else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "training");
+#endif
 
-    qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
             if (previewTrainProgram) {
@@ -5256,7 +5294,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 delete trainProgram;
             }
 
-            trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -5273,7 +5311,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 trainingProgram()->setVideoAvailable(false);
             }
 
-            stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
+            stravaWorkoutName = QFileInfo(file.fileName()).baseName();
             stravaPelotonInstructorName = QStringLiteral("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
@@ -5293,14 +5331,15 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_preview") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    qDebug() << file.fileName();
-    if (!file.fileName().isEmpty()) {
+    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
+    qDebug() << fileNameLocal;
+    if (!fileNameLocal.isEmpty()) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
                 previewTrainProgram = 0;
             }
-            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
             emit previewWorkoutPointsChanged(preview_workout_points());
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());
@@ -5379,10 +5418,14 @@ void homeform::fit_save_clicked() {
 void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
+#ifdef Q_OS_ANDROID
+    QString f = copyAndroidContentsURI(fileName, "gpx");
+    QFile file(f);
+    qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
+#else
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "gpx");
+#endif
 
-    qDebug() << file.fileName();
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
         {
@@ -6382,7 +6425,7 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(&file, "settings");
+    copyAndroidContentsURI(filename, "settings");
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 
