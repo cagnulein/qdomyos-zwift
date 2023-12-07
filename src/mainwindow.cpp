@@ -363,7 +363,7 @@ void MainWindow::loadTrainProgram(const QString &fileName) {
             }
             gpx g;
             QList<trainrow> list;
-            auto g_list = g.open(fileName);
+            auto g_list = g.open(fileName, bluetoothManager->device() ? bluetoothManager->device()->deviceType() : bluetoothdevice::BIKE);
             list.reserve(g_list.count() + 1);
             for (const auto &p : qAsConst(g_list)) {
                 trainrow r;
