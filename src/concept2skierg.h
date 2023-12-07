@@ -63,7 +63,7 @@ class concept2skierg : public rower {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    bool isActive = false;
+    bool isActive = true;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

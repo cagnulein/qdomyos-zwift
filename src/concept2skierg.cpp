@@ -158,7 +158,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
                 uint8_t rowing_state = newValue.at(10);
-                isActive = (rowing_state != 0);
+                //isActive = (rowing_state != 0);
                 if (!isActive) // SkiErg keeps reporting old Speed when not used
                 {
                     Speed = 0;
