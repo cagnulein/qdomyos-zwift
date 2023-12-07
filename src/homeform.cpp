@@ -5276,9 +5276,13 @@ void homeform::profile_open_clicked(const QUrl &fileName) {
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
+#ifdef Q_OS_ANDROID
     QString f = copyAndroidContentsURI(fileName, "training");
     QFile file(f);
     qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
+#else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+#endif
 
     if (!file.fileName().isEmpty()) {
         {
@@ -5414,10 +5418,14 @@ void homeform::fit_save_clicked() {
 void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
+#ifdef Q_OS_ANDROID
     QString f = copyAndroidContentsURI(fileName, "gpx");
     QFile file(f);
+    qDebug() << QQmlFile::urlToLocalFileOrQrc(f) << f << file.fileName();
+#else
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+#endif
 
-    qDebug() << file.fileName() << QQmlFile::urlToLocalFileOrQrc(f);
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
         {
