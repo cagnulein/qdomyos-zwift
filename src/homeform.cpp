@@ -661,7 +661,7 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 8) {
+    if (chartImagesFilenames.length() >= 9) {
         sendMail();
         qDebug() << "removing chart images";
         for (const QString &f : qAsConst(chartImagesFilenames)) {
