@@ -415,29 +415,27 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     emit debug(QStringLiteral(" << ") + newValue);
 
     QStringList packet = QString::fromLocal8Bit(newValue).split(" ");
-    qDebug() << packet;
-    foreach(QString p, packet) {
-        if (p.contains("Current Watts")) {
-            double watt = packet[10].toDouble();
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = watt;
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-        } else if (p.contains("Cur RPM")) {
-            double RPM = packet[10].toDouble();
-            Cadence = RPM;
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    qDebug() << packet;    
+    if (newValue.contains("Current Watts")) {
+        double watt = packet[3].toDouble();
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = watt;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    } else if (newValue.contains("Cur RPM")) {
+        double RPM = packet[3].toDouble();
+        Cadence = RPM;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
-            if (Cadence.value() > 0) {
-                CrankRevs++;
-                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-            }
-        } else if (p.contains("Current KPH")) {
-            double kph = packet[10].toDouble();
-            Speed = kph;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
+    } else if (newValue.contains("Current KPH")) {
+        double kph = packet[3].toDouble();
+        Speed = kph;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     /////////////////////////////////////////
