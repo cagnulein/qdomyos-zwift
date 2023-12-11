@@ -38,11 +38,15 @@ void sportstechbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + " // " + info);
     }
 
     loop.exec();
@@ -112,6 +116,7 @@ void sportstechbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -165,7 +170,9 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());
@@ -279,7 +286,8 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual bike init *************************************
         if (!firstVirtualBike && !this->hasVirtualDevice()) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);

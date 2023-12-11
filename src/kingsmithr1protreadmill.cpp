@@ -55,15 +55,19 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
         return;
     }
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::Write)
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                             QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     else
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info + " " + gattWriteCharacteristic.properties());
     }
 

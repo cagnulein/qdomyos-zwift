@@ -46,11 +46,15 @@ void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -128,6 +132,7 @@ void nautilusbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -168,7 +173,7 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
@@ -185,11 +190,11 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     Speed = speed;
 
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));

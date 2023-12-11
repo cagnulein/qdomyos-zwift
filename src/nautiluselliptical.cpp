@@ -32,9 +32,7 @@ nautiluselliptical::nautiluselliptical(bool noWriteResistance, bool noHeartServi
     refresh->start(300ms);
 }
 
-nautiluselliptical::~nautiluselliptical() {
-    qDebug() << QStringLiteral("~nautiluselliptical()");
-}
+nautiluselliptical::~nautiluselliptical() { qDebug() << QStringLiteral("~nautiluselliptical()"); }
 
 void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                              bool wait_for_response) {
@@ -49,11 +47,15 @@ void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, co
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -122,8 +124,11 @@ void nautiluselliptical::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -251,7 +256,9 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     }
 
     double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
+        GetSpeedFromPacket(newValue) *
+        settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio)
+            .toDouble();
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -259,8 +266,9 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
                                                                   // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
-    // settings.value(QZSettings::domyos_elliptical_speed_ratio, QZSettings::default_domyos_elliptical_speed_ratio).toDouble();
-    // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    // settings.value(QZSettings::domyos_elliptical_speed_ratio,
+    // QZSettings::default_domyos_elliptical_speed_ratio).toDouble(); uint16_t watt = (newValue.at(13) << 8) |
+    // newValue.at(14);
 
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
@@ -412,8 +420,15 @@ void nautiluselliptical::serviceScanDone(void) {
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (gattCommunicationChannelService == nullptr) {
-            qDebug() << QStringLiteral("neither the fallback worked, exiting...");
-            return;
+            qDebug() << QStringLiteral("backup UUID not found, trying the 2nd fallback...");
+            bt_variant = 1;
+            QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("b6492080-7f04-11e4-a8b1-0002a5d5c51b"));
+
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (gattCommunicationChannelService == nullptr) {
+                qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+                return;
+            }
         }
     }
 

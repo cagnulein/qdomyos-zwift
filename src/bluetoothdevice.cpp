@@ -247,9 +247,15 @@ void bluetoothdevice::update_hr_from_external() {
             long appleWatchHeartRate = h.heartRate();
             h.setKcal(KCal.value());
             h.setDistance(Distance.value());
+            h.setSpeed(Speed.value());
+            h.setPower(m_watt.value());
+            h.setCadence(Cadence.value());
             Heart = appleWatchHeartRate;
             qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
+#endif
+#ifdef Q_OS_ANDROID
+        Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
 #endif
     }
 }
@@ -261,6 +267,7 @@ void bluetoothdevice::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -278,6 +285,7 @@ void bluetoothdevice::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -293,6 +301,7 @@ void bluetoothdevice::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);

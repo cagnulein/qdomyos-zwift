@@ -39,6 +39,12 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if(!gattFTMSService) {
+        qDebug() << QStringLiteral("gattFTMSService is null!");
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
@@ -47,11 +53,20 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    }
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -84,7 +99,8 @@ void ftmsbike::forcePower(int16_t requestPower) {
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
-    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool()) {
+    if (!settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton).toBool() &&
+        resistance_lvl_mode == false) {
         uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         double fr = (((double)requestResistance) * bikeResistanceGain) + ((double)bikeResistanceOffset);
@@ -181,6 +197,7 @@ void ftmsbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -230,7 +247,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -267,15 +284,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         if (Flags.totDistance) {
+
+            /*
+             * the distance sent from the most trainers is a total distance, so it's useless for QZ
+             *
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
-                       1000.0;
+                       1000.0;*/
             index += 3;
-        } else {
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         }
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -285,7 +306,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        } else {
+            resistance_received = true;
+        }
             double ac = 0.01243107769;
             double bc = 1.145964912;
             double cc = -23.50977444;
@@ -303,10 +325,13 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                Resistance = m_pelotonResistance;
-                emit resistanceRead(Resistance.value());
+                if (!resistance_received) {
+                    Resistance = m_pelotonResistance;
+                    emit resistanceRead(Resistance.value());
+                    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+                }
             }
-        }
+   
 
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
@@ -343,7 +368,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
         }
 
@@ -356,7 +381,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -414,7 +439,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             index += 2;
@@ -437,7 +462,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -533,7 +558,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
         }
 
@@ -546,7 +571,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-                Heart = ((double)((newValue.at(index))));
+                Heart = ((double)(((uint8_t)newValue.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -575,7 +600,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!heart || Heart.value() == 0 || disable_hr_frommachinery)) {
@@ -754,7 +779,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
         // handling gears
-        if (b.at(0) == 0x11) {
+        if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
             qDebug() << "applying gears mod" << m_gears;
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if (m_gears != 0) {
@@ -764,7 +789,12 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             }
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(b);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 
@@ -837,6 +867,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
             max_resistance = 16;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
+            qDebug() << QStringLiteral("MAGNUS found");
+            resistance_lvl_mode = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

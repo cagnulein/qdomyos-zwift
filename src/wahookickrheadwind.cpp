@@ -18,6 +18,10 @@ wahookickrheadwind::wahookickrheadwind(bluetoothdevice *parentDevice) {
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     this->parentDevice = parentDevice;
+
+    refresh = new QTimer(this);
+    connect(refresh, &QTimer::timeout, this, &wahookickrheadwind::update);
+    refresh->start(1000ms);
 }
 
 void wahookickrheadwind::update() {
@@ -126,11 +130,15 @@ void wahookickrheadwind::writeCharacteristic(QLowEnergyService *service, QLowEne
         return;
     }
 
-    service->writeCharacteristic(*writeChar, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(*writeChar, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
     loop.exec();
@@ -241,12 +249,17 @@ void wahookickrheadwind::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
+
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &wahookickrheadwind::stateChanged);
-        gattCommunicationChannelService.constLast()->discoverDetails();
+        if (gattCommunicationChannelService.constLast()) {
+            connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                    &wahookickrheadwind::stateChanged);
+            gattCommunicationChannelService.constLast()->discoverDetails();
+        } else {
+            m_control->disconnectFromDevice();
+        }
     }
 }
 

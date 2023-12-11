@@ -86,7 +86,7 @@ class ftmsbike : public bike {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -103,6 +103,9 @@ class ftmsbike : public bike {
     bool noHeartService = false;
 
     bool powerForced = false;
+
+    bool resistance_lvl_mode = false;
+    bool resistance_received = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

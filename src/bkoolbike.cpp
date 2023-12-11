@@ -44,10 +44,15 @@ void bkoolbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCustomService->writeCharacteristic(gattWriteCharCustomId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -187,6 +192,7 @@ void bkoolbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -248,8 +254,8 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;
             }
-            lastGoodCadence = QDateTime::currentDateTime();
-        } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+            lastGoodCadence = now;
+        } else if (lastGoodCadence.msecsTo(now) > 2000) {
             Cadence = 0;
         }
 
@@ -261,7 +267,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     .toDouble();
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
@@ -296,9 +302,9 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
         emit debug(QStringLiteral("Current CrankRevsRead: ") + QString::number(CrankRevsRead));
         emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -379,8 +385,8 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
-                    lastGoodCadence = QDateTime::currentDateTime();
-                } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
                     Cadence = 0;
                 }
             }
@@ -398,12 +404,12 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
             // if we change this, also change the wattsFromResistance function. We can create a standard function in
@@ -451,7 +457,7 @@ void bkoolbike::characteristicChanged(const QLowEnergyCharacteristic &characteri
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
@@ -520,7 +526,8 @@ void bkoolbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics = s->characteristics();
             for (const QLowEnergyCharacteristic &c : characteristics) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << QStringLiteral("properties") << c.properties();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+                         << QStringLiteral("properties") << c.properties();
                 auto descriptors = c.descriptors();
                 for (const QLowEnergyDescriptor &d : descriptors) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();

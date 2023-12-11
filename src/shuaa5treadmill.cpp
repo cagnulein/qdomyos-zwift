@@ -43,10 +43,15 @@ void shuaa5treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStri
         timeout.singleShot(2000, &loop, SLOT(quit()));
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -304,7 +309,7 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             if (Flags.heartRate) {
                 if (index < newValue.length()) {
 
-                    heart = ((double)((newValue.at(index))));
+                    heart = ((double)(((uint8_t)newValue.at(index))));
                     emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
@@ -333,7 +338,7 @@ void shuaa5treadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 ||
             settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
-                update_hr_from_external();
+            update_hr_from_external();
         } else {
             Heart = heart;
         }

@@ -39,7 +39,7 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     QEventLoop loop;
     QTimer timeout;
 
-    if(!gattCustomService) {
+    if (!gattCustomService) {
         qDebug() << "gattCustomService nullptr";
         return;
     }
@@ -52,11 +52,20 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    }
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -81,30 +90,39 @@ void ypooelliptical::update() {
         return;
     }
 
+    QSettings settings;
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
+
     if (initRequest) {
         initRequest = false;
-        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
-        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-        uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
-        uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+        if (!iconsole_elliptical) {
+            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+            uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        } else {
+            uint8_t init3[] = {0x02, 0x44, 0x05, 0x06, 0x00, 0x47, 0x03};
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+        }
+        initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        update_metrics(iconsole_elliptical, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -130,7 +148,7 @@ void ypooelliptical::update() {
             }
 
             if (requestResistance != currentResistance().value()) {
-                auto virtualBike = dynamic_cast<virtualbike*>(this->VirtualDevice());
+                auto virtualBike = dynamic_cast<virtualbike *>(this->VirtualDevice());
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
@@ -166,6 +184,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool iconsole_elliptical =
+        settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
     emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
 
@@ -174,6 +194,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
     }
+
+    if(iconsole_elliptical && initDone == false)
+        initRequest = true;
 
     union flags {
         struct {
@@ -201,7 +224,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     flags Flags;
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
         if (newvalue.length() == 18) {
             qDebug() << QStringLiteral("let's wait for the next piece of frame");
@@ -354,7 +377,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                Heart = ((double)((lastPacket.at(index))));
+                Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -373,6 +396,39 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.remainingTime) {
             // todo
         }
+    } else if (iconsole_elliptical) {
+        if (newvalue.length() == 15) {
+            Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
+            Cadence = newvalue.at(6);
+
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
+
+#ifdef Q_OS_ANDROID
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+            else
+#endif
+            {
+
+            }
+
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+        }
     } else {
         return;
     }
@@ -384,18 +440,18 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         update_hr_from_external();
     }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-/*
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround,
-   QZSettings::default_ios_peloton_workaround).toBool(); if (ios_peloton_workaround && cadence && h &&
-   firstStateChanged) { h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
-    }
- */
-#endif
-#endif
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+    /*
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround,
+    QZSettings::default_ios_peloton_workaround).toBool(); if (ios_peloton_workaround && cadence && h &&
+    firstStateChanged) { h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+    */
+    #endif
+    #endif
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -406,6 +462,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
+    QSettings settings;
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -420,6 +478,12 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        QBluetoothUuid _gattCustomService((quint16)0xFFF0);
+        if (s->serviceUuid() != _gattCustomService && iconsole_elliptical) {
+            qDebug() << "skipping service" << s->serviceUuid();
+            continue;
+        }
+
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &ypooelliptical::characteristicChanged);
@@ -549,10 +613,13 @@ void ypooelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
 }*/
 
 void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    QSettings settings;
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     if (gattCustomService != nullptr) {
-        initRequest = true;
+        if(!iconsole_elliptical)
+            initRequest = true;
         emit connectedAndDiscovered();
     }
 }

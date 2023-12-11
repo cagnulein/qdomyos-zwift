@@ -59,11 +59,15 @@ void mcfbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -173,6 +177,7 @@ double mcfbike::bikeResistanceToPeloton(double resistance) {
 }
 
 void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -204,26 +209,28 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = (((uint16_t)newValue.at(11) << 8) | (uint16_t)((uint8_t)newValue.at(12))) / 10.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
 
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         m_watt = (((uint16_t)newValue.at(9) << 8) | (uint16_t)((uint8_t)newValue.at(10)));
 
         if (watts())
-            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
-                       3.5) /
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(now))));
 
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
 
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
@@ -249,7 +256,8 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -335,11 +343,14 @@ void mcfbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();

@@ -51,12 +51,13 @@ void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPeloto
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
 
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
     if (!autoResistanceEnable) {
         qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
         return;
     }
 
-    RequestedPower = power;
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
     bool force_resistance =
@@ -115,6 +116,7 @@ void bike::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -139,6 +141,7 @@ void bike::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -160,6 +163,7 @@ void bike::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
@@ -253,6 +257,8 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(RequestedPower.value());
     } else if (!setting.compare(QStringLiteral("Watt/Kg"))) {
         return qRound(wattKg().value());
+    } else if (!setting.compare(QStringLiteral("Target Cadence"))) {
+        return qRound(RequestedCadence.value());
     }
     return qRound(currentHeart().value());
 }
@@ -285,6 +291,8 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
         } else {
             watt = 0;
         }
+    } else {
+        watt = currentCadence().value() * 1.2; // random value cloned from Zwift when HR is not available
     }
     return watt;
 }

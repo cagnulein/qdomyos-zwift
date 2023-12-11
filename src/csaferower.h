@@ -34,16 +34,12 @@
 #include <QFile>
 #include <QMutex>
 #include <QSettings>
-#include <QString>
 #include <QThread>
 
 #ifdef WIN32
-#include <windef.h>
-#endif
-
-#ifdef WIN32
-#include <winbase.h>
 #include <windows.h>
+
+#include <winbase.h>
 #else
 #include <sys/ioctl.h>
 #include <termios.h> // unix!!
@@ -84,6 +80,12 @@ class csaferowerThread : public QThread {
 
   signals:
     void onDebug(QString debug);
+    void newPacket(QByteArray p);
+    void onPower(double power);
+    void onCadence(double cadence);
+    void onHeart(double hr);
+    void onCalories(double calories);
+    void onDistance(double distance);
 
   private:
     // Utility and BG Thread functions
@@ -127,6 +129,8 @@ class csaferower : public rower {
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
+    uint16_t watts() override;
+
     bool initDone = false;
     bool initRequest = false;
 
@@ -147,8 +151,13 @@ class csaferower : public rower {
 
   private slots:
     void update();
-
+    void newPacket(QByteArray p);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void onPower(double power);
+    void onCadence(double cadence);
+    void onHeart(double hr);
+    void onCalories(double calories);
+    void onDistance(double distance);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

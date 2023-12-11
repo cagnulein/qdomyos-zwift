@@ -46,10 +46,15 @@ void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -98,7 +103,7 @@ void bhfitnesselliptical::update() {
             }
 
             if (requestResistance != currentResistance().value()) {
-                virtualbike * virtualBike = dynamic_cast<virtualbike*>(this->VirtualDevice());
+                virtualbike *virtualBike = dynamic_cast<virtualbike *>(this->VirtualDevice());
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
@@ -137,6 +142,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    QDateTime now = QDateTime::currentDateTime();
 
     if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
         Heart = (uint8_t)newValue[1];
@@ -186,7 +192,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0),
                 0 /* not useful for elliptical*/);
         }
         index += 2;
@@ -236,7 +242,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -283,7 +289,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -296,7 +302,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     {
         if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-            Heart = ((double)((newValue.at(index))));
+            Heart = ((double)(((uint8_t)newValue.at(index))));
             // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
             emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         } else {
@@ -321,11 +327,11 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
-            update_hr_from_external();
+        update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS
@@ -440,9 +446,10 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
         QSettings settings;
         if (!this->hasVirtualDevice()) {
             bool virtual_device_enabled =
-                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             bool virtual_device_force_bike =
-                 settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -488,7 +495,12 @@ void bhfitnesselliptical::ftmsCharacteristicChanged(const QLowEnergyCharacterist
             Resistance = (slope / 33) + default_resistance;
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(b);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 

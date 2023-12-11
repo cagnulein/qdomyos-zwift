@@ -61,16 +61,20 @@ void smartrowrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
         return;
     }
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len),
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char *)data, data_len));
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
     loop.exec();
@@ -180,6 +184,7 @@ double smartrowrower::bikeResistanceToPeloton(double resistance) {
 }
 
 void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -249,13 +254,14 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     // Distance += ((Speed.value() / 3600000.0) *
-    // ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    // ((double)lastRefreshCharacteristicChanged.msecsTo(now)) );
     Distance = distance;
 
     if (Cadence.value() > 0) {
@@ -263,7 +269,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -279,7 +285,8 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -355,11 +362,14 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();

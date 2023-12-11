@@ -61,7 +61,12 @@ void technogymmyruntreadmillrfcomm::serviceFinished(void) {
 #endif
 
         emit debug(QStringLiteral("Create socket"));
-        socket->connectToService(serialPortService);
+        if(!found) {
+            qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceFinished, no service found, trying workaround");
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid(QBluetoothUuid::SerialPort));
+        } else {
+            socket->connectToService(serialPortService);
+        }
         emit debug(QStringLiteral("ConnectToService done"));
     }
 }

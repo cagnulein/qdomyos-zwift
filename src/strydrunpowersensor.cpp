@@ -78,7 +78,7 @@ void strydrunpowersensor::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
@@ -286,7 +286,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         if (Flags.heartRate) {
             if (index < newValue.length()) {
 
-                double heart = ((double)((newValue.at(index))));
+                double heart = ((double)(((uint8_t)newValue.at(index))));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
             } else {
                 emit debug(QStringLiteral("Error on parsing heart!"));

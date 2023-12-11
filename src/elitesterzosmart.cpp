@@ -39,11 +39,15 @@ void elitesterzosmart::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -115,7 +119,7 @@ void elitesterzosmart::stateChanged(QLowEnergyService::ServiceState state) {
                 qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
             }
         }
-        
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());

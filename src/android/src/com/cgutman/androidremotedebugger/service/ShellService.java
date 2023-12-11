@@ -87,7 +87,7 @@ public class ShellService extends Service implements DeviceConnectionListener {
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		/* Stop the the service if no connections remain */
+		/* Stop the service if no connections remain */
 		if (currentConnectionMap.isEmpty()) {
 			stopSelf();
 		}
@@ -245,7 +245,7 @@ public class ShellService extends Service implements DeviceConnectionListener {
 	private synchronized void removeConnection(DeviceConnection devConn) {
 		currentConnectionMap.remove(getConnectionString(devConn));
 
-		/* Stop the the service if no connections remain */
+		/* Stop the service if no connections remain */
 		if (currentConnectionMap.isEmpty()) {
 			stopSelf();
 		}

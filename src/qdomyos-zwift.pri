@@ -60,7 +60,7 @@ INCLUDEPATH += qmdnsengine/src/include
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -75,6 +75,8 @@ SOURCES += \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
+    $$PWD/eliteariafan.cpp \
+   $$PWD/fakerower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
@@ -85,6 +87,7 @@ SOURCES += \
    $$PWD/pelotonbike.cpp \
    $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/windows_zwift_workout_paddleocr_thread.cpp \
    $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
@@ -265,6 +268,7 @@ SOURCES += \
              m3ibike.cpp \
                 domyosbike.cpp \
                scanrecordresult.cpp \
+					windows_zwift_incline_paddleocr_thread.cpp \
    zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
@@ -280,6 +284,9 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+    $$PWD/eliteariafan.h \
+   $$PWD/windows_zwift_workout_paddleocr_thread.h \
+   $$PWD/fakerower.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -688,7 +695,9 @@ HEADERS += \
    wobjectimpl.h \
         yesoulbike.h \
         scanrecordresult.h \
+		  windows_zwift_incline_paddleocr_thread.h \
    zwiftworkout.h
+
 
 exists(secret.h): HEADERS += secret.h
 
@@ -703,26 +712,19 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/res/xml/device_filter.xml \
+   $$PWD/android/src/CSafeRowerUSBHID.java \
+    $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
+   $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CdcAcmSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Ch34xSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/CommonUsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/Cp21xxSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/FtdiSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProbeTable.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/ProlificSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/SerialTimeoutException.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbId.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialDriver.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialPort.java \
-    $$PWD/android/src/com/hoho/android/usbserial/driver/UsbSerialProber.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/MonotonicClock.java \
-    $$PWD/android/src/com/hoho/android/usbserial/util/SerialInputOutputManager.java \
+    $$PWD/android/src/WearableController.java \
+    $$PWD/android/src/WearableMessageListenerService.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -731,7 +733,6 @@ DISTFILES += \
 	android/gradle/wrapper/gradle-wrapper.properties \
 	android/gradlew \
 	android/gradlew.bat \
-	android/libs/android_antlib_4-14-0.jar \
    android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
@@ -747,6 +748,7 @@ DISTFILES += \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+   android/src/SDMChannelController.java \
     android/src/Usbserial.java \
    android/src/com/cgutman/adblib/AdbBase64.java \
    android/src/com/cgutman/adblib/AdbConnection.java \
@@ -786,6 +788,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -816,4 +819,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.72
+VERSION = 2.16.27

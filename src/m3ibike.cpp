@@ -723,6 +723,9 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 long appleWatchHeartRate = h->heartRate();
                 h->setKcal(KCal.value());
                 h->setDistance(Distance.value());
+                h->setSpeed(Speed.value());
+                h->setPower(m_watt.value());
+                h->setCadence(Cadence.value());
                 if (appleWatchHeartRate == 0)
                     Heart = k3.pulse;
                 else
