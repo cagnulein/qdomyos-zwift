@@ -613,6 +613,7 @@ void ypooelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
 }*/
 
 void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    QSettings settings;
     bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
