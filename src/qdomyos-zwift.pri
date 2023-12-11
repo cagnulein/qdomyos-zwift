@@ -30,6 +30,12 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+android: {
+    include(../android_openssl/openssl.pri)
+    SOURCES += share_send_recv/android/androidshareutils.cpp
+    HEADERS += share_send_recv/android/androidshareutils.hpp
+}
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -798,10 +804,15 @@ ios {
 	 fit-sdk/FitMesg.mm \
          fit-sdk/FitMesgDefinition.mm \
          ios/M3iNS.mm \
+         ios/share_send_recv/iosshareutils.mm \
+         ios/share_send_recv/docviewcontroller.mm
 
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h
+
+    HEADERS += share_send_recv/ios/iosshareutils.hpp \
+    share_send_recv/ios/docviewcontroller.hpp    
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
