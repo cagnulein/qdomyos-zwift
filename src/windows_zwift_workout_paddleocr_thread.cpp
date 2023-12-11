@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QSettings>
 #include <QThread>
 #include <chrono>
@@ -47,7 +48,14 @@ void windows_zwift_workout_paddleocr_thread::run() {
 
 QString windows_zwift_workout_paddleocr_thread::runPython(QString command) {
 #ifdef Q_OS_WINDOWS
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    QString currentPath = env.value("PATH");
+    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath() + "\\python\\x64";
+    env.insert("PATH", updatedPath);
+
     QProcess process;
+    process.setProcessEnvironment(env);
     qDebug() << "run >> " << command;
     process.start("python\\x64\\python.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
