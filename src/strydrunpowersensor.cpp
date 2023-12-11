@@ -78,7 +78,7 @@ void strydrunpowersensor::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
