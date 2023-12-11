@@ -112,9 +112,10 @@ void ypooelliptical::update() {
             writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
             writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
         } else {
-            uint8_t init1[] = {0x02, 0x44, 0x05, 0x06, 0x00, 0x47, 0x03};
-            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            uint8_t init3[] = {0x02, 0x44, 0x05, 0x06, 0x00, 0x47, 0x03};
+            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
         }
+        initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -193,6 +194,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
     }
+
+    if(iconsole_elliptical && initDone == false)
+        initRequest = true;
 
     union flags {
         struct {
@@ -393,9 +397,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             // todo
         }
     } else if (iconsole_elliptical) {
-        if (lastPacket.length() == 15) {
-            Speed = (double)((((uint8_t)lastPacket.at(10)) << 8) | ((uint8_t)lastPacket.at(9))) / 100.0;
-            Cadence = lastPacket.at(6);
+        if (newvalue.length() == 15) {
+            Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
+            Cadence = newvalue.at(6);
 
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -609,10 +613,12 @@ void ypooelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
 }*/
 
 void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     if (gattCustomService != nullptr) {
-        initRequest = true;
+        if(!iconsole_elliptical)
+            initRequest = true;
         emit connectedAndDiscovered();
     }
 }
