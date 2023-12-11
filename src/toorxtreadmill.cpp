@@ -282,7 +282,7 @@ void toorxtreadmill::rfCommConnected() {
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
     initDone = true;
-    requestStart = 1;
+    // requestStart = 1;
     emit connectedAndDiscovered();
 }
 
