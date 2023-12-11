@@ -26,16 +26,13 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
-    bool connected();
+    bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -43,7 +40,8 @@ class spirittreadmill : public treadmill {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceIncline(double requestIncline);
+    void forceSpeed(double requestSpeed);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -51,7 +49,6 @@ class spirittreadmill : public treadmill {
     void startDiscover();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -68,6 +65,12 @@ class spirittreadmill : public treadmill {
     bool initRequest = false;
     bool readyToStart = false;
 
+    bool XT385 = false;
+    bool XT485 = false;
+
+    enum _REQUEST_STATE { IDLE = 0, UP = 1, DOWN = 2 };
+    _REQUEST_STATE requestInclinationState = IDLE;
+
   signals:
     void disconnected();
     void debug(QString string);
@@ -83,6 +86,7 @@ class spirittreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

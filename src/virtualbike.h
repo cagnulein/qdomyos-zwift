@@ -25,16 +25,23 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
-#include "bike.h"
+#include "dirconmanager.h"
+#include "virtualdevice.h"
 
-class virtualbike : public QObject {
+class virtualbike : public virtualdevice {
 
     Q_OBJECT
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    bool connected();
-    bool ftmsDeviceConnected() {return lastFTMSFrameReceived != 0;}
+    bool connected() override;
+    bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
+    qint64 whenLastFTMSFrameReceived() {
+        if (lastFTMSFrameReceived != 0)
+            return lastFTMSFrameReceived;
+        else
+            return lastDirconFTMSFrameReceived;
+    }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -52,23 +59,32 @@ class virtualbike : public QObject {
     QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
+    CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
+    CharacteristicNotifier2AD2 *notif2AD2 = 0;
+    CharacteristicNotifier2AD9 *notif2AD9 = 0;
+    CharacteristicNotifier2A63 *notif2A63 = 0;
+    CharacteristicNotifier2A37 *notif2A37 = 0;
+    CharacteristicNotifier2A5B *notif2A5B = 0;
 
-    uint16_t lastWheelTime = 0;
-    uint32_t wheelRevs = 0;
     qint64 lastFTMSFrameReceived = 0;
+    qint64 lastDirconFTMSFrameReceived = 0;
 
     bool noHeartService = false;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    DirconManager *dirconManager = 0;
+    int iFit_pelotonToBikeResistance(int pelotonResistance);
+    qint64 iFit_timer = 0;
+    qint64 iFit_TSLastFrame = 0;
+    QByteArray iFit_LastFrameReceived;
+    resistance_t iFit_LastResistanceRequested = 0;
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
+    void echelonWriteStatus();
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
-
-    void slopeChanged(int16_t slope);
-    void powerChanged(uint16_t power);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -77,10 +93,10 @@ class virtualbike : public QObject {
   signals:
     void changeInclination(double grade, double percentage);
 
-    // need to be implemented also in the iOS peloton workaround
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
+    void dirconFtmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();
     void reconnect();

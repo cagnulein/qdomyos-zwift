@@ -1,7 +1,6 @@
 #include "technogymmyruntreadmill.h"
 
 #include "ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,9 +11,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -44,10 +44,15 @@ void technogymmyruntreadmill::writeCharacteristic(QLowEnergyService *service, QL
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len), writeMode);
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    service->writeCharacteristic(characteristic, *writeBuffer, writeMode);
 
     if (!disable_log)
-        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
+        qDebug() << " >> " << writeBuffer->toHex(' ') << " // " << info;
 
     loop.exec();
 }
@@ -112,7 +117,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattWeightService) {
         uint8_t writeS[] = {0x30, 0x43};
 
-        writeCharacteristic(gattWeightService, gattWriteCharWeight, writeS, sizeof(writeS), QStringLiteral("weigth"),
+        writeCharacteristic(gattWeightService, gattWriteCharWeight, writeS, sizeof(writeS), QStringLiteral("weight"),
                             false, true);
     }
 
@@ -154,7 +159,7 @@ void technogymmyruntreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -170,13 +175,15 @@ void technogymmyruntreadmill::update() {
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
+            if (requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -256,7 +263,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9))
         emit packetReceived();
@@ -364,20 +371,23 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
             // energy per minute
             index += 1;
         } else {
-            if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 /
-                          ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                // kg * 3.5) / 200 ) / 60
+            if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal +=
+                    ((((0.048 *
+                            ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                        1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 /
+                      ((double)lastRefreshCharacteristicChanged.msecsTo(
+                          QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                            // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -385,7 +395,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
             if (Flags.heartRate) {
                 if (index < newValue.length()) {
 
-                    heart = ((double)((newValue.at(index))));
+                    heart = ((double)(((uint8_t)newValue.at(index))));
                     emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
                 } else {
                     emit debug(QStringLiteral("Error on parsing heart!"));
@@ -417,7 +427,10 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
-        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        bool double_cadence = settings
+                                  .value(QZSettings::powr_sensor_running_cadence_double,
+                                         QZSettings::default_powr_sensor_running_cadence_double)
+                                  .toBool();
         double cadence_multiplier = 1.0;
         if (double_cadence)
             cadence_multiplier = 2.0;
@@ -433,20 +446,10 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0 || settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool()) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        if (heart == 0.0 ||
+            settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
+            update_hr_from_external();
         } else {
-
             Heart = heart;
         }
     }
@@ -556,7 +559,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -565,20 +568,25 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     ) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-        bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &technogymmyruntreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
         firstStateChanged = 1;
@@ -691,10 +699,6 @@ bool technogymmyruntreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *technogymmyruntreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *technogymmyruntreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void technogymmyruntreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

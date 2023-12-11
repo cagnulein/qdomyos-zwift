@@ -19,9 +19,17 @@ ColumnLayout {
         url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
         visible: true
         onLoadingChanged: {
-            if (loadRequest.errorString)
+            if (loadRequest.errorString) {
                 console.error(loadRequest.errorString);
+                console.error("port " + settings.value("template_inner_QZWS_port"));
+            }
         }
+    }
+
+    Timer {
+        id: chartJscheckStartFromWeb
+        interval: 200; running: true; repeat: true
+        onTriggered: {if(rootItem.startRequested) {rootItem.startRequested = false; rootItem.stopRequested = false; stackView.pop(); }}
     }
 
     Button {

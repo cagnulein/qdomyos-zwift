@@ -32,7 +32,7 @@ ColumnLayout {
             horizontalAlignment: Text.AlignRight
             Layout.fillHeight: false
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            //inputMethodHints: Qt.ImhFormattedNumbersOnly
             onAccepted: hostRow.doSaveHost(text)
         }
         Button {

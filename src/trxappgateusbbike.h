@@ -26,7 +26,6 @@
 #include <QTime>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -35,11 +34,9 @@
 class trxappgateusbbike : public bike {
     Q_OBJECT
   public:
-    trxappgateusbbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                      double bikeResistanceGain);
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -47,24 +44,25 @@ class trxappgateusbbike : public bike {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
 
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -99,6 +97,10 @@ class trxappgateusbbike : public bike {
         CASALL = 12,
         VIRTUFIT = 13,
         HERTZ_XR_770_2 = 14,
+        VIRTUFIT_2 = 15,
+        TUNTURI = 16,
+        TUNTURI_2 = 17,
+        FITHIWAY = 18,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

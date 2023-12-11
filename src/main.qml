@@ -4,6 +4,10 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtMultimedia 5.15
+import org.cagnulein.qdomyoszwift 1.0
+import QtQuick.Window 2.12
+import Qt.labs.platform 1.1
 
 ApplicationWindow {
     id: window
@@ -12,10 +16,15 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("Stack")
+    title: qsTr("qDomyos-Zwift")
 
     signal gpx_open_clicked(url name)
+    signal gpxpreview_open_clicked(url name)
+    signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal gpx_open_other_folder(url name)
+    signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
@@ -172,12 +181,121 @@ ApplicationWindow {
         }
     }
 
+    signal keyMediaPrevious()
+    signal keyMediaNext()
+    signal floatingOpen()
+    signal openFloatingWindowBrowser();
 
     property bool lockTiles: false
+    property bool settings_restart_to_apply: false
 
     Settings {
         id: settings
-        property string profile_name: "default"
+        property string profile_name: "default"        
+        property string theme_status_bar_background_color: "#800080"
+        property bool volume_change_gears: false
+    }
+
+    Store {
+        id: iapStore
+    }
+
+    Loader {
+      id: googleMapUI
+      source:"GoogleMap.qml";
+      active: false
+      onLoaded: { console.log("googleMapUI loaded"); stackView.push(googleMapUI.item); }
+    }
+
+    // here in order to cache everything for the SwagBagView
+    Product {
+        id: productUnlockVowels
+        type: Product.Unlockable
+        store: iapStore
+        identifier: "org.cagnulein.qdomyoszwift.swagbag"
+
+        onPurchaseSucceeded: {
+            console.log(identifier + " purchase successful");
+            applicationData.vowelsUnlocked = true;
+            transaction.finalize();
+            pageStack.pop();
+        }
+
+        onPurchaseFailed: {
+            console.log(identifier + " purchase failed");
+            console.log("reason: "
+                        + transaction.failureReason === Transaction.CanceledByUser ? "Canceled" : transaction.errorString);
+            transaction.finalize();
+        }
+
+        onPurchaseRestored: {
+            console.log(identifier + " purchase restored");
+            applicationData.vowelsUnlocked = true;
+            console.log("timestamp: " + transaction.timestamp);
+            transaction.finalize();
+            pageStack.pop();
+        }
+    }
+
+    ToastManager {
+        id: toast
+    }
+
+    Timer {
+        interval: 1
+        repeat: false
+        running: (rootItem.toastRequested !== "")
+        onTriggered: {
+            toast.show(rootItem.toastRequested);
+            rootItem.toastRequested = "";
+        }
+    }
+
+    /*
+    Timer {
+        interval: 1000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This timer has triggered " + (++i) + " times!");
+        }
+    }
+
+    Timer {
+        interval: 3000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This important message has been shown " + (++i) + " times.", 5000);
+        }
+    }*/
+
+    Keys.onBackPressed: {
+        if(OS_VERSION === "Android") {
+            toast.show("Pressed it quickly to close the app!")
+            timer.pressBack();
+        }
+    }
+    Timer{
+        id: timer
+
+        property bool backPressed: false
+        repeat: false
+        interval: 200//ms
+        onTriggered: backPressed = false
+        function pressBack(){
+            if(backPressed){
+                timer.stop()
+                backPressed = false
+                Qt.callLater(Qt.quit)
+            }
+            else{
+                backPressed = true
+                timer.start()
+            }
+        }
     }
 
     Popup {
@@ -342,18 +460,73 @@ ApplicationWindow {
          }
     }
 
+    Timer {
+        id: popupLicenseAutoClose
+        interval: 120000; running: rootItem.licensePopupVisible; repeat: false
+        onTriggered: popupLicense.close();
+    }
+
+    Popup {
+        id: popupLicense
+         parent: Overlay.overlay
+         enabled: rootItem.licensePopupVisible
+         onEnabledChanged: { if(rootItem.licensePopupVisible) popupLicense.open() }
+         onClosed: { Qt.openUrlExternally("https://www.patreon.com/bePatron?u=45290147"); Qt.callLater(Qt.quit); }
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 580
+         height: 230
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             width: 570
+             height: 220
+             text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+            }
+         }
+    }
+
+    MessageDialog {
+        id: popupRestartApp
+        text: "Settings changed"
+        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: Material.Purple
+        Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
 
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "\u25C0" : "\u2630"
+            text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    if(window.settings_restart_to_apply === true) {
+                        window.settings_restart_to_apply = false;
+                        popupRestartApp.visible = true;
+                    }
+
                     stackView.pop()
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
@@ -362,6 +535,14 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
+        }
+
+        ToolButton {
+            id: toolButtonFloating
+            icon.source: "icons/icons/mini-display.png"
+            onClicked: { console.log("floating!"); floatingOpen(); }
+            anchors.left: toolButton.right
+            visible: OS_VERSION === "Android" ? true : false
         }
 
         Popup {
@@ -473,6 +654,51 @@ ApplicationWindow {
         }*/
 
         ToolButton {
+            function loadMaps() {
+                if(rootItem.currentCoordinateValid) {
+                    console.log("coordinate is valid for map");
+                    if(googleMapUI.status === Loader.Ready)
+                        stackView.push(googleMapUI.item);
+                    else
+                        googleMapUI.active = true;
+
+                } else {
+                    console.log("coordinate is NOT valid for map");
+                }
+            }
+            id: toolButtonMaps
+            icon.source: ( "icons/icons/maps-icon-16.png" )
+            onClicked: { loadMaps(); }
+            anchors.right: toolButtonChart.left
+            visible: rootItem.mapsVisible
+        }      
+
+        ToolButton {
+            function loadVideo() {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
+                    console.log("coordinate is valid for map");
+                    //stackView.push("videoPlayback.qml");
+                    rootItem.videoVisible = !rootItem.videoVisible
+                } else {
+                    console.log("coordinate is NOT valid for map");
+                }
+            }
+            id: toolButtonVideo
+            icon.source: ( "icons/icons/video.png" )
+            onClicked: { loadVideo(); }
+            anchors.right: toolButtonMaps.left
+            visible: rootItem.videoIconVisible
+        }
+
+        ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/chart.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
+        }
+
+        ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
@@ -508,6 +734,7 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
                     stackView.push("profiles.qml")
+                    stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                     drawer.close()
                 }
             }
@@ -518,10 +745,20 @@ ApplicationWindow {
                 onClicked: {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
-                    stackView.push("settings.qml")                    
+                    stackView.push("settings.qml")
                     drawer.close()                    
                 }
             }
+
+            ItemDelegate {
+                text: qsTr("👜Swag Bag")
+                width: parent.width
+                onClicked: {
+                    stackView.push("SwagBagView.qml")
+                    drawer.close()
+                }
+            }
+
             ItemDelegate {
                 text: qsTr("Charts")
                 width: parent.width
@@ -536,19 +773,29 @@ ApplicationWindow {
             }
             ItemDelegate {
                 id: gpx_open
-                text: qsTr("Open GPX")
+                text: qsTr("🗺️ Open GPX")
                 width: parent.width
                 onClicked: {
-					     fileDialogGPX.visible = true
+                    stackView.push("GPXList.qml")
+                    stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
+                    stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
+                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                        stackView.pop();
+                        popup.open();
+                     });
                     drawer.close()
                 }
             }
             ItemDelegate {
                 id: trainprogram_open
-                text: qsTr("Open Train Program")
+                text: qsTr("📈 Open Train Program")
                 width: parent.width
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
+                    stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+                    stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         appui.simulateIntentReceived(url);
                         stackView.pop();
@@ -558,7 +805,7 @@ ApplicationWindow {
             }
             /*
             ItemDelegate {
-                text: qsTr("Whats On Zwift™")
+                text: qsTr("What's On Zwift™")
                 width: parent.width
                 onClicked: {
                     popupWhatsOnZwiftHelper.open()
@@ -588,15 +835,6 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                id: strava_connect
-                text: qsTr("Connect to Strava")
-                width: parent.width
-                onClicked: {
-                    strava_connect_clicked()
-                    drawer.close()
-                }
-            }
-            ItemDelegate {
                 id: help
                 text: qsTr("Help")
                 width: parent.width
@@ -623,13 +861,42 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: "version 2.10.46"
+                text: qsTr("Quit")
+                width: parent.width
+                visible: OS_VERSION === "Other" ? true : false
+                onClicked: {
+                    console.log("closing...")
+                    Qt.callLater(Qt.quit)
+                }
+            }
+
+            ItemDelegate {
+                text: "version 2.16.27"
                 width: parent.width
             }
+
+            ItemDelegate {
+                id: strava_connect
+                Image {
+                    anchors.left: parent.left;
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "icons/icons/btn_strava_connectwith_orange.png"
+                    fillMode: Image.PreserveAspectFit
+                    visible: true
+                    width: parent.width
+                }
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebStravaAuth.qml")
+                    strava_connect_clicked()
+                    drawer.close()
+                }
+            }
+
 				FileDialog {
 				    id: fileDialogGPX
 					 title: "Please choose a file"
-					 folder: shortcuts.home
+                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
 					 onAccepted: {
 					     console.log("You chose: " + fileDialogGPX.fileUrl)
 						  gpx_open_clicked(fileDialogGPX.fileUrl)
@@ -649,7 +916,15 @@ ApplicationWindow {
         initialItem: "Home.qml"
         anchors.fill: parent
         focus: true
-        Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
-        Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
+        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+        Keys.onPressed: (event)=> {
+            if (event.key === Qt.Key_MediaPrevious)
+                keyMediaPrevious();
+            else if (event.key === Qt.Key_MediaNext)
+                keyMediaNext();
+
+            event.accepted = settings.volume_change_gears;
+        }
     }
 }

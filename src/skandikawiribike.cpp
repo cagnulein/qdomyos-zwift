@@ -1,5 +1,7 @@
 #include "skandikawiribike.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -27,12 +29,7 @@ skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, 
     refresh->start(300ms);
 }
 
-skandikawiribike::~skandikawiribike() {
-    qDebug() << QStringLiteral("~skandikawiribike()") << virtualBike;
-    if (virtualBike) {
-        delete virtualBike;
-    }
-}
+skandikawiribike::~skandikawiribike() { qDebug() << QStringLiteral("~skandikawiribike()"); }
 
 void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
@@ -47,12 +44,15 @@ void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -63,7 +63,7 @@ void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 }
 
 /*
-void skandikawiribike::forceResistance(int8_t requestResistance)
+void skandikawiribike::forceResistance(resistance_t requestResistance)
 {
 
 }
@@ -187,12 +187,18 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if (newValue.length() == 5) {
+    if (newValue.length() == 5 && X2000 == false) {
+        if (newValue.at(2) < 33) {
+            Resistance = newValue.at(2);
+            emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
+        }
+        return;
+    } else if (newValue.length() == 6 && X2000 == true) {
         if (newValue.at(2) < 33) {
             Resistance = newValue.at(2);
             emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
@@ -202,16 +208,18 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
     }
 
-    if (newValue.at(1) == 0x00) {
+    if ((newValue.at(1) == 0x00 && X2000 == false) || (newValue.at(1) == 0x20 && X2000 == true)) {
         double speed = GetSpeedFromPacket(newValue);
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
-    } else if (newValue.at(1) == 0x10) {
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    } else if ((newValue.at(1) == 0x10 && X2000 == false) || (newValue.at(1) == 0x30 && X2000 == true)) {
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = GetCadenceFromPacket(newValue);
@@ -220,7 +228,11 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double kcal = GetKcalFromPacket(newValue);
 
-    m_watts = GetWattFromPacket(newValue);
+    if (X2000) {
+        m_watts = wattFromHR(true);
+    } else {
+        m_watts = GetWattFromPacket(newValue);
+    }
     if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
@@ -229,15 +241,22 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit resistanceRead(Resistance.value());
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = 0;
+            if (X2000) {
+                Heart = newValue.at(8);
+            } else {
+                Heart = 0;
+            }
         }
     }
+
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -257,8 +276,6 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     KCal = kcal;
-    Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 }
 
 double skandikawiribike::GetSpeedFromPacket(const QByteArray &packet) {
@@ -285,11 +302,16 @@ double skandikawiribike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 void skandikawiribike::btinit() {
-    uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x24, 0xfe};
+    if (X2000) {
+        uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x38, 0x12};
 
-    // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
-    // enough
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else {
+        uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x24, 0xfe};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -321,7 +343,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
                 &skandikawiribike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -329,11 +351,14 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -343,10 +368,11 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &skandikawiribike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -400,6 +426,11 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
+        if (device.name().toUpper().startsWith(QLatin1String("HT"))) {
+            X2000 = true;
+            qDebug() << "X-2000 WORKAROUND!";
+        }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &skandikawiribike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &skandikawiribike::serviceScanDone);
@@ -440,14 +471,10 @@ bool skandikawiribike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *skandikawiribike::VirtualBike() { return virtualBike; }
-
-void *skandikawiribike::VirtualDevice() { return VirtualBike(); }
-
 uint16_t skandikawiribike::watts() {
     QSettings settings;
     // double v = 0; // NOTE: unused variable v
-    // const uint8_t max_resistance = 15;
+    // const resistance_t max_resistance = 15;
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 

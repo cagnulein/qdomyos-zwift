@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 1000px;
+        width: 100%;
+      }
+    </style>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="globals.js"></script>
+     <script src="main_ws_manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+    function a() {
+    let lat = 0
+    let lon = 0
+    let el = new MainWSQueueElement({
+        msg: 'getlatlon'
+    }, function(msg) {
+        if (msg.msg === 'R_getlatlon') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_latlon).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+    }
+
+    function  process_latlon(msg) {
+    let lat = parseFloat(msg.split(",")[0]);
+    let lon = parseFloat(msg.split(",")[1]);
+    map.getView().animate({center: ol.proj.fromLonLat([lon, lat])});
+	markers.getSource().getFeatures()[0].getGeometry().setCoordinates(ol.proj.fromLonLat([lon, lat]));
+    setTimeout(a,2000);
+    }
+
+      let map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([37.41, 8.82]),
+          zoom: 16
+        })
+      });
+	  
+	markers = new ol.layer.Vector({
+	  source: new ol.source.Vector(),
+	  style: new ol.style.Style({
+		image: new ol.style.Icon({
+          anchor: [0.5, 0.5],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+		  scale: 0.2,
+		  src: 'marker.png'
+		})
+	  })
+	});
+	map.addLayer(markers);
+
+	let marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([37.41, 8.82])));
+	markers.getSource().addFeature(marker);
+  
+      setTimeout(a,0);
+    </script>
+  </body>
+</html>

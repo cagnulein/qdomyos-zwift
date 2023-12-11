@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,16 +36,13 @@ class mcfbike : public bike {
     Q_OBJECT
   public:
     mcfbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
-    const int max_resistance = 14;
+    const resistance_t max_resistance = 14;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t wattsFromResistance(double resistance);
@@ -56,10 +52,9 @@ class mcfbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -71,7 +66,7 @@ class mcfbike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    int8_t lastResistanceBeforeDisconnection = -1;
+    resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;

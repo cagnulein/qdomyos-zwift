@@ -1,6 +1,5 @@
 #include "smartspin2k.h"
-#include "ios/lockscreen.h"
-#include "virtualbike.h"
+#include "ftmsbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -11,14 +10,15 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice) {
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -60,7 +60,7 @@ void smartspin2k::setShiftStep(uint16_t steps) {
     writeCharacteristic(shiftStep, sizeof(shiftStep), "BLE_setShiftStep", false, true);
 }
 
-void smartspin2k::lowInit(int8_t resistance) {
+void smartspin2k::lowInit(resistance_t resistance) {
     uint8_t enable_syncmode[] = {0x02, 0x1B, 0x01};
     uint8_t disable_syncmode[] = {0x02, 0x1B, 0x00};
     writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
@@ -77,7 +77,7 @@ void smartspin2k::lowInit(int8_t resistance) {
     writeCharacteristic(simulate_hr, sizeof(simulate_hr), "simulate_hr", false, true);
 }
 
-void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
+void smartspin2k::resistanceReadFromTheBike(resistance_t resistance) {
 
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
     if (startupResistance == -1) {
@@ -96,6 +96,12 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
                                       bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if (gattCommunicationChannelService == nullptr || gattCommunicationChannelService == nullptr) {
+        qDebug() << "pointer no valid" << gattCommunicationChannelService << gattCommunicationChannelService;
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
                 &loop, SLOT(quit()));
@@ -106,12 +112,15 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -137,12 +146,15 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelServiceFTMS->writeCharacteristic(gattWriteCharControlPointId,
-                                                             QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelServiceFTMS->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -163,7 +175,7 @@ void smartspin2k::calibrateShiftStep() {
 
     if (nSamples == 0) {
         slope = 0;
-        intercept = settings.value("ss2k_shift_step", 900).toUInt();
+        intercept = settings.value(QZSettings::ss2k_shift_step, QZSettings::default_ss2k_shift_step).toUInt();
         return;
     } else if (nSamples == 1) {
         slope = 0;
@@ -186,9 +198,19 @@ void smartspin2k::calibrateShiftStep() {
                QString::number(intercept));
 }
 
-void smartspin2k::forceResistance(int8_t requestResistance) {
+void smartspin2k::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
+
+    double ss2k_min_resistance =
+        settings.value(QZSettings::ss2k_min_resistance, QZSettings::default_ss2k_min_resistance).toDouble();
+    double ss2k_max_resistance =
+        settings.value(QZSettings::ss2k_max_resistance, QZSettings::default_ss2k_max_resistance).toDouble();
+
+    if (requestResistance > ss2k_max_resistance)
+        requestResistance = ss2k_max_resistance;
+    if (requestResistance < ss2k_min_resistance)
+        requestResistance = ss2k_min_resistance;
 
     // if not calibrated, slope=0 and intercept is the configured shift step
     uint16_t steps = slope * requestResistance + intercept;
@@ -201,7 +223,8 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance),
+                        false, true);
 }
 
 void smartspin2k::update() {
@@ -236,8 +259,8 @@ void smartspin2k::update() {
                 watt[3] = (uint8_t)((uint16_t)(parentDevice->wattsMetric().value()) >> 8);
 
                 writeCharacteristic(watt, sizeof(watt),
-                                    QStringLiteral("watt sync ") +
-                                        QString::number(parentDevice->wattsMetric().value()));
+                                    QStringLiteral("watt sync ") + QString::number(parentDevice->wattsMetric().value()),
+                                    false, true);
 
                 // cadence sync
                 uint8_t cadence[] = {0x02, 0x05, 0x00, 0x00};
@@ -246,16 +269,17 @@ void smartspin2k::update() {
 
                 writeCharacteristic(cadence, sizeof(cadence),
                                     QStringLiteral("cadence sync ") +
-                                        QString::number(parentDevice->currentCadence().value()));
+                                        QString::number(parentDevice->currentCadence().value()),
+                                    false, true);
 
                 // hr sync
                 uint8_t heart[] = {0x02, 0x04, 0x00, 0x00};
                 heart[2] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) & 0xFF);
                 heart[3] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) >> 8);
 
-                writeCharacteristic(heart, sizeof(heart),
-                                    QStringLiteral("heart sync ") +
-                                        QString::number(parentDevice->currentHeart().value()));
+                writeCharacteristic(
+                    heart, sizeof(heart),
+                    QStringLiteral("heart sync ") + QString::number(parentDevice->currentHeart().value()), false, true);
             }
         }
 
@@ -267,7 +291,8 @@ void smartspin2k::update() {
 
             writeCharacteristicFTMS(write, sizeof(write),
                                     QStringLiteral("forcePower to SS2K ") +
-                                        QString::number(parentDevice->lastRequestedPower().value()));
+                                        QString::number(parentDevice->lastRequestedPower().value()),
+                                    false, true);
 
             requestResistance = -1;
         }
@@ -288,7 +313,7 @@ void smartspin2k::update() {
             requestResistance = -1;
         } else {
             uint8_t read[] = {0x01, 0x17};
-            writeCharacteristic(read, sizeof(read), QStringLiteral("polling"));
+            writeCharacteristic(read, sizeof(read), QStringLiteral("polling"), false, true);
         }
     }
 }
@@ -437,6 +462,8 @@ void smartspin2k::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("smartspin2k::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
+
+    m_control->disconnectFromDevice();
 }
 
 void smartspin2k::error(QLowEnergyController::Error err) {
@@ -444,6 +471,8 @@ void smartspin2k::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("smartspin2k::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
+
+    m_control->disconnectFromDevice();
 }
 
 void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -492,10 +521,6 @@ bool smartspin2k::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *smartspin2k::VirtualBike() { return virtualBike; }
-
-void *smartspin2k::VirtualDevice() { return VirtualBike(); }
 
 uint16_t smartspin2k::watts() {
     if (currentCadence().value() == 0) {

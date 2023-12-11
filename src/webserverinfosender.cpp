@@ -17,8 +17,10 @@ WebServerInfoSender::~WebServerInfoSender() { innerStop(); }
 void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) { repl->ignoreSslErrors(); }
 
 bool WebServerInfoSender::listen() {
-    if (!innerTcpServer)
+    if (!innerTcpServer) {
         innerTcpServer = new QTcpServer(this);
+        connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
+    }
     if (!innerTcpServer->isListening()) {
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
             if (!port) {
@@ -26,6 +28,10 @@ bool WebServerInfoSender::listen() {
                                   port = innerTcpServer->serverPort());
             }
             httpServer->bind(innerTcpServer);
+
+            connect(&watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdogEvent()));
+            watchdogTimer.start(5000);
+
             return true;
         } else {
             delete innerTcpServer;
@@ -35,6 +41,7 @@ bool WebServerInfoSender::listen() {
     return false;
 }
 
+void WebServerInfoSender::acceptError(QAbstractSocket::SocketError socketError) {qDebug() << "WebServerInfoSender::acceptError" << socketError;}
 bool WebServerInfoSender::isRunning() const { return innerTcpServer && innerTcpServer->isListening(); }
 bool WebServerInfoSender::send(const QString &data) {
     if (isRunning() && !data.isEmpty()) {
@@ -112,6 +119,14 @@ bool WebServerInfoSender::init() {
     return false;
 }
 
+void WebServerInfoSender::watchdogEvent() {
+    if(innerTcpServer->serverError() != QAbstractSocket::UnknownSocketError)
+        qDebug() << "WebServerInfoSender is " << innerTcpServer->serverError();
+    if(innerTcpServer && !innerTcpServer->isListening()) {
+        qDebug() << QStringLiteral("innerTcpServer is not LISTENING!");
+    }
+}
+
 void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
     QPair<QJsonObject, QWebSocket *> reqIdRequester = reply2Req.value(reply);
     QString req = reqIdRequester.first.operator[](QStringLiteral("req")).toString();
@@ -156,7 +171,7 @@ void WebServerInfoSender::processTextMessage(QString message) {
     if (pClient) {
         pClient->sendTextMessage(message);
     }*/
-    qDebug() << QStringLiteral("Message received:") << message;
+    //qDebug() << QStringLiteral("Message received:") << message;
     emit onDataReceived(message.toUtf8());
 }
 
@@ -245,6 +260,6 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     if (pClient) {
         pClient->sendBinaryMessage(message);
     }*/
-    qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
+    //qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
     emit onDataReceived(message);
 }

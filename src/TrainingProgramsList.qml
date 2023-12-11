@@ -4,16 +4,24 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
+import QtCharts 2.2
+import Qt.labs.settings 1.0
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal trainprogram_preview(url name)
     FileDialog {
         id: fileDialogTrainProgram
         title: "Please choose a file"
         folder: shortcuts.home
         onAccepted: {
             console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            if(OS_VERSION === "Android") {
+                trainprogram_open_other_folder(fileDialogTrainProgram.fileUrl)
+            } else {
+                trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            }
             fileDialogTrainProgram.close()
         }
         onRejected: {
@@ -22,21 +30,65 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
-        title: qsTr("Application Training folder")
-        indicatRectColor: Material.color(Material.Grey)
-        textColor: Material.color(Material.Grey)
-        color: Material.backgroundColor
-        accordionContent: ColumnLayout {
+    RowLayout{
+        spacing: 2
+        anchors.top: parent.top
+        anchors.fill: parent
+
+        ColumnLayout {
+            spacing: 0
+            anchors.top: parent.top
+            anchors.fill: parent
+
+            Row
+            {
+                spacing: 5
+                Text
+                {
+                    text:"Filter"
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                }
+                TextField
+                {
+                    function updateFilter()
+                    {
+                        var text = filterField.text
+                        var filter = "*"
+                        for(var i = 0; i<text.length; i++)
+                           filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
+                        filter+="*"
+                        print(filter)
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                    }
+                    id: filterField
+                    onTextChanged: updateFilter()
+                }
+					 Button {
+					     anchors.left: mainRect.right
+						  anchors.leftMargin: 5
+						  text: "←"
+						  onClicked: folderModel.folder = folderModel.parentFolder
+						}
+            }
+
             ListView {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 50
+                Layout.preferredWidth: 100
+                Layout.maximumWidth: row.left
+                Layout.minimumHeight: 150
+                Layout.preferredHeight: parent.height
+                ScrollBar.vertical: ScrollBar {}
                 id: list
-                anchors.fill: parent
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
-                    showDotAndDotDot: false
+						  showDotAndDotDot: false
                     showDirs: true
+						  sortField: "Name"
+						  showDirsFirst: true
                 }
                 model: folderModel
                 delegate: Component {
@@ -44,13 +96,37 @@ ColumnLayout {
                         property alias textColor: fileTextBox.color
                         width: parent.width
                         height: 40
-                        color: Material.backgroundColor
+								color: Material.backgroundColor
                         z: 1
-                        Text {
-                            id: fileTextBox
-                            color: Material.color(Material.Grey)
-                            font.pixelSize: Qt.application.font.pixelSize * 1.6
-                            text: fileName.substring(0, fileName.length-4)
+                        Item {
+                            id: root
+                            property alias text: fileTextBox.text
+                            property int spacing: 30
+                            width: fileTextBox.width + spacing
+                            height: fileTextBox.height
+                            clip: true
+                            Text {
+                                id: fileTextBox
+                                color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
+                                font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                text: (!folderModel.isFolder(index)?fileName.substring(0, fileName.length-4):fileName)
+                                NumberAnimation on x {
+                                    Component.onCompleted: {
+                                        if(fileName.length > 30) {
+                                            running: true;
+                                        } else {
+                                            stop();
+                                        }
+                                    }
+                                    from: 0; to: -root.width; duration: 20000; loops: Animation.Infinite
+                                }
+                                Text {
+                                  x: root.width
+                                  text: fileTextBox.text
+                                  color: Material.color(Material.Grey)
+                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                }
+                            }
                         }
                         MouseArea {
                             anchors.fill: parent
@@ -59,9 +135,12 @@ ColumnLayout {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                                    if (fileUrl) {
+												if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                                         trainprogram_open_clicked(fileUrl);
-                                    }
+                                        popup.open()
+												} else {
+												    folderModel.folder = fileURL
+												}
                                 }
                                 else {
                                     if (list.currentItem)
@@ -90,14 +169,124 @@ ColumnLayout {
                     if (fileUrl) {
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
+                        trainprogram_preview(fileUrl)
+                        powerSeries.clear();
+                        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+                        {
+                            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+                        }
+                        rootItem.update_chart_power(powerChart);
                         //trainprogram_open_clicked(fileUrl);
                         //popup.open()
+                    }
+                }
+                Component.onCompleted: {
+
+                }
+            }
+        }
+
+        ScrollView {
+            anchors.top: parent.top
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            contentHeight: date.height + description.height + powerChart.height
+            Layout.preferredHeight: parent.height
+            Layout.fillWidth: true
+            Layout.minimumWidth: 100
+            Layout.preferredWidth: 200
+
+            property alias powerSeries: powerSeries
+            property alias powerChart: powerChart
+
+            Settings {
+                id: settings
+                property real ftp: 200.0
+            }
+
+            Row {
+                id: row
+                anchors.fill: parent
+
+                Text {
+                    id: date
+                    width: parent.width
+                    text: rootItem.previewWorkoutDescription
+                    font.pixelSize: 14
+                    color: "white"
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    anchors.top: date.bottom
+                    id: description
+                    width: parent.width
+                    text: rootItem.previewWorkoutTags
+                    font.pixelSize: 10
+                    wrapMode: Text.WordWrap
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Item {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: description.bottom
+                    anchors.bottom: parent.bottom
+
+                    ChartView {
+                        id: powerChart
+                        objectName: "powerChart"
+                        antialiasing: true
+                        legend.visible: false
+                        height: 400
+                        width: parent.width
+                        title: "Power"
+                        titleFont.pixelSize: 20
+
+                        DateTimeAxis {
+                            id: valueAxisX
+                            tickCount: 7
+                            min: new Date(0)
+                            max: new Date(rootItem.preview_workout_points * 1000)
+                            format: "mm:ss"
+                            //labelsVisible: false
+                            gridVisible: false
+                            //lineVisible: false
+                            labelsFont.pixelSize: 10
+                        }
+
+                        ValueAxis {
+                            id: valueAxisY
+                            min: 0
+                            max: rootItem.wattMaxChart
+                            //tickCount: 60
+                            tickCount: 8
+                            labelFormat: "%.0f"
+                            //labelsVisible: false
+                            //gridVisible: false
+                            //lineVisible: false
+                            labelsFont.pixelSize: 10
+                        }
+
+                        LineSeries {
+                            //name: "Power"
+                            id: powerSeries
+                            visible: true
+                            axisX: valueAxisX
+                            axisY: valueAxisY
+                            color: "black"
+                            width: 1
+                        }
                     }
                 }
             }
         }
     }
-    spacing: 10
 
     Button {
         id: searchButton

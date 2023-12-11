@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>Easy intervals</name>
+    <description>For the days when you don't want to work to hard, but don't want to lose fitness! Intervals of only 1 minute at 125% FTP. Rest is at relatively high power.</description>
+    <sportType>bike</sportType>
+    <tags>
+	    <tag name="INTERVALS"/>
+        <tag name="JonathanC"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="120" Power="0.65"/>
+        <SteadyState Duration="300" Power="0.8" Cadence="90"/>
+        <IntervalsT Repeat="3" OnDuration="60" OffDuration="180" OnPower="1.25" OffPower="0.73"/>
+        <IntervalsT Repeat="1" OnDuration="60" OffDuration="180" OnPower="1.25" OffPower="0.73"/>
+        <SteadyState Duration="300" Power="0.8" Cadence="90"/>
+        <IntervalsT Repeat="2" OnDuration="60" OffDuration="180" OnPower="1.25" OffPower="0.73"/>
+        <IntervalsT Repeat="2" OnDuration="60" OffDuration="180" OnPower="1.25" OffPower="0.73"/>
+        <SteadyState Duration="300" Power="0.8" Cadence="90"/>
+        <SteadyState Duration="120" Power="0.65"/>
+    </workout>
+</workout_file>

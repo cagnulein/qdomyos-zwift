@@ -50,6 +50,10 @@ class peloton : public QObject {
 
     void setTestMode(bool test);
 
+    bool isWorkoutInProgress() {
+        return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
+    }
+
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 10;
@@ -77,6 +81,24 @@ class peloton : public QObject {
     void getPerformance(const QString &workout);
 
     bool testMode = false;
+
+    // rowers
+    double rowerpaceToSpeed(double pace);
+    typedef struct _peloton_rower_pace_intensities_level {
+        QString display_name;
+        double fast_pace;
+        double slow_pace;
+        QString slug;
+    }_peloton_rower_pace_intensities_level;
+
+    typedef struct _peloton_rower_pace_intensities {
+        QString display_name;
+        int value;
+        _peloton_rower_pace_intensities_level levels[10];
+    } _peloton_rower_pace_intensities;
+
+    _peloton_rower_pace_intensities rower_pace[5];
+    int rower_pace_offset = 0;
 
   private slots:
     void login_onfinish(QNetworkReply *reply);

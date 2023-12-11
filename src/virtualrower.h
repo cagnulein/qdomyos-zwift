@@ -25,14 +25,15 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
-#include "bike.h"
+#include "bluetoothdevice.h"
+#include "virtualdevice.h"
 
-class virtualrower : public QObject {
+class virtualrower : public virtualdevice {
 
     Q_OBJECT
   public:
     virtualrower(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false);
-    bool connected();
+    bool connected() override;
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -59,7 +60,8 @@ class virtualrower : public QObject {
 #endif
 
   signals:
-
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void rowerProvider();

@@ -1,11 +1,14 @@
 #include "paferstreadmill.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <QThread>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -51,11 +54,15 @@ void paferstreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -112,20 +119,22 @@ void paferstreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &paferstreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &paferstreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
@@ -135,7 +144,9 @@ void paferstreadmill::update() {
                 forceIncline(Inclination.value());
             }
             requestSpeed = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
+            if (requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -143,7 +154,7 @@ void paferstreadmill::update() {
                 QThread::msleep(400);
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         } else if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             lastStart = QDateTime::currentMSecsSinceEpoch();
@@ -177,7 +188,7 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -192,7 +203,7 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double incline = GetInclinationFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -200,6 +211,9 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         /*if(heartRateBeltName.startsWith("Disabled"))
         Heart = value.at(18);*/
     }
+
+    cadenceFromAppleWatch();
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
 
@@ -225,10 +239,11 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -271,22 +286,34 @@ double paferstreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
 void paferstreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
+    QSettings settings;
+    bool pafers_treadmill_bh_iboxster_plus =
+        settings
+            .value(QZSettings::pafers_treadmill_bh_iboxster_plus, QZSettings::default_pafers_treadmill_bh_iboxster_plus)
+            .toBool();
     uint8_t initData1[] = {0x55, 0xbb, 0x01, 0xff};
     uint8_t initData2[] = {0x55, 0x0c, 0x01, 0xff};
     uint8_t initData3[] = {0x55, 0x1f, 0x01, 0xff};
+    uint8_t initData3b[] = {0x55, 0x0d, 0x0a, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     uint8_t initData4[] = {0x55, 0x0a, 0x01, 0x02};
     uint8_t initData5[] = {0x55, 0x01, 0x06, 0x39, 0x01, 0x32, 0x19, 0xa5, 0x32};
     uint8_t initData6[] = {0x55, 0x15, 0x01, 0x00};
     uint8_t initData7[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+    uint8_t initData7b[] = {0x55, 0x0f, 0x02, 0x00, 0x0a};
     uint8_t initData8[] = {0x55, 0x11, 0x01, 0x00};
     uint8_t initData9[] = {0x55, 0x08, 0x01, 0x01};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    if (pafers_treadmill_bh_iboxster_plus)
+        writeCharacteristic(initData3b, sizeof(initData3b), QStringLiteral("init"), false, true);
     writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
     writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
     writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+    if (pafers_treadmill_bh_iboxster_plus)
+        writeCharacteristic(initData7b, sizeof(initData7b), QStringLiteral("init"), false, true);
+    else
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
     writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
 
@@ -413,10 +440,6 @@ bool paferstreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *paferstreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *paferstreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool paferstreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

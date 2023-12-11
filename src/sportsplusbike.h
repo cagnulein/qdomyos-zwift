@@ -32,27 +32,27 @@ class sportsplusbike : public bike {
     Q_OBJECT
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
+    uint16_t wattsFromResistance(double resistance);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
+
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -66,10 +66,16 @@ class sportsplusbike : public bike {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+
+    bool carefitness_bike = false;
+
+    const resistance_t max_resistance = 24;
 
   signals:
     void disconnected();

@@ -2,6 +2,7 @@
 #define METRIC_H
 
 #include "qdebugfixup.h"
+#include "sessionline.h"
 #include <QDateTime>
 #include <math.h>
 
@@ -18,8 +19,10 @@ class metric {
 
     metric();
     void setType(_metric_type t);
-    void setValue(double value);
+    void setValue(double value, bool applyGainAndOffset = true);
     double value();
+    QDateTime lastChanged() { return m_lastChanged; }
+    QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
 
@@ -39,9 +42,18 @@ class metric {
     void operator+=(double);
     void setPaused(bool p);
     void setLap(bool accumulator);
+    void setColor(QString color) { m_color = color; }
+    QString color() { return m_color; }
 
-    static double calculateSpeedFromPower(double power);
+    static double calculateMaxSpeedFromPower(double power, double inclination);
+    static double calculatePowerFromSpeed(double speed, double inclination);
+    static double calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds,
+                                          double speedLimit);
     static double calculateWeightLoss(double kcal);
+    static double calculateVO2Max(QList<SessionLine> *session);
+    static double calculateKCalfromHR(double HR_AVG, double elapsed);
+
+    static double powerPeak(QList<SessionLine> *session, int seconds);
 
   private:
     double m_value = 0;
@@ -59,11 +71,13 @@ class metric {
     double m_lapMax = 0;
 
     QDateTime m_lastChanged = QDateTime::currentDateTime();
+    QDateTime m_valueChanged = QDateTime::currentDateTime();
     double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
 
     bool paused = false;
+    QString m_color;
 };
 
 #endif // METRIC_H

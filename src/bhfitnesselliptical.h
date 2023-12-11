@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,21 +37,16 @@ class bhfitnesselliptical : public elliptical {
   public:
     bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                         double bikeResistanceGain);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService = nullptr;
@@ -63,6 +57,8 @@ class bhfitnesselliptical : public elliptical {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    const uint8_t max_resistance = 72; // 24;
+    const uint8_t default_resistance = 6;
 
     bool initDone = false;
     bool initRequest = false;
@@ -96,6 +92,7 @@ class bhfitnesselliptical : public elliptical {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+    void changeInclinationRequested(double grade, double percentage);
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 

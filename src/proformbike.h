@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,17 +36,15 @@ class proformbike : public bike {
     Q_OBJECT
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool inclinationAvailableByHardware() override;
+    bool connected() override;
 
   private:
-    int max_resistance = 16;
-    uint16_t wattsFromResistance(uint8_t resistance);
+    resistance_t max_resistance = 16;
+    uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
@@ -55,13 +52,12 @@ class proformbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    uint16_t watts() override;
+    void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
     void innerWriteResistance();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

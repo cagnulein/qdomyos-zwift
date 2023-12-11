@@ -1,6 +1,7 @@
 #include "ultrasportbike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -42,10 +43,10 @@ void ultrasportbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     // one for the resistance changed event (spontaneous), and one for the other ones.
     if (wait_for_response) {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        timeout.singleShot(1000ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        timeout.singleShot(1000ms, &loop, &QEventLoop::quit);
     }
 
     if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
@@ -59,18 +60,26 @@ void ultrasportbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
+    }
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                        QStringLiteral(" // ") + info;
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info;
     }
 
     loop.exec();
 }
 
-void ultrasportbike::forceResistance(int8_t requestResistance) {}
+void ultrasportbike::forceResistance(resistance_t requestResistance) {}
 
 void ultrasportbike::update() {
 
@@ -92,7 +101,6 @@ void ultrasportbike::update() {
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
-        } else {
             uint8_t initData1[] = {0xff, 0xfd, 0x03, 0x00, 0xec};
             writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("noOp"), false, true);
         }
@@ -129,8 +137,8 @@ void ultrasportbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int ultrasportbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t ultrasportbike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
@@ -151,11 +159,12 @@ double ultrasportbike::bikeResistanceToPeloton(double resistance) {
 }
 
 void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << " << " + newValue.toHex(' ');
 
@@ -167,7 +176,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     /*double distance = GetDistanceFromPacket(newValue);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
@@ -175,52 +184,49 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     m_watt = GetWattFromPacket(newValue);
 
-    /*if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = GetSpeedFromPacket(newValue);
     } else*/
-    { Speed = metric::calculateSpeedFromPower(m_watt.value()); }
+    {
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+    }
 
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QStringLiteral("ant_heart"), false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
     } else
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -251,6 +257,14 @@ void ultrasportbike::btinit() {
     uint8_t initData1[] = {0xff, 0xfd, 0x03, 0x00, 0xec};
     uint8_t initData2[] = {0xff, 0xaa, 0xec};
 
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
@@ -291,7 +305,7 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &ultrasportbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -299,11 +313,14 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -313,10 +330,11 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&ultrasportbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &ultrasportbike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -414,10 +432,6 @@ bool ultrasportbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ultrasportbike::VirtualBike() { return virtualBike; }
-
-void *ultrasportbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ultrasportbike::watts() {
     if (currentCadence().value() == 0) {

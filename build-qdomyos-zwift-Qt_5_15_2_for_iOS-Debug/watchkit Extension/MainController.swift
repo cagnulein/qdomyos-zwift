@@ -17,14 +17,31 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
+    @IBOutlet weak var cmbSports: WKInterfacePicker!
     static var start: Bool! = false
     let pedometer = CMPedometer()
+    var sport: Int = 0
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
+        sports[0].title = "Bike"
+        sports[1].title = "Run"
+        sports[2].title = "Walk"
+        sports[3].title = "Elliptical"
+        sports[4].title = "Rowing"
+        cmbSports.setItems(sports)
+        sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
+        cmbSports.setSelectedItemIndex(sport)
         
         // Configure interface objects here.
         print("AWAKE")
+    }
+    
+    @IBAction func changeSport(_ value: Int) {
+        self.sport = value
+        UserDefaults.standard.set(value, forKey: "sport")
+        UserDefaults.standard.synchronize()
     }
     
     override func willActivate() {
@@ -57,6 +74,7 @@ extension MainController {
             MainController.start = true
             startButton.setTitle("Stop")
             WorkoutTracking.authorizeHealthKit()
+            WorkoutTracking.shared.setSport(sport)
             WorkoutTracking.shared.startWorkOut()
             WorkoutTracking.shared.delegate = self
             
@@ -86,8 +104,15 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
-        
-        self.distanceLabel.setText("Distance \(Double(WorkoutTracking.distance))")
+        WorkoutTracking.speed = WatchKitConnection.speed
+        WorkoutTracking.power = WatchKitConnection.power
+        WorkoutTracking.cadence = WatchKitConnection.cadence
+                
+		if Locale.current.measurementSystem != "Metric" {
+			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")
+		} else {
+			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 1.60934))")
+		}
         self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         //WorkoutTracking.cadenceSteps = pedometer.
     }
@@ -104,4 +129,12 @@ extension MainController: WatchKitConnectionDelegate {
     func didReceiveUserName(_ userName: String) {
         userNameLabel.setText(userName)
     }
+}
+
+extension Locale
+{
+   var measurementSystem : String?
+   {
+      return (self as NSLocale).object(forKey: NSLocale.Key.measurementSystem) as? String
+   }
 }

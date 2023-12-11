@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -70,24 +69,24 @@ class ftmsbike : public bike {
     Q_OBJECT
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t maxResistance() override { return max_resistance; }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    uint16_t watts() override;
+    void init();
+    void forceResistance(resistance_t requestResistance);
+    void forcePower(int16_t requestPower);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -95,12 +94,18 @@ class ftmsbike : public bike {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    int max_resistance = 100;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool powerForced = false;
+
+    bool resistance_lvl_mode = false;
+    bool resistance_received = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

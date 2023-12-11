@@ -27,8 +27,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 class soleelliptical : public elliptical {
     Q_OBJECT
@@ -36,17 +34,16 @@ class soleelliptical : public elliptical {
     soleelliptical(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                    uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~soleelliptical();
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
+    double minStepInclination() override { return 1; }
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    void forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination);
+    void forceResistanceAndInclination(resistance_t requestResistance, uint8_t inclination);
+    void forceInclination(uint8_t inclination);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -54,8 +51,6 @@ class soleelliptical : public elliptical {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = 0;
     uint8_t firstVirtual = 0;
     uint8_t counterPoll = 0;
 

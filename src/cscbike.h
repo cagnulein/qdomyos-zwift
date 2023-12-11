@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,28 +36,26 @@ class cscbike : public bike {
     Q_OBJECT
   public:
     cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     //    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false, //Unused
     //                             bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyService* cadenceService = nullptr;
+    QLowEnergyCharacteristic cadenceChar;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    bool charNotified = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -66,6 +63,8 @@ class cscbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noVirtualDevice = false;
+
+    bool readMethod = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

@@ -1,10 +1,14 @@
 #ifndef HOMEFORM_H
 #define HOMEFORM_H
 
+#include "PathController.h"
 #include "bluetooth.h"
-
 #include "fit_profile.hpp"
+#include "gpx.h"
 #include "peloton.h"
+#include "qmdnsengine/browser.h"
+#include "qmdnsengine/cache.h"
+#include "qmdnsengine/resolver.h"
 #include "screencapture.h"
 #include "sessionline.h"
 #include "smtpclient/src/SmtpMime"
@@ -12,11 +16,24 @@
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
+#include <QMediaPlayer>
 #include <QNetworkReply>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#include <QTextToSpeech>
+
+#if __has_include("secret.h")
+#include "secret.h"
+#else
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+#endif
 
 class DataObject : public QObject {
 
@@ -32,14 +49,19 @@ class DataObject : public QObject {
     Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
+    Q_PROPERTY(bool largeButton READ largeButton NOTIFY largeButtonChanged)
+    Q_PROPERTY(QString largeButtonColor READ largeButtonColor NOTIFY largeButtonColorChanged)
+    Q_PROPERTY(QString largeButtonLabel READ largeButtonLabel NOTIFY largeButtonLabelChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
-    Q_PROPERTY(QString identificator READ identificator)
+    Q_PROPERTY(QString identificator READ identificator NOTIFY identificatorChanged)
 
   public:
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                int valueFontSize, int labelFontSize, const QString &valueFontColor = QStringLiteral("white"),
-               const QString &secondLine = QLatin1String(""), const int gridId = 0);
+               const QString &secondLine = QLatin1String(""), const int gridId = 0, const bool largeButton = false,
+               const QString largeButtonLabel = QLatin1String(""),
+               const QString largeButtonColor = QZSettings::default_tile_preset_resistance_1_color);
     void setName(const QString &value);
     void setValue(const QString &value);
     void setSecondLine(const QString &value);
@@ -61,6 +83,9 @@ class DataObject : public QObject {
     QString plusName() { return m_id + QStringLiteral("_plus"); }
     QString minusName() { return m_id + QStringLiteral("_minus"); }
     QString identificator() { return m_id; }
+    bool largeButton() { return m_largeButton; }
+    QString largeButtonLabel() { return m_largeButtonLabel; }
+    QString largeButtonColor() { return m_largeButtonColor; }
 
     QString m_id;
     QString m_name;
@@ -73,6 +98,9 @@ class DataObject : public QObject {
     int m_labelFontSize;
     bool m_writable;
     bool m_visible = true;
+    bool m_largeButton = false;
+    QString m_largeButtonLabel = QLatin1String("");
+    QString m_largeButtonColor = QZSettings::default_tile_preset_resistance_1_color;
 
   signals:
     void valueChanged(QString value);
@@ -87,6 +115,10 @@ class DataObject : public QObject {
     void visibleChanged(bool value);
     void plusNameChanged(QString value);
     void minusNameChanged(QString value);
+    void identificatorChanged(QString value);
+    void largeButtonChanged(bool value);
+    void largeButtonLabelChanged(QString value);
+    void largeButtonColorChanged(QString value);
 };
 
 class homeform : public QObject {
@@ -111,6 +143,18 @@ class homeform : public QObject {
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
                    setGeneralPopupVisible)
+    Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
+                   setLicensePopupVisible)
+    Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
+    Q_PROPERTY(bool videoIconVisible READ videoIconVisible NOTIFY videoIconVisibleChanged WRITE setVideoIconVisible)
+    Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
+    Q_PROPERTY(bool chartIconVisible READ chartIconVisible NOTIFY chartIconVisibleChanged WRITE setChartIconVisible)
+    Q_PROPERTY(
+        bool chartFooterVisible READ chartFooterVisible NOTIFY chartFooterVisibleChanged WRITE setChartFooterVisible)
+    Q_PROPERTY(QUrl videoPath READ videoPath NOTIFY videoPathChanged)
+    Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
+    Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
+    Q_PROPERTY(double currentSpeed READ currentSpeed NOTIFY currentSpeedChanged)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -124,8 +168,26 @@ class homeform : public QObject {
     Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
+    Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
+    Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
+    Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+
+    // workout preview
+    Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
+    Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
+    Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
+    Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
+
+    Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
+    Q_PROPERTY(bool trainProgramLoadedWithVideo READ trainProgramLoadedWithVideo)
+
+    Q_PROPERTY(QString getStravaAuthUrl READ getStravaAuthUrl NOTIFY stravaAuthUrlChanged)
+    Q_PROPERTY(bool stravaWebVisible READ stravaWebVisible NOTIFY stravaWebVisibleChanged)
 
   public:
+    static homeform *singleton() { return m_singleton; }
+
+    QByteArray currentPelotonImage();
     Q_INVOKABLE void save_screenshot() {
 
         QString path = getWritableAppDir();
@@ -137,6 +199,7 @@ class homeform : public QObject {
         QObject *stack = rootObject;
         screenCapture s(reinterpret_cast<QQuickView *>(stack));
         s.capture(filenameScreenshot);
+        chartImagesFilenames.append(filenameScreenshot);
     }
 
     Q_INVOKABLE void save_screenshot_chart(QQuickItem *item, QString filename) {
@@ -167,7 +230,7 @@ class homeform : public QObject {
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
                     QSettings settings;
-                    double ftpSetting = settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                    double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
@@ -210,14 +273,14 @@ class homeform : public QObject {
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone1", 70.0).toDouble() / 100)) / 220, QColor("lightsteelblue"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone2", 80.0).toDouble() / 100)) / 220, QColor("green"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone3", 90.0).toDouble() / 100)) / 220, QColor("yellow"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone4",
-                    100.0).toDouble() / 100)) / 220, QColor("orange")); backgroundGradient.setColorAt(0.0,
-                    QColor("red"));*/
+                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() /
+                    100)) / 220, QColor("lightsteelblue")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() /
+                    100)) / 220, QColor("green")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() /
+                    100)) / 220, QColor("yellow")); backgroundGradient.setColorAt((220 - (maxHeartRate *
+                    settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() /
+                    100)) / 220, QColor("orange")); backgroundGradient.setColorAt(0.0, QColor("red")); */
 
                     // backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
                     // chart->setBackgroundBrush(backgroundGradient);
@@ -226,23 +289,31 @@ class homeform : public QObject {
                     plotAreaGradient.setStart(QPointF(0, 0));
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
-                        (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() / 100)) /
+                        (220 - (maxHeartRate *
+                                settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4)
+                                    .toDouble() /
+                                100)) /
                             160,
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
@@ -269,7 +340,9 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
-        bool virtual_bike = settings.value("virtual_device_force_bike", false).toBool();
+        bool virtual_bike =
+            settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                .toBool();
         return bluetoothManager && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
@@ -279,6 +352,8 @@ class homeform : public QObject {
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
     ~homeform();
     int topBarHeight() { return m_topBarHeight; }
+    bool stopRequested() { return m_stopRequested; }
+    bool startRequested() { return m_startRequested; }
     QString info() { return m_info; }
     QString signal();
     QString startText();
@@ -294,28 +369,47 @@ class homeform : public QObject {
             return QLatin1String("");
         }
     }
+    QString workoutNameBasedOnBluetoothDevice() {
+        if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            return QStringLiteral("Ride");
+        } else if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            return QStringLiteral("Row");
+        } else {
+            return QStringLiteral("Run");
+        }
+    }
     QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
+        } else if (!stravaWorkoutName.isEmpty()) {
+            return stravaWorkoutName;
         } else {
-            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                return QStringLiteral("Ride");
-            } else if (bluetoothManager->device() &&
-                       bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                return QStringLiteral("Row");
-            } else {
-                return QStringLiteral("Run");
-            }
+            return workoutNameBasedOnBluetoothDevice();
         }
     }
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
-    bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
+    QString toastRequested() { return m_toastRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
+    bool licensePopupVisible();
+    bool mapsVisible();
+    bool videoIconVisible();
+    bool videoVisible() { return m_VideoVisible; }
+    bool chartIconVisible();
+    bool chartFooterVisible() { return m_ChartFooterVisible; }
+    int videoPosition();
+    double videoRate();
+    double currentSpeed() {
+        if (bluetoothManager && bluetoothManager->device())
+            return bluetoothManager->device()->currentSpeed().value();
+        else
+            return 0;
+    }
+    QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -328,8 +422,33 @@ class homeform : public QObject {
             bluetoothManager->device()->setAutoResistance(value);
         }
     }
+    void setStopRequestedChanged(bool value) {
+        m_stopRequested = value;
+        emit stopRequestedChanged(value);
+    }
+    void setStartRequestedChanged(bool value) {
+        m_startRequested = value;
+        emit startRequestedChanged(value);
+    }
+    void setLicensePopupVisible(bool value);
+    void setVideoIconVisible(bool value);
+    void setChartIconVisible(bool value);
+    void setVideoVisible(bool value) {
+        m_VideoVisible = value;
+        emit videoVisibleChanged(m_VideoVisible);
+    }
+    void setChartFooterVisible(bool value) {
+        m_ChartFooterVisible = value;
+        emit chartFooterVisibleChanged(m_ChartFooterVisible);
+    }
+    void setVideoPosition(int position); // on startup
+    void videoSeekPosition(int ms);      // in realtime
+    void setVideoRate(double rate);
+    void setMapsVisible(bool value);
+    void setToastRequested(QString value) { m_toastRequested = value; }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
+    int preview_workout_points();
 
 #if defined(Q_OS_ANDROID)
     static QString getAndroidDataAppDir();
@@ -342,10 +461,10 @@ class homeform : public QObject {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
             bluetoothManager->device()->wattsMetric().max() >
-                (settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 2)) {
+                (settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2)) {
             return bluetoothManager->device()->wattsMetric().max();
         } else {
-            return settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 2;
+            return settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2;
         }
     }
 
@@ -396,12 +515,57 @@ class homeform : public QObject {
         return l;
     }
 
+    QList<double> preview_workout_watt() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.power);
+            }
+        }
+        return l;
+    }
+
+    QString previewWorkoutDescription() {
+        if (previewTrainProgram) {
+            return previewTrainProgram->description;
+        }
+        return "";
+    }
+
+    QString previewWorkoutTags() {
+        if (previewTrainProgram) {
+            return previewTrainProgram->tags;
+        }
+        return "";
+    }
+
+    bool currentCoordinateValid() {
+        if (bluetoothManager && bluetoothManager->device()) {
+            return bluetoothManager->device()->currentCordinate().isValid();
+        }
+        return false;
+    }
+
+    bool trainProgramLoadedWithVideo() { return (trainProgram && trainProgram->videoAvailable); }
+
+    QString getStravaAuthUrl() { return stravaAuthUrl; }
+    bool stravaWebVisible() { return stravaAuthWebVisible; }
+    trainprogram *trainingProgram() { return trainProgram; }
+
   private:
+    static homeform *m_singleton;
+    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
+    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
+    trainprogram *previewTrainProgram = nullptr;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +
         QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
@@ -411,6 +575,14 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
+    bool m_LicensePopupVisible = false;
+    bool m_MapsVisible = false;
+    bool m_VideoIconVisible = false;
+    bool m_VideoVisible = false;
+    bool m_ChartFooterVisible = false;
+    bool m_ChartIconVisible = false;
+    int m_VideoPosition = 0;
+    double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -422,10 +594,13 @@ class homeform : public QObject {
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
+    QString m_toastRequested = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
+    QString stravaWorkoutName = "";
+    QUrl movieFileName;
     FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
     QString pelotonAskedName = QStringLiteral("");
@@ -434,10 +609,14 @@ class homeform : public QObject {
     QString pelotonAbortedInstructor = QStringLiteral("");
 
     QString lastFitFileSaved = QLatin1String("");
+    QString lastTrainProgramFileSaved = QLatin1String("");
 
     QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;
+    bool m_stopRequested = false;
+    bool m_startRequested = false;
+    bool m_overridePower = false;
 
     DataObject *speed;
     DataObject *inclination;
@@ -450,6 +629,7 @@ class homeform : public QObject {
     DataObject *resistance;
     DataObject *watt;
     DataObject *avgWatt;
+    DataObject *avgWattLap;
     DataObject *heart;
     DataObject *fan;
     DataObject *jouls;
@@ -464,6 +644,7 @@ class homeform : public QObject {
     DataObject *target_power;
     DataObject *target_zone;
     DataObject *target_speed;
+    DataObject *target_pace;
     DataObject *target_incline;
     DataObject *ftp;
     DataObject *lapElapsed;
@@ -479,6 +660,25 @@ class homeform : public QObject {
     DataObject *steeringAngle;
     DataObject *pidHR;
     DataObject *extIncline;
+    DataObject *instantaneousStrideLengthCM;
+    DataObject *groundContactMS;
+    DataObject *verticalOscillationMM;
+    DataObject *preset_resistance_1;
+    DataObject *preset_resistance_2;
+    DataObject *preset_resistance_3;
+    DataObject *preset_resistance_4;
+    DataObject *preset_resistance_5;
+    DataObject *preset_speed_1;
+    DataObject *preset_speed_2;
+    DataObject *preset_speed_3;
+    DataObject *preset_speed_4;
+    DataObject *preset_speed_5;
+    DataObject *preset_inclination_1;
+    DataObject *preset_inclination_2;
+    DataObject *preset_inclination_3;
+    DataObject *preset_inclination_4;
+    DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -490,9 +690,13 @@ class homeform : public QObject {
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
+    QString stravaAuthUrl;
+    bool stravaAuthWebVisible;
 
-    const QString cryptoKeySettingsProfilesTag = QStringLiteral("cryptoKeySettingsProfiles");
-    quint64 cryptoKeySettingsProfiles();
+    static quint64 cryptoKeySettingsProfiles();
+
+    static QString copyAndroidContentsURI(QUrl file, QString subfolder);
+    static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
 
@@ -503,26 +707,66 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
+    QTextToSpeech m_speech;
+    int tts_summary_count = 0;
+
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+    QTimer tLicense;
+    QNetworkAccessManager *mgr = nullptr;
+    void licenseRequest();
+#endif
+
+    QGeoPath gpx_preview;
+    PathController pathController;
+    bool videoMustBeReset = true;
+
+#ifdef Q_OS_ANDROID
+    bool floating_open = false;
+#endif
+
+#ifndef Q_OS_IOS
+    QMdnsEngine::Browser *iphone_browser = nullptr;
+    QMdnsEngine::Resolver *iphone_resolver = nullptr;
+    QMdnsEngine::Server iphone_server;
+    QMdnsEngine::Cache iphone_cache;
+    QTcpSocket *iphone_socket = nullptr;
+    QMdnsEngine::Service iphone_service;
+    QHostAddress iphone_address;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
-    void loadSettings(const QUrl &filename);
+    static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
     void saveProfile(QString profilename);
     void restart();
+    bool pelotonAskStart() { return m_pelotonAskStart; }
 
   private slots:
     void Start();
     void Stop();
+    void StartRequested();
+    void StopRequested();
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
+    void LargeButton(const QString &);
     void volumeDown();
     void volumeUp();
+    void keyMediaPrevious();
+    void keyMediaNext();
+    void floatingOpen();
+    void openFloatingWindowBrowser();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_open_other_folder(const QUrl &fileName);
+    void gpx_open_other_folder(const QUrl &fileName);
+    void profile_open_clicked(const QUrl &fileName);
+    void trainprogram_preview(const QUrl &fileName);
+    void gpxpreview_open_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
@@ -550,6 +794,20 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void changeTimestamp(QTime source, QTime actual);
+    void pelotonOffset_Plus();
+    void pelotonOffset_Minus();
+    int pelotonOffset() { return (trainProgram ? trainProgram->offsetElapsedTime() : 0); }
+    void bluetoothDeviceConnected(bluetoothdevice *b);
+    void bluetoothDeviceDisconnected();
+    void onToastRequested(QString message);
+
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
+    void licenseReply(QNetworkReply *reply);
+    void licenseTimeout();
+#endif
+
+    void toggleAutoResistance() { setAutoResistance(!autoResistance()); }
 
   signals:
 
@@ -570,7 +828,18 @@ class homeform : public QObject {
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
+    void toastRequestedChanged(QString value);
     void generalPopupVisibleChanged(bool value);
+    void licensePopupVisibleChanged(bool value);
+    void videoIconVisibleChanged(bool value);
+    void videoVisibleChanged(bool value);
+    void videoPositionChanged(int value);
+    void videoPathChanged(QUrl value);
+    void videoRateChanged(double value);
+    void chartIconVisibleChanged(bool value);
+    void chartFooterVisibleChanged(bool value);
+    void currentSpeedChanged(double value);
+    void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);
@@ -579,8 +848,18 @@ class homeform : public QObject {
     void instructorNameChanged(QString name);
     void settingsSaved(QString settingsFileUri, int settingsN);
     void settingsLoaded(QString settingsFileUri, int settingsN);
+    void startRequestedChanged(bool value);
+    void stopRequestedChanged(bool value);
+
+    void previewWorkoutPointsChanged(int value);
+    void previewWorkoutDescriptionChanged(QString value);
+    void previewWorkoutTagsChanged(QString value);
+    void stravaAuthUrlChanged(QString value);
+    void stravaWebVisibleChanged(bool value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
+
+    void heartRate(uint8_t heart);
 };
 
 #endif // HOMEFORM_H

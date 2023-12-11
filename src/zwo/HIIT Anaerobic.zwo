@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>HIIT Anaerobic</name>
+    <description>A popular workout! 45 second high power intervals with 1 minute recovery should deplete your W’
+
+This is a hard session and you’ll need to be well recovered, before and after.
+
+This workout will hit the Anaerobic capacity category for Garmin’s Primary benefit section of training effect. Not only, that, your aerobic system gets a good workout too.
+
+The low intensity intervals in the middle of this workout are designed for you to use this time to recover, to realise intervals are easy, and to visualise success in the upcoming set.
+
+If you want sprint work check out my HIIT anaerobic ski preparation workout.
+</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+        <tag name="Anaerobic"/>
+		<tag name="JonathanC"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="150.0" PowerLow="0.640" PowerHigh="0.640"/>
+        <SteadyState Duration="150.0" PowerLow="0.690" PowerHigh="0.690"/>
+        <SteadyState Duration="300.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="300.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="45.0" PowerLow="1.610" PowerHigh="1.610"/>
+        <SteadyState Duration="60.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="45.0" PowerLow="0.500" PowerHigh="0.500"/>
+        <SteadyState Duration="180.0" PowerLow="0.500" PowerHigh="0.500"/>
+    </workout>
+</workout_file>
+

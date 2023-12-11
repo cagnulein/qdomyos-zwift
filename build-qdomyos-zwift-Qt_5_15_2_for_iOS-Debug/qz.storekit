@@ -1,0 +1,62 @@
+{
+  "identifier" : "2816EB89",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "F012E388",
+      "localizations" : [
+
+      ],
+      "name" : "Swag Bag",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "F108BD35",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
+              "locale" : "en_GB"
+            },
+            {
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
+              "locale" : "it"
+            }
+          ],
+          "productID" : "org.cagnulein.qdomyoszwift.swagbag",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "SwagBag",
+          "subscriptionGroupID" : "F012E388",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 1,
+    "minor" : 2
+  }
+}
