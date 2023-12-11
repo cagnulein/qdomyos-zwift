@@ -70,8 +70,6 @@ class proformelliptical : public elliptical {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    bool filterWattHole = false;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

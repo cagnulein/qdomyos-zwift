@@ -78,7 +78,7 @@ void strydrunpowersensor::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (requestInclination != -100) {
             Inclination = treadmillInclinationOverrideReverse(requestInclination);
@@ -419,6 +419,15 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             emit groundContactChanged(GroundContactMS.value());
             VerticalOscillationMM = (((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
             emit verticalOscillationChanged(VerticalOscillationMM.value());
+            qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
+            qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+        }
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("7e78aa19-72cd-d3b8-a81f-5b7e589bea0f"))) {
+        if (newValue.length() == 20 && newValue.at(0) == 0x32) {
+            GroundContactMS = (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+            emit groundContactChanged(GroundContactMS.value());
+            //VerticalOscillationMM = (((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
+            //emit verticalOscillationChanged(VerticalOscillationMM.value());
             qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
         }
