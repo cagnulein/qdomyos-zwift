@@ -422,6 +422,15 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
         }
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("7e78aa19-72cd-d3b8-a81f-5b7e589bea0f"))) {
+        if (newValue.length() == 20 && newValue.at(0) == 0x32) {
+            GroundContactMS = (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+            emit groundContactChanged(GroundContactMS.value());
+            //VerticalOscillationMM = (((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
+            //emit verticalOscillationChanged(VerticalOscillationMM.value());
+            qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
+            qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+        }
     }
 
     if (!noVirtualDevice) {
