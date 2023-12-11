@@ -72,5 +72,3 @@ else:
     incline = 'None'
 
 print(speed + ";" + incline)
-
-

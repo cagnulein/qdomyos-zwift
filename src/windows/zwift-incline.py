@@ -1,5 +1,6 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
+
 # Revised: November 25, 2023
 
 # zwift-incline.py - take Zwift screenshot, crop incline, OCR incline

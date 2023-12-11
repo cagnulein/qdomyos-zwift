@@ -74,11 +74,16 @@ jobs:
       - name: download python and paddleocr
         run: |
           python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
           python -m pip install opencv-python
+          python -m pip install numpy
           python -m pip install pywin32
-          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
-          python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
-          python -m pip install paddleocr>=2.0.1
         if: matrix.config.python
 
       - uses: msys2/setup-msys2@v2
@@ -767,11 +772,16 @@ jobs:
       - name: download python and paddleocr
         run: |
           python -VV
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install "protobuf<=3.20.2,>=3.1.0"
+          python -m pip install paddlepaddle==2.5.1
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
           python -m pip install opencv-python
+          python -m pip install numpy
           python -m pip install pywin32
-          python -m pip install paddlepaddle-gpu==2.4.2.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
-          python -m pip install https://files.pythonhosted.org/packages/03/ac/13fbe0ebf110d57a89f055a292d4fe430fee3fb22c56f8c077e63e0c5a4e/paddlepaddle-2.4.2-cp310-cp310-win_amd64.whl
-          python -m pip install paddleocr>=2.0.1
         if: matrix.config.python          
 
       - name: Install Qt
