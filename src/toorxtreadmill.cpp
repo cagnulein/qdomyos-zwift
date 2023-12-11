@@ -294,6 +294,10 @@ void toorxtreadmill::readSocket() {
         QByteArray line = socket->readAll();
         qDebug() << QStringLiteral(" << ") + line.toHex(' ');
 
+        if(line.length() > 20 && line.at(0) == 0x55 && line.at(1) == 0x06 && line.at(2) == 0x02) {
+            requestStart = 1;
+        }
+
         if (line.length() == 17) {
             elapsed = GetElapsedTimeFromPacket(line);
             Distance = GetDistanceFromPacket(line);
