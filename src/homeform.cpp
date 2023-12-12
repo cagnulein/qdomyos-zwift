@@ -5592,7 +5592,7 @@ void homeform::strava_refreshtoken() {
     // set params
     QString data;
     data += QStringLiteral("client_id=" STRAVA_CLIENT_ID_S);
-#if defined(STRAVA_SECRET_KEY) && !IS_EMPTY_DEFINE(STRAVA_CLIENT_ID_S)
+#if defined(STRAVA_SECRET_KEY) && !IS_EMPTY_DEFINE(STRINGIFY(STRAVA_SECRET_KEY))
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
 #else
