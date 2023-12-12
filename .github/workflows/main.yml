@@ -122,16 +122,20 @@ jobs:
             make install
             cd ../..
 
+      - name: Secrets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..  
+
       - name: Build
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -159,13 +163,6 @@ jobs:
       - name: Build without python
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -853,14 +850,7 @@ jobs:
             
       - name: Build without python
         run: |
-            qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
+            qmake           
             nmake
             cd src/debug
             mkdir output
@@ -1034,13 +1024,6 @@ jobs:
       - name: Build without python
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             nmake
             cd src/debug
             mkdir output
