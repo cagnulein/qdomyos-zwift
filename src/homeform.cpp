@@ -59,6 +59,8 @@ using namespace std::chrono_literals;
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
 #define STRAVA_CLIENT_ID_S STRINGIFY(STRAVA_CLIENT_ID)
+#define EMPTY_MACRO_TEST_1 EMPTY_MACRO_TEST_1
+#define IS_EMPTY_DEFINE(x) (x == STRINGIFY(EMPTY_MACRO_TEST_1))
 
 DataObject::DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                        int valueFontSize, int labelFontSize, const QString &valueFontColor, const QString &secondLine,
@@ -5590,9 +5592,11 @@ void homeform::strava_refreshtoken() {
     // set params
     QString data;
     data += QStringLiteral("client_id=" STRAVA_CLIENT_ID_S);
-#ifdef STRAVA_SECRET_KEY
+#if defined(STRAVA_SECRET_KEY) && !IS_EMPTY_DEFINE(STRAVA_CLIENT_ID_S)
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
+#else
+    #warning IS_EMPTY_DEFINE FOR STRAVA!!!    
 #endif
     data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::strava_refreshtoken).toString();
     data += QStringLiteral("&grant_type=refresh_token");

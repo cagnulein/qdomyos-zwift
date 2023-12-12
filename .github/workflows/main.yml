@@ -902,6 +902,180 @@ jobs:
           path: windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
+  window-msvc2019-aiserver-build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - {python: false}          
+          - {python: true}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+      - name: download python and paddleocr
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade setuptools
+          python -m pip install paddlepaddle-gpu==2.5.1.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
+          python -m pip install paddleocr
+          python -m pip install imutils
+          python -m pip install "Pillow<10.0.0"
+          python -m pip install opencv-python
+          python -m pip install numpy
+          python -m pip install pywin32
+        if: matrix.config.python          
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_msvc2019_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          toolset: 14.2
+          arch: x64
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            nmake
+            nmake install
+            cd ../..          
+
+      - name: Build
+        run: |
+            qmake
+            cd src
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+            cd ..
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/*.py .
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            mkdir adb
+            mkdir python
+            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz   
+        if: matrix.config.python
+            
+      - name: Build without python
+        run: |
+            qmake
+            cd src
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+            cd ..
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "C:/mingw64/bin/libwinpthread-1.dll" .
+            cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../../windows_openssl/*.* .
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
+        if: matrix.config.python == false            
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
+        if: matrix.config.python
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-msvc2019-ai-server-binary
+          path: windows-msvc2019-ai-server-binary.zip
+        if: matrix.config.python
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-msvc2019-ai-server-binary-no-python
+          path: windows-msvc2019-ai-server-binary-no-python.zip
+        if:  ${{ ! matrix.config.python }}
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-latest
@@ -931,6 +1105,8 @@ jobs:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
+            windows-msvc2019-ai-server-binary-no-python/*
+            windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*
