@@ -1009,7 +1009,9 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
-            cp ../../windows/*.py .
+            cp ../../windows/zwift-incline-ai-server.py zwift-incline.py
+            cp ../../windows/zwift-incline-climb-portal-ai-server.py zwift-incline-climb-portal.py
+            cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
             mkdir adb
