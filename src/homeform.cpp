@@ -5593,8 +5593,6 @@ void homeform::strava_refreshtoken() {
 #ifdef STRAVA_SECRET_KEY
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
-#else
-    #warning CHECK_MACRO FOR STRAVA!!!    
 #endif
     data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::strava_refreshtoken).toString();
     data += QStringLiteral("&grant_type=refresh_token");
