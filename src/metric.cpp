@@ -323,7 +323,7 @@ double metric::powerPeak(QList<SessionLine> *session, int seconds) {
 
     std::sort(bests.begin(), bests.end(), CompareBests());
 
-    if(best.length() > 0)
+    if(bests.length() > 0)
         return bests.first().avg;
     else
         return 0;
