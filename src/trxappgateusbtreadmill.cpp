@@ -162,7 +162,7 @@ void trxappgateusbtreadmill::update() {
             if (jtx_fitness_sprint_treadmill)
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
 
-            if (requestInclination != currentInclination().value()) {
+            if (((int)requestInclination) != ((int)currentInclination().value())) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
             }
