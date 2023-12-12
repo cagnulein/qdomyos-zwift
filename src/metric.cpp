@@ -323,7 +323,10 @@ double metric::powerPeak(QList<SessionLine> *session, int seconds) {
 
     std::sort(bests.begin(), bests.end(), CompareBests());
 
-    return bests.first().avg;
+    if(best.length() > 0)
+        return bests.first().avg;
+    else
+        return 0;
 }
 
 // VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
