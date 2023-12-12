@@ -479,10 +479,10 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         QBluetoothUuid _gattCustomService((quint16)0xFFF0);
-        if (s->serviceUuid() != _gattCustomService && iconsole_elliptical) {
+        /*if (s->serviceUuid() != _gattCustomService && iconsole_elliptical) {
             qDebug() << "skipping service" << s->serviceUuid();
             continue;
-        }
+        }*/
 
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
