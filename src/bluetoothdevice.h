@@ -102,7 +102,7 @@ class bluetoothdevice : public QObject {
     virtual double odometer();
     virtual metric currentDistance() {return Distance;}
     virtual metric currentDistance1s() {return Distance1s;}
-    void setCurrentDistance1s(double distance) { Distance1s = distance; }
+    void addCurrentDistance1s(double distance) { Distance1s += distance; }
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
