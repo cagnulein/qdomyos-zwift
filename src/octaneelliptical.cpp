@@ -173,13 +173,13 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPaceSign.append(0x07);
     actualPace2Sign.append(0x07);
 
-    actualHR.append((uint8_t)0x00);
-    actualHR.append((uint8_t)0x11);
+    actualHR.append((char)0x00);
+    actualHR.append((char)0x11);
 
-    actualResistance.append((uint8_t)0x01);
-    actualResistance.append((uint8_t)0x09);
+    actualResistance.append((char)0x01);
+    actualResistance.append((char)0x09);
 
-    actualOdometer.append((uint8_t)0x0b);
+    actualOdometer.append((char)0x0b);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
