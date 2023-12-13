@@ -328,9 +328,9 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
 
                         if(proform_studio) {
-                            int x1 = 1827;
-                            int y2 = (int)(806 - (21.375 * (inc + gears())));
-                            int y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
+                            x1 = 1827;
+                            y2 = (int)(806 - (21.375 * (inc + gears())));
+                            y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
                         }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
