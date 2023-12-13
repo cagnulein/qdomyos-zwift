@@ -370,9 +370,9 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double timeDeltaHours = oldTime.msecsTo(lastTimeDistance) / 1000.0 / 3600.0;
                 speed = distanceDeltaKm / timeDeltaHours;
                 Speed = speed.average5s();
-                emit speedChanged(speed);
+                emit speedChanged(speed.value());
                 Distance = distance;
-                emit debug(QStringLiteral("Current speed: ") + QString::number(Speed));
+                emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
                 emit debug(QStringLiteral("Current Distance from The Machinery: ") + QString::number(distance));
             }
         }
