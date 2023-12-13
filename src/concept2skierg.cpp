@@ -173,7 +173,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
             break;
         case 0x32:
             qDebug() << "32";
-            if (newValue.length() >= 20) {
+            if (newValue.length() >= 19) {
                 // 0.001 m/s
                 uint16_t speed_ms = (((uint16_t)((uint16_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
                 uint8_t stroke_rate = newValue.at(6);

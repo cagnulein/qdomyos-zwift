@@ -76,6 +76,7 @@ class echelonrower : public rower {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    metric speedRaw;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
