@@ -49,6 +49,9 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 private static QZAdbRemote INSTANCE;
 
+	 private static String receiveBuffer = "";
+	 private static String receiveOldBuffer = "";
+
 	 public static QZAdbRemote getInstance() {
 		 if(INSTANCE == null) {
 			 INSTANCE = new QZAdbRemote();
@@ -93,7 +96,8 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 @Override
 	 public void receivedData(DeviceConnection devConn, byte[] data, int offset, int length) {
-		  Log.i(LOG_TAG, data.toString());
+			receiveBuffer += data.toString();
+			Log.i(LOG_TAG, data.toString());
 		}
 
 	 @Override
@@ -194,6 +198,12 @@ public class QZAdbRemote implements DeviceConnectionListener {
 					}
 			}
 	 }
+
+	static public String getReceiveData() {
+		receiveOldBuffer = receiveBuffer;
+		receiveBuffer = "";
+		return receiveOldBuffer;
+	}
 
     static public void sendCommand(String command) {
                   Log.d(LOG_TAG, "sendCommand " + ADBConnected + " " + command);

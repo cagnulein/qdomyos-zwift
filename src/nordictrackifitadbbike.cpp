@@ -59,7 +59,16 @@ QString nordictrackifitadbbikeLogcatAdbThread::runAdbCommand(QString command) {
 
     return out;
 #elif defined Q_OS_ANDROID
-    // TODO
+    qDebug() << "adbLogCat >> " << command;
+    QAndroidJniObject c = QAndroidJniObject::fromString(command).object<jstring>();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                            "sendCommand", "(Ljava/lang/String;)V",
+                                            c.object<jstring>());
+    QThread:msleep(100);
+    QAndroidJniObject recv = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/QZAdbRemote", "getReceiveData");
+    QString r = recv.toString();
+    return r;
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
     qDebug() << "adb >> " << command;
@@ -126,7 +135,46 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
     process->start("adb/adb.exe", QStringList(command.split(' ')));
     process->waitForFinished(-1);
 #elif defined Q_OS_ANDROID
-    // TODO
+    qDebug() << "adbLogCat >> " << command;
+    QAndroidJniObject c = QAndroidJniObject::fromString(command).object<jstring>();
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote",
+                                            "sendCommand", "(Ljava/lang/String;)V",
+                                            c.object<jstring>());
+    QString r = "";
+    do {
+        QAndroidJniObject recv = QAndroidJniObject::callStaticObjectMethod<jstring>(
+        "org/cagnulen/qdomyoszwift/QZAdbRemote", "getReceiveData");
+        r = recv.toString();
+        QString output = r;
+        QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
+        bool wattFound = false;
+        bool hrmFound = false;
+        foreach (QString line, lines) {
+            if (line.contains("Changed KPH")) {
+                emit debug(line);
+                speed = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Grade")) {
+                emit debug(line);
+                inclination = line.split(' ').last().toDouble();
+            } else if (line.contains("Changed Watts")) {
+                emit debug(line);
+                watt = line.split(' ').last().toDouble();
+                wattFound = true;
+            } else if (line.contains("HeartRateDataUpdate")) {
+                emit debug(line);
+                QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                if (splitted.length() > 14) {
+                    hrm = splitted[14].toInt();
+                    hrmFound = true;
+                }
+            }
+        }
+        emit onSpeedInclination(speed, inclination);
+        if (wattFound)
+            emit onWatt(watt);
+        if (hrmFound)
+            emit onHRM(hrm);        
+    } while (r.length());
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
     qDebug() << "adbLogCat >> " << command;
