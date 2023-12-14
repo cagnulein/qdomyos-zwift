@@ -136,6 +136,7 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -185,7 +186,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        if ((WATER_ROWER || DFIT_L_R) && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
+        if ((WATER_ROWER || DFIT_L_R) && lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
             m_watt = 0;
@@ -198,7 +199,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
         if (lastStrokesCount != StrokesCount.value()) {
-            lastStroke = QDateTime::currentDateTime();
+            lastStroke = now;
         }
         lastStrokesCount = StrokesCount.value();
 
@@ -230,7 +231,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -303,7 +304,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -346,7 +347,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         update_hr_from_external();

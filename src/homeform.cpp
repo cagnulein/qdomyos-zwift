@@ -5,6 +5,7 @@
 #include "localipaddress.h"
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#include <QAndroidJniObject>
 #endif
 #include "material.h"
 #include "qfit.h"
@@ -474,6 +475,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(trainprogram_open_other_folder(QUrl)), this, SLOT(trainprogram_open_other_folder(QUrl)));
+    QObject::connect(stack, SIGNAL(gpx_open_other_folder(QUrl)), this, SLOT(gpx_open_other_folder(QUrl)));
     QObject::connect(stack, SIGNAL(profile_open_clicked(QUrl)), this, SLOT(profile_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
@@ -549,7 +552,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         while (itAndroid.hasNext()) {
             qDebug() << itAndroid.filePath() << itAndroid.fileName() << itAndroid.filePath().replace(itAndroid.path(), "");
             if (!QFile(getWritableAppDir() + itAndroid.next().replace(itAndroid.path(), "")).exists()) {
-                QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), ""));
+                if(QFile::copy(itAndroid.filePath(), getWritableAppDir() + itAndroid.filePath().replace(itAndroid.path(), "")))
+                       QFile::remove(itAndroid.filePath());
             }
         }
     }
@@ -657,8 +661,12 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 8) {
+    if (chartImagesFilenames.length() >= 9) {
         sendMail();
+        qDebug() << "removing chart images";
+        for (const QString &f : qAsConst(chartImagesFilenames)) {
+            QFile::remove(f);
+        }
         chartImagesFilenames.clear();
     }
 }
@@ -3348,6 +3356,10 @@ void homeform::Stop() {
         emit startIconChanged(startIcon());
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
+
+        // clearing the label on top because if it was running a training program, with stop the program will be terminated
+        m_info = workoutName();
+        emit infoChanged(m_info);
     }
 
     if (trainProgram) {
@@ -4913,6 +4925,16 @@ void homeform::update() {
         }
 
         if (!stopped && !paused) {
+            if(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble() != 0) {
+                if (bluetoothManager->device()->currentDistance().lapValue() >=
+                    settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble()) {
+                        qDebug() << QStringLiteral("Autolap based on distance");
+                        Lap();
+                        setToastRequested("AutoLap " + QString::number(settings.value(QZSettings::autolap_distance, QZSettings::default_autolap_distance).toDouble(), 'f', 1));
+                        emit toastRequestedChanged(toastRequested());
+                }
+            }
+
             if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool()) {
                 static double tts_speed_played = 0;
                 bool description =
@@ -5151,8 +5173,12 @@ void homeform::update() {
                 }
             }
 
+            bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
+            
+            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
+
             SessionLine s(
-                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->odometer(),
+                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
                 pace, cadence, bluetoothManager->device()->calories().value(),
                 bluetoothManager->device()->elevationGain().value(),
@@ -5211,30 +5237,67 @@ bool homeform::getLap() {
     return true;
 }
 
-void homeform::copyAndroidContentsURI(QFile* file, QString subfolder) {
-#ifdef Q_OS_ANDROID    
-    QString filename = file->fileName();
-    int substr = filename.lastIndexOf("%2F");
-    if(substr) {
-        filename = filename.mid(substr + 3);
+QString homeform::getFileNameFromContentUri(const QString &uriString) {
+    qDebug() << "getFileNameFromContentUri" << uriString;
+    if(!uriString.startsWith("content")) {
+        return uriString;
     }
-    bool copy = file->copy(getWritableAppDir() + subfolder + "/" + filename);
-    qDebug() << "copy" << getWritableAppDir() + subfolder + "/" + filename << copy;
+#ifdef Q_OS_ANDROID
+
+    QAndroidJniObject jUriString = QAndroidJniObject::fromString(uriString);
+    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUriString.object<jstring>());
+    QAndroidJniObject result = QAndroidJniObject::callStaticObjectMethod(
+        "org/cagnulen/qdomyoszwift/ContentHelper",
+        "getFileName",
+        "(Landroid/content/Context;Landroid/net/Uri;)Ljava/lang/String;",
+        QtAndroid::androidContext().object(),
+        jUri.object());
+    return result.toString();
+#else
+    return uriString;
 #endif
+}
+
+QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
+#ifdef Q_OS_ANDROID        
+    QString fileNameLocal = getFileNameFromContentUri(file.toString());
+    if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
+        qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
+        return file.toString();
+    }
+    QFileInfo f(fileNameLocal);
+    QString filename = f.fileName();
+    QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
+    QString dest = getWritableAppDir() + subfolder + "/" + filename;
+    qDebug() << file.fileName() << fileNameLocal << filename;
+    QFile::remove(dest);
+    bool copy = fileFile.copy(dest);
+    qDebug() << "copy" << dest << copy << fileFile.exists() << fileFile.isReadable();
+    return dest;
+#endif
+    return file.toString();
 }
 
 void homeform::profile_open_clicked(const QUrl &fileName) {
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "profiles");
+    copyAndroidContentsURI(fileName, "profiles");
+}
+
+void homeform::trainprogram_open_other_folder(const QUrl &fileName) {
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(fileName, "training");
+}
+
+void homeform::gpx_open_other_folder(const QUrl &fileName) {
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    copyAndroidContentsURI(fileName, "gpx");
 }
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "training");
 
-    qDebug() << file.fileName();
     if (!file.fileName().isEmpty()) {
         {
             if (previewTrainProgram) {
@@ -5245,7 +5308,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 delete trainProgram;
             }
 
-            trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            trainProgram = trainprogram::load(file.fileName(), bluetoothManager, file.fileName().right(3).toUpper());
 
             QString movieName = file.fileName().left(file.fileName().length() - 3) + "mp4";
             if (QFile::exists(movieName)) {
@@ -5262,7 +5325,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 trainingProgram()->setVideoAvailable(false);
             }
 
-            stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
+            stravaWorkoutName = QFileInfo(file.fileName()).baseName();
             stravaPelotonInstructorName = QStringLiteral("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
@@ -5282,14 +5345,15 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_preview") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    qDebug() << file.fileName();
-    if (!file.fileName().isEmpty()) {
+    QString fileNameLocal = getFileNameFromContentUri(file.fileName());
+    qDebug() << fileNameLocal;
+    if (!fileNameLocal.isEmpty()) {
         {
             if (previewTrainProgram) {
                 delete previewTrainProgram;
                 previewTrainProgram = 0;
             }
-            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager, fileNameLocal.right(3).toUpper());
             emit previewWorkoutPointsChanged(preview_workout_points());
             emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
             emit previewWorkoutTagsChanged(previewWorkoutTags());
@@ -5369,9 +5433,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpx_open_clicked") << fileName;
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
-    copyAndroidContentsURI(&file, "gpx");
 
-    qDebug() << file.fileName();
     stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
         {
@@ -5383,7 +5445,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             // KML to GPX https://www.gpsvisualizer.com/elevation
             gpx g;
             QList<trainrow> list;
-            auto g_list = g.open(file.fileName());
+            auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : bluetoothdevice::BIKE);
             if (bluetoothManager->device())
                 bluetoothManager->device()->setGPXFile(file.fileName());
             gpx_altitude_point_for_treadmill last;
@@ -5453,7 +5515,7 @@ void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
 
     if (!file.fileName().isEmpty()) {
         gpx g;
-        auto g_list = g.open(file.fileName());
+        auto g_list = g.open(file.fileName(), bluetoothManager->device() ? bluetoothManager->device()->deviceType() : bluetoothdevice::BIKE);
         gpx_preview.clearPath();
         for (const auto &p : g_list) {
             gpx_preview.addCoordinate(QGeoCoordinate(p.latitude, p.longitude, p.elevation));
@@ -6371,7 +6433,7 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(filename));
-    copyAndroidContentsURI(&file, "settings");
+    copyAndroidContentsURI(filename, "settings");
 
     qDebug() << "homeform::loadSettings" << file.fileName();
 

@@ -171,9 +171,15 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
 
     // SPEED
     actualPaceSign.append(0x07);
-    actualPaceSign.append(0x03);
     actualPace2Sign.append(0x07);
-    actualPace2Sign.append(0x03);
+
+    actualHR.append((char)0x02);
+    actualHR.append((char)0x11);
+
+    actualResistance.append((char)0x01);
+    actualResistance.append((char)0x09);
+
+    actualOdometer.append((char)0x0b);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -340,41 +346,74 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x09) {
-        Resistance = (uint8_t)newValue[4];
-        emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
-        return;
+    if (newValue.contains(actualResistance)) {
+        int16_t i = newValue.indexOf(actualResistance) + 2;
+
+        if (i + 1 < newValue.length()) {
+            Resistance = ((uint8_t)value.at(i));
+            emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
+        }
+    }
+
+    if (newValue.contains(actualOdometer)) {
+        int16_t i = newValue.indexOf(actualOdometer) + 1;
+
+        if (i + 2 < newValue.length() && i % 2 == 0) {
+
+            int d = ((uint16_t)value.at(i)) + ((((uint16_t)value.at(i + 1)) << 8) & 0xFF00);
+            if(d > distance) {
+                int oldDistance = distance;
+                distance = d;
+                QDateTime oldTime = lastTimeDistance;
+                lastTimeDistance = QDateTime::currentDateTime();
+                double distanceDeltaKm = ((double)(distance - oldDistance) / 100) * 1.60934;
+                double timeDeltaHours = oldTime.msecsTo(lastTimeDistance) / 1000.0 / 3600.0;
+                speed = distanceDeltaKm / timeDeltaHours;
+                Speed = speed.average5s();
+                emit speedChanged(speed.value());
+                Distance = distance * 1.60934;
+                emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+                emit debug(QStringLiteral("Current Distance from The Machinery: ") + QString::number(distance));
+            }
+        }
+    }
+
+    if (newValue.contains(actualHR)) {
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                int16_t i = newValue.indexOf(actualHR) + 2;
+
+                if (i + 1 < newValue.length()) {
+                    uint8_t heart = ((uint8_t)value.at(i));
+                    if (heart == 0 || disable_hr_frommachinery) {
+                        update_hr_from_external();
+                    } else {
+                        Heart = heart;
+                    }
+                }
+            }
+        }
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
         return;
 
-    int16_t i = newValue.indexOf(actualPaceSign) + 2;
+    int16_t i = newValue.indexOf(actualPaceSign) + 1;
     if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 2;
+        i = newValue.indexOf(actualPace2Sign) + 1;
 
     if (i + 1 >= newValue.length())
         return;
 
-    double speed = GetSpeedFromPacket(value, i);
-    if (isinf(speed))
-        return;
-
-#ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
-#endif
-    {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
-    }
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-
-    if (Speed.value() != speed) {
-        emit speedChanged(speed);
-    }
-    Speed = speed;
+    Cadence = ((uint8_t)value.at(i));
 
     if (!firstCharacteristicChanged) {
         if (watts())
@@ -385,13 +424,10 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-
-        Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -402,8 +438,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 double octaneelliptical::GetSpeedFromPacket(const QByteArray &packet, int index) {
-    uint16_t convertedData = (packet.at(index + 4) << 8) | ((uint8_t)packet.at(index + 5));
-    return ((double)convertedData) / 100.0;
+    uint16_t convertedData = ((uint8_t)packet.at(index));
+    return ((double)convertedData) / 10.0;
 }
 
 void octaneelliptical::btinit(bool startTape) {

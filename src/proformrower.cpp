@@ -478,6 +478,7 @@ double proformrower::GetResistanceFromPacket(QByteArray packet) {
 }
 
 void proformrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -492,7 +493,7 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x11) {
         Cadence = (uint8_t)(newValue.at(12));
         StrokesCount += (Cadence.value()) *
-                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(now)) / 60000;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
         uint16_t s = (((uint16_t)((uint8_t)newValue.at(14)) << 8) + (uint16_t)((uint8_t)newValue.at(13)));
@@ -518,14 +519,14 @@ void proformrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     // Distance += ((Speed.value() / 3600000.0) *
-    // ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+    // ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     Distance = (((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)))) / 1000.0;
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
