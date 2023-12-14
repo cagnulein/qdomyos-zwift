@@ -847,6 +847,9 @@ import QtQuick.Dialogs 1.0
             property bool iconsole_elliptical: false            
             property real autolap_distance: 0
             property bool nordictrack_s20_treadmill: false
+
+            // from version 2.16.28
+            property bool freemotion_coachbike_b22_7: false
         }
 
         function paddingZeros(text, limit) {
@@ -2916,6 +2919,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.proform_studio_NTEX71021 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Freemotion Coachbike B22.7")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.freemotion_coachbike_b22_7
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.freemotion_coachbike_b22_7 = checked; window.settings_restart_to_apply = true; }
+                    }                    
                     SwitchDelegate {
                         id: proformTDF10odelegate
                         text: qsTr("Proform TDF 1.0")
