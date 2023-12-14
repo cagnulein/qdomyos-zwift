@@ -39,17 +39,23 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
     void onSpeedInclination(double speed, double inclination);
     void debug(QString message);
     void onWatt(double watt);
+    void onHRM(int hrm);
 
   private:
     QString adbCommandPending = "";
     double speed = 0;
     double inclination = 0;
     double watt = 0;
+    int hrm = 0;
     QString name;
     struct adbfile {
         QDateTime date;
         QString name;
     };
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
     QString runAdbCommand(QString command);
     void runAdbTailCommand(QString command);
