@@ -173,7 +173,7 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPaceSign.append(0x07);
     actualPace2Sign.append(0x07);
 
-    actualHR.append((char)0x00);
+    actualHR.append((char)0x02);
     actualHR.append((char)0x11);
 
     actualResistance.append((char)0x01);
@@ -358,9 +358,9 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (newValue.contains(actualOdometer)) {
         int16_t i = newValue.indexOf(actualOdometer) + 1;
 
-        if (i + 2 < newValue.length()) {
+        if (i + 2 < newValue.length() && i % 2 == 0) {
 
-            int d = ((uint16_t)value.at(i)) + (((uint16_t)value.at(i + 1)) << 8);
+            int d = ((uint16_t)value.at(i)) + ((((uint16_t)value.at(i + 1)) << 8) & 0xFF00);
             if(d > distance) {
                 int oldDistance = distance;
                 distance = d;
@@ -371,7 +371,7 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                 speed = distanceDeltaKm / timeDeltaHours;
                 Speed = speed.average5s();
                 emit speedChanged(speed.value());
-                Distance = distance;
+                Distance = distance * 1.60934;
                 emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
                 emit debug(QStringLiteral("Current Distance from The Machinery: ") + QString::number(distance));
             }
