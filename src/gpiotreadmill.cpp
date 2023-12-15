@@ -196,13 +196,13 @@ void gpiotreadmill::update() {
         
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
-                debug("creating virtual treadmill interface...");
+                qDebug() << "creating virtual treadmill interface...";
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &gpiotreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &gpiotreadmill::changeInclinationRequested);
             } else {
-                debug("creating virtual bike interface...");
+                qDebug() <<"creating virtual bike interface...";
                 virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &gpiotreadmill::changeInclinationRequested);
             }
@@ -234,7 +234,7 @@ void gpiotreadmill::update() {
                 h.setKcal(KCal.value());
                 h.setDistance(Distance.value());
                 Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+                qDebug() << "Current Heart from Apple Watch: " << QString::number(appleWatchHeartRate);
 #endif
 #endif
             } else
@@ -257,13 +257,13 @@ void gpiotreadmill::update() {
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
-    emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
-    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
-    emit debug(QStringLiteral("Current KCal from the machine: ") + QString::number(KCal.value()));
-    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
+    qDebug() << QStringLiteral("Current speed: ") + QString::number(Speed.value());
+    qDebug() << QStringLiteral("Current incline: ") + QString::number(Inclination.value());
+    qDebug() << QStringLiteral("Current heart: ") + QString::number(Heart.value());
+    qDebug() << QStringLiteral("Current KCal: ") + QString::number(KCal.value());
+    qDebug() << QStringLiteral("Current KCal from the machine: ") + QString::number(KCal.value());
+    qDebug() << QStringLiteral("Current Distance: ") + QString::number(Distance.value());
+    qDebug() << QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value());
 
     firstCharacteristicChanged = false;
 
@@ -278,7 +278,7 @@ void gpiotreadmill::update() {
     {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                qDebug() << QStringLiteral("writing speed ") + QString::number(requestSpeed);
 
                 forceSpeed(requestSpeed);
             }
@@ -289,14 +289,14 @@ void gpiotreadmill::update() {
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                qDebug() << QStringLiteral("writing incline ") + QString::number(requestInclination);
 
                 forceIncline(requestInclination);
             }
             requestInclination = -1;
         }
         if (requestStart != -1) {
-            emit debug(QStringLiteral("starting..."));
+            qDebug() << QStringLiteral("starting...");
             if (lastSpeed == 0.0) {
 
                 lastSpeed = 0.5;
@@ -305,26 +305,27 @@ void gpiotreadmill::update() {
             QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(OUTPUT_START, 0);
             requestStart = -1;
+            Speed = 0.8;
             emit tapeStarted();
         }
         if (requestStop != -1) {
-            emit debug(QStringLiteral("stopping..."));
+            qDebug() << QStringLiteral("stopping...");
             digitalWrite(OUTPUT_STOP, 1);
             QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(OUTPUT_STOP, 0);
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
-            emit debug(QStringLiteral("changing fan speed..."));
+            qDebug() << QStringLiteral("changing fan speed...");
 
             requestFanSpeed = -1;
         }
         if (requestIncreaseFan != -1) {
-            emit debug(QStringLiteral("increasing fan speed..."));
+            qDebug() << QStringLiteral("increasing fan speed...");
 
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
-            emit debug(QStringLiteral("decreasing fan speed..."));
+            qDebug() << QStringLiteral("decreasing fan speed...");
 
             requestDecreaseFan = -1;
         }

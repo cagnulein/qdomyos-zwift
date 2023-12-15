@@ -120,7 +120,6 @@ class gpiotreadmill : public treadmill {
 
   Q_SIGNALS:
     void disconnected();
-    void debug(QString string);
     void speedChanged(double speed);
     void packetReceived();
 
