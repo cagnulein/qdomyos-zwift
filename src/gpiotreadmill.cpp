@@ -16,7 +16,7 @@
 QModbusReply *gpiotreadmill::lastRequest;
 QModbusClient *gpiotreadmill::modbusDevice = nullptr;
 void gpiotreadmill::digitalWrite(int pin, int state) {
-    const int server_address = 1;
+    const int server_address = 255;
     QVector<quint16> speed;
     speed.append(1);
     modbusDevice->sendWriteRequest(QModbusDataUnit(QModbusDataUnit::RegisterType::HoldingRegisters, pin, speed), server_address);
@@ -118,7 +118,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,
         QSerialPort::Parity::NoParity);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
-        QSerialPort::Baud115200);
+        QSerialPort::Baud9600);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
         QSerialPort::Data8);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
