@@ -600,7 +600,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
             } else if (gpio_treadmill && !gpioTreadmill) {
                 discoveryAgent->stop();
                 gpioTreadmill = new gpiotreadmill(noWriteResistance, noHeartService);
@@ -2599,7 +2599,7 @@ void bluetooth::restart() {
         delete fakeBike;
         fakeBike = nullptr;
     }
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
     if (gpioTreadmill) {
 
         delete gpioTreadmill;
@@ -3001,7 +3001,7 @@ bluetoothdevice *bluetooth::device() {
         return powerTreadmill;
     } else if (fakeBike) {
         return fakeBike;
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
     } else if (gpioTreadmill) {
         return gpioTreadmill;
 #endif
