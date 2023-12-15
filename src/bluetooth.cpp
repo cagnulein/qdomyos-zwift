@@ -599,8 +599,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
-                userTemplateManager->start(fakeBike);
-                innerTemplateManager->start(fakeBike);
+                this->signalBluetoothDeviceConnected(fakeBike);
             } else if (gpio_treadmill && !gpioTreadmill) {
                 discoveryAgent->stop();
                 gpioTreadmill = new gpiotreadmill(noWriteResistance, noHeartService);
