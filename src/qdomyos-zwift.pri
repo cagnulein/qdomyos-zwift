@@ -4,7 +4,7 @@ QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 win32: QT += serialport serialbus
-unix:!android: QT += serialport serialbus
+unix:!android:!ios: QT += serialport serialbus
 
 qtHaveModule(httpserver) {
     QT += httpserver
