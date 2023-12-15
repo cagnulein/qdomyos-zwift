@@ -1,6 +1,4 @@
 #include "inspirebike.h"
-#include "ios/lockscreen.h"
-#include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,6 +7,10 @@
 #include <QSettings>
 #include <chrono>
 #include <math.h>
+
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#endif
 
 using namespace std::chrono_literals;
 //#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
@@ -125,11 +127,12 @@ void inspirebike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -141,38 +144,38 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     Resistance = newValue.at(6);
     emit resistanceRead(Resistance.value());
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(3));
     }
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(watts(),  Inclination.value(), Speed.value(),fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-    if (settings.value(QStringLiteral("inspire_peloton_formula2"), false).toBool()) {
+    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2).toBool()) {
         // y = 0,0002x^3 - 0.1478x^2 + 4.2412x + 1.8102
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.002) - (pow(Resistance.value(), 2) * 0.1478) +
                                 (4.2412 * Resistance.value()) + 1.8102) *
-                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
-                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
-    } else if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
+                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula).toBool()) {
         // y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) +
                                 (2.575 * Resistance.value()) + 0.0444) *
-                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
-                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         m_pelotonResistance = Resistance.value() * 2.5;
     }
@@ -182,32 +185,23 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -256,7 +250,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
                 &inspirebike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -264,11 +258,11 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -278,9 +272,10 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&inspirebike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &inspirebike::changeInclination);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         firstStateChanged = 1;
@@ -377,17 +372,13 @@ bool inspirebike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *inspirebike::VirtualBike() { return virtualBike; }
-
-void *inspirebike::VirtualDevice() { return VirtualBike(); }
-
 uint16_t inspirebike::watts() {
     QSettings settings;
     if (currentCadence().value() == 0) {
         return 0;
     }
 
-    if (settings.value(QStringLiteral("inspire_peloton_formula2"), false).toBool()) {
+    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2).toBool()) {
         const double m[] = {0.6,  0.7, 0.75, 0.7, 0.9,  0.85, 0.85, 1,    1.1,  1.25, 1.5,  1.4,  1.4, 1.5,
                             1.5,  1.8, 1.75, 2,   2.15, 2.55, 2.65, 2.65, 2.85, 2.9,  3.25, 3.65, 3.4, 4.05,
                             4.05, 4.2, 4.25, 4.8, 5.35, 5.5,  6.1,  5.35, 5.95, 6.65, 7.25, 7.05};
@@ -407,7 +398,7 @@ uint16_t inspirebike::watts() {
         } else
             return 0;
 
-    } else if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
+    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula).toBool()) {
         return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                            exp(0.088 * (double)(currentResistance().value()))) /
                           2.2);

@@ -1,6 +1,6 @@
 #include "domyostreadmill.h"
-#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -47,8 +47,15 @@ QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-
 QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
 QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                  double forceInitInclination) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -83,23 +90,32 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
 
     if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
         m_control->state() == QLowEnergyController::UnconnectedState) {
-        emit debug(QStringLiteral("writeCharacteristic error because the connection is closed"));
+        qDebug() << QStringLiteral("writeCharacteristic error because the connection is closed");
 
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (!gattWriteCharacteristic.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
+        return;
+    }
+
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ')
+                 << QStringLiteral(" // ") + info;
     }
 
     loop.exec();
 
     if (timeout.isActive() == false) {
-        emit debug(QStringLiteral(" exit for timeout"));
+        qDebug() << QStringLiteral(" exit for timeout");
     }
 }
 
@@ -108,21 +124,26 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x05, 0x01, 0x01, 0x00, 0x0c, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00};
 
     QSettings settings;
-    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
-    bool domyos_treadmill_display_invert = settings.value(QStringLiteral("domyos_treadmill_display_invert"), false).toBool();
+    bool distance =
+        settings
+            .value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display)
+            .toBool();
+    bool domyos_treadmill_display_invert =
+        settings.value(QZSettings::domyos_treadmill_display_invert, QZSettings::default_domyos_treadmill_display_invert)
+            .toBool();
 
     if (elapsed > 5999) // 99:59
     {
         display[3] = ((elapsed / 60) / 60) & 0xFF; // high byte for elapsed time (in seconds)
-        display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elasped time (in seconds)
+        display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elapsed time (in seconds)
     } else {
 
         display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-        display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+        display[4] = (elapsed % 60 & 0xFF); // low byte for elapsed time (in seconds)
     }
 
     if (distance) {
-        if(!domyos_treadmill_display_invert) {
+        if (!domyos_treadmill_display_invert) {
             if (odometer() < 10.0) {
 
                 display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
@@ -157,7 +178,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
 
     display[20] = (uint8_t)(currentSpeed().value() * 10.0);
 
-    if(!domyos_treadmill_display_invert) {
+    if (!domyos_treadmill_display_invert) {
         display[23] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
         display[24] = (uint8_t)(calories().value()) & 0xFF;
     } else {
@@ -254,21 +275,26 @@ void domyostreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &domyostreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &domyostreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyostreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -277,7 +303,7 @@ void domyostreadmill::update() {
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ >= (1000 / refresh->interval())) {
@@ -302,7 +328,7 @@ void domyostreadmill::update() {
                     double inc = Inclination.value();
                     if (requestInclination != -100) {
 
-                        // only 0.5 steps ara avaiable
+                        // only 0.5 steps ara available
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
                         requestInclination = -100;
@@ -312,9 +338,9 @@ void domyostreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -100) {
-                if(requestInclination < 0)
+                if (requestInclination < 0)
                     requestInclination = 0;
-                // only 0.5 steps ara avaiable
+                // only 0.5 steps ara available
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
@@ -376,17 +402,18 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool domyos_treadmill_buttons = settings.value(QStringLiteral("domyos_treadmill_buttons"), false).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool domyos_treadmill_buttons =
+        settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
-    // for the init packets, the lenght is always less than 20
-    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
-    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
-    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of
+    // for the init packets, the length is always less than 20
+    // for the display and status packets, the length is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the length will be always != 20
+    // - t900: it splits packets with length grater than 20 in two distinct packets, so the first one it has length of
     // 20,
     //         and the second one with the remained byte
     // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
@@ -404,7 +431,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     startBytes2.append(0xf0);
     startBytes2.append(0xdb);
 
-    // on some treadmills, the 26bytes has splitted in 2 packets
+    // on some treadmills, the 26bytes has split in 2 packets
     if ((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
         (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7)) {
 
@@ -526,10 +553,11 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double incline = GetInclinationFromPacket(value);
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
-    
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -538,43 +566,23 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
             uint8_t heart = ((uint8_t)value.at(18));
             if (heart == 0 || disable_hr_frommachinery) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
-    
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-            .toString()
-            .startsWith(QStringLiteral("Disabled")))
-    {
-        lockscreen h;
-        long appleWatchCadence = h.stepCadence();
-        Cadence = appleWatchCadence;
-    }
-#endif
-#endif
-    
+
+    cadenceFromAppleWatch();
+
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -802,9 +810,5 @@ bool domyostreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *domyostreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *domyostreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void domyostreadmill::searchingStop() { searchStopped = true; }

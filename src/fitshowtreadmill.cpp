@@ -1,6 +1,7 @@
 #include "fitshowtreadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -33,8 +34,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh = new QTimer(this);
     initDone = false;
     QSettings settings;
-    anyrun = settings.value(QStringLiteral("fitshow_anyrun"), false).toBool();
-    truetimer = settings.value(QStringLiteral("fitshow_truetimer"), false).toBool();
+    anyrun = settings.value(QZSettings::fitshow_anyrun, QZSettings::default_fitshow_anyrun).toBool();
+    truetimer = settings.value(QZSettings::fitshow_truetimer, QZSettings::default_fitshow_truetimer).toBool();
     connect(refresh, &QTimer::timeout, this, &fitshowtreadmill::update);
     refresh->start(pollDeviceTime);
 }
@@ -43,9 +44,6 @@ fitshowtreadmill::~fitshowtreadmill() {
     if (refresh) {
         refresh->stop();
         delete refresh;
-    }
-    if (virtualTreadMill) {
-        delete virtualTreadMill;
     }
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
@@ -62,19 +60,24 @@ void fitshowtreadmill::scheduleWrite(const uint8_t *data, uint8_t data_len, cons
 void fitshowtreadmill::writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info) {
     QEventLoop loop;
     QTimer timeout;
-    QByteArray qba((const char *)data, data_len);
-    if (!info.isEmpty()) {
-        emit debug(QStringLiteral(" >>") + qba.toHex(' ') + QStringLiteral(" // ") + info);
-    }
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
 
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    if (!info.isEmpty()) {
+        emit debug(QStringLiteral(" >>") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
+    }
+
     if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba,
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
                                                              QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
     }
 
     loop.exec();
@@ -121,6 +124,12 @@ bool fitshowtreadmill::writePayload(const uint8_t *array, uint8_t size, const QS
 
 void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
     if (MAX_SPEED > 0) {
+        QSettings settings;
+        // the treadmill send the speed in miles always
+        double miles = 1;
+        if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles).toBool())
+            miles = 1.60934;
+        requestSpeed /= miles;
         requestSpeed *= 10.0;
         if (requestSpeed >= MAX_SPEED) {
             requestSpeed = MAX_SPEED;
@@ -134,7 +143,7 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
         }
 
         uint8_t writeIncline[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_TARGET_OR_RUN, (uint8_t)(requestSpeed + 0.5),
-                                  (uint8_t)requestIncline};
+                                  (uint8_t)(requestIncline * (noblepro_connected ? 2.0 : 1.0))};
         scheduleWrite(writeIncline, sizeof(writeIncline),
                       QStringLiteral("forceSpeedOrIncline speed=") + QString::number(requestSpeed) +
                           QStringLiteral(" incline=") + QString::number(requestIncline));
@@ -155,15 +164,16 @@ void fitshowtreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -171,23 +181,16 @@ void fitshowtreadmill::update() {
 
         emit debug(QStringLiteral("fitshow Treadmill RSSI ") + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                double inc = currentInclination().value();
+                double inc = rawInclination.value();
                 if (requestInclination != -100) {
-                    int diffInc = (int)(requestInclination - inc);
-                    if (!diffInc) {
-                        if (requestInclination > inc) {
-                            inc += 1.0;
-                        } else if (requestInclination < inc) {
-                            inc -= 1.0;
-                        }
-                    } else {
-                        inc = (int)requestInclination;
-                    }
+                    // only 0.5 or 1 changes otherwise it beeps forever
+                    double a = 1.0 / minStepInclination();
+                    inc = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
                     requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
@@ -196,19 +199,13 @@ void fitshowtreadmill::update() {
         }
 
         if (requestInclination != -100) {
-            double inc = currentInclination().value();
+            double inc = rawInclination.value();
+            // only 0.5 or 1 changes otherwise it beeps forever
+            double a = 1.0 / minStepInclination();
+            requestInclination = qRound(treadmillInclinationOverrideReverse(requestInclination) * a) / a;
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                int diffInc = (int)(requestInclination - inc);
-                if (!diffInc) {
-                    if (requestInclination > inc) {
-                        inc += 1.0;
-                    } else if (requestInclination < inc) {
-                        inc -= 1.0;
-                    }
-                } else {
-                    inc = (int)requestInclination;
-                }
+                inc = requestInclination;
                 double speed = currentSpeed().value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
@@ -276,9 +273,11 @@ void fitshowtreadmill::removeFromBuffer() {
 
 void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     uint32_t servRepr = gatt.toUInt32();
+    QBluetoothUuid nobleproconnect(QStringLiteral("0000ae00-0000-1000-8000-00805f9b34fb"));
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString() + QStringLiteral(" ") +
                QString::number(servRepr));
-    if (servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+    if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
+        qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
     }
 }
@@ -295,7 +294,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -425,18 +426,32 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 if (!firstCharacteristicChanged) {
+                    if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                        KCal +=
+                            ((((0.048 * ((double)watts(
+                                            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                                1.19) *
+                               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                              200.0) /
+                             (60000.0 /
+                              ((double)lastTimeCharacteristicChanged.msecsTo(
+                                  QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                    // kg * 3.5) / 200 ) / 60
                     DistanceCalculated +=
                         ((speed / 3600.0) /
                          (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
+
+                StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-                emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
                 emit debug(QStringLiteral("Current heart: ") + QString::number(heart));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
-                emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current KCal from the Machine: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
 
                 if (m_control->error() != QLowEnergyController::NoError) {
@@ -450,30 +465,48 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastStop = 0;
                 }
 
+                // the treadmill send the speed in miles always
+                double miles = 1;
+                if (settings.value(QZSettings::fitshow_treadmill_miles, QZSettings::default_fitshow_treadmill_miles)
+                        .toBool())
+                    miles = 1.60934;
+
+                if(IS_RUNNING)
+                    Speed = speed * miles;
+                else
+                    Speed = 0;
+
                 if (Speed.value() != speed) {
-                    Speed = speed;
                     emit speedChanged(speed);
                 }
+
+                if (noblepro_connected)
+                    incline /= 2;
+
+                rawInclination = incline;
+                Inclination = treadmillInclinationOverride(incline);
                 if (Inclination.value() != incline) {
-                    Inclination = incline;
                     emit inclinationChanged(0, incline);
                 }
+                emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
 
-                KCal = kcal;
                 if (truetimer)
                     elapsed = seconds_elapsed;
-                Distance = distance;
+                Distance = DistanceCalculated;
 #ifdef Q_OS_ANDROID
-                if (settings.value("ant_heart", false).toBool())
+                if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                     Heart = (uint8_t)KeepAwakeHelper::heart();
                 else
 #endif
                 {
-                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                         long appleWatchHeartRate = h->heartRate();
                         h->setKcal(KCal.value());
                         h->setDistance(Distance.value());
+                        h->setSpeed(Speed.value());
+                        h->setPower(m_watt.value());
+                        h->setCadence(Cadence.value());
                         Heart = appleWatchHeartRate;
                         debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #else
@@ -487,7 +520,6 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastInclination = incline;
                 }
 
-                lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 firstCharacteristicChanged = false;
                 if (par != FITSHOW_STATUS_RUNNING) {
                     sendSportData();
@@ -561,14 +593,16 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
 
+                StepCount = step_count;
+
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
                 emit debug(QStringLiteral("Current step countl: ") + QString::number(step_count));
-                emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-                emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
-                KCal = kcal;
+                emit debug(QStringLiteral("Current KCal from the machine: ") + QString::number(kcal));
+                emit debug(QStringLiteral("Current Distance from the machine: ") + QString::number(distance));
+                // KCal = kcal;
                 if (truetimer)
                     elapsed = seconds_elapsed;
-                Distance = distance;
+                // Distance = distance;
             }
         }
     }
@@ -601,8 +635,8 @@ void fitshowtreadmill::btinit(bool startTape) {
         0x00 // mode-dependent value (u16le)
     };       // to verify
     QSettings settings;
-    int user_id = settings.value(QStringLiteral("fitshow_user_id"), 0x13AA).toInt();
-    uint8_t weight = (uint8_t)(settings.value(QStringLiteral("weight"), 75.0).toFloat() + 0.5);
+    int user_id = settings.value(QZSettings::fitshow_user_id, QZSettings::default_fitshow_user_id).toInt();
+    uint8_t weight = (uint8_t)(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() + 0.5);
     uint8_t initUserData[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_USER, 0, 0, 0, 0, 0, 0};
     initUserData[2] = (user_id >> 0) & 0xFF;
     initUserData[3] = (user_id >> 8) & 0xFF;
@@ -648,9 +682,9 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                 qDebug() << QStringLiteral("d -> ") << d.uuid();
             }
-            if (id32 == 0xffe1 || id32 == 0xfff2) {
+            if (id32 == 0xffe1 || id32 == 0xfff2 || id32 == 0xae01) {
                 gattWriteCharacteristic = c;
-            } else if (id32 == 0xffe4 || id32 == 0xfff1) {
+            } else if (id32 == 0xffe4 || id32 == 0xfff1 || id32 == 0xae02) {
                 gattNotifyCharacteristic = c;
             }
         }
@@ -700,6 +734,10 @@ void fitshowtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
+    if (!gattCommunicationChannelService) {
+        qDebug() << "service not valid";
+        return;
+    }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitshowtreadmill::stateChanged);
 #ifdef _MSC_VER
     // QTBluetooth bug on Win10 (https://bugreports.qt.io/browse/QTBUG-78488)
@@ -726,6 +764,13 @@ void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     /*if (device.name().startsWith(QStringLiteral("FS-")) ||
         (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
+
+    if (device.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT"))) {
+        qDebug() << "NOBLEPRO FIX!";
+        minStepInclinationValue = 0.5;
+        noblepro_connected = true;
+    }
+
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -770,10 +815,6 @@ bool fitshowtreadmill::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *fitshowtreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *fitshowtreadmill::VirtualDevice() { return VirtualTreadMill(); }
-
 void fitshowtreadmill::searchingStop() { searchStopped = true; }
 
 void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
@@ -799,7 +840,7 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return false;
 }
 
-double fitshowtreadmill::minStepInclination() { return 1.0; }
+double fitshowtreadmill::minStepInclination() { return minStepInclinationValue; }
 
 void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)

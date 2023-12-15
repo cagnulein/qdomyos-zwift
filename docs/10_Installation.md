@@ -4,17 +4,20 @@ QDomyos-Zwift can be installed from source on MacOs, Linux, Android and IOS.
 
 Once you've installed QDomyos-Zwift, you can access the [operation guide](30_usage.md) for more information.
 
+These instructions build the app itself, not the test project.
+
 ## On a Linux System (from source)
 
 ```buildoutcfg
 $ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
-$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5
+$ sudo apt install git qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module* libqt5texttospeech5-dev libqt5texttospeech5 libqt5location5-plugins qtlocation5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 g++ make
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/
 $ git submodule update --init src/qmdnsengine/
+$ git submodule update --init tst/googletest/
 $ cd src
-$ qmake
+$ qmake qdomyos-zwift.pro
 $ make -j4
 $ sudo ./qdomyos-zwift
 ```
@@ -25,13 +28,13 @@ $ sudo ./qdomyos-zwift
 You will need to (at a minimum) to install the xcode Command Line Tools (CLI) thanks to @richardwait
 https://developer.apple.com/download/more/?=xcode
 
-Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-mac-x64-5.12.9.dmg and simply run the qdomyos-zwift relase for MacOs
+Download and install https://download.qt.io/archive/qt/5.12/5.12.12/qt-opensource-mac-x64-5.12.12.dmg and simply run the qdomyos-zwift release for MacOs
 
 ## On Raspberry Pi Zero W
 
 ![raspi](../docs/img/raspi-bike.jpg)
 
-This guide will walk you through steps to setup an autonomous, headless raspberry brigde.
+This guide will walk you through steps to setup an autonomous, headless raspberry bridge.
 
 
 ### Initial System Preparation
@@ -74,7 +77,7 @@ Apply the changes `sudo systemctl restart dhcpcd.service` and ensure you have in
 
 #### Enable SSH access
 
-You might want to access your raspberry remotely while it is attached to your fitness equipement. 
+You might want to access your raspberry remotely while it is attached to your fitness equipment. 
 
 `sudo raspi-config` > `Interface Options` > `SSH`
 
@@ -102,15 +105,17 @@ This operation takes a moment to complete.
 
 #### Install qdomyos-zwift from sources
 
-`sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5`
-
-`git clone https://github.com/cagnulein/qdomyos-zwift.git`  
-`cd qdomyos-zwift`  
-`git submodule update --init src/smtpclient/`  
-`git submodule update --init src/qmdnsengine/`  
-`cd src`    
-`qmake`    
-`make`  
+```bash
+sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5 qtlocation5-dev qtquickcontrols2-5-dev libqt5texttospeech5-dev libqt5texttospeech5 g++ make
+git clone https://github.com/cagnulein/qdomyos-zwift.git
+cd qdomyos-zwift
+git submodule update --init src/smtpclient/  
+git submodule update --init src/qmdnsengine/  
+git submodule update --init tst/googletest/
+cd src
+qmake qdomyos-zwift.pro    
+make  
+```
 
 Please note :
 - Don't build the application with `-j4` option (this will fail)
@@ -170,7 +175,7 @@ Then reboot to check operations (`sudo reboot`)
 
 ### (optional) Enable overlay FS
 
-Once that everything is working as expected, and if you dedicate your raspeberry pi to this usage, you might want to enable the read-only overlay FS.
+Once that everything is working as expected, and if you dedicate your Raspberry pi to this usage, you might want to enable the read-only overlay FS.
 
 By enabling the overlay read-only system, your SD card will be read-only only and every file written will be to RAM.
 Then at each reboot the RAM is erased and you'll revert to the initial status of the overlay file-system.

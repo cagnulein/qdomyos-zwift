@@ -1,6 +1,6 @@
 #include "fakebike.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
+
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -9,9 +9,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -31,27 +31,64 @@ fakebike::fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDe
 void fakebike::update() {
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    /*
+    static int updcou = 0;
+    updcou++;
+    double w = 60.0;
+    if (updcou > 20000 )
+        updcou = 0;
+    else if (updcou > 12000)
+        w = 120;
+    else if (updcou > 6000)
+        w = 80;
+    Speed = metric::calculateSpeedFromPower(w, Inclination.value(),
+    Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+    */
 
-    update_metrics(true, watts());
+    if (requestPower != -1) {
+        // bepo70: don't know if this conversion is really needed, i would do it anyway.
+        m_watt = (double)requestPower;
+        emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
+        requestPower = -1;
+        // bepo70: Disregard the current inclination for calculating speed. When the video
+        //         has a high inclination you have to give many power to get the desired playback speed,
+        //         if inclination is very low little more power gives a quite high speed jump.
+        // Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(),
+        // Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), speedLimit());
+        Speed = metric::calculateSpeedFromPower(
+            m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
+            speedLimit());
+    }
+
+    if (requestInclination != -100) {
+        Inclination = requestInclination;
+        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+        requestInclination = -100;
+    }
+
+    update_metrics(false, watts());
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike && !noVirtualDevice
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
 #endif
 #endif
     ) {
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled =
+            settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -61,9 +98,10 @@ void fakebike::update() {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     if (!firstStateChanged)
@@ -73,28 +111,20 @@ void fakebike::update() {
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool()) {
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
             debug("Current Heart: " + QString::number(Heart.value()));
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
-
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -104,7 +134,10 @@ void fakebike::update() {
     }
 
     if (Heart.value()) {
-        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
     }
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
@@ -125,7 +158,3 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
 }
 
 bool fakebike::connected() { return true; }
-
-void *fakebike::VirtualBike() { return virtualBike; }
-
-void *fakebike::VirtualDevice() { return VirtualBike(); }

@@ -16,37 +16,66 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QUdpSocket>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
+class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
+    bool runCommand(QString command);
+
+    void run() override;
+    bool stop = false;
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+    void debug(QString message);
+    void onWatt(double watt);
+
+  private:
+    QString adbCommandPending = "";
+    double speed = 0;
+    double inclination = 0;
+    double watt = 0;
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    QString runAdbCommand(QString command);
+    void runAdbTailCommand(QString command);
+};
+
 class nordictrackifitadbtreadmill : public treadmill {
     Q_OBJECT
   public:
     nordictrackifitadbtreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
+    bool canStartStop() override { return false; }
 
   private:
     void forceIncline(double incline);
     void forceSpeed(double speed);
+    double getDouble(QString v);
+    void initiateThreadStop();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    bool wattReadFromTM = false;
 
     bool initDone = false;
     bool initRequest = false;
@@ -57,9 +86,13 @@ class nordictrackifitadbtreadmill : public treadmill {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
+    nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
+
+    QString lastCommand = "";
 
   signals:
     void disconnected();
@@ -67,10 +100,16 @@ class nordictrackifitadbtreadmill : public treadmill {
 
   private slots:
 
+    void onSpeedInclination(double speed, double inclination);
+    void onWatt(double watt);
+
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
 
     void update();
+    
+  public slots:
+    void stopLogcatAdbThread();
 };
 
 #endif // NORDICTRACKIFITADBTREADMILL_H

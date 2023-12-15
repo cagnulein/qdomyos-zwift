@@ -28,14 +28,11 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class technogymmyruntreadmillrfcomm : public treadmill {
     Q_OBJECT
   public:
     explicit technogymmyruntreadmillrfcomm();
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -55,7 +52,6 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

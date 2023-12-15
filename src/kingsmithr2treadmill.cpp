@@ -1,6 +1,8 @@
 #include "kingsmithr2treadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -57,10 +59,14 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
-        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4).toBool())
+            encrypted.append(ENCRYPT_TABLE_v4[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5).toBool())
+            encrypted.append(ENCRYPT_TABLE_v5[idx]);
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
     }
@@ -71,6 +77,7 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     }
     encrypted.append('\x0d');
     for (int i = 0; i < encrypted.length(); i += 16) {
+        // it's missing the writeBuffer here, it could lead to crash on iOS
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, encrypted.mid(i, 16),
                                                              QLowEnergyService::WriteWithoutResponse);
     }
@@ -117,19 +124,25 @@ void kingsmithr2treadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
+
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr2treadmill::debug);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr2treadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -138,7 +151,7 @@ void kingsmithr2treadmill::update() {
 
         // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ >= (1000 / refresh->interval())) {
@@ -158,7 +171,7 @@ void kingsmithr2treadmill::update() {
                 double inc = Inclination.value();
                 if (requestInclination != -100) {
 
-                    // only 0.5 steps ara avaiable
+                    // only 0.5 steps ara available
                     requestInclination = qRound(requestInclination * 2.0) / 2.0;
                     inc = requestInclination;
                     requestInclination = -100;
@@ -168,9 +181,9 @@ void kingsmithr2treadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
-            // only 0.5 steps ara avaiable
+            // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -229,7 +242,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -248,10 +261,14 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
-        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v4, QZSettings::default_kingsmith_encrypt_v4).toBool())
+            idx = ENCRYPT_TABLE_v4.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5).toBool())
+            idx = ENCRYPT_TABLE_v5.indexOf(ch);
         else
             idx = ENCRYPT_TABLE.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
@@ -276,7 +293,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
         }
-        if(i+1 >= _props.count()) {
+        if (i + 1 >= _props.count()) {
             qDebug() << "error decoding" << i;
             return;
         }
@@ -296,7 +313,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - spm (int) : steps per minute
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -305,28 +322,19 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
             uint8_t heart = 0;
             if (heart == 0) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -395,6 +403,15 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFED7);
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xFED8);
+
+    if (KS_NACH_X21C) {
+        _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
+        _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
+    } else if (KS_NGCH_G1C) {
+        _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED7-0000-1000-8000-00805f9b34fb"));
+        _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED8-0000-1000-8000-00805f9b34fb"));
+    }
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::DiscoveringServices) {
@@ -444,6 +461,11 @@ void kingsmithr2treadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0x1234);
     emit debug(QStringLiteral("serviceScanDone"));
 
+    if (KS_NACH_X21C)
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
+    else if(KS_NGCH_G1C)
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
+
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &kingsmithr2treadmill::stateChanged);
@@ -468,6 +490,14 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
     {
 
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C"))) {
+            qDebug() << "KS-NACH-X21C workaround!";
+            KS_NACH_X21C = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) {
+            qDebug() << "KS-NGCH-G1C workaround!";
+            KS_NGCH_G1C = true;
+        }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kingsmithr2treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kingsmithr2treadmill::serviceScanDone);
@@ -520,9 +550,5 @@ bool kingsmithr2treadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *kingsmithr2treadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *kingsmithr2treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }

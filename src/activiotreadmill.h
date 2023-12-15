@@ -28,8 +28,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -41,11 +39,8 @@ class activiotreadmill : public treadmill {
   public:
     activiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
+    bool connected() override;
+    double minStepInclination() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -53,7 +48,7 @@ class activiotreadmill : public treadmill {
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void btinit(bool startTape);
-    void writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data, uint8_t data_len,
+    void writeCharacteristic(const QLowEnergyCharacteristic characteristic, uint8_t *data, uint8_t data_len,
                              const QString &info, bool disable_log = false, bool wait_for_response = false);
     void startDiscover();
     bool noConsole = false;
@@ -67,8 +62,6 @@ class activiotreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

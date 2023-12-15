@@ -42,11 +42,16 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         // &QEventLoop::quit); timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(
-        gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
+                                                         QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -60,7 +65,7 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
-    if (treadmill_type == RHYTHM_FUN) {
+    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         // trying to force a fixed value to keep the connection on
         uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x23, 0x00, 0x2b};
 
@@ -89,6 +94,28 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+    } else if (treadmill_type == YPOO_MINI_CHANGE) {
+        // 0x0d: a901010da4
+        // 0x0e: a901010ea7
+        // CheckSum 8 Xor
+        uint8_t display[] = {0xa9, 0x01, 0x01, 0x0e, 0x00};
+        display[3] = requestSpeed * 10;
+        for (int i = 0; i < 4; i++) {
+            display[4] = display[4] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+    } else if (treadmill_type == COSTAWAY) {
+        // CheckSum 8 Xor
+        uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x00, 0x00, 0x00};
+        display[4] = requestSpeed * 10;
+        for (int i = 0; i < 6; i++) {
+            display[6] = display[6] ^ display[i];
+        }
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     }
 }
 
@@ -110,18 +137,20 @@ void eslinkertreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &eslinkertreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         // it seems that stops the communication
@@ -129,7 +158,9 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        if (treadmill_type == TYPE::RHYTHM_FUN) {
+        if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE ||
+            treadmill_type == TYPE::COSTAWAY) {
+
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -143,7 +174,7 @@ void eslinkertreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -100) {
-                if(requestInclination < 0)
+                if (requestInclination < 0)
                     requestInclination = 0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
@@ -157,6 +188,9 @@ void eslinkertreadmill::update() {
                 }
                 requestInclination = -100;
             }
+        } else if (treadmill_type == COSTAWAY) {
+            uint8_t initData11[] = {0xa9, 0xa0, 0x03, 0x02, 0x06, 0x00, 0x0e};
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("noop"), false, true);
         } else {
             if (requestVar2) {
                 uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
@@ -202,8 +236,10 @@ void eslinkertreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            if (treadmill_type == TYPE::RHYTHM_FUN)
-                btinit(true);
+            if (treadmill_type == TYPE::RHYTHM_FUN || treadmill_type == TYPE::YPOO_MINI_CHANGE) {
+                uint8_t startTape[] = {0xa9, 0xa3, 0x01, 0x01, 0x0a};
+                writeCharacteristic(startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
+            }
             requestSpeed = 1.0;
             requestStart = -1;
             emit tapeStarted();
@@ -226,7 +262,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -299,7 +335,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         } else if (newValue.length() == 3 && newValue.at(0) == 2 && newValue.at(1) == 1) {
             uint8_t heart = newValue.at(2);
 #ifdef Q_OS_ANDROID
-            if (settings.value("ant_heart", false).toBool())
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                 Heart = (uint8_t)KeepAwakeHelper::heart();
             else
 #endif
@@ -311,17 +347,19 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN))
+    if ((newValue.length() != 17 && (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE)))
+        return;
+    else if (newValue.length() != 5 && treadmill_type == COSTAWAY)
         return;
 
-    if (treadmill_type == RHYTHM_FUN) {
+    if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
         double speed = GetSpeedFromPacket(value);
         double incline = GetInclinationFromPacket(value);
         double kcal = GetKcalFromPacket(value);
         // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -350,13 +388,22 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             lastSpeed = speed;
             lastInclination = incline;
         }
+    } else if (treadmill_type == COSTAWAY) {
+        const double miles = 1.60934;
+        if(newValue.at(3) == 0xFF)
+            Speed = 0;
+        else
+            Speed = (double)((uint8_t)newValue.at(3)) / 10.0 * miles;
+        Inclination = 0; // this treadmill doesn't have inclination
+        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -365,6 +412,8 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         Distance += ((Speed.value() / 3600.0) /
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
+
+    cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
@@ -379,12 +428,23 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 double eslinkertreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint8_t convertedData = (uint8_t)packet.at(14);
     double data = (double)convertedData / 10.0f;
+    if (treadmill_type == YPOO_MINI_CHANGE && data < 1.0) {
+        data = 0.0;
+    }
     return data;
 }
 
 double eslinkertreadmill::GetKcalFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    return (double)convertedData;
+    double data;
+    if (treadmill_type == YPOO_MINI_CHANGE) {
+        uint16_t convertedData = (((uint8_t)packet.at(5)) << 8) | (uint8_t)packet.at(6);
+        ;
+        data = (double)convertedData / 100.0f;
+    } else {
+        uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+        data = (double)convertedData;
+    }
+    return data;
 }
 
 double eslinkertreadmill::GetDistanceFromPacket(const QByteArray &packet) {
@@ -394,31 +454,56 @@ double eslinkertreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double eslinkertreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(11);
-    double data = convertedData;
-
+    double data = 0.0;
+    if (treadmill_type != YPOO_MINI_CHANGE) {
+        uint16_t convertedData = packet.at(11);
+        data = convertedData;
+    }
     return data;
 }
 
 void eslinkertreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    // set speed and incline to 0
-    uint8_t initData1[] = {0x08, 0x01, 0x86};
-    uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x86, 0x26};
-    uint8_t initData3[] = {0xa9, 0x80, 0x05, 0x05, 0xb0, 0x04, 0x52, 0xa9, 0x66};
-    uint8_t initData4[] = {0xa9, 0x08, 0x04, 0xb2, 0x51, 0x03, 0x52, 0x17};
-    uint8_t initData5[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
-    uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x01, 0xa3};
-    uint8_t initData7[] = {0xa9, 0xf0, 0x01, 0x01, 0x59};
-    uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0xff, 0x00, 0x00, 0xf5};
-    uint8_t initData9[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
-    uint8_t initData10[] = {0xa9, 0xa0, 0x03, 0x01, 0x00, 0x00, 0x0b};
-    uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
-    uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
-    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
+    if (treadmill_type == COSTAWAY) {
+        uint8_t initData1[] = {0xa9, 0xf2, 0x01, 0x2f, 0x75};
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
-    if (treadmill_type == RHYTHM_FUN) {
+        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x79, 0xd9};
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+
+        uint8_t initData3[] = {0xa9, 0x08, 0x04, 0x05, 0x04, 0x04, 0x01, 0xa1};
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+
+        uint8_t initData4[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+
+        uint8_t initData5[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+
+        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x48, 0xea};
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+        uint8_t initData7[] = {0xa9, 0xae, 0x01, 0xfe, 0xf8};
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+
+        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+    } else if (treadmill_type == RHYTHM_FUN || treadmill_type == YPOO_MINI_CHANGE) {
+        // set speed and incline to 0
+        uint8_t initData1[] = {0x08, 0x01, 0x86};
+        uint8_t initData2[] = {0xa9, 0x08, 0x01, 0x86, 0x26};
+        uint8_t initData3[] = {0xa9, 0x80, 0x05, 0x05, 0xb0, 0x04, 0x52, 0xa9, 0x66};
+        uint8_t initData4[] = {0xa9, 0x08, 0x04, 0xb2, 0x51, 0x03, 0x52, 0x17};
+        uint8_t initData5[] = {0xa9, 0x1e, 0x01, 0xfe, 0x48};
+        uint8_t initData6[] = {0xa9, 0x0a, 0x01, 0x01, 0xa3};
+        uint8_t initData7[] = {0xa9, 0xf0, 0x01, 0x01, 0x59};
+        uint8_t initData8[] = {0xa9, 0xa0, 0x03, 0xff, 0x00, 0x00, 0xf5};
+        uint8_t initData9[] = {0xa9, 0xa0, 0x03, 0x00, 0x00, 0x00, 0x0a};
+        uint8_t initData10[] = {0xa9, 0xa0, 0x03, 0x01, 0x00, 0x00, 0x0b};
+        uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
+        uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
+
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
@@ -436,6 +521,7 @@ void eslinkertreadmill::btinit(bool startTape) {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
     } else {
+        uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
         writeCharacteristic(initData2_CADENZA, sizeof(initData2_CADENZA), QStringLiteral("init"), false, true);
     }
 
@@ -542,9 +628,17 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         });
 
         QSettings settings;
-        bool eslinker_cadenza = settings.value(QStringLiteral("eslinker_cadenza"), true).toBool();
+        bool eslinker_cadenza =
+            settings.value(QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza).toBool();
+        bool eslinker_ypoo = settings.value(QZSettings::eslinker_ypoo, QZSettings::default_eslinker_ypoo).toBool();
+        bool eslinker_costaway =
+            settings.value(QZSettings::eslinker_costaway, QZSettings::default_eslinker_costaway).toBool();
         if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
+        } else if (eslinker_ypoo) {
+            treadmill_type = YPOO_MINI_CHANGE;
+        } else if (eslinker_costaway) {
+            treadmill_type = COSTAWAY;
         } else
             treadmill_type = RHYTHM_FUN;
 
@@ -569,10 +663,6 @@ bool eslinkertreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool eslinkertreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

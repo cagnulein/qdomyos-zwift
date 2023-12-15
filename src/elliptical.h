@@ -13,25 +13,30 @@ class elliptical : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedResistance();
     metric lastRequestedSpeed() { return RequestedSpeed; }
-    virtual metric currentInclination();
-    virtual metric currentResistance();
+    metric currentInclination() override;
+    metric currentResistance() override;
     virtual double requestedSpeed();
-    virtual uint8_t fanSpeed();
-    virtual double currentCrankRevolutions();
-    virtual uint16_t lastCrankEventTime();
-    virtual bool connected();
+    uint8_t fanSpeed() override;
+    double currentCrankRevolutions() override;
+    uint16_t lastCrankEventTime() override;
+    bool connected() override;
     metric pelotonResistance();
     virtual int pelotonToEllipticalResistance(int pelotonResistance);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
-    void clearStats();
-    void setPaused(bool p);
-    void setLap();
-    uint16_t watts();
+    virtual bool inclinationAvailableByHardware();
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    void clearStats() override;
+    void setPaused(bool p) override;
+    void setLap() override;
+    virtual uint16_t watts();
+    double speedFromWatts();
+    void setGears(double d);
+    double gears();
+    virtual double minStepInclination() { return 0.5; }
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
-    virtual void changeResistance(resistance_t res);
-    virtual void changeInclination(double grade, double inclination);
+    void changeResistance(resistance_t res) override;
+    void changeInclination(double grade, double inclination) override;
     virtual void changeCadence(int16_t cad);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
 
@@ -50,6 +55,8 @@ class elliptical : public bluetoothdevice {
     volatile double requestSpeed = -1;
     double requestInclination = -100;
     double CrankRevs = 0;
+    double m_gears = 0;
+    resistance_t lastRawRequestedResistanceValue = -1;
 };
 
 #endif // ELLIPTICAL_H

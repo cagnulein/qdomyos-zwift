@@ -1,6 +1,7 @@
 #include "echelonconnectsport.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -59,11 +60,15 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        qDebug() << QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                         QStringLiteral(" // ") + info;
     }
 
@@ -153,7 +158,7 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
@@ -189,7 +194,8 @@ double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
     if (p < 0) {
         p = 0;
     }
-    return (p * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) + settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+    return (p * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+           settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -198,7 +204,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << " << " + newValue.toHex(' ');
 
@@ -206,7 +212,28 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     // resistance value is in another frame
     if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Resistance = newValue.at(3);
+        resistance_t res = newValue.at(3);
+        if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
+            qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears()
+                     << lastRawRequestedResistanceValue << lastRequestedResistance().value();
+            if (
+                // if the resistance is different from the previous one
+                res != qRound(Resistance.value()) &&
+                // and the last target resistance is different from the current one or there is no any pending last
+                // requested resistance
+                ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0) ||
+                 lastRawRequestedResistanceValue == -1) &&
+                // and the difference between the 2 resistances are less than 6
+                qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
+
+                int8_t g = gears();
+                g += (res - qRound(Resistance.value()));
+                qDebug() << QStringLiteral("gears_from_bike APPLIED") << gears() << g;
+                lastRawRequestedResistanceValue = -1; // in order to avoid to change resistance with the setGears
+                setGears(g);
+            }
+        }
+        Resistance = res;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
@@ -223,19 +250,22 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     double distance = GetDistanceFromPacket(newValue);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(
+            watts(), Inclination.value(), Speed.value(),
+            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) *
+               settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -251,29 +281,21 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QStringLiteral("ant_heart"), false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
     } else
 #endif
     {
         if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
+            update_hr_from_external();
         }
     }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -372,7 +394,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonconnectsport::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -380,11 +402,16 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence =
+                settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround =
+                settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -393,11 +420,19 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                    if (virtual_device_rower) {
+                        qDebug() << QStringLiteral("creating virtual rower interface...");
+                        auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                        // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                        this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                    } else {
+                        qDebug() << QStringLiteral("creating virtual bike interface...");
+                        auto virtualBike =
+                            new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                        // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                        connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                        this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    }
             }
         }
         firstStateChanged = 1;
@@ -495,10 +530,6 @@ bool echelonconnectsport::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *echelonconnectsport::VirtualBike() { return virtualBike; }
-
-void *echelonconnectsport::VirtualDevice() { return VirtualBike(); }
-
 uint16_t echelonconnectsport::watts() {
     if (currentCadence().value() == 0) {
         return 0;
@@ -595,7 +626,9 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     }
     double *watts_of_level;
     QSettings settings;
-    if (!settings.value("echelon_watttable", "Echelon").toString().compare("mgarcea"))
+    if (!settings.value(QZSettings::echelon_watttable, QZSettings::default_echelon_watttable)
+             .toString()
+             .compare("mgarcea"))
         watts_of_level = wattTable_mgarcea[level];
     else
         watts_of_level = wattTable[level];

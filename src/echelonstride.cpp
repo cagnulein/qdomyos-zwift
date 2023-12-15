@@ -1,6 +1,8 @@
 #include "echelonstride.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -51,11 +53,15 @@ void echelonstride::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -131,28 +137,33 @@ void echelonstride::update() {
                gattNotify2Characteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike =
+                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
+                    .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ >= (2000 / refresh->interval())) {
@@ -168,7 +179,7 @@ void echelonstride::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -184,6 +195,13 @@ void echelonstride::update() {
             }
             uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
             writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
+
+            uint8_t initData4[] = {0xf0, 0xd0, 0x01, 0x00, 0xc1};
+            writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("start"), false, false);
+
+            uint8_t initData5[] = {0xf0, 0xd0, 0x01, 0x11, 0xd2};
+            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("start"), false, false);
+
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
@@ -219,10 +237,11 @@ void echelonstride::serviceDiscovered(const QBluetoothUuid &gatt) {
 double echelonstride::minStepInclination() { return 1.0; }
 
 void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -232,7 +251,11 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
 
-        double miles = 1.60934;
+        writeCharacteristic((uint8_t *)newValue.constData(), newValue.length(), "reply to d3", false, false);
+
+        double miles = 1;
+        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
+            miles = 1.60934;
 
         // this line on iOS sometimes gives strange overflow values
         // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
@@ -247,7 +270,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << "speed5" << convertedData;
         Speed = (((double)convertedData) / 1000.0) * miles;
 
-        if(Speed.value() > 0)
+        if (Speed.value() > 0)
             lastStart = 0;
         else
             lastStop = 0;
@@ -255,8 +278,12 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
+        writeCharacteristic((uint8_t *)newValue.constData(), newValue.length(), "reply to d2", false, false);
         Inclination = (uint8_t)newValue.at(3);
         qDebug() << QStringLiteral("Current Inclination: ") + QString::number(Inclination.value());
+        return;
+    } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd0) {
+        writeCharacteristic((uint8_t *)newValue.constData(), newValue.length(), "reply to d0", false, false);
         return;
     }
 
@@ -267,74 +294,65 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         return;*/
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(now))));
     }
 
-    if((uint8_t)newValue.at(1) == 0xD1 && newValue.length() > 11)
+    if ((uint8_t)newValue.at(1) == 0xD1 && newValue.length() > 11)
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 
-            uint8_t heart = ((uint8_t)newValue.at(11));
-            if (heart == 0) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
-#endif
-#endif
-            } else {
-                Heart = heart;
+                uint8_t heart = ((uint8_t)newValue.at(11));
+                if (heart == 0) {
+                    update_hr_from_external();
+                } else {
+                    Heart = heart;
+                }
             }
         }
-    }
+
+    cadenceFromAppleWatch();
 
     qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Watt: ") +
-                    QString::number(watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+                    QString::number(watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
     if (m_control->error() != QLowEnergyController::NoError)
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
 
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+    lastTimeCharacteristicChanged = now;
     firstCharacteristicChanged = false;
 }
 
 void echelonstride::btinit() {
+    uint8_t initData0[] = {0xf0, 0xa4, 0x00, 0x94};
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
-    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};    
-    // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
+    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
 
-    // useless i guess
-    // writeCharacteristic(initData4, sizeof(initData4), "get sleep", false, true);
+    writeCharacteristic(initData0, sizeof(initData0), QStringLiteral("init"), false, true);
 
-    // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
-    // enough
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);    
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     initDone = true;
 }
@@ -461,10 +479,6 @@ bool echelonstride::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
-
-void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
-
 bool echelonstride::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
@@ -478,4 +492,3 @@ bool echelonstride::autoStartWhenSpeedIsGreaterThenZero() {
     else
         return false;
 }
-

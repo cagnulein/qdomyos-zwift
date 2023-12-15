@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public override init() {
+    @objc public init(disable_hr: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift()
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -24,6 +24,16 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
     @objc public func readCurrentSlope() -> Double
     {
         return peripheralManager.CurrentSlope;
+    }
+    
+    @objc public func readCurrentCRR() -> Double
+    {
+        return peripheralManager.CurrentCRR;
+    }
+    
+    @objc public func readCurrentCW() -> Double
+    {
+        return peripheralManager.CurrentCW;
     }
 
     @objc public func readPowerRequested() -> Double
@@ -51,6 +61,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
+    private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
@@ -65,6 +76,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var FitnessMachinestatusCharacteristic: CBMutableCharacteristic!
   private var TrainingStatusCharacteristic: CBMutableCharacteristic!
     public var CurrentSlope: Double! = 0
+	 public var CurrentCRR: Double! = 0
+	 public var CurrentCW: Double! = 0
     public var PowerRequested: Double! = 0
     public var NormalizeSpeed: UInt16! = 0
     public var CurrentCadence: UInt16! = 0
@@ -78,6 +91,12 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var SCControlPointCharacteristic: CBMutableCharacteristic!
     public var crankRevolutions: UInt16! = 0
     public var lastCrankEventTime: UInt16! = 0
+
+  private var PowerService: CBMutableService!
+    private var PowerFeatureCharacteristic: CBMutableCharacteristic!
+    private var PowerSensorLocationCharacteristic: CBMutableCharacteristic!
+    private var PowerMeasurementCharacteristic: CBMutableCharacteristic!
+
     
     public var LastFTMSMessageReceived: Data?
     public var LastFTMSMessageReceivedAndPassed: Data?
@@ -89,8 +108,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  override init() {
+  init(disable_hr: Bool) {
     super.init()
+    self.disable_hr = disable_hr
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -199,7 +219,37 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                   CSCMeasurementCharacteristic,
                                                   SCControlPointCharacteristic]
           self.peripheralManager.add(CSCService)
+        
+        self.PowerService = CBMutableService(type: PowerServiceUUID, primary: true)
+        
+        let PowerFeatureProperties: CBCharacteristicProperties = [.read]
+          let PowerFeaturePermissions: CBAttributePermissions = [.readable]
+          self.PowerFeatureCharacteristic = CBMutableCharacteristic(type: PowerFeatureCharacteristicUUID,
+                                                                 properties: PowerFeatureProperties,
+                                                                                   value: Data (bytes: [0x00, 0x00, 0x00, 0x08]),
+                                                                                   permissions: PowerFeaturePermissions)
 
+        let PowerSensorLocationProperties: CBCharacteristicProperties = [.read]
+          let PowerSensorLocationPermissions: CBAttributePermissions = [.readable]
+          self.PowerSensorLocationCharacteristic = CBMutableCharacteristic(type: PowerSensorLocationCharacteristicUUID,
+                                                           properties: PowerSensorLocationProperties,
+                                                                           value: Data (bytes: [0x0D]),
+                                                                           permissions: PowerSensorLocationPermissions)
+
+          let PowerMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+          let PowerMeasurementPermissions: CBAttributePermissions = [.readable]
+          self.PowerMeasurementCharacteristic = CBMutableCharacteristic(type: PowerMeasurementCharacteristicUUID,
+                                                     properties: PowerMeasurementProperties,
+                                                                   value: nil,
+                                                                   permissions: PowerMeasurementPermissions)
+
+
+        PowerService.characteristics = [PowerFeatureCharacteristic,
+                                        PowerSensorLocationCharacteristic,
+                                        PowerMeasurementCharacteristic]
+          self.peripheralManager.add(PowerService)
+
+        
     default:
       print("Peripheral manager is down")
     }
@@ -210,11 +260,19 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       print("Failed to add service with error: \(uwError.localizedDescription)")
       return
     }
+        
+      if(disable_hr) {
+          // useful in order to hide HR from Garmin devices
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                    CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID]] as [String : Any]
     
-    peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
   
@@ -238,6 +296,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         {
                var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                  self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
+					  self.CurrentCRR = (Double)((Int16)(requests.first!.value![5]));
+					  self.CurrentCW = (Double)((Int16)(requests.first!.value![6]));
         }
         else if(requests.first!.value?.first == 0x05)
         {
@@ -269,6 +329,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
     else if request.characteristic == self.indoorbikeCharacteristic {
         request.value = self.calculateIndoorBike()
+        self.peripheralManager.respond(to: request, withResult: .success)
+        print("Responded successfully to a read request")
+    } else if request.characteristic == self.PowerMeasurementCharacteristic {
+        request.value = self.calculatePower()
         self.peripheralManager.respond(to: request, withResult: .success)
         print("Responded successfully to a read request")
     }
@@ -307,6 +371,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return cadenceData
     }
     
+    func calculatePower() -> Data {
+        let flags:UInt8 = 0x20
+      //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
+      let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
+      return powerData
+    }
+    
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
@@ -328,12 +400,21 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     let heartRateData = self.calculateHeartRate()
     let indoorBikeData = self.calculateIndoorBike()
     let cadenceData = self.calculateCadence()
-    
+    let powerData = self.calculatePower()
+
+    if(self.serviceToggle == 3)
+    {
+        let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 0
+        }
+    }
+
     if(self.serviceToggle == 2)
     {
       let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
       if(ok) {
-          self.serviceToggle = 0
+          self.serviceToggle = self.serviceToggle + 1
       }
     }
     else if(self.serviceToggle == 1)

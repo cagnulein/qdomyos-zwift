@@ -1,6 +1,9 @@
 #include "dirconmanager.h"
 #include <QNetworkInterface>
 #include <QSettings>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 #define DM_MACHINE_TYPE_BIKE 1
 #define DM_MACHINE_TYPE_TREADMILL 2
@@ -14,13 +17,15 @@
     OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
-    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                        \
+    OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_TREADMILL | DM_MACHINE_TYPE_BIKE, P1, P2, P3)            \
     OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
     OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
     OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
+#define DP_PROCESS_WRITE_E005() writePE005
+#define DP_PROCESS_WRITE_E005T() writePE005
 #define DP_PROCESS_WRITE_2A55() 0
 #define DP_PROCESS_WRITE_2A55T() 0
 #define DP_PROCESS_WRITE_NULL() 0
@@ -33,6 +38,7 @@
     OP(FITNESS_MACHINE_CYCLE, 0x2AD6, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0A\x00\x96\x00\x0A\x00"),                     \
        DP_PROCESS_WRITE_NULL, P1, P2, P3)                                                                              \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD9, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2AD9, P1, P2, P3)     \
+    OP(FITNESS_MACHINE_CYCLE, 0xE005, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_E005, P1, P2, P3)     \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD2, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)    \
     OP(FITNESS_MACHINE_CYCLE, 0x2AD3, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x00\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
     OP(FITNESS_MACHINE_TREADMILL, 0x2ACC, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x08\x14\x00\x00\x00\x00\x00\x00"),         \
@@ -101,9 +107,10 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
         }                                                                                                              \
         if (P2.size()) {                                                                                               \
             DirconProcessor *processor = new DirconProcessor(                                                          \
-                P2, QString(QStringLiteral(NAME))                                                                      \
-                        .replace(QStringLiteral("$uuid_hex$"),                                                         \
-                                 QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),       \
+                P2,                                                                                                    \
+                QString(QStringLiteral(NAME))                                                                          \
+                    .replace(QStringLiteral("$uuid_hex$"),                                                             \
+                             QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),           \
                 server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
             QString servdesc;                                                                                          \
@@ -146,18 +153,26 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
                                                                                          : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
-    uint16_t server_base_port = settings.value(QStringLiteral("dircon_server_base_port"), 4810).toUInt();
-    bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
+    uint16_t server_base_port =
+        settings.value(QZSettings::dircon_server_base_port, QZSettings::default_dircon_server_base_port).toUInt();
+    bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
+    writePE005 = new CharacteristicWriteProcessorE005(bikeResistanceGain, bikeResistanceOffset, Bike, this);
     DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0)
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
             SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    connect(writePE005, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
+    connect(writePE005, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+            SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     DM_MACHINE_OP(DM_MACHINE_INIT_OP, services, proc_services, type)
-    bikeTimer.start(1000);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        bikeTimer.start(100ms);
+    else
+        bikeTimer.start(1s);
 }
 
 #define DM_CHAR_NOTIF_NOTIF1_OP(UUID, P1, P2, P3)                                                                      \

@@ -18,7 +18,6 @@ class DirconProcessorCharacteristic : public QObject {
     DirconProcessorCharacteristic(quint16 my_uuid, quint8 my_type, const QByteArray &data,
                                   CharacteristicWriteProcessor *w, QObject *parent = nullptr)
         : QObject(parent), read_values(data), uuid(my_uuid), type(my_type), writeP(w) {}
-    DirconProcessorCharacteristic(const DirconProcessorCharacteristic &cp) { this->operator=(cp); }
     ~DirconProcessorCharacteristic() {}
     DirconProcessorCharacteristic &operator=(const DirconProcessorCharacteristic &cp) {
         read_values = cp.read_values;

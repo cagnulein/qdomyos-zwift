@@ -26,16 +26,13 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class spirittreadmill : public treadmill {
     Q_OBJECT
   public:
     spirittreadmill();
-    bool connected();
+    bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -52,7 +49,6 @@ class spirittreadmill : public treadmill {
     void startDiscover();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -72,6 +68,9 @@ class spirittreadmill : public treadmill {
     bool XT385 = false;
     bool XT485 = false;
 
+    enum _REQUEST_STATE { IDLE = 0, UP = 1, DOWN = 2 };
+    _REQUEST_STATE requestInclinationState = IDLE;
+
   signals:
     void disconnected();
     void debug(QString string);
@@ -87,6 +86,7 @@ class spirittreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

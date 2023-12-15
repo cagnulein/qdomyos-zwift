@@ -1,5 +1,5 @@
 #include "virtualbike.h"
-#include "ftmsbike.h"
+#include "bike.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -18,16 +18,18 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("bike_cadence_sensor"), false).toBool();
-    bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
-    bool power = settings.value(QStringLiteral("bike_power_sensor"), false).toBool();
-    bool battery = settings.value(QStringLiteral("battery_service"), false).toBool();
-    bool service_changed = settings.value(QStringLiteral("service_changed"), false).toBool();
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
-    bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
+    bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
+    bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
-    if (settings.value("dircon_yes", false).toBool()) {
+    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
@@ -36,7 +38,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
-    if (!settings.value("virtual_device_bluetooth", true).toBool())
+    if (!settings.value(QZSettings::virtual_device_bluetooth, QZSettings::default_virtual_device_bluetooth).toBool())
         return;
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2AD9 = new CharacteristicNotifier2AD9(Bike, this);
@@ -49,12 +51,14 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool ios_peloton_workaround =
+        settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualbike_zwift_ios(
+            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool());
     } else
 
 #endif
@@ -215,7 +219,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     QLowEnergyCharacteristicData charData3;
                     charData3.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
-                    charData3.setProperties(QLowEnergyCharacteristic::Notify);
+                    charData3.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -426,7 +430,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                              &virtualbike::characteristicChanged);
         }
 
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
             pars.setInterval(100, 100);
@@ -439,7 +444,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &virtualbike::bikeProvider);
-    bikeTimer.start(1s);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        bikeTimer.start(100ms);
+    else
+        bikeTimer.start(1s);
+
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
     QObject::connect(
@@ -451,20 +460,16 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
-    bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
+    bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
-    //    double erg_filter_upper =
-    //        settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble(); //
-    //        NOTE:clang-analyzer-deadcode.DeadStores
-    //    double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0)
-    //                                  .toDouble(); // NOTE:clang-analyzer-deadcode.DeadStores
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
-                    QStringLiteral(" ") + newValue.toHex(' ');    
+                    QStringLiteral(" ") + newValue.toHex(' ');
 
     if (!echelon && !ifit) {
         lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
@@ -647,7 +652,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      << QStringLiteral("resistance sent to ifit") << resistance;
 
             double odometer = Bike->odometer() * 1000;
-            double calories = Bike->calories().value();
+            // ifit applies a constant multiplier to the kcal sent from bluetooth
+            double calories = Bike->calories().value() * 1.488;
             if (resistance > 0x26)
                 resistance = 0x26;
             qint64 t = (QDateTime::currentSecsSinceEpoch() - iFit_timer);
@@ -667,11 +673,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply3[14] = ((uint16_t)(speed * 100.0)) >> 8;   // speed (h)
             reply3[15] = t & 0xff;
             reply3[16] = t >> 8;
-            reply4[3] = ((uint16_t)calories);  // KCal
-            reply4[10] = ((uint16_t)calories); // KCal extimated
-            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
-                         (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) - (reply3[12]) -
-                         (reply3[16]) - (reply2[15]) - (reply2[16]);
+            reply4[3] = ((uint16_t)calories);         // KCal
+            reply4[4] = (((uint16_t)calories) >> 8);  // KCal
+            reply4[10] = ((uint16_t)calories);        // KCal estimated
+            reply4[11] = (((uint16_t)calories) >> 8); // KCal
+            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply4[4] * 2) - (reply2[18]) - (reply2[11]) -
+                         (reply2[12]) - (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) -
+                         (reply3[12]) - (reply3[16]) - (reply2[15]) - (reply2[16]);
             reply4[19] = reply3[19];
 
             /*static uint64_t time = 0;
@@ -734,7 +742,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
 
             QSettings settings;
-            bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
+            bool force_resistance =
+                settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
+                    .toBool();
 
             iFit_LastResistanceRequested = newValue.at(12);
             qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(iFit_LastResistanceRequested);
@@ -761,7 +771,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
-        } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x10) { // Value: ff100204020c040c02020004b600000400d20000
+        } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF &&
+                   ((uint8_t)newValue.at(1)) == 0x10) { // Value: ff100204020c040c02020004b600000400d20000
             qDebug() << "ifit ans 16";
             reply1 = QByteArray::fromHex("fe0209025802341c0500341c050000a56700b400");
             reply2 = QByteArray::fromHex("ff0901040205040502020d1c050000a56700b400");
@@ -922,19 +933,22 @@ void virtualbike::writeCharacteristic(QLowEnergyService *service, const QLowEner
 void virtualbike::reconnect() {
 
     QSettings settings;
-    bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+    bool bluetooth_relaxed =
+        settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
 
     if (bluetooth_relaxed) {
         return;
     }
 
-    bool cadence = settings.value(QStringLiteral("bike_cadence_sensor"), false).toBool();
-    bool battery = settings.value(QStringLiteral("battery_service"), false).toBool();
-    bool power = settings.value(QStringLiteral("bike_power_sensor"), false).toBool();
-    bool service_changed = settings.value(QStringLiteral("service_changed"), false).toBool();
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
-    bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
+    bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
     qDebug() << QStringLiteral("virtualbike::reconnect");
     leController->disconnectFromDevice();
@@ -976,13 +990,15 @@ void virtualbike::reconnect() {
 void virtualbike::bikeProvider() {
 
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("bike_cadence_sensor"), false).toBool();
-    bool battery = settings.value(QStringLiteral("battery_service"), false).toBool();
-    bool power = settings.value(QStringLiteral("bike_power_sensor"), false).toBool();
-    bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
-    bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
-    bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
+    bool heart_only =
+        settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
+    bool echelon =
+        settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
+    bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
@@ -1008,9 +1024,10 @@ void virtualbike::bikeProvider() {
                                                QByteArray::fromRawData((char *)ftms_message, ret));
             }
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
-            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {
+            if (lastFTMSFrameReceived > 0) {
                 if (!erg_mode)
-                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope());
+                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope(), h->virtualbike_getCurrentCRR(),
+                                            h->virtualbike_getCurrentCW());
                 else {
                     qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                     writeP2AD9->changePower(h->virtualbike_getPowerRequested());
@@ -1024,12 +1041,12 @@ void virtualbike::bikeProvider() {
     Q_UNUSED(erg_mode);
 #endif
 
-    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived
-             << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
+    qDebug() << QStringLiteral("bikeProvider") << whenLastFTMSFrameReceived()
+             << (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000)) << erg_mode;
     // zwift with the last update, seems to sending power request only when it actually wants to change it
     // so i need to keep this on to the bike
-    if (lastFTMSFrameReceived > 0 &&
-        (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
+    if (whenLastFTMSFrameReceived() > 0 &&
+        (QDateTime::currentMSecsSinceEpoch() > (qint64)(whenLastFTMSFrameReceived() + ((qint64)2000))) && erg_mode) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
         writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
     }
@@ -1039,8 +1056,10 @@ void virtualbike::bikeProvider() {
 
         return;
     } else {
-        bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
-        bool bluetooth_30m_hangs = settings.value(QStringLiteral("bluetooth_30m_hangs"), false).toBool();
+        bool bluetooth_relaxed =
+            settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+        bool bluetooth_30m_hangs =
+            settings.value(QZSettings::bluetooth_30m_hangs, QZSettings::default_bluetooth_30m_hangs).toBool();
         if (bluetooth_relaxed) {
 
             leController->stopAdvertising();
@@ -1198,12 +1217,12 @@ void virtualbike::echelonWriteStatus() {
     value.append(0xf0);
     value.append(0xd1);
     value.append(0x09);
-    value.append((char)0x00);                                            // elapsed
-    value.append((char)0x00);                                            // elapsed
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 24)); // distance
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 16)); // distance
-    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8));  // distance
-    value.append((uint8_t)(Bike->odometer() * 100));                     // distance
+    value.append((char)0x00);                                                      // elapsed
+    value.append((char)0x00);                                                      // elapsed
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 24)); // distance
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 16)); // distance
+    value.append((uint8_t)(((uint32_t)(Bike->odometer() * 1.60934 * 100)) >> 8));  // distance
+    value.append((uint8_t)(Bike->odometer() * 1.60934 * 100));                     // distance
     value.append((char)0x00);
     value.append(Bike->currentCadence().value());
     value.append((uint8_t)Bike->currentHeart().value());
@@ -1235,8 +1254,10 @@ void virtualbike::echelonWriteStatus() {
 void virtualbike::echelonWriteResistance() {
 
     QSettings settings;
-    double bikeResistanceOffset = settings.value(QStringLiteral("echelon_resistance_offset"), 0).toInt();
-    double bikeResistanceGain = settings.value(QStringLiteral("echelon_resistance_gain"), 1).toDouble();
+    double bikeResistanceOffset =
+        settings.value(QZSettings::echelon_resistance_offset, QZSettings::default_echelon_resistance_offset).toInt();
+    double bikeResistanceGain =
+        settings.value(QZSettings::echelon_resistance_gain, QZSettings::default_echelon_resistance_gain).toDouble();
     double CurrentResistance = (Bike->currentResistance().value() * bikeResistanceGain) + bikeResistanceOffset;
 
     // resistance change notification

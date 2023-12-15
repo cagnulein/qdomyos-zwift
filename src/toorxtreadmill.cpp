@@ -1,4 +1,5 @@
 #include "toorxtreadmill.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -19,7 +20,8 @@ toorxtreadmill::toorxtreadmill() {
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY"))) {
+    if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")) || 
+        device.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) {
         bluetoothDevice = device;
 
         // Create a discovery agent and connect to its signals
@@ -75,17 +77,18 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
 void toorxtreadmill::update() {
     static int8_t start_phase = -1;
     QSettings settings;
-    bool toorx_65s_evo = settings.value(QStringLiteral("toorx_65s_evo"), false).toBool();
+    bool toorx_65s_evo = settings.value(QZSettings::toorx_65s_evo, QZSettings::default_toorx_65s_evo).toBool();
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!virtualTreadMill) {
+        if (!this->hasVirtualDevice()) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, true);
+                auto virtualTreadMill = new virtualtreadmill(this, true);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &toorxtreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
             }
         }
         // ********************************************************************************************************
@@ -258,7 +261,7 @@ void toorxtreadmill::update() {
             emit debug(QStringLiteral("write poll"));
         }
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
     }
 }
 
@@ -335,7 +338,3 @@ uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
-
-void *toorxtreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *toorxtreadmill::VirtualDevice() { return VirtualTreadMill(); }

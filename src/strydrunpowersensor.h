@@ -27,7 +27,7 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
+
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,10 +37,7 @@ class strydrunpowersensor : public treadmill {
     Q_OBJECT
   public:
     strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    bool connected();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
@@ -49,7 +46,6 @@ class strydrunpowersensor : public treadmill {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
@@ -73,6 +69,8 @@ class strydrunpowersensor : public treadmill {
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;
 
+    bool powerReceived = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -80,6 +78,7 @@ class strydrunpowersensor : public treadmill {
   signals:
     void disconnected();
     void debug(QString string);
+    void onHeartRate(uint8_t heart);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -99,5 +98,7 @@ class strydrunpowersensor : public treadmill {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void changeInclinationRequested(double grade, double percentage);
 };
 #endif // STRYDRUNPOWERSENSOR_H

@@ -104,8 +104,15 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
-        
-        self.distanceLabel.setText("Distance \(Double(WorkoutTracking.distance))")
+        WorkoutTracking.speed = WatchKitConnection.speed
+        WorkoutTracking.power = WatchKitConnection.power
+        WorkoutTracking.cadence = WatchKitConnection.cadence
+                
+		if Locale.current.measurementSystem != "Metric" {
+			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")
+		} else {
+			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance * 1.60934))")
+		}
         self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         //WorkoutTracking.cadenceSteps = pedometer.
     }
@@ -122,4 +129,12 @@ extension MainController: WatchKitConnectionDelegate {
     func didReceiveUserName(_ userName: String) {
         userNameLabel.setText(userName)
     }
+}
+
+extension Locale
+{
+   var measurementSystem : String?
+   {
+      return (self as NSLocale).object(forKey: NSLocale.Key.measurementSystem) as? String
+   }
 }

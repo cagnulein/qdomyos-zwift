@@ -1,6 +1,4 @@
 #include "eliterizer.h"
-#include "ios/lockscreen.h"
-#include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -12,7 +10,7 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -34,7 +32,7 @@ void eliterizer::changeInclinationRequested(double grade, double percentage) {
     Q_UNUSED(grade);
     uint8_t incline[] = {0x0a, 0x00, 0x00};
     QSettings settings;
-    double gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+    double gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
     percentage = percentage * gain;
 
     incline[1] = ((int16_t)(percentage * 10.0)) & 0xff;
@@ -57,11 +55,15 @@ void eliterizer::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -290,10 +292,6 @@ bool eliterizer::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *eliterizer::VirtualBike() { return virtualBike; }
-
-void *eliterizer::VirtualDevice() { return VirtualBike(); }
 
 uint16_t eliterizer::watts() {
     if (currentCadence().value() == 0) {

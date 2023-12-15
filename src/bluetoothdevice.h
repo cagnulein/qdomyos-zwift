@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "metric.h"
+#include "qzsettings.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -21,15 +22,13 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 
-
+#include "virtualdevice.h"
 
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
 #endif
-
-
 
 /**
  * @brief The MetersByInclination class represents a section of track at a specific inclination.
@@ -51,8 +50,12 @@ class MetersByInclination {
 class bluetoothdevice : public QObject {
 
     Q_OBJECT
+
   public:
     bluetoothdevice();
+
+    ~bluetoothdevice() override;
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -97,6 +100,9 @@ class bluetoothdevice : public QObject {
      * @return
      */
     virtual double odometer();
+    virtual metric currentDistance() {return Distance;}
+    virtual metric currentDistance1s() {return Distance1s;}
+    void addCurrentDistance1s(double distance) { Distance1s += distance; }
 
     /**
      * @brief calories Gets a metric object to get and set the amount of energy expended.
@@ -164,7 +170,6 @@ class bluetoothdevice : public QObject {
      */
     virtual QGeoCoordinate currentCordinate();
 
-
     /**
      * @brief nextInclination300Meters The next 300m of track sections: length and inclination
      * @return A list of MetersByInclination objects
@@ -196,7 +201,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
-    virtual void *VirtualDevice();
+    virtualdevice *VirtualDevice();
 
     /**
      * @brief watts Calculates the amount of power used. Units: watts
@@ -263,16 +268,52 @@ class bluetoothdevice : public QObject {
     bool autoResistance() { return autoResistanceEnable; }
 
     /**
-     * @brief setDifficult Sets the difficulty level.
+     * @brief setDifficult Sets the difficulty gain level.
      * @param d The difficulty level. Units: depends on implementation.
      */
     void setDifficult(double d);
 
     /**
-     * @brief difficult Gets the difficulty level. Units: depends on implementation.
+     * @brief difficult Gets the difficulty gain level. Units: depends on implementation.
      * @return
      */
     double difficult();
+
+    /**
+     * @brief setDifficult Sets the difficulty gain level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setInclinationDifficult(double d);
+
+    /**
+     * @brief difficult Gets the difficulty gain level. Units: depends on implementation.
+     * @return
+     */
+    double inclinationDifficult();
+
+    /**
+     * @brief setDifficult Sets the difficulty offset level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setDifficultOffset(double d);
+
+    /**
+     * @brief difficult Gets the difficulty offset level. Units: depends on implementation.
+     * @return
+     */
+    double difficultOffset();
+
+    /**
+     * @brief setDifficult Sets the difficulty offset level.
+     * @param d The difficulty level. Units: depends on implementation.
+     */
+    void setInclinationDifficultOffset(double d);
+
+    /**
+     * @brief difficult Gets the difficulty offset level. Units: depends on implementation.
+     * @return
+     */
+    double inclinationDifficultOffset();
 
     /**
      * @brief weightLoss Gets the value of the weight loss metric. Units: kg
@@ -293,15 +334,24 @@ class bluetoothdevice : public QObject {
     metric currentMETS() { return METS; }
 
     /**
-     * @brief currentHeartZone Gets a metric object to get or set the current heart zone. Units: depends on implementation.
+     * @brief currentHeartZone Gets a metric object to get or set the current heart zone. Units: depends on
+     * implementation.
      */
     metric currentHeartZone() { return HeartZone; }
 
     /**
-     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on implementation.
+     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
+     * implementation.
      * @return
      */
     metric currentPowerZone() { return PowerZone; }
+
+    /**
+     * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
+     * implementation.
+     * @return
+     */
+    metric targetPowerZone() { return TargetPowerZone; }
 
     /**
      * @brief setGPXFile Sets the file for GPS data exchange.
@@ -330,6 +380,13 @@ class bluetoothdevice : public QObject {
      */
     void setPowerZone(double pz) { PowerZone = pz; }
 
+    /**
+     * @brief setTargetPowerZone Set the target power zone.
+     * This is equivalent to targetPowerZone().setvalue(pz)
+     * @param pz The power zone. Unit: depends on implementation.
+     */
+    void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
+
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
@@ -357,7 +414,7 @@ class bluetoothdevice : public QObject {
 
   public Q_SLOTS:
     virtual void start();
-    virtual void stop();
+    virtual void stop(bool pause);
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
@@ -384,6 +441,32 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
+    /**
+     * @brief Mode of operation for the virtual device with the bluetoothdevice object.
+     */
+    enum VIRTUAL_DEVICE_MODE {
+
+        /**
+         * @brief Not set.
+         */
+        NONE,
+        /**
+         * @brief Virtual device represents the same type of device.
+         */
+        PRIMARY,
+
+        /**
+         * @brief Virtual device representing the device for a purpose other than the
+         * type of device it matches.
+         */
+        ALTERNATIVE
+    };
+
+    /**
+     * @brief hasVirtualDevice shows if the object has any virtual device assigned.
+     */
+    bool hasVirtualDevice();
+
     QLowEnergyController *m_control = nullptr;
 
     /**
@@ -392,7 +475,7 @@ class bluetoothdevice : public QObject {
     metric elapsed;
 
     /**
-     * @brief moving The time spent moving int he current session. Units: seconds
+     * @brief moving The time spent moving in the current session. Units: seconds
      */
     metric moving; // moving time
 
@@ -406,7 +489,7 @@ class bluetoothdevice : public QObject {
      * e.g. the product of bike flywheel speed and simulated wheel size, or
      * the belt speed of a treadmill.
      */
-    metric Speed;        
+    metric Speed;
 
     /**
      * @brief Distance The simulated distance travelled. Units: km
@@ -415,7 +498,7 @@ class bluetoothdevice : public QObject {
      *      the length of belt traversed on a treadmill.
      */
     metric Distance;
-
+    metric Distance1s; // used to populate the distance on the FIT file. Since Strava is using the distance to graph it, it has to have 1s trigger.
 
     /**
      * @brief FanSpeed The currently requested fan speed. Units: revolutions per second
@@ -423,20 +506,36 @@ class bluetoothdevice : public QObject {
     uint8_t FanSpeed = 0;
 
     /**
-     * @brief Heart rate. Unit: beats per minute 
+     * @brief Heart rate. Unit: beats per minute
      */
     metric Heart;
 
     int8_t requestStart = -1;
     int8_t requestStop = -1;
+    int8_t requestPause = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
     double requestFanSpeed = -1;
 
     /**
-     * @brief m_difficult The current difficulty. Units: device dependent
+     * @brief m_difficult The current difficulty gain. Units: device dependent
      */
     double m_difficult = 1.0;
+
+    /**
+     * @brief m_difficult The current difficulty gain. Units: device dependent
+     */
+    double m_inclination_difficult = 1.0;
+
+    /**
+     * @brief m_difficult The current difficulty offset. Units: device dependent
+     */
+    double m_difficult_offset = 0.0;
+
+    /**
+     * @brief m_difficult The current difficulty offset. Units: device dependent
+     */
+    double m_inclination_difficult_offset = 0.0;
 
     /**
      * @brief m_jouls The number of joules expended in the current session. Unit: joules
@@ -444,7 +543,7 @@ class bluetoothdevice : public QObject {
     metric m_jouls;
 
     /**
-     * @brief elevationAcc The elevation gain. Units: ?
+     * @brief elevationAcc The elevation gain. Units: meters
      */
     metric elevationAcc;
 
@@ -536,6 +635,11 @@ class bluetoothdevice : public QObject {
      */
     metric PowerZone;
 
+    /**
+     * @brief TargetPowerZone A metric to get and set the target power zone. Unit: depends on implementation
+     */
+    metric TargetPowerZone;
+
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 
     /**
@@ -566,10 +670,36 @@ class bluetoothdevice : public QObject {
     void update_metrics(bool watt_calc, const double watts);
 
     /**
+     * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch
+     */
+    void update_hr_from_external();
+
+    /**
      * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
      * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     double calculateMETS();
+
+    /**
+     * @brief setVirtualDevice Set the virtual device, and the way it is being used. Deletes the existing one, if
+     * present.
+     * @param virtualDevice The virtual device.
+     */
+    void setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEVICE_MODE mode);
+
+    /**
+     * @brief writeBuffer contains the last byte array request via bluetooth to the fitness devices
+     */
+    QByteArray *writeBuffer = nullptr;
+
+  private:
+    /**
+     * @brief Indicates the way the virtual device is being used.
+     * Normally PRIMARY, set this to ALTERNATIVE where the device is being used unusually, e.g.
+     * for the Zwift Auto-Inclination Workaround.
+     */
+    VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
+    virtualdevice *virtualDevice = nullptr;
 };
 
 #endif // BLUETOOTHDEVICE_H

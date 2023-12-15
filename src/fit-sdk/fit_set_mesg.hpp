@@ -134,7 +134,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////
     // Returns repetitions field
-    // Comment: # of repitions of the movement
+    // Comment: # of repetitions of the movement
     ///////////////////////////////////////////////////////////////////////
     FIT_UINT16 GetRepetitions(void) const
     {
@@ -143,7 +143,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////
     // Set repetitions field
-    // Comment: # of repitions of the movement
+    // Comment: # of repetitions of the movement
     ///////////////////////////////////////////////////////////////////////
     void SetRepetitions(FIT_UINT16 repetitions)
     {

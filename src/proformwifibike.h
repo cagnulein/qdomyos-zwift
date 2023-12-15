@@ -31,11 +31,9 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -46,19 +44,17 @@ class proformwifibike : public bike {
   public:
     proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                     double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
-    resistance_t resistanceFromPowerRequest(uint16_t power);
-    resistance_t maxResistance() { return max_resistance; }
-    bool inclinationAvailableByHardware();
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
+    bool inclinationAvailableByHardware() override;
+    bool connected() override;
 
   private:
     QWebSocket websocket;
     resistance_t max_resistance = 100;
-    resistance_t min_resistance = -8;
+    resistance_t min_resistance = -20;
+    double max_incline_supported = 20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
@@ -68,12 +64,13 @@ class proformwifibike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
-    void forceResistance(resistance_t requestResistance);
+    uint16_t watts() override;
+    void forceResistance(double requestResistance);
     void innerWriteResistance();
+    void setTargetWatts(double watts);
+    void setWorkoutType(QString type);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -82,13 +79,15 @@ class proformwifibike : public bike {
     QString lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint16_t m_watts = 0;
+    metric target_watts;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool tdf2 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

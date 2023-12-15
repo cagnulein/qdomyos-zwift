@@ -31,12 +31,9 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -47,11 +44,8 @@ class proformwifitreadmill : public treadmill {
   public:
     proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain);
-    bool connected();
-
-    void *VirtualTreadMill();
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
+    virtual bool canStartStop() override { return false; }
 
   private:
     QWebSocket websocket;
@@ -68,8 +62,6 @@ class proformwifitreadmill : public treadmill {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -85,6 +77,8 @@ class proformwifitreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool waitStatePkg = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

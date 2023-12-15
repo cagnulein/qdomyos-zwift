@@ -27,7 +27,7 @@ class LocalNotificationHelper {
         
         let content = UNMutableNotificationContent()
         content.title = "Current heart rate"
-        content.body = "Heart Reate = \(heartRate)"
+        content.body = "Heart Rate = \(heartRate)"
         content.categoryIdentifier = "alarm"
         content.userInfo = ["customData": "fizzbuzz"]
         content.sound = UNNotificationSound.default

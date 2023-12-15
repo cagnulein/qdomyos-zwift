@@ -174,6 +174,9 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     actualPaceSign.append(0x23);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
+    cadenceSign.append(0x2c);
+    cadenceSign.append(0x01);
+    cadenceSign.append(0x3A);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -205,11 +208,15 @@ void octanetreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -266,20 +273,22 @@ void octanetreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled =
+                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octanetreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
@@ -328,7 +337,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -336,15 +345,30 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit packetReceived();
 
-    if (lastTimeCharacteristicChanged.secsTo(QDateTime::currentDateTime()) > 5) {
+    if (ZR8 == false && lastTimeCharacteristicChanged.secsTo(QDateTime::currentDateTime()) > 5) {
         emit debug(QStringLiteral("resetting speed"));
         Speed = 0;
+        Cadence = 0;
+    } else if (ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 &&
+               Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
+        emit debug(QStringLiteral("resetting speed"));
+        Speed = 0;
+        Cadence = 0;
     }
 
     if ((newValue.length() != 20))
         return;
 
-    if((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+    if (ZR8 && newValue.contains(cadenceSign)) {
+        int16_t i = newValue.indexOf(cadenceSign) + 3;
+
+        if (i >= newValue.length())
+            return;
+
+        Cadence = ((uint8_t)newValue.at(i));
+    }
+
+    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
         return;
 
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
@@ -362,13 +386,12 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         return;
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        update_hr_from_external();
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
@@ -389,10 +412,11 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+        if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) +
+                    1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -401,6 +425,10 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         Distance += ((Speed.value() / 3600.0) /
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
+
+    // ZR8 has builtin cadence sensor
+    if (!ZR8)
+        cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -500,6 +528,12 @@ void octanetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if (device.name().toUpper().startsWith(QLatin1String("ZR8"))) {
+            ZR8 = true;
+            qDebug() << "ZR8 workaround activated";
+        }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &octanetreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &octanetreadmill::serviceScanDone);
@@ -548,10 +582,6 @@ bool octanetreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *octanetreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *octanetreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool octanetreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
