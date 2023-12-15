@@ -705,6 +705,9 @@ HEADERS += \
    zwiftworkout.h
 
 
+win32: HEADERS += gpiotreadmill.h
+unix:!android: HEADERS += gpiotreadmill.h
+
 exists(secret.h): HEADERS += secret.h
 
 !ios: HEADERS += charts.h

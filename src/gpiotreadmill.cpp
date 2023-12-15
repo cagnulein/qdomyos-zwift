@@ -13,6 +13,8 @@
 #include <wiringPi.h>
 #else
 #define OUTPUT 1
+QModbusReply *gpiotreadmill::lastRequest;
+QModbusClient *gpiotreadmill::modbusDevice = nullptr;
 void gpiotreadmill::digitalWrite(int pin, int state) {
     const int server_address = 1;
     QVector<quint16> speed;
@@ -34,7 +36,7 @@ using namespace std::chrono_literals;
 
 
 gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
-    name{name}, pinUp{pinUp}, pinDown{pinDown}, step{step}, currentValue{currentValue}, semaphore{semaphore}
+    name{name}, currentValue{currentValue}, pinUp{pinUp}, pinDown{pinDown}, step{step}, semaphore{semaphore}
 {
     pinMode(pinUp, OUTPUT);
     pinMode(pinDown, OUTPUT);
@@ -145,6 +147,10 @@ gpiotreadmill::~gpiotreadmill() {
     inclineThread->wait();
     delete inclineThread;
     delete semaphore;
+}
+
+void gpiotreadmill::onReadReady() {
+
 }
 
 void gpiotreadmill::changeInclinationRequested(double grade, double percentage) {
