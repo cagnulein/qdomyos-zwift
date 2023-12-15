@@ -600,6 +600,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             } else if (gpio_treadmill && !gpioTreadmill) {
                 discoveryAgent->stop();
                 gpioTreadmill = new gpiotreadmill(noWriteResistance, noHeartService);
@@ -613,7 +614,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
-                this->signalBluetoothDeviceConnected(gpioTreadmill);           
+                this->signalBluetoothDeviceConnected(gpioTreadmill);
+#endif
             } else if (fakedevice_elliptical && !fakeElliptical) {
                 this->stopDiscovery();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
@@ -2597,11 +2599,13 @@ void bluetooth::restart() {
         delete fakeBike;
         fakeBike = nullptr;
     }
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (gpioTreadmill) {
 
         delete gpioTreadmill;
         gpioTreadmill = nullptr;
     }
+#endif
     if (fakeElliptical) {
 
         delete fakeElliptical;
@@ -2997,8 +3001,10 @@ bluetoothdevice *bluetooth::device() {
         return powerTreadmill;
     } else if (fakeBike) {
         return fakeBike;
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     } else if (gpioTreadmill) {
         return gpioTreadmill;
+#endif
     } else if (fakeElliptical) {
         return fakeElliptical;
     } else if (fakeRower) {

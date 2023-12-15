@@ -4,6 +4,7 @@ QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 wine32: QT += serialport serialbus
+unix:!android: QT += serialport serialbus
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -189,8 +190,7 @@ SOURCES += \
 	fit-sdk/fit_unicode.cpp \
 	flywheelbike.cpp \
 	ftmsbike.cpp \
-    ftmsrower.cpp \
-    gpiotreadmill.cpp \
+    ftmsrower.cpp \    
 	     gpx.cpp \
 		heartratebelt.cpp \
    homefitnessbuddy.cpp \
@@ -275,6 +275,9 @@ SOURCES += \
    zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
+
+win32: SOURCES += gpiotreadmill.cpp
+unix:!android: SOURCES += gpiotreadmill.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

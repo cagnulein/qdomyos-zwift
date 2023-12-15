@@ -56,7 +56,9 @@
 #include "flywheelbike.h"
 #include "ftmsbike.h"
 #include "ftmsrower.h"
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
 #include "gpiotreadmill.h"
+#endif
 #include "heartratebelt.h"
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
@@ -179,7 +181,9 @@ class bluetooth : public QObject, public SignalHandler {
     trxappgateusbbike *trxappgateusbBike = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     gpiotreadmill *gpioTreadmill = nullptr;
+#endif
     flywheelbike *flywheelBike = nullptr;
     nordictrackelliptical *nordictrackElliptical = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
