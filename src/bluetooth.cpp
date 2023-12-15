@@ -110,8 +110,9 @@ void bluetooth::finished() {
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    bool gpio_treadmill = settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty()) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || gpio_treadmill) {
         // faking a bluetooth device
         qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());

@@ -66,7 +66,7 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
-bool gpiotreadmill = false;
+bool gpiotreadmill = true;
 bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");

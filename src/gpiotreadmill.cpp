@@ -17,10 +17,8 @@ QModbusReply *gpiotreadmill::lastRequest;
 QModbusClient *gpiotreadmill::modbusDevice = nullptr;
 void gpiotreadmill::digitalWrite(int pin, int state) {
     const int server_address = 255;
-    QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);  // Tipo di registro Coils, indirizzo 0, 1 coil
-
-     // Imposta il valore da scrivere nella coil
-    writeUnit.setValue(0, state);  // Scrivi il valore 1 nella coil
+    QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);
+    writeUnit.setValue(0, state);  
     modbusDevice->sendWriteRequest(writeUnit, server_address);
 
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
@@ -97,23 +95,6 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
         exit(1);
     }
 
-    pinMode(OUTPUT_START, OUTPUT);
-    pinMode(OUTPUT_STOP, OUTPUT);
-    digitalWrite(OUTPUT_START, 0);
-    digitalWrite(OUTPUT_STOP, 0);
-
-    if (forceInitSpeed > 0) {
-        lastSpeed = forceInitSpeed;
-    }
-
-    if (forceInitInclination > 0) {
-        lastInclination = forceInitInclination;
-    }
-
-    semaphore = new QSemaphore(1);
-    speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
-    inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
-
     modbusDevice = new QModbusRtuSerialMaster(this);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
         "COM4");
@@ -132,6 +113,24 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     while (!modbusDevice->connectDevice()) {
         qDebug() << "modbus Connetion Error. Retrying...";
     }
+
+
+    pinMode(OUTPUT_START, OUTPUT);
+    pinMode(OUTPUT_STOP, OUTPUT);
+    digitalWrite(OUTPUT_START, 0);
+    digitalWrite(OUTPUT_STOP, 0);
+
+    if (forceInitSpeed > 0) {
+        lastSpeed = forceInitSpeed;
+    }
+
+    if (forceInitInclination > 0) {
+        lastInclination = forceInitInclination;
+    }
+
+    semaphore = new QSemaphore(1);
+    speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
+    inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
 
     refresh = new QTimer(this);
     initDone = false;
