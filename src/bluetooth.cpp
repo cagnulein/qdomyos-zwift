@@ -607,6 +607,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 emit deviceConnected(b);
                 connect(gpioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
+                connect(gpioTreadmill, &gpiotreadmill::debug, this, &bluetooth::debug);
                 connect(gpioTreadmill, &gpiotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), gpioTreadmill, SLOT(searchingStop())); //NOTE: Commented due
