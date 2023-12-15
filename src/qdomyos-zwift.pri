@@ -188,6 +188,7 @@ SOURCES += \
 	flywheelbike.cpp \
 	ftmsbike.cpp \
     ftmsrower.cpp \
+    gpiotreadmill.cpp \
 	     gpx.cpp \
 		heartratebelt.cpp \
    homefitnessbuddy.cpp \
