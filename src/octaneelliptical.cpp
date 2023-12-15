@@ -381,17 +381,18 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
+    if (!newValue.contains(actualPaceSign) /*&& !newValue.contains(actualPace2Sign)*/)
         return;
 
     int16_t i = newValue.indexOf(actualPaceSign) + 2;
     /*if (i <= 1)
         i = newValue.indexOf(actualPace2Sign) + 1;*/
 
-    if (i + 1 >= newValue.length())
+    if (i + 1 >= newValue.length() || i <= 1)
         return;
 
     Cadence = ((uint8_t)value.at(i));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     // Q37xi has a fixed stride length of 20.5 inches (52cm).
     Speed = (Cadence.value() * 52.0 * 60) / 10000;
