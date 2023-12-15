@@ -75,6 +75,8 @@ class gpiotreadmill : public treadmill {
     void *VirtualDevice();
 
     static void digitalWrite(int pin, int state);
+    static QModbusReply *lastRequest;
+    static QModbusClient *modbusDevice;
 
   private:
     bool noConsole = false;
@@ -84,10 +86,7 @@ class gpiotreadmill : public treadmill {
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QDateTime lastTimeCharacteristicChanged;
-    bool firstCharacteristicChanged = true;
-
-    static QModbusReply *lastRequest;
-    static QModbusClient *modbusDevice;
+    bool firstCharacteristicChanged = true;    
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
