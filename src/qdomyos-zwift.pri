@@ -3,6 +3,8 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 QTPLUGIN += qavfmediaplayer
 QT+= charts
 
+wine32: QT += serialport serialbus
+
 qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER

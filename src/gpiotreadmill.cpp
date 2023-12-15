@@ -8,12 +8,17 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <chrono>
-#define Q_OS_RASPI 1
+//#define Q_OS_RASPI 0
 #ifdef Q_OS_RASPI
 #include <wiringPi.h>
 #else
 #define OUTPUT 1
-void digitalWrite(int pin, int state) {
+void gpiotreadmill::digitalWrite(int pin, int state) {
+    const int server_address = 1;
+    QVector<quint16> speed;
+    speed.append(1);
+    modbusDevice->sendWriteRequest(QModbusDataUnit(QModbusDataUnit::RegisterType::HoldingRegisters, pin, speed), server_address);
+
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
 }
 
@@ -33,8 +38,8 @@ gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp,
 {
     pinMode(pinUp, OUTPUT);
     pinMode(pinDown, OUTPUT);
-    digitalWrite(pinUp, 0);
-    digitalWrite(pinDown, 0);
+    gpiotreadmill::digitalWrite(pinUp, 0);
+    gpiotreadmill::digitalWrite(pinDown, 0);
 }
 
 void gpioWorkerThread::setRequestValue(double request)
@@ -47,9 +52,9 @@ void gpioWorkerThread::run() {
         while (requestValue > currentValue) {
             qDebug() << QStringLiteral("increasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
             semaphore->acquire();
-            digitalWrite(pinUp, 1);
+            gpiotreadmill::digitalWrite(pinUp, 1);
             QThread::msleep(GPIO_KEEP_MS);
-            digitalWrite(pinUp, 0);
+            gpiotreadmill::digitalWrite(pinUp, 0);
             QThread::msleep(GPIO_REBOUND_MS);
             semaphore->release();
             currentValue += step;
@@ -62,9 +67,9 @@ void gpioWorkerThread::run() {
         while (requestValue < currentValue) {
             qDebug() << QStringLiteral("decreasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
             semaphore->acquire();
-            digitalWrite(pinDown, 1);
+            gpiotreadmill::digitalWrite(pinDown, 1);
             QThread::msleep(GPIO_KEEP_MS);
-            digitalWrite(pinDown, 0);
+            gpiotreadmill::digitalWrite(pinDown, 0);
             QThread::msleep(GPIO_REBOUND_MS);
             semaphore->release();
             currentValue -= step;
@@ -104,6 +109,25 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     semaphore = new QSemaphore(1);
     speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
     inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
+
+    modbusDevice = new QModbusRtuSerialMaster(this);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
+        "COM1");
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,
+        QSerialPort::Parity::NoParity);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
+        QSerialPort::Baud115200);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
+        QSerialPort::Data8);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
+        QSerialPort::StopBits::OneStop);
+
+    modbusDevice->setTimeout(50);
+    modbusDevice->setNumberOfRetries(3);
+
+    while (!modbusDevice->connectDevice()) {
+        qDebug() << "modbus Connetion Error. Retrying...";
+    }
 
     refresh = new QTimer(this);
     initDone = false;

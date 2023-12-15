@@ -29,6 +29,12 @@
 #include <QThread>
 #include <QSemaphore>
 
+#include <QtSerialBus/QModbusClient>
+#include <QtSerialBus/QModbusDataUnit>
+#include <QtSerialBus/QModbusReply>
+#include <QtSerialBus/QModbusRtuSerialMaster>
+#include <QtSerialPort/QSerialPort>
+
 #include "treadmill.h"
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
@@ -68,6 +74,8 @@ class gpiotreadmill : public treadmill {
     void *VirtualTreadMill();
     void *VirtualDevice();
 
+    static void digitalWrite(int pin, int state);
+
   private:
     bool noConsole = false;
     bool noHeartService = false;
@@ -77,6 +85,9 @@ class gpiotreadmill : public treadmill {
     uint8_t firstInit = 0;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+
+    static QModbusReply *lastRequest;
+    static QModbusClient *modbusDevice;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
@@ -120,6 +131,7 @@ class gpiotreadmill : public treadmill {
   private slots:
 
     void changeInclinationRequested(double grade, double percentage);
+    void onReadReady();
 
     void update();
 };
