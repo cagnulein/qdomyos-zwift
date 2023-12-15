@@ -4,7 +4,7 @@ QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 win32: QT += serialport serialbus
-unix:!android:contains(QMAKE_TARGET.arch, linux): QT += serialport serialbus
+linux:!android: QT += serialport serialbus
 
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -277,7 +277,7 @@ macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
 win32: SOURCES += gpiotreadmill.cpp
-unix:!android:contains(QMAKE_TARGET.arch, linux): SOURCES += gpiotreadmill.cpp
+linux:!android: SOURCES += gpiotreadmill.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -706,7 +706,7 @@ HEADERS += \
 
 
 win32: HEADERS += gpiotreadmill.h
-unix:!android:contains(QMAKE_TARGET.arch, linux): HEADERS += gpiotreadmill.h
+linux:!android: HEADERS += gpiotreadmill.h
 
 exists(secret.h): HEADERS += secret.h
 
