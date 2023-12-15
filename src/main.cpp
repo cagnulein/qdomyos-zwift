@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-#include "ConsoleReader.h"
 #include <unistd.h> // getuid
 #endif
 #endif
@@ -599,11 +598,6 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
-
-#ifdef Q_OS_LINUX
-    ConsoleReader *consoleReader = new ConsoleReader(&bl);
-    consoleReader->start();
-#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
