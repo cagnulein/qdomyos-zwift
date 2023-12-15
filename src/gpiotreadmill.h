@@ -99,8 +99,8 @@ class gpiotreadmill : public treadmill {
     const uint8_t OUTPUT_SPEED_DOWN = 1;
     const uint8_t OUTPUT_INCLINE_UP = 2;
     const uint8_t OUTPUT_INCLINE_DOWN = 3;
-    const uint8_t OUTPUT_START = 23;
-    const uint8_t OUTPUT_STOP = 25;
+    const uint8_t OUTPUT_START = 4;
+    const uint8_t OUTPUT_STOP = 5;
 
     const uint16_t GPIO_KEEP_MS = 275;
     //const uint16_t GPIO_REBOUND_MS = 200;

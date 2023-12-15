@@ -17,9 +17,11 @@ QModbusReply *gpiotreadmill::lastRequest;
 QModbusClient *gpiotreadmill::modbusDevice = nullptr;
 void gpiotreadmill::digitalWrite(int pin, int state) {
     const int server_address = 255;
-    QVector<quint16> speed;
-    speed.append(1);
-    modbusDevice->sendWriteRequest(QModbusDataUnit(QModbusDataUnit::RegisterType::HoldingRegisters, pin, speed), server_address);
+    QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);  // Tipo di registro Coils, indirizzo 0, 1 coil
+
+     // Imposta il valore da scrivere nella coil
+    writeUnit.setValue(0, state);  // Scrivi il valore 1 nella coil
+    modbusDevice->sendWriteRequest(writeUnit, server_address);
 
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
 }
@@ -114,7 +116,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     modbusDevice = new QModbusRtuSerialMaster(this);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
-        "COM1");
+        "COM4");
     modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,
         QSerialPort::Parity::NoParity);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
