@@ -56,8 +56,8 @@ class gpioWorkerThread : public QThread
         uint8_t pinUp;
         uint8_t pinDown;
         double step;
-        const uint16_t GPIO_KEEP_MS = 275;
-        const uint16_t GPIO_REBOUND_MS = 175;
+        const uint16_t GPIO_KEEP_MS = 75;
+        const uint16_t GPIO_REBOUND_MS = 75;
         QSemaphore *semaphore;
 };
 
@@ -102,11 +102,11 @@ class gpiotreadmill : public treadmill {
     const uint8_t OUTPUT_START = 4;
     const uint8_t OUTPUT_STOP = 5;
 
-    const uint16_t GPIO_KEEP_MS = 275;
+    const uint16_t GPIO_KEEP_MS = 50;
     //const uint16_t GPIO_REBOUND_MS = 200;
     
     const double SPEED_STEP = 0.1;
-    const double INCLINATION_STEP = 0.5;
+    const double INCLINATION_STEP = 1.0;
 
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);

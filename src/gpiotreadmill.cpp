@@ -144,6 +144,8 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &gpiotreadmill::update);
     refresh->start(pollDeviceTime);
+
+    Speed = 0.8;
 }
 
 gpiotreadmill::~gpiotreadmill() {
