@@ -56,8 +56,8 @@ class gpioWorkerThread : public QThread
         uint8_t pinUp;
         uint8_t pinDown;
         double step;
-        const uint16_t GPIO_KEEP_MS = 75;
-        const uint16_t GPIO_REBOUND_MS = 75;
+        const uint16_t GPIO_KEEP_MS = 175;
+        const uint16_t GPIO_REBOUND_MS = 175;
         QSemaphore *semaphore;
 };
 
