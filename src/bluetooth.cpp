@@ -604,7 +604,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
             } else if (gpio_treadmill && !gpioTreadmill) {
                 discoveryAgent->stop();
-                gpioTreadmill = new gpiotreadmill(noWriteResistance, noHeartService);
+                gpioTreadmill = new gpiotreadmill(pollDeviceTime, noConsole, noHeartService, 0.8, 0);
                 emit deviceConnected(b);
                 connect(gpioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
