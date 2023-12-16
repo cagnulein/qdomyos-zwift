@@ -19,7 +19,10 @@ void gpiotreadmill::digitalWrite(int pin, int state) {
     const int server_address = 255;
     QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);
     writeUnit.setValue(0, state);  
-    modbusDevice->sendWriteRequest(writeUnit, server_address);
+    if(modbusDevice)
+        modbusDevice->sendWriteRequest(writeUnit, server_address);
+    else
+        qDebug() << "modbusDevice nullptr!";
 
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
 }
@@ -81,6 +84,7 @@ void gpioWorkerThread::run() {
             }
         }
     }
+    QThread::msleep(50);
 }
 
 gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
@@ -110,9 +114,13 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     modbusDevice->setTimeout(50);
     modbusDevice->setNumberOfRetries(3);
 
+    qDebug() << "modbus Connecting...";
+
     while (!modbusDevice->connectDevice()) {
         qDebug() << "modbus Connetion Error. Retrying...";
     }
+
+    qDebug() << "modbus Connected!";
 
 
     pinMode(OUTPUT_START, OUTPUT);
