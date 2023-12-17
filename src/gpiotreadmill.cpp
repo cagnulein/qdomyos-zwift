@@ -19,8 +19,14 @@ void gpiotreadmill::digitalWrite(int pin, int state) {
     const int server_address = 255;
     QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);
     writeUnit.setValue(0, state);  
-    if(modbusDevice)
-        modbusDevice->sendWriteRequest(writeUnit, server_address);
+    if(modbusDevice) {
+        QModbusReply* r = nullptr;
+        int retry = 0;
+        do {
+            qDebug() << "modbus sending retry" << retry++;
+            r = modbusDevice->sendWriteRequest(writeUnit, server_address);
+        } while(r == nullptr);
+    }
     else
         qDebug() << "modbusDevice nullptr!";
 
