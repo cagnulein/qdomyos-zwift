@@ -158,7 +158,7 @@ gpiotreadmill::~gpiotreadmill() {
     inclineThread->wait();
     delete inclineThread;
     delete semaphore;
-    modbusDevice->close();
+    modbusDevice->disconnectDevice();
 }
 
 void gpiotreadmill::onReadReady() {
