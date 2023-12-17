@@ -395,7 +395,7 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     // Q37xi has a fixed stride length of 20.5 inches (52cm).
-    Speed = (Cadence.value() * 52.0 * 60) / 10000;
+    Speed = ((Cadence.value() / 2.0) * 52.07 * 60) / 10000;
     emit speedChanged(speed.value());
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
