@@ -2461,13 +2461,13 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 }
 
 void homeform::keyPressed(int key) {
-    if(key == 'a')
+    if(key == Qt::Key_A)
         Plus("speed");
-    else if(key == 's')
+    else if(key == Qt::Key_S)
         Minus("speed");
-    else if(key == 'd')
+    else if(key == Qt::Key_D)
         Plus("inclination");
-    else if(key == 'f')
+    else if(key == Qt::Key_F)
         Minus("inclination");
 }
 
