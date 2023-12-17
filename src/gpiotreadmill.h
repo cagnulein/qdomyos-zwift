@@ -77,6 +77,8 @@ class gpiotreadmill : public treadmill {
     static void digitalWrite(int pin, int state);
     static QModbusReply *lastRequest;
     static QModbusClient *modbusDevice;
+    
+    double minStepSpeed();
 
   private:
     bool noConsole = false;
