@@ -646,7 +646,7 @@ jobs:
       # Example use of `signedReleaseFile` output -- not needed
       - uses: actions/upload-artifact@v2
         with:
-          name: Signed app bundle
+          name: Android APK
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
 
       # - name: Exit if not on master branch
