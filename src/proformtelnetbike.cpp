@@ -27,7 +27,7 @@ proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformtelnetbike::update);
-    refresh->start(50ms);
+    refresh->start(200ms);
 
     bool ok = connect(&telnet, &QTelnet::newData, this, &proformtelnetbike::characteristicChanged);
 
@@ -305,20 +305,23 @@ void proformtelnetbike::update() {
         case 0:
             telnet.sendData("124\n"); // current watt
             break;
-
         case 1:
+            telnet.sendData("q\n"); // quit
+        case 2:
             telnet.sendData("40\n"); // current rpm
             break;
-
-        case 2:
+        case 3:
+            telnet.sendData("q\n"); // quit
+        case 4:
             telnet.sendData("34\n"); // current speed
             break;
-
+        case 5:
+            telnet.sendData("q\n"); // quit
         default:
             break;
         }
         poolIndex++;
-        if(poolIndex > 2)
+        if(poolIndex > 5)
             poolIndex = 0;
 
                // updating the treadmill console every second
