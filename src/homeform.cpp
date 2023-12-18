@@ -5173,7 +5173,9 @@ void homeform::update() {
                 }
             }
 
-            bluetoothManager->device()->setCurrentDistance1s(bluetoothManager->device()->currentDistance1s().value() + (bluetoothManager->device()->currentSpeed().value() / 3600.0));
+            bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
+            
+            qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
 
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
