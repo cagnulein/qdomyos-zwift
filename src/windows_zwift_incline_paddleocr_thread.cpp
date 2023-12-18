@@ -40,7 +40,7 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
     QString currentPath = env.value("PATH");
-    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath() + "\\python\\x64";
+    QString updatedPath = currentPath + ";" + QCoreApplication::applicationDirPath() + "\\python\\x64;C:\\Program Files\\CodeProject\\AI\\modules\\OCR\\bin\\windows\\python37\\venv\\Scripts";
     env.insert("PATH", updatedPath);
 
     QProcess process;
