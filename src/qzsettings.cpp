@@ -666,8 +666,26 @@ const QString QZSettings::poll_device_time = QStringLiteral("poll_device_time");
 const QString QZSettings::proform_bike_PFEVEX71316_1 = QStringLiteral("proform_bike_PFEVEX71316_1");
 const QString QZSettings::schwinn_bike_resistance_v3 = QStringLiteral("schwinn_bike_resistance_v3");
 const QString QZSettings::watt_ignore_builtin = QStringLiteral("watt_ignore_builtin");
+const QString QZSettings::proform_treadmill_z1300i = QStringLiteral("proform_treadmill_z1300i");
+const QString QZSettings::ftms_bike = QStringLiteral("ftms_bike");
+const QString QZSettings::default_ftms_bike = QStringLiteral("Disabled");
+const QString QZSettings::ftms_treadmill = QStringLiteral("ftms_treadmill");
+const QString QZSettings::default_ftms_treadmill = QStringLiteral("Disabled");
+const QString QZSettings::ant_speed_offset = QStringLiteral("ant_speed_offset");
+const QString QZSettings::ant_speed_gain = QStringLiteral("ant_speed_gain");
+const QString QZSettings::proform_rower_sport_rl = QStringLiteral("proform_rower_sport_rl");
+const QString QZSettings::strava_date_prefix = QStringLiteral("strava_date_prefix");
+const QString QZSettings::race_mode = QStringLiteral("race_mode");
+const QString QZSettings::proform_pro_1000_treadmill = QStringLiteral("proform_pro_1000_treadmill");
+const QString QZSettings::saris_trainer = QStringLiteral("saris_trainer");
+const QString QZSettings::proform_studio_NTEX71021 = QStringLiteral("proform_studio_NTEX71021");
+const QString QZSettings::nordictrack_x22i = QStringLiteral("nordictrack_x22i");
+const QString QZSettings::iconsole_elliptical = QStringLiteral("iconsole_elliptical");
+const QString QZSettings::autolap_distance = QStringLiteral("autolap_distance");
+const QString QZSettings::nordictrack_s20_treadmill = QStringLiteral("nordictrack_s20_treadmill");
+const QString QZSettings::freemotion_coachbike_b22_7 = QStringLiteral("freemotion_coachbike_b22_7");
 
-const uint32_t allSettingsCount = 558;
+const uint32_t allSettingsCount = 574;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1232,6 +1250,22 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1},
     {QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3},
     {QZSettings::watt_ignore_builtin, QZSettings::default_watt_ignore_builtin},
+    {QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i},
+    {QZSettings::ftms_bike, QZSettings::default_ftms_bike},
+    {QZSettings::ftms_treadmill, QZSettings::default_ftms_treadmill},
+    {QZSettings::ant_speed_offset, QZSettings::default_ant_speed_offset},
+    {QZSettings::ant_speed_gain, QZSettings::default_ant_speed_gain},
+    {QZSettings::proform_rower_sport_rl, QZSettings::default_proform_rower_sport_rl},
+    {QZSettings::strava_date_prefix, QZSettings::default_strava_date_prefix},
+    {QZSettings::race_mode, QZSettings::default_race_mode},
+    {QZSettings::proform_pro_1000_treadmill, QZSettings::default_proform_pro_1000_treadmill},
+    {QZSettings::saris_trainer, QZSettings::default_saris_trainer},
+    {QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021},
+    {QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i},
+    {QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical},    
+    {QZSettings::autolap_distance, QZSettings::default_autolap_distance},
+    {QZSettings::nordictrack_s20_treadmill, QZSettings::default_nordictrack_s20_treadmill},
+    {QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -436,27 +436,27 @@ double trainprogram::avgInclinationNext100Meters(int step) {
                 if (sum == 1) {
                     return rows.at(currentStep).inclination;
                 }
-                return avg / (double)sum;
+                return avg / (double)km;
             }
             if (c == currentStep)
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
-            avg += rows.at(c).inclination;
+            avg += rows.at(c).inclination * rows.at(c).distance;
             sum++;
 
         } else {
             if (sum == 1) {
                 return rows.at(currentStep).inclination;
             }
-            return avg / (double)sum;
+            return avg / (double)km;
         }
         c++;
     }
     if (sum == 1) {
         return rows.at(currentStep).inclination;
     }
-    return avg / (double)sum;
+    return avg / (double)km;
 }
 
 double trainprogram::avgAzimuthNext300Meters() {
@@ -1201,8 +1201,8 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
-trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
-    if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
+trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
 
         QString description = "";
         QString tags = "";

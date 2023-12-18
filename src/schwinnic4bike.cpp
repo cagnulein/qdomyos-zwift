@@ -116,6 +116,7 @@ void schwinnic4bike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     double heart = 0.0;
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -166,7 +167,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         } else {
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -208,7 +209,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -256,7 +257,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -347,7 +348,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
     emit resistanceRead(Resistance.value());
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
@@ -568,11 +569,11 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     bool schwinn_bike_resistance_v3 =
         settings.value(QZSettings::schwinn_bike_resistance_v3, QZSettings::default_schwinn_bike_resistance_v3).toBool();
     if (schwinn_bike_resistance_v3) {
-           // y = 0,0007x3 - 0,0763x2 + 4,1619x - 75,788
-           if (pelotonResistance < 30)
-               return 0;
+        // y = -35,3 + 1,91x + -0,0358x^2 + 4,3E-04x^3
+        if (pelotonResistance < 30)
+           return 0;
 
-           return qRound((0.0007 * pow(pelotonResistance, 3)) - (0.0763 * pow(pelotonResistance, 2)) + (4.1619 * pelotonResistance) - 75.788);
+        return -35.3 + 1.91 * pelotonResistance - 0.0358 * pow(pelotonResistance, 2) + 4.3E-04 * pow(pelotonResistance, 3);
     } else if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;

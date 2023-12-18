@@ -158,7 +158,7 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
     for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
@@ -404,6 +404,8 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
             QSettings settings;
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_rower =
+                settings.value(QZSettings::virtual_device_rower, QZSettings::default_virtual_device_rower).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence =
@@ -418,12 +420,19 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
-                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    if (virtual_device_rower) {
+                        qDebug() << QStringLiteral("creating virtual rower interface...");
+                        auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                        // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                        this->setVirtualDevice(virtualRower, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
+                    } else {
+                        qDebug() << QStringLiteral("creating virtual bike interface...");
+                        auto virtualBike =
+                            new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                        // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                        connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::changeInclination);
+                        this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
+                    }
             }
         }
         firstStateChanged = 1;

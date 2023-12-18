@@ -89,6 +89,15 @@ void cscbike::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
+        if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
+            readMethod = true;
+            qDebug() << "no cadence for 5 secs, switching to reading method";
+        }
+
+        if(readMethod && cadenceService) {
+            cadenceService->readCharacteristic(cadenceChar);
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
@@ -129,6 +138,7 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -140,6 +150,8 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     uint16_t _LastWheelEventTime = 0;
     double _WheelRevs = 0;
     uint8_t battery = 0;
+
+    charNotified = true;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -200,8 +212,8 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
         if (cadence >= 0 && cadence < 256)
             Cadence = cadence;
-        lastGoodCadence = QDateTime::currentDateTime();
-    } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+        lastGoodCadence = now;
+    } else if (lastGoodCadence.msecsTo(now) > 2000) {
         Cadence = 0;
     }
     emit cadenceChanged(Cadence.value());
@@ -217,12 +229,12 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
     double ac = 0.01243107769;
@@ -255,7 +267,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
@@ -264,7 +276,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
@@ -311,8 +323,16 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
+
+            if(s->serviceUuid() == CyclingSpeedAndCadence) {
+                qDebug() << "CyclingSpeedAndCadence found";
+                cadenceService = s;
+            }
+
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &cscbike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &cscbike::characteristicWritten);
@@ -327,7 +347,11 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                if(c.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
+                    qDebug() << "CyclingSpeedAndCadence char found";
+                    cadenceChar = c;
+                }
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << QStringLiteral("properties") << c.properties();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
@@ -424,6 +448,8 @@ void cscbike::characteristicWritten(const QLowEnergyCharacteristic &characterist
 
 void cscbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+
+    characteristicChanged(characteristic, newValue);
 }
 
 void cscbike::serviceScanDone(void) {

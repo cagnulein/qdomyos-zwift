@@ -41,6 +41,7 @@
 
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
+#include "eliteariafan.h"
 #include "eliterizer.h"
 #include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
@@ -268,6 +269,7 @@ private:
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
+    QList<eliteariafan *> eliteAriaFan;
     QString filterDevice = QLatin1String("");
     trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
 

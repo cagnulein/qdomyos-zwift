@@ -30,8 +30,10 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 
   public:
     explicit nordictrackifitadbtreadmillLogcatAdbThread(QString s);
+    bool runCommand(QString command);
 
     void run() override;
+    bool stop = false;
 
   signals:
     void onSpeedInclination(double speed, double inclination);
@@ -39,6 +41,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
     void onWatt(double watt);
 
   private:
+    QString adbCommandPending = "";
     double speed = 0;
     double inclination = 0;
     double watt = 0;
@@ -63,11 +66,13 @@ class nordictrackifitadbtreadmill : public treadmill {
     void forceIncline(double incline);
     void forceSpeed(double speed);
     double getDouble(QString v);
+    void initiateThreadStop();
 
     QTimer *refresh;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastInclinationChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
     bool wattReadFromTM = false;
@@ -87,9 +92,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     lockscreen *h = 0;
 #endif
 
-#ifdef Q_OS_ANDROID
     QString lastCommand = "";
-#endif
 
   signals:
     void disconnected();
@@ -104,6 +107,9 @@ class nordictrackifitadbtreadmill : public treadmill {
     void changeInclinationRequested(double grade, double percentage);
 
     void update();
+    
+  public slots:
+    void stopLogcatAdbThread();
 };
 
 #endif // NORDICTRACKIFITADBTREADMILL_H

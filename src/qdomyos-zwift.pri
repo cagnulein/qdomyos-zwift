@@ -60,7 +60,7 @@ INCLUDEPATH += qmdnsengine/src/include
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -75,6 +75,7 @@ SOURCES += \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
+    $$PWD/eliteariafan.cpp \
    $$PWD/fakerower.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
@@ -287,6 +288,7 @@ HEADERS += \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+    $$PWD/eliteariafan.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
     virtualdevice.h \
@@ -722,12 +724,15 @@ DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
+    $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/WearableController.java \
+    $$PWD/android/src/WearableMessageListenerService.java \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -791,6 +796,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -821,4 +827,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.0
+VERSION = 2.16.28

@@ -109,7 +109,7 @@ void renphobike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (!autoResistanceEnable) {
             uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
@@ -175,6 +175,7 @@ void renphobike::update() {
 void renphobike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
 
 void renphobike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -225,7 +226,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         else
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -267,7 +268,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     debug("Current Distance: " + QString::number(Distance.value()));
@@ -320,7 +321,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -333,7 +334,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (Flags.heartRate) {
-            Heart = ((double)((newValue.at(index))));
+            Heart = ((double)(((uint8_t)newValue.at(index))));
             index += 1;
             debug("Current Heart: " + QString::number(Heart.value()));
         }
@@ -356,7 +357,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith("Disabled")) {
         update_hr_from_external();
@@ -572,6 +573,15 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             lastFTMSPacketReceived.append(r & 0xFF);
             lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
+        // handling gears
+        } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            qDebug() << "applying gears mod" << m_gears;
+            int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
+            if (m_gears != 0) {
+                slope += (m_gears * 50);
+                lastFTMSPacketReceived[3] = slope & 0xFF;
+                lastFTMSPacketReceived[4] = slope >> 8;
+            }
         }
 
         if (writeBuffer) {

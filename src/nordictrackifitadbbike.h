@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QUdpSocket>
 
 #include "bike.h"
@@ -24,6 +25,37 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+class nordictrackifitadbbikeLogcatAdbThread : public QThread {
+    Q_OBJECT
+
+  public:
+    explicit nordictrackifitadbbikeLogcatAdbThread(QString s);    
+    bool runCommand(QString command);
+
+    void run() override;
+
+  signals:
+    void onSpeedInclination(double speed, double inclination);
+    void debug(QString message);
+    void onWatt(double watt);
+    void onHRM(int hrm);
+
+  private:
+    QString adbCommandPending = "";
+    QString runAdbCommand(QString command);
+    double speed = 0;
+    double inclination = 0;
+    double watt = 0;
+    int hrm = 0;
+    QString name;
+    struct adbfile {
+        QDateTime date;
+        QString name;
+    };
+
+    void runAdbTailCommand(QString command);
+};
 
 class nordictrackifitadbbike : public bike {
     Q_OBJECT
@@ -53,12 +85,14 @@ class nordictrackifitadbbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool gearsAvailable = false;
+
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
-#ifdef Q_OS_ANDROID
+    nordictrackifitadbbikeLogcatAdbThread *logcatAdbThread = nullptr;
+
     QString lastCommand;
-#endif
 
     QString ip;
 
@@ -74,6 +108,7 @@ class nordictrackifitadbbike : public bike {
 
     void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
+    void onHRM(int hrm);
 
     void update();
 };

@@ -136,6 +136,7 @@ void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -185,9 +186,11 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        if (WATER_ROWER && lastStroke.secsTo(QDateTime::currentDateTime()) > 3) {
+        if ((WATER_ROWER || DFIT_L_R) && lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
+            m_watt = 0;
+            Speed = 0;
         } else {
             Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
         }
@@ -196,7 +199,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
         if (lastStrokesCount != StrokesCount.value()) {
-            lastStroke = QDateTime::currentDateTime();
+            lastStroke = now;
         }
         lastStrokesCount = StrokesCount.value();
 
@@ -228,7 +231,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -241,8 +244,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        Speed = (60.0 / instantPace) *
+        if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R) {
+            Speed = (60.0 / instantPace) *
                 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+        }
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
@@ -260,7 +265,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         if (!filterWattNull || watt != 0) {
-            m_watt = watt;
+            if((DFIT_L_R && Cadence.value() > 0) || !DFIT_L_R)
+                m_watt = watt;
         }
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }
@@ -298,7 +304,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -341,7 +347,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         update_hr_from_external();
@@ -574,6 +580,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("S4 COMMS"))) {
             WATER_ROWER = true;
             qDebug() << "WATER_ROWER found!";
+        } else if (device.name().toUpper().startsWith(QStringLiteral("DFIT-L-R"))) {
+            DFIT_L_R = true;
+            qDebug() << "DFIT_L_R found!";
         } else if (device.name().toUpper().startsWith(QStringLiteral("PM5"))) {
             PM5 = true;
             qDebug() << "PM5 found!";

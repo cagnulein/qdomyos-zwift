@@ -126,6 +126,7 @@ void chronobike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void chronobike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -153,7 +154,7 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (watts())
         KCal +=
@@ -161,10 +162,10 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     double ac = 0.01243107769;
     double bc = 1.145964912;
@@ -190,7 +191,7 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())

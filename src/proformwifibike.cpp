@@ -458,17 +458,20 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-        double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                .toString()
-                .startsWith(QStringLiteral("Disabled")))
+    // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
+    if (Cadence.value() > 0) {
+        if (!values[QStringLiteral("Current Watts")].isUndefined()) {
+            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = watt;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
+            double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
             m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-    } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
-        double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
-        m_watt = watt;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        }
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
@@ -491,6 +494,56 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
         max_incline_supported = values[QStringLiteral("Maximum Incline")].toString().toDouble();
         emit debug(QStringLiteral("Maximum Incline Supported: ") + QString::number(max_incline_supported));
+    }
+
+    if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
+        if (!values[QStringLiteral("key")].isUndefined()) {
+            QJsonObject key = values[QStringLiteral("key")].toObject();
+            QJsonValue code = key.value("code");
+            QJsonValue name = key.value("name");
+            QJsonValue held = key.value("held");
+            if(held.toString().contains(QStringLiteral("-1"))) {
+                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                if(!erg_mode) {
+                    double value = 0;
+                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                        value = -0.5;
+                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR UP";
+                        value = 0.5;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR UP";
+                        value = -5.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                        value = 5.0;
+                    }
+                    if (value != 0.0) {
+                        forceResistance(currentInclination().value() + value); // to force an immediate change
+                        setGears(gears() + value);
+                    }
+                } else {
+                    double value = 0;
+                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
+                        value = -10.0;
+                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
+                        qDebug() << "LEFT EXTERNAL GEAR UP";
+                        value = 10.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR UP";
+                        value = -50.0;
+                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
+                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
+                        value = 50.0;
+                    }
+                    if (value != 0.0) {
+                        changePower(requestPower + value);
+                    }
+                }
+            }
+        }
     }
 
     if (watts())

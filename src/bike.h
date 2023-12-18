@@ -12,7 +12,7 @@ class bike : public bluetoothdevice {
   public:
     bike();
 
-    virtualbike * VirtualBike();
+    virtualbike *VirtualBike();
 
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
@@ -36,8 +36,8 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate() override;
     void setGears(double d);
     double gears();
-    void setSpeedLimit(double speed) {m_speedLimit = speed;}
-    double speedLimit() {return m_speedLimit;}
+    void setSpeedLimit(double speed) { m_speedLimit = speed; }
+    double speedLimit() { return m_speedLimit; }
 
     /**
      * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
@@ -46,6 +46,7 @@ class bike : public bluetoothdevice {
      */
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
+    bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
 
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;

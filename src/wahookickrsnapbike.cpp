@@ -507,11 +507,6 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
         }
     }
 
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
     {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

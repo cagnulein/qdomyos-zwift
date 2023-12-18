@@ -20,7 +20,10 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
+    signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
@@ -548,7 +551,7 @@ ApplicationWindow {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
-            anchors.right: toolButtonLockTiles.left
+            anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
         }      
 
@@ -567,6 +570,14 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
+        }
+
+        ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/chart.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
         }
 
         ToolButton {
@@ -605,6 +616,7 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
                     stackView.push("profiles.qml")
+                    stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                     drawer.close()
                 }
             }
@@ -648,6 +660,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("GPXList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -663,6 +676,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -737,7 +751,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.16.0"
+                text: "version 2.16.28"
                 width: parent.width
             }
 

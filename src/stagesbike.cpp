@@ -164,6 +164,7 @@ uint16_t stagesbike::wattsFromResistance(double resistance) {
 }
 
 void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -178,6 +179,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         uint16_t flags = (((uint16_t)((uint8_t)newValue.at(1)) << 8) | (uint16_t)((uint8_t)newValue.at(0)));
         bool cadence_present = false;
         bool wheel_revs = false;
+        bool crank_rev_present = false;
         uint16_t time_division = 1024;
         uint8_t index = 4;
 
@@ -207,26 +209,42 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         {
             cadence_present = true;
             wheel_revs = true;
-            time_division = 2048;
-        } else if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
+        }
+
+        if ((flags & 0x20) == 0x20) // Crank Revolution Data Present
         {
             cadence_present = true;
+            crank_rev_present = true;
         }
 
         if (cadence_present) {
-            if (!wheel_revs) {
-                CrankRevs =
-                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-                index += 2;
-            } else {
+            if (wheel_revs && !crank_rev_present) {
+                time_division = 2048;
                 CrankRevs =
                     (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) |
                      ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                      ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
                 index += 4;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+                index += 2; // wheel event time
+
+            } else if (wheel_revs && crank_rev_present) {
+                index += 4; // wheel revs
+                index += 2; // wheel event time
             }
-            LastCrankEventTime =
-                (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+            if (crank_rev_present) {
+                CrankRevs =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                index += 2;
+
+                LastCrankEventTime =
+                    (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+                index += 2;
+            }
 
             int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
             if (deltaT < 0) {
@@ -238,16 +256,21 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                     .startsWith(QStringLiteral("Disabled"))) {
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
+                    if (!crank_rev_present)
+                        cadence =
+                            cadence /
+                            2; // I really don't like this, there is no relationship between wheel rev and crank rev
                     if (cadence >= 0) {
                         Cadence = cadence;
                     }
-                    lastGoodCadence = QDateTime::currentDateTime();
-                } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+                    lastGoodCadence = now;
+                } else if (lastGoodCadence.msecsTo(now) > 2000) {
                     Cadence = 0;
                 }
             }
 
-            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+            qDebug() << QStringLiteral("Current Cadence: ") << Cadence.value() << CrankRevs << oldCrankRevs << deltaT
+                     << time_division << LastCrankEventTime << oldLastCrankEventTime;
 
             oldLastCrankEventTime = LastCrankEventTime;
             oldCrankRevs = CrankRevs;
@@ -260,12 +283,12 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
             // if we change this, also change the wattsFromResistance function. We can create a standard function in
@@ -317,7 +340,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                        settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight
                                                                       // in kg * 3.5) / 200 ) / 60
             emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
         }
@@ -335,12 +358,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         }
     }
 
-    if (Cadence.value() > 0) {
-        CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS

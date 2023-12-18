@@ -291,59 +291,75 @@ HomeForm{
         }
 
         footer:
-            Rectangle {
-                objectName: "footerrectangle"
-                visible: rootItem.videoVisible
-                anchors.top: gridView.bottom
+            Item {
                 width: parent.width
-                height: parent.height / 2
-                // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
-                /*
-                Timer {
-                    id: pauseTimer
-                    interval: 1000; running: true; repeat: true
-                    onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
-                                        videoPlaybackHalf.play() :
-                                        videoPlaybackHalf.pause()) } }
+                height: (rootItem.chartFooterVisible ? parent.height / 4 : parent.height / 2)
+                anchors.top: gridView.bottom
+                visible: rootItem.chartFooterVisible || rootItem.videoVisible
+
+                Rectangle {
+                    id: chartFooterRectangle
+                    visible: rootItem.chartFooterVisible
+                    anchors.fill: parent
+                    ChartFooter {
+                        anchors.fill: parent
+                        visible: rootItem.chartFooterVisible
+                    }
                 }
-                */
 
-                onVisibleChanged: {
-                    if(visible === true) {
-                        console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
-                        console.log("videoRate: " + rootItem.videoRate)
-                        videoPlaybackHalf.source = rootItem.videoPath
-                        //videoPlaybackHalf.playbackRate = rootItem.videoRate
+                Rectangle {
+                    objectName: "footerrectangle"
+                    visible: rootItem.videoVisible
+                    anchors.fill: parent
+                    // Removed Timer, Play/Pause/Resume is now done via Homeform.cpp
+                    /*
+                    Timer {
+                        id: pauseTimer
+                        interval: 1000; running: true; repeat: true
+                        onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
+                                            videoPlaybackHalf.play() :
+                                            videoPlaybackHalf.pause()) } }
+                    }
+                    */
 
-                        videoPlaybackHalf.seek(rootItem.videoPosition)
-                        videoPlaybackHalf.play()
-                        videoPlaybackHalf.muted = rootItem.currentCoordinateValid
-                    } else {
-                        videoPlaybackHalf.stop()
+                    onVisibleChanged: {
+                        if(visible === true) {
+                            console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
+                            console.log("videoRate: " + rootItem.videoRate)
+                            videoPlaybackHalf.source = rootItem.videoPath
+                            //videoPlaybackHalf.playbackRate = rootItem.videoRate
+
+                            videoPlaybackHalf.seek(rootItem.videoPosition)
+                            videoPlaybackHalf.play()
+                            videoPlaybackHalf.muted = rootItem.currentCoordinateValid
+                        } else {
+                            videoPlaybackHalf.stop()
+                        }
+
                     }
 
-                }
+                    MediaPlayer {
+                           id: videoPlaybackHalf
+                           objectName: "videoplaybackhalf"
+                           autoPlay: false
+                           playbackRate: rootItem.videoRate
 
-                MediaPlayer {
-                       id: videoPlaybackHalf
-                       objectName: "videoplaybackhalf"
-                       autoPlay: false
-                       playbackRate: rootItem.videoRate
-
-                       onError: {
-                           if (videoPlaybackHalf.NoError !== error) {
-                               console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+                           onError: {
+                               if (videoPlaybackHalf.NoError !== error) {
+                                   console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+                               }
                            }
+
                        }
 
-                   }
+                    VideoOutput {
+                             id:videoPlayer
+                             anchors.fill: parent
+                             source: videoPlaybackHalf
+                         }
+                }
 
-                VideoOutput {
-                         id:videoPlayer
-                         anchors.fill: parent
-                         source: videoPlaybackHalf
-                     }
-            }
+        }
 
     MouseArea {
         property int currentId: -1 // Original position in model

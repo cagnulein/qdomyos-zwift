@@ -1,25 +1,35 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
-# Revised: April 22, 2023
+# Revised: November 23, 2023
 
-# process-image.py - take Zwift screenshot, crop incline, OCR incline
+# zwift-incline-climb-portal.py - take Zwift screenshot, crop incline, OCR incline
 
 # imports
 import cv2
 import numpy as np
 import re
+import win32gui
 from datetime import datetime
 from paddleocr import PaddleOCR
 from PIL import Image, ImageGrab
 
-# Take Zwift screenshot
-screenshot = ImageGrab.grab()
+# Enable DPI aware on Windows
+from ctypes import windll
+user32 = windll.user32
+user32.SetProcessDPIAware()
+
+# Take Zwift screenshot - windowed mode only
+hwnd = win32gui.FindWindow(None, 'Zwift')
+if not hwnd:
+    print("Zwift is not running")
+    exit()
+x, y, x1, y1 = win32gui.GetClientRect(hwnd)
+x, y = win32gui.ClientToScreen(hwnd, (x, y))
+x1, y1 = win32gui.ClientToScreen(hwnd, (x1, y1))
+screenshot = ImageGrab.grab((x, y, x1, y1))
 
 # Scale image to 3000 x 2000
 screenshot = screenshot.resize((3000, 2000))
-
-# Convert screenshot to a numpy array
-screenshot_np = np.array(screenshot)
 
 # Crop image to incline area
 screenwidth, screenheight = screenshot.size
@@ -30,15 +40,18 @@ row1 = int(screenheight/2000 * 218)
 col2 = int(screenwidth/3000 * 2980)
 row2 = int(screenheight/2000 * 302)
 
-cropped_np = screenshot_np[row1:row2, col1:col2]
+cropped = screenshot.crop((col1, row1, col2, row2))
 
-# Convert numpy array to PIL image
+# Convert image to np array
+cropped_np = np.array(cropped)
+
+# Convert np array to PIL
 cropped_pil = Image.fromarray(cropped_np)
 
-# Convert PIL Image to a cv2 image
+# Convert PIL image to cv2 RGB
 cropped_cv2 = cv2.cvtColor(np.array(cropped_pil), cv2.COLOR_RGB2BGR)
 
-# Convert cv2 image to HSV
+# Convert cv2 RGB to HSV
 result = cropped_cv2.copy()
 image = cv2.cvtColor(cropped_cv2, cv2.COLOR_BGR2HSV)
 
@@ -77,21 +90,14 @@ merge[np.where(mask==0)] = 0
 gray = cv2.cvtColor(merge, cv2.COLOR_BGR2GRAY)
 
 # Convert to black/white by threshold
-ret,bin = cv2.threshold(gray,30,255,cv2.THRESH_BINARY)
+ret,bin = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY_INV)
 
-# Closing
-kernel = np.ones((3,3),np.uint8)
-closing = cv2.morphologyEx(bin, cv2.MORPH_CLOSE, kernel)
-
-# Invert black/white
-inv = cv2.bitwise_not(closing)
-
-# Apply average blur
-averageBlur = cv2.blur(inv, (3, 3))
+# Apply gaussian blur
+gaussianBlur = cv2.GaussianBlur(bin,(3,3),0)
 
 # OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, enable_mkldnn=True, use_angle_cls=False, table=False, layout=False, show_log=False)
-result = ocr.ocr(averageBlur, cls=False, det=True, rec=True)
+ocr = PaddleOCR(lang='en', use_gpu=False, show_log=False, det_db_unclip_ratio=2.0, det_db_box_thresh=0.40, drop_score=0.40, rec_algorithm='CRNN', cls_model_dir='paddleocr/ch_ppocr_mobile_v2.0_cls_infer', det_model_dir='paddleocr/en_PP-OCRv3_det_infer', rec_model_dir='paddleocr/en_PP-OCRv3_rec_infer')
+result = ocr.ocr(gaussianBlur, cls=False, det=True, rec=True)
 
 # Extract OCR text
 ocr_text = ''

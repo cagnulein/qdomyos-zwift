@@ -827,6 +827,7 @@ void proformbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -867,7 +868,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
 
             double incline =
@@ -909,7 +910,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
 
             double incline =
@@ -1042,6 +1043,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 30;
                     break;
                 case 0x0b:
+                case 0x0c:
                     Resistance = 5;
                     m_pelotonResistance = 35;
                     break;
@@ -1050,6 +1052,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 40;
                     break;
                 case 0x10:
+                case 0x11:
                     Resistance = 7;
                     m_pelotonResistance = 45;
                     break;
@@ -1078,6 +1081,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 75;
                     break;
                 case 0x21:
+                case 0x22:
                     Resistance = 14;
                     m_pelotonResistance = 80;
                     break;
@@ -1086,6 +1090,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_pelotonResistance = 85;
                     break;
                 case 0x26:
+                case 0x27:
                     Resistance = 16;
                     m_pelotonResistance = 100;
                     break;
@@ -1200,7 +1205,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             } else {
                 Speed = metric::calculateSpeedFromPower(
                     watts(), Inclination.value(), Speed.value(),
-                    fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
             }
         }
     }
@@ -1209,18 +1214,18 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())

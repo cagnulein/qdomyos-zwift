@@ -3,7 +3,6 @@
 #include <QtMath>
 #include <chrono>
 
-
 using namespace std::chrono_literals;
 
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
@@ -258,7 +257,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     }
     //! [Provide Heartbeat]
     QObject::connect(&treadmillTimer, &QTimer::timeout, this, &virtualtreadmill::treadmillProvider);
-    treadmillTimer.start(1s);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        treadmillTimer.start(100ms);
+    else
+        treadmillTimer.start(1s);
 }
 
 void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -351,7 +353,7 @@ void virtualtreadmill::treadmillProvider() {
         if (h->virtualtreadmill_updateFTMS(
                 normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
                 (uint16_t)((treadmill *)treadMill)->wattsMetric().value(),
-                treadMill->currentInclination().value() * 10)) {
+                treadMill->currentInclination().value() * 10, (uint64_t)(((treadmill *)treadMill)->odometer() * 1000.0))) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)

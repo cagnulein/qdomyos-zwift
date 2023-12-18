@@ -18,7 +18,7 @@ Please refer to this article for more information under [QML Operations](https:/
 
 ## Configuration in NativeQT mode
 
-This is the list of settings available in the application. These settings needs to be appended to the binary command line.  
+This is the list of settings available in the application. These settings need to be appended to the binary command line.  
 *Example :* `sudo ./qdomyos-zwift -no-gui` for disabling any graphical interface.
 
 | **Option**              		| **Type** | **Default** | **Function**                                                                 |
@@ -35,8 +35,8 @@ This is the list of settings available in the application. These settings needs 
 | -heart-service          		| Boolean  | True        | Simulate HR service (required for applications not reading FTMS)             |
 | -only-virtualbike       		| Boolean  | False       |                                                                              |
 | -only-virtualtreadmill  		| Boolean  | False       |                                                                              |
-| -no-reconnection        		| Boolean  | False       | QZ will not try to reconnect your fitness equipement if enabled              |
-| -bluetooth-relaxed      		| Boolean  | False       | In case of deconnections from QZ to your fitness equipement                  |
+| -no-reconnection        		| Boolean  | False       | QZ will not try to reconnect your fitness equipment if enabled              |
+| -bluetooth-relaxed      		| Boolean  | False       | In case of deconnections from QZ to your fitness equipment                  |
 | -bike-cadence-sensor    		| Boolean  | False       |                                                                              |
 | -bike-power-sensor      		| Boolean  | False       |                                                                              |
 | -battery-service        		| Boolean  | False       |                                                                              |
@@ -45,7 +45,7 @@ This is the list of settings available in the application. These settings needs 
 | -run-cadence-sensor     		| Boolean  | False       |                                                                              |
 | -nordictrack-10-treadmill  	| Boolean  | False       | Enable NordicTrack compatibility mode                                        |
 | -train                  		| String   |             | Force training program                                                       |
-| -name                   		| String   |             | Force bluetooth device name (if QZ struggles finding your fitness equipment) |
+| -name                   		| String   |             | Force bluetooth device name (if QZ struggles to find your fitness equipment) |
 | -poll-device-time       		| Int      | 200 (ms)    | Frequency to refresh information from QZ to Fitness equipment               |
 | -bike-resistance-gain   		| Int      |             | Adjust resistance from the fitness application                               |
 | -bike-resistance-offset 		| Int      |             | Set another resistance point than default                                    |

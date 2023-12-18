@@ -117,6 +117,7 @@ void bike::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -141,6 +142,7 @@ void bike::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -162,6 +164,7 @@ void bike::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
@@ -289,6 +292,8 @@ uint16_t bike::wattFromHR(bool useSpeedAndCadence) {
         } else {
             watt = 0;
         }
+    } else {
+        watt = currentCadence().value() * 1.2; // random value cloned from Zwift when HR is not available
     }
     return watt;
 }

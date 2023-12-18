@@ -1,6 +1,6 @@
 #include "virtualrower.h"
-#include "rower.h"
 #include "qsettings.h"
+#include "rower.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -59,12 +59,13 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
             QLowEnergyCharacteristicData charDataFIT;
             charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
             QByteArray valueFIT;
-            valueFIT.append((char)0xA6); // cadence, pace and resistance level supported
-            valueFIT.append((char)0x45); // stride count,heart rate, power supported
+
+            valueFIT.append((char)0x83);
+            valueFIT.append((char)0x14);
             valueFIT.append((char)0x00);
             valueFIT.append((char)0x00);
-            valueFIT.append((char)0x0C); // resistance and power target supported
-            valueFIT.append((char)0x00);
+            valueFIT.append((char)0x0C);
+            valueFIT.append((char)0xe0);
             valueFIT.append((char)0x00);
             valueFIT.append((char)0x00);
             charDataFIT.setValue(valueFIT);
@@ -175,7 +176,11 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     //! [Provide Heartbeat]
     QObject::connect(&rowerTimer, &QTimer::timeout, this, &virtualrower::rowerProvider);
-    rowerTimer.start(1s);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        rowerTimer.start(100ms);
+    else
+        rowerTimer.start(1s);
+
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualrower::reconnect);
     QObject::connect(
@@ -378,13 +383,17 @@ void virtualrower::rowerProvider() {
 
     if (!heart_only) {
 
-        value.append((char)0xA8); // resistance level, power and speed
-        value.append((char)0x02); // heart rate
+        value.append((char)0x2C);
+        value.append((char)0x03);
 
         value.append((char)((uint8_t)(Rower->currentCadence().value() * 2) & 0xFF)); // Stroke Rate
 
         value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
         value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
+
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0)) & 0xFF));       // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 8) & 0xFF));  // Distance
+        value.append((char)(((uint16_t)(((rower *)Rower)->odometer() * 1000.0) >> 16) & 0xFF)); // Distance
 
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) & 0xFF));      // pace
         value.append((char)(((uint16_t)QTime(0, 0, 0).secsTo(((rower *)Rower)->currentPace())) >> 8) & 0xFF); // pace
@@ -392,8 +401,11 @@ void virtualrower::rowerProvider() {
         value.append((char)(((uint16_t)Rower->wattsMetric().value()) & 0xFF));      // watts
         value.append((char)(((uint16_t)Rower->wattsMetric().value()) >> 8) & 0xFF); // watts
 
-        value.append((char)((uint16_t)(Rower->currentResistance().value()) & 0xFF));        // resistance
-        value.append((char)(((uint16_t)(Rower->currentResistance().value()) >> 8) & 0xFF)); // resistance
+        value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
+        value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories
+        value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
+        value.append((char)(((uint16_t)(Rower->calories().value()) >> 8) & 0xFF)); // calories
+        value.append((char)((uint16_t)(Rower->calories().value()) & 0xFF));        // calories
 
         value.append(char(Rower->currentHeart().value())); // Actual value.
         value.append((char)0);                             // Bkool FTMS protocol HRM offset 1280 fix

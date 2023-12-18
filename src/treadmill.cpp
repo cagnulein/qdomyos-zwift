@@ -101,8 +101,14 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
 }
 
 uint16_t treadmill::watts(double weight) {
-    uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
-    m_watt.setValue(watts);
+    QSettings settings;
+    bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                              .toString()
+                              .startsWith(QStringLiteral("Disabled")));
+    if(!power_sensor) {
+        uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
+        m_watt.setValue(watts);
+    }
     return m_watt.value();
 }
 
@@ -113,6 +119,7 @@ void treadmill::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -132,6 +139,7 @@ void treadmill::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -148,6 +156,7 @@ void treadmill::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);

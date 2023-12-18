@@ -27,6 +27,7 @@
 
     <!-- Concept2 PM3,PM4 -->
     <usb-device vendor-id="17A4" product-id="0002" />
+    <usb-device vendor-id="17A4" product-id="0001" />
 
     <!-- CDC driver -->
     <usb-device vendor-id="9025" />                   <!-- 0x2341 / ......: Arduino -->
