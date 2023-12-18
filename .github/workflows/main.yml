@@ -632,11 +632,22 @@ jobs:
       - name: Build APK (not usable for production due to unpatched QT library)
         run: cd src; androiddeployqt --input android-qdomyos-zwift-deployment-settings.json --output ${{ github.workspace }}/output/android/ --android-platform android-31 --gradle --aab
 
-      - name: Archive apk binary
-        uses: actions/upload-artifact@v2
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK
+        # ID used to access action output
+        id: sign_app
         with:
-          name: fdroid-android-trial
-          path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          releaseDirectory: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+    
+      # Example use of `signedReleaseFile` output -- not needed
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Signed app bundle
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
 
       # - name: Exit if not on master branch
       #   if: github.ref == 'refs/heads/main'
