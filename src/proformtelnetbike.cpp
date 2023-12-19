@@ -290,6 +290,11 @@ void proformtelnetbike::innerWriteResistance() {
     }
 }
 
+void proformtelnetbike::sendFrame(QString frame) {
+    telnet.sendData(frame);
+    qDebug() << " >> " << frame;
+}
+
 void proformtelnetbike::update() {
     qDebug() << "websocket.state()" << telnet.isConnected();
 
@@ -300,31 +305,7 @@ void proformtelnetbike::update() {
     } else if (telnet.isConnected()) {
         update_metrics(false, watts());
 
-        switch (poolIndex)
-        {
-        case 0:
-            telnet.sendData("124\n"); // current watt
-            break;
-        case 1:
-            telnet.sendData("q\n"); // quit
-        case 2:
-            telnet.sendData("40\n"); // current rpm
-            break;
-        case 3:
-            telnet.sendData("q\n"); // quit
-        case 4:
-            telnet.sendData("34\n"); // current speed
-            break;
-        case 5:
-            telnet.sendData("q\n"); // quit
-        default:
-            break;
-        }
-        poolIndex++;
-        if(poolIndex > 5)
-            poolIndex = 0;
-
-               // updating the treadmill console every second
+        // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed);
@@ -416,6 +397,33 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
 
     QByteArray newValue = QByteArray::fromRawData(buff, len);
     emit debug(QStringLiteral(" << ") + newValue);
+
+    if(newValue.containts("Shared Memory Management Utility")) {
+        emit debug(QStringLiteral("Ready to start the poll"));
+        sendFrame("2\n"); // current watt
+    } else if(newValue.containts("Enter Variable Offset")) {
+        switch (poolIndex)
+        {          
+            case 0:
+                sendFrame("124\n"); // current watt
+            break;
+            case 1:
+                sendFrame("40\n"); // current rpm
+            break;
+            case 2:
+                sendFrame("34\n"); // current speed
+            break;
+            default:
+            break;
+        }
+        poolIndex++;
+        if(poolIndex > 2)
+            poolIndex = 0;
+            
+    } else if(newValue.containts("Enter New Value")) {
+        sendFrame("q\n"); // quit
+    }
+
 
     QStringList packet = QString::fromLocal8Bit(newValue).split(" ");
     qDebug() << packet;    
