@@ -290,7 +290,7 @@ void proformtelnetbike::innerWriteResistance() {
     }
 }
 
-void proformtelnetbike::sendFrame(QString frame) {
+void proformtelnetbike::sendFrame(QByteArray frame) {
     telnet.sendData(frame);
     qDebug() << " >> " << frame;
 }
@@ -398,10 +398,10 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     QByteArray newValue = QByteArray::fromRawData(buff, len);
     emit debug(QStringLiteral(" << ") + newValue);
 
-    if(newValue.containts("Shared Memory Management Utility")) {
+    if(newValue.contains("Shared Memory Management Utility")) {
         emit debug(QStringLiteral("Ready to start the poll"));
         sendFrame("2\n"); // current watt
-    } else if(newValue.containts("Enter Variable Offset")) {
+    } else if(newValue.contains("Enter Variable Offset")) {
         switch (poolIndex)
         {          
             case 0:
@@ -420,7 +420,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         if(poolIndex > 2)
             poolIndex = 0;
             
-    } else if(newValue.containts("Enter New Value")) {
+    } else if(newValue.contains("Enter New Value")) {
         sendFrame("q\n"); // quit
     }
 
