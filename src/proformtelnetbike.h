@@ -72,6 +72,7 @@ class proformtelnetbike : public bike {
     void innerWriteResistance();
     void setTargetWatts(double watts);
     void setWorkoutType(QString type);
+    void sendFrame(QString frame);
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
