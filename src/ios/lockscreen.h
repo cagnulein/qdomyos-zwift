@@ -69,7 +69,7 @@ class lockscreen {
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
 
     // Echelon Connect Sport
-    void echelonConnectSport(const char*  Name);
+    void echelonConnectSport(const char*  Name, void* deviceClass);
     void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
 };
 

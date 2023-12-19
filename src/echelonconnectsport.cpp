@@ -116,10 +116,12 @@ void echelonconnectsport::sendPoll() {
 }
 
 void echelonconnectsport::update() {
+#ifndef Q_OS_IOS
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+#endif
 
     if (initRequest) {
         initRequest = false;
@@ -333,9 +335,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
 
+#ifndef Q_OS_IOS
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+#endif
 }
 
 QTime echelonconnectsport::GetElapsedFromPacket(const QByteArray &packet) {
@@ -510,8 +514,7 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     iOS_echelonConnectSport = new lockscreen();
-    iOS_echelonConnectSport->echelonConnectSport(device.name().toLocal8Bit()
-                                                 .data());
+    iOS_echelonConnectSport->echelonConnectSport(device.name().toStdString().c_str(), this);
     return;
 #endif
 #endif
@@ -674,15 +677,17 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
 }
 
 void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state) {
-#ifdef Q_OS_IOS
-    return;
-#endif
-
     qDebug() << QStringLiteral("controllerStateChanged") << state;
-    if (state == QLowEnergyController::UnconnectedState && m_control) {
+    if (state == QLowEnergyController::UnconnectedState
+#ifndef Q_OS_IOS
+        && m_control
+#endif
+        ) {
         lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
+#ifndef Q_OS_IOS
         m_control->connectToDevice();
+#endif
     }
 }

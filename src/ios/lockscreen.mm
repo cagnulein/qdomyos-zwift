@@ -301,8 +301,9 @@ void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     }
 }
 
-void lockscreen::echelonConnectSport(const char*  Name) {
-    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:[NSString stringWithCString:Name encoding:NSASCIIStringEncoding]];
+void lockscreen::echelonConnectSport(const char*  Name, void* deviceClass) {
+    NSString *deviceName = [NSString stringWithCString:Name encoding:NSASCIIStringEncoding];
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:deviceName qtDevice:deviceClass];
 }
 
 void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {

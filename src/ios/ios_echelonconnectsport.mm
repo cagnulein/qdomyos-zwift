@@ -3,18 +3,19 @@
 
 @implementation ios_echelonconnectsport
 
-- (instancetype)init:(NSString *)deviceName qtDevice:(echelonconnectsport*)qtDevice {
+- (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice {
     self = [super init];
     if (self) {
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
         _targetDeviceName = deviceName;
-        _qtDevice = qtDevice;
+        _qtDevice = (echelonconnectsport*)qtDevice;
     }
     return self;
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     if (central.state == CBManagerStatePoweredOn) {
+        qDebug() << "centralManagerDidUpdateState" << central.state;
         [self.centralManager scanForPeripheralsWithServices:nil options:nil];
     }
 }
@@ -24,6 +25,7 @@
         self.connectedPeripheral = peripheral;
         [self.centralManager stopScan];
         [self.centralManager connectPeripheral:peripheral options:nil];
+        qDebug() << "didDiscoverPeripheral";
     }
 }
 
@@ -33,9 +35,9 @@
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    NSLog(@"Peripheral disconnected: %@. Error: %@", peripheral, error);
+    qDebug() << "Peripheral disconnected:" << peripheral << error;
     if ([peripheral.name isEqualToString:self.targetDeviceName]) {
-        NSLog(@"Attempting to reconnect to %@", self.targetDeviceName);
+        _qtDevice->controllerStateChanged(QLowEnergyController::UnconnectedState);
         [self.centralManager connectPeripheral:peripheral options:nil];
     }
 }
@@ -48,6 +50,7 @@
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (characteristic.value) {
+        qDebug() << "didUpdateValueForCharacteristic" << characteristic;
         // Extract the data from characteristic.value and process it as needed
         NSData *receivedData = characteristic.value;
         NSLog(@"UUID: %@ Received data: %@", characteristic.UUID, receivedData);
@@ -89,11 +92,13 @@
 
 - (void)writeCharacteristc:(uint8_t *)data length:(NSUInteger)length {
     if (self.connectedPeripheral.state != CBPeripheralStateConnected) {
-        NSLog(@"Cannot send fan speed request: Peripheral is not connected.");
+        qDebug() << "Cannot send. Peripheral is not connected.";
         return;
     }
-    
+        
     NSData *dataToSend = [NSData dataWithBytes:data length:length];
+    
+    qDebug() << "writeCharacteristc" << dataToSend;
     
     if (self.gattWriteCharacteristic) {
         [self.connectedPeripheral writeValue:dataToSend forCharacteristic:self.gattWriteCharacteristic type:CBCharacteristicWriteWithResponse];

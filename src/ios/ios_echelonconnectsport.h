@@ -15,7 +15,7 @@
 @property (strong, nonatomic) CBCharacteristic *gattNotify1Characteristic;
 @property (strong, nonatomic) CBCharacteristic *gattNotify2Characteristic;
 
-- (instancetype)init:(NSString *)deviceName qtDevice:(echelonconnectsport*)qtDevice;
+- (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice;
 - (void)writeCharacteristc:(uint8_t *)data length:(NSUInteger)length;
 
 @end
