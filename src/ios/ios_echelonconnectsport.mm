@@ -3,11 +3,12 @@
 
 @implementation ios_echelonconnectsport
 
-- (instancetype)init:(NSString *)deviceName {
+- (instancetype)init:(NSString *)deviceName qtDevice:(echelonconnectsport*)qtDevice {
     self = [super init];
     if (self) {
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
         _targetDeviceName = deviceName;
+        _qtDevice = qtDevice;
     }
     return self;
 }
@@ -51,7 +52,14 @@
         NSData *receivedData = characteristic.value;
         NSLog(@"UUID: %@ Received data: %@", characteristic.UUID, receivedData);
         // Your processing logic here
-        characteristicChanged(characteristic.UUID, receivedData)
+        //[self.qtDevice characteristicChanged:characteristic.UUID data:receivedData];
+        QLowEnergyCharacteristic c;
+        QByteArray b;
+        const uint8_t* d = (const uint8_t*)[receivedData bytes];
+        for(int i=0; i<receivedData.length; i++) {
+            b.append(d[i]);
+        }
+        self.qtDevice->characteristicChanged(c, b);
     }
 }
 
@@ -74,7 +82,8 @@
 
     // Verifica se entrambe le caratteristiche sono state trovate
     if (self.gattNotify1Characteristic && self.gattNotify2Characteristic && self.gattWriteCharacteristic) {
-        stateChanged();
+        self.qtDevice->stateChanged(QLowEnergyService::ServiceDiscovered);
+        self.qtDevice->descriptorWritten(QLowEnergyDescriptor(), QByteArray());
     }
 }
 
@@ -86,8 +95,8 @@
     
     NSData *dataToSend = [NSData dataWithBytes:data length:length];
     
-    if (self.characteristicUUID2) {
-        [self.connectedPeripheral writeValue:dataToSend forCharacteristic:self.characteristicUUID2 type:CBCharacteristicWriteWithResponse];
+    if (self.gattWriteCharacteristic) {
+        [self.connectedPeripheral writeValue:dataToSend forCharacteristic:self.gattWriteCharacteristic type:CBCharacteristicWriteWithResponse];
     }
 }
 

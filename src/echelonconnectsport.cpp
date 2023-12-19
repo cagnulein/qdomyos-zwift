@@ -36,6 +36,8 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
 
 void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                               bool wait_for_response) {
+#ifndef Q_OS_IOS
+#ifndef IO_UNDER_QT
     QEventLoop loop;
     QTimer timeout;
 
@@ -59,7 +61,9 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
         return;
     }
-
+#endif
+#endif
+    
     if (writeBuffer) {
         delete writeBuffer;
     }
@@ -67,7 +71,7 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    iOS_echelonconnectsport->writeCharacteristic(*writeBuffer);
+    iOS_echelonConnectSport->echelonConnectSport_WriteCharacteristic((unsigned char*)writeBuffer->data(), data_len);
 #endif
 #else
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
@@ -120,9 +124,13 @@ void echelonconnectsport::update() {
     if (initRequest) {
         initRequest = false;
         btinit();
-    } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
+    } else if (
+#ifndef Q_OS_IOS
+               bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotify1Characteristic.isValid() && gattNotify2Characteristic.isValid() && initDone) {
+               gattNotify1Characteristic.isValid() && gattNotify2Characteristic.isValid() && 
+#endif
+               initDone) {
         update_metrics(true, watts());
 
         // sending poll every 2 seconds
@@ -473,13 +481,14 @@ void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &
 
 void echelonconnectsport::serviceScanDone(void) {
     qDebug() << QStringLiteral("serviceScanDone");
-
+#ifndef Q_OS_IOS
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("0bf669f1-45f2-11e7-9598-0800200c9a66"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
             &echelonconnectsport::stateChanged);
     gattCommunicationChannelService->discoverDetails();
+#endif
 }
 
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err) {
@@ -500,7 +509,9 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    iOS_echelonsportconnect = new ios_echelonsportconnect(device.name());
+    iOS_echelonConnectSport = new lockscreen();
+    iOS_echelonConnectSport->echelonConnectSport(device.name().toLocal8Bit()
+                                                 .data());
     return;
 #endif
 #endif

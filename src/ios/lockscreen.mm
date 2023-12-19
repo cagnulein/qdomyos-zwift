@@ -10,17 +10,18 @@
 #include <QDebug>
 #include "ios/AdbClient.h"
 #include "ios/ios_eliteariafan.h"
+#include "ios/ios_echelonconnectsport.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
-@class virtualrower;
+@class virtualrower_zwift;
 @class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
-static virtualrower* _virtualrower = nil;
+static virtualrower_zwift* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 static GarminConnect* Garmin = 0;
@@ -107,7 +108,7 @@ void lockscreen::virtualbike_zwift_ios(bool disable_hr)
 
 void lockscreen::virtualrower_ios()
 {
-    _virtualrower = [[virtualrower alloc] init];
+    _virtualrower = [[virtualrower_zwift alloc] init];
 }
 
 double lockscreen::virtualbike_getCurrentSlope()
@@ -300,13 +301,13 @@ void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     }
 }
 
-void lockscreen::echelonConnectSport(unsigned char* name) {
-    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init deviceName:name];
+void lockscreen::echelonConnectSport(const char*  Name) {
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init:[NSString stringWithCString:Name encoding:NSASCIIStringEncoding]];
 }
 
-void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, uint8 length) {
-    if(ios_echelonconnectsport) {
-        [ios_echelonconnectsport writeCharacteristc data:qdata length:length];
+void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length) {
+    if(ios_echelonConnectSport) {
+        [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
     }
 }
 #endif

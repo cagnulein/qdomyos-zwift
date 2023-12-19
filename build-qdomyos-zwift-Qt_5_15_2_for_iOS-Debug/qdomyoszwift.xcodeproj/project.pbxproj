@@ -473,6 +473,7 @@
 		87EB918A27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */; };
 		87EB918B27EE5FE7002535E1 /* moc_inappproductqmltype.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */; };
 		87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */; };
+		87EDBFE62B31FA7D00E5661E /* ios_echelonconnectsport.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EDBFE42B31EA6D00E5661E /* ios_echelonconnectsport.mm */; };
 		87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */; };
 		87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */; };
 		87EFE45927A518F5006EA1C3 /* nautiluselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFE45827A518F5006EA1C3 /* nautiluselliptical.cpp */; };
@@ -1344,6 +1345,8 @@
 		87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qdomyoszwift_qmltyperegistrations.cpp; sourceTree = "<group>"; };
 		87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproductqmltype.cpp; sourceTree = "<group>"; };
 		87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproduct.cpp; sourceTree = "<group>"; };
+		87EDBFE42B31EA6D00E5661E /* ios_echelonconnectsport.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ios_echelonconnectsport.mm; path = ../src/ios/ios_echelonconnectsport.mm; sourceTree = "<group>"; };
+		87EDBFE52B31EA7D00E5661E /* ios_echelonconnectsport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ios_echelonconnectsport.h; path = ../src/ios/ios_echelonconnectsport.h; sourceTree = "<group>"; };
 		87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtreadmill.cpp; path = ../src/proformtreadmill.cpp; sourceTree = "<group>"; };
 		87EFB56D25BD703C0039DD5A /* proformtreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtreadmill.h; path = ../src/proformtreadmill.h; sourceTree = "<group>"; };
 		87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtreadmill.cpp; sourceTree = "<group>"; };
@@ -1907,6 +1910,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EDBFE52B31EA7D00E5661E /* ios_echelonconnectsport.h */,
+				87EDBFE42B31EA6D00E5661E /* ios_echelonconnectsport.mm */,
 				87A2E0212B2B053E00E6168F /* swiftDebug.mm */,
 				8729149E2B2B010600565E33 /* qdomyoszwift-Bridging-Header.h */,
 				8752C0E42B15D85600C3D1A5 /* eliteariafan.cpp */,
@@ -3289,6 +3294,7 @@
 				877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */,
 				8762D5102601F7EA00F6F049 /* M3iNSQT.cpp in Compile Sources */,
 				872261EE289EA873006A6F75 /* nordictrackelliptical.cpp in Compile Sources */,
+				87EDBFE62B31FA7D00E5661E /* ios_echelonconnectsport.mm in Compile Sources */,
 				8718CBA3263063BD004BF4EE /* templateinfosender.cpp in Compile Sources */,
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */,
