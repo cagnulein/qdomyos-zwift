@@ -37,7 +37,6 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
 void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                               bool wait_for_response) {
 #ifndef Q_OS_IOS
-#ifndef IO_UNDER_QT
     QEventLoop loop;
     QTimer timeout;
 
@@ -61,7 +60,6 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
         qDebug() << QStringLiteral("gattWriteCharacteristic is invalid");
         return;
     }
-#endif
 #endif
     
     if (writeBuffer) {
