@@ -60,10 +60,12 @@ class echelonconnectsport : public bike {
 
     QTimer *refresh;
 
+#ifndef Q_OS_IOS
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+#endif
 
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
@@ -89,13 +91,13 @@ class echelonconnectsport : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
 
   private slots:
 
-    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void stateChanged(QLowEnergyService::ServiceState state);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);    
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);

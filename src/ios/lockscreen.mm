@@ -28,6 +28,7 @@ static GarminConnect* Garmin = 0;
 static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
+static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -296,6 +297,16 @@ void lockscreen::eliteAriaFan() {
 void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     if(ios_eliteAriaFan) {
         [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
+}
+
+void lockscreen::echelonConnectSport(unsigned char* name) {
+    ios_echelonConnectSport = [[ios_echelonconnectsport alloc] init deviceName:name];
+}
+
+void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, uint8 length) {
+    if(ios_echelonconnectsport) {
+        [ios_echelonconnectsport writeCharacteristc data:qdata length:length];
     }
 }
 #endif
