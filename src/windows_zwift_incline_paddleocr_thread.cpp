@@ -45,12 +45,12 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
 
     QProcess process;
     process.setProcessEnvironment(env);
-    qDebug() << "env >> " << env.value("PATH");
+    //qDebug() << "env >> " << env.value("PATH");
     qDebug() << "run >> " << command;
     process.setProgram("python.exe");
     process.setArguments(QStringList(command.split(' ')));
-    process.start();
-    //process.startDetached();
+    //process.start();
+    process.startDetached();
     //process.start("python.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
 
