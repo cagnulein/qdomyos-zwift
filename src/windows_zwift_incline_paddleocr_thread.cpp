@@ -50,7 +50,6 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
     qDebug() << "run >> " << command;
     process.setProgram("python.exe", QStringList(command.split(' ')));
     process.startDetached();
-    //process.start("python.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
 
     QString out = process.readAllStandardOutput();
