@@ -468,11 +468,12 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         m_pelotonResistance = (100 / 32) * Resistance.value();
         emit resistanceRead(Resistance.value());    */
 
+    /*
     if (!disable_hr_frommachinery && !values[QStringLiteral("Chest Pulse")].isUndefined()) {
         Heart = values[QStringLiteral("Chest Pulse")].toString().toDouble();
         // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-    }
+    }*/
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
