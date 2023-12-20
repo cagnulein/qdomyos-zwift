@@ -21,11 +21,13 @@
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
-    if ([peripheral.name isEqualToString:self.targetDeviceName]) {
-        self.connectedPeripheral = peripheral;
-        [self.centralManager stopScan];
-        [self.centralManager connectPeripheral:peripheral options:nil];
-        qDebug() << "didDiscoverPeripheral";
+    if (peripheral && self.targetDeviceName && peripheral.name) {
+        if ([peripheral.name isEqualToString:self.targetDeviceName]) {
+            self.connectedPeripheral = peripheral;
+            [self.centralManager stopScan];
+            [self.centralManager connectPeripheral:peripheral options:nil];
+            qDebug() << "didDiscoverPeripheral";
+        }
     }
 }
 
