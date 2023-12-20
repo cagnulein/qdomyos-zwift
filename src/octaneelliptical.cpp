@@ -172,7 +172,7 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     // SPEED
     actualPaceSign.append(0x01);
     actualPaceSign.append(0x07);
-    actualPace2Sign.append(0x00);
+    actualPace2Sign.append((char)0x00);
     actualPace2Sign.append(0x07);
 
     actualHR.append((char)0x02);
