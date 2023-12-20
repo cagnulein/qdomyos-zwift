@@ -850,6 +850,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.28
             property bool freemotion_coachbike_b22_7: false
+
+            // from version 2.16.29
+            property bool proform_cycle_trainer_300_ci: false
         }
 
         function paddingZeros(text, limit) {
@@ -2987,6 +2990,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
                     }
+                    SwitchDelegate {
+                        text: qsTr("Cycle Trainer 300 CI")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_cycle_trainer_300_ci
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_cycle_trainer_300_ci = checked; window.settings_restart_to_apply = true; }
+                    }                                     
                     SwitchDelegate {
                         id: proformCycleTrainerdelegate
                         text: qsTr("Cycle Trainer 400")
