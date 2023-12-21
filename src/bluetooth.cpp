@@ -657,7 +657,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(proformWifiBike);
-            } else if (!proformtdf4ip.isEmpty() && !proformTelnetBike) {
+            } else if (!proformtdf1ip.isEmpty() && !proformTelnetBike) {
                 this->stopDiscovery();
                 proformTelnetBike =
                     new proformtelnetbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
