@@ -898,12 +898,6 @@ jobs:
 
   window-msvc2019-aiserver-build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        config:
-          - {python: false}          
-          - {python: true}
-
     steps:
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -1010,25 +1004,12 @@ jobs:
 
       - name: Zip artifact for deployment
         run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
-        if: matrix.config.python
-
-      - name: Zip artifact for deployment
-        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-msvc2019-ai-server-binary
           path: windows-msvc2019-ai-server-binary.zip
-        if: matrix.config.python
-
-      - name: Archive windows binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows-msvc2019-ai-server-binary-no-python
-          path: windows-msvc2019-ai-server-binary-no-python.zip
-        if:  ${{ ! matrix.config.python }}
 
   upload_to_release:
     permissions: write-all
