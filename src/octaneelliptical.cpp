@@ -388,11 +388,13 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (i + 1 >= newValue.length() || i <= 1) {
         // fallback for a previous firmware version
-        if(newValue.length() >= 20 && newValue.at(0) == 0xa5 &&) {
+        if(newValue.length() >= 20 && newValue.at(0) == 0xa5) {
             if(newValue.at(6) == 0x07) {
                 i = 7;
             } else if(newValue.at(15) == 0x07) {
                 i = 16;
+            } else {
+                return;
             }
         } else {
             return;
