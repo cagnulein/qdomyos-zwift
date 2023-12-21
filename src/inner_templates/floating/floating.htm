@@ -594,7 +594,7 @@
 		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
-        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m',]
+        'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h']
       let ell = new MainWSQueueElement(null, function (msg) {
         if (msg.msg === 'workout') {
           var speed = 0;
@@ -628,6 +628,9 @@
           var row_remaining_time_s = 0;
           var row_remaining_time_m = 0;
           var row_remaining_time_h = 0;
+          var remaining_time_s = 0;
+          var remaining_time_m = 0;
+          var remaining_time_h = 0;
           var resistance = 0;
           var resistance_lapavg = 0;
           var peloton_resistance = 0;
@@ -721,6 +724,12 @@
               row_remaining_time_m = msg.content[key];
             } else if (key === 'row_remaining_time_s') {
               row_remaining_time_s = msg.content[key];
+            } else if (key === 'remaining_time_h') {
+              remaining_time_h = msg.content[key];
+            } else if (key === 'remaining_time_m') {
+              remaining_time_m = msg.content[key];
+            } else if (key === 'remaining_time_s') {
+              remaining_time_s = msg.content[key];              
 				} else if (key === 'target_pace_h') {
 				  target_pace_h = msg.content[key];
 				} else if (key === 'target_pace_m') {
@@ -822,7 +831,7 @@
           $('.pelotonresistance-max').html(peloton_resistance_lapmax.toFixed(0));
           $('.distance-value').html("<b>" + odometer.toFixed(2) + "</b>");
           $('.rowremainingtime-value').html("<b>" + row_remaining_time_h.toString().padStart(2, "0") + ":" + row_remaining_time_m.toString().padStart(2, "0") + ":" + row_remaining_time_s.toString().padStart(2, "0") + "</b>");
-          $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>");
+          $('.elapsed-value').html("<b>" + elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":" + elapsed_s.toString().padStart(2, "0") + "</b>" + (remaining_time_h > 0 || remaining_time_m > 0 || remaining_time_s > 0 ? " / " + "<b>" + remaining_time_h.toString().padStart(2, "0") + ":" + remaining_time_m.toString().padStart(2, "0") + ":" + remaining_time_s.toString().padStart(2, "0") + "</b>" : ""));
           $('.gears-value').html("<b>" + gears.toFixed(0) + "</b>");
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
             $('.pace-value').html("<b>N/A</b>");

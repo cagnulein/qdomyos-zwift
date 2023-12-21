@@ -57,7 +57,12 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
@@ -90,23 +95,22 @@ void ypooelliptical::update() {
 
     if (initRequest) {
         initRequest = false;
-        if (!iconsole_elliptical) {
-            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-            uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
-            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-            uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
-            uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+        uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+        uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+        uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-            writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
-            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-            writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
-            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
-            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-            writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
-        }
+        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
+        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
+        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
@@ -185,6 +189,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         return;
     }
+
+    if(iconsole_elliptical && initDone == false)
+        initRequest = true;
 
     union flags {
         struct {
@@ -365,7 +372,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
         {
             if (Flags.heartRate && !disable_hr_frommachinery && lastPacket.length() > index) {
-                Heart = ((double)((lastPacket.at(index))));
+                Heart = ((double)(((uint8_t)lastPacket.at(index))));
                 // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
             } else {
@@ -385,9 +392,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             // todo
         }
     } else if (iconsole_elliptical) {
-        if (lastPacket.length() == 15) {
-            Speed = (double)((((uint8_t)lastPacket.at(10)) << 8) | ((uint8_t)lastPacket.at(9))) / 100.0;
-            Cadence = lastPacket.at(6);
+        if (newvalue.length() == 15) {
+            Speed = (double)((((uint8_t)newvalue.at(10)) << 8) | ((uint8_t)newvalue.at(9))) / 100.0;
+            Cadence = newvalue.at(6);
 
             Distance += ((Speed.value() / 3600000.0) *
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -601,10 +608,13 @@ void ypooelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &c
 }*/
 
 void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    QSettings settings;
+    bool iconsole_elliptical = settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();    
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     if (gattCustomService != nullptr) {
-        initRequest = true;
+        if(!iconsole_elliptical)
+            initRequest = true;
         emit connectedAndDiscovered();
     }
 }

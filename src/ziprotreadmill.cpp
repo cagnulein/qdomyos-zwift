@@ -173,6 +173,7 @@ void ziprotreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -233,11 +234,11 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
         Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(now))));
     }
 
     cadenceFromAppleWatch();
@@ -249,7 +250,7 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+    lastTimeCharacteristicChanged = now;
     firstCharacteristicChanged = false;
 }
 

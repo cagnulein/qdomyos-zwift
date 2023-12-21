@@ -274,6 +274,7 @@ void domyosrower::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -360,8 +361,8 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
     Speed = speed;
     KCal = kcal;
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+    lastRefreshCharacteristicChanged = now;
 }
 
 double domyosrower::GetSpeedFromPacket(const QByteArray &packet) {

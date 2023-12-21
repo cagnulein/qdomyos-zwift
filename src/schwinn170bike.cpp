@@ -115,6 +115,7 @@ void schwinn170bike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     double heart = 0.0;
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -147,12 +148,12 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -161,7 +162,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -218,7 +219,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {

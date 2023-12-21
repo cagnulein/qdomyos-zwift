@@ -139,6 +139,7 @@ void truetreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -214,11 +215,11 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         Distance += ((speed / (double)3600.0) /
-                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-        lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(now))));
+        lastTimeCharacteristicChanged = now;
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));

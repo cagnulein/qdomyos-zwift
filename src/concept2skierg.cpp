@@ -131,6 +131,7 @@ void concept2skierg::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -172,7 +173,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
             break;
         case 0x32:
             qDebug() << "32";
-            if (newValue.length() >= 20) {
+            if (newValue.length() >= 19) {
                 // 0.001 m/s
                 uint16_t speed_ms = (((uint16_t)((uint16_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
                 uint8_t stroke_rate = newValue.at(6);
@@ -238,7 +239,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         update_hr_from_external();

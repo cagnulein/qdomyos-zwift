@@ -240,6 +240,7 @@ void flywheelbike::updateStats() {
 }
 
 void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     static uint8_t zero_fix_filter = 0;
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -293,7 +294,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 } else {
                     Speed = metric::calculateSpeedFromPower(
                         watts(), Inclination.value(), Speed.value(),
-                        fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                        fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
                 }
 
                 // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896
