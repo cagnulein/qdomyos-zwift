@@ -188,7 +188,8 @@ class bluetooth : public QObject, public SignalHandler {
     pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
-    proformtelnetbike *proformWifiBike = nullptr;
+    proformtelnetbike *proformTelnetBike = nullptr;
+    proformwifibike *proformWifiBike = nullptr;
     proformwifitreadmill *proformWifiTreadmill = nullptr;
     proformelliptical *proformElliptical = nullptr;
     proformellipticaltrainer *proformEllipticalTrainer = nullptr;

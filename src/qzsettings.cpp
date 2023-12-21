@@ -681,8 +681,10 @@ const QString QZSettings::saris_trainer = QStringLiteral("saris_trainer");
 const QString QZSettings::proform_studio_NTEX71021 = QStringLiteral("proform_studio_NTEX71021");
 const QString QZSettings::nordictrack_x22i = QStringLiteral("nordictrack_x22i");
 const QString QZSettings::iconsole_elliptical = QStringLiteral("iconsole_elliptical");
+const QString QZSettings::proformtdf1ip = QStringLiteral("proformtdf1ip");
+const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
 
-const uint32_t allSettingsCount = 571;
+const uint32_t allSettingsCount = 572;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1260,6 +1262,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021},
     {QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i},
     {QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical},
+    {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

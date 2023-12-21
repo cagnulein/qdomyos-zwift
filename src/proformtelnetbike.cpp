@@ -77,7 +77,7 @@ proformtelnetbike::proformtelnetbike(bool noWriteResistance, bool noHeartService
 void proformtelnetbike::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    telnet.connectToHost(settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString(), 23);
+    telnet.connectToHost(settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString(), 23);
     telnet.waitForConnected();
     telnet.sendData("./utconfig\n");
     QThread::sleep(1);
@@ -205,91 +205,6 @@ uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
     }
 }
 
-// must be double because it's an inclination
-void proformtelnetbike::forceResistance(double requestResistance) {
-
-    double inc = qRound(requestResistance / 0.5) * 0.5;
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
-    if (!inclinationAvailableByHardware())
-        send = "{\"type\":\"set\",\"values\":{\"Resistance\":\"" + QString::number(requestResistance) + "\"}}";
-
-    qDebug() << "forceResistance" << send;
-}
-
-void proformtelnetbike::setTargetWatts(double watts) {
-
-    QString send = "{\"type\":\"set\",\"values\":{\"Target Watts\":\"" + QString::number(watts) + "\"}}";
-    qDebug() << "setTargetWatts" << send;
-}
-
-void proformtelnetbike::setWorkoutType(QString type) {
-
-    QString send = "{\"type\":\"set\",\"values\":{\"Workout Type\":\"" + type + "\"}}";
-    qDebug() << "setWorkoutType" << send;
-}
-
-void proformtelnetbike::innerWriteResistance() {
-    QSettings settings;
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-    static QString last_mode = "MANUAL";
-
-    if (requestResistance != -1) {
-        if (requestResistance > max_resistance) {
-            requestResistance = max_resistance;
-        } else if (requestResistance < min_resistance) {
-            requestResistance = min_resistance;
-        } else if (requestResistance == 0) {
-            requestResistance = 1;
-        }
-
-        if (requestResistance != currentResistance().value()) {
-            emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-            auto virtualBike = this->VirtualBike();
-            if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
-                (requestPower == 0 || requestPower == -1)) {
-                forceResistance(requestResistance);
-            }
-        }
-        requestResistance = -1;
-    }
-
-    if (requestPower > 0 && erg_mode) {
-        if (last_mode.compare("WATTS_GOAL")) {
-            last_mode = "WATTS_GOAL";
-            setWorkoutType(last_mode);
-        }
-        double r = requestPower;
-        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
-            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
-                qDebug() << QStringLiteral("request watt value was ") << r
-                         << QStringLiteral("but it will be transformed to")
-                         << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-            }
-            r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-        }
-        if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                qDebug() << QStringLiteral("request watt value was ") << r
-                         << QStringLiteral("but it will be transformed to")
-                         << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-            }
-            r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-        }
-        setTargetWatts(r);
-    }
-
-    if (requestInclination != -100 && !erg_mode && inclinationAvailableByHardware()) {
-        if (last_mode.compare("MANUAL")) {
-            last_mode = "MANUAL";
-            setWorkoutType(last_mode);
-        }
-        emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-        forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
-                                                       // i'm using the gears in the inclination
-        requestInclination = -100;
-    }
-}
-
 void proformtelnetbike::sendFrame(QByteArray frame) {
     telnet.sendData(frame);
     qDebug() << " >> " << frame;
@@ -311,8 +226,6 @@ void proformtelnetbike::update() {
             // updateDisplay(elapsed);
         }
 
-        innerWriteResistance();
-
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -329,7 +242,7 @@ void proformtelnetbike::update() {
     }
 }
 
-bool proformtelnetbike::inclinationAvailableByHardware() { return max_incline_supported > 0; }
+bool proformtelnetbike::inclinationAvailableByHardware() { return true; }
 
 resistance_t proformtelnetbike::pelotonToBikeResistance(int pelotonResistance) {
     if (pelotonResistance <= 10) {
@@ -394,6 +307,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     QByteArray newValue = QByteArray::fromRawData(buff, len);
     emit debug(QStringLiteral(" << ") + newValue);
@@ -413,11 +327,52 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
             case 2:
                 sendFrame("34\n"); // current speed
             break;
+            case 3:            
+                if(!erg_mode) {
+                    if(requestInclination != -1)
+                        sendFrame("45\n"); // target incline
+                    else
+                        poolIndex = 99;
+                } else {
+                    if(requestPower != -1)
+                        sendFrame("125\n"); // target watt
+                    else
+                        poolIndex = 99;
+                }
+            break;
+            case 4:
+                if(!erg_mode) {
+                    sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
+                    qDebug() << "forceInclination" << requestInclination;
+                    requestInclination = -1;
+                } else {
+                    double r = requestPower;
+                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                            qDebug() << QStringLiteral("request watt value was ") << r
+                                    << QStringLiteral("but it will be transformed to")
+                                    << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                        }
+                        r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                    }
+                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
+                        if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                            qDebug() << QStringLiteral("request watt value was ") << r
+                                    << QStringLiteral("but it will be transformed to")
+                                    << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        }
+                        r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                    }
+                    sendFrame((QString::number(r) + "\n").toLocal8Bit()); // target watt
+                    qDebug() << "forceWatt" << r;
+                    requestPower = -1;
+                }
+            break;            
             default:
             break;
         }
         poolIndex++;
-        if(poolIndex > 2)
+        if(poolIndex > 4)
             poolIndex = 0;
             
     } else if(newValue.contains("Enter New Value")) {
@@ -455,7 +410,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         }
     }
 
-    if (watts())
+    if (watts()) {
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) *
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
@@ -463,6 +418,9 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
+        Distance += ((Speed.value() / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+    }
     /*
         Resistance = resistance;
         m_pelotonResistance = (100 / 32) * Resistance.value();
@@ -505,145 +463,6 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));    */    
-
-    /////////////////////////////////////////
-    return;
-    /////////////////////////////////////////
-
-    lastPacket = newValue;
-
-    lastPacket = lastPacket.replace("à", "a");
-                 QByteArray payload = lastPacket.toLocal8Bit(); // JSON
-    QJsonParseError parseError;
-    QJsonDocument metrics = QJsonDocument::fromJson(payload, &parseError);
-
-    QJsonObject json = metrics.object();
-    QJsonValue values = json.value("values");
-
-    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        if (!values[QStringLiteral("Current KPH")].isUndefined()) {
-            double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
-            Speed = kph;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        } else if (!values[QStringLiteral("KPH")].isUndefined()) {
-            double kph = values[QStringLiteral("KPH")].toString().toDouble();
-            Speed = kph;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        }
-    } else {
-        Speed = metric::calculateSpeedFromPower(
-            watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-    }
-
-    if (!values[QStringLiteral("Kilometers")].isUndefined()) {
-        double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
-    } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
-        double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
-    }
-
-    if (!values[QStringLiteral("RPM")].isUndefined()) {
-        double rpm = values[QStringLiteral("RPM")].toString().toDouble();
-        Cadence = rpm;
-        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
-    }
-
-           // some buggy TDF1 bikes send spurious wattage at the end with cadence = 0
-    if (Cadence.value() > 0) {
-        if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-            double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
-                m_watt = watt;
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-        } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
-            double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
-            m_watt = watt;
-            emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
-        }
-    }
-
-    if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
-        double incline = values[QStringLiteral("Actual Incline")].toString().toDouble();
-        Inclination = incline;
-        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
-    }
-
-    if (!values[QStringLiteral("Target Watts")].isUndefined()) {
-        double watt = values[QStringLiteral("Target Watts")].toString().toDouble();
-        target_watts = watt;
-        emit debug(QStringLiteral("Target Watts: ") + QString::number(watts()));
-    }
-
-    if (!values[QStringLiteral("Resistance")].isUndefined()) {
-        Resistance = values[QStringLiteral("Resistance")].toString().toDouble();
-        emit debug(QStringLiteral("Resistance: ") + QString::number(Resistance.value()));
-    }
-
-    if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
-        max_incline_supported = values[QStringLiteral("Maximum Incline")].toString().toDouble();
-        emit debug(QStringLiteral("Maximum Incline Supported: ") + QString::number(max_incline_supported));
-    }
-
-    if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
-        if (!values[QStringLiteral("key")].isUndefined()) {
-            QJsonObject key = values[QStringLiteral("key")].toObject();
-            QJsonValue code = key.value("code");
-            QJsonValue name = key.value("name");
-            QJsonValue held = key.value("held");
-            if(held.toString().contains(QStringLiteral("-1"))) {
-                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-                if(!erg_mode) {
-                    double value = 0;
-                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
-                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
-                        value = -0.5;
-                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
-                        qDebug() << "LEFT EXTERNAL GEAR UP";
-                        value = 0.5;
-                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
-                        qDebug() << "RIGHT EXTERNAL GEAR UP";
-                        value = -5.0;
-                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
-                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
-                        value = 5.0;
-                    }
-                    if (value != 0.0) {
-                        forceResistance(currentInclination().value() + value); // to force an immediate change
-                        setGears(gears() + value);
-                    }
-                } else {
-                    double value = 0;
-                    if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR DOWN"))) {
-                        qDebug() << "LEFT EXTERNAL GEAR DOWN";
-                        value = -10.0;
-                    } else if (name.toString().contains(QStringLiteral("LEFT EXTERNAL GEAR UP"))) {
-                        qDebug() << "LEFT EXTERNAL GEAR UP";
-                        value = 10.0;
-                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR UP"))) {
-                        qDebug() << "RIGHT EXTERNAL GEAR UP";
-                        value = -50.0;
-                    } else if (name.toString().contains(QStringLiteral("RIGHT EXTERNAL GEAR DOWN"))) {
-                        qDebug() << "RIGHT EXTERNAL GEAR DOWN";
-                        value = 50.0;
-                    }
-                    if (value != 0.0) {
-                        changePower(requestPower + value);
-                    }
-                }
-            }
-        }
-    }
 }
 
 void proformtelnetbike::btinit() { initDone = true; }

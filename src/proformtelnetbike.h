@@ -68,10 +68,6 @@ class proformtelnetbike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts() override;
-    void forceResistance(double requestResistance);
-    void innerWriteResistance();
-    void setTargetWatts(double watts);
-    void setWorkoutType(QString type);
     void sendFrame(QByteArray frame);
 
     QTimer *refresh;
