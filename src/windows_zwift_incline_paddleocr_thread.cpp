@@ -1,5 +1,6 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "elliptical.h"
+#include "secret.h"
 #include "treadmill.h"
 #include <QDateTime>
 #include <QDebug>
