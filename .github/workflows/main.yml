@@ -975,13 +975,15 @@ jobs:
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
           echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
           echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-          echo "#define AISERVER" >> aiserver.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..                    
 
       - name: Build
         run: |
+            cd src
+            echo "#define AISERVER" >> aiserver.h
+            cd ..
             qmake
             nmake
             cd src/debug
