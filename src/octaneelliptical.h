@@ -62,6 +62,12 @@ class octaneelliptical : public elliptical {
 
     QByteArray actualPaceSign;
     QByteArray actualPace2Sign;
+    QByteArray actualHR;
+    QByteArray actualResistance;
+    QByteArray actualOdometer;
+    int distance = 0;
+    QDateTime lastTimeDistance = QDateTime::currentDateTime();
+    metric speed;
 
     QTimer *refresh;
 

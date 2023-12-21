@@ -1037,6 +1037,16 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("row_remaining_time_m"), 0);
             obj.setProperty(QStringLiteral("row_remaining_time_h"), 0);
         }
+        if (homeform::singleton()->trainingProgram()) {
+            el = homeform::singleton()->trainingProgram()->remainingTime();
+            obj.setProperty(QStringLiteral("remaining_time_s"), el.second());
+            obj.setProperty(QStringLiteral("remaining_time_m"), el.minute());
+            obj.setProperty(QStringLiteral("remaining_time_h"), el.hour());
+        } else {
+            obj.setProperty(QStringLiteral("remaining_time_s"), 0);
+            obj.setProperty(QStringLiteral("remaining_time_m"), 0);
+            obj.setProperty(QStringLiteral("remaining_time_h"), 0);
+        }
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString())

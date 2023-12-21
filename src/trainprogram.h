@@ -62,7 +62,7 @@ class trainprogram : public QObject {
     trainprogram(const QList<trainrow> &, bluetooth *b, QString *description = nullptr, QString *tags = nullptr,
                  bool videoAvailable = false);
     void save(const QString &filename);
-    static trainprogram *load(const QString &filename, bluetooth *b);
+    static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
     static QList<trainrow> loadXML(const QString &filename);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();

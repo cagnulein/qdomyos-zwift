@@ -1914,6 +1914,21 @@ class QZSettings {
     static const QString iconsole_elliptical;
     static constexpr bool default_iconsole_elliptical = false;    
 
+    static const QString autolap_distance;
+    static constexpr float default_autolap_distance = 0;
+
+    static const QString nordictrack_s20_treadmill;
+    static constexpr bool default_nordictrack_s20_treadmill = false;    
+
+    static const QString freemotion_coachbike_b22_7;
+    static constexpr bool default_freemotion_coachbike_b22_7 = false;
+
+    static const QString proform_cycle_trainer_300_ci;
+    static constexpr bool default_proform_cycle_trainer_300_ci = false;
+
+    static const QString kingsmith_encrypt_g1_walking_pad;
+    static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
+
     static const QString proformtdf1ip;
     static const QString default_proformtdf1ip;
 

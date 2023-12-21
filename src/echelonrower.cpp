@@ -25,6 +25,7 @@ echelonrower::echelonrower(bool noWriteResistance, bool noHeartService, uint8_t 
 #endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
+    speedRaw.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -236,10 +237,13 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
     // instant pace to km/h
-    if (((uint8_t)lastPacket.at(14)) > 0 && Cadence.value() > 0)
-        Speed = (60.0 / (double)((uint8_t)lastPacket.at(14))) * 30.0;
-    else
+    if ((((uint8_t)lastPacket.at(14)) > 0 || ((uint8_t)lastPacket.at(13)) > 0) && Cadence.value() > 0) {
+        speedRaw = (60.0 / (double)(((uint16_t)lastPacket.at(13) << 8) | ((uint16_t)lastPacket.at(14)))) * 30.0;
+        Speed = speedRaw.average5s();
+    } else {
         Speed = 0;
+        speedRaw = 0;
+    }
 
     StrokesLength =
         ((Speed.value() / 60.0) * 1000.0) /
