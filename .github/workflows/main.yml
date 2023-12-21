@@ -934,23 +934,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: qt-labs/qthttpserver
-          path: "src/qthttpserver"
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.7
-      - name: download python and paddleocr
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade setuptools
-          python -m pip install paddlepaddle-gpu==2.5.1.post117 -f https://www.paddlepaddle.org.cn/whl/windows/mkl/avx/stable.html
-          python -m pip install paddleocr
-          python -m pip install imutils
-          python -m pip install "Pillow<10.0.0"
-          python -m pip install opencv-python
-          python -m pip install numpy
-          python -m pip install pywin32
-        if: matrix.config.python          
+          path: "src/qthttpserver"      
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -1013,8 +997,6 @@ jobs:
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
             mkdir adb
-            mkdir python
-            Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
             cp ../../adb/* adb/
             cd ..
             cd appx
