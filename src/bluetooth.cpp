@@ -2985,7 +2985,7 @@ bluetoothdevice *bluetooth::device() {
         return cscBike;
     } else if (proformWifiBike) {
         return proformWifiBike;
-    } else if (proformTelnetiBike) {
+    } else if (proformTelnetBike) {
         return proformTelnetBike;        
     } else if (proformWifiTreadmill) {
         return proformWifiTreadmill;
