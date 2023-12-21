@@ -1037,6 +1037,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 }
             } else if (!nordictrack_gx_2_7) {
                 switch ((uint8_t)newValue.at(11)) {
+                case 0x00:
                 case 0x02:
                     Resistance = 1;
                     m_pelotonResistance = 10;
