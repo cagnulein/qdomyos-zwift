@@ -1,7 +1,9 @@
 #include "windows_zwift_workout_paddleocr_thread.h"
 #include "elliptical.h"
 #include "treadmill.h"
-#include "secret.h"
+#if __has_include("aiserver.h")
+#include "aiserver.h"
+#endif
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
