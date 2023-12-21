@@ -47,10 +47,11 @@ QString windows_zwift_incline_paddleocr_thread::runPython(QString command) {
     process.setProcessEnvironment(env);
     //qDebug() << "env >> " << env.value("PATH");
     qDebug() << "run >> " << command;
-    process.setProgram("python.exe");
-    process.setArguments(QStringList(command.split(' ')));
-    process.startDetached();
-    //process.start("python.exe", QStringList(command.split(' ')));
+#ifndef AISERVER    
+    process.start("python\\x64\\python.exe", QStringList(command.split(' ')));
+#else
+    process.start("C:\\Program Files\\CodeProject\\AI\\modules\\OCR\\bin\\windows\\python37\\venv\\Scripts\\python.exe", QStringList(command.split(' ')));
+#endif
     process.waitForFinished(-1); // will wait forever until finished
 
     QString out = process.readAllStandardOutput();
