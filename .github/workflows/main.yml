@@ -1040,7 +1040,6 @@ jobs:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
-            windows-msvc2019-ai-server-binary-no-python/*
             windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
