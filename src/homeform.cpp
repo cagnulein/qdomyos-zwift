@@ -53,7 +53,7 @@ using namespace std::chrono_literals;
 #if defined(WIN32)
 #pragma message("DEFINE STRAVA_CLIENT_ID!!!")
 #else
-#pragma warning "DEFINE STRAVA_CLIENT_ID!!!"
+#pragma message "DEFINE STRAVA_CLIENT_ID!!!"
 #endif
 #endif
 #define _STR(x) #x
@@ -5942,7 +5942,7 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
 #elif defined(WIN32)
 #pragma message("DEFINE STRAVA_SECRET_KEY!!!")
 #else
-#pragma warning "DEFINE STRAVA_SECRET_KEY!!!"
+#pragma message "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
     strava->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
@@ -6063,7 +6063,7 @@ void homeform::sendMail() {
     SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
     connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
 #else
-#pragma warning "stmp server is unset!"
+#pragma message "stmp server is unset!"
     SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
     return;
 #endif
@@ -6075,7 +6075,7 @@ void homeform::sendMail() {
 #define STRINGIFY(x) _STR(x)
     smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
-#pragma warning "smtp username is unset!"
+#pragma message "smtp username is unset!"
     return;
 #endif
 #ifdef SMTP_PASSWORD
@@ -6083,7 +6083,7 @@ void homeform::sendMail() {
 #define STRINGIFY(x) _STR(x)
     smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
-#pragma warning "smtp password is unset!"
+#pragma message "smtp password is unset!"
     return;
 #endif
 
