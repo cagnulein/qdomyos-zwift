@@ -6,7 +6,8 @@
 - (instancetype)init:(NSString *)deviceName qtDevice:(void*)qtDevice {
     self = [super init];
     if (self) {
-        _targetDeviceName = deviceName;
+        _targetDeviceName = [deviceName copy];
+        qDebug() << _targetDeviceName;
         _qtDevice = (echelonconnectsport*)qtDevice;
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
     }
@@ -22,6 +23,7 @@
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
     if (peripheral && _targetDeviceName && peripheral.name) {
+        qDebug() << _targetDeviceName;
         if ([peripheral.name isEqualToString:_targetDeviceName]) {
             self.connectedPeripheral = peripheral;
             [self.centralManager stopScan];
