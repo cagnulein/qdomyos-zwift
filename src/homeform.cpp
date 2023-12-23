@@ -3797,7 +3797,6 @@ void homeform::update() {
                     speed->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             } else {
                 if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                     bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
@@ -3813,7 +3812,6 @@ void homeform::update() {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             }
 
             this->target_pace->setValue(
@@ -4065,7 +4063,6 @@ void homeform::update() {
                     speed->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
@@ -4167,10 +4164,6 @@ void homeform::update() {
                 } else {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
                 }
-                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-                    ((bike *)bluetoothManager->device())
-                        ->pelotonResistance()
-                        .setColor(this->peloton_resistance->valueFontColor());
             }
 
             int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
@@ -4193,7 +4186,6 @@ void homeform::update() {
                 } else {
                     this->cadence->setValueFontColor(QStringLiteral("orange"));
                 }
-                bluetoothManager->device()->currentCadence().setColor(this->cadence->valueFontColor());
             }
         }
 
@@ -4289,7 +4281,6 @@ void homeform::update() {
             ftp->setValueFontColor(QStringLiteral("red"));
             watt->setValueFontColor(QStringLiteral("red"));
         }
-        bluetoothManager->device()->wattsMetric().setColor(watt->valueFontColor());
         bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
@@ -4487,7 +4478,6 @@ void homeform::update() {
             pidHR->setValueFontColor(QStringLiteral("white"));
             break;
         }
-        bluetoothManager->device()->currentHeart().setColor(heart->valueFontColor());
         bluetoothManager->device()->setHeartZone(currentHRZone);
         Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
         heart->setSecondLine(Z + QStringLiteral(" AVG: ") +

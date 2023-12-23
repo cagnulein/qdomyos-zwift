@@ -172,6 +172,7 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     // SPEED
     actualPaceSign.append(0x01);
     actualPaceSign.append(0x07);
+    actualPace2Sign.append((char)0x00);
     actualPace2Sign.append(0x07);
 
     actualHR.append((char)0x02);
@@ -381,21 +382,30 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 
-    if (!newValue.contains(actualPaceSign) /*&& !newValue.contains(actualPace2Sign)*/)
-        return;
-
     int16_t i = newValue.indexOf(actualPaceSign) + 2;
     /*if (i <= 1)
         i = newValue.indexOf(actualPace2Sign) + 1;*/
 
-    if (i + 1 >= newValue.length() || i <= 1)
-        return;
+    if (i + 1 >= newValue.length() || i <= 1) {
+        // fallback for a previous firmware version
+        if(newValue.length() >= 20 && (uint8_t)newValue.at(0) == 0xa5) {
+            if(newValue.at(6) == 0x07) {
+                i = 7;
+            } else if(newValue.at(15) == 0x07) {
+                i = 16;
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }        
 
     Cadence = ((uint8_t)value.at(i));
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     // Q37xi has a fixed stride length of 20.5 inches (52cm).
-    Speed = (Cadence.value() * 52.0 * 60) / 10000;
+    Speed = (((Cadence.value() / 2.0) * 52.07 * 60) / 10000) * 0.84135;
     emit speedChanged(speed.value());
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
