@@ -316,35 +316,37 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         emit debug(QStringLiteral("Ready to start the poll"));
         sendFrame("2\n"); // current watt
     } else if(newValue.contains("Enter Variable Offset")) {
+        qDebug() << "poolIndex" << poolIndex;
         switch (poolIndex)
         {          
             case 0:
+            case 1:
                 sendFrame("124\n"); // current watt
             break;
-            case 1:
+            case 2:
                 sendFrame("40\n"); // current rpm
             break;
-            case 2:
+            case 3:
                 sendFrame("34\n"); // current speed
             break;
-            case 3:            
+            case 4:
                 if(!erg_mode) {
-                    if(requestInclination != -1)
+                    if(requestInclination != -100)
                         sendFrame("45\n"); // target incline
                     else
-                        poolIndex = 99;
+                        poolIndex = 0;
                 } else {
                     if(requestPower != -1)
                         sendFrame("125\n"); // target watt
                     else
-                        poolIndex = 99;
+                        poolIndex = 0;
                 }
             break;
-            case 4:
+            case 5:
                 if(!erg_mode) {
                     sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
                     qDebug() << "forceInclination" << requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 } else {
                     double r = requestPower;
                     if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
@@ -372,7 +374,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
             break;
         }
         poolIndex++;
-        if(poolIndex > 4)
+        if(poolIndex > 5)
             poolIndex = 0;
             
     } else if(newValue.contains("Enter New Value")) {
