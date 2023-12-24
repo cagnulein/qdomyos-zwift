@@ -322,36 +322,35 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
             switch (poolIndex)
             {          
                 case 0:
-                case 1:
                     sendFrame("124\n"); // current watt
                     done = true;
                 break;
-                case 2:
+                case 1:
                     sendFrame("40\n"); // current rpm
                     done = true;
                 break;
-                case 3:
+                case 2:
                     sendFrame("34\n"); // current speed
                     done = true;
                 break;
-                case 4:
+                case 3:
                     if(!erg_mode) {
                         if(requestInclination != -100) {
                             sendFrame("45\n"); // target incline
                             done = true;
                         }
                         else
-                            poolIndex = 0;
+                            poolIndex = 99;
                     } else {
                         if(requestPower != -1) {
                             sendFrame("125\n"); // target watt
                             done = true;
                         }
                         else
-                            poolIndex = 0;
+                            poolIndex = 99;
                     }
                 break;
-                case 5:
+                case 4:
                     if(!erg_mode) {
                         sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
                         done = true;
@@ -385,7 +384,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
                 break;
             }
             poolIndex++;
-            if(poolIndex > 5)
+            if(poolIndex > 4)
                 poolIndex = 0;
         } while(!done);
             
