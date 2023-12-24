@@ -317,65 +317,77 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         sendFrame("2\n"); // current watt
     } else if(newValue.contains("Enter Variable Offset")) {
         qDebug() << "poolIndex" << poolIndex;
-        switch (poolIndex)
-        {          
-            case 0:
-            case 1:
-                sendFrame("124\n"); // current watt
-            break;
-            case 2:
-                sendFrame("40\n"); // current rpm
-            break;
-            case 3:
-                sendFrame("34\n"); // current speed
-            break;
-            case 4:
-                if(!erg_mode) {
-                    if(requestInclination != -100)
-                        sendFrame("45\n"); // target incline
-                    else
-                        poolIndex = 0;
-                } else {
-                    if(requestPower != -1)
-                        sendFrame("125\n"); // target watt
-                    else
-                        poolIndex = 0;
-                }
-            break;
-            case 5:
-                if(!erg_mode) {
-                    sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
-                    qDebug() << "forceInclination" << requestInclination;
-                    requestInclination = -100;
-                } else {
-                    double r = requestPower;
-                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
-                        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
-                            qDebug() << QStringLiteral("request watt value was ") << r
-                                    << QStringLiteral("but it will be transformed to")
-                                    << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+        bool done = false;
+        do {
+            switch (poolIndex)
+            {          
+                case 0:
+                case 1:
+                    sendFrame("124\n"); // current watt
+                    done = true;
+                break;
+                case 2:
+                    sendFrame("40\n"); // current rpm
+                    done = true;
+                break;
+                case 3:
+                    sendFrame("34\n"); // current speed
+                    done = true;
+                break;
+                case 4:
+                    if(!erg_mode) {
+                        if(requestInclination != -100) {
+                            sendFrame("45\n"); // target incline
+                            done = true;
                         }
-                        r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-                    }
-                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-                        if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                            qDebug() << QStringLiteral("request watt value was ") << r
-                                    << QStringLiteral("but it will be transformed to")
-                                    << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        else
+                            poolIndex = 0;
+                    } else {
+                        if(requestPower != -1) {
+                            sendFrame("125\n"); // target watt
+                            done = true;
                         }
-                        r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        else
+                            poolIndex = 0;
                     }
-                    sendFrame((QString::number(r) + "\n").toLocal8Bit()); // target watt
-                    qDebug() << "forceWatt" << r;
-                    requestPower = -1;
-                }
-            break;            
-            default:
-            break;
-        }
-        poolIndex++;
-        if(poolIndex > 5)
-            poolIndex = 0;
+                break;
+                case 5:
+                    if(!erg_mode) {
+                        sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
+                        done = true;
+                        qDebug() << "forceInclination" << requestInclination;
+                        requestInclination = -100;
+                    } else {
+                        double r = requestPower;
+                        if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                            if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                                qDebug() << QStringLiteral("request watt value was ") << r
+                                        << QStringLiteral("but it will be transformed to")
+                                        << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                            }
+                            r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                        }
+                        if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
+                            if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                                qDebug() << QStringLiteral("request watt value was ") << r
+                                        << QStringLiteral("but it will be transformed to")
+                                        << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                            }
+                            r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                        }
+                        sendFrame((QString::number(r) + "\n").toLocal8Bit()); // target watt
+                        done = true;
+                        qDebug() << "forceWatt" << r;
+                        requestPower = -1;
+                    }
+                break;            
+                default:
+                break;
+            }
+            poolIndex++;
+            if(poolIndex > 5)
+                poolIndex = 0;
+        } while(!done);
             
     } else if(newValue.contains("Enter New Value")) {
         sendFrame("q\n"); // quit
