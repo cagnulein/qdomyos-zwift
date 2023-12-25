@@ -165,6 +165,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
     bool proform_cycle_trainer_300_ci =
         settings.value(QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci)
             .toBool();    
+    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
@@ -268,7 +269,7 @@ void proformbike::forceResistance(resistance_t requestResistance) {
             writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
             break;
         }
-    } else if (nordictrack_gx_2_7) {
+    } else if (nordictrack_gx_2_7 || proform_bike_225_csx) {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
                                 0x04, 0xc2, 0x01, 0x00, 0xda, 0x00, 0x00, 0x00, 0x00, 0x00};
         const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
@@ -532,6 +533,7 @@ void proformbike::update() {
         bool proform_bike_PFEVEX71316_1 =
             settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1)
                 .toBool();
+        bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -544,6 +546,13 @@ void proformbike::update() {
         uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x01, 0x00, 0xa9, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
+
+        // proform_bike_225_csx
+        uint8_t noOpData2_proform_bike_225_csx[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00, 0x0d, 0x3c, 0x96, 0x31, 0x00, 0x00, 0x40, 0x40, 0x00, 0x80};
+        uint8_t noOpData3_proform_bike_225_csx[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x85, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData5_proform_bike_225_csx[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0x80, 0x08, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6_proform_bike_225_csx[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
 
         // proform_bike_sb
         uint8_t noOpData2_proform_bike_sb[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x07, 0x13, 0x02, 0x00,
@@ -612,7 +621,7 @@ void proformbike::update() {
 
         switch (counterPoll) {
         case 0:
-            if (nordictrack_gx_2_7 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb) {
+            if (nordictrack_gx_2_7 || proform_cycle_trainer_300_ci || proform_hybrid_trainer_PFEL03815 || proform_bike_sb || proform_bike_225_csx) {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             } else {
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -627,8 +636,11 @@ void proformbike::update() {
             } else if (proform_hybrid_trainer_PFEL03815) {
                 writeCharacteristic(noOpData2_proform_hybrid_trainer_PFEL03815,
                                     sizeof(noOpData2_proform_hybrid_trainer_PFEL03815), QStringLiteral("noOp"));
-            } else if (proform_tour_de_france_clc)
+            } else if (proform_tour_de_france_clc) {
                 writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
+                                    QStringLiteral("noOp"));
+            } else if (proform_bike_225_csx)
+                writeCharacteristic(noOpData2_proform_bike_225_csx, sizeof(noOpData2_proform_bike_225_csx),
                                     QStringLiteral("noOp"));
             else if (proform_cycle_trainer_400)
                 writeCharacteristic(noOpData2_proform_cycle_trainer_400, sizeof(noOpData2_proform_cycle_trainer_400),
@@ -654,8 +666,11 @@ void proformbike::update() {
             } else if (proform_hybrid_trainer_PFEL03815) {
                 writeCharacteristic(noOpData3_proform_hybrid_trainer_PFEL03815,
                                     sizeof(noOpData3_proform_hybrid_trainer_PFEL03815), QStringLiteral("noOp"));
-            } else if (proform_cycle_trainer_400)
+            } else if (proform_cycle_trainer_400) {
                 writeCharacteristic(noOpData3_proform_cycle_trainer_400, sizeof(noOpData3_proform_cycle_trainer_400),
+                                    QStringLiteral("noOp"));
+            } else if (proform_bike_225_csx)
+                writeCharacteristic(noOpData3_proform_bike_225_csx, sizeof(noOpData3_proform_bike_225_csx),
                                     QStringLiteral("noOp"));
             else if (proform_bike_sb)
                 writeCharacteristic(noOpData3_proform_bike_sb, sizeof(noOpData3_proform_bike_sb),
@@ -679,6 +694,8 @@ void proformbike::update() {
             } else if (proform_bike_sb) {
                 innerWriteResistance();
                 writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+            } else if(proform_bike_225_csx) {
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             } else
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
@@ -691,6 +708,9 @@ void proformbike::update() {
             } else if (proform_hybrid_trainer_PFEL03815) {
                 writeCharacteristic(noOpData5_proform_hybrid_trainer_PFEL03815,
                                     sizeof(noOpData5_proform_hybrid_trainer_PFEL03815), QStringLiteral("noOp"));
+            } else if (proform_bike_225_csx) {
+                writeCharacteristic(noOpData5_proform_bike_225_csx, sizeof(noOpData5_proform_bike_225_csx),
+                                    QStringLiteral("noOp"));
             } else if (proform_bike_sb)
                 writeCharacteristic(noOpData5_proform_bike_sb, sizeof(noOpData5_proform_bike_sb),
                                     QStringLiteral("noOp"));
@@ -703,9 +723,14 @@ void proformbike::update() {
         case 5:
             if (proform_studio || proform_tdf_10)
                 writeCharacteristic(noOpData6_proform_studio, sizeof(noOpData6_proform_studio), QStringLiteral("noOp"));
-            else if (proform_tour_de_france_clc)
+            else if (proform_tour_de_france_clc) {
                 writeCharacteristic(noOpData6_proform_tour_de_france_clc, sizeof(noOpData6_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
+            } else if (proform_bike_225_csx) {
+                writeCharacteristic(noOpData6_proform_bike_225_csx, sizeof(noOpData6_proform_bike_225_csx),
+                                    QStringLiteral("noOp"));
+                innerWriteResistance();
+            }
             else if (proform_cycle_trainer_400)
                 writeCharacteristic(noOpData6_proform_cycle_trainer_400, sizeof(noOpData6_proform_cycle_trainer_400),
                                     QStringLiteral("noOp"));
@@ -857,6 +882,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
     bool proform_bike_PFEVEX71316_1 =
         settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1).toBool();
+    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -1290,6 +1316,7 @@ void proformbike::btinit() {
             .value(QZSettings::proform_hybrid_trainer_PFEL03815, QZSettings::default_proform_hybrid_trainer_PFEL03815)
             .toBool();
     bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
+    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
     if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
@@ -1628,7 +1655,18 @@ void proformbike::btinit() {
             writeCharacteristic(noOpData17, sizeof(noOpData17), QStringLiteral("init"), false, false);
             QThread::msleep(400);
 
+        } else if (proform_bike_225_csx) {
+            max_resistance = 10;
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07, 0x01, 0xd2, 0x74, 0x14, 0xb2, 0x5e, 0x08, 0xa0, 0x5e, 0x0a};
+            uint8_t initData11[] = {0x01, 0x12, 0xbc, 0x6c, 0x1a, 0xc6, 0x90, 0x28, 0xe6, 0xa2, 0x64, 0x24, 0xe2, 0xae, 0x98, 0x50, 0x0e, 0xfa, 0xac, 0x9c};
+            uint8_t initData12[] = {0xff, 0x08, 0x4a, 0x36, 0x20, 0x98, 0x02, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
         } else if (proform_hybrid_trainer_PFEL03815) {
             max_resistance = 16;
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
