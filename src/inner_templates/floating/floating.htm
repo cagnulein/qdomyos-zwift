@@ -590,7 +590,7 @@
       keys_arr = ['speed', 'speed_lapavg', 'cadence', 'cadence_lapavg', 'heart', 'heart_lapavg', 'calories', 'distance', 'watts', 'watts_lapavg',
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
-        'speed_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
+        'speed_color', 'power_zone_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
 		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
@@ -776,6 +776,8 @@
               $('.watt-value').css('color', msg.content[key]);
             } else if (key === 'speed_color') {
               $('.speed-value').css('color', msg.content[key]);
+            } else if (key === 'power_zone_color') {
+              $('.powerzone-value').css('color', msg.content[key]);              
             } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;

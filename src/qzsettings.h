@@ -1929,6 +1929,9 @@ class QZSettings {
     static const QString kingsmith_encrypt_g1_walking_pad;
     static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
 
+    static const QString proform_bike_225_csx;
+    static constexpr bool default_proform_bike_225_csx = false;
+
     static const QString proformtdf1ip;
     static const QString default_proformtdf1ip;
 
