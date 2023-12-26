@@ -315,6 +315,38 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     if(newValue.contains("Shared Memory Management Utility")) {
         emit debug(QStringLiteral("Ready to start the poll"));
         sendFrame("2\n"); // current watt
+    } else if(newValue.contains("Enter New Value")) {
+        if(poolIndex >= 4) {
+            if(!erg_mode) {
+                sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
+                qDebug() << "forceInclination" << requestInclination;
+                requestInclination = -100;
+            } else {
+                double r = requestPower;
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
+                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
+                        qDebug() << QStringLiteral("request watt value was ") << r
+                                << QStringLiteral("but it will be transformed to")
+                                << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                    }
+                    r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+                }
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
+                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
+                        qDebug() << QStringLiteral("request watt value was ") << r
+                                << QStringLiteral("but it will be transformed to")
+                                << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                    }
+                    r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+                }
+                sendFrame((QString::number(r) + "\n").toLocal8Bit()); // target watt
+                qDebug() << "forceWatt" << r;
+                requestPower = -1;
+            }
+            poolIndex = 0;
+        } else {
+            sendFrame("q\n"); // quit
+        }
     } else if(newValue.contains("Enter Variable Offset")) {
         qDebug() << "poolIndex" << poolIndex;
         bool done = false;
@@ -356,42 +388,8 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
             poolIndex++;
             if(poolIndex > 4)
                 poolIndex = 0;
-        } while(!done);
-            
-    } else if(newValue.contains("Enter New Value")) {
-        if(poolIndex >= 4) {
-            if(!erg_mode) {
-                sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
-                qDebug() << "forceInclination" << requestInclination;
-                requestInclination = -100;
-            } else {
-                double r = requestPower;
-                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() <= 2.00) {
-                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble() != 1.0) {
-                        qDebug() << QStringLiteral("request watt value was ") << r
-                                << QStringLiteral("but it will be transformed to")
-                                << r / settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-                    }
-                    r /= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-                }
-                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() < 0) {
-                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble() != 0.0) {
-                        qDebug() << QStringLiteral("request watt value was ") << r
-                                << QStringLiteral("but it will be transformed to")
-                                << r - settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                    }
-                    r -= settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-                }
-                sendFrame((QString::number(r) + "\n").toLocal8Bit()); // target watt
-                qDebug() << "forceWatt" << r;
-                requestPower = -1;
-            }
-            poolIndex = 0;
-        } else {
-            sendFrame("q\n"); // quit
-        }
+        } while(!done);            
     }
-
 
     QStringList packet = QString::fromLocal8Bit(newValue).split(" ");
     qDebug() << packet;    
