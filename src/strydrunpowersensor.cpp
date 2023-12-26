@@ -119,7 +119,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 
         if (newValue.length() > 3) {
             powerReceived = true;
-            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
+            double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+            m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2))) + vwatts;
         }
 
         emit powerChanged(m_watt.value());

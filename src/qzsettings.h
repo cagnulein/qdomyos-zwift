@@ -1923,6 +1923,18 @@ class QZSettings {
     static const QString freemotion_coachbike_b22_7;
     static constexpr bool default_freemotion_coachbike_b22_7 = false;
 
+    static const QString proform_cycle_trainer_300_ci;
+    static constexpr bool default_proform_cycle_trainer_300_ci = false;
+
+    static const QString kingsmith_encrypt_g1_walking_pad;
+    static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
+
+    static const QString proform_bike_225_csx;
+    static constexpr bool default_proform_bike_225_csx = false;
+
+    static const QString proform_treadmill_l6_0s;
+    static constexpr bool default_proform_treadmill_l6_0s = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -122,16 +122,20 @@ jobs:
             make install
             cd ../..
 
+      - name: Secrets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..  
+
       - name: Build
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -159,13 +163,6 @@ jobs:
       - name: Build without python
         run: |
             qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
             make -j8
             cd src/debug
             mkdir output
@@ -816,16 +813,20 @@ jobs:
             nmake install
             cd ../..          
 
+      - name: Secrets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..        
+
       - name: Build
         run: |
-            qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
+            qmake            
             nmake
             cd src/debug
             mkdir output
@@ -849,14 +850,7 @@ jobs:
             
       - name: Build without python
         run: |
-            qmake
-            cd src
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
-            echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
-            cd ..
+            qmake           
             nmake
             cd src/debug
             mkdir output
@@ -902,6 +896,121 @@ jobs:
           path: windows-msvc2019-binary-no-python.zip
         if:  ${{ ! matrix.config.python }}
 
+  window-msvc2019-aiserver-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: google/googletest
+          path: "tst/googletest/"
+          ref: "release-1.12.1"
+
+      - uses: actions/checkout@v2
+      - name: Checkout qHttpServer
+        uses: actions/checkout@v2
+        with:
+          repository: qt-labs/qthttpserver
+          path: "src/qthttpserver"      
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_msvc2019_64
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
+          cache: 'true'
+          cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Install MSVC compiler
+        uses: ilammy/msvc-dev-cmd@v1
+        with: 
+          # 14.1 is for vs2017, 14.2 is vs2019, following the upstream vcpkg build from Qv2ray-deps repo
+          toolset: 14.2
+          arch: x64
+
+      - name: download 3rd party files for qthttpserver
+        run: |
+            cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
+
+      - name: Build qthttpserver
+        run: |
+            cd src\qthttpserver 
+            qmake
+            nmake
+            nmake install
+            cd ../..          
+
+      - name: Secrets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd src
+          echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+          echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h
+          echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h
+          echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h          
+          echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
+          cd ..                    
+
+      - name: Build
+        run: |
+            cd src
+            echo "#define AISERVER" >> aiserver.h
+            cd ..
+            qmake
+            nmake
+            cd src/debug
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .
+            cp ../../AppxManifest.xml .
+            cp ../../windows/zwift-incline-ai-server.py zwift-incline.py
+            cp ../../windows/zwift-incline-climb-portal-ai-server.py zwift-incline-climb-portal.py
+            cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
+            cp ../../windows/*.bat .
+            cp ../../../windows_openssl/*.* .
+            mkdir adb
+            cp ../../adb/* adb/
+            cd ..
+            cd appx
+            #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz                      
+
+      - name: patching qt for bluetooth
+        run: cp qt-patches/windows/5.15.2/binary/msvc2019/*.* ${{ github.workspace }}/src/debug/output/
+
+      - name: Zip artifact for deployment
+        run: Compress-Archive src/debug/output windows-msvc2019-ai-server-binary.zip
+
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-msvc2019-ai-server-binary
+          path: windows-msvc2019-ai-server-binary.zip
+
   upload_to_release:
     permissions: write-all
     runs-on: ubuntu-latest
@@ -931,6 +1040,7 @@ jobs:
           files: |
             windows-msvc2019-binary-no-python/*
             windows-msvc2019-binary/*
+            windows-msvc2019-ai-server-binary/*            
             windows-binary-no-python/*
             windows-binary/*
             fdroid-android-trial/*

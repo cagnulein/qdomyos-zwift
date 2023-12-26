@@ -1,17 +1,18 @@
 # iFit-Wolf3 - Autoincline control of treadmill via ADB and OCR
 # Author: Al Udell
-# Revised: November 23, 2023
+# Revised: November 25, 2023
 
-# zwift-incline.py - take Zwift screenshot, crop incline, OCR incline
+# zwift-incline-climb-portal.py - take Zwift screenshot, crop incline, OCR incline
 
 # imports
 import cv2
 import numpy as np
 import re
-import win32gui
-from datetime import datetime
-from paddleocr import PaddleOCR
+
 from PIL import Image, ImageGrab
+import requests
+import win32gui
+#import time
 
 # Enable DPI aware on Windows
 from ctypes import windll
@@ -34,11 +35,11 @@ screenshot = screenshot.resize((3000, 2000))
 # Crop image to incline area
 screenwidth, screenheight = screenshot.size
 
-# Values for Zwift regular incline
-col1 = int(screenwidth/3000 * 2800)
-row1 = int(screenheight/2000 * 90)
-col2 = int(screenwidth/3000 * 2975)
-row2 = int(screenheight/2000 * 195)
+# Values for Zwift climb portal incline
+col1 = int(screenwidth/3000 * 2822)
+row1 = int(screenheight/2000 * 218)
+col2 = int(screenwidth/3000 * 2980)
+row2 = int(screenheight/2000 * 302)
 
 cropped = screenshot.crop((col1, row1, col2, row2))
 
@@ -95,19 +96,20 @@ ret,bin = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY_INV)
 # Apply gaussian blur
 gaussianBlur = cv2.GaussianBlur(bin,(3,3),0)
 
-# OCR image
-ocr = PaddleOCR(lang='en', use_gpu=False, show_log=False, det_db_unclip_ratio=2.0, det_db_box_thresh=0.40, drop_score=0.40, rec_algorithm='CRNN', cls_model_dir='paddleocr/ch_ppocr_mobile_v2.0_cls_infer', det_model_dir='paddleocr/en_PP-OCRv3_det_infer', rec_model_dir='paddleocr/en_PP-OCRv3_rec_infer')
-result = ocr.ocr(gaussianBlur, cls=False, det=True, rec=True)
+# Write zwift image
+cv2.imwrite('zwift.png', gaussianBlur, [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
-# Extract OCR text
-ocr_text = ''
-for line in result:
-    for word in line:
-        ocr_text += f"{word[1][0]}"
+# OCR image
+image_data = open("zwift.png","rb").read()
+ocr = requests.post("http://localhost:32168/v1/image/ocr", files={"image":image_data}).json()
+
+# Extract label values from the 'predictions' list and merge into a single string
+labels = [prediction['label'] for prediction in ocr.get('predictions', [])]
+result = ''.join(labels)
 
 # Remove all characters that are not "-" and integers from OCR text
 pattern = r"[^-\d]+"
-ocr_text = re.sub(pattern, "", ocr_text)
+ocr_text = re.sub(pattern, "", result)
 if ocr_text:
     incline = ocr_text
 else:

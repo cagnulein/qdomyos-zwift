@@ -10,7 +10,7 @@ int CharacteristicNotifier2ACC::notify(QByteArray &value) {
     value.append((char)0x14); // heart rate and elapsed time
     value.append((char)0x00);
     value.append((char)0x00);
-    value.append((char)0x0C); // resistance and power target supported
+    value.append((char)0x0F); // resistance, power, speed and inclination target supported
     value.append((char)0xE0); // indoor simulation, wheel and spin down supported
     value.append((char)0x00);
     value.append((char)0x00);
