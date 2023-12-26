@@ -540,8 +540,9 @@ resistance_t trixterxdreamv1bike::calculateResistanceFromInclination() {
 resistance_t trixterxdreamv1bike::calculateResistanceFromInclination(double inclination, double cadence) {
     QSettings settings;
 
-    double riderMass = settings.value(QStringLiteral("weight"), 75.0).toFloat();
-    double bikeMass = settings.value(QStringLiteral("bike_weight"), 0.0).toFloat();
+
+    double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double bikeMass = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
     double totalMass = riderMass+bikeMass;
 
     // Since we need speed to calculate power, and QZ isn't getting it from Zwift,
