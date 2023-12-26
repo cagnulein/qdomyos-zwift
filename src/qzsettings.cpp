@@ -687,8 +687,9 @@ const QString QZSettings::freemotion_coachbike_b22_7 = QStringLiteral("freemotio
 const QString QZSettings::proform_cycle_trainer_300_ci = QStringLiteral("proform_cycle_trainer_300_ci");
 const QString QZSettings::kingsmith_encrypt_g1_walking_pad = QStringLiteral("kingsmith_encrypt_g1_walking_pad");
 const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
+const QString QZSettings::proform_treadmill_l6_0s = QStringLiteral("proform_treadmill_l6_0s");
 
-const uint32_t allSettingsCount = 577;
+const uint32_t allSettingsCount = 578;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1272,6 +1273,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci},
     {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},
     {QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx},
+    {QZSettings::proform_treadmill_l6_0s, QZSettings::default_proform_treadmill_l6_0s},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
