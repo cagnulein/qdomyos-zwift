@@ -690,7 +690,7 @@ const QString QZSettings::proformtdf1ip = QStringLiteral("proformtdf1ip");
 const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
 const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
 
-const uint32_t allSettingsCount = 577;
+const uint32_t allSettingsCount = 578;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
