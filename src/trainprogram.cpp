@@ -716,9 +716,9 @@ void trainprogram::scheduler() {
             }
             if (rows.at(0).inclination != -200) {
                 double inc;
-                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
+                /*if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
                     inc = avgInclinationNext100Meters(currentStep);
-                } else {
+                } else */{
                     inc = rows.at(0).inclination;
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
@@ -854,9 +854,9 @@ void trainprogram::scheduler() {
                     }
                     if (rows.at(currentStep).inclination != -200) {
                         double inc;
-                        if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
+                        /*if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
                             inc = avgInclinationNext100Meters(currentStep);
-                        } else {
+                        } else */{
                             inc = rows.at(currentStep).inclination;
                         }
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
@@ -1004,7 +1004,7 @@ void trainprogram::scheduler() {
 
             if (rows.at(currentStep).inclination != -200 &&
                 (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
-                double inc = avgInclinationNext100Meters(currentStep);
+                double inc = rows.at(currentStep).inclination;
                 // if Bike used and it is a gpx with Video use the new weightedInclination
                 if ((videoAvailable) && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)) {
                     inc = weightedInclination(currentStep);
