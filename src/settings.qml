@@ -855,6 +855,9 @@ import QtQuick.Dialogs 1.0
             property bool proform_cycle_trainer_300_ci: false
             property bool kingsmith_encrypt_g1_walking_pad: false
             property bool proform_bike_225_csx: false
+
+            // from version 2.16.30
+            property bool proform_treadmill_l6_0s: false
             property string proformtdf1ip: ""
         }
 
@@ -5486,7 +5489,21 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.proform_pro_1000_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack L6.0S")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_l6_0s
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.proform_treadmill_l6_0s = checked; window.settings_restart_to_apply = true; }
+                        }
+
                         SwitchDelegate {
                             id: nordictrackT65SDelegate
                             text: qsTr("Nordictrack T6.5S v81")

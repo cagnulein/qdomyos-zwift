@@ -1932,6 +1932,9 @@ class QZSettings {
     static const QString proform_bike_225_csx;
     static constexpr bool default_proform_bike_225_csx = false;
 
+    static const QString proform_treadmill_l6_0s;
+    static constexpr bool default_proform_treadmill_l6_0s = false;
+
     static const QString proformtdf1ip;
     static const QString default_proformtdf1ip;
 
