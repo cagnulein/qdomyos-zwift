@@ -858,6 +858,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.30
             property bool proform_treadmill_l6_0s: false
+            property string proformtdf1ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -3047,6 +3048,29 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.proform_bike_sb = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("TDF1 IP:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: proformTDF1IPTextField
+                            text: settings.proformtdf1ip
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.proformtdf1ip = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.proformtdf1ip = proformTDF1IPTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
                     }
 
                     RowLayout {
