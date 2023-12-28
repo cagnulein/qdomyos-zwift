@@ -10,19 +10,11 @@
 #include <QEventLoop>
 #include <QDebug>
 
-QMap<int, int> COURSE_TO_WORLD = {{3, 1}, {4, 2}, {5, 3}, {6, 1}};
-
-enum COURSES {
-    WATOPIA = 3,
-    RICHMOND = 4,
-    LONDON = 5
-};
-
-class Request: public QObject {
+class ZwiftRequest: public QObject {
     Q_OBJECT
 
 public:
-    Request(const QString& getAccessToken) : getAccessToken(getAccessToken) {}
+    ZwiftRequest(const QString& getAccessToken) : getAccessToken(getAccessToken) {}
 
     QString json(const QString& url) {
         QNetworkRequest request(QUrl(BASE_URL + url));
@@ -85,7 +77,7 @@ public:
 
 private:
     int worldId;
-    Request request;
+    ZwiftRequest request;
 };
 
 class PlayerStateWrapper {
@@ -169,6 +161,14 @@ public:
     }
 
 private:
+    QMap<int, int> COURSE_TO_WORLD = {{3, 1}, {4, 2}, {5, 3}, {6, 1}};
+
+    enum COURSES {
+        WATOPIA = 3,
+        RICHMOND = 4,
+        LONDON = 5
+    };
+
     //zwift_messages::PlayerState playerState;
     QByteArray playerState;
 };
