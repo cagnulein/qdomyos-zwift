@@ -90,8 +90,9 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifndef Q_OS_WIN
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
 #endif
-        this->startDiscovery();
     }
+
+    this->startDiscovery();
 }
 
 void bluetooth::nonBluetoothDeviceDiscovery() {
@@ -236,27 +237,29 @@ void bluetooth::startDiscovery() {
 
     this->discovering = true;
 
+    if(this->discoveryAgent)
+    {
 #ifndef Q_OS_IOS
-    QSettings settings;
-    bool technogym_myrun_treadmill_experimental = settings
-                                                      .value(QZSettings::technogym_myrun_treadmill_experimental,
-                                                             QZSettings::default_technogym_myrun_treadmill_experimental)
-                                                      .toBool();
-    bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
-    bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
-    bool iconcept_elliptical =
-        settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
+        QSettings settings;
+        bool technogym_myrun_treadmill_experimental = settings
+                                                          .value(QZSettings::technogym_myrun_treadmill_experimental,
+                                                                 QZSettings::default_technogym_myrun_treadmill_experimental)
+                                                          .toBool();
+        bool trx_route_key = settings.value(QZSettings::trx_route_key, QZSettings::default_trx_route_key).toBool();
+        bool bh_spada_2 = settings.value(QZSettings::bh_spada_2, QZSettings::default_bh_spada_2).toBool();
+        bool iconcept_elliptical =
+            settings.value(QZSettings::iconcept_elliptical, QZSettings::default_iconcept_elliptical).toBool();
 
-    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
+        if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental && !iconcept_elliptical) {
 #endif
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 #ifndef Q_OS_IOS
-    } else {
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
-                              QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        } else {
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
+                                  QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        }
+#endif
     }
-#endif
-
 
     QTimer::singleShot(1, this, &bluetooth::nonBluetoothDeviceDiscovery);
 }
