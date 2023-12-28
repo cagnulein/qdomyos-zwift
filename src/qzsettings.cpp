@@ -684,8 +684,14 @@ const QString QZSettings::iconsole_elliptical = QStringLiteral("iconsole_ellipti
 const QString QZSettings::autolap_distance = QStringLiteral("autolap_distance");
 const QString QZSettings::nordictrack_s20_treadmill = QStringLiteral("nordictrack_s20_treadmill");
 const QString QZSettings::freemotion_coachbike_b22_7 = QStringLiteral("freemotion_coachbike_b22_7");
+const QString QZSettings::proform_cycle_trainer_300_ci = QStringLiteral("proform_cycle_trainer_300_ci");
+const QString QZSettings::kingsmith_encrypt_g1_walking_pad = QStringLiteral("kingsmith_encrypt_g1_walking_pad");
+const QString QZSettings::proformtdf1ip = QStringLiteral("proformtdf1ip");
+const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
+const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
+const QString QZSettings::proform_treadmill_l6_0s = QStringLiteral("proform_treadmill_l6_0s");
 
-const uint32_t allSettingsCount = 574;
+const uint32_t allSettingsCount = 579;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1266,6 +1272,11 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::autolap_distance, QZSettings::default_autolap_distance},
     {QZSettings::nordictrack_s20_treadmill, QZSettings::default_nordictrack_s20_treadmill},
     {QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7},
+    {QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci},
+    {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},    
+    {QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx},
+    {QZSettings::proform_treadmill_l6_0s, QZSettings::default_proform_treadmill_l6_0s},
+    {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

@@ -8,7 +8,7 @@ CharacteristicNotifier2ACD::CharacteristicNotifier2ACD(bluetoothdevice *Bike, QO
 int CharacteristicNotifier2ACD::notify(QByteArray &value) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
-        value.append(0x08);       // Inclination available
+        value.append(0x0C);       // Inclination available and distance for peloton
         value.append((char)0x01); // heart rate available
 
         uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
@@ -17,6 +17,17 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         QByteArray speedBytes;
         speedBytes.append(b);
         speedBytes.append(a);
+        
+        uint16_t normalizeDistance = (uint16_t)qRound(Bike->odometer() * 1000);
+        a = (normalizeDistance >> 16) & 0XFF;
+        b = (normalizeDistance >> 8) & 0XFF;
+        char c = normalizeDistance & 0XFF;
+        QByteArray distanceBytes;
+        distanceBytes.append(c);
+        distanceBytes.append(b);
+        distanceBytes.append(a);
+
+        
         uint16_t normalizeIncline = 0;
         if (dt == bluetoothdevice::TREADMILL)
             normalizeIncline = (uint32_t)qRound(((treadmill *)Bike)->currentInclination().value() * 10);
@@ -36,6 +47,8 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         rampBytes.append(a);
 
         value.append(speedBytes); // Actual value.
+        
+        value.append(distanceBytes); // Actual value.
 
         value.append(inclineBytes); // incline
 

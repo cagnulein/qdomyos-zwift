@@ -170,7 +170,9 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPace2Sign.clear();
 
     // SPEED
+    actualPaceSign.append(0x01);
     actualPaceSign.append(0x07);
+    actualPace2Sign.append((char)0x00);
     actualPace2Sign.append(0x07);
 
     actualHR.append((char)0x02);
@@ -355,29 +357,6 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (newValue.contains(actualOdometer)) {
-        int16_t i = newValue.indexOf(actualOdometer) + 1;
-
-        if (i + 2 < newValue.length() && i % 2 == 0) {
-
-            int d = ((uint16_t)value.at(i)) + ((((uint16_t)value.at(i + 1)) << 8) & 0xFF00);
-            if(d > distance) {
-                int oldDistance = distance;
-                distance = d;
-                QDateTime oldTime = lastTimeDistance;
-                lastTimeDistance = QDateTime::currentDateTime();
-                double distanceDeltaKm = ((double)(distance - oldDistance) / 100) * 1.60934;
-                double timeDeltaHours = oldTime.msecsTo(lastTimeDistance) / 1000.0 / 3600.0;
-                speed = distanceDeltaKm / timeDeltaHours;
-                Speed = speed.average5s();
-                emit speedChanged(speed.value());
-                Distance = distance * 1.60934;
-                emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
-                emit debug(QStringLiteral("Current Distance from The Machinery: ") + QString::number(distance));
-            }
-        }
-    }
-
     if (newValue.contains(actualHR)) {
         bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
@@ -403,17 +382,32 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
-        return;
+    int16_t i = newValue.indexOf(actualPaceSign) + 2;
+    /*if (i <= 1)
+        i = newValue.indexOf(actualPace2Sign) + 1;*/
 
-    int16_t i = newValue.indexOf(actualPaceSign) + 1;
-    if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 1;
-
-    if (i + 1 >= newValue.length())
-        return;
+    if (i + 1 >= newValue.length() || i <= 1) {
+        // fallback for a previous firmware version
+        if(newValue.length() >= 20 && (uint8_t)newValue.at(0) == 0xa5) {
+            if(newValue.at(6) == 0x07) {
+                i = 7;
+            } else if(newValue.at(15) == 0x07) {
+                i = 16;
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }        
 
     Cadence = ((uint8_t)value.at(i));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+    // Q37xi has a fixed stride length of 20.5 inches (52cm).
+    Speed = (((Cadence.value() / 2.0) * 52.07 * 60) / 10000) * 0.84135;
+    emit speedChanged(speed.value());
+    emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
     if (!firstCharacteristicChanged) {
         if (watts())
@@ -424,6 +418,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 

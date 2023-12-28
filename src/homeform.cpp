@@ -53,7 +53,7 @@ using namespace std::chrono_literals;
 #if defined(WIN32)
 #pragma message("DEFINE STRAVA_CLIENT_ID!!!")
 #else
-#warning "DEFINE STRAVA_CLIENT_ID!!!"
+#pragma message "DEFINE STRAVA_CLIENT_ID!!!"
 #endif
 #endif
 #define _STR(x) #x
@@ -3785,7 +3785,6 @@ void homeform::update() {
                     speed->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             } else {
                 if (bluetoothManager->device()->currentSpeed().value() <= trainProgram->currentRow().upper_speed &&
                     bluetoothManager->device()->currentSpeed().value() >= trainProgram->currentRow().lower_speed) {
@@ -3801,7 +3800,6 @@ void homeform::update() {
                     this->target_zone->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             }
 
             this->target_pace->setValue(
@@ -4053,7 +4051,6 @@ void homeform::update() {
                     speed->setValueFontColor(QStringLiteral("red"));
                     this->pace->setValueFontColor(QStringLiteral("red"));
                 }
-                bluetoothManager->device()->currentSpeed().setColor(speed->valueFontColor());
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
@@ -4155,10 +4152,6 @@ void homeform::update() {
                 } else {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
                 }
-                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-                    ((bike *)bluetoothManager->device())
-                        ->pelotonResistance()
-                        .setColor(this->peloton_resistance->valueFontColor());
             }
 
             int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
@@ -4181,7 +4174,6 @@ void homeform::update() {
                 } else {
                     this->cadence->setValueFontColor(QStringLiteral("orange"));
                 }
-                bluetoothManager->device()->currentCadence().setColor(this->cadence->valueFontColor());
             }
         }
 
@@ -4277,7 +4269,6 @@ void homeform::update() {
             ftp->setValueFontColor(QStringLiteral("red"));
             watt->setValueFontColor(QStringLiteral("red"));
         }
-        bluetoothManager->device()->wattsMetric().setColor(watt->valueFontColor());
         bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
@@ -4475,7 +4466,6 @@ void homeform::update() {
             pidHR->setValueFontColor(QStringLiteral("white"));
             break;
         }
-        bluetoothManager->device()->currentHeart().setColor(heart->valueFontColor());
         bluetoothManager->device()->setHeartZone(currentHRZone);
         Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
         heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
@@ -5173,7 +5163,8 @@ void homeform::update() {
                 }
             }
 
-            bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
+            if(bluetoothManager->device()->currentSpeed().value() > 0 && !isinf(bluetoothManager->device()->currentSpeed().value()))
+                bluetoothManager->device()->addCurrentDistance1s((bluetoothManager->device()->currentSpeed().value() / 3600.0));
             
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
 
@@ -5940,7 +5931,7 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
 #elif defined(WIN32)
 #pragma message("DEFINE STRAVA_SECRET_KEY!!!")
 #else
-#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#pragma message "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
     strava->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
@@ -6061,7 +6052,7 @@ void homeform::sendMail() {
     SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
     connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
 #else
-#warning "stmp server is unset!"
+#pragma message "stmp server is unset!"
     SmtpClient smtp(QLatin1String(""), 25, SmtpClient::TlsConnection);
     return;
 #endif
@@ -6073,7 +6064,7 @@ void homeform::sendMail() {
 #define STRINGIFY(x) _STR(x)
     smtp.setUser(STRINGIFY(SMTP_USERNAME));
 #else
-#warning "smtp username is unset!"
+#pragma message "smtp username is unset!"
     return;
 #endif
 #ifdef SMTP_PASSWORD
@@ -6081,7 +6072,7 @@ void homeform::sendMail() {
 #define STRINGIFY(x) _STR(x)
     smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
 #else
-#warning "smtp password is unset!"
+#pragma message "smtp password is unset!"
     return;
 #endif
 

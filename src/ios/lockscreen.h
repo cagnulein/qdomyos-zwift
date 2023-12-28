@@ -46,7 +46,7 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination);
+                                     unsigned short currentInclination, unsigned long long currentDistance);
 
     // volume
     double getVolume();
