@@ -5259,6 +5259,12 @@ QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
     QFileInfo f(fileNameLocal);
     QString filename = f.fileName();
     QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
+    
+    // android <14 fallback
+    if(fileNameLocal.length() == 0) {
+        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
+        filename = file.fileName();
+    }
     QString dest = getWritableAppDir() + subfolder + "/" + filename;
     qDebug() << file.fileName() << fileNameLocal << filename;
     QFile::remove(dest);
