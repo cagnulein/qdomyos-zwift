@@ -36,6 +36,7 @@ public :
 
     bool toorx_ftms = false;
     bool toorx_ftms_treadmill = false;
+    bool horizon_treadmill_force_ftms = false;
     bool snode_bike = false;
     bool fitplus_bike = false;
 
@@ -47,6 +48,10 @@ public :
     QString ftmsAccessoryName = nullptr;
 
     bool pafers_treadmill_bh_iboxster_plus = false;
+
+    bool iconcept_elliptical = false;
+
+    bool sole_treadmill_inclination = false;
 
     /**
      * @brief Constructor.

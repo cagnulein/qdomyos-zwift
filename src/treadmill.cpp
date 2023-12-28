@@ -1,5 +1,10 @@
 #include "treadmill.h"
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+#ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#endif
 #include <QSettings>
 
 treadmill::treadmill() {}
@@ -40,6 +45,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
+    simulateInclinationWithSpeed();
+
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
@@ -79,21 +86,29 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     _firstUpdate = false;
 }
 
-uint16_t treadmill::watts(double weight) {
-
-    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-
+uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
     uint16_t watts = 0;
-    if (currentSpeed().value() > 0) {
-
-        double pace = 60 / currentSpeed().value();
+    if (speed > 0) {
+        // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+        double pace = 60 / speed;
         double VO2R = 210.0 / pace;
         double VO2A = (VO2R * weight) / 1000.0;
         double hwatts = 75 * VO2A;
-        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        double vwatts = ((9.8 * weight) * (inclination / 100.0));
         watts = hwatts + vwatts;
     }
-    m_watt.setValue(watts);
+    return watts;
+}
+
+uint16_t treadmill::watts(double weight) {
+    QSettings settings;
+    bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                              .toString()
+                              .startsWith(QStringLiteral("Disabled")));
+    if(!power_sensor) {
+        uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
+        m_watt.setValue(watts);
+    }
     return m_watt.value();
 }
 
@@ -104,6 +119,7 @@ void treadmill::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -123,6 +139,7 @@ void treadmill::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -139,6 +156,7 @@ void treadmill::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
@@ -172,11 +190,11 @@ void treadmill::verticalOscillationSensor(double verticalOscillation) {
 double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
     for (int i = 0; i <= 15 * 2; i++) {
         if (treadmillInclinationOverride(((double)(i)) / 2.0) <= Inclination &&
-            treadmillInclinationOverride(((double)(i + 1)) / 2.0) >= Inclination) {
+            treadmillInclinationOverride(((double)(i + 1)) / 2.0) > Inclination) {
             qDebug() << QStringLiteral("treadmillInclinationOverrideReverse")
                      << treadmillInclinationOverride(((double)(i)) / 2.0)
-                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination;
-            return i;
+                     << treadmillInclinationOverride(((double)(i + 1)) / 2.0) << Inclination << i;
+            return ((double)i) / 2.0;
         }
     }
     if (Inclination < treadmillInclinationOverride(0))
@@ -187,6 +205,19 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
 
 double treadmill::treadmillInclinationOverride(double Inclination) {
     QSettings settings;
+
+    double treadmill_inclination_ovveride_gain = settings
+                                                     .value(QZSettings::treadmill_inclination_ovveride_gain,
+                                                            QZSettings::default_treadmill_inclination_ovveride_gain)
+                                                     .toDouble();
+    double treadmill_inclination_ovveride_offset = settings
+                                                       .value(QZSettings::treadmill_inclination_ovveride_offset,
+                                                              QZSettings::default_treadmill_inclination_ovveride_offset)
+                                                       .toDouble();
+
+    Inclination = Inclination * treadmill_inclination_ovveride_gain;
+    Inclination = Inclination + treadmill_inclination_ovveride_offset;
+
     int inc = Inclination * 10;
     qDebug() << "treadmillInclinationOverride" << Inclination << inc;
     switch (inc) {
@@ -330,12 +361,16 @@ double treadmill::treadmillInclinationOverride(double Inclination) {
 }
 
 void treadmill::cadenceFromAppleWatch() {
+    QSettings settings;
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    QSettings settings;
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-            .toString()
-            .startsWith(QStringLiteral("Disabled"))) {
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        lockscreen h;
+        Cadence = h.getFootCad();
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+    } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                   .toString()
+                   .startsWith(QStringLiteral("Disabled"))) {
         lockscreen h;
         long appleWatchCadence = h.stepCadence();
         Cadence = appleWatchCadence;
@@ -343,4 +378,53 @@ void treadmill::cadenceFromAppleWatch() {
     }
 #endif
 #endif
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::garmin_companion, QZSettings::default_garmin_companion).toBool()) {
+        Cadence = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/Garmin", "getFootCad", "()I");
+        qDebug() << QStringLiteral("Current Garmin Cadence: ") << QString::number(Cadence.value());
+    }
+#endif
+}
+
+bool treadmill::simulateInclinationWithSpeed() {
+    QSettings settings;
+    bool treadmill_simulate_inclination_with_speed =
+        settings
+            .value(QZSettings::treadmill_simulate_inclination_with_speed,
+                   QZSettings::default_treadmill_simulate_inclination_with_speed)
+            .toBool();
+    double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    if (treadmill_simulate_inclination_with_speed) {
+        if (requestInclination != -100) {
+            qDebug() << QStringLiteral("treadmill_simulate_inclination_with_speed enabled!") << requestInclination
+                     << requestSpeed << m_lastRawSpeedRequested;
+            if (requestSpeed != -1) {
+                requestSpeed =
+                    wattsCalc(w, requestSpeed, requestInclination) * requestSpeed / wattsCalc(w, requestSpeed, 0);
+            } else if (m_lastRawSpeedRequested != -1) {
+                requestSpeed = wattsCalc(w, m_lastRawSpeedRequested, requestInclination) * m_lastRawSpeedRequested /
+                               wattsCalc(w, m_lastRawSpeedRequested, 0);
+            }
+        }
+        requestInclination = -100;
+        return true;
+    }
+    return false;
+}
+
+QTime treadmill::lastRequestedPace() {
+    QSettings settings;
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
+    double unit_conversion = 1.0;
+    if (miles) {
+        unit_conversion = 0.621371;
+    }
+    if (lastRequestedSpeed().value() == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
+        double speed = lastRequestedSpeed().value() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
+    }
 }

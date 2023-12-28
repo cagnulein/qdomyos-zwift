@@ -1,5 +1,5 @@
 #include "virtualbike.h"
-#include "ftmsbike.h"
+#include "bike.h"
 
 #include <QDataStream>
 #include <QMetaEnum>
@@ -56,7 +56,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios(settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool());
+        h->virtualbike_zwift_ios(
+            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool());
     } else
 
 #endif
@@ -506,7 +507,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     //! [Provide Heartbeat]
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &virtualbike::bikeProvider);
-    bikeTimer.start(1s);
+    if (settings.value(QZSettings::race_mode, QZSettings::default_race_mode).toBool())
+        bikeTimer.start(100ms);
+    else
+        bikeTimer.start(1s);
+
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
     QObject::connect(

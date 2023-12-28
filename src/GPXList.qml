@@ -11,6 +11,7 @@ import QtLocation 5.6
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
     FileDialog {
         id: fileDialogTrainProgram
@@ -18,7 +19,11 @@ ColumnLayout {
         folder: shortcuts.home
         onAccepted: {
             console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            if(OS_VERSION === "Android") {
+                trainprogram_open_other_folder(fileDialogTrainProgram.fileUrl)
+            } else {
+                trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            }
             fileDialogTrainProgram.close()
         }
         onRejected: {

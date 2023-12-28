@@ -29,8 +29,6 @@
 #include <QString>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -40,17 +38,14 @@ class horizontreadmill : public treadmill {
     Q_OBJECT
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
-    bool connected();
+    bool connected() override;
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
-    double minStepInclination();
-    double minStepSpeed();
+    double minStepInclination() override;
+    double minStepSpeed() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
@@ -60,8 +55,6 @@ class horizontreadmill : public treadmill {
     void btinit();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -94,11 +87,14 @@ class horizontreadmill : public treadmill {
     int32_t messageID = 0;
 
     bool mobvoi_treadmill = false;
+    bool kettler_treadmill = false;
+    bool anplus_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();
     int GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crcStart = 65535);
     bool checkIfForceSpeedNeeding(double requestSpeed);
+    float float_one_point_round(float value);
 
     // profiles
     uint8_t initData7[20] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,

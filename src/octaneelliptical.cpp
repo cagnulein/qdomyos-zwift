@@ -170,10 +170,18 @@ octaneelliptical::octaneelliptical(uint32_t pollDeviceTime, bool noConsole, bool
     actualPace2Sign.clear();
 
     // SPEED
-    actualPaceSign.append(0x02);
+    actualPaceSign.append(0x01);
     actualPaceSign.append(0x07);
-    actualPace2Sign.append(0x01);
+    actualPace2Sign.append((char)0x00);
     actualPace2Sign.append(0x07);
+
+    actualHR.append((char)0x02);
+    actualHR.append((char)0x11);
+
+    actualResistance.append((char)0x01);
+    actualResistance.append((char)0x09);
+
+    actualOdometer.append((char)0x0b);
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -199,11 +207,15 @@ void octaneelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -260,15 +272,16 @@ void octaneelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
-                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &octaneelliptical::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &octaneelliptical::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -335,41 +348,66 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x06) {
-        Resistance = (uint8_t)newValue[5];
-        emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
-        return;
+    if (newValue.contains(actualResistance)) {
+        int16_t i = newValue.indexOf(actualResistance) + 2;
+
+        if (i + 1 < newValue.length()) {
+            Resistance = ((uint8_t)value.at(i));
+            emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
+        }
     }
 
-    if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
-        return;
-
-    int16_t i = newValue.indexOf(actualPaceSign) + 2;
-    if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 2;
-
-    if (i + 1 >= newValue.length())
-        return;
-
-    double speed = GetSpeedFromPacket(value, i);
-    if (isinf(speed))
-        return;
+    if (newValue.contains(actualHR)) {
+        bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
-    }
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                int16_t i = newValue.indexOf(actualHR) + 2;
 
-    if (Speed.value() != speed) {
-        emit speedChanged(speed);
+                if (i + 1 < newValue.length()) {
+                    uint8_t heart = ((uint8_t)value.at(i));
+                    if (heart == 0 || disable_hr_frommachinery) {
+                        update_hr_from_external();
+                    } else {
+                        Heart = heart;
+                    }
+                }
+            }
+        }
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
-    Speed = speed;
+
+    int16_t i = newValue.indexOf(actualPaceSign) + 2;
+    /*if (i <= 1)
+        i = newValue.indexOf(actualPace2Sign) + 1;*/
+
+    if (i + 1 >= newValue.length() || i <= 1) {
+        // fallback for a previous firmware version
+        if(newValue.length() >= 20 && (uint8_t)newValue.at(0) == 0xa5) {
+            if(newValue.at(6) == 0x07) {
+                i = 7;
+            } else if(newValue.at(15) == 0x07) {
+                i = 16;
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }        
+
+    Cadence = ((uint8_t)value.at(i));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+    // Q37xi has a fixed stride length of 20.5 inches (52cm).
+    Speed = (((Cadence.value() / 2.0) * 52.07 * 60) / 10000) * 0.84135;
+    emit speedChanged(speed.value());
+    emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
     if (!firstCharacteristicChanged) {
         if (watts())
@@ -380,13 +418,12 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-
-        Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -397,8 +434,8 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 double octaneelliptical::GetSpeedFromPacket(const QByteArray &packet, int index) {
-    uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
-    return ((double)convertedData) / 1000.0;
+    uint16_t convertedData = ((uint8_t)packet.at(index));
+    return ((double)convertedData) / 10.0;
 }
 
 void octaneelliptical::btinit(bool startTape) {
@@ -533,10 +570,6 @@ bool octaneelliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *octaneelliptical::VirtualTreadMill() { return virtualTreadMill; }
-
-void *octaneelliptical::VirtualDevice() { return VirtualTreadMill(); }
 
 bool octaneelliptical::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
