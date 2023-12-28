@@ -146,7 +146,7 @@ void nordictrackifitadbtreadmillLogcatAdbThread::runAdbTailCommand(QString comma
         QAndroidJniObject recv = QAndroidJniObject::callStaticObjectMethod<jstring>(
         "org/cagnulen/qdomyoszwift/QZAdbRemote", "getReceiveData");
         r = recv.toString();
-        qDebug() << " << " r;
+        qDebug() << " << " << r;
         QString output = r;
         QStringList lines = output.split('\n', Qt::SplitBehaviorFlags::SkipEmptyParts);
         bool wattFound = false;
