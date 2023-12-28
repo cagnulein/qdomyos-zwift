@@ -106,7 +106,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 	 @Override
 	 public void consoleUpdated(DeviceConnection devConn, ConsoleBuffer console) {
 			receiveBuffer += new String(console.buffer);
-			Log.i(LOG_TAG, console.buffer);
+			Log.i(LOG_TAG, new String(console.buffer));
 		}
 
 
