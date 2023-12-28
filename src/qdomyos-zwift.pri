@@ -291,6 +291,9 @@ HEADERS += \
     $$PWD/proformtelnetbike.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
+    $$PWD/zwift-api/PlayerStateWrapper.h \
+    $$PWD/zwift-api/request.h \
+    $$PWD/zwift-api/zwift_client_auth.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
