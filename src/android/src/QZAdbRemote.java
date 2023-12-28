@@ -96,8 +96,6 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 @Override
 	 public void receivedData(DeviceConnection devConn, byte[] data, int offset, int length) {
-			receiveBuffer += data.toString();
-			Log.i(LOG_TAG, data.toString());
 		}
 
 	 @Override
@@ -107,7 +105,8 @@ public class QZAdbRemote implements DeviceConnectionListener {
 
 	 @Override
 	 public void consoleUpdated(DeviceConnection devConn, ConsoleBuffer console) {
-
+			receiveBuffer += new String(console.buffer);
+			Log.i(LOG_TAG, console.buffer);
 		}
 
 

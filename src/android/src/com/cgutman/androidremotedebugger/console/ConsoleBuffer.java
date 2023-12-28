@@ -3,7 +3,7 @@ package com.cgutman.androidremotedebugger.console;
 import android.widget.TextView;
 
 public class ConsoleBuffer {
-	private char[] buffer;
+	public char[] buffer;
 	private int amountPopulated;
 	
 	public ConsoleBuffer(int bufferSize)
