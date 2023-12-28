@@ -329,6 +329,8 @@
 		878531652711A3E1004B153D /* activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531612711A3E1004B153D /* activiotreadmill.cpp */; };
 		878531682711A3EC004B153D /* moc_activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531662711A3EB004B153D /* moc_activiotreadmill.cpp */; };
 		878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531672711A3EB004B153D /* moc_fakebike.cpp */; };
+		8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */; };
+		8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
 		878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */; };
@@ -1133,6 +1135,10 @@
 		878531632711A3E1004B153D /* fakebike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakebike.h; path = ../src/fakebike.h; sourceTree = "<group>"; };
 		878531662711A3EB004B153D /* moc_activiotreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_activiotreadmill.cpp; sourceTree = "<group>"; };
 		878531672711A3EB004B153D /* moc_fakebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakebike.cpp; sourceTree = "<group>"; };
+		8785D53F2B3DD0EC005A2EB7 /* zwift_client_auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwift_client_auth.h; path = "../src/zwift-api/zwift_client_auth.h"; sourceTree = "<group>"; };
+		8785D5402B3DD0EC005A2EB7 /* PlayerStateWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayerStateWrapper.h; path = "../src/zwift-api/PlayerStateWrapper.h"; sourceTree = "<group>"; };
+		8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_PlayerStateWrapper.cpp; sourceTree = "<group>"; };
+		8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_zwift_client_auth.cpp; sourceTree = "<group>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		878A331725AB4FF800BD13E1 /* yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = yesoulbike.cpp; path = ../src/yesoulbike.cpp; sourceTree = "<group>"; };
 		878A331825AB4FF800BD13E1 /* yesoulbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = yesoulbike.h; path = ../src/yesoulbike.h; sourceTree = "<group>"; };
@@ -1917,6 +1923,10 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */,
+				8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */,
+				8785D5402B3DD0EC005A2EB7 /* PlayerStateWrapper.h */,
+				8785D53F2B3DD0EC005A2EB7 /* zwift_client_auth.h */,
 				8727C7D32B3BF1E4005429EB /* moc_proformtelnetbike.cpp */,
 				8727C7D22B3BF1E4005429EB /* moc_QTelnet.cpp */,
 				8727C7CC2B3BF1B8005429EB /* proformtelnetbike.cpp */,
@@ -3136,6 +3146,7 @@
 				87097D2F275EA9A30020EE6F /* sportsplusbike.cpp in Compile Sources */,
 				333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */,
 				87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */,
+				8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
 				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
 				8718CBA4263063BD004BF4EE /* templateinfosenderbuilder.cpp in Compile Sources */,
@@ -3283,6 +3294,7 @@
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
 				87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
+				8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */,
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				876BFCA027BE35D8001D7645 /* moc_proformelliptical.cpp in Compile Sources */,
 				873824BD27E64707004F1B46 /* moc_resolver_p.cpp in Compile Sources */,
