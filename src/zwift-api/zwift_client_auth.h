@@ -65,15 +65,15 @@ public slots:
             });
         } else {
             QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
-            QUrlQuery query;
-            query.addQueryItem("username", username);
-            query.addQueryItem("password", password);
-            query.addQueryItem("grant_type", "password");
-            query.addQueryItem("client_id", "Zwift_Mobile_Link");
-            url.setQuery(query);
-
+            QUrlQuery postData;
+            postData.addQueryItem("username", username);
+            postData.addQueryItem("password", password);
+            postData.addQueryItem("grant_type", "password");
+            postData.addQueryItem("client_id", "Zwift_Mobile_Link");
+            
             QNetworkRequest request(url);
-            QNetworkReply* reply = networkManager.post(request, QByteArray());
+            request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+            QNetworkReply* reply = networkManager.post(request, postData.toString(QUrl::FullyEncoded).toUtf8());
             connect(reply, &QNetworkReply::finished, [=]() {
                 handleTokenResponse(reply);
             });

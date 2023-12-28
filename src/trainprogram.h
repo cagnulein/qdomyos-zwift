@@ -8,6 +8,9 @@
 #include <QTime>
 #include <QTimer>
 
+#include "zwift-api/PlayerStateWrapper.h"
+#include "zwift-api/zwift_client_auth.h"
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -155,6 +158,9 @@ private slots:
 
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
+    
+    AuthToken* zwift_auth_token = nullptr;
+    World* zwift_world = nullptr;
 };
 
 #endif // TRAINPROGRAM_H

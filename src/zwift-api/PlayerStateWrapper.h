@@ -60,19 +60,47 @@ private:
 
 class World {
 public:
+    typedef struct PlayerState {
+        char temp[24];
+        qint32 id;
+        qint64 worldTime;
+        qint32 distance;
+        qint32 roadTime;
+        qint32 laps;
+        qint32 speed;
+        qint32 roadPosition;
+        qint32 cadenceUHz;
+        qint32 heartrate;
+        qint32 power;
+        qint64 heading;
+        qint32 lean;
+        qint32 climbing;
+        qint32 time;
+        qint32 f19;
+        qint32 f20;
+        qint32 progress;
+        qint64 customisationId;
+        qint32 justWatching;
+        qint32 calories;
+        float x;
+        float altitude;
+        float y;
+        qint32 watchingRiderId;
+        qint32 groupId;
+        qint64 sport;
+    } PlayerState;
+    
     World(int worldId, const QString& getAccessToken) : worldId(worldId), request(getAccessToken) {}
 
     QString getPlayers() {
         return request.json("/relay/worlds/" + QString::number(worldId));
     }
 
-    QString playerStatus(int playerId) {
+    PlayerState* playerStatus(int playerId) {
         QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
 
-        /*zwift_messages::PlayerState playerState;
-        playerState.ParseFromString(buffer.toStdString());
-        return playerStateWrapper(playerState);*/
-        return buffer;
+        qDebug() << buffer.toHex(' ');
+        return (PlayerState*)buffer.data_ptr();
     }
 
 private:
@@ -82,6 +110,7 @@ private:
 
 class PlayerStateWrapper {
 public:
+    
     enum TURN_SIGNALS {
         RIGHT = 'right',
         LEFT = 'left',
@@ -161,6 +190,7 @@ public:
     }
 
 private:
+    
     QMap<int, int> COURSE_TO_WORLD = {{3, 1}, {4, 2}, {5, 3}, {6, 1}};
 
     enum COURSES {

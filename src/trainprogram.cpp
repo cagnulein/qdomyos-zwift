@@ -29,6 +29,10 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->description = *description;
     if (tags)
         this->tags = *tags;
+    
+    zwift_auth_token = new AuthToken("cagnulein@gmail.com", "");
+    zwift_auth_token->getAccessToken();
+
     /*
     int c = 0;
     for (c = 0; c < rows.length(); c++) {
@@ -573,6 +577,16 @@ void trainprogram::scheduler() {
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
 
+    if(zwift_auth_token->access_token.length() > 0) {
+        if(!zwift_world)
+            zwift_world = new World(1, zwift_auth_token->getAccessToken());
+        else {
+            qDebug() << zwift_world->getPlayers();
+            World::PlayerState* p = zwift_world->playerStatus(1603024);
+            qDebug() << p->distance << p->altitude  << p->power;
+        }
+    }
+    
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
     if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
