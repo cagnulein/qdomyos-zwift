@@ -76,9 +76,11 @@ public:
 
     QString playerStatus(int playerId) {
         QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
-        zwift_messages::PlayerState playerState;
+
+        /*zwift_messages::PlayerState playerState;
         playerState.ParseFromString(buffer.toStdString());
-        return playerStateWrapper(playerState);
+        return playerStateWrapper(playerState);*/
+        return buffer;
     }
 
 private:
@@ -94,22 +96,22 @@ public:
         STRAIGHT = 'straight'
     };
 
-    PlayerStateWrapper(const zwift_messages::PlayerState& playerState) : playerState(playerState) {}
+    //PlayerStateWrapper(const zwift_messages::PlayerState& playerState) : playerState(playerState) {}
 
     int getRideOns() {
-        return (playerState.f19() >> 24) & 0xfff;
+        return (playerState.at(19) >> 24) & 0xfff;
     }
 
     bool isTurning() {
-        return (playerState.f19() & 8) != 0;
+        return (playerState.at(19) & 8) != 0;
     }
 
     bool isForward() {
-        return (playerState.f19() & 4) != 0;
+        return (playerState.at(19) & 4) != 0;
     }
 
     int getCourse() {
-        return (playerState.f19() & 0xff0000) >> 16;
+        return (playerState.at(19) & 0xff0000) >> 16;
     }
 
     int getWorld() {
@@ -117,15 +119,15 @@ public:
     }
 
     int getRoadId() {
-        return (playerState.f20() & 0xff00) >> 8;
+        return (playerState.at(20) & 0xff00) >> 8;
     }
 
     int getRoadDirection() {
-        return (playerState.f20() & 0xffff000000) >> 24;
+        return (playerState.at(20) & 0xffff000000) >> 24;
     }
 
     TURN_SIGNALS getTurnSignal() {
-        int signalCode = playerState.f20() & 0x70;
+        int signalCode = playerState.at(20) & 0x70;
         if (signalCode == 0x10) {
             return RIGHT;
         } else if (signalCode == 0x20) {
@@ -138,7 +140,7 @@ public:
     }
 
     int getPowerUp() {
-        return playerState.f20() & 0xf;
+        return playerState.at(20) & 0xf;
     }
 
     bool hasFeatherBoost() {
@@ -154,12 +156,12 @@ public:
     }
 
     int getCadence() {
-        return static_cast<int>((playerState.cadenceuhz() * 60) / 1000000);
+        //return static_cast<int>((playerState.cadenceuhz() * 60) / 1000000);
     }
 
     std::string operator()(const std::string& item) {
         try {
-            return playerState.GetReflection()->GetString(playerState, playerState.GetDescriptor()->FindFieldByName(item));
+            //return playerState.GetReflection()->GetString(playerState, playerState.GetDescriptor()->FindFieldByName(item));
         } catch (const std::exception& e) {
             qDebug() << "Error: " << e.what();
             return "";
@@ -167,7 +169,8 @@ public:
     }
 
 private:
-    zwift_messages::PlayerState playerState;
+    //zwift_messages::PlayerState playerState;
+    QByteArray playerState;
 };
 
 #endif // PLAYERSTATEWRAPPER_H

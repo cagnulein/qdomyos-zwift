@@ -40,6 +40,9 @@
 
 #include "handleurl.h"
 
+#include "zwift-api/zwift_client_auth.h"
+#include "zwift-api/PlayerStateWrapper.h"
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -282,6 +285,9 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
+
+    AuthToken auth_token = AuthToken("aa", "pass");
+    World w = World(1, auth_token.getAccessToken());
 
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");

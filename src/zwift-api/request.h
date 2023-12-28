@@ -1,12 +1,13 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include "request.h"
-
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class Request {
 public:
@@ -28,12 +29,21 @@ public:
         request.setRawHeader("User-Agent", "Zwift/115 CFNetwork/758.0.2 Darwin/15.0.0");
 
         QNetworkReply* reply = manager.get(request);
-        if (!reply->waitForFinished()) {
+        /*if (!reply->waitForFinished()) {
             qWarning() << "Request failed:" << reply->errorString();
-        }
+        }*/
 
         QByteArray data = reply->readAll();
-        QVariantMap result = QtJson::Json::parse(data).toMap();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+        if (jsonDoc.isNull()) {
+            qWarning() << "Failed to parse JSON:" << reply->errorString();
+            delete reply;
+            return QVariantMap();
+        }
+
+        QJsonObject jsonObject = jsonDoc.object();
+        QVariantMap result = jsonObject.toVariantMap();
 
         delete reply;
         return result;
@@ -47,9 +57,9 @@ public:
         request.setRawHeader("User-Agent", "Zwift/115 CFNetwork/758.0.2 Darwin/15.0.0");
 
         QNetworkReply* reply = manager.get(request);
-        if (!reply->waitForFinished()) {
+        /*if (!reply->waitForFinished()) {
             qWarning() << "Request failed:" << reply->errorString();
-        }
+        }*/
 
         QByteArray data = reply->readAll();
 
