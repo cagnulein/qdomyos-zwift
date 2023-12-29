@@ -765,7 +765,7 @@ void trainprogram::scheduler() {
             }
 
             if (rows.at(0).inclination != -200 && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
-            (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware))) {
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                 // this should be converted in a signal as all the other signals...
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -918,7 +918,7 @@ void trainprogram::scheduler() {
 
                     if (rows.at(currentStep).inclination != -200 &&
                         (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
-                        (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware))) {
+                        (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                         // this should be converted in a signal as all the other signals...
                         double bikeResistanceOffset =
                             settings
