@@ -1938,6 +1938,13 @@ class QZSettings {
     static const QString proformtdf1ip;
     static const QString default_proformtdf1ip;
 
+    static const QString zwift_username;
+    static const QString default_zwift_username;
+
+    static const QString zwift_password;
+    static const QString default_zwift_password;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

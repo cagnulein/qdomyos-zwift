@@ -29,6 +29,8 @@ static AdbClient *_adb = 0;
 
 static ios_eliteariafan* ios_eliteAriaFan = nil;
 
+static zwift_protobuf_layer* zwiftProtobufLayer = nil;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -37,6 +39,7 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    zwiftProtobufLayer = [[zwift_protobuf_layer alloc] init];
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
@@ -297,5 +300,26 @@ void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
     if(ios_eliteAriaFan) {
         [ios_eliteAriaFan fanSpeedRequest:speed];
     }
+}
+
+void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
+    NSData *d = [NSData dataWithBytes:data length:len];
+    [zwiftProtobufLayer getPlayerStateWithValue:d];
+}
+
+float lockscreen::zwift_api_getaltitude() {
+    return [zwiftProtobufLayer getAltitude];
+}
+
+int lockscreen::zwift_api_getdistance() {
+    return [zwiftProtobufLayer getDistance];
+}
+
+float lockscreen::zwift_api_getlatitude() {
+    return [zwiftProtobufLayer getLatitude];
+}
+
+float lockscreen::zwift_api_getlongitude() {
+    return [zwiftProtobufLayer getLongitude];
 }
 #endif
