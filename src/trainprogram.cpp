@@ -30,7 +30,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     if (tags)
         this->tags = *tags;
     
-    zwift_auth_token = new AuthToken("cagnulein@gmail.com", "");
+    zwift_auth_token = new AuthToken("", "");
     zwift_auth_token->getAccessToken();
 
     /*
@@ -594,31 +594,47 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
-        if(zwift_auth_token->access_token.length() > 0) {
-            if(!zwift_world)
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+           zwift_auth_token->access_token.length() > 0) {
+            if(!zwift_world) {
                 zwift_world = new World(1, zwift_auth_token->getAccessToken());
+            }
             else {
                 if(!h)
                     h = new lockscreen();
-                QByteArray b = zwift_world->playerStatus(6166740);
-                h->zwift_api_decodemessage_player(b.data(), b.length());
-                float alt = h->zwift_api_getaltitude();
-                float distance = h->zwift_api_getdistance();
-                static float old_distance = 0;
-                static float old_alt = 0;
-                
-                if(old_distance > 0) {
-                    float delta = distance - old_distance;
-                    float deltaA = alt - old_alt;
-                    float incline = deltaA / delta;
-                    if(delta) {
-                        qDebug() << "zwift api " << incline << delta << deltaA;
-                    }
+                if(zwift_player_id == -1) {
+                    QString id = zwift_world->player_id();
+                    QJsonParseError parseError;
+                    QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
+                    QJsonObject ride = document.object();
+                    qDebug() << ride;
+                    zwift_player_id = ride[QStringLiteral("id")].toInt();
                 } else {
-                    qDebug() << zwift_world->getPlayers();
+                    static int zwift_counter = 5;
+                    if(zwift_counter++ >= 4) {
+                        zwift_counter = 0;
+                        QByteArray b = zwift_world->playerStatus(zwift_player_id);
+                        h->zwift_api_decodemessage_player(b.data(), b.length());
+                        float alt = h->zwift_api_getaltitude();
+                        float distance = h->zwift_api_getdistance();
+                        static float old_distance = 0;
+                        static float old_alt = 0;
+                        
+                        if(old_distance > 0) {
+                            float delta = distance - old_distance;
+                            float deltaA = alt - old_alt;
+                            float incline = (deltaA / delta) / 2.0;
+                            if(delta > 1) {
+                                qDebug() << "zwift api " << incline << delta << deltaA;
+                                bluetoothManager->device()->changeInclination(incline, incline);
+                            }
+                        } else {
+                            qDebug() << zwift_world->getPlayers();
+                        }
+                        old_distance = distance;
+                        old_alt = alt;
+                    }
                 }
-                old_distance = distance;
-                old_alt = alt;
             }
         }
 

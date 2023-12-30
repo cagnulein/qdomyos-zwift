@@ -59,37 +59,7 @@ private:
 };
 
 class World {
-public:
-    typedef struct PlayerState {
-        char temp[24];
-        qint32 id;
-        qint64 worldTime;
-        qint32 distance;
-        qint32 roadTime;
-        qint32 laps;
-        qint32 speed;
-        qint32 roadPosition;
-        qint32 cadenceUHz;
-        qint32 heartrate;
-        qint32 power;
-        qint64 heading;
-        qint32 lean;
-        qint32 climbing;
-        qint32 time;
-        qint32 f19;
-        qint32 f20;
-        qint32 progress;
-        qint64 customisationId;
-        qint32 justWatching;
-        qint32 calories;
-        float x;
-        float altitude;
-        float y;
-        qint32 watchingRiderId;
-        qint32 groupId;
-        qint64 sport;
-    } PlayerState;
-    
+public:    
     World(int worldId, const QString& getAccessToken) : worldId(worldId), request(getAccessToken) {}
 
     QString getPlayers() {
@@ -99,6 +69,10 @@ public:
     QByteArray playerStatus(int playerId) {
         QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
         return buffer;
+    }
+
+    QString player_id() {
+        return request.json("/api/profiles/me");
     }
 
 private:

@@ -165,6 +165,7 @@ private slots:
     
     AuthToken* zwift_auth_token = nullptr;
     World* zwift_world = nullptr;
+    int zwift_player_id = -1;
     
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
