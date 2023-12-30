@@ -84,9 +84,9 @@ class PlayerStateWrapper {
 public:
     
     enum TURN_SIGNALS {
-        RIGHT = 'right',
-        LEFT = 'left',
-        STRAIGHT = 'straight'
+        RIGHT = 0,
+        LEFT = 1,
+        STRAIGHT = 2
     };
 
     //PlayerStateWrapper(const zwift_messages::PlayerState& playerState) : playerState(playerState) {}
