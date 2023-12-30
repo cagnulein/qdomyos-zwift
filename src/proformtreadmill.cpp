@@ -1395,7 +1395,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
           proform_treadmill_8_0 || proform_treadmill_9_0 || nordictrack_incline_trainer_x7i) &&
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
         ((norditrack_s25i_treadmill) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
-        ((nordictrack_t65s_treadmill || proform_treadmill_l6_0s || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
+        ((nordictrack_t65s_treadmill || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
           nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt) &&
          (newValue.at(4) != 0x02 || newValue.at(5) != 0x2e)) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
