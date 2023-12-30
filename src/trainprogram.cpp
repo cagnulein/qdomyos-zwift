@@ -30,8 +30,10 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     if (tags)
         this->tags = *tags;
     
-    zwift_auth_token = new AuthToken("", "");
-    zwift_auth_token->getAccessToken();
+    if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
+        zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
+        zwift_auth_token->getAccessToken();
+    }
 
     /*
     int c = 0;
@@ -594,12 +596,16 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+        if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
                 zwift_world = new World(1, zwift_auth_token->getAccessToken());
+                qDebug() << "creating zwift api world";
             }
             else {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
                 if(!h)
                     h = new lockscreen();
                 if(zwift_player_id == -1) {
@@ -607,7 +613,7 @@ void trainprogram::scheduler() {
                     QJsonParseError parseError;
                     QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
                     QJsonObject ride = document.object();
-                    qDebug() << ride;
+                    qDebug() << "zwift api player" << ride;
                     zwift_player_id = ride[QStringLiteral("id")].toInt();
                 } else {
                     static int zwift_counter = 5;
@@ -625,16 +631,16 @@ void trainprogram::scheduler() {
                             float deltaA = alt - old_alt;
                             float incline = (deltaA / delta) / 2.0;
                             if(delta > 1) {
-                                qDebug() << "zwift api " << incline << delta << deltaA;
+                                qDebug() << "zwift api incline" << incline << delta << deltaA;
                                 bluetoothManager->device()->changeInclination(incline, incline);
                             }
-                        } else {
-                            qDebug() << zwift_world->getPlayers();
                         }
                         old_distance = distance;
                         old_alt = alt;
                     }
                 }
+#endif
+#endif
             }
         }
 
