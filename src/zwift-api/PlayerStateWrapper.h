@@ -96,11 +96,9 @@ public:
         return request.json("/relay/worlds/" + QString::number(worldId));
     }
 
-    PlayerState* playerStatus(int playerId) {
+    QByteArray playerStatus(int playerId) {
         QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
-
-        qDebug() << buffer.toHex(' ');
-        return (PlayerState*)buffer.data_ptr();
+        return buffer;
     }
 
 private:

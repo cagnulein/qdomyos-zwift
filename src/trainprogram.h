@@ -8,6 +8,10 @@
 #include <QTime>
 #include <QTimer>
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
@@ -161,6 +165,11 @@ private slots:
     
     AuthToken* zwift_auth_token = nullptr;
     World* zwift_world = nullptr;
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
+
 };
 
 #endif // TRAINPROGRAM_H

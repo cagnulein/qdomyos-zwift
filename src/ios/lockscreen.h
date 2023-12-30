@@ -67,6 +67,13 @@ class lockscreen {
     // Elite Aria Fan
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
+    
+    // Zwift API
+    void zwift_api_decodemessage_player(const char* data, int len);
+    float zwift_api_getaltitude();
+    int zwift_api_getdistance();
+    float zwift_api_getlatitude();
+    float zwift_api_getlongitude();
 };
 
 #endif // LOCKSCREEN_H

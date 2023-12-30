@@ -576,17 +576,6 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
-
-    if(zwift_auth_token->access_token.length() > 0) {
-        if(!zwift_world)
-            zwift_world = new World(1, zwift_auth_token->getAccessToken());
-        else {
-            qDebug() << zwift_world->getPlayers();
-            World::PlayerState* p = zwift_world->playerStatus(1603024);
-            qDebug() << p->distance << p->altitude  << p->power;
-        }
-    }
-    
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
     if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -604,6 +593,34 @@ void trainprogram::scheduler() {
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
+        
+        if(zwift_auth_token->access_token.length() > 0) {
+            if(!zwift_world)
+                zwift_world = new World(1, zwift_auth_token->getAccessToken());
+            else {
+                if(!h)
+                    h = new lockscreen();
+                QByteArray b = zwift_world->playerStatus(6166740);
+                h->zwift_api_decodemessage_player(b.data(), b.length());
+                float alt = h->zwift_api_getaltitude();
+                float distance = h->zwift_api_getdistance();
+                static float old_distance = 0;
+                static float old_alt = 0;
+                
+                if(old_distance > 0) {
+                    float delta = distance - old_distance;
+                    float deltaA = alt - old_alt;
+                    float incline = deltaA / delta;
+                    if(delta) {
+                        qDebug() << "zwift api " << incline << delta << deltaA;
+                    }
+                } else {
+                    qDebug() << zwift_world->getPlayers();
+                }
+                old_distance = distance;
+                old_alt = alt;
+            }
+        }
 
         // in case no workout has been selected
         // Zwift OCR
