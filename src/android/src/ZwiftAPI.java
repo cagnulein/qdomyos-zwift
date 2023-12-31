@@ -55,11 +55,11 @@ public class ZwiftAPI {
 
     public static float getAltitude() {
         Log.d(TAG, "getAltitude " + playerState.getAltitude());
-        return 0;
+        return playerState.getAltitude();
     }
 
     public static float getDistance() {
         Log.d(TAG, "getDistance " + playerState.getDistance());
-        return 0;
+        return playerState.getDistance();
     }
 }

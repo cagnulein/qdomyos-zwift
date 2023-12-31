@@ -646,6 +646,8 @@ void trainprogram::scheduler() {
                         static float old_distance = 0;
                         static float old_alt = 0;
                         
+                        qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
+
                         if(old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
