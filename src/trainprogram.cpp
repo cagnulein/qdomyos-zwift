@@ -640,8 +640,8 @@ void trainprogram::scheduler() {
                             "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
                         env->DeleteLocalRef(d);
 
-                        float alt = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
-                        float distance = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+                        float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
