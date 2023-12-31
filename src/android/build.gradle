@@ -6,6 +6,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
     }
 }
 
@@ -17,6 +18,7 @@ repositories {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
 
 def amazon = System.getenv('AMAZON')
 println(amazon)
@@ -25,6 +27,7 @@ dependencies {
     compile 'com.rvalerio:fgchecker:1.1.0'
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
+    implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
 
     if(amazon == "1") {
         // amazon app store
@@ -47,6 +50,22 @@ dependencies {
          implementation 'com.github.mik3y:usb-serial-for-android:v3.4.6'
 	 androidTestImplementation "com.android.support:support-annotations:28.0.0"
 	      implementation 'com.google.android.gms:play-services-wearable:+'
+}
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+// Compatible with macOS on Apple Silicon
+def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.20.1$archSuffix"
+    }
+    plugins {
+        javalite {
+            artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
+        }
+    }
 }
 
 android {
