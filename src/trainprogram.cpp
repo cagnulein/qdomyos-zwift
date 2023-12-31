@@ -627,6 +627,9 @@ void trainprogram::scheduler() {
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
                         float alt = h->zwift_api_getaltitude();
                         float distance = h->zwift_api_getdistance();
+#else
+                        float alt = 0;
+                        float distance = 0;
 #endif
 #elif defined(Q_OS_ANDROID)
                         QAndroidJniEnvironment env;
