@@ -642,6 +642,9 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#else
+                        float alt = 0;
+                        float distance = 0;
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
