@@ -608,6 +608,8 @@ void trainprogram::scheduler() {
 #ifndef IO_UNDER_QT
                 if(!h)
                     h = new lockscreen();
+#endif
+#endif
                 if(zwift_player_id == -1) {
                     QString id = zwift_world->player_id();
                     QJsonParseError parseError;
@@ -619,13 +621,39 @@ void trainprogram::scheduler() {
                     static int zwift_counter = 5;
                     if(zwift_counter++ >= 4) {
                         zwift_counter = 0;
-                        QByteArray b = zwift_world->playerStatus(zwift_player_id);
-                        h->zwift_api_decodemessage_player(b.data(), b.length());
+                        QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                        h->zwift_api_decodemessage_player(bb.data(), bb.length());
                         float alt = h->zwift_api_getaltitude();
                         float distance = h->zwift_api_getdistance();
+#else
+                        float alt = 0;
+                        float distance = 0;
+#endif
+#elif defined(Q_OS_ANDROID)
+                        QAndroidJniEnvironment env;
+                        jbyteArray d = env->NewByteArray(bb.length());
+                        jbyte *b = env->GetByteArrayElements(d, 0);
+                        for (int i = 0; i < bb.length(); i++)
+                            b[i] = bb[i];
+                        env->SetByteArrayRegion(d, 0, bb.length(), b);
+
+                        QAndroidJniObject::callStaticMethod<void>(
+                            "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
+                        env->DeleteLocalRef(d);
+
+                        float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#else
+                        float alt = 0;
+                        float distance = 0;
+#endif
                         static float old_distance = 0;
                         static float old_alt = 0;
                         
+                        qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
+
                         if(old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
@@ -639,8 +667,6 @@ void trainprogram::scheduler() {
                         old_alt = alt;
                     }
                 }
-#endif
-#endif
             }
         }
 

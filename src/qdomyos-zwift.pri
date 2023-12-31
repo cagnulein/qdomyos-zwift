@@ -731,6 +731,8 @@ DISTFILES += \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
