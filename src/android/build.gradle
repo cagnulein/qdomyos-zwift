@@ -10,6 +10,10 @@ buildscript {
     }
 }
 
+plugins {
+  id "com.google.protobuf" version "0.9.4"
+}
+
 repositories {
     google()
     jcenter()
@@ -59,12 +63,16 @@ def archSuffix = Os.isFamily(Os.FAMILY_MAC) ? ':osx-x86_64' : ''
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.20.1$archSuffix"
+      artifact = "com.google.protobuf:protoc:3.25.1$archSuffix"
     }
-    plugins {
-        javalite {
-            artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0$archSuffix"
+    generateProtoTasks {
+      all().configureEach { task ->
+        task.builtins {
+          java {
+            option "lite"
+          }
         }
+      }
     }
 }
 
