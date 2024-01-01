@@ -278,8 +278,6 @@ macx: SOURCES += macos/lockscreen.mm
 #zwift api
 unix:!android: SOURCES += zwift/zwift_messages.pb.cc
 win32: SOURCES += zwift/zwift_messages.pb.cc
-win32: INCLUDEPATH += C:\\hostedtoolcache\\windows\\protoc\\v25.1\\x64\\include
-
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
