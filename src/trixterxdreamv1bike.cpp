@@ -412,12 +412,12 @@ void trixterxdreamv1bike::configureVirtualBike(){
 
     if(!haveVirtualDevice){
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
@@ -428,8 +428,8 @@ void trixterxdreamv1bike::configureVirtualBike(){
         if (virtual_device_enabled) {
             qDebug() << QStringLiteral("creating virtual bike interface...");
 
-            double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
-            double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+            double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset).toInt();
+            double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f).toDouble();
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             bike::connect(virtualBike, &virtualbike::changeInclination, this, &trixterxdreamv1bike::changeInclination);
 
@@ -548,7 +548,7 @@ resistance_t trixterxdreamv1bike::calculateResistanceFromInclination(double incl
     // Since we need speed to calculate power, and QZ isn't getting it from Zwift,
     // this number is invented to produce a somewhat believable user experience.
     constexpr double magicNumber = 0.75;
-    double cadenceSensorSpeedRatio = settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+    double cadenceSensorSpeedRatio = settings.value(QZSettings::cadence_sensor_speed_ratio, 0.33).toDouble();
     double speedMetresPerSecond = magicNumber * cadenceSensorSpeedRatio * cadence;
     double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
 
