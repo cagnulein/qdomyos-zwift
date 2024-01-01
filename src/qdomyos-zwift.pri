@@ -276,8 +276,8 @@ macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
 #zwift api
-unix:!android: SOURCES += zwift/zwift_messages.pb.cc
-win32: SOURCES += zwift/zwift_messages.pb.cc
+unix:!android: SOURCES += zwift-api/zwift_messages.pb.cc
+win32: SOURCES += zwift-api/zwift_messages.pb.cc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
