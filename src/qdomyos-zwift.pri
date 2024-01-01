@@ -274,6 +274,8 @@ SOURCES += \
    zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
+unix:!android: SOURCES += zwift/zwift_messages.pb.cc
+win32: SOURCES += zwift/zwift_messages.pb.cc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

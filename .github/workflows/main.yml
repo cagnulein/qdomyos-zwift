@@ -97,6 +97,11 @@ jobs:
         with:
           cmake-version: '3.20.x'
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          version: "25.1"          
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -404,6 +409,11 @@ jobs:
         with:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          version: "25.1"                    
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -801,6 +811,11 @@ jobs:
           toolset: 14.2
           arch: x64
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          version: "25.1"                    
+
       - name: download 3rd party files for qthttpserver
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -930,6 +945,11 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"      
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          version: "25.1"                    
+  
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
