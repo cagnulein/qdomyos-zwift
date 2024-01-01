@@ -372,9 +372,52 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
     
     func calculatePower() -> Data {
-        let flags:UInt8 = 0x20
+        let flags:UInt8 = 0x30
+        
+        /*
+         // set measurement
+         measurement[2] = power & 0xFF;
+         measurement[3] = (power >> 8) & 0xFF;
+
+         measurement[4] = wheelrev & 0xFF;
+         measurement[5] = (wheelrev >> 8) & 0xFF;
+         measurement[6] = (wheelrev >> 16) & 0xFF;
+         measurement[7] = (wheelrev >> 24) & 0xFF;
+
+         measurement[8] = lastwheel & 0xFF;
+         measurement[9] = (lastwheel >> 8) & 0xFF;
+
+         measurement[10] = crankrev & 0xFF;
+         measurement[11] = (crankrev >> 8) & 0xFF;
+
+         measurement[12] = lastcrank & 0xFF;
+         measurement[13] = (lastcrank >> 8) & 0xFF;
+         
+         // speed & distance
+         // NOTE : based on Apple Watch default wheel dimension 700c x 2.5mm
+         // NOTE : 3 is theoretical crank:wheel gear ratio
+         // NOTE : 2.13 is circumference of 700c in meters
+
+         wheelCount = crankCount * 3;
+              speed = cadence * 3 * 2.13 * 60 / 1000;
+           distance = wheelCount * 2.13 / 1000;
+
+         #if defined(USEPOWER)
+           lastWheelK = lastCrankK * 2;  // 1/2048 s granularity
+         #else
+           lastWheelK = lastCrankK * 1;  // 1/1024 s granularity
+         #endif
+         
+         */
+        
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
+        let wheelrev: UInt32 = ((UInt32)(crankRevolutions)) * 3;
+        let lastWheel: UInt16 = (UInt16)((((UInt32)(lastCrankEventTime)) * 2) & 0xFFFF);
+        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
+                              (UInt8)(wheelrev & 0xFF), (UInt8)((wheelrev >> 8) & 0xFF), (UInt8)((wheelrev >> 16) & 0xFF), (UInt8)((wheelrev >> 24) & 0xFF),
+                              (UInt8)(lastWheel & 0xFF), (UInt8)((lastWheel >> 8) & 0xFF),
+                              (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),
+                              (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
       let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
       return powerData
     }

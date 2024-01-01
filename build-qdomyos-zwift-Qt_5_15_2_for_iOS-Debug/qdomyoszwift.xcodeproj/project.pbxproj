@@ -170,6 +170,10 @@
 		872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */; };
 		8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47627849EA600019B5D /* paferstreadmill.cpp */; };
 		8727A47927849EB200019B5D /* moc_paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */; };
+		8727C7D02B3BF1B8005429EB /* proformtelnetbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727C7CC2B3BF1B8005429EB /* proformtelnetbike.cpp */; };
+		8727C7D12B3BF1B8005429EB /* QTelnet.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727C7CF2B3BF1B8005429EB /* QTelnet.cpp */; };
+		8727C7D42B3BF1E4005429EB /* moc_QTelnet.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727C7D22B3BF1E4005429EB /* moc_QTelnet.cpp */; };
+		8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727C7D32B3BF1E4005429EB /* moc_proformtelnetbike.cpp */; };
 		872A20DA28C5EC380037774D /* faketreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872A20D928C5EC380037774D /* faketreadmill.cpp */; };
 		872A20DC28C5F5CE0037774D /* moc_faketreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */; };
 		872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4D261750EE006A59AB /* libQt5Charts.a */; };
@@ -178,6 +182,11 @@
 		872DCC3B2A18D4C000EC9F68 /* moc_virtualdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */; };
 		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
 		873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */; };
+		8730A38B2B404081007E336D /* SwiftProtobuf in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38A2B404081007E336D /* SwiftProtobuf */; };
+		8730A38D2B404081007E336D /* SwiftProtobufPluginLibrary in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */; };
+		8730A38F2B404081007E336D /* protoc-gen-swift in Link Binary With Libraries */ = {isa = PBXBuildFile; productRef = 8730A38E2B404081007E336D /* protoc-gen-swift */; };
+		8730A3922B404159007E336D /* zwift_protobuf_layer.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8730A3912B404159007E336D /* zwift_protobuf_layer.swift */; };
+		8730A3932B4078E6007E336D /* zwift_messages.pb.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8730A3902B4040AF007E336D /* zwift_messages.pb.swift */; };
 		87310B1E266FBB59008BA0D6 /* smartrowrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B1B266FBB54008BA0D6 /* smartrowrower.cpp */; };
 		87310B1F266FBB59008BA0D6 /* homefitnessbuddy.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B1C266FBB57008BA0D6 /* homefitnessbuddy.cpp */; };
 		87310B22266FBB78008BA0D6 /* moc_homefitnessbuddy.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87310B20266FBB6E008BA0D6 /* moc_homefitnessbuddy.cpp */; };
@@ -325,6 +334,8 @@
 		878531652711A3E1004B153D /* activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531612711A3E1004B153D /* activiotreadmill.cpp */; };
 		878531682711A3EC004B153D /* moc_activiotreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531662711A3EB004B153D /* moc_activiotreadmill.cpp */; };
 		878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531672711A3EB004B153D /* moc_fakebike.cpp */; };
+		8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */; };
+		8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
 		878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */; };
@@ -887,6 +898,12 @@
 		8727A47527849EA600019B5D /* paferstreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = paferstreadmill.h; path = ../src/paferstreadmill.h; sourceTree = "<group>"; };
 		8727A47627849EA600019B5D /* paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = paferstreadmill.cpp; path = ../src/paferstreadmill.cpp; sourceTree = "<group>"; };
 		8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_paferstreadmill.cpp; sourceTree = "<group>"; };
+		8727C7CC2B3BF1B8005429EB /* proformtelnetbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtelnetbike.cpp; path = ../src/proformtelnetbike.cpp; sourceTree = "<group>"; };
+		8727C7CD2B3BF1B8005429EB /* proformtelnetbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtelnetbike.h; path = ../src/proformtelnetbike.h; sourceTree = "<group>"; };
+		8727C7CE2B3BF1B8005429EB /* QTelnet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QTelnet.h; path = ../src/QTelnet.h; sourceTree = "<group>"; };
+		8727C7CF2B3BF1B8005429EB /* QTelnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QTelnet.cpp; path = ../src/QTelnet.cpp; sourceTree = "<group>"; };
+		8727C7D22B3BF1E4005429EB /* moc_QTelnet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_QTelnet.cpp; sourceTree = "<group>"; };
+		8727C7D32B3BF1E4005429EB /* moc_proformtelnetbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtelnetbike.cpp; sourceTree = "<group>"; };
 		8729149E2B2B010600565E33 /* qdomyoszwift-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "qdomyoszwift-Bridging-Header.h"; sourceTree = "<group>"; };
 		872A20D828C5EC380037774D /* faketreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = faketreadmill.h; path = ../src/faketreadmill.h; sourceTree = "<group>"; };
 		872A20D928C5EC380037774D /* faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = faketreadmill.cpp; path = ../src/faketreadmill.cpp; sourceTree = "<group>"; };
@@ -899,6 +916,8 @@
 		873063BC259DF20000DA0F44 /* heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = heartratebelt.cpp; path = ../src/heartratebelt.cpp; sourceTree = "<group>"; };
 		873063BD259DF20000DA0F44 /* heartratebelt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heartratebelt.h; path = ../src/heartratebelt.h; sourceTree = "<group>"; };
 		873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_heartratebelt.cpp; sourceTree = "<group>"; };
+		8730A3902B4040AF007E336D /* zwift_messages.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = zwift_messages.pb.swift; path = "../src/zwift-api/zwift_messages.pb.swift"; sourceTree = "<group>"; };
+		8730A3912B404159007E336D /* zwift_protobuf_layer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = zwift_protobuf_layer.swift; path = "../src/zwift-api/zwift_protobuf_layer.swift"; sourceTree = "<group>"; };
 		87310B1A266FBB54008BA0D6 /* homefitnessbuddy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = homefitnessbuddy.h; path = ../src/homefitnessbuddy.h; sourceTree = "<group>"; };
 		87310B1B266FBB54008BA0D6 /* smartrowrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = smartrowrower.cpp; path = ../src/smartrowrower.cpp; sourceTree = "<group>"; };
 		87310B1C266FBB57008BA0D6 /* homefitnessbuddy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = homefitnessbuddy.cpp; path = ../src/homefitnessbuddy.cpp; sourceTree = "<group>"; };
@@ -1123,6 +1142,10 @@
 		878531632711A3E1004B153D /* fakebike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakebike.h; path = ../src/fakebike.h; sourceTree = "<group>"; };
 		878531662711A3EB004B153D /* moc_activiotreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_activiotreadmill.cpp; sourceTree = "<group>"; };
 		878531672711A3EB004B153D /* moc_fakebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakebike.cpp; sourceTree = "<group>"; };
+		8785D53F2B3DD0EC005A2EB7 /* zwift_client_auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwift_client_auth.h; path = "../src/zwift-api/zwift_client_auth.h"; sourceTree = "<group>"; };
+		8785D5402B3DD0EC005A2EB7 /* PlayerStateWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlayerStateWrapper.h; path = "../src/zwift-api/PlayerStateWrapper.h"; sourceTree = "<group>"; };
+		8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_PlayerStateWrapper.cpp; sourceTree = "<group>"; };
+		8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_zwift_client_auth.cpp; sourceTree = "<group>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		878A331725AB4FF800BD13E1 /* yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = yesoulbike.cpp; path = ../src/yesoulbike.cpp; sourceTree = "<group>"; };
 		878A331825AB4FF800BD13E1 /* yesoulbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = yesoulbike.h; path = ../src/yesoulbike.h; sourceTree = "<group>"; };
@@ -1662,6 +1685,7 @@
 				4FA524144B680D741D33EACB /* qtgraphicaleffectsprivate in Link Binary With Libraries */,
 				879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */,
 				1C823E40F377B93A664EAC1B /* modelsplugin in Link Binary With Libraries */,
+				8730A38D2B404081007E336D /* SwiftProtobufPluginLibrary in Link Binary With Libraries */,
 				B9DED9CC16B0F3339F363FBF /* workerscriptplugin in Link Binary With Libraries */,
 				023642106C14651D2E1F4D5D /* dialogplugin in Link Binary With Libraries */,
 				133CA0345CD2BFB03079A655 /* qmlfolderlistmodelplugin in Link Binary With Libraries */,
@@ -1670,6 +1694,7 @@
 				3BD5A5F95DF5239184791B58 /* dialogsprivateplugin in Link Binary With Libraries */,
 				EF98F8C34BE322582E9B73D7 /* qtquickcontrolsplugin in Link Binary With Libraries */,
 				7C8D236C48F2964061C3457C /* widgetsplugin in Link Binary With Libraries */,
+				8730A38B2B404081007E336D /* SwiftProtobuf in Link Binary With Libraries */,
 				401B341C04019FFA2146E79D /* Qt5Widgets in Link Binary With Libraries */,
 				61EC5BE7EEC8D905C63FF628 /* qmlplugin in Link Binary With Libraries */,
 				877A080D2893DC4300C0F0AB /* CoreVideo.framework in Link Binary With Libraries */,
@@ -1683,6 +1708,7 @@
 				5A4A6C1B12D4D769431E876E /* qtquickcontrols2materialstyleplugin in Link Binary With Libraries */,
 				A044AC393BA2327284BB63B4 /* qtquickcontrols2fusionstyleplugin in Link Binary With Libraries */,
 				B413AFE7A08F2D63D57F683E /* qtquickcontrols2universalstyleplugin in Link Binary With Libraries */,
+				8730A38F2B404081007E336D /* protoc-gen-swift in Link Binary With Libraries */,
 				7BA3E396471B90F086588B5C /* qtgraphicaleffectsplugin in Link Binary With Libraries */,
 				F020E5470020A5BF3EB828A3 /* qtquickcontrols2imaginestyleplugin in Link Binary With Libraries */,
 				964DFEF4056724121ED9A98D /* Qt5QuickControls2 in Link Binary With Libraries */,
@@ -1907,6 +1933,17 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8730A3902B4040AF007E336D /* zwift_messages.pb.swift */,
+				8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */,
+				8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */,
+				8785D5402B3DD0EC005A2EB7 /* PlayerStateWrapper.h */,
+				8785D53F2B3DD0EC005A2EB7 /* zwift_client_auth.h */,
+				8727C7D32B3BF1E4005429EB /* moc_proformtelnetbike.cpp */,
+				8727C7D22B3BF1E4005429EB /* moc_QTelnet.cpp */,
+				8727C7CC2B3BF1B8005429EB /* proformtelnetbike.cpp */,
+				8727C7CD2B3BF1B8005429EB /* proformtelnetbike.h */,
+				8727C7CF2B3BF1B8005429EB /* QTelnet.cpp */,
+				8727C7CE2B3BF1B8005429EB /* QTelnet.h */,
 				87A2E0212B2B053E00E6168F /* swiftDebug.mm */,
 				8729149E2B2B010600565E33 /* qdomyoszwift-Bridging-Header.h */,
 				8752C0E42B15D85600C3D1A5 /* eliteariafan.cpp */,
@@ -2273,6 +2310,7 @@
 				C8CE72E7B224D8B886614E3F /* domyosbike.h */,
 				8710707229C4A5E70094D0F3 /* GarminConnect.swift */,
 				87A2E0202B2B024200E6168F /* swiftDebug.h */,
+				8730A3912B404159007E336D /* zwift_protobuf_layer.swift */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -2800,6 +2838,11 @@
 				876E4E312594748100BD5714 /* PBXTargetDependency */,
 			);
 			name = qdomyoszwift;
+			packageProductDependencies = (
+				8730A38A2B404081007E336D /* SwiftProtobuf */,
+				8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */,
+				8730A38E2B404081007E336D /* protoc-gen-swift */,
+			);
 			productName = qdomyoszwift;
 			productReference = 040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */;
 			productType = "com.apple.product-type.application";
@@ -2875,6 +2918,9 @@
 				Base,
 			);
 			mainGroup = E8C543AB96796ECAA2E65C57 /* qdomyoszwift */;
+			packageReferences = (
+				8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
 			productRefGroup = FE0A091FDBFB3E9C31B7A1BD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -3020,6 +3066,7 @@
 				87C5F0D326285E7E0067A1B5 /* moc_mimecontentformatter.cpp in Compile Sources */,
 				8718CBAB263063CE004BF4EE /* moc_templateinfosenderbuilder.cpp in Compile Sources */,
 				C6B3CD471768392E18F85819 /* fit_accumulated_field.cpp in Compile Sources */,
+				8730A3932B4078E6007E336D /* zwift_messages.pb.swift in Compile Sources */,
 				3D7395B0A17915A06361C7F3 /* fit_accumulator.cpp in Compile Sources */,
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				87F02E4229178545000DB52C /* moc_octaneelliptical.cpp in Compile Sources */,
@@ -3027,6 +3074,7 @@
 				8752C0E82B15D85600C3D1A5 /* eliteariafan.cpp in Compile Sources */,
 				87917A7328E768D200F8D9AC /* Browser.swift in Compile Sources */,
 				873CD20B27EF8D8A000131BC /* inapptransaction.cpp in Compile Sources */,
+				8727C7D52B3BF1E4005429EB /* moc_proformtelnetbike.cpp in Compile Sources */,
 				873824EF27E647A9004F1B46 /* query.cpp in Compile Sources */,
 				876F45FF279350D9003CDA5A /* moc_concept2skierg.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
@@ -3054,6 +3102,7 @@
 				87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */,
 				87900DC6268B672E000CB351 /* renphobike.cpp in Compile Sources */,
 				879F16462847E55C00CE4945 /* proformellipticaltrainer.cpp in Compile Sources */,
+				8730A3922B404159007E336D /* zwift_protobuf_layer.swift in Compile Sources */,
 				87917A7728E768D200F8D9AC /* Client.swift in Compile Sources */,
 				873824B927E64707004F1B46 /* moc_provider.cpp in Compile Sources */,
 				8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */,
@@ -3119,6 +3168,7 @@
 				87097D2F275EA9A30020EE6F /* sportsplusbike.cpp in Compile Sources */,
 				333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */,
 				87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */,
+				8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
 				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
 				8718CBA4263063BD004BF4EE /* templateinfosenderbuilder.cpp in Compile Sources */,
@@ -3262,9 +3312,11 @@
 				873824E727E647A8004F1B46 /* record.cpp in Compile Sources */,
 				B38F3288D4AE4025465C1953 /* moc_bike.cpp in Compile Sources */,
 				87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */,
+				8727C7D42B3BF1E4005429EB /* moc_QTelnet.cpp in Compile Sources */,
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
 				87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
+				8785D5432B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp in Compile Sources */,
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				876BFCA027BE35D8001D7645 /* moc_proformelliptical.cpp in Compile Sources */,
 				873824BD27E64707004F1B46 /* moc_resolver_p.cpp in Compile Sources */,
@@ -3310,6 +3362,7 @@
 				87D269A025F535200076AA48 /* skandikawiribike.cpp in Compile Sources */,
 				8738249427E646E3004F1B46 /* characteristicnotifier2a5b.cpp in Compile Sources */,
 				8768D1FB285081FE00F58E3A /* nordictrackifitadbtreadmill.cpp in Compile Sources */,
+				8727C7D12B3BF1B8005429EB /* QTelnet.cpp in Compile Sources */,
 				8775008329E876F8008E48B7 /* iconceptelliptical.cpp in Compile Sources */,
 				87B187BD29B8C577007EEF9D /* moc_ziprotreadmill.cpp in Compile Sources */,
 				877FBA2B276E684E00F6C0C9 /* moc_bowflextreadmill.cpp in Compile Sources */,
@@ -3341,6 +3394,7 @@
 				8703BAED273C67B60058E206 /* moc_pafersbike.cpp in Compile Sources */,
 				873824E627E647A8004F1B46 /* hostname.cpp in Compile Sources */,
 				74C43649C9C4E2E5F9378019 /* moc_domyosbike.cpp in Compile Sources */,
+				8727C7D02B3BF1B8005429EB /* proformtelnetbike.cpp in Compile Sources */,
 				87E0761D277A081A00FDA0F9 /* technogymmyruntreadmillrfcomm.cpp in Compile Sources */,
 				873824B327E64707004F1B46 /* moc_dirconprocessor.cpp in Compile Sources */,
 				87A0771229B6420200A368BF /* moc_wahookickrheadwind.cpp in Compile Sources */,
@@ -3700,7 +3754,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3870,7 +3924,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4076,7 +4130,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4172,7 +4226,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4264,7 +4318,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4378,7 +4432,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 691;
+				CURRENT_PROJECT_VERSION = 694;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -4488,6 +4542,35 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.25.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8730A38A2B404081007E336D /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		8730A38C2B404081007E336D /* SwiftProtobufPluginLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobufPluginLibrary;
+		};
+		8730A38E2B404081007E336D /* protoc-gen-swift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8730A3892B404081007E336D /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = "protoc-gen-swift";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6DB9C3763D02B1415CD9D565 /* Project object */;
 }

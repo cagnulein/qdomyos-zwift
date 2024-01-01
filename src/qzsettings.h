@@ -1935,6 +1935,16 @@ class QZSettings {
     static const QString proform_treadmill_l6_0s;
     static constexpr bool default_proform_treadmill_l6_0s = false;
 
+    static const QString proformtdf1ip;
+    static const QString default_proformtdf1ip;
+
+    static const QString zwift_username;
+    static const QString default_zwift_username;
+
+    static const QString zwift_password;
+    static const QString default_zwift_password;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

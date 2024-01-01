@@ -86,6 +86,7 @@
 #include "proformellipticaltrainer.h"
 #include "proformrower.h"
 #include "proformtreadmill.h"
+#include "proformtelnetbike.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
 #include "schwinn170bike.h"
@@ -205,6 +206,7 @@ private:
     pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
+    proformtelnetbike *proformTelnetBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
     proformwifitreadmill *proformWifiTreadmill = nullptr;
     proformelliptical *proformElliptical = nullptr;

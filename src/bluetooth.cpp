@@ -481,6 +481,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
     QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
+    QString proformtdf1ip = settings.value(QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip).toString();
     QString proformtreadmillip =
         settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
     QString nordictrack_2950_ip =
@@ -738,6 +739,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(proformWifiBike);
+            } else if (!proformtdf1ip.isEmpty() && !proformTelnetBike) {
+                this->stopDiscovery();
+                proformTelnetBike =
+                    new proformtelnetbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(proformTelnetBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformTelnetBike, &proformtelnetbike::debug, this, &bluetooth::debug);
+                proformTelnetBike->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(proformTelnetBike);                
 #ifndef Q_OS_IOS
             } else if (!computrainerSerialPort.isEmpty() && !computrainerBike) {
                 this->stopDiscovery();
@@ -1261,6 +1277,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          !toorx_ftms && toorx_ftms_treadmill) ||
                         !b.name().compare(ftms_treadmill, Qt::CaseInsensitive) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
@@ -1421,7 +1438,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
-                        (b.name().toUpper().startsWith("DIRETO XR")) ||
+                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("MERACH-667-")) ||
                         !b.name().compare(ftms_bike, Qt::CaseInsensitive) || (b.name().toUpper().startsWith("SMB1")) ||
                         (b.name().toUpper().startsWith("UBIKE FTMS")) || (b.name().toUpper().startsWith("INRIDE"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
@@ -2635,6 +2652,11 @@ void bluetooth::restart() {
         delete proformWifiBike;
         proformWifiBike = nullptr;
     }
+    if (proformTelnetBike) {
+
+        delete proformTelnetBike;
+        proformTelnetBike = nullptr;
+    }    
     if (proformWifiTreadmill) {
 
         delete proformWifiTreadmill;
@@ -3052,6 +3074,8 @@ bluetoothdevice *bluetooth::device() {
         return cscBike;
     } else if (proformWifiBike) {
         return proformWifiBike;
+    } else if (proformTelnetBike) {
+        return proformTelnetBike;        
     } else if (proformWifiTreadmill) {
         return proformWifiTreadmill;
     } else if (nordictrackifitadbTreadmill) {

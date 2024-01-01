@@ -5251,14 +5251,25 @@ QString homeform::getFileNameFromContentUri(const QString &uriString) {
 
 QString homeform::copyAndroidContentsURI(QUrl file, QString subfolder) {
 #ifdef Q_OS_ANDROID        
-    QString fileNameLocal = getFileNameFromContentUri(file.toString());
+    QString fileNameLocal = "";
+    qDebug() << "Android Version:" << QOperatingSystemVersion::current();
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13))
+        fileNameLocal = getFileNameFromContentUri(file.toString());
     if(fileNameLocal.contains(getWritableAppDir() + subfolder + "/")) {
         qDebug() << "no need to copy file, the file is already in QZ subfolder" << file << subfolder;
         return file.toString();
     }
-    QFileInfo f(fileNameLocal);
-    QString filename = f.fileName();
+    
+    QString filename = "";
     QFile fileFile(QQmlFile::urlToLocalFileOrQrc(file));
+    // android <14 fallback
+    if(fileNameLocal.length() == 0) {
+        qDebug() << "android <14 fallback" << fileNameLocal << filename << file.fileName();
+        filename = file.fileName();
+    } else {
+        QFileInfo f(fileNameLocal);
+        filename = f.fileName();        
+    }
     QString dest = getWritableAppDir() + subfolder + "/" + filename;
     qDebug() << file.fileName() << fileNameLocal << filename;
     QFile::remove(dest);

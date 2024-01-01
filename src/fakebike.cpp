@@ -49,6 +49,7 @@ void fakebike::update() {
     if (requestPower != -1) {
         // bepo70: don't know if this conversion is really needed, i would do it anyway.
         m_watt = (double)requestPower;
+        Cadence = requestPower;
         emit debug(QStringLiteral("writing power ") + QString::number(requestPower));
         requestPower = -1;
         // bepo70: Disregard the current inclination for calculating speed. When the video
@@ -59,6 +60,11 @@ void fakebike::update() {
         Speed = metric::calculateSpeedFromPower(
             m_watt.value(), 0, Speed.value(), fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0),
             speedLimit());
+    }
+    
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     if (requestInclination != -100) {
