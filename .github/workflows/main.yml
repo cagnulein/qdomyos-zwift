@@ -88,7 +88,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-protobuf
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-protobuf mingw-w64-abseil-cpp
           msystem: mingw64
           release: false
 
