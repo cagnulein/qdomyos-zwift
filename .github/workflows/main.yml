@@ -103,6 +103,10 @@ jobs:
           version: "25.1"       
           repo-token: ${{ secrets.GITHUB_TOKEN }}   
 
+      - name: Copy protoc folder
+        run: |
+          cp C:\\hostedtoolcache\\windows\\protoc\\v25.1\\x64\\include\\* src/
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -416,6 +420,10 @@ jobs:
         with:
           version: "25.1"                    
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy protoc folder
+        run: |
+          cp C:\\hostedtoolcache\\windows\\protoc\\v25.1\\x64\\include\\* src/          
 
       - name: Install packages required to run QZ inside workflow
         run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
@@ -819,6 +827,10 @@ jobs:
           version: "25.1"                    
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Copy protoc folder
+        run: |
+          cp C:\\hostedtoolcache\\windows\\protoc\\v25.1\\x64\\include\\* src/
+
       - name: download 3rd party files for qthttpserver
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
@@ -953,6 +965,10 @@ jobs:
         with:
           version: "25.1"                    
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy protoc folder
+        run: |
+          cp C:\\hostedtoolcache\\windows\\protoc\\v25.1\\x64\\include\\* src/
   
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
