@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
@@ -30,9 +31,13 @@ import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
-import java.util.Random;
 
-public class HeartChannelController {
+
+
+
+public class HeartChannelController extends AntChannelController{
+     public static final int HEART_SENSOR_ID = 0;
+
 	 // The device type and transmission type to be part of the channel ID message
 	 private static final int CHANNEL_HEART_DEVICE_TYPE = 0x78;
 	 private static final int CHANNEL_HEART_TRANSMISSION_TYPE = 1;
@@ -43,121 +48,10 @@ public class HeartChannelController {
 
 	 private static final String TAG = HeartChannelController.class.getSimpleName();
 
-	 private static Random randGen = new Random();
-
-	 private AntChannel mAntChannel;
-
-	 private ChannelEventCallback mChannelEventCallback = new ChannelEventCallback();
-
-
-	 private boolean mIsOpen;
 	 int heart = 0;
 
 	 public HeartChannelController(AntChannel antChannel) {
-		  mAntChannel = antChannel;
-		  openChannel();
-		}
-
-	 boolean openChannel() {
-		  if (null != mAntChannel) {
-			   if (mIsOpen) {
-					 Log.w(TAG, "Channel was already open");
-					} else {
-					 // Channel ID message contains device number, type and transmission type. In
-					 // order for master (TX) channels and slave (RX) channels to connect, they
-					 // must have the same channel ID, or wildcard (0) is used.
-					 ChannelId channelId = new ChannelId(0,
-					         CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE);
-
-								try {
-						  // Setting the channel event handler so that we can receive messages from ANT
-						  mAntChannel.setChannelEventHandler(mChannelEventCallback);
-
-						  // Performs channel assignment by assigning the type to the channel. Additional
-						  // features (such as, background scanning and frequency agility) can be enabled
-						  // by passing an ExtendedAssignment object to assign(ChannelType, ExtendedAssignment).
-						  mAntChannel.assign(ChannelType.SLAVE_RECEIVE_ONLY);
-
-						  /*
-						   * Configures the channel ID, messaging period and rf frequency after assigning,
-							* then opening the channel.
-							*
-							* For any additional ANT features such as proximity search or background scanning, refer to
-							* the ANT Protocol Doc found at:
-							* http://www.thisisant.com/resources/ant-message-protocol-and-usage/
-							*/
-							mAntChannel.setChannelId(channelId);
-						  mAntChannel.setPeriod(CHANNEL_HEART_PERIOD);
-						  mAntChannel.setRfFrequency(CHANNEL_HEART_FREQUENCY);
-						  mAntChannel.open();
-						  mIsOpen = true;
-
-						  Log.d(TAG, "Opened channel with device number");
-						} catch (RemoteException e) {
-						  channelError(e);
-						} catch (AntCommandFailedException e) {
-						  // This will release, and therefore unassign if required
-						  channelError("Open failed", e);
-						}
-				}
-			} else {
-			   Log.w(TAG, "No channel available");
-				}
-
-			return mIsOpen;
-		}
-
-	 void channelError(RemoteException e) {
-		  String logString = "Remote service communication failed.";
-
-		  Log.e(TAG, logString);
-		  }
-
-	 void channelError(String error, AntCommandFailedException e) {
-		  StringBuilder logString;
-
-		  if (e.getResponseMessage() != null) {
-			   String initiatingMessageId = "0x" + Integer.toHexString(
-				        e.getResponseMessage().getInitiatingMessageId());
-						String rawResponseCode = "0x" + Integer.toHexString(
-						  e.getResponseMessage().getRawResponseCode());
-
-						logString = new StringBuilder(error)
-						  .append(". Command ")
-						  .append(initiatingMessageId)
-						  .append(" failed with code ")
-						  .append(rawResponseCode);
-						} else {
-						String attemptedMessageId = "0x" + Integer.toHexString(
-						  e.getAttemptedMessageType().getMessageId());
-						String failureReason = e.getFailureReason().toString();
-
-				logString = new StringBuilder(error)
-				        .append(". Command ")
-						  .append(attemptedMessageId)
-						  .append(" failed with reason ")
-						  .append(failureReason);
-						}
-
-					Log.e(TAG, logString.toString());
-
-		  mAntChannel.release();
-
-		  Log.e(TAG, "ANT Command Failed");
-		}
-
-	 public void close() {
-		  // TODO kill all our resources
-		  if (null != mAntChannel) {
-			   mIsOpen = false;
-
-				// Releasing the channel to make it available for others.
-				// After releasing, the AntChannel instance cannot be reused.
-				mAntChannel.release();
-				mAntChannel = null;
-				}
-
-			Log.e(TAG, "Channel Closed");
+		 super(antChannel, HEART_SENSOR_ID, CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE, CHANNEL_HEART_PERIOD, CHANNEL_HEART_FREQUENCY, ChannelType.SLAVE_RECEIVE_ONLY, TAG, new ChannelEventCallback());
 		}
 
 	 /**

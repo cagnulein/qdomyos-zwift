@@ -37,36 +37,40 @@ import java.util.concurrent.TimeUnit;
 
 // the common bits that are shared between all of the _ChannelController classes
 public class AntChannelController {
+
     private AntChannel mAntChannel;
 
     private int msensor_id;
+
     // The device type and transmission type to be part of the channel ID message
     private int mdevice_type;
     private int mtransmission_type;
 
-    // The period and frequency values the channel will be configured to
+    // The period and frequency values
     private int mperiod; // 8192 -> 1 Hz
     private int mfrequency;
 
     private String mtag;
 
     private IAntChannelEventHandler mChannelEventCallback;
+    private ChannelType mchannel_type;
 
     private boolean mIsOpen;
 
-    public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, String tag, IAntChannelEventHandler callback) {
+    public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag, IAntChannelEventHandler callback) {
         mAntChannel = antChannel;
         msensor_id = sensor_id;
         mdevice_type = device_type;
         mtransmission_type = transmission_type;
         mperiod = period; // 8192 -> 1 Hz
         mfrequency = frequency;
+        mchannel_type = channel_type;
         mtag = tag;
         mChannelEventCallback = callback;
         openChannel();
     }
 
-    boolean openChannel() {
+    public boolean openChannel() {
         if (null != mAntChannel) {
             if (mIsOpen) {
                 Log.w(TAG, "Channel was already open");
@@ -83,7 +87,7 @@ public class AntChannelController {
                     // Performs channel assignment by assigning the type to the channel. Additional
                     // features (such as, background scanning and frequency agility) can be enabled
                     // by passing an ExtendedAssignment object to assign(ChannelType, ExtendedAssignment).
-                    mAntChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
+                    mAntChannel.assign(mchannel_type);
 
                     /*
                      * Configures the channel ID, messaging period and rf frequency after assigning,
@@ -115,14 +119,13 @@ public class AntChannelController {
         return mIsOpen;
     }
 
-
-    void channelError(RemoteException e) {
+    private void channelError(RemoteException e) {
         String logString = "Remote service communication failed.";
 
         Log.e(mtag, logString);
     }
 
-    void channelError(String error, AntCommandFailedException e) {
+    private void channelError(String error, AntCommandFailedException e) {
         StringBuilder logString;
 
         if (e.getResponseMessage() != null) {

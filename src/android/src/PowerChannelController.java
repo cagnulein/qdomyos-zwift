@@ -35,130 +35,24 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Random;
-
-public class PowerChannelController {
+public class PowerChannelController extends AntChannelController {
     public static final int POWER_SENSOR_ID = 0x9e3d4b66;
+
     // The device type and transmission type to be part of the channel ID message
     private static final int CHANNEL_POWER_DEVICE_TYPE = 0x0B;
     private static final int CHANNEL_POWER_TRANSMISSION_TYPE = 5;
+
     // The period and frequency values the channel will be configured to
     private static final int CHANNEL_POWER_PERIOD = 8182; // 1 Hz
     private static final int CHANNEL_POWER_FREQUENCY = 57;
+
     private static final String TAG = PowerChannelController.class.getSimpleName();
-    private static Random randGen = new Random();
+
     int power = 0;
     int cadence = 0;
-    private AntChannel mAntChannel;
-    private ChannelEventCallback mChannelEventCallback = new ChannelEventCallback();
-    private boolean mIsOpen;
 
     public PowerChannelController(AntChannel antChannel) {
-        mAntChannel = antChannel;
-        openChannel();
-    }
-
-    boolean openChannel() {
-        if (null != mAntChannel) {
-            if (mIsOpen) {
-                Log.w(TAG, "Channel was already open");
-            } else {
-                // Channel ID message contains device number, type and transmission type. In
-                // order for master (TX) channels and slave (RX) channels to connect, they
-                // must have the same channel ID, or wildcard (0) is used.
-                ChannelId channelId = new ChannelId(POWER_SENSOR_ID & 0xFFFF,
-                        CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE);
-
-                try {
-                    // Setting the channel event handler so that we can receive messages from ANT
-                    mAntChannel.setChannelEventHandler(mChannelEventCallback);
-
-                    // Performs channel assignment by assigning the type to the channel. Additional
-                    // features (such as, background scanning and frequency agility) can be enabled
-                    // by passing an ExtendedAssignment object to assign(ChannelType, ExtendedAssignment).
-                    mAntChannel.assign(ChannelType.BIDIRECTIONAL_MASTER);
-
-                    /*
-                     * Configures the channel ID, messaging period and rf frequency after assigning,
-                     * then opening the channel.
-                     *
-                     * For any additional ANT features such as proximity search or background scanning, refer to
-                     * the ANT Protocol Doc found at:
-                     * http://www.thisisant.com/resources/ant-message-protocol-and-usage/
-                     */
-                    mAntChannel.setChannelId(channelId);
-                    mAntChannel.setPeriod(CHANNEL_POWER_PERIOD);
-                    mAntChannel.setRfFrequency(CHANNEL_POWER_FREQUENCY);
-                    mAntChannel.open();
-                    mIsOpen = true;
-
-                    Log.d(TAG, "Opened channel with device number: " + POWER_SENSOR_ID);
-
-                } catch (RemoteException e) {
-                    channelError(e);
-                } catch (AntCommandFailedException e) {
-                    // This will release, and therefore unassign if required
-                    channelError("Open failed", e);
-                }
-            }
-        } else {
-            Log.w(TAG, "No channel available");
-        }
-
-        return mIsOpen;
-    }
-
-
-    void channelError(RemoteException e) {
-        String logString = "Remote service communication failed.";
-
-        Log.e(TAG, logString);
-
-    }
-
-    void channelError(String error, AntCommandFailedException e) {
-        StringBuilder logString;
-
-        if (e.getResponseMessage() != null) {
-            String initiatingMessageId = "0x" + Integer.toHexString(
-                    e.getResponseMessage().getInitiatingMessageId());
-            String rawResponseCode = "0x" + Integer.toHexString(
-                    e.getResponseMessage().getRawResponseCode());
-
-            logString = new StringBuilder(error)
-                    .append(". Command ")
-                    .append(initiatingMessageId)
-                    .append(" failed with code ")
-                    .append(rawResponseCode);
-        } else {
-            String attemptedMessageId = "0x" + Integer.toHexString(
-                    e.getAttemptedMessageType().getMessageId());
-            String failureReason = e.getFailureReason().toString();
-
-            logString = new StringBuilder(error)
-                    .append(". Command ")
-                    .append(attemptedMessageId)
-                    .append(" failed with reason ")
-                    .append(failureReason);
-        }
-
-        Log.e(TAG, logString.toString());
-
-        mAntChannel.release();
-    }
-
-    public void close() {
-        // TODO kill all our resources
-        if (null != mAntChannel) {
-            mIsOpen = false;
-
-            // Releasing the channel to make it available for others.
-            // After releasing, the AntChannel instance cannot be reused.
-            mAntChannel.release();
-            mAntChannel = null;
-        }
-
-        Log.e(TAG, "Channel Closed");
+	    super(antChannel, POWER_SENSOR_ID, CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE, CHANNEL_POWER_PERIOD, CHANNEL_POWER_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, new ChannelEventCallback());
     }
 
     /**
