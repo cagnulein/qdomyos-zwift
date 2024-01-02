@@ -174,5 +174,4 @@ public class AntChannelController {
         Log.e(mtag, "Channel Closed");
     }
 
-    }
 }
