@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.cagnulen.qdomyoszwift;
 
 import android.os.RemoteException;
@@ -20,10 +21,9 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
-import com.dsi.ant.message.ChannelId;
 import com.dsi.ant.message.ChannelType;
+
 import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
@@ -33,9 +33,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
-
-import java.util.Random;
 
 public class SDMChannelController extends AntChannelController {
     public static final int SPEED_SENSOR_ID = 0x9e3d4b99;

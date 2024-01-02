@@ -20,10 +20,9 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
-import com.dsi.ant.message.ChannelId;
 import com.dsi.ant.message.ChannelType;
+
 import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.AcknowledgedDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
