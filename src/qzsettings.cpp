@@ -691,9 +691,9 @@ const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
 const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
 const QString QZSettings::proform_treadmill_l6_0s = QStringLiteral("proform_treadmill_l6_0s");
 const QString QZSettings::zwift_username = QStringLiteral("zwift_username");
-const QString QZSettings::default_zwift_username = QStringLiteral("username");
+const QString QZSettings::default_zwift_username = QStringLiteral("");
 const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
-const QString QZSettings::default_zwift_password = QStringLiteral("password");
+const QString QZSettings::default_zwift_password = QStringLiteral("");
 const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
 
 const uint32_t allSettingsCount = 582;
