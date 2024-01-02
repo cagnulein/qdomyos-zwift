@@ -104,7 +104,7 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
 
 void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool onlypower)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr onlypower:onlypower];
 }
 
 void lockscreen::virtualrower_ios()
