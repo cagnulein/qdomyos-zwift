@@ -45,6 +45,7 @@ public:
         this->addDeviceName("DHZ-", comparison::StartsWithIgnoreCase); // JK fitness 577
         this->addDeviceName("MKSM", comparison::StartsWithIgnoreCase); // MKSM3600036
         this->addDeviceName("YS_C1_", comparison::StartsWithIgnoreCase);// Yesoul C1H
+        this->addDeviceName("YS_G1_", comparison::StartsWithIgnoreCase);// Yesoul S3
         this->addDeviceName("DS25-", comparison::StartsWithIgnoreCase); // Bodytone DS25
         this->addDeviceName("SCHWINN 510T", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZWIFT HUB", comparison::StartsWithIgnoreCase);
@@ -52,6 +53,7 @@ public:
         this->addDeviceName("FLXCY-", comparison::StartsWithIgnoreCase); // Pro FlexBike        
         this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("B94", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("DBF135", comparison::IgnoreCase);
         this->addDeviceName("STAGES BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("SUITO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("D2RIDE", comparison::StartsWithIgnoreCase);
@@ -59,7 +61,9 @@ public:
         this->addDeviceName("SMB1", comparison::StartsWithIgnoreCase);
         this->addDeviceName("INRIDE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XBR55", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("EW-JS-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("HAMMER ", comparison::StartsWithIgnoreCase); // HAMMER 64123
+        this->addDeviceName("QB-WC01", comparison::StartsWithIgnoreCase);
 
 
         // Starts with DT- and is 14+ characters long.
@@ -67,6 +71,8 @@ public:
         this->addDeviceName("DT-0123456789A", comparison::IgnoreCase); // Sole SB700
         this->addDeviceName("DT-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", comparison::IgnoreCase); // Sole SB700
         this->addInvalidDeviceName("DT-0123456789", comparison::IgnoreCase); // too short for Sole SB700
+        this->addInvalidDeviceName("DBF13", comparison::IgnoreCase); // too short for DBF135
+        this->addInvalidDeviceName("DBF1355", comparison::IgnoreCase); // too long for DBF135
      }
 };
 

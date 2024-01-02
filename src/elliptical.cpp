@@ -56,13 +56,29 @@ uint16_t elliptical::watts() {
     m_watt.setValue(watts);
     return m_watt.value();
 }
+
+double elliptical::speedFromWatts() {
+
+    QSettings settings;
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    double speed = 0;
+    if (wattsMetric().value() > 0) {
+        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        speed = 210.0 / ((wattsMetric().value() - vwatts) / 75.0 / weight * 1000.0);
+        speed = 60.0 / speed;
+    }
+    return speed;
+}
+
 void elliptical::changeResistance(resistance_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     requestResistance = resistance + gears();
     RequestedResistance = resistance + gears();
 }
-int8_t elliptical::gears() { return m_gears; }
-void elliptical::setGears(int8_t gears) {
+double elliptical::gears() { return m_gears; }
+void elliptical::setGears(double gears) {
     QSettings settings;
     qDebug() << "setGears" << gears;
     m_gears = gears;
@@ -92,6 +108,7 @@ void elliptical::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -108,6 +125,7 @@ void elliptical::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -122,6 +140,7 @@ void elliptical::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);

@@ -10,9 +10,10 @@ class treadmill : public bluetoothdevice {
     treadmill();
     void update_metrics(bool watt_calc, const double watts);
     metric lastRequestedSpeed() { return RequestedSpeed; }
+    QTime lastRequestedPace();
     metric lastRequestedInclination() { return RequestedInclination; }
-    virtual bool connected();
-    virtual metric currentInclination();
+    bool connected() override;
+    metric currentInclination() override;
     virtual double requestedSpeed();
     virtual double currentTargetSpeed();
     virtual double requestedInclination();
@@ -24,10 +25,11 @@ class treadmill : public bluetoothdevice {
     metric currentVerticalOscillation() { return VerticalOscillationMM; }
     metric currentStepCount() { return StepCount; }
     uint16_t watts(double weight);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
-    void clearStats();
-    void setLap();
-    void setPaused(bool p);
+    static uint16_t wattsCalc(double weight, double speed, double inclination);
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    void clearStats() override;
+    void setLap() override;
+    void setPaused(bool p) override;
     double lastRawSpeedRequested() {
         return (m_lastRawSpeedRequested != -1 ? m_lastRawSpeedRequested : currentSpeed().value());
     }
@@ -44,14 +46,14 @@ class treadmill : public bluetoothdevice {
 
   public slots:
     virtual void changeSpeed(double speed);
-    virtual void changeInclination(double grade, double percentage);
+    void changeInclination(double grade, double percentage) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
-    virtual void cadenceSensor(uint8_t cadence);
-    virtual void powerSensor(uint16_t power);
-    virtual void speedSensor(double speed);
-    virtual void instantaneousStrideLengthSensor(double length);
-    virtual void groundContactSensor(double groundContact);
-    virtual void verticalOscillationSensor(double verticalOscillation);
+    void cadenceSensor(uint8_t cadence) override;
+    void powerSensor(uint16_t power) override;
+    void speedSensor(double speed) override;
+    void instantaneousStrideLengthSensor(double length) override;
+    void groundContactSensor(double groundContact) override;
+    void verticalOscillationSensor(double verticalOscillation) override;
 
   signals:
     void tapeStarted();
@@ -71,6 +73,9 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+
+  private:
+    bool simulateInclinationWithSpeed();
 };
 
 #endif // TREADMILL_H

@@ -1,5 +1,5 @@
 #include "renphobike.h"
-#include "ios/lockscreen.h"
+#include "ftmsbike.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +9,9 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 
 renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
 
@@ -47,10 +47,15 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -72,9 +77,11 @@ void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
     QSettings settings;
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
-    if(renpho_bike_double_resistance)
+    if (renpho_bike_double_resistance)
         write[1] = ((uint8_t)(requestResistance));
     else
         write[1] = ((uint8_t)(requestResistance * 2));
@@ -102,7 +109,7 @@ void renphobike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         if (!autoResistanceEnable) {
             uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
@@ -110,6 +117,7 @@ void renphobike::update() {
                                 QStringLiteral("stopping control ") + QString::number(requestPower));
             return;
         } else {
+            auto virtualBike = this->VirtualBike();
             if (requestPower != -1) {
                 debug("writing power request " + QString::number(requestPower));
                 QSettings settings;
@@ -167,12 +175,15 @@ void renphobike::update() {
 void renphobike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
 
 void renphobike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -215,7 +226,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         else
             Speed = metric::calculateSpeedFromPower(
                 watts(), Inclination.value(), Speed.value(),
-                fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -257,7 +268,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         index += 3;
     } else {
         Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     debug("Current Distance: " + QString::number(Distance.value()));
@@ -266,7 +277,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             2;
-        if(renpho_bike_double_resistance)
+        if (renpho_bike_double_resistance)
             Resistance = Resistance.value() * 2;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
@@ -310,7 +321,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
     }
 
@@ -323,7 +334,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if (Flags.heartRate) {
-            Heart = ((double)((newValue.at(index))));
+            Heart = ((double)(((uint8_t)newValue.at(index))));
             index += 1;
             debug("Current Heart: " + QString::number(Heart.value()));
         }
@@ -346,19 +357,10 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith("Disabled")) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
 
 #ifdef Q_OS_IOS
@@ -474,7 +476,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -499,10 +501,11 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&renphobike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &renphobike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &renphobike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
         }
     }
     firstStateChanged = 1;
@@ -521,8 +524,8 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     powerRequested = ((powerRequested / watt_gain) - watt_offset);
     qDebug() << QStringLiteral("to") << powerRequested;
 
-    if (power_sensor && virtualBike) {
-        if (QDateTime::currentMSecsSinceEpoch() > (virtualBike->whenLastFTMSFrameReceived() + 5000)) {
+    if (power_sensor && this->VirtualBike()) {
+        if (QDateTime::currentMSecsSinceEpoch() > (this->VirtualBike()->whenLastFTMSFrameReceived() + 5000)) {
             double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
             lastPowerRequestedFactor = f / powerRequested;
             powerRequested = f;
@@ -570,9 +573,23 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             lastFTMSPacketReceived.append(r & 0xFF);
             lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
             qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
+        // handling gears
+        } else if (lastFTMSPacketReceived.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
+            qDebug() << "applying gears mod" << m_gears;
+            int16_t slope = (((uint8_t)lastFTMSPacketReceived.at(3)) + (lastFTMSPacketReceived.at(4) << 8));
+            if (m_gears != 0) {
+                slope += (m_gears * 50);
+                lastFTMSPacketReceived[3] = slope & 0xFF;
+                lastFTMSPacketReceived[4] = slope >> 8;
+            }
         }
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
+        if (writeBuffer) {
+            delete writeBuffer;
+        }
+        writeBuffer = new QByteArray(lastFTMSPacketReceived);
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
     }
 }
 
@@ -700,9 +717,11 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
     bool renpho_peloton_conversion_v2 =
         settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2)
             .toBool();
-    bool renpho_bike_double_resistance = settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance).toBool();
+    bool renpho_bike_double_resistance =
+        settings.value(QZSettings::renpho_bike_double_resistance, QZSettings::default_renpho_bike_double_resistance)
+            .toBool();
 
-    if(renpho_bike_double_resistance)
+    if (renpho_bike_double_resistance)
         resistance = resistance / 2.0;
 
     if (!renpho_peloton_conversion_v2) {
@@ -725,10 +744,6 @@ bool renphobike::connected() {
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *renphobike::VirtualBike() { return virtualBike; }
-
-void *renphobike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t renphobike::watts() {
     if (currentCadence().value() == 0)

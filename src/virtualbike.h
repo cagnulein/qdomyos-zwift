@@ -25,16 +25,16 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
-#include "bike.h"
 #include "dirconmanager.h"
+#include "virtualdevice.h"
 
-class virtualbike : public QObject {
+class virtualbike : public virtualdevice {
 
     Q_OBJECT
   public:
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    bool connected();
+    bool connected() override;
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
     qint64 whenLastFTMSFrameReceived() {
         if (lastFTMSFrameReceived != 0)

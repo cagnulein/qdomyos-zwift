@@ -1,6 +1,7 @@
 #include "m3ibike.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -298,9 +299,6 @@ m3ibike::~m3ibike() {
     if (elapsedTimer) {
         elapsedTimer->stop();
         delete elapsedTimer;
-    }
-    if (virtualBike) {
-        delete virtualBike;
     }
     m_instance = 0;
     disconnecting = true;
@@ -616,7 +614,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
-            if (!virtualBike
+            if (!this->hasVirtualDevice()
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 && !h
 #endif
@@ -633,9 +631,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #endif
                     if (virtual_device_enabled) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::PRIMARY);
                 }
                 int buffSize = settings.value(QZSettings::m3i_bike_speed_buffsize, QZSettings::default_m3i_bike_speed_buffsize).toInt();
                 k3s.inner_reset(buffSize,
@@ -724,6 +723,9 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 long appleWatchHeartRate = h->heartRate();
                 h->setKcal(KCal.value());
                 h->setDistance(Distance.value());
+                h->setSpeed(Speed.value());
+                h->setPower(m_watt.value());
+                h->setCadence(Cadence.value());
                 if (appleWatchHeartRate == 0)
                     Heart = k3.pulse;
                 else
@@ -764,10 +766,6 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool m3ibike::connected() { return initDone; }
-
-void *m3ibike::VirtualBike() { return virtualBike; }
-
-void *m3ibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t m3ibike::watts() {
     if (currentCadence().value() == 0) {

@@ -26,18 +26,14 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class trxappgateusbtreadmill : public treadmill {
     Q_OBJECT
   public:
     trxappgateusbtreadmill();
-    bool connected();
+    bool connected() override;
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
-
-    double minStepInclination();
+    double minStepInclination() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -56,7 +52,6 @@ class trxappgateusbtreadmill : public treadmill {
     double DistanceCalculated = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -73,7 +68,7 @@ class trxappgateusbtreadmill : public treadmill {
     bool initRequest = false;
     bool readyToStart = false;
 
-    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5 } TYPE;
+    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4, IRUNNING_2 = 5, ADIDAS = 6, REEBOK_2 = 7 } TYPE;
     TYPE treadmill_type = TRXAPPGATE;
 
   signals:

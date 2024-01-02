@@ -1,6 +1,8 @@
 #include "truetreadmill.h"
-#include "ios/lockscreen.h"
+#ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
+#endif
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -55,24 +57,23 @@ void truetreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled =
-                settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
-            bool virtual_device_force_bike =
-                settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
-                    .toBool();
+        if (!firstInit && !this->hasVirtualDevice()) {
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &truetreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &truetreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &truetreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
                 firstInit = 1;
             }
@@ -138,6 +139,7 @@ void truetreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -147,7 +149,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     Q_UNUSED(characteristic);
     QByteArray avalue = newValue;
 
-    emit debug(QStringLiteral(" << ") + QString::number(avalue.length()) + QStringLiteral(" ") + avalue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + QString::number(newValue.length()) + QStringLiteral(" ") + newValue.toHex(' '));
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -159,20 +161,10 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
             uint8_t heart = 0;
             if (heart == 0 || disable_hr_frommachinery) {
-
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-            } else
-
+                update_hr_from_external();
+            } else {
                 Heart = heart;
+            }
         }
     }
 
@@ -180,30 +172,39 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     double speed = 0;
 
-    if (avalue.length() == 16) {
-        uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
-        speed = ((double)convertedData) / 100.0;
-        double incline = ((double)(avalue.at(14))) / 10.0;
-
-        if (Inclination.value() != incline) {
-
-            emit inclinationChanged(0, incline);
+    if (assault_treadmill) {
+        if (avalue.length() == 16) {
+            uint16_t convertedData = (avalue.at(6) << 8) | ((uint8_t)avalue.at(5));
+            speed = ((double)convertedData) / 100.0;
+        } else {
+            return;
         }
-        Inclination = incline;
-        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+    } else {
+        if (avalue.length() == 16) {
+            uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
+            speed = ((double)convertedData) / 100.0;
+            double incline = ((double)(avalue.at(14))) / 10.0;
 
-    } else if (avalue.length() == 19) {
-        uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
-        speed = ((double)convertedData) / 100.0;
-    } else if (avalue.length() == 4) {
-        double incline = ((double)(avalue.at(2))) / 10.0;
-        if (Inclination.value() != incline) {
+            if (Inclination.value() != incline) {
 
-            emit inclinationChanged(0, incline);
+                emit inclinationChanged(0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+
+        } else if (avalue.length() == 19) {
+            uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
+            speed = ((double)convertedData) / 100.0;
+        } else if (avalue.length() == 4) {
+            double incline = ((double)(avalue.at(2))) / 10.0;
+            if (Inclination.value() != incline) {
+
+                emit inclinationChanged(0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+            return;
         }
-        Inclination = incline;
-        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-        return;
     }
 
     if (!firstCharacteristicChanged) {
@@ -214,11 +215,11 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         Distance += ((speed / (double)3600.0) /
-                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-        lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(now))));
+        lastTimeCharacteristicChanged = now;
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -315,6 +316,10 @@ void truetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
 
         bluetoothDevice = device;
+        if (device.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL "))) {
+            assault_treadmill = true;
+            qDebug() << QStringLiteral("ASSAULT TREADMILL enabled!");
+        }
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &truetreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &truetreadmill::serviceScanDone);
@@ -366,6 +371,3 @@ bool truetreadmill::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *truetreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *truetreadmill::VirtualDevice() { return VirtualTreadMill(); }

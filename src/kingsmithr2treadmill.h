@@ -29,8 +29,6 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -42,11 +40,8 @@ class kingsmithr2treadmill : public treadmill {
   public:
     kingsmithr2treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
-    virtual bool canStartStop() { return false; }
+    bool connected() override;
+    virtual bool canStartStop() override { return false; }
 
   private:
     const QByteArray PLAINTEXT_TABLE =
@@ -59,6 +54,10 @@ class kingsmithr2treadmill : public treadmill {
         QStringLiteral("0aCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5Z78KS3=").toUtf8();
     const QByteArray ENCRYPT_TABLE_v4 =
         QStringLiteral("ZaCw4FGHIJqLhN9P+RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
+    const QByteArray ENCRYPT_TABLE_v5 =
+        QStringLiteral("iaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEZjklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8();
+    const QByteArray ENCRYPT_TABLE_v6 =
+        QStringLiteral("ZaCw4FGHIJqLhN+P8RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5079KS3=").toUtf8();        
 
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -82,8 +81,6 @@ class kingsmithr2treadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -91,6 +88,9 @@ class kingsmithr2treadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    bool KS_NACH_X21C = false;
+    bool KS_NGCH_G1C = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

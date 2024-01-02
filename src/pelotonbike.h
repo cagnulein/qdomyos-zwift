@@ -29,19 +29,15 @@ class pelotonbike : public bike {
     Q_OBJECT
   public:
     pelotonbike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-    bool inclinationAvailableByHardware();
-
-    void *VirtualTreadmill();
-    void *VirtualDevice();
+    bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void forceResistance(double resistance);
-    uint16_t watts();
+    uint16_t watts() override;
     double getDouble(QString v);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -55,6 +51,8 @@ class pelotonbike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    QUdpSocket* pelotonOCRsocket = nullptr;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -63,7 +61,8 @@ class pelotonbike : public bike {
     void disconnected();
     void debug(QString string);
 
-  private slots:
+private slots:
+    void pelotonOCRprocessPendingDatagrams();
 
     void changeInclinationRequested(double grade, double percentage);
 

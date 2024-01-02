@@ -9,6 +9,9 @@ class lockscreen {
     long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
+    void setSpeed(double speed);
+    void setPower(double power);
+    void setCadence(double cadence);
 
     // virtualbike
     void virtualbike_ios();
@@ -43,10 +46,27 @@ class lockscreen {
     double virtualtreadmill_getPowerRequested();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                      unsigned short currentCadence, unsigned short currentWatt,
-                                     unsigned short currentInclination);
+                                     unsigned short currentInclination, unsigned long long currentDistance);
 
     // volume
     double getVolume();
+
+    // garmin
+    bool urlParser(const char *url);
+    void garminconnect_init();
+    int getHR();
+    int getFootCad();
+    
+    // debug
+    static void debug(const char* debugstring);
+    
+    //adb
+    void adb_connect(const char* IP);
+    void adb_sendcommand(const char* command);
+    
+    // Elite Aria Fan
+    void eliteAriaFan();
+    void eliteAriaFan_fanSpeedRequest(unsigned char speed);
 };
 
 #endif // LOCKSCREEN_H
