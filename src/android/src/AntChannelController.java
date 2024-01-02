@@ -119,6 +119,10 @@ public class AntChannelController {
         return mIsOpen;
     }
 
+    public boolean isOpen() {
+        return mIsOpen;
+    }
+
     private void channelError(RemoteException e) {
         String logString = "Remote service communication failed.";
 
