@@ -687,7 +687,7 @@ jobs:
           version: '5.15.2'
           host: 'mac'
           target: 'ios'
-          modules: 'qtcharts  qtnetworkauth qt5serialport5-dev'
+          modules: 'qtcharts  qtnetworkauth libqt5serialport5-dev'
           dir: '${{ github.workspace }}/output/ios/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-ios'                    
