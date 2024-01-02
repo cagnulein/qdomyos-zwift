@@ -26,20 +26,16 @@
 #include <QObject>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class eslinkertreadmill : public treadmill {
     Q_OBJECT
   public:
     eslinkertreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    double minStepInclination();
-    bool autoPauseWhenSpeedIsZero();
-    bool autoStartWhenSpeedIsGreaterThenZero();
-
-    void *VirtualTreadMill();
-    void *VirtualDevice();
+    bool connected() override;
+    double minStepInclination() override;
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -68,7 +64,8 @@ class eslinkertreadmill : public treadmill {
     typedef enum TYPE {
         RHYTHM_FUN = 0,
         CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
-        YPOO_MINI_CHANGE = 2, // Similar to RHYTHM_FUN but has no ascension
+        YPOO_MINI_CHANGE = 2,    // Similar to RHYTHM_FUN but has no ascension
+        COSTAWAY = 3,
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
 
@@ -76,8 +73,6 @@ class eslinkertreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;

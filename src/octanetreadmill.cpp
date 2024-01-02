@@ -208,11 +208,15 @@ void octanetreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') +
                    QStringLiteral(" // ") + info);
     }
 
@@ -269,15 +273,16 @@ void octanetreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octanetreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -344,7 +349,8 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("resetting speed"));
         Speed = 0;
         Cadence = 0;
-    } else if(ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 && Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
+    } else if (ZR8 == true && Speed.lastChanged().secsTo(QDateTime::currentDateTime()) > 15 &&
+               Cadence.lastChanged().secsTo(QDateTime::currentDateTime()) > 15) {
         emit debug(QStringLiteral("resetting speed"));
         Speed = 0;
         Cadence = 0;
@@ -353,7 +359,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if(ZR8 && newValue.contains(cadenceSign)) {
+    if (ZR8 && newValue.contains(cadenceSign)) {
         int16_t i = newValue.indexOf(cadenceSign) + 3;
 
         if (i >= newValue.length())
@@ -385,16 +391,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     else
 #endif
     {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        update_hr_from_external();
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
@@ -430,7 +427,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     // ZR8 has builtin cadence sensor
-    if(!ZR8)
+    if (!ZR8)
         cadenceFromAppleWatch();
 
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
@@ -532,7 +529,7 @@ void octanetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if(device.name().toUpper().startsWith(QLatin1String("ZR8"))) {
+        if (device.name().toUpper().startsWith(QLatin1String("ZR8"))) {
             ZR8 = true;
             qDebug() << "ZR8 workaround activated";
         }
@@ -585,10 +582,6 @@ bool octanetreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *octanetreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *octanetreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool octanetreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

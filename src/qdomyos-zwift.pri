@@ -18,11 +18,18 @@ qtHaveModule(httpserver) {
         QT+= webview
         DEFINES += CHARTJS
     }
+#	 win32: {
+#	     DEFINES += CHARTJS
+#		}
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
 
 CONFIG += qmltypes
+
+#win32: CONFIG += webengine
+#unix:!android: CONFIG += webengine
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -32,6 +39,8 @@ QML_IMPORT_PATH =
 QML_DESIGNER_IMPORT_PATH =
 
 win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
+
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -51,7 +60,7 @@ INCLUDEPATH += qmdnsengine/src/include
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -63,11 +72,25 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/QTelnet.cpp \
+   $$PWD/bkoolbike.cpp \
+   $$PWD/csafe.cpp \
+   $$PWD/csaferower.cpp \
+    $$PWD/eliteariafan.cpp \
+   $$PWD/fakerower.cpp \
+    $$PWD/proformtelnetbike.cpp \
+    $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
    $$PWD/apexbike.cpp \
+    $$PWD/handleurl.cpp \
+   $$PWD/iconceptelliptical.cpp \
+    $$PWD/localipaddress.cpp \
    $$PWD/pelotonbike.cpp \
+   $$PWD/schwinn170bike.cpp \
    $$PWD/wahookickrheadwind.cpp \
+   $$PWD/windows_zwift_workout_paddleocr_thread.cpp \
+   $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
    Computrainer.cpp \
    PathController.cpp \
@@ -247,6 +270,7 @@ SOURCES += \
              m3ibike.cpp \
                 domyosbike.cpp \
                scanrecordresult.cpp \
+					windows_zwift_incline_paddleocr_thread.cpp \
    zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
@@ -259,12 +283,28 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/QTelnet.h \
+   $$PWD/bkoolbike.h \
+   $$PWD/csafe.h \
+   $$PWD/csaferower.h \
+    $$PWD/eliteariafan.h \
+    $$PWD/proformtelnetbike.h \
+   $$PWD/windows_zwift_workout_paddleocr_thread.h \
+   $$PWD/fakerower.h \
+    $$PWD/zwift-api/PlayerStateWrapper.h \
+    $$PWD/zwift-api/zwift_client_auth.h \
+    virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
    $$PWD/apexbike.h \
     $$PWD/discoveryoptions.h \
+    $$PWD/handleurl.h \
+   $$PWD/iconceptelliptical.h \
+    $$PWD/localipaddress.h \
    $$PWD/pelotonbike.h \
+   $$PWD/schwinn170bike.h \
    $$PWD/wahookickrheadwind.h \
+   $$PWD/ypooelliptical.h \
    $$PWD/ziprotreadmill.h \
    Computrainer.h \
    PathController.h \
@@ -661,7 +701,9 @@ HEADERS += \
    wobjectimpl.h \
         yesoulbike.h \
         scanrecordresult.h \
+		  windows_zwift_incline_paddleocr_thread.h \
    zwiftworkout.h
+
 
 exists(secret.h): HEADERS += secret.h
 
@@ -676,9 +718,21 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    $$PWD/android/libs/android_antlib_4-16-0.aar \
+    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/res/xml/device_filter.xml \
+   $$PWD/android/src/CSafeRowerUSBHID.java \
+    $$PWD/android/src/ContentHelper.java \
+    $$PWD/android/src/Garmin.java \
+   $$PWD/android/src/HidBridge.java \
+    $$PWD/android/src/IQMessageReceiverWrapper.java \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/WearableController.java \
+    $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -687,7 +741,6 @@ DISTFILES += \
 	android/gradle/wrapper/gradle-wrapper.properties \
 	android/gradlew \
 	android/gradlew.bat \
-	android/libs/android_antlib_4-14-0.jar \
    android/res/layout/floating_layout.xml \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
@@ -703,6 +756,7 @@ DISTFILES += \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
+   android/src/SDMChannelController.java \
     android/src/Usbserial.java \
    android/src/com/cgutman/adblib/AdbBase64.java \
    android/src/com/cgutman/adblib/AdbConnection.java \
@@ -742,6 +796,8 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_eliteariafan.mm \
+    ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
 	 fit-sdk/FitEncode.mm \
@@ -758,6 +814,7 @@ ios {
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
+	 QMAKE_ASSET_CATALOGS_BUILD_PATH = $$PWD/ios/ 
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
@@ -770,4 +827,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.13.6
+VERSION = 2.16.30

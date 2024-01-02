@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(onlypower: Bool) {
+    @objc public init(disable_hr: Bool, onlypower: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(onlypower: onlypower)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, onlypower: onlypower)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -62,6 +62,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var onlypower: Bool = false
+    private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
@@ -108,9 +109,11 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(onlypower: Bool) {
+  init(disable_hr: Bool, onlypower: Bool) {
     super.init()
+    self.disable_hr = disable_hr
     self.onlypower = onlypower
+
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
   
@@ -260,7 +263,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       print("Failed to add service with error: \(uwError.localizedDescription)")
       return
     }
-    
+            
       if self.onlypower == false {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                 CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]

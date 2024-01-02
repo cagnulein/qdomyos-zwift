@@ -17,6 +17,8 @@ public:
         this->addDeviceName("KINGSMITH", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KS-H", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DYNAMAX", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("WALKINGPAD", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-BLR", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::KingsmithR1ProTreadmill; }

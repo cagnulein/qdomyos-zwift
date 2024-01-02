@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,19 +36,15 @@ class npecablebike : public bike {
     Q_OBJECT
   public:
     npecablebike(bool noWriteResistance, bool noHeartService);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;

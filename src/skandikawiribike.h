@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -39,10 +38,7 @@ class skandikawiribike : public bike {
     skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                      double bikeResistanceGain);
     ~skandikawiribike();
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -57,10 +53,9 @@ class skandikawiribike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotify1Characteristic;
@@ -78,6 +73,8 @@ class skandikawiribike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    bool X2000 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

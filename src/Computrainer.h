@@ -37,12 +37,9 @@
 #include <QThread>
 
 #ifdef WIN32
-#include <windef.h>
-#endif
-
-#ifdef WIN32
-#include <winbase.h>
 #include <windows.h>
+
+#include <winbase.h>
 #else
 #include <sys/ioctl.h>
 #include <termios.h> // unix!!
@@ -145,7 +142,7 @@ class Computrainer : public QThread {
     double getLoad();
 
   private:
-    void run(); // called by start to kick off the CT comtrol thread
+    void run() override; // called by start to kick off the CT comtrol thread
 
     // 56 bytes comprise of 8 7byte command messages, where
     // the last is the set load / gradient respectively

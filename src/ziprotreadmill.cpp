@@ -43,12 +43,15 @@ void ziprotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
         timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (writeBuffer) {
+        delete writeBuffer;
+    }
+    writeBuffer = new QByteArray((const char *)data, data_len);
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + writeBuffer->toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     // packets sent from the characChanged event, i don't want to block everything
@@ -104,15 +107,16 @@ void ziprotreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled =
                 settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &ziprotreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &ziprotreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 firstInit = 1;
             }
         }
@@ -121,21 +125,29 @@ void ziprotreadmill::update() {
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         uint8_t noop[] = {0xfb, 0x07, 0xa1, 0x02, 0x00, 0x00, 0x00, 0xaa, 0xfc};
+        noop[5] = (uint8_t)(Speed.value() * 10.0);
         if (requestSpeed != -1) {
+            noop[4] = 1; // force speed and inclination
             noop[5] = (uint8_t)(requestSpeed * 10.0);
             emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+            requestSpeed = -1;
         }
+        noop[6] = (uint8_t)(Inclination.value());
         if (requestInclination != -100) {
+            noop[4] = 1; // force speed and inclination
             noop[6] = (uint8_t)(requestInclination);
             emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+            requestInclination = -100;
         }
-        noop[7] += noop[5] + noop[6];
+        noop[7] += noop[5] + noop[6] + noop[4];
         writeCharacteristic(noop, sizeof(noop), "noop", false, false);
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             lastStart = QDateTime::currentMSecsSinceEpoch();
-            requestSpeed = 0.8;
+            uint8_t start[] = {0xfb, 0x05, 0xa2, 0x01, 0x01, 0xa9, 0xfc};
+            writeCharacteristic(start, sizeof(start), "start", false, true);
+            writeCharacteristic(start, sizeof(start), "start", false, true);
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.8;
             }
@@ -143,9 +155,10 @@ void ziprotreadmill::update() {
             emit tapeStarted();
         } else if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-            // uint8_t stop[] = {0x55, 0x0a, 0x01, 0x02};
-            // writeCharacteristic(stop, sizeof(stop), "stop", false, true);
-            requestSpeed = 0;
+            uint8_t stop[] = {0xfb, 0x05, 0xa2, 0x04, 0x01, 0xac, 0xfc};
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             requestStop = -1;
             lastStop = QDateTime::currentMSecsSinceEpoch();
         } else if (sec1Update++ >= (400 / refresh->interval())) {
@@ -160,11 +173,14 @@ void ziprotreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
@@ -180,19 +196,15 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     else
 #endif
     {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+        uint8_t heart = ((uint8_t)value.at(15));
+        if (heart == 0 || disable_hr_frommachinery) {
+            update_hr_from_external();
+        } else {
+            Heart = heart;
+        }
     }
 
-    double speed = ((double)newValue.at(5)) / 10.0;
+    double speed = ((double)((uint8_t)newValue.at(5))) / 10.0;
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
     Inclination = ((double)newValue.at(6));
@@ -222,11 +234,11 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
         Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(now))));
     }
 
     cadenceFromAppleWatch();
@@ -238,7 +250,7 @@ void ziprotreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+    lastTimeCharacteristicChanged = now;
     firstCharacteristicChanged = false;
 }
 
@@ -381,10 +393,6 @@ bool ziprotreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ziprotreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *ziprotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool ziprotreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

@@ -12,7 +12,7 @@ class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
     explicit CharacteristicWriteProcessor2AD9(double bikeResistanceGain, uint8_t bikeResistanceOffset,
                                               bluetoothdevice *bike, CharacteristicNotifier2AD9 *notifier,
                                               QObject *parent = nullptr);
-    virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out);
+    int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out) override;
   signals:
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };

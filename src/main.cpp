@@ -38,6 +38,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "handleurl.h"
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -51,6 +53,7 @@ QString peloton_username = "";
 QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
+bool fit_file_saved_on_quit = false;
 bool testResistance = false;
 bool forceQml = true;
 bool miles = false;
@@ -173,6 +176,9 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 
             bikeResistanceOffset = atoi(argv[++i]);
         }
+        if (!qstrcmp(argv[i], "-fit-file-saved-on-quit")) {
+            fit_file_saved_on_quit = true;
+        }
         if (!qstrcmp(argv[i], "-profile")) {
             QString profileName = argv[++i];
             if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
@@ -276,10 +282,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
-
-#ifdef Q_OS_ANDROID
-    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-#endif
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
@@ -287,6 +289,11 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
+#ifdef Q_OS_IOS
+    HandleURL *URLHandler = new HandleURL();
+    QDesktopServices::setUrlHandler("org.cagnulein.ConnectIQComms-ciq", URLHandler, "handleURL");
+#endif
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
@@ -315,6 +322,12 @@ int main(int argc, char *argv[]) {
         homeform::loadSettings(profileToLoad);
     }
 
+    if (fit_file_saved_on_quit) {
+        settings.setValue(QZSettings::fit_file_saved_on_quit, true);
+        qDebug() << "fit_file_saved_on_quit"
+                 << settings.value(QZSettings::fit_file_saved_on_quit, QZSettings::default_fit_file_saved_on_quit);
+    }
+
     if (forceQml)
 #endif
     {
@@ -335,6 +348,7 @@ int main(int argc, char *argv[]) {
         bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
         bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
         deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
+        pollDeviceTime = settings.value(QZSettings::poll_device_time, QZSettings::default_poll_device_time).toInt();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
@@ -349,6 +363,13 @@ int main(int argc, char *argv[]) {
         settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
         settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
         settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+    }
+#endif
+
+#ifdef Q_OS_ANDROID
+    if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {
+        qDebug() << "handling volume keys";
+        qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
 

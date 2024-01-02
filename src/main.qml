@@ -6,6 +6,8 @@ import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
 import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
+import QtQuick.Window 2.12
+import Qt.labs.platform 1.1
 
 ApplicationWindow {
     id: window
@@ -18,7 +20,10 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
+    signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
@@ -35,12 +40,16 @@ ApplicationWindow {
     signal keyMediaPrevious()
     signal keyMediaNext()
     signal floatingOpen()
+    signal openFloatingWindowBrowser();
 
     property bool lockTiles: false
+    property bool settings_restart_to_apply: false
 
     Settings {
         id: settings
-        property string profile_name: "default"
+        property string profile_name: "default"        
+        property string theme_status_bar_background_color: "#800080"
+        property bool volume_change_gears: false
     }
 
     Store {
@@ -81,6 +90,67 @@ ApplicationWindow {
             console.log("timestamp: " + transaction.timestamp);
             transaction.finalize();
             pageStack.pop();
+        }
+    }
+
+    ToastManager {
+        id: toast
+    }
+
+    Timer {
+        interval: 1
+        repeat: false
+        running: (rootItem.toastRequested !== "")
+        onTriggered: {
+            toast.show(rootItem.toastRequested);
+            rootItem.toastRequested = "";
+        }
+    }
+
+    /*
+    Timer {
+        interval: 1000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This timer has triggered " + (++i) + " times!");
+        }
+    }
+
+    Timer {
+        interval: 3000
+        repeat: true
+        running: true
+        property int i: 0
+        onTriggered: {
+            toast.show("This important message has been shown " + (++i) + " times.", 5000);
+        }
+    }*/
+
+    Keys.onBackPressed: {
+        if(OS_VERSION === "Android") {
+            toast.show("Pressed it quickly to close the app!")
+            timer.pressBack();
+        }
+    }
+    Timer{
+        id: timer
+
+        property bool backPressed: false
+        repeat: false
+        interval: 200//ms
+        onTriggered: backPressed = false
+        function pressBack(){
+            if(backPressed){
+                timer.stop()
+                backPressed = false
+                Qt.callLater(Qt.quit)
+            }
+            else{
+                backPressed = true
+                timer.start()
+            }
         }
     }
 
@@ -313,18 +383,33 @@ ApplicationWindow {
          }
     }
 
+    MessageDialog {
+        id: popupRestartApp
+        text: "Settings changed"
+        informativeText: "In order to apply the changes you need to restart the app.\nDo you want to do it now?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: Qt.callLater(Qt.quit)
+        onNoClicked: this.visible = false;
+        visible: false
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
-        Material.primary: Material.Purple
+        Material.primary: settings.theme_status_bar_background_color
         id: headerToolbar
 
         ToolButton {
             id: toolButton
             icon.source: "icons/icons/icon.png"
-            text: stackView.depth > 1 ? "⏴" : "⏴"
+            text: stackView.depth > 1 ? "◄" : "◄"
             font.pixelSize: Qt.application.font.pixelSize * 1.6
             onClicked: {
                 if (stackView.depth > 1) {
+                    if(window.settings_restart_to_apply === true) {
+                        window.settings_restart_to_apply = false;
+                        popupRestartApp.visible = true;
+                    }
+
                     stackView.pop()
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
@@ -466,13 +551,13 @@ ApplicationWindow {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
-            anchors.right: toolButtonLockTiles.left
+            anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
         }      
 
         ToolButton {
             function loadVideo() {
-                if(rootItem.currentCoordinateValid) {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
                     rootItem.videoVisible = !rootItem.videoVisible
@@ -485,6 +570,14 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
+        }
+
+        ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/chart.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
         }
 
         ToolButton {
@@ -523,6 +616,7 @@ ApplicationWindow {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
                     stackView.push("profiles.qml")
+                    stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
                     drawer.close()
                 }
             }
@@ -566,6 +660,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("GPXList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -581,6 +676,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -616,16 +712,6 @@ ApplicationWindow {
                     fit_save_clicked()
                     drawer.close()
                     popupSaveFile.open()
-                }
-            }
-            ItemDelegate {
-                id: strava_connect
-                text: qsTr("Connect to Strava")
-                width: parent.width
-                onClicked: {
-                    stackView.push("WebStravaAuth.qml")
-                    strava_connect_clicked()
-                    drawer.close()
                 }
             }
             ItemDelegate {
@@ -665,9 +751,28 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.13.6"
+                text: "version 2.16.30"
                 width: parent.width
             }
+
+            ItemDelegate {
+                id: strava_connect
+                Image {
+                    anchors.left: parent.left;
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: "icons/icons/btn_strava_connectwith_orange.png"
+                    fillMode: Image.PreserveAspectFit
+                    visible: true
+                    width: parent.width
+                }
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebStravaAuth.qml")
+                    strava_connect_clicked()
+                    drawer.close()
+                }
+            }
+
 				FileDialog {
 				    id: fileDialogGPX
 					 title: "Please choose a file"
@@ -691,13 +796,15 @@ ApplicationWindow {
         initialItem: "Home.qml"
         anchors.fill: parent
         focus: true
-        Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
-        Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
-        Keys.onPressed: {
+        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+
+            event.accepted = settings.volume_change_gears;
         }
     }
 }

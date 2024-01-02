@@ -19,6 +19,10 @@ public:
         this->addDeviceName("KS-HDSC-X21C", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KS-HDSY-X21C", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KS-NGCH-X21C", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KS-NACH-X21C", comparison::StartsWithIgnoreCase);
+
+        // KingSmith Walking Pad G1
+        this->addDeviceName("KS-NGCH-G1C", comparison::StartsWithIgnoreCase);
 
     }
 

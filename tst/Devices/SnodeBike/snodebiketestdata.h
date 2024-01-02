@@ -32,9 +32,23 @@ public:
 
 class SnodeBike2TestData : public SnodeBikeTestData {
 
+    void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
+                           std::vector<DeviceDiscoveryInfo> &configurations) const override {
+        DeviceDiscoveryInfo config(info);
+
+        if (enable) {
+            config.horizon_treadmill_force_ftms = false;
+            configurations.push_back(config);
+        } else {
+            // Basic case where the device is disabled in the settings
+            config.horizon_treadmill_force_ftms = true;
+            configurations.push_back(config);
+        }
+    }
+
 public:
     SnodeBike2TestData() : SnodeBikeTestData("Snode Bike TF") {
-        this->addDeviceName("TF-", comparison::StartsWith);
+        this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
     }
 
 };

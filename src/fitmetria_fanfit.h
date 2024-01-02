@@ -31,7 +31,7 @@ class fitmetria_fanfit : public bluetoothdevice {
     Q_OBJECT
   public:
     fitmetria_fanfit(bluetoothdevice *parentDevice);
-    bool connected();
+    bool connected() override;
 
   private:
     QLowEnergyService *gattCommunicationChannelService = nullptr;

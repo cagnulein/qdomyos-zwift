@@ -1,5 +1,4 @@
 #include "faketreadmill.h"
-#include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -9,9 +8,10 @@
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
+
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -32,6 +32,7 @@ void faketreadmill::update() {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    QDateTime now = QDateTime::currentDateTime();
 
     update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -50,11 +51,11 @@ void faketreadmill::update() {
     cadenceFromAppleWatch();
 
     Distance += ((Speed.value() / (double)3600.0) /
-                 ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+                 ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(now))));
+    lastRefreshCharacteristicChanged = now;
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
             settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         bool virtual_device_force_bike =
@@ -63,14 +64,16 @@ void faketreadmill::update() {
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &faketreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &faketreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
             }
         }
         if (!firstStateChanged)
@@ -87,16 +90,7 @@ void faketreadmill::update() {
         }
 #endif
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+            update_hr_from_external();
         }
 
 #ifdef Q_OS_IOS
@@ -114,7 +108,10 @@ void faketreadmill::update() {
     }
 
     if (Heart.value()) {
-        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+        static double lastKcal = 0;
+        if (KCal.value() < 0) // if the user pressed stop, the KCAL resets the accumulator
+            lastKcal = abs(KCal.value());
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value()) + lastKcal;
     }
 }
 
@@ -131,9 +128,3 @@ void faketreadmill::changeInclinationRequested(double grade, double percentage) 
 }
 
 bool faketreadmill::connected() { return true; }
-
-void *faketreadmill::VirtualBike() { return virtualBike; }
-
-void *faketreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *faketreadmill::VirtualDevice() { return VirtualTreadmill(); }
