@@ -1944,6 +1944,9 @@ class QZSettings {
     static const QString zwift_password;
     static const QString default_zwift_password;
 
+    static const QString garmin_bluetooth_compatibility;
+    static constexpr bool default_garmin_bluetooth_compatibility = false;
+
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

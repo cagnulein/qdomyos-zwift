@@ -694,8 +694,9 @@ const QString QZSettings::zwift_username = QStringLiteral("zwift_username");
 const QString QZSettings::default_zwift_username = QStringLiteral("");
 const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
 const QString QZSettings::default_zwift_password = QStringLiteral("");
+const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
 
-const uint32_t allSettingsCount = 581;
+const uint32_t allSettingsCount = 582;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1283,6 +1284,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
     {QZSettings::zwift_username, QZSettings::default_zwift_username},
     {QZSettings::zwift_password, QZSettings::default_zwift_password},
+    {QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility},
 
 };
 
