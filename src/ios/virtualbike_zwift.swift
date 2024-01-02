@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, onlypower: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, onlypower: onlypower)
+      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -61,7 +61,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
-  private var onlypower: Bool = false
+  private var garmin_bluetooth_compatibility: Bool = false
     private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
@@ -109,10 +109,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(disable_hr: Bool, onlypower: Bool) {
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
     super.init()
     self.disable_hr = disable_hr
-    self.onlypower = onlypower
+    self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
 
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
   }
@@ -122,7 +122,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     case .poweredOn:
       print("Peripheral manager is up and running")
       
-        if(!self.onlypower) {
+        if(!self.garmin_bluetooth_compatibility) {
             self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
             let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
             let characteristicPermissions: CBAttributePermissions = [.readable]
@@ -264,16 +264,21 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return
     }
             
-      if self.onlypower == false {
-          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                                CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
-          peripheralManager.startAdvertising(advertisementData)
-      } else {
+      
+      if(garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                 CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
+      } else if(disable_hr) {
+          // useful in order to hide HR from Garmin devices
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                    CBAdvertisementDataServiceUUIDsKey: [FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+                                  CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID, PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
       }
-    
     
     print("Successfully added service")
   }
@@ -379,32 +384,78 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     private var lastRevolution: UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
     
     func calculatePower() -> Data {
-        /*
-         // convert RPM to timestamp
-         if (cadenceInstantaneous != 0 && (millis()) >= (lastRevolution + (60000 / cadenceInstantaneous)))
-         {
-           revolutions++;                                  // One crank revolution should have passed, add one revolution
-           timestamp = (unsigned short)(((millis() * 1024) / 1000) % 65536); // create timestamp and format
-           lastRevolution = millis();
-         }
-         */
+        if(garmin_bluetooth_compatibility) {
+            /*
+             // convert RPM to timestamp
+             if (cadenceInstantaneous != 0 && (millis()) >= (lastRevolution + (60000 / cadenceInstantaneous)))
+             {
+             revolutions++;                                  // One crank revolution should have passed, add one revolution
+             timestamp = (unsigned short)(((millis() * 1024) / 1000) % 65536); // create timestamp and format
+             lastRevolution = millis();
+             }
+             */
+            
+            let millis : UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
+            if CurrentCadence != 0 && (millis >= lastRevolution + (60000 / UInt64(CurrentCadence / 2))) {
+                revolutions = revolutions + 1
+                var newT: UInt64 = ((60000 / (UInt64(CurrentCadence / 2)) * 1024) / 1000)
+                newT = newT + UInt64(timestamp)
+                newT = newT  % 65536
+                timestamp = UInt16(newT)
+                lastRevolution = millis
+            }
+            
+            let flags:UInt8 = 0x20
+            //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+            var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(revolutions & 0xFF), (UInt8)((revolutions >> 8) & 0xFF),  (UInt8)(timestamp & 0xFF), (UInt8)((timestamp >> 8) & 0xFF)]
+            let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
+            return powerData
+        } else {
+            let flags:UInt8 = 0x30
 
-        let millis : UInt64 = UInt64(Date().timeIntervalSince1970 * 1000)
-        if CurrentCadence != 0 && (millis >= lastRevolution + (60000 / UInt64(CurrentCadence / 2))) {
-            revolutions = revolutions + 1
-            var newT: UInt64 = ((60000 / (UInt64(CurrentCadence / 2)) * 1024) / 1000)
-            newT = newT + UInt64(timestamp)
-            newT = newT  % 65536
-            timestamp = UInt16(newT)
-            lastRevolution = millis
+                    /*
+                     // set measurement
+                     measurement[2] = power & 0xFF;
+                     measurement[3] = (power >> 8) & 0xFF;
+                     measurement[4] = wheelrev & 0xFF;
+                     measurement[5] = (wheelrev >> 8) & 0xFF;
+                     measurement[6] = (wheelrev >> 16) & 0xFF;
+                     measurement[7] = (wheelrev >> 24) & 0xFF;
+                     measurement[8] = lastwheel & 0xFF;
+                     measurement[9] = (lastwheel >> 8) & 0xFF;
+                     measurement[10] = crankrev & 0xFF;
+                     measurement[11] = (crankrev >> 8) & 0xFF;
+                     measurement[12] = lastcrank & 0xFF;
+                     measurement[13] = (lastcrank >> 8) & 0xFF;
+                     
+                     // speed & distance
+                     // NOTE : based on Apple Watch default wheel dimension 700c x 2.5mm
+                     // NOTE : 3 is theoretical crank:wheel gear ratio
+                     // NOTE : 2.13 is circumference of 700c in meters
+
+                     wheelCount = crankCount * 3;
+                          speed = cadence * 3 * 2.13 * 60 / 1000;
+                       distance = wheelCount * 2.13 / 1000;
+                     #if defined(USEPOWER)
+                       lastWheelK = lastCrankK * 2;  // 1/2048 s granularity
+                     #else
+                       lastWheelK = lastCrankK * 1;  // 1/1024 s granularity
+                     #endif
+
+                     */
+
+                  //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+                    let wheelrev: UInt32 = ((UInt32)(crankRevolutions)) * 3;
+                    let lastWheel: UInt16 = (UInt16)((((UInt32)(lastCrankEventTime)) * 2) & 0xFFFF);
+                    var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
+                                          (UInt8)(wheelrev & 0xFF), (UInt8)((wheelrev >> 8) & 0xFF), (UInt8)((wheelrev >> 16) & 0xFF), (UInt8)((wheelrev >> 24) & 0xFF),
+                                          (UInt8)(lastWheel & 0xFF), (UInt8)((lastWheel >> 8) & 0xFF),
+                                          (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),
+                                          (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
+                  let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
+                  return powerData
+                }
         }
-        
-        let flags:UInt8 = 0x20
-      //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var power: [UInt8] = [flags, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(revolutions & 0xFF), (UInt8)((revolutions >> 8) & 0xFF),  (UInt8)(timestamp & 0xFF), (UInt8)((timestamp >> 8) & 0xFF)]
-      let powerData = Data(bytes: &power, count: MemoryLayout.size(ofValue: power))
-      return powerData
-    }
     
   func calculateHeartRate() -> Data {
     //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
@@ -424,7 +475,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
   
   @objc func updateSubscribers() {
-    if(self.serviceToggle == 3 || self.onlypower)
+    if(self.serviceToggle == 3 || garmin_bluetooth_compatibility)
     {
         let powerData = self.calculatePower()
         let ok = self.peripheralManager.updateValue(powerData, for: self.PowerMeasurementCharacteristic, onSubscribedCentrals: nil)
