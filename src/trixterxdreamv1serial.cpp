@@ -22,18 +22,19 @@ QStringList trixterxdreamv1serial::availablePorts(bool debug) {
 #ifndef Q_OS_IOS
     auto ports = QSerialPortInfo::availablePorts();
     for(const auto &port : ports) {
+        QString portName = port.portName();
 
 #if defined(Q_OS_LINUX)
-        if(!port.startsWith("ttyUSB"))
+        if(!portName.startsWith("ttyUSB"))
         {
-            qDebug() << "Skipping port: " << port << " because it doesn't start with ttyUSB";
+            qDebug() << "Skipping port: " << portName << " because it doesn't start with ttyUSB";
             continue;
         }
 #endif
-        result.push_back(port.portName());
+        result.push_back(portName);
 
         if (debug) {
-            qDebug() << "Found portName:" << port.portName()
+            qDebug() << "Found portName:" << portName
                      << "," << "description:" << port.description()
                      << "," << "vender identifier:" << port.vendorIdentifier()
                      << "," << "manufacturer:" << port.manufacturer()
