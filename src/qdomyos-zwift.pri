@@ -30,6 +30,9 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+win32:LIBS += -lprotoc -lprotobuf
+unix:!android:LIBS += -lprotoc -lprotobuf
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
