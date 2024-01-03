@@ -548,6 +548,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << device.deviceUuid();
 #endif
 
+    if(!homeformLoaded) {
+        qDebug() << "homeform not yet loaded";
+        return;
+    }
+
     if (onlyDiscover)
         return;
 

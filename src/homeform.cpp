@@ -503,6 +503,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
 
+    qDebug() << "homeform constructor events linked";
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
 #endif
@@ -653,6 +655,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                          });
     });
 #endif
+
+    bluetoothManager->homeformLoaded = true;
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
