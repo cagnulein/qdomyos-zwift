@@ -630,6 +630,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << device.deviceUuid();
 #endif
 
+    // not required for mobile I guess
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    if(!homeformLoaded) {
+        qDebug() << "homeform not yet loaded";
+        return;
+    }
+#endif    
+
     if (onlyDiscover)
         return;
 

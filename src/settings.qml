@@ -862,6 +862,10 @@ import QtQuick.Dialogs 1.0
             property string zwift_username: ""
             property string zwift_password: ""
 
+            // from version 2.16.31
+            property bool garmin_bluetooth_compatibility: false
+            property bool norditrack_s25_treadmill: false
+
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -4744,12 +4748,39 @@ import QtQuick.Dialogs 1.0
             }
 
             AccordionElement {
-                title: qsTr("Garmin Companion Options") + "\uD83E\uDD47"
+                title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Garmin Bluetooth Sensor")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_bluetooth_compatibility
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_bluetooth_compatibility = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     SwitchDelegate {
                         text: qsTr("Enable Companion App")
@@ -5671,7 +5702,21 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0                        
+                        spacing: 0    
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack S25")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.norditrack_s25_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.norditrack_s25_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                        
+
                         SwitchDelegate {
                             id: nordictrackS25iDelegate
                             text: qsTr("Nordictrack S25i")
