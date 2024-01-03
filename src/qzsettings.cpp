@@ -695,8 +695,9 @@ const QString QZSettings::default_zwift_username = QStringLiteral("");
 const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
 const QString QZSettings::default_zwift_password = QStringLiteral("");
 const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
+const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_s25_treadmill");
 
-const uint32_t allSettingsCount = 582;
+const uint32_t allSettingsCount = 583;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1285,7 +1286,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_username, QZSettings::default_zwift_username},
     {QZSettings::zwift_password, QZSettings::default_zwift_password},
     {QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility},
-
+    {QZSettings::norditrack_s25_treadmill, QZSettings::default_norditrack_s25_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

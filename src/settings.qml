@@ -864,6 +864,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.31
             property bool garmin_bluetooth_compatibility: false
+            property bool norditrack_s25_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5531,7 +5532,21 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0                        
+                        spacing: 0    
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack S25")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.norditrack_s25_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.norditrack_s25_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                        
+
                         SwitchDelegate {
                             id: nordictrackS25iDelegate
                             text: qsTr("Nordictrack S25i")
