@@ -826,7 +826,7 @@ jobs:
           arch: x64
 
       - name: Install CMake
-        uses: lukka/get-cmake@v1
+        uses: lukka/get-cmake@latest
 
       - name: Download protobuf
         run: |
@@ -966,7 +966,7 @@ jobs:
           path: "src/qthttpserver"      
 
       - name: Install CMake
-        uses: lukka/get-cmake@v1
+        uses: lukka/get-cmake@latest
   
       - name: Download protobuf
         run: |
