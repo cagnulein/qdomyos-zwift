@@ -147,6 +147,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
+    volatile bool homeformLoaded = false;
 
   private:
     bool useDiscovery = false;

@@ -12,6 +12,7 @@ void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt,
     try {
         // It is possible to use an EXPECT_NO_THROW here, but this
         // way is easier to place a breakpoint on the call to bt.deviceDiscovered.
+        bt.homeformLoaded = true;
         bt.deviceDiscovered(deviceInfo);
     } catch (...) {
         FAIL() << "Failed to perform device detection.";
