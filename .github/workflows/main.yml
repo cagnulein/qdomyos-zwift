@@ -691,9 +691,6 @@ jobs:
           dir: '${{ github.workspace }}/output/ios/'
           cache: 'true'
           cache-key-prefix: 'install-qt-action-ios'                    
-
-      - name: find available modules
-        run: aqt list-qt mac ios --modules 5.15.2
                             
       - name: fix qt
         run: find ${{ github.workspace }}/output/ios/ -name 'ios.conf' -exec sed -i '' 's/ios-simulator/iphonesimulator/g' {} \;

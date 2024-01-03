@@ -2795,7 +2795,7 @@ import QtQuick.Dialogs 1.0
                 }
                 AccordionElement {
                 id: trixterXDreamV1BikeAccordion
-                title: qsTr("Trixter X-Dream V1 Bike Options")
+                title: qsTr("Trixter X-Dream V1 Bike Options (non-iOS only)")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Yellow)
                 color: Material.backgroundColor
@@ -2805,7 +2805,7 @@ import QtQuick.Dialogs 1.0
                     text: qsTr("Trixter X-Dream V1 Bike Enabled")
                     hoverEnabled: true
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream V1 Bike.")
+                    ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream V1 Bike. Not supported in iOS.")
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
