@@ -23,6 +23,8 @@ import android.util.Log;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothAdapter;
+
 public class LocationHelper {
 
     public static void start(Context context) {
@@ -37,7 +39,8 @@ public class LocationHelper {
         if (!isGpsEnabled || !isBluetoothEnabled) {
             Log.d("LocatioHelper", "requesting..");
             // Mostra una finestra di dialogo per avvisare che i servizi di localizzazione e il Bluetooth sono necessari
-            new AlertDialog.Builder(this)
+            Activity a = (Activity)context;
+            new AlertDialog.Builder(a)
                 .setTitle("Required Services")
                 .setMessage("Please enable Location Services and Bluetooth.")
                 .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
@@ -45,13 +48,11 @@ public class LocationHelper {
                         // Indirizza l'utente alle impostazioni del GPS
                         if (!isGpsEnabled) {
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            Activity a = (Activity)context;
                             a.startActivity(intent);
                         }
                         // Indirizza l'utente alle impostazioni del Bluetooth
                         if (!isBluetoothEnabled) {
                             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                            Activity a = (Activity)context;
                             a.startActivity(intent);
                         }
                     }
