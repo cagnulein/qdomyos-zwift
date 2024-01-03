@@ -20,8 +20,8 @@ QStringList trixterxdreamv1serial::availablePorts(bool debug) {
     QStringList result;
 
 #ifndef Q_OS_IOS
-
-    for(auto port : QSerialPortInfo::availablePorts()) {
+    auto ports = QSerialPortInfo::availablePorts();
+    for(const auto &port : ports) {
 
 #if defined(Q_OS_LINUX)
         if(!port.startsWith("ttyUSB"))
