@@ -422,7 +422,7 @@ jobs:
 
       - name: Download protobuf
         run: |
-          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
+          wget "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -O "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1
           ./configure
