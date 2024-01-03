@@ -2,7 +2,6 @@
 #define TRIXTERXDREAMSERIAL_H
 
 #include <QMutex>
-#include <QSerialPort>
 #include <QThread>
 #include <QWaitCondition>
 #include <QAtomicInt>
@@ -21,10 +20,9 @@ public:
     /**
      * @brief Opens the port.
      * @param portName The name of the serial port.
-     * @param baudRate The baud rate.
      * @returns True if the port was opened, false if the port wasn't opened, or was already open.
      */
-    bool open(const QString &portName, QSerialPort::BaudRate baudRate);
+    bool open(const QString &portName);
 
     /**
      * @brief Writes the array of bytes to the serial port
@@ -52,9 +50,11 @@ public:
     void set_SendReceiveLog(bool value);
 
     /**
-     * @brief availablePorts Returns a list of information objects for the serial ports found in the system.
+     * @brief availablePorts Returns a list of port names for the serial ports found in the system
+     * that could host the bike.
+     * @param debug Optionally write port details to the debug log
      */
-    static QList<QSerialPortInfo> availablePorts();
+    static QStringList availablePorts(bool debug=false);
 
 protected:
     /**
@@ -77,7 +77,6 @@ protected:
     QAtomicInt writePending {0};
     bool sendReceiveLog = false;
     QString portName;
-    QSerialPort::BaudRate baudRate;
     QMutex mutex;
     QAtomicInt openAttemptsPending{0};
     QAtomicInt quitPending{0};

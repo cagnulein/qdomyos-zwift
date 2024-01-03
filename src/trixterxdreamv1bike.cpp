@@ -5,7 +5,6 @@
 
 #include <cmath>
 #include <qmath.h>
-#include <QSerialPortInfo>
 #include <QTimer>
 
 using namespace std;
@@ -324,8 +323,8 @@ bool trixterxdreamv1bike::connect(QString portName) {
     QElapsedTimer stopWatch;
     stopWatch.start();
 
-    // open the port. This should be at 115200 bits per second.
-    if(!this->port->open(portName, QSerialPort::Baud115200)) {
+    // open the port.
+    if(!this->port->open(portName)) {
         qDebug() << "Failed to open port, determined after " << stopWatch.elapsed() << "milliseconds";
         return false;
     }
@@ -821,6 +820,12 @@ resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance)
 }
 
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
+
+#ifdef Q_OS_IOS
+    // Not suported in iOS.
+    return false;
+#endif
+
     // first check if there's a port specified
     if(portName!=nullptr && !portName.isEmpty())
     {
@@ -847,31 +852,13 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     }
 
     // Find the available ports and return the first success
-    auto availablePorts = trixterxdreamv1serial::availablePorts();
+    auto availablePorts = trixterxdreamv1serial::availablePorts(true);
 
     for(int i=0; i<availablePorts.length(); i++)
     {
-        auto port = availablePorts[i];
+        auto portName = availablePorts[i];
 
-#if defined(Q_OS_LINUX)
-        if(!port.portName().startsWith("ttyUSB"))
-        {
-            qDebug() << "Skipping port: " << port.portName() << " because it doesn't start with ttyUSB";
-            continue;
-        }
-#endif
-
-        qDebug() << "Found portName:" << port.portName()
-                 << "," << "description:" << port.description()
-                 << "," << "vender identifier:" << port.vendorIdentifier()
-                 << "," << "manufacturer:" << port.manufacturer()
-                 << "," << "product identifier:" << port.productIdentifier()
-                 << "," << "system location:" << port.systemLocation()
-                 << "," << "isBusy:" << port.isBusy()
-                 << "," << "isNull:" << port.isNull()
-                 << "," << "serialNumber:" << port.serialNumber();
-
-        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, port.portName());
+        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, portName);
         if(result)
             return result;
     }

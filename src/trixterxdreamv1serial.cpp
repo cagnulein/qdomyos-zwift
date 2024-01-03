@@ -2,7 +2,11 @@
 
 #include <QDebug>
 #include <QTime>
+
+#ifndef Q_OS_IOS
+#include <QSerialPort>
 #include <QSerialPortInfo>
+#endif
 
 
 trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
@@ -12,8 +16,38 @@ trixterxdreamv1serial::~trixterxdreamv1serial() {
     this->wait();
 }
 
-QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts() {
-    return QSerialPortInfo::availablePorts();
+QStringList trixterxdreamv1serial::availablePorts(bool debug) {
+    QStringList result;
+
+#ifndef Q_OS_IOS
+
+    for(auto port : QSerialPortInfo::availablePorts()) {
+
+#if defined(Q_OS_LINUX)
+        if(!port.startsWith("ttyUSB"))
+        {
+            qDebug() << "Skipping port: " << port << " because it doesn't start with ttyUSB";
+            continue;
+        }
+#endif
+        result.push_back(port.portName());
+
+        if (debug) {
+            qDebug() << "Found portName:" << port.portName()
+                     << "," << "description:" << port.description()
+                     << "," << "vender identifier:" << port.vendorIdentifier()
+                     << "," << "manufacturer:" << port.manufacturer()
+                     << "," << "product identifier:" << port.productIdentifier()
+                     << "," << "system location:" << port.systemLocation()
+                     << "," << "isBusy:" << port.isBusy()
+                     << "," << "isNull:" << port.isNull()
+                     << "," << "serialNumber:" << port.serialNumber();
+        }
+
+    }
+
+#endif
+    return result;
 }
 
 void trixterxdreamv1serial::receive(const QByteArray &bytes) {
@@ -25,7 +59,7 @@ void trixterxdreamv1serial::error(const QString &s) {
     qDebug() << "Error in trixterxdreamv1serial: " << s;
 }
 
-bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate) {
+bool trixterxdreamv1serial::open(const QString &portName) {
 
     QMutexLocker locker(&this->mutex);
 
@@ -37,8 +71,6 @@ bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate 
     }
 
     this->portName = portName;
-    this->baudRate = baudRate;
-
 
     if (!isRunning()) {
         this->openAttemptsPending=1;
@@ -68,10 +100,14 @@ void trixterxdreamv1serial::set_SendReceiveLog(bool value) { this->sendReceiveLo
 
 void trixterxdreamv1serial::run() {
 
+#ifdef Q_OS_IOS
+    return;
+#else
+
     QSerialPort serial { this };
 
     serial.setPortName(this->portName);
-    serial.setBaudRate(this->baudRate);
+    serial.setBaudRate(QSerialPort::Baud115200);
     serial.setDataBits(QSerialPort::Data8);
     serial.setStopBits(QSerialPort::OneStop);
     serial.setFlowControl(QSerialPort::NoFlowControl);
@@ -142,5 +178,5 @@ void trixterxdreamv1serial::run() {
 
     serial.close();
     qDebug() << "Serial port closed";
-
+#endif
 }
