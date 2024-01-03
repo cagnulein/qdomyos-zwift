@@ -1938,6 +1938,18 @@ class QZSettings {
     static const QString proformtdf1ip;
     static const QString default_proformtdf1ip;
 
+    static const QString zwift_username;
+    static const QString default_zwift_username;
+
+    static const QString zwift_password;
+    static const QString default_zwift_password;
+
+    static const QString garmin_bluetooth_compatibility;
+    static constexpr bool default_garmin_bluetooth_compatibility = false;
+
+    static const QString norditrack_s25_treadmill;
+    static constexpr int default_norditrack_s25_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

@@ -291,6 +291,8 @@ HEADERS += \
     $$PWD/proformtelnetbike.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
+    $$PWD/zwift-api/PlayerStateWrapper.h \
+    $$PWD/zwift-api/zwift_client_auth.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -729,6 +731,8 @@ DISTFILES += \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -823,4 +827,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.29
+VERSION = 2.16.30

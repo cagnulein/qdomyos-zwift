@@ -411,7 +411,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
         }
     } else if (newValue.contains("Cur KPH")) {
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            double kph = packet[3].toDouble();
+            double kph = packet[3].toDouble() / 10.0;
             Speed = kph;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         } else {
