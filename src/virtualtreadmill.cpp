@@ -167,34 +167,33 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             serviceDataFTMS.addCharacteristic(charDataFIT2);
         }
 
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         QLowEnergyCharacteristicData charDataFIT;
-        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); // FitnessMachineFeatureCharacteristicUuid
+        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); 
         QByteArray valueFIT;
-        valueFIT.append((char)'P'); // average speed, cadence and resistance level supported
-        valueFIT.append((char)'i'); // heart rate and elapsed time
-        valueFIT.append((char)'x');
-        valueFIT.append((char)'e');
-        valueFIT.append((char)'l'); // resistance and power target supported
-        valueFIT.append((char)' '); // indoor simulation, wheel and spin down supported
-        valueFIT.append((char)'6');
-        valueFIT.append((char)'a');
+        valueFIT.append((char)'Q'); 
+        valueFIT.append((char)'Z'); 
+        valueFIT.append((char)'-');
+        valueFIT.append((char)'R');
+        valueFIT.append((char)'P'); 
+        valueFIT.append((char)'I'); 
         valueFIT.append((char)0x00);
         charDataFIT.setValue(valueFIT);
         charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
 
         QLowEnergyCharacteristicData charDataFIT2;
-        charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2A01); // FitnessMachineFeatureCharacteristicUuid
+        charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2A01);
         QByteArray valueFIT2;
         valueFIT2.append((char)0x00);
         charDataFIT2.setValue(valueFIT2);
         charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
 
-        serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1800); // FitnessMachineServiceUuid
-        serviceDataFIT.addCharacteristic(charDataFIT);
-        serviceDataFIT.addCharacteristic(charDataFIT2);
+        genericAccessServerData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1800);
+        genericAccessServerData.addCharacteristic(charDataFIT);
+        genericAccessServerData.addCharacteristic(charDataFIT2);
 
         QLowEnergyCharacteristicData charDataFIT3;
-        charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2A05); // FitnessMachineFeatureCharacteristicUuid
+        charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2A05);
         charDataFIT3.setProperties(QLowEnergyCharacteristic::Indicate);
         QByteArray descriptor33;
         descriptor33.append((char)0x02);
@@ -203,8 +202,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                                                         descriptor33);
         charDataFIT3.addDescriptor(clientConfig43);
 
-        serviceEchelon.setUuid((QBluetoothUuid::ServiceClassUuid)0x1801); // FitnessMachineServiceUuid
-        serviceEchelon.addCharacteristic(charDataFIT3);
+        genericAttributeServiceData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1801);
+        genericAttributeServiceData.addCharacteristic(charDataFIT3);
+#endif        
 
         if (RSCEnable()) {
             QLowEnergyCharacteristicData charData;
@@ -273,8 +273,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         if (RSCEnable()) {
             serviceRSC = leController->addService(serviceDataRSC);
         }
-        serviceFIT = leController->addService(serviceDataFIT);
-        service = leController->addService(serviceEchelon);
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)        
+        genericAccessServer = leController->addService(genericAccessServerData);
+        genericAttributeService = leController->addService(genericAttributeServiceData);
+#endif        
 
         if (noHeartService == false) {
             serviceHR = leController->addService(serviceDataHR);
@@ -290,9 +292,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         if (!bluetooth_relaxed) {
         }
 
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
         pars.setInterval(30, 50);
-
         leController->startAdvertising(pars, advertisingData);
+#endif        
 
         //! [Start Advertising]
 
@@ -362,8 +365,10 @@ void virtualtreadmill::reconnect() {
     if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
 
-    serviceFIT = leController->addService(serviceDataFIT);
-    service = leController->addService(serviceEchelon);
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    genericAccessServer = leController->addService(genericAccessServerData);
+    genericAttributeService = leController->addService(genericAttributeServiceData);
+#endif    
 
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);

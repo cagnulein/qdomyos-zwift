@@ -41,14 +41,18 @@ class virtualtreadmill : public virtualdevice {
     QLowEnergyService *serviceFTMS = nullptr;
     QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
-    QLowEnergyService *serviceFIT = nullptr;
-    QLowEnergyService *service = nullptr;
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+    QLowEnergyService *genericAccessServer = nullptr;
+    QLowEnergyService *genericAttributeService = nullptr;
+#endif    
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataFTMS;
     QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
-    QLowEnergyServiceData serviceDataFIT;
-    QLowEnergyServiceData serviceEchelon;
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)    
+    QLowEnergyServiceData genericAccessServerData;
+    QLowEnergyServiceData genericAttributeServiceData;
+#endif    
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
 
