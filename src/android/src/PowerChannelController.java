@@ -46,12 +46,14 @@ public class PowerChannelController extends AntChannelController {
     private static final int CHANNEL_POWER_FREQUENCY = 57;
 
     private static final String TAG = PowerChannelController.class.getSimpleName();
+    
+	private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
 
     int power = 0;
     int cadence = 0;
 
     public PowerChannelController(AntChannel antChannel) {
-	    super(antChannel, POWER_SENSOR_ID, CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE, CHANNEL_POWER_PERIOD, CHANNEL_POWER_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, new ChannelEventCallback());
+	    super(antChannel, POWER_SENSOR_ID, CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE, CHANNEL_POWER_PERIOD, CHANNEL_POWER_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, CALLBACK);
     }
 
     /**
@@ -95,10 +97,10 @@ public class PowerChannelController extends AntChannelController {
                        payload[6] = (byte) ((power) & 0xFF);
                        payload[7] = (byte) ((power >> 8) & 0xFF);
 
-                       if (mIsOpen) {
+                       if (IsOpen()) {
                            try {
                                // Setting the data to be broadcast on the next channel period
-                               mAntChannel.setBroadcastData(payload);
+                               AntChannel.setBroadcastData(payload);
                            } catch (RemoteException e) {
                                channelError(e);
                            }
@@ -131,7 +133,7 @@ public class PowerChannelController extends AntChannelController {
                         payload[7] = (byte) 0x00;
                         try {
                             // Setting the data to be broadcast on the next channel period
-                            mAntChannel.setBroadcastData(payload);
+                            AntChannel.setBroadcastData(payload);
                         } catch (RemoteException e) {
                             channelError(e);
                         }
@@ -147,10 +149,10 @@ public class PowerChannelController extends AntChannelController {
                         payload[6] = (byte) ((power) & 0xFF);
                         payload[7] = (byte) ((power >> 8) & 0xFF);
 
-                        if (mIsOpen) {
+                        if (IsOpen()) {
                             try {
                                 // Setting the data to be broadcast on the next channel period
-                                mAntChannel.setBroadcastData(payload);
+                                AntChannel.setBroadcastData(payload);
                             } catch (RemoteException e) {
                                 channelError(e);
                             }
@@ -199,10 +201,10 @@ public class PowerChannelController extends AntChannelController {
                                 payload[7] = (byte) ((power >> 8) & 0xFF);
                             }
 
-                            if (mIsOpen) {
+                            if (IsOpen()) {
                                 try {
                                     // Setting the data to be broadcast on the next channel period
-                                    mAntChannel.setBroadcastData(payload);
+                                    AntChannel.setBroadcastData(payload);
                                 } catch (RemoteException e) {
                                     channelError(e);
                                 }

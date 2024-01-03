@@ -47,10 +47,12 @@ public class HeartChannelController extends AntChannelController{
 
 	 private static final String TAG = HeartChannelController.class.getSimpleName();
 
+	 private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
+
 	 int heart = 0;
 
 	 public HeartChannelController(AntChannel antChannel) {
-		 super(antChannel, HEART_SENSOR_ID, CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE, CHANNEL_HEART_PERIOD, CHANNEL_HEART_FREQUENCY, ChannelType.SLAVE_RECEIVE_ONLY, TAG, new ChannelEventCallback());
+		 super(antChannel, HEART_SENSOR_ID, CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE, CHANNEL_HEART_PERIOD, CHANNEL_HEART_FREQUENCY, ChannelType.SLAVE_RECEIVE_ONLY, TAG, CALLBACK);
 		}
 
 	 /**

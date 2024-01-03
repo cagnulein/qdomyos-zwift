@@ -47,13 +47,15 @@ public class SpeedChannelController extends AntChannelController {
 
     private static final String TAG = SpeedChannelController.class.getSimpleName();
 
+	private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
+
     private static final double MILLISECOND_TO_1_1024_CONVERSION = 0.9765625;
 
     double speed = 0.0;
     int cadence = 0;
 
     public SpeedChannelController(AntChannel antChannel) {
-	    super(antChannel, SPEED_SENSOR_ID, CHANNEL_SPEED_DEVICE_TYPE, CHANNEL_SPEED_TRANSMISSION_TYPE, CHANNEL_SPEED_PERIOD, CHANNEL_SPEED_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, new ChannelEventCallback());
+	    super(antChannel, SPEED_SENSOR_ID, CHANNEL_SPEED_DEVICE_TYPE, CHANNEL_SPEED_TRANSMISSION_TYPE, CHANNEL_SPEED_PERIOD, CHANNEL_SPEED_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, CALLBACK);
     }
 
     /**
@@ -115,10 +117,10 @@ public class SpeedChannelController extends AntChannelController {
                        payload[6] = (byte) (rev & 0xFF);
                        payload[7] = (byte) ((rev >> 8) & 0xFF);
 
-                       if (mIsOpen) {
+                       if (IsOpen()) {
                            try {
                                // Setting the data to be broadcast on the next channel period
-                               mAntChannel.setBroadcastData(payload);
+                               AntChannel.setBroadcastData(payload);
                            } catch (RemoteException e) {
                                channelError(e);
                            }
@@ -173,10 +175,10 @@ public class SpeedChannelController extends AntChannelController {
                             payload[6] = (byte) (rev & 0xFF);
                             payload[7] = (byte) ((rev >> 8) & 0xFF);
 
-                            if (mIsOpen) {
+                            if (IsOpen()) {
                                 try {
                                     // Setting the data to be broadcast on the next channel period
-                                    mAntChannel.setBroadcastData(payload);
+                                    AntChannel.setBroadcastData(payload);
                                 } catch (RemoteException e) {
                                     channelError(e);
                                 }

@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 // the common bits that are shared between all of the _ChannelController classes
 public class AntChannelController {
 
-    private AntChannel mAntChannel;
+    AntChannel AntChannel;
 
     private int msensor_id;
 
@@ -58,7 +58,7 @@ public class AntChannelController {
     private boolean mIsOpen;
 
     public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag, IAntChannelEventHandler callback) {
-        mAntChannel = antChannel;
+        AntChannel = antChannel;
         msensor_id = sensor_id;
         mdevice_type = device_type;
         mtransmission_type = transmission_type;
@@ -73,7 +73,7 @@ public class AntChannelController {
     public boolean openChannel() {
         if (null != mAntChannel) {
             if (mIsOpen) {
-                Log.w(TAG, "Channel was already open");
+                Log.w(mtag, "Channel was already open");
             } else {
                 // Channel ID message contains device number, type and transmission type. In
                 // order for master (TX) channels and slave (RX) channels to connect, they
@@ -123,7 +123,7 @@ public class AntChannelController {
         return mIsOpen;
     }
 
-    private void channelError(RemoteException e) {
+    public void channelError(RemoteException e) {
         String logString = "Remote service communication failed.";
 
         Log.e(mtag, logString);
