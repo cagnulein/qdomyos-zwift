@@ -533,26 +533,8 @@ int main(int argc, char *argv[]) {
             qDebug() << "POST_NOTIFICATIONS denied!";
     }
 
-    QAndroidJniObject activity = QtAndroid::androidActivity();
-    QAndroidJniObject context = activity.callObjectMethod("getApplicationContext", "()Landroid/content/Context;");
-
-    QAndroidJniObject locationManager = context.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-                                                                 QAndroidJniObject::getStaticObjectField("android/content/Context",
-                                                                                                         "LOCATION_SERVICE",
-                                                                                                         "Ljava/lang/String;").object<jstring>());
-
-    if (!locationManager.callMethod<jboolean>("isProviderEnabled", "(Ljava/lang/String;)Z",
-                                              QAndroidJniObject::getStaticObjectField("android/location/LocationManager",
-                                                                                      "GPS_PROVIDER",
-                                                                                      "Ljava/lang/String;").object<jstring>())) {
-        // I servizi di localizzazione non sono attivi, indirizzare l'utente alle impostazioni del GPS
-        QAndroidJniObject intent("android/content/Intent",
-                                 "(Ljava/lang/String;)V",
-                                 QAndroidJniObject::getStaticObjectField("android/provider/Settings",
-                                                                         "ACTION_LOCATION_SOURCE_SETTINGS",
-                                                                         "Ljava/lang/String;").object<jstring>());
-        activity.callMethod<void>("startActivity", "(Landroid/content/Intent;)V", intent.object<jobject>());
-    }
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/LocationHelper", "start",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #endif
 
     /* test virtual echelon
