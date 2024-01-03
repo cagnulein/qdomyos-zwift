@@ -27,6 +27,16 @@ import android.bluetooth.BluetoothAdapter;
 
 public class LocationHelper {
 
+    public static int check(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isBluetoothEnabled = (bluetoothAdapter != null && bluetoothAdapter.isEnabled());
+
+        return (isGpsEnabled && isBluetoothEnabled ? 1 : 0);
+     }
+
     public static void start(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -38,40 +48,16 @@ public class LocationHelper {
 
         if (!isGpsEnabled || !isBluetoothEnabled) {
             Log.d("LocatioHelper", "requesting..");
-            // Mostra una finestra di dialogo per avvisare che i servizi di localizzazione e il Bluetooth sono necessari
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {            
-                    Activity a = (Activity)context;
-                    new AlertDialog.Builder(a)
-                        .setTitle("Required Services")
-                        .setMessage("Please enable Location Services and Bluetooth.")
-                        .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Indirizza l'utente alle impostazioni del GPS
-                                if (!isGpsEnabled) {
-                                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                    a.startActivity(intent);
-                                }
-                                // Indirizza l'utente alle impostazioni del Bluetooth
-                                if (!isBluetoothEnabled) {
-                                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                                    a.startActivity(intent);
-                                }
-                            }
-                        })/*
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Gestisci l'annullamento qui se necessario
-                            }
-                        })*/
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                if (!isGpsEnabled) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    a.startActivity(intent);
                 }
-            }
+                // Indirizza l'utente alle impostazioni del Bluetooth
+                if (!isBluetoothEnabled) {
+                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    a.startActivity(intent);
+                }
         } else {
-            // I servizi di localizzazione e il Bluetooth sono già attivi
-            // Implementa qui la tua logica se i servizi di localizzazione e il Bluetooth sono attivi
         }        
      }
 }
