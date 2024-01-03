@@ -423,7 +423,7 @@ jobs:
       - name: Download protobuf
         run: |
           wget "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -O "protobuf.zip"
-          Expand-Archive protobuf.zip -DestinationPath "protobuf"
+          unzip protobuf.zip -d "protobuf"
           cd protobuf/protobuf-25.1
           ./configure
           make
