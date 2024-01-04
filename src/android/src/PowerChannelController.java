@@ -46,14 +46,12 @@ public class PowerChannelController extends AntChannelController {
     private static final int CHANNEL_POWER_FREQUENCY = 57;
 
     private static final String TAG = PowerChannelController.class.getSimpleName();
-    
-	private final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
 
     int power = 0;
     int cadence = 0;
 
-    public PowerChannelController(AntChannel antChannel) {
-	    super(antChannel, POWER_SENSOR_ID, CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE, CHANNEL_POWER_PERIOD, CHANNEL_POWER_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, CALLBACK);
+    public PowerChannelController() {
+	    super(POWER_SENSOR_ID, CHANNEL_POWER_DEVICE_TYPE, CHANNEL_POWER_TRANSMISSION_TYPE, CHANNEL_POWER_PERIOD, CHANNEL_POWER_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG);
     }
 
     /**

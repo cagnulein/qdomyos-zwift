@@ -145,14 +145,20 @@ public class ChannelService extends Service {
 
     public void openAllChannels() throws ChannelNotAvailableException {
         if (Ant.heartRequest)
-            heartChannelController = new HeartChannelController(acquireChannel());
+				{
+            heartChannelController = new HeartChannelController();
+						heartChannelController.start(acquireChannel(), heartChannelController.new ChannelEventCallback)
+				}
 
         if (Ant.speedRequest) {
             if(Ant.treadmill) {
-                sdmChannelController = new SDMChannelController(acquireChannel());
+                sdmChannelController = new SDMChannelController();
+								sdmChannelController.start(acquireChannel(), sdmChannelController.new ChannelEventCallback)
             } else {
-                powerChannelController = new PowerChannelController(acquireChannel());
-                speedChannelController = new SpeedChannelController(acquireChannel());
+                powerChannelController = new PowerChannelController();
+                powerChannelController.start(acquireChannel(), powerChannelController.new ChannelEventCallback);
+                speedChannelController = new SpeedChannelController();
+                speedChannelController.start(acquireChannel(), speedChannelController.new ChannelEventCallback);
             }
         }
     }

@@ -47,16 +47,14 @@ public class SDMChannelController extends AntChannelController {
 
     private static final String TAG = SDMChannelController.class.getSimpleName();
 
-	private final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
-
     private static final double MILLISECOND_TO_1_1024_CONVERSION = 0.9765625;
 
     double speed = 0.0;
     int cadence = 0;
     byte stride_count = 0;
 
-    public SDMChannelController(AntChannel antChannel) {
-	    super(antChannel, SPEED_SENSOR_ID, CHANNEL_SPEED_DEVICE_TYPE, CHANNEL_SPEED_TRANSMISSION_TYPE, CHANNEL_SPEED_PERIOD, CHANNEL_SPEED_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG, CALLBACK);
+    public SDMChannelController() {
+	    super(SPEED_SENSOR_ID, CHANNEL_SPEED_DEVICE_TYPE, CHANNEL_SPEED_TRANSMISSION_TYPE, CHANNEL_SPEED_PERIOD, CHANNEL_SPEED_FREQUENCY, ChannelType.BIDIRECTIONAL_MASTER, TAG);
     }
 
     /**

@@ -57,7 +57,7 @@ public class AntChannelController {
 
     private boolean mIsOpen;
 
-    public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag, IAntChannelEventHandler callback) {
+    public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag) {
         AntChannel = antChannel;
         msensor_id = sensor_id;
         mdevice_type = device_type;
@@ -66,9 +66,14 @@ public class AntChannelController {
         mfrequency = frequency;
         mchannel_type = channel_type;
         mtag = tag;
-        mChannelEventCallback = callback;
-        openChannel();
     }
+
+		public void start(AntChannel antChannel, IAntChannelEventHander callback)
+		{
+			AntChannel = antChannel;
+			mChannelEventCallback = callback;
+			openChannel();
+		}
 
     public boolean openChannel() {
         if (null != AntChannel) {

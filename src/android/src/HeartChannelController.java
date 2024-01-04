@@ -51,8 +51,8 @@ public class HeartChannelController extends AntChannelController{
 
 	 int heart = 0;
 
-	 public HeartChannelController(AntChannel antChannel) {
-		 super(antChannel, HEART_SENSOR_ID, CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE, CHANNEL_HEART_PERIOD, CHANNEL_HEART_FREQUENCY, ChannelType.SLAVE_RECEIVE_ONLY, TAG, CALLBACK);
+	 public HeartChannelController() {
+		 super(HEART_SENSOR_ID, CHANNEL_HEART_DEVICE_TYPE, CHANNEL_HEART_TRANSMISSION_TYPE, CHANNEL_HEART_PERIOD, CHANNEL_HEART_FREQUENCY, ChannelType.SLAVE_RECEIVE_ONLY, TAG);
 		}
 
 	 /**
