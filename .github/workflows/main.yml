@@ -102,7 +102,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1
-          cmake CMakeLists.txt
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -420,7 +420,7 @@ jobs:
           wget "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -O "protobuf.zip"
           unzip protobuf.zip -d "protobuf"
           cd protobuf/protobuf-25.1
-          cmake CMakeLists.txt
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -823,7 +823,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1/cmake
-          cmake CMakeLists.txt
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -962,7 +962,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1/cmake
-          cmake CMakeLists.txt
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
   
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
