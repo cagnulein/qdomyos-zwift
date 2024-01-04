@@ -47,7 +47,7 @@ public class SpeedChannelController extends AntChannelController {
 
     private static final String TAG = SpeedChannelController.class.getSimpleName();
 
-	private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
+	private final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
 
     private static final double MILLISECOND_TO_1_1024_CONVERSION = 0.9765625;
 

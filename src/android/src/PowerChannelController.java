@@ -47,7 +47,7 @@ public class PowerChannelController extends AntChannelController {
 
     private static final String TAG = PowerChannelController.class.getSimpleName();
     
-	private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
+	private final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
 
     int power = 0;
     int cadence = 0;

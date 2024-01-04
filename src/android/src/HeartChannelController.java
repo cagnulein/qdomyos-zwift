@@ -47,7 +47,7 @@ public class HeartChannelController extends AntChannelController{
 
 	 private static final String TAG = HeartChannelController.class.getSimpleName();
 
-	 private static final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
+	 private final IAntChannelEventHandler CALLBACK = new ChannelEventCallback();
 
 	 int heart = 0;
 
