@@ -420,6 +420,9 @@ jobs:
           wget "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -O "protobuf.zip"
           unzip protobuf.zip -d "protobuf"
           cd protobuf/protobuf-25.1
+          wget "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -O "abseil-cpp.zip"
+          unzip abseil-cpp.zip -d "abseil-temp"
+          cp -a abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/
           cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
 
       - name: Install Qt
