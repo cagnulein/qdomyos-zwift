@@ -67,7 +67,7 @@ public class AntChannelController {
         mtag = tag;
     }
 
-		public void start(AntChannel antChannel, IAntChannelEventHander callback)
+		public void start(AntChannel antChannel, IAntChannelEventHandler callback)
 		{
 			AntChannel = antChannel;
 			mChannelEventCallback = callback;
