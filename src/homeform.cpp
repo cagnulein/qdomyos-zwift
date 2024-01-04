@@ -574,7 +574,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifndef Q_OS_IOS
-    h = new lockscreen();
+    
 
     iphone_browser = new QMdnsEngine::Browser(&iphone_server, "_qz_iphone._tcp.local.", &iphone_cache);
 
@@ -656,6 +656,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                              }
                          });
     });
+#else
+    h = new lockscreen();
 #endif
 
     bluetoothManager->homeformLoaded = true;
