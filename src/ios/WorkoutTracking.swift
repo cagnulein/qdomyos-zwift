@@ -241,7 +241,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     @objc func addMetrics(power: Double, cadence: Double, speed: Double) {
         print("GET DATA: \(Date())")
         
-        if(workoutInProgress == false) {
+        if(workoutInProgress == false && power > 0) {
             startWorkOut()
         }
         
