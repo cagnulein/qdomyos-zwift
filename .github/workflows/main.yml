@@ -417,8 +417,8 @@ jobs:
           unzip abseil-cpp.zip -d "abseil-temp"
           cp -a abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/
           cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
-          ls -ltr
-          cp *.so /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib/
+          ls -ltr lib/
+          cp lib/*.so /home/runner/work/qdomyos-zwift/Qt/5.15.2/gcc_64/lib/
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
