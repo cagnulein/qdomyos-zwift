@@ -97,16 +97,6 @@ jobs:
         with:
           cmake-version: '3.20.x'
 
-      - name: Download protobuf
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
-          Expand-Archive protobuf.zip -DestinationPath "protobuf"
-          cd protobuf/protobuf-25.1
-          wget "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -O "abseil-cpp.zip"
-          Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
-          cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/                    
-          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
-
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -119,6 +109,16 @@ jobs:
           install-deps: "true"
           cache: 'true'
           cache-key-prefix: 'install-qt-action-windows'          
+
+      - name: Download protobuf
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
+          Expand-Archive protobuf.zip -DestinationPath "protobuf"
+          cd protobuf/protobuf-25.1
+          Invoke-WebRequest -Uri "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -OutFile "abseil-cpp.zip"
+          Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
+          cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/                    
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
 
       - name: download 3rd party files for qthttpserver
         run: |
@@ -829,7 +829,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1
-          wget "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -O "abseil-cpp.zip"
+          Invoke-WebRequest -Uri "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -OutFile "abseil-cpp.zip"
           Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
           cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/          
           cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
@@ -971,7 +971,7 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
           Expand-Archive protobuf.zip -DestinationPath "protobuf"
           cd protobuf/protobuf-25.1
-          wget "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -O "abseil-cpp.zip"
+          Invoke-WebRequest -Uri "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -OutFile "abseil-cpp.zip"
           Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
           cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/                    
           cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
