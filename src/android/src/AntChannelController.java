@@ -57,8 +57,7 @@ public class AntChannelController {
 
     private boolean mIsOpen;
 
-    public AntChannelController(AntChannel antChannel, int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag) {
-        AntChannel = antChannel;
+    public AntChannelController(int sensor_id, int device_type, int transmission_type, int period, int frequency, ChannelType channel_type, String tag) {
         msensor_id = sensor_id;
         mdevice_type = device_type;
         mtransmission_type = transmission_type;

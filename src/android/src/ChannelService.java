@@ -147,18 +147,18 @@ public class ChannelService extends Service {
         if (Ant.heartRequest)
 				{
             heartChannelController = new HeartChannelController();
-						heartChannelController.start(acquireChannel(), heartChannelController.new ChannelEventCallback)
+						heartChannelController.start(acquireChannel(), heartChannelController.new ChannelEventCallback());
 				}
 
         if (Ant.speedRequest) {
             if(Ant.treadmill) {
                 sdmChannelController = new SDMChannelController();
-								sdmChannelController.start(acquireChannel(), sdmChannelController.new ChannelEventCallback)
+								sdmChannelController.start(acquireChannel(), sdmChannelController.new ChannelEventCallback());
             } else {
                 powerChannelController = new PowerChannelController();
-                powerChannelController.start(acquireChannel(), powerChannelController.new ChannelEventCallback);
+                powerChannelController.start(acquireChannel(), powerChannelController.new ChannelEventCallback());
                 speedChannelController = new SpeedChannelController();
-                speedChannelController.start(acquireChannel(), speedChannelController.new ChannelEventCallback);
+                speedChannelController.start(acquireChannel(), speedChannelController.new ChannelEventCallback());
             }
         }
     }
