@@ -1722,7 +1722,7 @@ import QtQuick.Dialogs 1.0
 
             AccordionElement {
                 id: bikeOptionsAccordion
-                title: qsTr("Bike Options")
+                title: qsTr("Generic Bike Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -2269,20 +2269,17 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
-                }
+                }                
+            }
 
-                Label {
-                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about the QZ settings for your equipment, open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
-                    font.bold: true
-                    font.italic: true
-                    font.pixelSize: 9
-                    textFormat: Text.PlainText
-                    wrapMode: Text.WordWrap
-                    verticalAlignment: Text.AlignVCenter
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    color: Material.color(Material.Lime)
-                }
+            AccordionElement {
+                title: qsTr("Specific Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
 
                 AccordionElement {
                     id: schwinnBikeAccordion
@@ -5230,7 +5227,7 @@ import QtQuick.Dialogs 1.0
 
             AccordionElement {
                 id:treadmillAccordion
-                title: qsTr("Treadmill Options")
+                title: qsTr("Generic Treadmill Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -5511,19 +5508,13 @@ import QtQuick.Dialogs 1.0
                     Layout.fillWidth: true
                     color: Material.color(Material.Lime)
                 }
+            }
 
-                Label {
-                    text: qsTr("Expand the bars to the right to display the options under this setting. Select your specific model (if it is listed) and leave all other settings on default. If you encounter problems or have a question about settings for your specific equipment with QZ, click here to open a support ticket on GitHub or ask the QZ community on the QZ Facebook Group.")
-                    font.bold: true
-                    font.italic: true
-                    font.pixelSize: 9
-                    textFormat: Text.PlainText
-                    wrapMode: Text.WordWrap
-                    verticalAlignment: Text.AlignVCenter
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    color: Material.color(Material.Lime)
-                }
+            AccordionElement {
+                title: qsTr("Specific Treadmill Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
 
                 AccordionElement {
                     id: proformTreadmillAccordion
