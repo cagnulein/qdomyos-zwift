@@ -47,7 +47,7 @@ void lockscreen::request()
     // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
     if (@available(iOS 17, *)) {
         workoutTracking = [[WorkoutTracking alloc] init];
-        [workoutTracking startWorkOut];
+        [WorkoutTracking requestAuth];
         _adb = [[AdbClient alloc] initWithVerbose:YES];
     }
 }
@@ -153,6 +153,10 @@ double lockscreen::virtualbike_getPowerRequested()
 
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
 {
+    if (currentWatt > 0) {
+        [workoutTracking startWorkOut];
+    }
+    
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
     return 0;
