@@ -24,6 +24,10 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 #if __has_include("secret.h")
 #include "secret.h"
 #else
@@ -722,6 +726,10 @@ class homeform : public QObject {
 
 #ifdef Q_OS_ANDROID
     bool floating_open = false;
+#endif
+
+#ifdef Q_OS_IOS
+    lockscreen *h = nullptr;
 #endif
 
 #ifndef Q_OS_IOS

@@ -52,6 +52,14 @@ void lockscreen::request()
     }
 }
 
+void lockscreen::startWorkout() {
+    [workoutTracking startWorkOut];
+}
+
+void lockscreen::stopWorkout() {
+    [workoutTracking stopWorkOut];
+}
+
 long lockscreen::heartRate()
 {
     return [h heartRate];
@@ -152,11 +160,9 @@ double lockscreen::virtualbike_getPowerRequested()
 }
 
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
-{
-    if (currentWatt > 0) {
-        [workoutTracking startWorkOut];
-    }
-    
+{    
+    [workoutTracking addMetrics];
+
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
     return 0;

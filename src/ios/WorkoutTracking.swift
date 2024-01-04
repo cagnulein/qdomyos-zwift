@@ -26,19 +26,12 @@ protocol WorkoutTrackingProtocol {
 @available(iOS 17.0, *)
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
-    public static var distance = Double()
-    public static var kcal = Double()
-    public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
-    public static var cadenceLastSteps = Double()
-    public static var cadenceSteps = 0
-    public static var speed = Double()
-    public static var power = Double()
-    public static var cadence = Double()
     public static var lastDateMetric = Date()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
     var workoutBuilder: HKWorkoutBuilder!
+    var workoutInProgress: false
     
     weak var delegate: WorkoutTrackingDelegate?
     
@@ -141,6 +134,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     }
     
     @objc func startWorkOut() {
+        if(workoutInProgress)
+            return;
+        workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
         configWorkout()
@@ -236,16 +232,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             }
         }
         
-   
+        workoutInProgress = false;
     }
     
-    @objc func addMetrics() {
+    @objc func addMetrics(power: Double, cadence: Double, speed: Double) {
         print("GET DATA: \(Date())")
         
         if(sport == 0) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
-                                                doubleValue: WorkoutTracking.power)
+                                                doubleValue: power)
                 
                 if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
                     return
@@ -266,7 +262,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
 
                 let cadencePerInterval = HKQuantity(unit: HKUnit.count().unitDivided(by: HKUnit.second()),
-                                                    doubleValue: WorkoutTracking.cadence / 60.0)
+                                                    doubleValue: cadence / 60.0)
                 
                 guard let cadenceType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingCadence) else {
@@ -283,7 +279,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
                 
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                                                doubleValue: speed * 0.277778)
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingSpeed) else {
@@ -305,7 +301,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         } else if(sport == 1) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
-                                                doubleValue: WorkoutTracking.power)
+                                                doubleValue: power)
                 
                 if(WorkoutTracking.lastDateMetric.distance(to: Date()) < 1) {
                     return
@@ -326,7 +322,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
             
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                                                doubleValue: speed * 0.277778)
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .runningSpeed) else {
