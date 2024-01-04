@@ -53,11 +53,6 @@ private:
     bool stopping = false;
 
     /**
-     * @brief Indicates if a power boost is being applied.
-     */
-    bool powerBoost = false;
-
-    /**
      * @brief Sum of brakes 1 and 2 each normalised to 0..125.
      */
     uint8_t brakeLevel = 0;
@@ -191,22 +186,16 @@ private:
     double calculatePower(int cadenceRPM, int resistance);
 
     /**
-     * @brief Calculate resistance from current inclination and cadence.
-     */
-    resistance_t calculateResistanceFromInclination();
-
-    /**
-     * @brief Calculate resistance from the specified inclination and cadence. Uses rider and bike weight from settings.
-     * @param inclination Percentage inclination.
-     * @param cadence Cadence in RPM.
-     */
-    resistance_t calculateResistanceFromInclination(double inclination, double cadence);
-
-    /**
      * @brief Called to set the resistance level sent to the device.
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
     void set_resistance(resistance_t resistanceLevel);
+
+    /**
+     * @brief watts Calculate the power output using the current Cadence. Unit: watts
+     * @return
+     */
+    uint16_t watts() override;;
 
 protected:
 

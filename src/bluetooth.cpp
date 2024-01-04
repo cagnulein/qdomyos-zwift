@@ -126,7 +126,7 @@ bluetoothdevice * bluetooth::discoverNonBluetoothDevices() {
     QSettings settings;
 
     /*
-    Calling code expects the returned bluetoothdevice subclass object to have set fake bluetooth device info.
+    Calling code expects the returned bluetoothdevice subclass object to have the fake bluetooth device info set.
 
     Do this in the class constructor as follows:
     1. Go to a website and generate a Bluetooth UUID.

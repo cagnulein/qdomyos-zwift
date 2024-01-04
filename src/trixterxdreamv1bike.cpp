@@ -532,39 +532,6 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
 }
 
-resistance_t trixterxdreamv1bike::calculateResistanceFromInclination() {
-   return this->calculateResistanceFromInclination(this->Inclination.value(), this->Cadence.value());
-}
-
-resistance_t trixterxdreamv1bike::calculateResistanceFromInclination(double inclination, double cadence) {
-    QSettings settings;
-
-
-    double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
-    double bikeMass = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
-    double totalMass = riderMass+bikeMass;
-
-    // Since we need speed to calculate power, and QZ isn't getting it from Zwift,
-    // this number is invented to produce a somewhat believable user experience.
-    constexpr double magicNumber = 0.75;
-    double cadenceSensorSpeedRatio = settings.value(QZSettings::cadence_sensor_speed_ratio, 0.33).toDouble();
-    double speedMetresPerSecond = magicNumber * cadenceSensorSpeedRatio * cadence;
-    double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
-
-    uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
-
-    resistance_t r = resistanceFromPowerRequest(power);
-
-    qDebug() << "Inclination:" << inclination
-             << " Cadence:" << cadence << "RPM "
-             << " Total Mass:"<< totalMass << "kg "
-             << "= Power:" << power << "W "
-             << "Resistance:" << r;
-
-    return r;
-}
-
-
 void trixterxdreamv1bike::update() {
     QMutexLocker locker(&this->updateMutex);
 
@@ -581,7 +548,6 @@ void trixterxdreamv1bike::update() {
     if(ups->empty()) {
         qDebug() << "no states in queue";
         this->stopping = false;
-        this->powerBoost = false;
         this->Speed.setValue(0);
         this->brakeLevel = 0;
         this->m_steeringAngle.setValue(0);
@@ -630,10 +596,6 @@ void trixterxdreamv1bike::update() {
     // Determine if the user is pressing the button to stop.
     this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
 
-    // Determine if the user is pressing the left (front) gear up button, for a power boost.
-    //this->powerBoost = (state.Buttons & trixterxdreamv1client::buttons::FrontGearUp) != 0;
-    this->powerBoost = false;
-
     // update the metrics
     if(!this->noHeartRate)
         this->Heart.setValue(state.HeartRate);
@@ -653,35 +615,13 @@ void trixterxdreamv1bike::update() {
             this->m_steeringAngle.setValue(newValue);
     }
 
-    resistance_t newResistanceLevel = this->resistanceLevel;
-
-    qDebug() << "bike::requestResistance=" << this->requestResistance
-             << "bike::requestInclination="<<this->requestInclination
-             << "bike::Inclination=" << this->Inclination.value();
-
-    if(this->VirtualDevice() && this->VirtualDevice()->connected()) {
-        // the virtual bike is connected to the client app, so use inclination to get the power and resistance
-
-        // Update resistance because the requested resistance or cadence could have changed.
-        newResistanceLevel = this->calculateResistanceFromInclination();
-    } else {
-        // not connected to the client app, so just respond to the resistance tiles
-
-        // check if there's a request for resistance
-        if(this->requestResistance!=-1)
-            newResistanceLevel = this->requestResistance;
+    if (this->requestResistance != -1) {
+        this->set_resistance(requestResistance);
+        this->requestResistance = -1;
     }
 
-    // Cancel any request for inclination (grade) or resistance
-    this->requestInclination = -100;
-    this->requestResistance = -1;
-
-    // apply the nw resistance value.
-    this->set_resistance(newResistanceLevel);
-
     // update the power output
-    double powerBoost = this->powerBoost ? 1000:0;
-    this->update_metrics(true, powerBoost + this->calculatePower(cadence, this->resistanceLevel));
+    this->update_metrics(true, this->watts());
 
     // check if the settings have been updated and adjust accordingly
     if(this->appSettings->get_version()!=this->lastAppSettingsVersion) {
@@ -766,8 +706,11 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
     QMutexLocker locker(&this->updateMutex);
 
     // Clip the incoming values
+    resistance_t unclipped = resistanceLevel;
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
+    if(unclipped!=resistanceLevel)
+        qDebug() << "clipped resistance of " << unclipped << " to " << resistanceLevel;
 
     // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
@@ -787,6 +730,12 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
     if(resistanceChanged)
         emit this->resistanceRead(resistanceLevel);
 
+}
+
+uint16_t trixterxdreamv1bike::watts() {
+    if(this->Cadence.value()==0)
+        return 0;
+    return this->calculatePower(this->Cadence.value(), this->Resistance.value());
 }
 
 void trixterxdreamv1bike::updateResistance() {
