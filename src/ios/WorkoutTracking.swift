@@ -78,7 +78,12 @@ extension WorkoutTracking {
 
 @available(iOS 17.0, *)
 extension WorkoutTracking: WorkoutTrackingProtocol {
-    static func authorizeHealthKit() {
+    
+    @objc static func requestAuth() {
+        authorizeHealthKit()
+    }
+    
+    @objc public static func authorizeHealthKit() {
         if HKHealthStore.isHealthDataAvailable() {
             let infoToRead = Set([
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
@@ -120,13 +125,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     ])
             }
             
-            HKHealthStore().requestAuthorization(toShare: infoToShare, read: infoToRead) { (success, error) in
-                if success {
-                    print("Authorization healthkit success")
-                } else if let error = error {
-                    print(error)
+            DispatchQueue.main.async {
+                HKHealthStore().requestAuthorization(toShare: infoToShare, read: infoToRead) { (success, error) in
+                    if success {
+                        print("Authorization healthkit success")
+                    } else if let error = error {
+                        print(error)
+                    }
                 }
             }
+            
         } else {
             print("HealthKit not avaiable")
         }
