@@ -23,6 +23,7 @@ protocol WorkoutTrackingProtocol {
     func stopWorkOut()
 }
 
+@available(iOS 17.0, *)
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var distance = Double()
@@ -37,8 +38,7 @@ protocol WorkoutTrackingProtocol {
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
-    var workoutSession: HKWorkoutSession!
-    var workoutBuilder: HKLiveWorkoutBuilder!
+    var workoutBuilder: HKWorkoutBuilder!
     
     weak var delegate: WorkoutTrackingDelegate?
     
@@ -47,6 +47,7 @@ protocol WorkoutTrackingProtocol {
     }        
 }
 
+@available(iOS 17.0, *)
 extension WorkoutTracking {
     func setSport(_ sport: Int) {
         self.sport = sport
@@ -68,19 +69,14 @@ extension WorkoutTracking {
         configuration.locationType = .indoor
         
         do {
-            workoutSession = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
-            workoutBuilder = workoutSession?.associatedWorkoutBuilder()
+            workoutBuilder = try HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         } catch {
             return
         }
-        
-        workoutSession.delegate = self
-        workoutBuilder.delegate = self
-        
-        workoutBuilder.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: configuration)
     }
 }
 
+@available(iOS 17.0, *)
 extension WorkoutTracking: WorkoutTrackingProtocol {
     static func authorizeHealthKit() {
         if HKHealthStore.isHealthDataAvailable() {
@@ -140,23 +136,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
         configWorkout()
-        workoutSession.startActivity(with: Date())
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
             print(success)
             if let error = error {
                 print(error)
-            }
-
-            if self.sport > 0 {
-                self.workoutBuilder.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
             }
         }
     }
     
     @objc func stopWorkOut() {
         print("Stop workout")
-        workoutSession.stopActivity(with: Date())
-        workoutSession.end()
         
         guard let quantityType = HKQuantityType.quantityType(
           forIdentifier: .activeEnergyBurned) else {
@@ -170,7 +159,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
         let sample = HKCumulativeQuantitySeriesSample(type: quantityType,
                                                       quantity: quantity,
-                                                      start: workoutSession.startDate!,
+                                                      start: workoutBuilder.startDate!,
                                                       end: Date())
         
         workoutBuilder.add([sample]) {(success, error) in}
@@ -190,7 +179,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: workoutBuilder.startDate!,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -218,7 +207,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
       
             let sampleDistance = HKCumulativeQuantitySeriesSample(type: quantityTypeDistance,
                                                           quantity: quantityMiles,
-                                                          start: workoutSession.startDate!,
+                                                          start: workoutBuilder.startDate!,
                                                           end: Date())
             
             workoutBuilder.add([sampleDistance]) {(success, error) in
@@ -241,14 +230,12 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
    
     }
-}
-
-extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
-    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+    
+    @objc func addMetrics() {
         print("GET DATA: \(Date())")
         
         if(sport == 0) {
-            if #available(watchOSApplicationExtension 10.0, *) {            
+            if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                                 doubleValue: WorkoutTracking.power)
                 
@@ -308,7 +295,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
                 // Fallback on earlier versions
             }
         } else if(sport == 1) {
-            if #available(watchOSApplicationExtension 10.0, *) {            
+            if #available(watchOSApplicationExtension 10.0, *) {
                 let wattPerInterval = HKQuantity(unit: HKUnit.watt(),
                                                 doubleValue: WorkoutTracking.power)
                 
@@ -351,7 +338,7 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
                 // Fallback on earlier versions
             }
         } else if(sport == 2) {
-            if #available(watchOSApplicationExtension 10.0, *) {                                      
+            if #available(watchOSApplicationExtension 10.0, *) {
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
                                                 doubleValue: WorkoutTracking.speed * 0.277778)
                 
@@ -376,18 +363,5 @@ extension WorkoutTracking: HKLiveWorkoutBuilderDelegate {
         
         WorkoutTracking.lastDateMetric = Date()
     }
-    
-    func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
-        
-    }
 }
 
-extension WorkoutTracking: HKWorkoutSessionDelegate {
-    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
-        
-    }
-    
-    func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
-        
-    }
-}
