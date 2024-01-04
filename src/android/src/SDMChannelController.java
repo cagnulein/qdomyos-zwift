@@ -108,7 +108,7 @@ public class SDMChannelController extends AntChannelController {
                        payload[6] = (byte) stride_count++; // bad but it works on zwift
                        payload[7] = (byte) ((double)deltaTime * 0.03125);
 
-                       if (IsOpen()) {
+                       if (isOpen()) {
                            try {
                                // Setting the data to be broadcast on the next channel period
                                AntChannel.setBroadcastData(payload);
@@ -157,7 +157,7 @@ public class SDMChannelController extends AntChannelController {
                             payload[6] = (byte) stride_count;
                             payload[7] = (byte) ((double)deltaTime * 0.03125);
 
-                            if (IsOpen()) {
+                            if (isOpen()) {
                                 try {
                                     // Setting the data to be broadcast on the next channel period
                                     AntChannel.setBroadcastData(payload);

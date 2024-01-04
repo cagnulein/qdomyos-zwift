@@ -71,7 +71,7 @@ public class AntChannelController {
     }
 
     public boolean openChannel() {
-        if (null != mAntChannel) {
+        if (null != AntChannel) {
             if (mIsOpen) {
                 Log.w(mtag, "Channel was already open");
             } else {
@@ -82,12 +82,12 @@ public class AntChannelController {
 
                 try {
                     // Setting the channel event handler so that we can receive messages from ANT
-                    mAntChannel.setChannelEventHandler(mChannelEventCallback);
+                    AntChannel.setChannelEventHandler(mChannelEventCallback);
 
                     // Performs channel assignment by assigning the type to the channel. Additional
                     // features (such as, background scanning and frequency agility) can be enabled
                     // by passing an ExtendedAssignment object to assign(ChannelType, ExtendedAssignment).
-                    mAntChannel.assign(mchannel_type);
+                    AntChannel.assign(mchannel_type);
 
                     /*
                      * Configures the channel ID, messaging period and rf frequency after assigning,
@@ -97,10 +97,10 @@ public class AntChannelController {
                      * the ANT Protocol Doc found at:
                      * http://www.thisisant.com/resources/ant-message-protocol-and-usage/
                      */
-                    mAntChannel.setChannelId(channelId);
-                    mAntChannel.setPeriod(mperiod);
-                    mAntChannel.setRfFrequency(mfrequency);
-                    mAntChannel.open();
+                    AntChannel.setChannelId(channelId);
+                    AntChannel.setPeriod(mperiod);
+                    AntChannel.setRfFrequency(mfrequency);
+                    AntChannel.open();
                     mIsOpen = true;
 
                     Log.d(mtag, "Opened channel with device number: " + msensor_id);
@@ -162,13 +162,13 @@ public class AntChannelController {
 
     public void close() {
         // TODO kill all our resources
-        if (null != mAntChannel) {
+        if (null != AntChannel) {
             mIsOpen = false;
 
             // Releasing the channel to make it available for others.
             // After releasing, the AntChannel instance cannot be reused.
-            mAntChannel.release();
-            mAntChannel = null;
+            AntChannel.release();
+            AntChannel = null;
         }
 
         Log.e(mtag, "Channel Closed");

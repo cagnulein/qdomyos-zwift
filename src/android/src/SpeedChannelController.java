@@ -117,7 +117,7 @@ public class SpeedChannelController extends AntChannelController {
                        payload[6] = (byte) (rev & 0xFF);
                        payload[7] = (byte) ((rev >> 8) & 0xFF);
 
-                       if (IsOpen()) {
+                       if (isOpen()) {
                            try {
                                // Setting the data to be broadcast on the next channel period
                                AntChannel.setBroadcastData(payload);
@@ -175,7 +175,7 @@ public class SpeedChannelController extends AntChannelController {
                             payload[6] = (byte) (rev & 0xFF);
                             payload[7] = (byte) ((rev >> 8) & 0xFF);
 
-                            if (IsOpen()) {
+                            if (isOpen()) {
                                 try {
                                     // Setting the data to be broadcast on the next channel period
                                     AntChannel.setBroadcastData(payload);

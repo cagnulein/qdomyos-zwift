@@ -97,7 +97,7 @@ public class PowerChannelController extends AntChannelController {
                        payload[6] = (byte) ((power) & 0xFF);
                        payload[7] = (byte) ((power >> 8) & 0xFF);
 
-                       if (IsOpen()) {
+                       if (isOpen()) {
                            try {
                                // Setting the data to be broadcast on the next channel period
                                AntChannel.setBroadcastData(payload);
@@ -149,7 +149,7 @@ public class PowerChannelController extends AntChannelController {
                         payload[6] = (byte) ((power) & 0xFF);
                         payload[7] = (byte) ((power >> 8) & 0xFF);
 
-                        if (IsOpen()) {
+                        if (isOpen()) {
                             try {
                                 // Setting the data to be broadcast on the next channel period
                                 AntChannel.setBroadcastData(payload);
@@ -201,7 +201,7 @@ public class PowerChannelController extends AntChannelController {
                                 payload[7] = (byte) ((power >> 8) & 0xFF);
                             }
 
-                            if (IsOpen()) {
+                            if (isOpen()) {
                                 try {
                                     // Setting the data to be broadcast on the next channel period
                                     AntChannel.setBroadcastData(payload);
