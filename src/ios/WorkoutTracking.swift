@@ -27,11 +27,13 @@ protocol WorkoutTrackingProtocol {
 @objc class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var lastDateMetric = Date()
+    public static var distance = Double()
+    public static var kcal = Double()
     var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
     var workoutBuilder: HKWorkoutBuilder!
-    var workoutInProgress: false
+    var workoutInProgress: Bool = false
     
     weak var delegate: WorkoutTrackingDelegate?
     
@@ -134,8 +136,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     }
     
     @objc func startWorkOut() {
-        if(workoutInProgress)
+        if(workoutInProgress) {
             return;
+        }
         workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
@@ -237,6 +240,10 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
     
     @objc func addMetrics(power: Double, cadence: Double, speed: Double) {
         print("GET DATA: \(Date())")
+        
+        if(workoutInProgress == false) {
+            startWorkOut()
+        }
         
         if(sport == 0) {
             if #available(watchOSApplicationExtension 10.0, *) {
@@ -344,7 +351,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         } else if(sport == 2) {
             if #available(watchOSApplicationExtension 10.0, *) {
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: WorkoutTracking.speed * 0.277778)
+                                                doubleValue: speed * 0.277778)
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .walkingSpeed) else {
