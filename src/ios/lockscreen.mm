@@ -161,7 +161,7 @@ double lockscreen::virtualbike_getPowerRequested()
 
 bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 CrankRevolutions, UInt16 LastCrankEventTime)
 {    
-    [workoutTracking addMetrics];
+    [workoutTracking addMetricsWithPower:currentWatt cadence:currentCadence speed:normalizeSpeed];
 
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
