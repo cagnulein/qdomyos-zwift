@@ -243,6 +243,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         
         if(workoutInProgress == false && power > 0) {
             startWorkOut()
+        } else if(workoutInProgress == false && power == 0) {
+            return;
         }
         
         if(sport == 0) {
@@ -280,6 +282,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                                                             start: WorkoutTracking.lastDateMetric,
                                                             end: Date())
                 workoutBuilder.add([cadencePerIntervalSample]) {(success, error) in
+                    if success {
+                        print("OK")
+                    }
                     if let error = error {
                         print(error)
                     }
