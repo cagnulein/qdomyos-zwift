@@ -141,6 +141,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
+    Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 17.47;
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
