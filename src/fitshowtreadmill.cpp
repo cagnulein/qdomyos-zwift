@@ -158,7 +158,7 @@ void fitshowtreadmill::update() {
 
     if (initRequest) {
         initRequest = false;
-        btinit((lastSpeed > 0 ? true : false));
+        btinit(true);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
