@@ -486,10 +486,14 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 bool nordictrackifitadbtreadmill::connected() { return true; }
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
+    qDebug() << "stopLogcatAdbThread()";
     initiateThreadStop();
     logcatAdbThread->quit();
+    qDebug() << "stopLogcatAdbThread() quit";
     logcatAdbThread->terminate();
+    qDebug() << "stopLogcatAdbThread() terminate";
     logcatAdbThread->wait();
+    qDebug() << "stopLogcatAdbThread() wait";
 }
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
