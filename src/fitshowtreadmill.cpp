@@ -158,7 +158,7 @@ void fitshowtreadmill::update() {
 
     if (initRequest) {
         initRequest = false;
-        btinit((lastSpeed > 0 ? true : false));
+        btinit(true);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
@@ -220,7 +220,22 @@ void fitshowtreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            btinit(true);
+
+            uint8_t startTape1[] = {
+                FITSHOW_SYS_CONTROL,
+                FITSHOW_CONTROL_READY_OR_START,
+                (FITSHOW_TREADMILL_SPORT_ID >> 0) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 8) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 16) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 24) & 0xFF,
+                FITSHOW_SYS_MODE_NORMAL,
+                0x00, // number of blocks (u8)
+                0x00,
+                0x00 // mode-dependent value (u16le)
+            };       // to verify
+            scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
+            forceSpeedOrIncline(lastSpeed, lastInclination);
+
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
