@@ -487,13 +487,18 @@ bool nordictrackifitadbtreadmill::connected() { return true; }
 
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
+    
     initiateThreadStop();
     logcatAdbThread->quit();
-    qDebug() << "stopLogcatAdbThread() quit";
     logcatAdbThread->terminate();
-    qDebug() << "stopLogcatAdbThread() terminate";
+
+    QProcess process;
+    QString command = "/c wmic process where name='adb.exe' delete";
+    process.start("cmd.exe", QStringList(command.split(' ')));
+    process.waitForFinished(-1); // will wait forever until finished
+
+    
     logcatAdbThread->wait();
-    qDebug() << "stopLogcatAdbThread() wait";
 }
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
