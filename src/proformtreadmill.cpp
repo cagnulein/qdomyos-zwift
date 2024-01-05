@@ -1516,6 +1516,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         settings.value(QZSettings::proform_treadmill_z1300i, QZSettings::default_proform_treadmill_z1300i).toBool();
     bool nordictrack_s20_treadmill = settings.value(QZSettings::nordictrack_s20_treadmill,
                                                     QZSettings::default_nordictrack_s20_treadmill).toBool();
+    bool proform_8_5_treadmill = settings.value(QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill).toBool();  
 
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
@@ -1530,7 +1531,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
          (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
         ((norditrack_s25i_treadmill) && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x2f))) ||
         ((nordictrack_t65s_treadmill || proform_pro_1000_treadmill || nordictrack_t65s_83_treadmill || nordictrack_s30_treadmill ||
-          nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt) &&
+          nordictrack_s20_treadmill || proform_treadmill_se || proform_cadence_lt || proform_8_5_treadmill) &&
          (newValue.at(4) != 0x02 || newValue.at(5) != 0x2e)) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
