@@ -488,6 +488,7 @@ bool nordictrackifitadbtreadmill::connected() { return true; }
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     initiateThreadStop();
     logcatAdbThread->quit();
+    logcatAdbThread->terminate();
     logcatAdbThread->wait();
 }
 
