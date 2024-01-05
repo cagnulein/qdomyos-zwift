@@ -865,6 +865,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.31
             property bool garmin_bluetooth_compatibility: false
             property bool norditrack_s25_treadmill: false
+            property bool proform_8_5_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5600,7 +5601,20 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
+                        }                        
+                        SwitchDelegate {
+                            text: qsTr("Proform 8.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_8_5_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_8_5_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                        
                         SwitchDelegate {
                             text: qsTr("Proform Pro 1000")
                             spacing: 0
