@@ -124,6 +124,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     processPendingDatagrams();
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
+    initRequest = true;
+
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
@@ -519,6 +521,11 @@ void nordictrackifitadbbike::update() {
 
     QSettings settings;
     update_metrics(false, 0);
+
+    if (initRequest) {
+        initRequest = false;
+        emit connectedAndDiscovered();
+    }    
 
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {
