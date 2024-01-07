@@ -1954,7 +1954,7 @@ class QZSettings {
     static constexpr int default_proform_8_5_treadmill = false;
 
     static const QString treadmill_incline_min;
-    static constexpr float treadmill_incline_min = -100.0;
+    static constexpr float default_treadmill_incline_min = -100.0;
 
     static const QString treadmill_incline_max;
     static constexpr float default_treadmill_incline_max = 100.0;
