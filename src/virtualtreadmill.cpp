@@ -168,7 +168,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         }
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
-        qDebug() << "Raspberry workaround for sending metrics to the peloton app"
+        qDebug() << "Raspberry workaround for sending metrics to the peloton app";
         QLowEnergyCharacteristicData charDataFIT;
         charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2A00); 
         QByteArray valueFIT;
