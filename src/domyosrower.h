@@ -28,6 +28,10 @@
 
 #include "rower.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class domyosrower : public rower {
     Q_OBJECT
   public:
@@ -77,6 +81,10 @@ class domyosrower : public rower {
 
     QDateTime lastStroke = QDateTime::currentDateTime();
     double lastStrokesCount = 0;
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
     enum _BIKE_TYPE {
         CHANG_YOW,

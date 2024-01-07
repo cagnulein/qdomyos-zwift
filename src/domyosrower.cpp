@@ -186,6 +186,22 @@ void domyosrower::update() {
             bool virtual_device_force_bike =
                 settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike)
                     .toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence =
+            settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+        bool ios_peloton_workaround =
+            settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
+        if (ios_peloton_workaround && cadence) {
+
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        } else
+
+#endif
+#endif
+        {
             if (virtual_device_enabled) {
                 if (virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
@@ -208,9 +224,11 @@ void domyosrower::update() {
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
                     this->setVirtualDevice(virtualBike, VIRTUAL_DEVICE_MODE::ALTERNATIVE);
                 }
-                firstVirtual = 1;
+            }
             }
         }
+        firstVirtual = 1;
+
         // ********************************************************************************************************
 
         // updating the treadmill console every second
@@ -563,7 +581,7 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        if (ios_peloton_workaround && cadence && h && firstVirtual) {
 
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
