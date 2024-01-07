@@ -58,17 +58,25 @@ class domyosrower : public rower {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
+    QList<QLowEnergyService *> gattCommunicationChannelServiceArray;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyService *gattFTMSService = nullptr;
+
     bool initDone = false;
     bool initRequest = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
+    bool ftmsRower = false;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+    QDateTime lastStroke = QDateTime::currentDateTime();
+    double lastStrokesCount = 0;
 
     enum _BIKE_TYPE {
         CHANG_YOW,
@@ -86,6 +94,8 @@ class domyosrower : public rower {
 
   private slots:
 
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
