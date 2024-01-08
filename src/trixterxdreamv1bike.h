@@ -17,11 +17,6 @@ private:
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
 
     /**
-     * @brief Mapping from cadence and resistance to power.
-     */
-    static double powerSurface[260][3];
-
-    /**
      * @brief A queue of states read from the client. Syncronized but unprocessedStatesMutex.
      */
     std::queue<trixterxdreamv1client::state> unprocessedStates[2];
@@ -211,7 +206,6 @@ protected:
     void disconnectPort();
 
 public:
-
     /**
      * @brief The maximum supported wheel diameter. Unit: meters
      */
