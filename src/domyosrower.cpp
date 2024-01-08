@@ -421,8 +421,16 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (!Flags.moreData) {
 
+            if(index >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
             Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
 
+            if(index + 2 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
             StrokesCount =
                 (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
@@ -446,12 +454,20 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.avgStroke) {
 
             double avgStroke;
+            if(index >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }            
             avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / cadence_divider;
             index += 1;
             emit debug(QStringLiteral("Current Average Stroke: ") + QString::number(avgStroke));
         }
 
         if (Flags.totDistance) {
+            if(index + 2 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }            
             Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)newValue.at(index)))) /
@@ -466,6 +482,11 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (Flags.instantPace) {
 
+            if(index + 1 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
+
             double instantPace;
             instantPace =
                 ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -479,6 +500,11 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (Flags.avgPace) {
 
+            if(index + 1>= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
+
             double avgPace;
             avgPace =
                 ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -487,6 +513,11 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
 
         if (Flags.instantPower) {
+            if(index + 1 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
+
             double watt =
                 ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
@@ -495,6 +526,10 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
 
         if (Flags.avgPower) {
+            if(index + 1 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
 
             double avgPower;
             avgPower =
@@ -504,6 +539,10 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
 
         if (Flags.resistanceLvl) {
+            if(index + 1 >= newValue.length()) {
+                qDebug() << "index out of range" << index;
+                return;
+            }
             Resistance =
                 ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
             emit resistanceRead(Resistance.value());
