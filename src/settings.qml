@@ -866,6 +866,8 @@ import QtQuick.Dialogs 1.0
             property bool garmin_bluetooth_compatibility: false
             property bool norditrack_s25_treadmill: false
             property bool proform_8_5_treadmill: false
+            property real treadmill_incline_min: -100
+            property real treadmill_incline_max: 100
         }
 
         function paddingZeros(text, limit) {
@@ -5425,6 +5427,78 @@ import QtQuick.Dialogs 1.0
                     Layout.fillWidth: true
                     color: Material.color(Material.Lime)
                 }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Min. Inclination:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationMinTextField
+                        text: settings.treadmill_incline_min
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_incline_min = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }                
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Max. Inclination:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationMaxTextField
+                        text: settings.treadmill_incline_max
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_incline_max = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }                                
 
                 NewPageElement {
                     title: qsTr("Inclination Overrides")

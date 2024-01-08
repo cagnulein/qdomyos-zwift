@@ -17,6 +17,18 @@ void treadmill::changeSpeed(double speed) {
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
 }
 void treadmill::changeInclination(double grade, double inclination) {
+    QSettings settings;
+    double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
+    double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+
+    if(grade < treadmill_incline_min) {
+        grade = treadmill_incline_min;
+        qDebug() << "grade override due to treadmill_incline_min" << grade;
+    } else if(grade > treadmill_incline_max) {
+        grade = treadmill_incline_max;
+        qDebug() << "grade override due to treadmill_incline_max" << grade;
+    }
+
     m_lastRawInclinationRequested = grade;
     Q_UNUSED(inclination);
     qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
