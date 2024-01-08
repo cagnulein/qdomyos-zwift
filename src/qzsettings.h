@@ -1953,6 +1953,12 @@ class QZSettings {
     static const QString proform_8_5_treadmill;
     static constexpr int default_proform_8_5_treadmill = false;
 
+    static const QString treadmill_incline_min;
+    static constexpr float default_treadmill_incline_min = -100.0;
+
+    static const QString treadmill_incline_max;
+    static constexpr float default_treadmill_incline_max = 100.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
