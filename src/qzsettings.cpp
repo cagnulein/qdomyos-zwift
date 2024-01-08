@@ -696,8 +696,11 @@ const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
 const QString QZSettings::default_zwift_password = QStringLiteral("");
 const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
 const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_s25_treadmill");
+const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
+const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
+const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
 
-const uint32_t allSettingsCount = 583;
+const uint32_t allSettingsCount = 586;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1287,6 +1290,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_password, QZSettings::default_zwift_password},
     {QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility},
     {QZSettings::norditrack_s25_treadmill, QZSettings::default_norditrack_s25_treadmill},
+    {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
+    {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
+    {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

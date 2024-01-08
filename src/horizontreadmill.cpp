@@ -1139,6 +1139,9 @@ void horizontreadmill::forceIncline(double requestIncline) {
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
+    if(tunturi_t60_treadmill)
+        Inclination = requestIncline;
+
     if (gattCustomService) {
         if (!horizon_paragon_x) {
             messageID++;
@@ -1488,9 +1491,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index)))) /
-                          10.0;
+            if(!tunturi_t60_treadmill)
+                Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                        (uint16_t)((uint8_t)newValue.at(index)))) /
+                            10.0;
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -1993,6 +1997,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
+            tunturi_t60_treadmill = true;
+            qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         }
 
 #ifdef Q_OS_IOS

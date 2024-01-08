@@ -1113,6 +1113,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C")) ||
+                           // Poland-distributed WalkingPad R2 TRR2FB
+                           b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||
                            // KingSmith Walking Pad G1
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) &&
                        !kingsmithR2Treadmill && filter) {
@@ -1167,7 +1169,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(kingsmithR1ProTreadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && !ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 shuaA5Treadmill = new shuaa5treadmill(noWriteResistance, noHeartService);
@@ -1443,6 +1445,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
                         (b.name().toUpper().startsWith("KICKR CORE")) ||
+                        (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||

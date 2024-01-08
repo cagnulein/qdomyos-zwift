@@ -91,6 +91,7 @@ class horizontreadmill : public treadmill {
     bool mobvoi_treadmill = false;
     bool kettler_treadmill = false;
     bool anplus_treadmill = false;
+    bool tunturi_t60_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();
