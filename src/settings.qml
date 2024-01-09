@@ -868,6 +868,9 @@ import QtQuick.Dialogs 1.0
             property bool proform_8_5_treadmill: false
             property real treadmill_incline_min: -100
             property real treadmill_incline_max: 100
+
+            // from version 2.16.32
+            property bool proform_2000_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -5676,6 +5679,19 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
                         }                        
+                        SwitchDelegate {
+                            text: qsTr("Proform 2000 (not pro)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_2000_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_2000_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                                      
                         SwitchDelegate {
                             text: qsTr("Proform 8.5")
                             spacing: 0

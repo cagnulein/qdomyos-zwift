@@ -699,8 +699,9 @@ const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_
 const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
 const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
 const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
+const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
 
-const uint32_t allSettingsCount = 586;
+const uint32_t allSettingsCount = 587;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1293,6 +1294,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
     {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
     {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
+    {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
