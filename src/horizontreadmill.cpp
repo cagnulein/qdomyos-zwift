@@ -2721,7 +2721,7 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if (kettler_treadmill)
+    if (kettler_treadmill || trx3500_treadmill)
         return 1.0;
     else
         return 0.5;
