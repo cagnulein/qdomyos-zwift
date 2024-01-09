@@ -9,9 +9,6 @@ import QtQuick.Dialogs 1.0 as FileDialogClass
 
 ColumnLayout {
 
-    anchors.top: parent.top
-    anchors.fill: parent
-
     signal profile_open_clicked(url name)
 
     Settings {
