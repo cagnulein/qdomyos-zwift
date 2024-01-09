@@ -857,7 +857,7 @@ void horizontreadmill::update() {
 
             sec1Update = 0;
             if(trx3500_treadmill) {
-                write[0] = {FTMS_START_RESUME};
+                uint8_t write[] = {FTMS_START_RESUME};
                 writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
                                 "start simulation", false, false);
             }
