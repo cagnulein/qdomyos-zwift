@@ -621,6 +621,14 @@ void trainprogram::scheduler() {
                     static int zwift_counter = 5;
                     if(zwift_counter++ >= 4) {
                         zwift_counter = 0;
+
+                        QString id = zwift_world->player_id();
+                        QJsonParseError parseError;
+                        QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
+                        QJsonObject ride = document.object();
+                        qDebug() << "zwift api player" << ride;
+                        int worldId = ride[QStringLiteral("worldId")].toInt();
+
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
