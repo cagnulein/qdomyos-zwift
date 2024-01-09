@@ -635,9 +635,13 @@ void trainprogram::scheduler() {
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
                         float alt = h->zwift_api_getaltitude();
                         float distance = h->zwift_api_getdistance();
+                        float lat = h->zwift_api_getlatitude();
+                        float lon = h->zwift_api_getlongitude();
 #else
                         float alt = 0;
                         float distance = 0;
+                        float lat = 0;
+                        float lon = 0;
 #endif
 #elif defined(Q_OS_ANDROID)
                         QAndroidJniEnvironment env;
@@ -656,11 +660,24 @@ void trainprogram::scheduler() {
 #else
                         float alt = 0;
                         float distance = 0;
+                        float lat = 0;
+                        float lon = 0;                        
 #endif
                         static float old_distance = 0;
                         static float old_alt = 0;
                         
-                        qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
+                        qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt << lat << lon;
+
+                        MapCoordinate* coord = zwift_world->ToMapCoordinate(worldId, lon, lat, alt);
+                        if(coord) {
+                            qDebug() << "zwift coordinate" << coord->X << coord->Y;
+                            QGeoCoordinate p;
+                            p.setLatitude(coord->X);
+                            p.setLongitude(coord->Y);
+                            p.setAltitude(coord->Altitude);
+                            emit changeGeoPosition(p, 0, 0);
+                            delete coord;
+                        }
 
                         if(old_distance > 0) {
                             float delta = distance - old_distance;

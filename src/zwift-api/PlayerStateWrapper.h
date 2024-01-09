@@ -55,6 +55,16 @@ public:
         return reply->readAll();
     }
 
+private:
+    QNetworkAccessManager manager;
+    const QString BASE_URL = "https://us-or-rly101.zwift.com";
+    const QString getAccessToken;
+};
+
+class World {
+public:    
+    World(int worldId, const QString& getAccessToken) : worldId(worldId), request(getAccessToken) {}
+
     MapCoordinate* ToMapCoordinate(int worldId, double Longitude, double Latitude, double Altitude)
     {
         ZwiftWorldConstants* worldConstants;
@@ -110,12 +120,24 @@ public:
         return new MapCoordinate(latitudeOffsetCentimeters, longitudeOffsetCentimeters, Altitude, worldId);
     }
 
-private:
-    QNetworkAccessManager manager;
-    const QString BASE_URL = "https://us-or-rly101.zwift.com";
-    const QString getAccessToken;
+    QString getPlayers() {
+        return request.json("/relay/worlds/" + QString::number(worldId));
+    }
 
-    enum ZwiftWorldId
+    QByteArray playerStatus(int playerId) {
+        QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
+        return buffer;
+    }
+
+    QString player_id() {
+        return request.json("/api/profiles/me");
+    }
+
+private:
+    int worldId;
+    ZwiftRequest request;
+
+   enum ZwiftWorldId
     {
         _Unknown = -1,
         _Watopia = 1,
@@ -142,29 +164,7 @@ private:
     ZwiftWorldConstants* CritCity = new ZwiftWorldConstants(110614.71, 109287.52, -10.3844f, 165.8011f);
     ZwiftWorldConstants* MakuriIslands = new ZwiftWorldConstants(110614.71, 109287.52, -10.749806f, 165.83644f);
     ZwiftWorldConstants* France = new ZwiftWorldConstants(110726.0, 103481.0, -21.695074f, 166.19745f);
-    ZwiftWorldConstants* Paris = new ZwiftWorldConstants(111230.0, 73167.0, 48.86763f, 2.31413f);
-};
-
-class World {
-public:    
-    World(int worldId, const QString& getAccessToken) : worldId(worldId), request(getAccessToken) {}
-
-    QString getPlayers() {
-        return request.json("/relay/worlds/" + QString::number(worldId));
-    }
-
-    QByteArray playerStatus(int playerId) {
-        QByteArray buffer = request.protobuf("/relay/worlds/" + QString::number(worldId) + "/players/" + QString::number(playerId));
-        return buffer;
-    }
-
-    QString player_id() {
-        return request.json("/api/profiles/me");
-    }
-
-private:
-    int worldId;
-    ZwiftRequest request;
+    ZwiftWorldConstants* Paris = new ZwiftWorldConstants(111230.0, 73167.0, 48.86763f, 2.31413f);    
 };
 
 class PlayerStateWrapper {
