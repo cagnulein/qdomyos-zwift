@@ -659,8 +659,19 @@ void trainprogram::scheduler() {
                             float deltaA = alt - old_alt;
                             float incline = (deltaA / delta) / 2.0;
                             if(delta > 1) {
-                                qDebug() << "zwift api incline" << incline << delta << deltaA;
-                                bluetoothManager->device()->changeInclination(incline, incline);
+                                bool zwift_negative_inclination_x2 =
+                                    settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
+                                        .toBool();
+                                double offset =
+                                    settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+                                double gain =
+                                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                                double grade = (incline * gain) + offset;  
+                                if (zwift_negative_inclination_x2 && incline < 0) {
+                                    grade = ((incline * 2.0) * gain) + offset;
+                                }                              
+                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA;
+                                bluetoothManager->device()->changeInclination(grade, grade);
                             }
                         }
                         old_distance = distance;
