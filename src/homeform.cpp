@@ -3205,13 +3205,6 @@ void homeform::Start_inner(bool send_event_to_device) {
     QSettings settings;
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    if(h)
-        h->startWorkout();
-#endif
-#endif
-
     m_overridePower = false;
 
     if (settings.value(QZSettings::tts_enabled, QZSettings::default_tts_enabled).toBool())
@@ -3231,7 +3224,12 @@ void homeform::Start_inner(bool send_event_to_device) {
             videoPlaybackHalfPlayer->pause();
         }
     } else {
-
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        if(h)
+            h->startWorkout();
+#endif
+#endif
         if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->start();
         }

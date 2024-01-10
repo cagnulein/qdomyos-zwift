@@ -193,6 +193,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 if let error = error {
                     print(error)
                 }
+            }
                 self.workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
                     if let error = error {
                         print(error)
@@ -204,7 +205,6 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                         workout?.setValue(quantityMiles, forKey: "totalDistance")
                     }
                 }
-            }
         } else {
             
             guard let quantityTypeDistance = HKQuantityType.quantityType(
@@ -291,7 +291,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 }
                 
                 let speedPerInterval = HKQuantity(unit: HKUnit.meter().unitDivided(by: HKUnit.second()),
-                                                doubleValue: speed * 0.277778)
+                                                  doubleValue: (speed / 3.6))
                 
                 guard let speedType = HKQuantityType.quantityType(
                     forIdentifier: .cyclingSpeed) else {
