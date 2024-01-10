@@ -1911,6 +1911,57 @@ class QZSettings {
     static const QString nordictrack_x22i;
     static constexpr bool default_nordictrack_x22i = false;
 
+    static const QString iconsole_elliptical;
+    static constexpr bool default_iconsole_elliptical = false;    
+
+    static const QString autolap_distance;
+    static constexpr float default_autolap_distance = 0;
+
+    static const QString nordictrack_s20_treadmill;
+    static constexpr bool default_nordictrack_s20_treadmill = false;    
+
+    static const QString freemotion_coachbike_b22_7;
+    static constexpr bool default_freemotion_coachbike_b22_7 = false;
+
+    static const QString proform_cycle_trainer_300_ci;
+    static constexpr bool default_proform_cycle_trainer_300_ci = false;
+
+    static const QString kingsmith_encrypt_g1_walking_pad;
+    static constexpr bool default_kingsmith_encrypt_g1_walking_pad = false;
+
+    static const QString proform_bike_225_csx;
+    static constexpr bool default_proform_bike_225_csx = false;
+
+    static const QString proform_treadmill_l6_0s;
+    static constexpr bool default_proform_treadmill_l6_0s = false;
+
+    static const QString proformtdf1ip;
+    static const QString default_proformtdf1ip;
+
+    static const QString zwift_username;
+    static const QString default_zwift_username;
+
+    static const QString zwift_password;
+    static const QString default_zwift_password;
+
+    static const QString garmin_bluetooth_compatibility;
+    static constexpr bool default_garmin_bluetooth_compatibility = false;
+
+    static const QString norditrack_s25_treadmill;
+    static constexpr int default_norditrack_s25_treadmill = false;
+
+    static const QString proform_8_5_treadmill;
+    static constexpr int default_proform_8_5_treadmill = false;
+
+    static const QString treadmill_incline_min;
+    static constexpr float default_treadmill_incline_min = -100.0;
+
+    static const QString treadmill_incline_max;
+    static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString proform_2000_treadmill;
+    static constexpr int default_proform_2000_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

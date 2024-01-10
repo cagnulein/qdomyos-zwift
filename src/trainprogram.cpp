@@ -29,6 +29,12 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->description = *description;
     if (tags)
         this->tags = *tags;
+    
+    if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
+        zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
+        zwift_auth_token->getAccessToken();
+    }
+
     /*
     int c = 0;
     for (c = 0; c < rows.length(); c++) {
@@ -436,27 +442,27 @@ double trainprogram::avgInclinationNext100Meters(int step) {
                 if (sum == 1) {
                     return rows.at(currentStep).inclination;
                 }
-                return avg / (double)sum;
+                return avg / (double)km;
             }
             if (c == currentStep)
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
-            avg += rows.at(c).inclination;
+            avg += rows.at(c).inclination * rows.at(c).distance;
             sum++;
 
         } else {
             if (sum == 1) {
                 return rows.at(currentStep).inclination;
             }
-            return avg / (double)sum;
+            return avg / (double)km;
         }
         c++;
     }
     if (sum == 1) {
         return rows.at(currentStep).inclination;
     }
-    return avg / (double)sum;
+    return avg / (double)km;
 }
 
 double trainprogram::avgAzimuthNext300Meters() {
@@ -572,7 +578,6 @@ void trainprogram::scheduler() {
 
     QMutexLocker(&this->schedulerMutex);
     QSettings settings;
-
     // outside the if case about a valid train program because the information for the floating window url should be
     // sent anyway
     if (settings.value(QZSettings::peloton_companion_workout_ocr, QZSettings::default_companion_peloton_workout_ocr)
@@ -590,6 +595,91 @@ void trainprogram::scheduler() {
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
+        
+        if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 &&
+           zwift_auth_token->access_token.length() > 0) {
+            if(!zwift_world) {
+                zwift_world = new World(1, zwift_auth_token->getAccessToken());
+                qDebug() << "creating zwift api world";
+            }
+            else {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                if(!h)
+                    h = new lockscreen();
+#endif
+#endif
+                if(zwift_player_id == -1) {
+                    QString id = zwift_world->player_id();
+                    QJsonParseError parseError;
+                    QJsonDocument document = QJsonDocument::fromJson(id.toLocal8Bit(), &parseError);
+                    QJsonObject ride = document.object();
+                    qDebug() << "zwift api player" << ride;
+                    zwift_player_id = ride[QStringLiteral("id")].toInt();
+                } else {
+                    static int zwift_counter = 5;
+                    if(zwift_counter++ >= 4) {
+                        zwift_counter = 0;
+                        QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                        h->zwift_api_decodemessage_player(bb.data(), bb.length());
+                        float alt = h->zwift_api_getaltitude();
+                        float distance = h->zwift_api_getdistance();
+#else
+                        float alt = 0;
+                        float distance = 0;
+#endif
+#elif defined(Q_OS_ANDROID)
+                        QAndroidJniEnvironment env;
+                        jbyteArray d = env->NewByteArray(bb.length());
+                        jbyte *b = env->GetByteArrayElements(d, 0);
+                        for (int i = 0; i < bb.length(); i++)
+                            b[i] = bb[i];
+                        env->SetByteArrayRegion(d, 0, bb.length(), b);
+
+                        QAndroidJniObject::callStaticMethod<void>(
+                            "org/cagnulen/qdomyoszwift/ZwiftAPI", "zwift_api_decodemessage_player", "([B)V", d);
+                        env->DeleteLocalRef(d);
+
+                        float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
+                        float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#else
+                        float alt = 0;
+                        float distance = 0;
+#endif
+                        static float old_distance = 0;
+                        static float old_alt = 0;
+                        
+                        qDebug() << "zwift api incline1" << old_distance << old_alt << distance << alt;
+
+                        if(old_distance > 0) {
+                            float delta = distance - old_distance;
+                            float deltaA = alt - old_alt;
+                            float incline = (deltaA / delta) / 2.0;
+                            if(delta > 1) {
+                                bool zwift_negative_inclination_x2 =
+                                    settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
+                                        .toBool();
+                                double offset =
+                                    settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+                                double gain =
+                                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                                double grade = (incline * gain) + offset;  
+                                if (zwift_negative_inclination_x2 && incline < 0) {
+                                    grade = ((incline * 2.0) * gain) + offset;
+                                }                              
+                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA;
+                                bluetoothManager->device()->changeInclination(grade, grade);
+                            }
+                        }
+                        old_distance = distance;
+                        old_alt = alt;
+                    }
+                }
+            }
+        }
 
         // in case no workout has been selected
         // Zwift OCR
@@ -764,7 +854,8 @@ void trainprogram::scheduler() {
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
-            if (rows.at(0).inclination != -200 && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            if (rows.at(0).inclination != -200 && (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
+            (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                 // this should be converted in a signal as all the other signals...
                 double bikeResistanceOffset =
                     settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset)
@@ -776,7 +867,7 @@ void trainprogram::scheduler() {
                 double inc = rows.at(0).inclination;
                 bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                              bikeResistanceOffset + 1); // resistance start from 1)
-                if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                     bluetoothManager->device()->setInclination(inc);
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                 emit changeInclination(inc, inc);
@@ -916,7 +1007,8 @@ void trainprogram::scheduler() {
                     }
 
                     if (rows.at(currentStep).inclination != -200 &&
-                        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                        (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
+                        (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()))) {
                         // this should be converted in a signal as all the other signals...
                         double bikeResistanceOffset =
                             settings
@@ -931,7 +1023,7 @@ void trainprogram::scheduler() {
                         bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                      bikeResistanceOffset +
                                                                      1); // resistance start from 1)
-                        if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
+                        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE && !((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                             bluetoothManager->device()->setInclination(inc);
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
                         emit changeInclination(inc, inc);
@@ -1201,8 +1293,8 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
-trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
-    if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
+trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
 
         QString description = "";
         QString tags = "";

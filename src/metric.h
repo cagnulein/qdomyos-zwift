@@ -42,8 +42,6 @@ class metric {
     void operator+=(double);
     void setPaused(bool p);
     void setLap(bool accumulator);
-    void setColor(QString color) { m_color = color; }
-    QString color() { return m_color; }
 
     static double calculateMaxSpeedFromPower(double power, double inclination);
     static double calculatePowerFromSpeed(double speed, double inclination);
@@ -54,7 +52,7 @@ class metric {
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
 
     static double powerPeak(QList<SessionLine> *session, int seconds);
-
+    
   private:
     double m_value = 0;
     double m_totValue = 0;
@@ -77,7 +75,6 @@ class metric {
     _metric_type m_type = METRIC_OTHER;
 
     bool paused = false;
-    QString m_color;
 };
 
 #endif // METRIC_H

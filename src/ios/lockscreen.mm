@@ -9,6 +9,7 @@
 #include "ios/lockscreen.h"
 #include <QDebug>
 #include "ios/AdbClient.h"
+#include "ios/ios_eliteariafan.h"
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
@@ -26,6 +27,10 @@ static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
 
+static ios_eliteariafan* ios_eliteAriaFan = nil;
+
+static zwift_protobuf_layer* zwiftProtobufLayer = nil;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -34,6 +39,7 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    zwiftProtobufLayer = [[zwift_protobuf_layer alloc] init];
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
@@ -96,9 +102,9 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
 }
 
 void lockscreen::virtualrower_ios()
@@ -202,10 +208,10 @@ double lockscreen::virtualtreadmill_getPowerRequested()
     return 0;
 }
 
-bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination)
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt, UInt16 currentInclination, UInt64 currentDistance)
 {
     if(_virtualtreadmill_zwift != nil)
-        return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination];
+        return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt currentInclination:currentInclination currentDistance:currentDistance];
     return 0;
 }
 
@@ -284,5 +290,36 @@ void lockscreen::adb_sendcommand(const char* command) {
         qDebug() << result;
 
     }];
+}
+
+void lockscreen::eliteAriaFan() {
+    ios_eliteAriaFan = [[ios_eliteariafan alloc] init];
+}
+
+void lockscreen::eliteAriaFan_fanSpeedRequest(unsigned char speed) {
+    if(ios_eliteAriaFan) {
+        [ios_eliteAriaFan fanSpeedRequest:speed];
+    }
+}
+
+void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
+    NSData *d = [NSData dataWithBytes:data length:len];
+    [zwiftProtobufLayer getPlayerStateWithValue:d];
+}
+
+float lockscreen::zwift_api_getaltitude() {
+    return [zwiftProtobufLayer getAltitude];
+}
+
+int lockscreen::zwift_api_getdistance() {
+    return [zwiftProtobufLayer getDistance];
+}
+
+float lockscreen::zwift_api_getlatitude() {
+    return [zwiftProtobufLayer getLatitude];
+}
+
+float lockscreen::zwift_api_getlongitude() {
+    return [zwiftProtobufLayer getLongitude];
 }
 #endif

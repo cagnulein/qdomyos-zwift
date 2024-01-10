@@ -67,6 +67,8 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
             encrypted.append(ENCRYPT_TABLE_v4[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5).toBool())
             encrypted.append(ENCRYPT_TABLE_v5[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad).toBool())
+            encrypted.append(ENCRYPT_TABLE_v6[idx]);            
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
     }
@@ -269,6 +271,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
             idx = ENCRYPT_TABLE_v4.indexOf(ch);
         else if (settings.value(QZSettings::kingsmith_encrypt_v5, QZSettings::default_kingsmith_encrypt_v5).toBool())
             idx = ENCRYPT_TABLE_v5.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad).toBool())
+            idx = ENCRYPT_TABLE_v6.indexOf(ch);
         else
             idx = ENCRYPT_TABLE.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
@@ -407,6 +411,9 @@ void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     if (KS_NACH_X21C) {
         _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED7-0000-1000-8000-00805f9b34fb"));
         _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0002FED8-0000-1000-8000-00805f9b34fb"));
+    } else if (KS_NGCH_G1C) {
+        _gattWriteCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED7-0000-1000-8000-00805f9b34fb"));
+        _gattNotifyCharacteristicId = QBluetoothUuid(QStringLiteral("0001FED8-0000-1000-8000-00805f9b34fb"));
     }
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
@@ -460,6 +467,8 @@ void kingsmithr2treadmill::serviceScanDone(void) {
 
     if (KS_NACH_X21C)
         _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00021234-0000-1000-8000-00805f9b34fb"));
+    else if(KS_NGCH_G1C)
+        _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("00011234-0000-1000-8000-00805f9b34fb"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
@@ -488,7 +497,11 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C"))) {
             qDebug() << "KS-NACH-X21C workaround!";
             KS_NACH_X21C = true;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) {
+            qDebug() << "KS-NGCH-G1C workaround!";
+            KS_NGCH_G1C = true;
         }
+
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &kingsmithr2treadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &kingsmithr2treadmill::serviceScanDone);

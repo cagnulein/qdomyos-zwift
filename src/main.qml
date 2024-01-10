@@ -22,6 +22,8 @@ ApplicationWindow {
     signal gpxpreview_open_clicked(url name)
     signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
@@ -658,6 +660,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("GPXList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -673,6 +676,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
                     stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
@@ -747,7 +751,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.16.24"
+                text: "version 2.16.32"
                 width: parent.width
             }
 

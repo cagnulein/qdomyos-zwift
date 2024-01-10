@@ -115,6 +115,7 @@ void schwinn170bike::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     double heart = 0.0;
 
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -140,6 +141,19 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)))) / 100.0;
     emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
 
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
+
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
+        double c = ((double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)))) / 17.47;
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
+    }
+
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
@@ -147,12 +161,12 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
     Distance += ((Speed.value() / 3600000.0) *
-                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
@@ -161,7 +175,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -218,7 +232,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {

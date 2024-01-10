@@ -17,6 +17,18 @@ void treadmill::changeSpeed(double speed) {
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
 }
 void treadmill::changeInclination(double grade, double inclination) {
+    QSettings settings;
+    double treadmill_incline_min = settings.value(QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min).toDouble();
+    double treadmill_incline_max = settings.value(QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max).toDouble();
+
+    if(grade < treadmill_incline_min) {
+        grade = treadmill_incline_min;
+        qDebug() << "grade override due to treadmill_incline_min" << grade;
+    } else if(grade > treadmill_incline_max) {
+        grade = treadmill_incline_max;
+        qDebug() << "grade override due to treadmill_incline_max" << grade;
+    }
+
     m_lastRawInclinationRequested = grade;
     Q_UNUSED(inclination);
     qDebug() << "changeInclination" << grade << autoResistanceEnable << m_inclination_difficult
@@ -119,6 +131,7 @@ void treadmill::clearStats() {
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
+    Distance1s.clear(true);
     Heart.clear(false);
     m_jouls.clear(true);
     elevationAcc = 0;
@@ -138,6 +151,7 @@ void treadmill::setPaused(bool p) {
     Speed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
+    Distance1s.setPaused(p);
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
@@ -154,6 +168,7 @@ void treadmill::setLap() {
     Speed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
+    Distance1s.setLap(true);
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);

@@ -199,6 +199,7 @@ class homeform : public QObject {
         QObject *stack = rootObject;
         screenCapture s(reinterpret_cast<QQuickView *>(stack));
         s.capture(filenameScreenshot);
+        chartImagesFilenames.append(filenameScreenshot);
     }
 
     Q_INVOKABLE void save_screenshot_chart(QQuickItem *item, QString filename) {
@@ -554,6 +555,68 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
+    
+    DataObject *speed;
+    DataObject *inclination;
+    DataObject *cadence;
+    DataObject *elevation;
+    DataObject *calories;
+    DataObject *odometer;
+    DataObject *pace;
+    DataObject *datetime;
+    DataObject *resistance;
+    DataObject *watt;
+    DataObject *avgWatt;
+    DataObject *avgWattLap;
+    DataObject *heart;
+    DataObject *fan;
+    DataObject *jouls;
+    DataObject *peloton_offset;
+    DataObject *peloton_remaining;
+    DataObject *elapsed;
+    DataObject *moving_time;
+    DataObject *peloton_resistance;
+    DataObject *target_resistance;
+    DataObject *target_peloton_resistance;
+    DataObject *target_cadence;
+    DataObject *target_power;
+    DataObject *target_zone;
+    DataObject *target_speed;
+    DataObject *target_pace;
+    DataObject *target_incline;
+    DataObject *ftp;
+    DataObject *lapElapsed;
+    DataObject *weightLoss;
+    DataObject *strokesLength;
+    DataObject *strokesCount;
+    DataObject *wattKg;
+    DataObject *gears;
+    DataObject *remaningTimeTrainingProgramCurrentRow;
+    DataObject *nextRows;
+    DataObject *mets;
+    DataObject *targetMets;
+    DataObject *steeringAngle;
+    DataObject *pidHR;
+    DataObject *extIncline;
+    DataObject *instantaneousStrideLengthCM;
+    DataObject *groundContactMS;
+    DataObject *verticalOscillationMM;
+    DataObject *preset_resistance_1;
+    DataObject *preset_resistance_2;
+    DataObject *preset_resistance_3;
+    DataObject *preset_resistance_4;
+    DataObject *preset_resistance_5;
+    DataObject *preset_speed_1;
+    DataObject *preset_speed_2;
+    DataObject *preset_speed_3;
+    DataObject *preset_speed_4;
+    DataObject *preset_speed_5;
+    DataObject *preset_inclination_1;
+    DataObject *preset_inclination_2;
+    DataObject *preset_inclination_3;
+    DataObject *preset_inclination_4;
+    DataObject *preset_inclination_5;
+    DataObject *pace_last500m;
 
   private:
     static homeform *m_singleton;
@@ -617,68 +680,6 @@ class homeform : public QObject {
     bool m_startRequested = false;
     bool m_overridePower = false;
 
-    DataObject *speed;
-    DataObject *inclination;
-    DataObject *cadence;
-    DataObject *elevation;
-    DataObject *calories;
-    DataObject *odometer;
-    DataObject *pace;
-    DataObject *datetime;
-    DataObject *resistance;
-    DataObject *watt;
-    DataObject *avgWatt;
-    DataObject *avgWattLap;
-    DataObject *heart;
-    DataObject *fan;
-    DataObject *jouls;
-    DataObject *peloton_offset;
-    DataObject *peloton_remaining;
-    DataObject *elapsed;
-    DataObject *moving_time;
-    DataObject *peloton_resistance;
-    DataObject *target_resistance;
-    DataObject *target_peloton_resistance;
-    DataObject *target_cadence;
-    DataObject *target_power;
-    DataObject *target_zone;
-    DataObject *target_speed;
-    DataObject *target_pace;
-    DataObject *target_incline;
-    DataObject *ftp;
-    DataObject *lapElapsed;
-    DataObject *weightLoss;
-    DataObject *strokesLength;
-    DataObject *strokesCount;
-    DataObject *wattKg;
-    DataObject *gears;
-    DataObject *remaningTimeTrainingProgramCurrentRow;
-    DataObject *nextRows;
-    DataObject *mets;
-    DataObject *targetMets;
-    DataObject *steeringAngle;
-    DataObject *pidHR;
-    DataObject *extIncline;
-    DataObject *instantaneousStrideLengthCM;
-    DataObject *groundContactMS;
-    DataObject *verticalOscillationMM;
-    DataObject *preset_resistance_1;
-    DataObject *preset_resistance_2;
-    DataObject *preset_resistance_3;
-    DataObject *preset_resistance_4;
-    DataObject *preset_resistance_5;
-    DataObject *preset_speed_1;
-    DataObject *preset_speed_2;
-    DataObject *preset_speed_3;
-    DataObject *preset_speed_4;
-    DataObject *preset_speed_5;
-    DataObject *preset_inclination_1;
-    DataObject *preset_inclination_2;
-    DataObject *preset_inclination_3;
-    DataObject *preset_inclination_4;
-    DataObject *preset_inclination_5;
-    DataObject *pace_last500m;
-
     QTimer *timer;
     QTimer *backupTimer;
 
@@ -694,7 +695,8 @@ class homeform : public QObject {
 
     static quint64 cryptoKeySettingsProfiles();
 
-    static void copyAndroidContentsURI(QFile* file, QString subfolder);
+    static QString copyAndroidContentsURI(QUrl file, QString subfolder);
+    static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
 
@@ -760,6 +762,8 @@ class homeform : public QObject {
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_open_other_folder(const QUrl &fileName);
+    void gpx_open_other_folder(const QUrl &fileName);
     void profile_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);

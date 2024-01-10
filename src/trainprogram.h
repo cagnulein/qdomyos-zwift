@@ -8,6 +8,13 @@
 #include <QTime>
 #include <QTimer>
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+#include "zwift-api/PlayerStateWrapper.h"
+#include "zwift-api/zwift_client_auth.h"
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
@@ -62,7 +69,7 @@ class trainprogram : public QObject {
     trainprogram(const QList<trainrow> &, bluetooth *b, QString *description = nullptr, QString *tags = nullptr,
                  bool videoAvailable = false);
     void save(const QString &filename);
-    static trainprogram *load(const QString &filename, bluetooth *b);
+    static trainprogram *load(const QString &filename, bluetooth *b, QString Extension);
     static QList<trainrow> loadXML(const QString &filename);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();
@@ -155,6 +162,15 @@ private slots:
 
     QUdpSocket* pelotonOCRsocket = nullptr;
     void pelotonOCRcomputeTime(QString t);
+    
+    AuthToken* zwift_auth_token = nullptr;
+    World* zwift_world = nullptr;
+    int zwift_player_id = -1;
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
+
 };
 
 #endif // TRAINPROGRAM_H

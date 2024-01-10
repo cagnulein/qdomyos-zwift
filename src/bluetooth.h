@@ -41,6 +41,7 @@
 
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
+#include "eliteariafan.h"
 #include "eliterizer.h"
 #include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
@@ -85,6 +86,7 @@
 #include "proformellipticaltrainer.h"
 #include "proformrower.h"
 #include "proformtreadmill.h"
+#include "proformtelnetbike.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
 #include "schwinn170bike.h"
@@ -145,6 +147,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
+    volatile bool homeformLoaded = false;
 
   private:
     bool useDiscovery = false;
@@ -186,6 +189,7 @@ class bluetooth : public QObject, public SignalHandler {
     pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
+    proformtelnetbike *proformTelnetBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
     proformwifitreadmill *proformWifiTreadmill = nullptr;
     proformelliptical *proformElliptical = nullptr;
@@ -250,6 +254,7 @@ class bluetooth : public QObject, public SignalHandler {
     faketreadmill *fakeTreadmill = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
+    QList<eliteariafan *> eliteAriaFan;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;

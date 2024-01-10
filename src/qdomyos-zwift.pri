@@ -72,10 +72,13 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/QTelnet.cpp \
    $$PWD/bkoolbike.cpp \
    $$PWD/csafe.cpp \
    $$PWD/csaferower.cpp \
+    $$PWD/eliteariafan.cpp \
    $$PWD/fakerower.cpp \
+    $$PWD/proformtelnetbike.cpp \
     $$PWD/virtualdevice.cpp \
     $$PWD/androidactivityresultreceiver.cpp \
     $$PWD/androidadblog.cpp \
@@ -280,11 +283,16 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    $$PWD/QTelnet.h \
    $$PWD/bkoolbike.h \
    $$PWD/csafe.h \
    $$PWD/csaferower.h \
+    $$PWD/eliteariafan.h \
+    $$PWD/proformtelnetbike.h \
    $$PWD/windows_zwift_workout_paddleocr_thread.h \
    $$PWD/fakerower.h \
+    $$PWD/zwift-api/PlayerStateWrapper.h \
+    $$PWD/zwift-api/zwift_client_auth.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -714,6 +722,7 @@ DISTFILES += \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
+    $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
    $$PWD/android/src/HidBridge.java \
     $$PWD/android/src/IQMessageReceiverWrapper.java \
@@ -722,6 +731,8 @@ DISTFILES += \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZwiftAPI.java \
+    $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
    android/AndroidManifest.xml \
@@ -785,6 +796,7 @@ ios {
 
 ios {
     OBJECTIVE_SOURCES += ios/lockscreen.mm \
+    ios/ios_eliteariafan.mm \
     ios/ios_app_delegate.mm \
 	 fit-sdk/FitDecode.mm \
 	 fit-sdk/FitDeveloperField.mm \
@@ -815,4 +827,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.24
+VERSION = 2.16.32

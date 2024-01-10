@@ -680,8 +680,28 @@ const QString QZSettings::proform_pro_1000_treadmill = QStringLiteral("proform_p
 const QString QZSettings::saris_trainer = QStringLiteral("saris_trainer");
 const QString QZSettings::proform_studio_NTEX71021 = QStringLiteral("proform_studio_NTEX71021");
 const QString QZSettings::nordictrack_x22i = QStringLiteral("nordictrack_x22i");
+const QString QZSettings::iconsole_elliptical = QStringLiteral("iconsole_elliptical");
+const QString QZSettings::autolap_distance = QStringLiteral("autolap_distance");
+const QString QZSettings::nordictrack_s20_treadmill = QStringLiteral("nordictrack_s20_treadmill");
+const QString QZSettings::freemotion_coachbike_b22_7 = QStringLiteral("freemotion_coachbike_b22_7");
+const QString QZSettings::proform_cycle_trainer_300_ci = QStringLiteral("proform_cycle_trainer_300_ci");
+const QString QZSettings::kingsmith_encrypt_g1_walking_pad = QStringLiteral("kingsmith_encrypt_g1_walking_pad");
+const QString QZSettings::proformtdf1ip = QStringLiteral("proformtdf1ip");
+const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
+const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
+const QString QZSettings::proform_treadmill_l6_0s = QStringLiteral("proform_treadmill_l6_0s");
+const QString QZSettings::zwift_username = QStringLiteral("zwift_username");
+const QString QZSettings::default_zwift_username = QStringLiteral("");
+const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
+const QString QZSettings::default_zwift_password = QStringLiteral("");
+const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
+const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_s25_treadmill");
+const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
+const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
+const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
+const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
 
-const uint32_t allSettingsCount = 570;
+const uint32_t allSettingsCount = 587;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1258,6 +1278,23 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::saris_trainer, QZSettings::default_saris_trainer},
     {QZSettings::proform_studio_NTEX71021, QZSettings::default_proform_studio_NTEX71021},
     {QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i},
+    {QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical},    
+    {QZSettings::autolap_distance, QZSettings::default_autolap_distance},
+    {QZSettings::nordictrack_s20_treadmill, QZSettings::default_nordictrack_s20_treadmill},
+    {QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7},
+    {QZSettings::proform_cycle_trainer_300_ci, QZSettings::default_proform_cycle_trainer_300_ci},
+    {QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad},    
+    {QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx},
+    {QZSettings::proform_treadmill_l6_0s, QZSettings::default_proform_treadmill_l6_0s},
+    {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
+    {QZSettings::zwift_username, QZSettings::default_zwift_username},
+    {QZSettings::zwift_password, QZSettings::default_zwift_password},
+    {QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility},
+    {QZSettings::norditrack_s25_treadmill, QZSettings::default_norditrack_s25_treadmill},
+    {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
+    {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
+    {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
+    {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
