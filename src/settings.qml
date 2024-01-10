@@ -871,6 +871,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.32
             property bool proform_2000_treadmill: false
+            property bool android_documents_folder: false
         }
 
         function paddingZeros(text, limit) {
@@ -9754,6 +9755,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Android Force Documents/QZ Folder")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_documents_folder
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_documents_folder = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

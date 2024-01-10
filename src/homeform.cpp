@@ -543,11 +543,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
-    }
-
+    }    
 #ifdef Q_OS_ANDROID
     // Android 14 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
+    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -868,8 +868,8 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    // Android 14 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
+    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
     } else {
