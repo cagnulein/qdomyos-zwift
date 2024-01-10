@@ -853,9 +853,14 @@ void horizontreadmill::update() {
         }
 
         // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+        if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
+            if(trx3500_treadmill) {
+                uint8_t write[] = {FTMS_START_RESUME};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                "start simulation", false, false);
+            }
             // updateDisplay(elapsed);
         }
 
@@ -1115,7 +1120,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1138,6 +1143,9 @@ void horizontreadmill::forceIncline(double requestIncline) {
     QSettings settings;
     bool horizon_paragon_x =
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
+
+    if(tunturi_t60_treadmill)
+        Inclination = requestIncline;
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1178,7 +1186,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1488,9 +1496,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)newValue.at(index)))) /
-                          10.0;
+            if(!tunturi_t60_treadmill)
+                Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                        (uint16_t)((uint8_t)newValue.at(index)))) /
+                            10.0;
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -1993,15 +2002,23 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
+            tunturi_t60_treadmill = true;
+            qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         }
 
-#ifdef Q_OS_IOS
+
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
+            trx3500_treadmill = true;
+            qDebug() << QStringLiteral("TRX3500 TREADMILL workaround ON!");            
+#ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif            
         } else {
+#ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif            
         }
-#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
@@ -2704,7 +2721,7 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if (kettler_treadmill)
+    if (kettler_treadmill || trx3500_treadmill)
         return 1.0;
     else
         return 0.5;

@@ -1031,6 +1031,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C")) ||
+                           // Poland-distributed WalkingPad R2 TRR2FB
+                           b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||
                            // KingSmith Walking Pad G1
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) &&
                        !kingsmithR2Treadmill && filter) {
@@ -1085,7 +1087,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (this->discoveryAgent && !this->discoveryAgent->isActive())
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(kingsmithR1ProTreadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 shuaA5Treadmill = new shuaa5treadmill(noWriteResistance, noHeartService);
