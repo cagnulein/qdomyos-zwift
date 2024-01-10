@@ -541,8 +541,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
 #ifdef Q_OS_ANDROID
-    // Android 13 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13)) {
+    // from sept 2023 android restrics access to /Android/data folder
+    {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -856,13 +856,9 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    // Android 13 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 13)) {
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
-        QDir().mkdir(path);
-    } else {
-        path = getAndroidDataAppDir() + "/";
-    }
+    // from sept 2023 android restrics access to /Android/data folder
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
+    QDir().mkdir(path);
 #elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
