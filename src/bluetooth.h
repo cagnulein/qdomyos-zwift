@@ -128,6 +128,8 @@
 #include "ypooelliptical.h"
 #include "ziprotreadmill.h"
 
+#include "zwift_play/zapCrypto.h"
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif

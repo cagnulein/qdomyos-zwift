@@ -295,6 +295,7 @@ HEADERS += \
     $$PWD/zwift-api/zwift_client_auth.h \
     $$PWD/zwift_play/encryptionUtils.h \
     $$PWD/zwift_play/localKeyProvider.h \
+    $$PWD/zwift_play/zapCrypto.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
