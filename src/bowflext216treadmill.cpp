@@ -179,11 +179,11 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
-    emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
+    emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' ') + characteristic.uuid().toString());
 
     emit packetReceived();
 
-    if (characteristic.uuid() != gattNotify3Characteristic.uuid()) {
+    if (characteristic.uuid() != gattNotify3Characteristic.uuid() && !bowflex_btx116) {
         if (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 5000) {
             Speed = 0;
             qDebug() << QStringLiteral("resetting speed since i'm not receiving metrics in the last 5 seconds");
