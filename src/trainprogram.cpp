@@ -617,7 +617,8 @@ void trainprogram::scheduler() {
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
                     zwift_player_id = ride[QStringLiteral("id")].toInt();
-                } else {
+                    emit zwiftLoginState(true);
+                } else {                    
                     static int zwift_counter = 5;
                     if(zwift_counter++ >= 4) {
                         zwift_counter = 0;
