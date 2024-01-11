@@ -293,6 +293,7 @@ HEADERS += \
    $$PWD/fakerower.h \
     $$PWD/zwift-api/PlayerStateWrapper.h \
     $$PWD/zwift-api/zwift_client_auth.h \
+    $$PWD/zwift_play/encryptionUtils.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
