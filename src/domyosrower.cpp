@@ -171,8 +171,8 @@ void domyosrower::update() {
         // else
         //    btinit_telink(false);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
-               gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotifyCharacteristic.isValid() && initDone) {
+               ((gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
+                 gattNotifyCharacteristic.isValid() && initDone) || ftmsRower)) {
 
         update_metrics(true, watts());
 
