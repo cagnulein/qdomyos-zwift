@@ -48,6 +48,13 @@ jobs:
       - name: Checkout submodule repo
         uses: actions/checkout@v2
         with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
@@ -276,6 +283,13 @@ jobs:
 #          path: "src/qmdnsengine/"
 #          ref: "zwift"
 #
+#       - uses: actions/checkout@v2
+#       - name: Checkout submodule repo
+#         uses: actions/checkout@v2
+#         with:
+#           repository: KDAB/android_openssl
+#           path: "android_openssl"
+#
 #      - uses: msys2/setup-msys2@v2
 #        with:
 #          install: mingw-w64-x86_64-toolchain
@@ -389,6 +403,13 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
+          
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -677,6 +698,13 @@ jobs:
       - name: Checkout submodule repo
         uses: actions/checkout@v2
         with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
           repository: google/googletest
           path: "tst/googletest/"
           ref: "release-1.12.1"
@@ -747,6 +775,13 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -914,6 +949,13 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"   
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: KDAB/android_openssl
+          path: "android_openssl"
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
