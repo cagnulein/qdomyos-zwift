@@ -902,6 +902,10 @@ void trainprogram::scheduler() {
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
+        
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+            break;
+        }
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
             break;
@@ -925,7 +929,8 @@ void trainprogram::scheduler() {
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
             if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
 
-                lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
+                if(rows.at(currentStep).distance != -1)
+                    lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
                 if (!distanceStep)
                     currentStep = calculatedLine;
@@ -1318,8 +1323,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
         if (!atts.isEmpty()) {
-            row.duration =
-                QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            if (atts.hasAttribute(QStringLiteral("duration"))) {
+                row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (atts.hasAttribute(QStringLiteral("distance"))) {
                 row.distance = atts.value(QStringLiteral("distance")).toDouble();
             }
@@ -1408,6 +1414,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
 
             list.append(row);
+            qDebug() << row.toString();
         }
     }
     return list;
