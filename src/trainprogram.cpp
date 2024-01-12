@@ -671,8 +671,10 @@ void trainprogram::scheduler() {
                                 if (zwift_negative_inclination_x2 && incline < 0) {
                                     grade = ((incline * 2.0) * gain) + offset;
                                 }                              
-                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA;
-                                bluetoothManager->device()->changeInclination(grade, grade);
+                                bool zwift_api_autoinclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
+                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA << zwift_api_autoinclination;
+                                if(zwift_api_autoinclination)
+                                    bluetoothManager->device()->changeInclination(grade, grade);
                             }
                         }
                         old_distance = distance;

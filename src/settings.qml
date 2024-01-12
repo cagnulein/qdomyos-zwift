@@ -872,6 +872,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.32
             property bool proform_2000_treadmill: false
             property bool android_documents_folder: false
+            property bool zwift_api_autoinclination: true
         }
 
         function paddingZeros(text, limit) {
@@ -4502,6 +4503,33 @@ import QtQuick.Dialogs 1.0
                     Label {
                         //text: qsTr("Enter the password you use to login to Zwift. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
                         text: qsTr("Enter the password you use to login to Zwift. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_api_autoinclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_api_autoinclination = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
