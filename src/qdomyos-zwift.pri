@@ -55,6 +55,7 @@ macx {
     QMAKE_INFO_PLIST = macx/Info.plist
 }
 INCLUDEPATH += qmdnsengine/src/include
+INCLUDEPATH += ../android_openssl/static/include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
