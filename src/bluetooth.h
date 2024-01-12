@@ -128,7 +128,7 @@
 #include "ypooelliptical.h"
 #include "ziprotreadmill.h"
 
-#include "zwift_play/zapCrypto.h"
+#include "zwift_play/zwiftPlayDevice.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -257,6 +257,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
     QList<eliteariafan *> eliteAriaFan;
+    QList<ZwiftPlayDevice* > zwiftPlayDevice;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;

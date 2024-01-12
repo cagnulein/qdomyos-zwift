@@ -1,6 +1,7 @@
 #include <QByteArray>
 #include <openssl/evp.h>
 #include <openssl/ec.h>
+#include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <iostream>
 
@@ -30,7 +31,7 @@ class EncryptionUtils {
         return result;
     }
 
-    static EC_KEY* generatePublicKey(const QByteArray& publicKeyBytes, EC_GROUP* paramSpec) {
+    static EC_KEY* generatePublicKey(const QByteArray& publicKeyBytes, const EC_GROUP* paramSpec) {
         EC_KEY *key = EC_KEY_new();
         EC_KEY_set_group(key, paramSpec);
         EC_POINT *point = EC_POINT_new(paramSpec);
@@ -70,12 +71,34 @@ class EncryptionUtils {
         return result;
     }
 
-    static QByteArray generateHKDFBytes(const QByteArray& secretKey, const QByteArray& salt) {
-        // HKDF implementation using OpenSSL
-        QByteArray result(HKDF_LENGTH, Qt::Initialization::Uninitialized);
-        // HKDF key derivation logic goes here.
-        return result;
-    }
 
+    QByteArray generateHKDFBytes(const QByteArray& secretKey, const QByteArray& salt) {
+        unsigned char prk[EVP_MAX_MD_SIZE];
+        unsigned int prk_len;
+
+        // HKDF-Extract
+        HMAC(EVP_sha256(), reinterpret_cast<const unsigned char*>(salt.constData()), salt.length(),
+             reinterpret_cast<const unsigned char*>(secretKey.constData()), secretKey.length(),
+             prk, &prk_len);
+
+        QByteArray result;
+        QByteArray T;
+        int n = (EncryptionUtils::HKDF_LENGTH + EVP_MD_size(EVP_sha256()) - 1) / EVP_MD_size(EVP_sha256());
+        QByteArray current;
+
+        // HKDF-Expand
+        for (int i = 1; i <= n; i++) {
+            current = T + QByteArray(1, static_cast<char>(i));
+            T.resize(EVP_MD_size(EVP_sha256()));
+
+            HMAC(EVP_sha256(), prk, prk_len,
+                 reinterpret_cast<const unsigned char*>(current.constData()), current.length(),
+                 reinterpret_cast<unsigned char*>(T.data()), nullptr);
+
+            result.append(T);
+        }
+
+        return result.left(EncryptionUtils::HKDF_LENGTH);
+    }
            // Other helper functions as needed
 };

@@ -294,9 +294,14 @@ HEADERS += \
    $$PWD/fakerower.h \
     $$PWD/zwift-api/PlayerStateWrapper.h \
     $$PWD/zwift-api/zwift_client_auth.h \
+    $$PWD/zwift_play/abstractZapDevice.h \
+    $$PWD/zwift_play/controllerNotification.h \
     $$PWD/zwift_play/encryptionUtils.h \
     $$PWD/zwift_play/localKeyProvider.h \
+    $$PWD/zwift_play/zapBleUuids.h \
+    $$PWD/zwift_play/zapConstants.h \
     $$PWD/zwift_play/zapCrypto.h \
+    $$PWD/zwift_play/zwiftPlayDevice.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
