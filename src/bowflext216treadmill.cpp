@@ -183,7 +183,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     emit packetReceived();
 
-    if (characteristic.uuid() != gattNotify3Characteristic.uuid() && !bowflex_btx116) {
+    if (characteristic.uuid() != gattNotify3Characteristic.uuid() && !bowflex_btx116 && !bowflex_t8j) {
         if (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 5000) {
             Speed = 0;
             qDebug() << QStringLiteral("resetting speed since i'm not receiving metrics in the last 5 seconds");
@@ -398,8 +398,14 @@ void bowflext216treadmill::serviceScanDone(void) {
                 QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("b5c78780-cad7-11e5-b9f8-0002a5d5c51b"));
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (gattCommunicationChannelService == nullptr) {
-                    qDebug() << "WRONG SERVICE";
-                    return;
+                    qDebug() << "trying with the BOWFLEX T8J treadmill";
+                    bowflex_t8j = true;
+                    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("ebbe6870-d00a-4bf4-bb79-63b35bf4c6b5"));
+                    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+                    if (gattCommunicationChannelService == nullptr) {
+                        qDebug() << "WRONG SERVICE";
+                        return;
+                    }
                 }
             }
         }
