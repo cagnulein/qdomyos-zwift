@@ -412,11 +412,11 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (!firstCharacteristicChanged) {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) *
+                (((((0.048 * ((double)watts()) + 1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                QDateTime::currentDateTime())))) / 2.0); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
