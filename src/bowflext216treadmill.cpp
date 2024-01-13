@@ -394,11 +394,13 @@ void bowflext216treadmill::serviceScanDone(void) {
             gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
             if (gattCommunicationChannelService == nullptr) {
                 qDebug() << "trying with the BOWFLEX BTX116 treadmill";
+                bowflex_t6 = false;
                 bowflex_btx116 = true;
                 QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("b5c78780-cad7-11e5-b9f8-0002a5d5c51b"));
                 gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
                 if (gattCommunicationChannelService == nullptr) {
                     qDebug() << "trying with the BOWFLEX T8J treadmill";
+                    bowflex_btx116 = false;
                     bowflex_t8j = true;
                     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("ebbe6870-d00a-4bf4-bb79-63b35bf4c6b5"));
                     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
