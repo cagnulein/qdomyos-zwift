@@ -107,6 +107,8 @@ class ftmsbike : public bike {
     bool resistance_lvl_mode = false;
     bool resistance_received = false;
 
+    bool DU30_bike = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

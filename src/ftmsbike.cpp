@@ -207,9 +207,17 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     bool heart = false;
 
-    qDebug() << characteristic.uuid() << QStringLiteral(" << ") << newValue.toHex(' ');
+    qDebug() << characteristic.uuid() << newValue.length() << QStringLiteral(" << ") << newValue.toHex(' ');
 
     lastPacket = newValue;
+
+    if (DU30_bike && characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb")) && newValue.length() >= 14) {
+        resistance_received = true;
+        Resistance = (double)(newValue.at(5));
+        emit resistanceRead(Resistance.value());
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        return;
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
 
@@ -325,7 +333,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                       (2.0 * ar)) *
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
-                if (!resistance_received) {
+                if (!resistance_received && !DU30_bike) {
                     Resistance = m_pelotonResistance;
                     emit resistanceRead(Resistance.value());
                     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
@@ -500,7 +508,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             emit resistanceRead(Resistance.value());
             index += 2;
             emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        } else {
+        } else if(!DU30_bike) {
             double ac = 0.01243107769;
             double bc = 1.145964912;
             double cc = -23.50977444;
@@ -870,6 +878,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
             qDebug() << QStringLiteral("MAGNUS found");
             resistance_lvl_mode = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DU30-"))) {
+            qDebug() << QStringLiteral("DU30 found");
+            DU30_bike = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
