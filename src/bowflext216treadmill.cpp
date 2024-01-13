@@ -193,7 +193,9 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         return;
     }
 
-    if ((newValue.length() != 20))
+    if ((newValue.length() != 20) && bowflex_t8j == false)
+        return;
+    else if ((newValue.length() != 12) && bowflex_t8j == true)
         return;
 
     if (bowflex_t6 == true && newValue.at(1) != 0x00)
@@ -263,7 +265,11 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 }
 
 double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    if (bowflex_t6 == false) {
+    if (bowflex_t8j) {
+        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(3)) + ((uint16_t)((uint8_t)packet.at(4)) << 8);
+        double data = (double)convertedData / 100.0f;
+        return data * 1.60934;
+    } else if (bowflex_t6 == false) {
         uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
         double data = (double)convertedData / 100.0f;
         return data * 1.60934;
@@ -286,7 +292,12 @@ double bowflext216treadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double bowflext216treadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    if (bowflex_t6 == false) {
+    if (bowflex_t8j) {
+        uint16_t convertedData = packet.at(6);
+        double data = convertedData;
+
+        return data;
+    } else if (bowflex_t6 == false) {
         uint16_t convertedData = packet.at(4);
         double data = convertedData;
 
