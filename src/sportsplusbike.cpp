@@ -138,6 +138,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     double cadence = 0;
     double kcal = 0;
+    bool cadence_eval = false;
 
     if (!sp_ht_9600ie && !carefitness_bike) {
         if (newValue.at(1) == 0x20) {
@@ -146,11 +147,8 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
             }            
             cadence = (speed * 10.0) + 12.0;
+            cadence_eval = true;
 
-            Speed = metric::calculateSpeedFromPower(
-                watts(), Inclination.value(), Speed.value(),
-                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             lastTimeCharChanged = now;
         } else if (newValue.at(1) == 0x30) {
             double watt = GetWattFromPacket(newValue);
@@ -160,6 +158,10 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 m_watt = watt;
+            Speed = metric::calculateSpeedFromPower(
+                watt, Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             // lastTimeWattChanged = QTime::currentTime();
         }
 
@@ -179,9 +181,11 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .startsWith(QStringLiteral("Disabled"))) {
                 uint8_t hexint = ((uint8_t)newValue.at(3));
                 cadence = (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+                cadence_eval = true;
             }
         } else {
             cadence = currentCadence().value();
+            cadence_eval = true;
         }
         double speed = 0.37497622 * ((double)Cadence.value());
 
@@ -220,6 +224,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         double speed = GetSpeedFromPacket(newValue);
         cadence = speed * 2.685185;
+        cadence_eval = true;
         if (!firstCharChanged) {
             Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
         }
@@ -266,7 +271,8 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = cadence;
+        if(cadence_eval)
+            Cadence = cadence;
     }
     firstCharChanged = false;
 }
