@@ -658,7 +658,7 @@ void trainprogram::scheduler() {
                         if(old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
-                            float incline = (deltaA / delta) / 2.0;
+                            float incline = (deltaA / delta);
                             if(delta > 1) {
                                 bool zwift_negative_inclination_x2 =
                                     settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
