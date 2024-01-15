@@ -96,6 +96,33 @@ void ftmsbike::forcePower(int16_t requestPower) {
     powerForced = true;
 }
 
+uint16_t ftmsbike::wattsFromResistance(double resistance) {
+    if(DU30_bike) {
+        double y = 1.46193548 * Cadence.value() + 0.0000887836638 * Cadence.value() * resistance + 0.000625 * resistance * resistance + 0.0580645161 * x + 0.00292986091 * resistance + 6.48448135542904;
+        return y;
+    }
+    return 1;
+}
+
+resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < max_resistance; i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
+}
+
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
@@ -880,6 +907,7 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             resistance_lvl_mode = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("DU30-"))) {
             qDebug() << QStringLiteral("DU30 found");
+            max_resistance = 32;
             DU30_bike = true;
         }
 
