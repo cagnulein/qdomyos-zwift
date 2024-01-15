@@ -144,16 +144,13 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             double speed = GetSpeedFromPacket(newValue);
             if (!firstCharChanged) {
                 Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
-            }
-            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+            }            
+            cadence = (speed * 10.0) + 12.0;
 
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = speed;
-            } else {
-                Speed = metric::calculateSpeedFromPower(
-                    watts(), Inclination.value(), Speed.value(),
-                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-            }
+            Speed = metric::calculateSpeedFromPower(
+                watts(), Inclination.value(), Speed.value(),
+                fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             lastTimeCharChanged = now;
         } else if (newValue.at(1) == 0x30) {
             double watt = GetWattFromPacket(newValue);
@@ -166,7 +163,6 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             // lastTimeWattChanged = QTime::currentTime();
         }
 
-        cadence = (uint8_t)newValue.at(8);
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
     } else if (carefitness_bike) {
