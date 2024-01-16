@@ -135,10 +135,10 @@ jobs:
 
       - name: Build
         run: |
-            cp "C:/mingw64/bin/libabsl*.*" .
-            cp "C:/mingw64/lib/libabsl*.*" .
-            cp "C:/mingw64/bin/libproto*.*" .
-            cp "C:/mingw64/lib/libproto*.*" .            
+            #cp "C:/mingw64/bin/libabsl*.*" .
+            #cp "C:/mingw64/lib/libabsl*.*" .
+            #cp "C:/mingw64/bin/libproto*.*" .
+            #cp "C:/mingw64/lib/libproto*.*" .            
             qmake
             make -j8
             cd src/debug
@@ -171,10 +171,10 @@ jobs:
             
       - name: Build without python
         run: |
-            cp "C:/mingw64/bin/libabsl*.*" .
-            cp "C:/mingw64/lib/libabsl*.*" .
-            cp "C:/mingw64/bin/libproto*.*" .
-            cp "C:/mingw64/lib/libproto*.*" .                    
+            #cp "C:/mingw64/bin/libabsl*.*" .
+            #cp "C:/mingw64/lib/libabsl*.*" .
+            #cp "C:/mingw64/bin/libproto*.*" .
+            #cp "C:/mingw64/lib/libproto*.*" .                    
             qmake
             make -j8
             cd src/debug
