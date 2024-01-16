@@ -1049,3 +1049,34 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
         m_control->connectToDevice();
     }
 }
+
+uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
+    double P;
+    // Toorx SRX 3500 #1999
+    P = 37.069 
+        - 1.483 * Cadence.value() 
+        - 4.942 * resistance 
+        + 0.023 * Cadence.value() * Cadence.value() 
+        + 0.336 * Cadence.value() * resistance 
+        - 0.036 * resistance * resistance;
+    return P;
+}
+
+resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return maxResistance();
+}

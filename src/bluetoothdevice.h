@@ -700,6 +700,10 @@ class bluetoothdevice : public QObject {
      */
     VIRTUAL_DEVICE_MODE virtualDeviceMode = VIRTUAL_DEVICE_MODE::NONE;
     virtualdevice *virtualDevice = nullptr;
+
+  protected:
+    // useful to understand if a power sensor device for treadmill, it's a real one like the stryd or it's a dumb one like the runpod from Zwift
+    bool powerReceivedFromPowerSensor = false;
 };
 
 #endif // BLUETOOTHDEVICE_H
