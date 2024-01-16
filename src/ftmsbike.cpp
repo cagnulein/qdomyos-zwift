@@ -369,7 +369,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
    
 
         if (Flags.instantPower) {
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+            // power table from an user
+            if(DU30_bike) {
+                m_watt = wattsFromResistance(Resistance.value());
+            } else if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
