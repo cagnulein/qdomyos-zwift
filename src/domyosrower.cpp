@@ -171,8 +171,8 @@ void domyosrower::update() {
         // else
         //    btinit_telink(false);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
-               gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotifyCharacteristic.isValid() && initDone) {
+               ((gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
+                 gattNotifyCharacteristic.isValid() && initDone) || ftmsRower)) {
 
         update_metrics(true, watts());
 
@@ -299,15 +299,13 @@ void domyosrower::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
-
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
     if(!ftmsRower) {
@@ -416,6 +414,10 @@ void domyosrower::characteristicChanged(const QLowEnergyCharacteristic &characte
         flags Flags;
         int index = 0;
         double cadence_divider = 2.0;
+        if(newValue.length() < 2) {
+            qDebug() << "index out of range" << 0;
+            return;
+        }
         Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
         index += 2;
 

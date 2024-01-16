@@ -853,9 +853,14 @@ void horizontreadmill::update() {
         }
 
         // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+        if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
+            if(trx3500_treadmill) {
+                uint8_t write[] = {FTMS_START_RESUME};
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write),
+                                "start simulation", false, false);
+            }
             // updateDisplay(elapsed);
         }
 
@@ -1115,7 +1120,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -1181,7 +1186,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
-        if(!anplus_treadmill) {
+        if(!anplus_treadmill && !trx3500_treadmill) {
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, write, sizeof(write), "requestControl", false,
                                 false);
@@ -2002,13 +2007,18 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
         }
 
-#ifdef Q_OS_IOS
+
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
+            trx3500_treadmill = true;
+            qDebug() << QStringLiteral("TRX3500 TREADMILL workaround ON!");            
+#ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif            
         } else {
+#ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif            
         }
-#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &horizontreadmill::serviceDiscovered);
@@ -2711,7 +2721,7 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if (kettler_treadmill)
+    if (kettler_treadmill || trx3500_treadmill)
         return 1.0;
     else
         return 0.5;

@@ -475,7 +475,7 @@ import QtQuick.Dialogs 1.0
             property string horizon_treadmill_profile_user3: "user3"
             property string horizon_treadmill_profile_user4: "user4"
             property string horizon_treadmill_profile_user5: "user5"
-            
+
             // from version 2.11.63
             property bool nordictrack_gx_2_7: false
 
@@ -869,6 +869,11 @@ import QtQuick.Dialogs 1.0
             property real treadmill_incline_min: -100
             property real treadmill_incline_max: 100
 
+            // from version 2.16.32
+            property bool proform_2000_treadmill: false
+            property bool android_documents_folder: false
+            property bool zwift_api_autoinclination: true
+          
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -4643,8 +4648,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftPassword
-                            //text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
-                            text: qsTr("Password:")
+                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -4669,6 +4673,33 @@ import QtQuick.Dialogs 1.0
                     Label {
                         //text: qsTr("Enter the password you use to login to Zwift. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
                         text: qsTr("Enter the password you use to login to Zwift. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_api_autoinclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_api_autoinclination = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -5846,6 +5877,19 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
                         }                        
+                        SwitchDelegate {
+                            text: qsTr("Proform 2000 (not pro)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_2000_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_2000_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }                                      
                         SwitchDelegate {
                             text: qsTr("Proform 8.5")
                             spacing: 0
@@ -9908,6 +9952,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Android Force Documents/QZ Folder")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_documents_folder
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_documents_folder = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

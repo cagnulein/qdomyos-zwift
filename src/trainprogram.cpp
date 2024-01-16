@@ -617,7 +617,8 @@ void trainprogram::scheduler() {
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
                     zwift_player_id = ride[QStringLiteral("id")].toInt();
-                } else {
+                    emit zwiftLoginState(true);
+                } else {                    
                     static int zwift_counter = 5;
                     if(zwift_counter++ >= 4) {
                         zwift_counter = 0;
@@ -657,10 +658,23 @@ void trainprogram::scheduler() {
                         if(old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
-                            float incline = (deltaA / delta) / 2.0;
+                            float incline = (deltaA / delta);
                             if(delta > 1) {
-                                qDebug() << "zwift api incline" << incline << delta << deltaA;
-                                bluetoothManager->device()->changeInclination(incline, incline);
+                                bool zwift_negative_inclination_x2 =
+                                    settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
+                                        .toBool();
+                                double offset =
+                                    settings.value(QZSettings::zwift_inclination_offset, QZSettings::default_zwift_inclination_offset).toDouble();
+                                double gain =
+                                    settings.value(QZSettings::zwift_inclination_gain, QZSettings::default_zwift_inclination_gain).toDouble();
+                                double grade = (incline * gain) + offset;  
+                                if (zwift_negative_inclination_x2 && incline < 0) {
+                                    grade = ((incline * 2.0) * gain) + offset;
+                                }                              
+                                bool zwift_api_autoinclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
+                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA << zwift_api_autoinclination;
+                                if(zwift_api_autoinclination)
+                                    bluetoothManager->device()->changeInclination(grade, grade);
                             }
                         }
                         old_distance = distance;
@@ -890,6 +904,10 @@ void trainprogram::scheduler() {
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
+        
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+            break;
+        }
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
             break;
@@ -913,7 +931,8 @@ void trainprogram::scheduler() {
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
             if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
 
-                lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
+                if(rows.at(currentStep).distance != -1)
+                    lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
                 if (!distanceStep)
                     currentStep = calculatedLine;
@@ -1306,8 +1325,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
         if (!atts.isEmpty()) {
-            row.duration =
-                QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            if (atts.hasAttribute(QStringLiteral("duration"))) {
+                row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (atts.hasAttribute(QStringLiteral("distance"))) {
                 row.distance = atts.value(QStringLiteral("distance")).toDouble();
             }
@@ -1396,6 +1416,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
 
             list.append(row);
+            qDebug() << row.toString();
         }
     }
     return list;
