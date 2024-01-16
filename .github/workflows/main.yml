@@ -135,6 +135,10 @@ jobs:
 
       - name: Build
         run: |
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .            
             qmake
             make -j8
             cd src/debug
@@ -146,6 +150,11 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/zlib1.dll" .
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .            
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
@@ -162,6 +171,10 @@ jobs:
             
       - name: Build without python
         run: |
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .                    
             qmake
             make -j8
             cd src/debug
@@ -173,6 +186,11 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/zlib1.dll" .
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .                  
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
@@ -874,7 +892,7 @@ jobs:
         if: matrix.config.python
             
       - name: Build without python
-        run: |
+        run: |             
             qmake           
             nmake
             cd src/debug
@@ -885,7 +903,7 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
