@@ -191,7 +191,11 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
+void treadmill::powerSensor(uint16_t power) { 
+    if(power > 0)
+        powerReceivedFromPowerSensor = true;
+    m_watt.setValue(power, false); 
+}
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
