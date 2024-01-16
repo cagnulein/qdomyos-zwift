@@ -1580,7 +1580,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool nordictrack_s20_treadmill = settings.value(QZSettings::nordictrack_s20_treadmill,
                                                     QZSettings::default_nordictrack_s20_treadmill).toBool();
     bool proform_8_5_treadmill = settings.value(QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill).toBool();  
-    bool proform_2000_treadmill = settings.value(QZSettings::proform_2000_treadmill, QZSettings::default_proform_8_5_treadmill).toBool();   
+    bool proform_2000_treadmill = settings.value(QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill).toBool();   
 
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
