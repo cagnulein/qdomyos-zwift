@@ -38,6 +38,8 @@ class ziprotreadmill : public treadmill {
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     bool canStartStop()  override{ return false; }
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }    
 
   private:
     void forceSpeed(double requestSpeed);
