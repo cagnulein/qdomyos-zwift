@@ -1494,8 +1494,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.inclination) {
             if(!tunturi_t60_treadmill)
-                Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                        (uint16_t)((uint8_t)newValue.at(index)))) /
+                Inclination = ((double)(((int16_t)((int16_t)newValue.at(index + 1)) << 8) |
+                                        (int16_t)((uint8_t)newValue.at(index)))) /
                             10.0;
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
