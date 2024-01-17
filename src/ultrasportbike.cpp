@@ -222,7 +222,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 
-            uint8_t heart = ((uint8_t)value.at(9));
+            uint8_t heart = ((uint8_t)newValue.at(9));
             if (heart == 0 || disable_hr_frommachinery) {
                 update_hr_from_external();
             } else {
