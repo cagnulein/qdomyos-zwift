@@ -1980,6 +1980,9 @@ class QZSettings {
     static const QString domyos_treadmill_button_22kmh;
     static constexpr float default_domyos_treadmill_button_22kmh = 22.0;
 
+    static const QString proform_treadmill_sport_8_5;
+    static constexpr bool default_proform_treadmill_sport_8_5 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

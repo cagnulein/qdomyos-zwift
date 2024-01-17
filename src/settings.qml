@@ -879,6 +879,9 @@ import QtQuick.Dialogs 1.0
             property real domyos_treadmill_button_10kmh: 10.0
             property real domyos_treadmill_button_16kmh: 16.0
             property real domyos_treadmill_button_22kmh: 22.0
+
+            // from version 2.16.35
+            property bool proform_treadmill_sport_8_5: false
         }
 
         function paddingZeros(text, limit) {
@@ -5738,7 +5741,20 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.proform_8_5_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Proform Sport 8.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_sport_8_5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_treadmill_sport_8_5 = checked; window.settings_restart_to_apply = true; }
+                        }
                         SwitchDelegate {
                             text: qsTr("Proform Pro 1000")
                             spacing: 0
