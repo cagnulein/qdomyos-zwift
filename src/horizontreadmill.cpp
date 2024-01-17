@@ -1903,8 +1903,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void horizontreadmill::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
-        percentage = 0;
+    if (percentage < minInclination)
+        percentage = minInclination;
     changeInclination(grade, percentage);
 }
 
