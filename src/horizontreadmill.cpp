@@ -883,7 +883,7 @@ void horizontreadmill::update() {
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+            if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
