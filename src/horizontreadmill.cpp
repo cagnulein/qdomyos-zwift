@@ -1671,9 +1671,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.instantPower && newValue.length() > index + 1) {
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
+            if (!powerReceivedFromPowerSensor)
                 m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
