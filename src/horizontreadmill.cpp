@@ -876,8 +876,8 @@ void horizontreadmill::update() {
         }
         if (requestInclination != -100) {
             qDebug() << "requestInclination=" << requestInclination;
-            if (requestInclination < 0)
-                requestInclination = 0;
+            if (requestInclination < minInclination)
+                requestInclination = minInclination;
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
@@ -2002,6 +2002,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
             tunturi_t60_treadmill = true;
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("F85"))) {
+            sole_f85_treadmill = true;
+            minInclination = -5.0;
+            qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
         }
 
 
