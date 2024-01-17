@@ -500,25 +500,25 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("22km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeSpeed(22.0);
+            changeSpeed(settings.value(QZSettings::domyos_treadmill_button_22kmh, QZSettings::default_domyos_treadmill_button_22kmh).toDouble());
         }
     } else if (value.at(22) == 0x10) {
         emit debug(QStringLiteral("16km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeSpeed(16.0);
+            changeSpeed(settings.value(QZSettings::domyos_treadmill_button_16kmh, QZSettings::default_domyos_treadmill_button_16kmh).toDouble());
         }
     } else if (value.at(22) == 0x0f) {
         emit debug(QStringLiteral("10km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeSpeed(10.0);
+            changeSpeed(settings.value(QZSettings::domyos_treadmill_button_10kmh, QZSettings::default_domyos_treadmill_button_10kmh).toDouble());
         }
     } else if (value.at(22) == 0x0e) {
         emit debug(QStringLiteral("5km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeSpeed(5.0);
+            changeSpeed(settings.value(QZSettings::domyos_treadmill_button_5kmh, QZSettings::default_domyos_treadmill_button_5kmh).toDouble());
         }
     } else if (value.at(22) == 0x15) {
         emit debug(QStringLiteral("15% inclination button on console pressed!"));
