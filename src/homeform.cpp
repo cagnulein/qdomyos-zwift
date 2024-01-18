@@ -48,6 +48,8 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
+#include "zlib.h"
+
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
 #if defined(WIN32)
@@ -6339,30 +6341,20 @@ void homeform::sendMail() {
         message.addPart(pelotonImage);
     }
 
-    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
     extern QString logfilename;
     if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
         QString fileName = getWritableAppDir() + logfilename;
-        QFile f(fileName);
-        f.open(QIODevice::ReadOnly);
-        QTextStream ts(&f);
-        QByteArray b = f.readAll();
-        f.close();
-        QByteArray c = qCompress(b, 9);
-        QFile fc(fileName.replace(".log", ".zip"));
-        fc.open(QIODevice::WriteOnly);
-        c.remove(0, 4);
-        fc.write(c);
-        fc.close();
+        QString zipFileName = fileName.replace(".log", ".zip");
+        createSimpleZipFile(fileName, zipFileName);
 
         // Create a MimeInlineFile object for each image
-        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
+        MimeInlineFile *log = new MimeInlineFile((new QFile(zipFileName)));
 
         // An unique content id must be setted
-        log->setContentId(fileName);
+        log->setContentId(zipFileName);
         log->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(log);
-    }*/
+    }
 
     bool r = false;
     uint8_t i = 0;
@@ -6378,6 +6370,57 @@ void homeform::sendMail() {
 
     // delete image variable TODO
 }
+
+void homeform::createSimpleZipFile(const QString &sourceFilePath, const QString &zipFilePath) {
+    QFile sourceFile(sourceFilePath);
+    if (!sourceFile.open(QIODevice::ReadOnly)) {
+        // Handle error
+        return;
+    }
+
+    QByteArray uncompressedData = sourceFile.readAll();
+    sourceFile.close();
+
+    // Compress data using qCompress
+    QByteArray compressedData = qCompress(uncompressedData, 9);
+    // Remove the first 4 bytes (qCompress header)
+    compressedData.remove(0, 4);
+
+    quint32 crc = (quint32)crc32(0,reinterpret_cast<const Bytef *>(uncompressedData.constData()), uncompressedData.size());
+
+    QFile zipFile(zipFilePath);
+    if (!zipFile.open(QIODevice::WriteOnly)) {
+        // Handle error
+        return;
+    }
+
+    QDataStream zipStream(&zipFile);
+
+    // Local file header
+    zipStream << quint32(0x04034b50); // Local file header signature
+    zipStream << quint16(20); // Version needed to extract
+    zipStream << quint16(0); // General purpose bit flag
+    zipStream << quint16(8); // Compression method (8 = deflate)
+    zipStream << quint16(QDateTime::currentDateTime().time().msecsSinceStartOfDay()); // Last mod file time
+    zipStream << quint32(0); // Last mod file date
+    zipStream << crc; // CRC-32
+    zipStream << quint32(compressedData.size()); // Compressed size
+    zipStream << quint32(uncompressedData.size()); // Uncompressed size
+    zipStream << quint16(sourceFilePath.length()); // File name length
+    zipStream << quint16(0); // Extra field length
+
+    // File name
+    zipStream.writeRawData(sourceFilePath.toUtf8().constData(), sourceFilePath.length());
+
+    // File data (compressed)
+    zipStream.writeRawData(compressedData.constData(), compressedData.size());
+
+    // Central directory structure
+    // ...
+
+    zipFile.close();
+}
+
 
 #if defined(Q_OS_ANDROID)
 QString homeform::getAndroidDataAppDir() {

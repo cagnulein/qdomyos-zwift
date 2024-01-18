@@ -736,6 +736,8 @@ class homeform : public QObject {
     QMdnsEngine::Service iphone_service;
     QHostAddress iphone_address;
 #endif
+    
+    void createSimpleZipFile(const QString &sourceFilePath, const QString &zipFilePath);
 
   public slots:
     void aboutToQuit();
