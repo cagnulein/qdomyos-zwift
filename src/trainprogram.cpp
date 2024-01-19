@@ -673,8 +673,18 @@ void trainprogram::scheduler() {
                                 }                              
                                 bool zwift_api_autoinclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
                                 qDebug() << "zwift api incline" << incline << grade << delta << deltaA << zwift_api_autoinclination;
-                                if(zwift_api_autoinclination)
-                                    bluetoothManager->device()->changeInclination(grade, grade);
+                                if(zwift_api_autoinclination) {
+                                    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || 
+                                        (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && ((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware())) {
+                                        bluetoothManager->device()->changeInclination(grade, grade);
+                                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                                        QSettings settings;
+                                        double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
+                                        double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
+
+                                        bluetoothManager->device()->changeResistance((resistance_t)(round(grade * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
+                                    }
+                                }
                             }
                         }
                         old_distance = distance;
