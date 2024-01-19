@@ -278,6 +278,7 @@ class bluetooth : public QObject, public SignalHandler {
     void stopDiscovery();
 
     bool handleSignal(int signal) override;
+    bool deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothUuid service);
     void stateFileUpdate();
     void stateFileRead();
     bool heartRateBeltAvaiable();

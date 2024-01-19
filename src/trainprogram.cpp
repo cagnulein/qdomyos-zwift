@@ -596,7 +596,7 @@ void trainprogram::scheduler() {
          !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         
-        if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+        if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
            settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
@@ -617,7 +617,8 @@ void trainprogram::scheduler() {
                     QJsonObject ride = document.object();
                     qDebug() << "zwift api player" << ride;
                     zwift_player_id = ride[QStringLiteral("id")].toInt();
-                } else {
+                    emit zwiftLoginState(true);
+                } else {                    
                     static int zwift_counter = 5;
                     if(zwift_counter++ >= 4) {
                         zwift_counter = 0;
@@ -657,7 +658,7 @@ void trainprogram::scheduler() {
                         if(old_distance > 0) {
                             float delta = distance - old_distance;
                             float deltaA = alt - old_alt;
-                            float incline = (deltaA / delta) / 2.0;
+                            float incline = (deltaA / delta);
                             if(delta > 1) {
                                 bool zwift_negative_inclination_x2 =
                                     settings.value(QZSettings::zwift_negative_inclination_x2, QZSettings::default_zwift_negative_inclination_x2)
@@ -670,8 +671,10 @@ void trainprogram::scheduler() {
                                 if (zwift_negative_inclination_x2 && incline < 0) {
                                     grade = ((incline * 2.0) * gain) + offset;
                                 }                              
-                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA;
-                                bluetoothManager->device()->changeInclination(grade, grade);
+                                bool zwift_api_autoinclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
+                                qDebug() << "zwift api incline" << incline << grade << delta << deltaA << zwift_api_autoinclination;
+                                if(zwift_api_autoinclination)
+                                    bluetoothManager->device()->changeInclination(grade, grade);
                             }
                         }
                         old_distance = distance;
@@ -901,6 +904,10 @@ void trainprogram::scheduler() {
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
+        
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+            break;
+        }
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
             break;
@@ -924,7 +931,8 @@ void trainprogram::scheduler() {
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
             if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
 
-                lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
+                if(rows.at(currentStep).distance != -1)
+                    lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
                 if (!distanceStep)
                     currentStep = calculatedLine;
@@ -1317,8 +1325,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
         if (!atts.isEmpty()) {
-            row.duration =
-                QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            if (atts.hasAttribute(QStringLiteral("duration"))) {
+                row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            }
             if (atts.hasAttribute(QStringLiteral("distance"))) {
                 row.distance = atts.value(QStringLiteral("distance")).toDouble();
             }
@@ -1407,6 +1416,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
 
             list.append(row);
+            qDebug() << row.toString();
         }
     }
     return list;

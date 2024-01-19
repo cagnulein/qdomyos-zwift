@@ -135,6 +135,7 @@ private slots:
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     void changeTimestamp(QTime source, QTime actual);
     void toastRequest(QString message);
+    void zwiftLoginState(bool ok);
 
   private:
     mutable QRecursiveMutex schedulerMutex;

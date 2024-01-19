@@ -1960,7 +1960,28 @@ class QZSettings {
     static constexpr float default_treadmill_incline_max = 100.0;
 
     static const QString proform_2000_treadmill;
-    static constexpr int default_proform_2000_treadmill = false;
+    static constexpr bool default_proform_2000_treadmill = false;
+
+    static const QString android_documents_folder;
+    static constexpr bool default_android_documents_folder = false;
+
+    static const QString zwift_api_autoinclination;
+    static constexpr bool default_zwift_api_autoinclination = true;
+
+    static const QString domyos_treadmill_button_5kmh;
+    static constexpr float default_domyos_treadmill_button_5kmh = 5.0;
+
+    static const QString domyos_treadmill_button_10kmh;
+    static constexpr float default_domyos_treadmill_button_10kmh = 10.0;
+
+    static const QString domyos_treadmill_button_16kmh;
+    static constexpr float default_domyos_treadmill_button_16kmh = 16.0;
+
+    static const QString domyos_treadmill_button_22kmh;
+    static constexpr float default_domyos_treadmill_button_22kmh = 22.0;
+
+    static const QString proform_treadmill_sport_8_5;
+    static constexpr bool default_proform_treadmill_sport_8_5 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

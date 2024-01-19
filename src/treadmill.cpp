@@ -113,11 +113,7 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
 }
 
 uint16_t treadmill::watts(double weight) {
-    QSettings settings;
-    bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                              .toString()
-                              .startsWith(QStringLiteral("Disabled")));
-    if(!power_sensor) {
+    if(!powerReceivedFromPowerSensor) {
         uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
         m_watt.setValue(watts);
     }
@@ -191,7 +187,13 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
+void treadmill::powerSensor(uint16_t power) {
+    if(power > 0) {
+        powerReceivedFromPowerSensor = true;
+        qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
+    }
+    m_watt.setValue(power, false); 
+}
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
 void treadmill::groundContactSensor(double groundContact) { GroundContactMS.setValue(groundContact); }
