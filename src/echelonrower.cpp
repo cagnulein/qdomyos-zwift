@@ -238,7 +238,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     }
     // instant pace to km/h
     if ((((uint8_t)lastPacket.at(14)) > 0 || ((uint8_t)lastPacket.at(13)) > 0) && Cadence.value() > 0) {
-        speedRaw = (60.0 / (double)(((uint16_t)lastPacket.at(13) << 8) | ((uint16_t)lastPacket.at(14)))) * 30.0;
+        speedRaw = (60.0 / (double)((((uint16_t)lastPacket.at(13) << 8) & 0xFF00) | (((uint16_t)lastPacket.at(14)) & 0x00FF))) * 30.0;
         Speed = speedRaw.average5s();
     } else {
         Speed = 0;
@@ -293,6 +293,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 
     qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(lastPacket).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
+    qDebug() << QStringLiteral("Current Pace: ") + currentPace().toString();
+    qDebug() << QStringLiteral("Current Speed Raw: ") + QString::number(speedRaw.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
     // qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
