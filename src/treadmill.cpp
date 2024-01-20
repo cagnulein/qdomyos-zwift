@@ -12,8 +12,8 @@ treadmill::treadmill() {}
 void treadmill::changeSpeed(double speed) {
     QSettings settings;
     m_lastRawSpeedRequested = speed;
-    speed *= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
-    speed += settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
