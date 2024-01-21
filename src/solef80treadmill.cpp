@@ -884,7 +884,7 @@ void solef80treadmill::error(QLowEnergyController::Error err) {
 }
 
 void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-
+    QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
