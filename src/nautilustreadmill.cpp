@@ -188,9 +188,11 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         else
 #endif
         {
-            /*if(heartRateBeltName.startsWith("Disabled"))
-            Heart = value.at(18);*/
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                update_hr_from_external();
+            }
         }
+
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         // debug("Current Distance: " + QString::number(distance));
 
