@@ -448,7 +448,7 @@ double domyosbike::GetSpeedFromPacket(const QByteArray &packet) {
 
 double domyosbike::GetKcalFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(10) << 8) | ((uint8_t)packet.at(11));
-    if(packet.at(10) == 0xFF)   // sometimes the bike at the startup sends 0xFFFF
+    if((uint8_t)packet.at(10) == 0xFF)   // sometimes the bike at the startup sends 0xFFFF
         return (double)0;
     return (double)convertedData;
 }
