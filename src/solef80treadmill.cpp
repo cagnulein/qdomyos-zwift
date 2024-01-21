@@ -892,6 +892,11 @@ void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.name().toUpper().startsWith(QStringLiteral("F63")))
             treadmill_type = F63;
+        else if(device.name().toUpper().startsWith(QStringLiteral("TRX7.5"))) {
+            treadmill_type = TRX7_5;
+            qDebug() << "TRX7.5 workarkound enabled";
+            settings.setValue(QZSettings::sole_treadmill_inclination, true);
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solef80treadmill::serviceDiscovered);
