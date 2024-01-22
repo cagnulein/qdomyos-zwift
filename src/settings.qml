@@ -7688,7 +7688,7 @@ import QtQuick.Dialogs 1.0
                             id: okCadenceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_gain = speedGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
