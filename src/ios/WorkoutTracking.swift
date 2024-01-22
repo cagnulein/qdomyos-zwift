@@ -246,6 +246,8 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         } else if(workoutInProgress == false && power == 0) {
             return;
         }
+
+        speed = speed / 100;
         
         if(sport == 0) {
             if #available(watchOSApplicationExtension 10.0, *) {
