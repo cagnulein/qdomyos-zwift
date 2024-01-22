@@ -15,6 +15,8 @@ class lockscreen {
     void startWorkout();
     void stopWorkout();
 
+    void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt);
+
     // virtualbike
     void virtualbike_ios();
     void virtualbike_setHeartRate(unsigned char heartRate);

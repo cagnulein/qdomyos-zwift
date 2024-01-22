@@ -132,7 +132,8 @@ void fakebike::update() {
         bool ios_peloton_workaround =
             settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                    h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->workoutTrackingUpdate(Speed.value(), Cadence.value(), (uint16_t)m_watt.value());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }
 #endif
