@@ -412,10 +412,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     this->engine = engine;
     connect(bluetoothManager, &bluetooth::bluetoothDeviceConnected, this, &homeform::bluetoothDeviceConnected);
     connect(bluetoothManager, &bluetooth::bluetoothDeviceDisconnected, this, &homeform::bluetoothDeviceDisconnected);
-    connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
-    connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);    
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
+    connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(this, &homeform::workoutNameChanged, this->userTemplateManager,
             &TemplateInfoSenderBuilder::onWorkoutNameChanged);
     connect(this, &homeform::workoutStartDateChanged, this->userTemplateManager,

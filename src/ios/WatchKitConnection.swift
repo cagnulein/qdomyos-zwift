@@ -29,6 +29,12 @@ class WatchKitConnection: NSObject {
     static var power = 0.0
     static var cadence = 0.0
     
+    //enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
+    static var workout_state = 3
+    
+    // enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
+    static var workout_type = 1
+    
     private override init() {
         super.init()
     }
@@ -136,6 +142,8 @@ extension WatchKitConnection: WCSessionDelegate {
         replyValues["cadence"] = WatchKitConnection.cadence
         replyValues["power"] = WatchKitConnection.power
         replyValues["speed"] = WatchKitConnection.speed
+        replyValues["workout_state"] = Double(WatchKitConnection.workout_state)
+        replyValues["workout_type"] = Double(WatchKitConnection.workout_type)
         
         replyHandler(replyValues)
                 

@@ -18,30 +18,26 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
     @IBOutlet weak var cmbSports: WKInterfacePicker!
-    static var start: Bool! = false
     let pedometer = CMPedometer()
-    var sport: Int = 0
-    
+
+    //enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
+    public static var workout_state = 3;
+
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
-        sports[0].title = "Bike"
-        sports[1].title = "Run"
-        sports[2].title = "Walk"
-        sports[3].title = "Elliptical"
-        sports[4].title = "Rowing"
-        cmbSports.setItems(sports)
-        sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
-        cmbSports.setSelectedItemIndex(sport)
         
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
+        
+        _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(MainController.onesec), userInfo: nil, repeats: true)
+                
         // Configure interface objects here.
         print("AWAKE")
     }
     
-    @IBAction func changeSport(_ value: Int) {
-        self.sport = value
-        UserDefaults.standard.set(value, forKey: "sport")
-        UserDefaults.standard.synchronize()
+    @objc func onesec() {
+        WatchKitConnection.shared.sendMessage(message: ["ping":
+            "0" as AnyObject])
     }
     
     override func willActivate() {
@@ -49,6 +45,8 @@ class MainController: WKInterfaceController {
         super.willActivate()
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
+        WorkoutTracking.shared.delegate = self
+
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
@@ -68,23 +66,31 @@ class MainController: WKInterfaceController {
 }
 
 extension MainController {
-    
-    @IBAction func startWorkout() {
-        if(!MainController.start){
-            MainController.start = true
-            startButton.setTitle("Stop")
-            WorkoutTracking.authorizeHealthKit()
-            WorkoutTracking.shared.setSport(sport)
-            WorkoutTracking.shared.startWorkOut()
-            WorkoutTracking.shared.delegate = self
-            
-            WatchKitConnection.shared.delegate = self
-            WatchKitConnection.shared.startSession()
-        }
-        else {
-            MainController.start = false
-            startButton.setTitle("Start")
-            WorkoutTracking.shared.stopWorkOut()
+    public static func syncWorkoutState(state: Int) {
+        if(state != workout_state) {
+            switch state {
+            case 0:
+                if(WorkoutTracking.speed > 0) {
+                    WorkoutTracking.authorizeHealthKit()
+                    WorkoutTracking.shared.startWorkOut()
+                    
+                    workout_state = state
+                }
+
+            case 1:
+                WorkoutTracking.shared.pauseWorkout()
+                workout_state = state
+
+            case 2:
+                WorkoutTracking.shared.resumeWorkout()
+                workout_state = state
+
+            case 3:
+                WorkoutTracking.shared.stopWorkOut()
+                workout_state = state
+            default:
+                print("error!")
+            }
         }
     }
 }
@@ -107,6 +113,7 @@ extension MainController: WorkoutTrackingDelegate {
         WorkoutTracking.speed = WatchKitConnection.speed
         WorkoutTracking.power = WatchKitConnection.power
         WorkoutTracking.cadence = WatchKitConnection.cadence
+        WorkoutTracking.workout_state = WatchKitConnection.workout_state
                 
 		if Locale.current.measurementSystem != "Metric" {
 			self.distanceLabel.setText("Distance \(String(format:"%.2f", WorkoutTracking.distance))")

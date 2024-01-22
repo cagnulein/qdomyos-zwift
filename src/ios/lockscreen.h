@@ -12,6 +12,8 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
+    void setWorkoutType(int workout_type);
+    void setWorkoutState(int workout_state);
 
     // virtualbike
     void virtualbike_ios();

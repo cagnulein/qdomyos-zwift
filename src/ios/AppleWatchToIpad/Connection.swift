@@ -110,6 +110,14 @@ class Connection {
                         let pwr : String = message.slice(from: "PWR=", to: "#") ?? ""
                         WatchKitConnection.power = (Double(pwr) ?? 0)
                     }
+                    if sender?.contains("PAD") ?? false && message.contains("TYP=") {
+                        let workout_type : String = message.slice(from: "TYP=", to: "#") ?? ""
+                        WatchKitConnection.workout_type = (Int(workout_type) ?? 0)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("STA=") {
+                        let workout_state : String = message.slice(from: "STA=", to: "#") ?? ""
+                        WatchKitConnection.workout_type = (Int(workout_state) ?? 0)
+                    }
 				}
             }
             if(self.connection.state == .ready) {

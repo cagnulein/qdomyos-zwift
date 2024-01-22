@@ -245,6 +245,8 @@ void bluetoothdevice::update_hr_from_external() {
 #ifndef IO_UNDER_QT
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
+            h.setWorkoutType(deviceType());
+            h.setWorkoutState(lastState);
             h.setKcal(KCal.value());
             h.setDistance(Distance.value());
             h.setSpeed(Speed.value());

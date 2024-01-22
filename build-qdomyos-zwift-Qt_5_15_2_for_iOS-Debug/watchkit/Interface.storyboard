@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="20037" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Tpn-rd-UUX">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="22154" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Tpn-rd-UUX">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="20006"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="22022"/>
     </dependencies>
     <scenes>
         <!--Main-->
@@ -13,11 +12,6 @@
                 <controller identifier="Main" hidesWhenLoading="NO" id="Tpn-rd-UUX" customClass="MainController" customModule="watchkit_Extension">
                     <items>
                         <label width="136" alignment="left" text="QZ Fitness" textAlignment="center" id="SlU-M7-WGB"/>
-                        <button width="1" alignment="left" title="Start" id="vZg-X8-uY5">
-                            <connections>
-                                <action selector="startWorkout" destination="Tpn-rd-UUX" id="UaW-pR-tn6"/>
-                            </connections>
-                        </button>
                         <label width="136" alignment="left" text="Heart Rate" id="Nda-m1-XRw"/>
                         <label width="136" alignment="left" text="Step Counts" id="HpA-e9-6YV"/>
                         <label width="136" alignment="left" text="Calories" id="Szi-Jp-J3S"/>
@@ -33,7 +27,6 @@
                         <outlet property="cmbSports" destination="OTR-HF-vYb" id="Ws5-w9-ZT8"/>
                         <outlet property="distanceLabel" destination="eRf-NJ-6If" id="ZE2-OB-jqN"/>
                         <outlet property="heartRateLabel" destination="Nda-m1-XRw" id="1la-8R-3jG"/>
-                        <outlet property="startButton" destination="vZg-X8-uY5" id="pJc-09-kfV"/>
                         <outlet property="stepCountsLabel" destination="HpA-e9-6YV" id="Z88-ej-6oG"/>
                         <outlet property="userNameLabel" destination="SlU-M7-WGB" id="Y2O-Lg-bDx"/>
                     </connections>

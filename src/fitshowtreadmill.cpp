@@ -517,6 +517,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                         long appleWatchHeartRate = h->heartRate();
+                        h->setWorkoutType(deviceType());
+                        h->setWorkoutState(lastState);
                         h->setKcal(KCal.value());
                         h->setDistance(Distance.value());
                         h->setSpeed(Speed.value());

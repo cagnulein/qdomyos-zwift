@@ -27,6 +27,10 @@ class WatchKitConnection: NSObject {
     public static var speed = 0.0
     public static var cadence = 0.0
     public static var power = 0.0
+
+    //enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
+    public static var workout_state = 3;
+
     weak var delegate: WatchKitConnectionDelegate?
     
     private override init() {
@@ -76,6 +80,13 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
             WatchKitConnection.power = dPower
             let dCadence = Double(result["cadence"] as! Double)
             WatchKitConnection.cadence = dCadence
+
+            let iWorkout_type = Int(result["workout_type"] as! Int)
+            WorkoutTracking.shared.setSport(iWorkout_type)
+
+            let iWorkout_state = Int(result["workout_state"] as! Int)
+            WatchKitConnection.workout_state = iWorkout_state
+            MainController.syncWorkoutState(state: WatchKitConnection.workout_state)            
         }, errorHandler: { (error) in
             print(error)
         })
