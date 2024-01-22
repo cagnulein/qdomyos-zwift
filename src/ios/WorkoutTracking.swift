@@ -19,7 +19,7 @@ protocol WorkoutTrackingDelegate: class {
 
 protocol WorkoutTrackingProtocol {
     static func authorizeHealthKit()
-    func startWorkOut()
+    func startWorkOut(deviceType: UInt16)
     func stopWorkOut()
 }
 
@@ -53,11 +53,11 @@ extension WorkoutTracking {
         if self.sport == 1 {
             activityType = HKWorkoutActivityType.running
         } else if self.sport == 2 {
-            activityType = HKWorkoutActivityType.walking
+            activityType = HKWorkoutActivityType.cycling
         } else if self.sport == 3 {
-            activityType = HKWorkoutActivityType.elliptical
-        } else if self.sport == 4 {
             activityType = HKWorkoutActivityType.rowing
+        } else if self.sport == 4 {
+            activityType = HKWorkoutActivityType.elliptical
         }
         
         configuration.activityType = activityType
@@ -135,13 +135,14 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         }
     }
     
-    @objc func startWorkOut() {
+    @objc func startWorkOut(deviceType: UInt16) {
         if(workoutInProgress) {
             return;
         }
         workoutInProgress = true;
         WorkoutTracking.lastDateMetric = Date()
         print("Start workout")
+        setSport(deviceType)
         configWorkout()
         workoutBuilder.beginCollection(withStart: Date()) { (success, error) in
             print(success)

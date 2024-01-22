@@ -3241,7 +3241,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         if(h)
-            h->startWorkout();
+            h->startWorkout(bluetoothManager->device()->deviceType());
 #endif
 #endif
         if (bluetoothManager->device() && send_event_to_device) {

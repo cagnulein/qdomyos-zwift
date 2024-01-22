@@ -12,7 +12,7 @@ class lockscreen {
     void setSpeed(double speed);
     void setPower(double power);
     void setCadence(double cadence);
-    void startWorkout();
+    void startWorkout(unsigned short deviceType);
     void stopWorkout();
 
     void workoutTrackingUpdate(double speed, unsigned short cadence, unsigned short watt);

@@ -52,9 +52,9 @@ void lockscreen::request()
     }
 }
 
-void lockscreen::startWorkout() {
+void lockscreen::startWorkout(unsigned short deviceType) {
     if(workoutTracking != nil)
-        [workoutTracking startWorkOut];
+        [workoutTracking startWorkOut : deviceType];
 }
 
 void lockscreen::stopWorkout() {
