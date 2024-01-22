@@ -18,7 +18,7 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         speedBytes.append(b);
         speedBytes.append(a);
         
-        uint16_t normalizeDistance = (uint16_t)qRound(Bike->odometer() * 1000);
+        uint32_t normalizeDistance = (uint32_t)qRound(Bike->odometer() * 1000);
         a = (normalizeDistance >> 16) & 0XFF;
         b = (normalizeDistance >> 8) & 0XFF;
         char c = normalizeDistance & 0XFF;
