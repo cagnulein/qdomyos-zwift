@@ -876,14 +876,14 @@ void horizontreadmill::update() {
         }
         if (requestInclination != -100) {
             qDebug() << "requestInclination=" << requestInclination;
-            if (requestInclination < 0)
-                requestInclination = 0;
+            if (requestInclination < minInclination)
+                requestInclination = minInclination;
             else {
                 // the treadmill accepts only .5 steps
                 requestInclination = std::llround(requestInclination * 2) / 2.0;
                 qDebug() << "requestInclination after rounding=" << requestInclination;
             }
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+            if (requestInclination != currentInclination().value() && requestInclination >= minInclination &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
@@ -1494,8 +1494,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.inclination) {
             if(!tunturi_t60_treadmill)
-                Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                        (uint16_t)((uint8_t)newValue.at(index)))) /
+                Inclination = ((double)(((int16_t)((int16_t)newValue.at(index + 1)) << 8) |
+                                        (int16_t)((uint8_t)newValue.at(index)))) /
                             10.0;
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
@@ -1671,9 +1671,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.instantPower && newValue.length() > index + 1) {
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                    .toString()
-                    .startsWith(QStringLiteral("Disabled")))
+            if (!powerReceivedFromPowerSensor)
                 m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)newValue.at(index))));
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -1905,8 +1903,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void horizontreadmill::changeInclinationRequested(double grade, double percentage) {
-    if (percentage < 0)
-        percentage = 0;
+    if (percentage < minInclination)
+        percentage = minInclination;
     changeInclination(grade, percentage);
 }
 
@@ -2002,6 +2000,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
             tunturi_t60_treadmill = true;
             qDebug() << QStringLiteral("TUNTURI T60 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("F85"))) {
+            sole_f85_treadmill = true;
+            minInclination = -5.0;
+            qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
         }
 
 

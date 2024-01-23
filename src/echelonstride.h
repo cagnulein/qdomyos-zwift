@@ -42,6 +42,8 @@ class echelonstride : public treadmill {
 
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }    
 
   private:
     double GetSpeedFromPacket(QByteArray packet);

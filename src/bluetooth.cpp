@@ -434,6 +434,15 @@ void bluetooth::setLastBluetoothDevice(const QBluetoothDeviceInfo &b) {
 #endif
 }
 
+bool bluetooth::deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothUuid service) {
+    foreach(QBluetoothUuid s, device.serviceUuids()) {
+        if(s == service) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
@@ -452,6 +461,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QZSettings::jll_IC400_bike, QZSettings::default_jll_IC400_bike).toBool() ||
                        settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool() ||
                        settings.value(QZSettings::asviva_bike, QZSettings::default_asviva_bike).toBool() ||
+                       settings.value(QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500).toBool() ||
                        settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
@@ -631,11 +641,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 
     emit deviceFound(device.name());
-    debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") + device.address().toString() +
-          ')' + " " + device.majorDeviceClass() + QStringLiteral(":") + device.minorDeviceClass());
+    qDebug() << QStringLiteral("Found new device: ") << device.name() << QStringLiteral(" (") << device.address().toString() <<
+          ')' << " " << device.majorDeviceClass() << QStringLiteral(":") << device.minorDeviceClass() << device.serviceUuids()
 #if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
-    qDebug() << device.deviceUuid();
+            << device.deviceUuid();
 #endif
+    ;
 
     // not required for mobile I guess
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -1089,7 +1100,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(soleElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
-                       !domyosBike && !domyosRower && filter) {
+                       !domyosBike && !domyosRower && !horizonTreadmill && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1220,6 +1231,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TT8")) ||
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ST90")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TRX7.5")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && sole_inclination)) &&
                        !soleF80 && filter) {
@@ -1293,6 +1305,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")))) &&
                          !toorx_ftms && toorx_ftms_treadmill) ||
                         !b.name().compare(ftms_treadmill, Qt::CaseInsensitive) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-TC")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("XT685")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
@@ -1449,10 +1462,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DT-") && b.name().length() >= 14) || // SOLE SB700
                         (b.name().toUpper().startsWith("URSB") && b.name().length() == 7) || // URSB005
                         (b.name().toUpper().startsWith("DBF") && b.name().length() == 6) ||  // DBF135
+                        (b.name().toUpper().startsWith("KSU") && b.name().length() == 7) ||  // KSU1102
                         (b.name().toUpper().startsWith(ftmsAccessoryName.toUpper()) &&
                          settings.value(QZSettings::ss2k_peloton, QZSettings::default_ss2k_peloton)
                              .toBool()) || // ss2k on a peloton bike
                         (b.name().toUpper().startsWith("KICKR CORE")) ||
+                        (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||

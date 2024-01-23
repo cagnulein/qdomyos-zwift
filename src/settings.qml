@@ -873,6 +873,21 @@ import QtQuick.Dialogs 1.0
             property bool proform_2000_treadmill: false
             property bool android_documents_folder: false
             property bool zwift_api_autoinclination: true
+
+            // from version 2.16.34
+            property real domyos_treadmill_button_5kmh: 5.0
+            property real domyos_treadmill_button_10kmh: 10.0
+            property real domyos_treadmill_button_16kmh: 16.0
+            property real domyos_treadmill_button_22kmh: 22.0
+
+            // from version 2.16.35
+            property bool proform_treadmill_sport_8_5: false
+
+            // from version 2.16.37
+            property bool domyos_treadmill_t900a: false
+
+            // from version 2.16.38
+            property bool enerfit_SPX_9500: false
           
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -5902,7 +5917,20 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.proform_8_5_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Proform Sport 8.5")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_sport_8_5
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_treadmill_sport_8_5 = checked; window.settings_restart_to_apply = true; }
+                        }
                         SwitchDelegate {
                             text: qsTr("Proform Pro 1000")
                             spacing: 0
@@ -6410,6 +6438,20 @@ import QtQuick.Dialogs 1.0
                         }
 
                         SwitchDelegate {
+                            text: qsTr("T900A")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_treadmill_t900a
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_treadmill_t900a = checked
+                        }                        
+
+                        SwitchDelegate {
                             id: domyosTreadmillDistanceDisplayDelegate
                             text: qsTr("Distance on Console")
                             spacing: 0
@@ -6438,6 +6480,99 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.domyos_treadmill_display_invert = checked
                         }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 5km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton5KmhTimeTextField
+                                text: settings.domyos_treadmill_button_5kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_5kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 10km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton10KmhTimeTextField
+                                text: settings.domyos_treadmill_button_10kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_10kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 16km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton16KmhTimeTextField
+                                text: settings.domyos_treadmill_button_16kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_16kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 22km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton22KmhTimeTextField
+                                text: settings.domyos_treadmill_button_22kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_22kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
                         RowLayout {
                             spacing: 10
                             Label {
@@ -7009,6 +7144,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.enerfit_SPX_9500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.enerfit_SPX_9500 = checked; window.settings_restart_to_apply = true; }
+                    }                    
 
                     SwitchDelegate {
                         id: jtxFitnessSprintTreadmillDelegate
@@ -7726,7 +7875,7 @@ import QtQuick.Dialogs 1.0
                             id: okCadenceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_gain = speedGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 

@@ -75,6 +75,7 @@ class horizontreadmill : public treadmill {
     int64_t lastStop = 0;
     bool horizonPaused = false;
     double lastHorizonForceSpeed = 0;
+    double minInclination = 0.0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -93,6 +94,7 @@ class horizontreadmill : public treadmill {
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
+    bool sole_f85_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();

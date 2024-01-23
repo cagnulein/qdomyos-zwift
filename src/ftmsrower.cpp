@@ -186,7 +186,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if (!Flags.moreData) {
 
-        if ((WATER_ROWER || DFIT_L_R) && lastStroke.secsTo(now) > 3) {
+        if (lastStroke.secsTo(now) > 3) {
             qDebug() << "Resetting cadence!";
             Cadence = 0;
             m_watt = 0;

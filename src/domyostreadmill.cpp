@@ -405,6 +405,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool domyos_treadmill_buttons =
         settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
+    bool domyos_treadmill_t900a = settings.value(QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -497,53 +498,141 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
             changeInclination(currentInclination().value() - 0.5, currentInclination().value() - 0.5);
         }
     } else if (value.at(22) == 0x11) {
-        emit debug(QStringLiteral("22km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeSpeed(22.0);
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("10km/h speed button pressed!"));
+                changeSpeed(10.0);
+            } else {
+                emit debug(QStringLiteral("22km/h speed button pressed!"));
+                changeSpeed(settings.value(QZSettings::domyos_treadmill_button_22kmh, QZSettings::default_domyos_treadmill_button_22kmh).toDouble());
+            }            
         }
     } else if (value.at(22) == 0x10) {
-        emit debug(QStringLiteral("16km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeSpeed(16.0);
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("8km/h speed button pressed!"));
+                changeSpeed(8.0);
+            } else {
+                emit debug(QStringLiteral("16km/h speed button pressed!"));
+                changeSpeed(settings.value(QZSettings::domyos_treadmill_button_16kmh, QZSettings::default_domyos_treadmill_button_16kmh).toDouble());
+            }            
         }
     } else if (value.at(22) == 0x0f) {
-        emit debug(QStringLiteral("10km/h speed button pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeSpeed(10.0);
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("6km/h speed button pressed!"));
+                changeSpeed(6.0);
+            } else {
+                emit debug(QStringLiteral("10km/h speed button pressed!"));
+                changeSpeed(settings.value(QZSettings::domyos_treadmill_button_10kmh, QZSettings::default_domyos_treadmill_button_10kmh).toDouble());
+            }            
         }
-    } else if (value.at(22) == 0x0e) {
-        emit debug(QStringLiteral("5km/h speed button pressed!"));
+    } else if (value.at(22) == 0x0e) {        
         if (domyos_treadmill_buttons) {
-
-            changeSpeed(5.0);
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("4km/h speed button pressed!"));
+                changeSpeed(4.0);
+            } else {
+                emit debug(QStringLiteral("5km/h speed button pressed!"));
+                changeSpeed(settings.value(QZSettings::domyos_treadmill_button_5kmh, QZSettings::default_domyos_treadmill_button_5kmh).toDouble());
+            }            
         }
     } else if (value.at(22) == 0x15) {
-        emit debug(QStringLiteral("15% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeInclination(15.0, 15.0);
-        }
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("3% inclination button on console pressed!"));
+                changeInclination(3.0, 3.0);
+            } else {
+                emit debug(QStringLiteral("15% inclination button on console pressed!"));
+                changeInclination(15.0, 15.0);
+            }            
+        }        
     } else if (value.at(22) == 0x14) {
-        emit debug(QStringLiteral("10% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeInclination(10.0, 10.0);
-        }
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("2% inclination button on console pressed!"));
+                changeInclination(2.0, 2.0);
+            } else {
+                emit debug(QStringLiteral("10% inclination button on console pressed!"));
+                changeInclination(10.0, 10.0);
+            }            
+        }        
     } else if (value.at(22) == 0x13) {
-        emit debug(QStringLiteral("5% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeInclination(5.0, 5.0);
-        }
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("1% inclination button on console pressed!"));
+                changeInclination(1.0, 1.0);
+            } else {
+                emit debug(QStringLiteral("5% inclination button on console pressed!"));
+                changeInclination(5.0, 5.0);
+            }            
+        }        
     } else if (value.at(22) == 0x12) {
-        emit debug(QStringLiteral("0% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
-
-            changeInclination(0.0, 0.0);
-        }
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("0% inclination button on console pressed!"));
+                changeInclination(0.0, 0.0);
+            } else {
+                emit debug(QStringLiteral("0% inclination button on console pressed!"));
+                changeInclination(0.0, 0.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x17) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("14km/h speed button pressed!"));
+                changeSpeed(14.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x18) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("0% inclination button on console pressed!"));
+                changeInclination(0.0, 0.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x19) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("18km/h speed button pressed!"));
+                changeSpeed(18.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x16) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("12km/h speed button pressed!"));
+                changeSpeed(12.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x1a) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("4% inclination button on console pressed!"));
+                changeInclination(4.0, 4.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x1b) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("6% inclination button on console pressed!"));
+                changeInclination(6.0, 6.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x1c) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("8% inclination button on console pressed!"));
+                changeInclination(8.0, 8.0);
+            }            
+        }        
+    } else if (value.at(22) == 0x1d) {
+        if (domyos_treadmill_buttons) {
+            if(domyos_treadmill_t900a) {
+                emit debug(QStringLiteral("10% inclination button on console pressed!"));
+                changeInclination(10.0, 10.0);
+            }            
+        }        
     }
 
     /*if ((uint8_t)value.at(1) != 0xbc && value.at(2) != 0x04)  // intense run, these are the bytes for the inclination

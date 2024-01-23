@@ -1968,6 +1968,27 @@ class QZSettings {
     static const QString zwift_api_autoinclination;
     static constexpr bool default_zwift_api_autoinclination = true;
 
+    static const QString domyos_treadmill_button_5kmh;
+    static constexpr float default_domyos_treadmill_button_5kmh = 5.0;
+
+    static const QString domyos_treadmill_button_10kmh;
+    static constexpr float default_domyos_treadmill_button_10kmh = 10.0;
+
+    static const QString domyos_treadmill_button_16kmh;
+    static constexpr float default_domyos_treadmill_button_16kmh = 16.0;
+
+    static const QString domyos_treadmill_button_22kmh;
+    static constexpr float default_domyos_treadmill_button_22kmh = 22.0;
+
+    static const QString proform_treadmill_sport_8_5;
+    static constexpr bool default_proform_treadmill_sport_8_5 = false;
+
+    static const QString domyos_treadmill_t900a;
+    static constexpr bool default_domyos_treadmill_t900a = false;
+
+    static const QString enerfit_SPX_9500;
+    static constexpr bool default_enerfit_SPX_9500 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

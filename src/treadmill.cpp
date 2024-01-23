@@ -10,8 +10,11 @@
 treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
+    QSettings settings;
     m_lastRawSpeedRequested = speed;
-    qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset;
+    speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
+    speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
         requestSpeed = (speed * m_difficult) + m_difficult_offset;
@@ -113,11 +116,7 @@ uint16_t treadmill::wattsCalc(double weight, double speed, double inclination) {
 }
 
 uint16_t treadmill::watts(double weight) {
-    QSettings settings;
-    bool power_sensor = !(settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
-                              .toString()
-                              .startsWith(QStringLiteral("Disabled")));
-    if(!power_sensor) {
+    if(!powerReceivedFromPowerSensor) {
         uint16_t watts = wattsCalc(weight, currentSpeed().value(), currentInclination().value());
         m_watt.setValue(watts);
     }
@@ -191,9 +190,11 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { 
-    if(power > 0)
+void treadmill::powerSensor(uint16_t power) {
+    if(power > 0) {
         powerReceivedFromPowerSensor = true;
+        qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
+    }
     m_watt.setValue(power, false); 
 }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }

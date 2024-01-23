@@ -183,8 +183,11 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (rows.at(row).distance == -1)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
                 (rows.at(row).duration.hour() * 3600));
-    else
-        return 0;
+    else {
+        if(rows.at(row).started.isValid() && rows.at(row).ended.isValid())
+            return rows.at(row).started.secsTo(rows.at(row).ended);
+    }
+    return 0;
 }
 
 double trainprogram::calculateDistanceForRow(int32_t row) {
@@ -673,8 +676,18 @@ void trainprogram::scheduler() {
                                 }                              
                                 bool zwift_api_autoinclination = settings.value(QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination).toBool();
                                 qDebug() << "zwift api incline" << incline << grade << delta << deltaA << zwift_api_autoinclination;
-                                if(zwift_api_autoinclination)
-                                    bluetoothManager->device()->changeInclination(grade, grade);
+                                if(zwift_api_autoinclination) {
+                                    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || 
+                                        (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && ((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware())) {
+                                        bluetoothManager->device()->changeInclination(grade, grade);
+                                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                                        QSettings settings;
+                                        double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
+                                        double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
+
+                                        bluetoothManager->device()->changeResistance((resistance_t)(round(grade * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
+                                    }
+                                }
                             }
                         }
                         old_distance = distance;
@@ -800,6 +813,7 @@ void trainprogram::scheduler() {
 
     // entry point
     if (ticks == 1 && currentStep == 0) {
+        rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -934,10 +948,15 @@ void trainprogram::scheduler() {
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
+                rows[currentStep].ended = QDateTime::currentDateTime();
+
                 if (!distanceStep)
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                rows[currentStep].started = QDateTime::currentDateTime();
+
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
