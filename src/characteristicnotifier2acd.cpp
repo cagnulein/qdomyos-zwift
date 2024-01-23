@@ -18,7 +18,9 @@ int CharacteristicNotifier2ACD::notify(QByteArray &value) {
         speedBytes.append(b);
         speedBytes.append(a);
         
-        uint32_t normalizeDistance = (uint32_t)qRound(Bike->odometer() * 1000);
+        // peloton wants the distance from the qz startup to handle stacked classes
+        // https://github.com/cagnulein/qdomyos-zwift/issues/2018
+        uint32_t normalizeDistance = (uint32_t)qRound(Bike->odometerFromStartup() * 1000);
         a = (normalizeDistance >> 16) & 0XFF;
         b = (normalizeDistance >> 8) & 0XFF;
         char c = normalizeDistance & 0XFF;

@@ -21,6 +21,7 @@ class metric {
     void setType(_metric_type t);
     void setValue(double value, bool applyGainAndOffset = true);
     double value();
+    double valueRaw();
     QDateTime lastChanged() { return m_lastChanged; }
     QDateTime valueChanged() { return m_valueChanged; }
     double average();

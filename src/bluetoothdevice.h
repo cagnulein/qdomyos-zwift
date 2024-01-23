@@ -100,6 +100,7 @@ class bluetoothdevice : public QObject {
      * @return
      */
     virtual double odometer();
+    virtual double odometerFromStartup();
     virtual metric currentDistance() {return Distance;}
     virtual metric currentDistance1s() {return Distance1s;}
     void addCurrentDistance1s(double distance) { Distance1s += distance; }
