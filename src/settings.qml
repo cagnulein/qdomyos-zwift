@@ -885,6 +885,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.37
             property bool domyos_treadmill_t900a: false
+
+            // from version 2.16.38
+            property bool enerfit_SPX_9500: false
         }
 
         function paddingZeros(text, limit) {
@@ -6971,6 +6974,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.enerfit_SPX_9500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.enerfit_SPX_9500 = checked; window.settings_restart_to_apply = true; }
+                    }                    
 
                     SwitchDelegate {
                         id: jtxFitnessSprintTreadmillDelegate
