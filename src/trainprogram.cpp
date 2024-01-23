@@ -183,8 +183,11 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (rows.at(row).distance == -1)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
                 (rows.at(row).duration.hour() * 3600));
-    else
-        return 0;
+    else {
+        if(rows.at(row).started.isValid() && rows.at(row).ended.isValid())
+            return rows.at(row).started.secsTo(rows.at(row).ended);
+    }
+    return 0;
 }
 
 double trainprogram::calculateDistanceForRow(int32_t row) {
@@ -810,6 +813,7 @@ void trainprogram::scheduler() {
 
     // entry point
     if (ticks == 1 && currentStep == 0) {
+        rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -944,10 +948,15 @@ void trainprogram::scheduler() {
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
+                rows[currentStep].ended = QDateTime::currentDateTime();
+
                 if (!distanceStep)
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                rows[currentStep].started = QDateTime::currentDateTime();
+
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
