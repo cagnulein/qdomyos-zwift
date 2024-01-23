@@ -2478,7 +2478,7 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
             ((elliptical *)bluetoothManager->device())
                 ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWER) {
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             ((rower *)bluetoothManager->device())
                 ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
@@ -2895,7 +2895,7 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWER) {
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
                 ((rower *)bluetoothManager->device())
                     ->setGears(((rower *)bluetoothManager->device())->gears() +
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
