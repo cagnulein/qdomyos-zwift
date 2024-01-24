@@ -409,3 +409,43 @@ void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerStat
         m_control->connectToDevice();
     }
 }
+
+uint16_t sportstechbike::wattsFromResistance(double resistance) {
+        // Coefficients from the polynomial regression
+    double intercept = 14.4968;
+    double b1 = -4.1878;
+    double b2 = -0.5051;
+    double b3 = 0.00387;
+    double b4 = 0.2392;
+    double b5 = 0.01108;
+    double cadence = Cadence.value();
+
+    // Calculate power using the polynomial equation
+    double power = intercept +
+                   (b1 * resistance) +
+                   (b2 * cadence) +
+                   (b3 * resistance * resistance) +
+                   (b4 * resistance * cadence) +
+                   (b5 * cadence * cadence);
+
+    return power;
+}
+
+resistance_t sportstechbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return maxResistance();
+}

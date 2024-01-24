@@ -32,6 +32,8 @@ class sportstechbike : public bike {
   public:
     sportstechbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    resistance_t maxResistance() override { return 24; }
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -39,6 +41,7 @@ class sportstechbike : public bike {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
+    uint16_t wattsFromResistance(double resistance);
     void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
