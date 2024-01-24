@@ -718,22 +718,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         else
 #endif
         {
-            if (heartRateBeltDisabled) {
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                long appleWatchHeartRate = h->heartRate();
-                h->setKcal(KCal.value());
-                h->setDistance(Distance.value());
-                h->setSpeed(Speed.value());
-                h->setPower(m_watt.value());
-                h->setCadence(Cadence.value());
-                if (appleWatchHeartRate == 0)
-                    Heart = k3.pulse;
-                else
-                    Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
+            if (heartRateBeltDisabled && (k3.pulse == 0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool())) {
+                update_hr_from_external();
+            } else {
                 Heart = k3.pulse;
-#endif
             }
         }
 
