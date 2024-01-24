@@ -68,6 +68,28 @@ class proformtreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    bool nordictrack10 = false;
+    bool nordictrackt70 = false;
+    bool nordictrack_t65s_treadmill = false;
+    bool nordictrack_s30_treadmill = false;
+    bool proform_treadmill_1800i = false;
+    bool proform_treadmill_se = false;
+    bool proform_treadmill_8_0 = false;
+    bool proform_treadmill_9_0 = false;
+    bool proform_cadence_lt = false;
+    bool norditrack_s25i_treadmill = false;
+    bool norditrack_s25_treadmill = false;
+    bool nordictrack_t65s_83_treadmill = false;
+    bool nordictrack_incline_trainer_x7i = false;
+    bool proform_treadmill_z1300i = false;
+    bool proform_pro_1000_treadmill = false;
+    bool nordictrack_s20_treadmill = false;
+    bool proform_treadmill_l6_0s = false;
+    bool proform_8_5_treadmill = false;
+    bool proform_2000_treadmill = false;
+    bool proform_treadmill_sport_8_5 = false;
+    bool proform_treadmill_505_cst = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
