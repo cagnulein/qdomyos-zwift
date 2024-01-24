@@ -1075,6 +1075,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("KINGSMITH")) ||
                         b.name().toUpper().startsWith(QStringLiteral("DYNAMAX")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WALKINGPAD")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KS-ST-A1P")) ||  // KingSmith Walkingpad A1 Pro #2041
                         // Poland-distributed WalkingPad R2 TRR2FB
                         b.name().toUpper().startsWith(QStringLiteral("KS-SC-BLR2C")) ||                        
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
