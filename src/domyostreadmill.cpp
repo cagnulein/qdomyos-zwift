@@ -587,8 +587,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     } else if (value.at(22) == 0x18) {
         if (domyos_treadmill_buttons) {
             if(domyos_treadmill_t900a) {
-                emit debug(QStringLiteral("0% inclination button on console pressed!"));
-                changeInclination(0.0, 0.0);
+                emit debug(QStringLiteral("16km/h speed button on console pressed!"));
+                changeSpeed(16.0);
             }            
         }        
     } else if (value.at(22) == 0x19) {
