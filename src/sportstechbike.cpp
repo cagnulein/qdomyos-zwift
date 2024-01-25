@@ -136,6 +136,8 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double resistance = GetResistanceFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     double watt = GetWattFromPacket(newValue);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -144,7 +146,13 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(11));
+
+            uint8_t heart = ((uint8_t)newValue.at(11));
+            if (heart == 0 || disable_hr_frommachinery) {
+                update_hr_from_external();
+            } else {
+                Heart = heart;
+            }
         }
     }
     FanSpeed = 0;
