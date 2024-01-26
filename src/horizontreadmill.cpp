@@ -1994,7 +1994,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL"))) {
             kettler_treadmill = true;
             qDebug() << QStringLiteral("KETTLER TREADMILL workaround ON!");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ANPLUS-")) || device.name().toUpper().startsWith(QStringLiteral("PARAGON X"))) {
             anplus_treadmill = true;
             qDebug() << QStringLiteral("ANPLUS TREADMILL workaround ON!");
         } else if (device.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-"))) {
