@@ -128,6 +128,9 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
 
     // Calculate the steering mapping
     this->calculateSteeringMap();
+
+    // fake hardware support for ERG mode to avoid ERG filters preventing
+    this->ergModeSupported = true;
 }
 
 bool trixterxdreamv1bike::connect(QString portName) {
@@ -281,6 +284,9 @@ resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power) {
 
     // round the current cadence
     int32_t c = (int32_t)(this->Cadence.value() + 0.5);
+
+    if(c==0)
+        return 0; // don't use resistance if there's no cadence
 
     c = std::min(120, std::max(c, 30));
 
@@ -444,10 +450,25 @@ void trixterxdreamv1bike::update() {
             this->m_steeringAngle.setValue(newValue);
     }
 
-    if (this->requestResistance != -1) {
-        this->set_resistance(requestResistance);
-        this->requestResistance = -1;
+    // simulate ERG hardware
+    if(this->requestPower > -1) {
+        this->requestResistance = this->resistanceFromPowerRequest(this->requestPower);
+
+        qDebug() << QStringLiteral("Power request: ")
+                 << QString::number(this->requestPower)
+                 << QStringLiteral("W with cadence ")
+                 << QString::number(this->Cadence.value())
+                 << QStringLiteral("RPM --> setting resistance request: ")
+                 << QString::number(this->requestResistance);
+
+        // leave requestPower as is because on the next update, the cadence could have changed
+        // and a new resistance level will be needed.
     }
+
+    if (this->requestResistance > -1) {
+        this->set_resistance(requestResistance);
+    }
+    this->requestResistance = -1;
 
     // update the power output
     this->update_metrics(true, this->watts());
