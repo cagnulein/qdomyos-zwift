@@ -841,7 +841,7 @@
             if(tile_target_pace_enabled && (target_pace_s.toString() === "-1" || (target_pace_s.toString() === "0" && target_pace_m.toString() === "0")))
               $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");				   
             else
-              $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "/" + target_pace_m.toString().padStart(2, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(1, "0") + ":" + pace_s.toString().padStart(2, "0") + "<br>" + target_pace_m.toString().padStart(1, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
           }
           if(avgpace_s.toString() === "-1" || (avgpace_s.toString() === "0" && avgpace_m.toString() === "0"))
             $('.pace-avg').html("<b>N/A</b>");
