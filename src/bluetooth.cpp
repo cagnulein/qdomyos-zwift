@@ -1391,6 +1391,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("KICKR CORE")) ||
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
+                        (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
