@@ -3954,7 +3954,7 @@ void homeform::update() {
                 pace = 0;
             }
 
-            this->gears->setValue(QString::number(((elliptical *)bluetoothManager->device())->gears()));
+            this->gears->setValue(QString::number(((rower *)bluetoothManager->device())->gears()));
             this->pace_last500m->setValue(
                 ((rower *)bluetoothManager->device())->lastPace500m().toString(QStringLiteral("m:ss")));
 

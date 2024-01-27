@@ -888,6 +888,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.38
             property bool enerfit_SPX_9500: false
+
+            // from version 2.16.39
+            property bool proform_treadmill_505_cst: false
           
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -5904,7 +5907,22 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.proform_2000_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                                      
+                        }
+
+                        SwitchDelegate {
+                            text: qsTr("Proform 505 CST")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_505_cst
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.proform_treadmill_505_cst = checked; window.settings_restart_to_apply = true; }
+                        }
+                                          
                         SwitchDelegate {
                             text: qsTr("Proform 8.5")
                             spacing: 0
