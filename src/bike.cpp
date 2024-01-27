@@ -50,6 +50,7 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+
 void bike::changePower(int32_t power) {
 
     RequestedPower = power; // in order to paint in any case the request power on the charts
@@ -59,7 +60,7 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    requestPower = power; // used by some bikes that have ERG mode builti
+    requestPower = power; // used by some bikes that have ERG mode builtin
 
     if(this->ergModeSupported)
     {
