@@ -485,8 +485,6 @@ void nordictrackifitadbtreadmill::update() {
     }
 }
 
-double nordictrackifitadbtreadmill::minStepSpeed() { return 0.1; }
-
 void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, double percentage) {
     // these treadmills support negative inclination
     /*if (percentage < 0)
