@@ -34,6 +34,7 @@ class nordictrackifitadbtreadmillLogcatAdbThread : public QThread {
 
     void run() override;
     bool stop = false;
+    double minStepSpeed() override;
 
   signals:
     void onSpeedInclination(double speed, double inclination);
