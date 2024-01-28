@@ -891,6 +891,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.39
             property bool proform_treadmill_505_cst: false
+
+            // from version 2.16.40
+            property bool nordictrack_treadmill_t8_5s: false
         }
 
         function paddingZeros(text, limit) {
@@ -5724,7 +5727,22 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
+                        }  
+
+                        SwitchDelegate {
+                            text: qsTr("Nordictrack T8.5s")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_treadmill_t8_5s
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: {settings.nordictrack_treadmill_t8_5s = checked; window.settings_restart_to_apply = true; }
                         }                        
+
                         SwitchDelegate {
                             text: qsTr("Proform 2000 (not pro)")
                             spacing: 0
