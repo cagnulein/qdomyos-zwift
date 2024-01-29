@@ -600,7 +600,7 @@ void trainprogram::scheduler() {
         bluetoothManager->device()->isPaused()) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
-           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 &&
+           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
                 zwift_world = new World(1, zwift_auth_token->getAccessToken());
