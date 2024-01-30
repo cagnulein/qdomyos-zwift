@@ -33,6 +33,8 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     Q_OBJECT
   public:
     explicit technogymmyruntreadmillrfcomm();
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }    
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

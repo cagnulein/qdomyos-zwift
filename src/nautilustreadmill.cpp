@@ -188,9 +188,11 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         else
 #endif
         {
-            /*if(heartRateBeltName.startsWith("Disabled"))
-            Heart = value.at(18);*/
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+                update_hr_from_external();
+            }
         }
+
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         // debug("Current Distance: " + QString::number(distance));
 
@@ -335,7 +337,12 @@ void nautilustreadmill::serviceScanDone(void) {
 
         gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
         if (!gattCommunicationChannelService) {
-            return;
+            _gattCommunicationChannelServiceId = QBluetoothUuid(QStringLiteral("19df5b20-31c7-11e6-a336-0002a5d5c51b"));
+
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            if (!gattCommunicationChannelService) {
+                return;
+            }
         }
     }
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilustreadmill::stateChanged);

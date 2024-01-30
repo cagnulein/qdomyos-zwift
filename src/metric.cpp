@@ -106,6 +106,10 @@ void metric::clear(bool accumulator) {
 #endif
 }
 
+double metric::valueRaw() {
+    return m_value;
+}
+
 double metric::value() {
 #ifdef TEST
     if (m_type != METRIC_ELAPSED) {

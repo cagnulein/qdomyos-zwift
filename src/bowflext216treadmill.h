@@ -36,6 +36,8 @@ class bowflext216treadmill : public treadmill {
     double minStepInclination() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
@@ -74,6 +76,8 @@ class bowflext216treadmill : public treadmill {
     bool initRequest = false;
 
     bool bowflex_t6 = false;
+    bool bowflex_btx116 = false;
+    bool bowflex_t8j = false;
 
   Q_SIGNALS:
     void disconnected();

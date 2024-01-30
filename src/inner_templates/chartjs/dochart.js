@@ -177,7 +177,7 @@ function process_arr(arr) {
     $('.summary_watts_avg').text(Math.floor(watts_avg) + ' W');
     $('.summary_jouls').text(Math.floor(jouls / 1000.0) + ' kJ');
     $('.summary_calories').text(Math.floor(calories) + ' kcal');
-    $('.summary_distance').text(Math.floor(distance * miles) + (miles === 1 ? ' km' : ' mi'));
+    $('.summary_distance').text((distance * miles).toFixed(1) + (miles === 1 ? ' km' : ' mi'));
     $('.summary_cadence_avg').text(Math.floor(cadence_avg) + ' rpm');
     $('.summary_resistance_avg').text(Math.floor(peloton_resistance_avg) + ' lvl');    
 

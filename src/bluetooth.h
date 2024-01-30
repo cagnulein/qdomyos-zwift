@@ -86,6 +86,7 @@
 #include "proformellipticaltrainer.h"
 #include "proformrower.h"
 #include "proformtreadmill.h"
+#include "proformtelnetbike.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
 #include "schwinn170bike.h"
@@ -147,6 +148,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
+    volatile bool homeformLoaded = false;
 protected:
     /**
      * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
@@ -205,6 +207,7 @@ private:
     pelotonbike *pelotonBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
+    proformtelnetbike *proformTelnetBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
     proformwifitreadmill *proformWifiTreadmill = nullptr;
     proformelliptical *proformElliptical = nullptr;
@@ -294,6 +297,7 @@ private:
     void stopDiscovery();
 
     bool handleSignal(int signal) override;
+    bool deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothUuid service);
     void stateFileUpdate();
     void stateFileRead();
     bool heartRateBeltAvaiable();

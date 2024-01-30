@@ -124,6 +124,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     processPendingDatagrams();
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
+    initRequest = true;
+
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled =
@@ -200,6 +202,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
     QHostAddress sender;
     QSettings settings;
     uint16_t port;
+    bool freemotion_coachbike_b22_7 = settings.value(QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7).toBool();
     while (socket->hasPendingDatagrams()) {
         QByteArray datagram;
         datagram.resize(socket->pendingDatagramSize());
@@ -247,7 +250,10 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     resistance = getDouble(aValues.last());
-                    m_pelotonResistance = (100 / 32) * resistance;
+                    if(freemotion_coachbike_b22_7)
+                        m_pelotonResistance = (100 / 24) * resistance;
+                    else
+                        m_pelotonResistance = (100 / 32) * resistance;
                     qDebug() << QStringLiteral("Current Peloton Resistance: ") << m_pelotonResistance.value()
                              << resistance;
                     if(!gearsAvailable)
@@ -322,8 +328,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
-                        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
-                        bool freemotion_coachbike_b22_7 = settings.value(QZSettings::freemotion_coachbike_b22_7, QZSettings::default_freemotion_coachbike_b22_7).toBool();
+                        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();                        
                         int x1 = 75;
                         int y2 = (int)(616.18 - (17.223 * (inc + gears())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
@@ -351,6 +356,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 #endif
 #endif
                         // this bike has both inclination and resistance, let's try to handle both
+                        // the Original Poster doesn't want anymore, but maybe it will be useful in the future
+                        /*
                         if(freemotion_coachbike_b22_7) {
                             int x1 = 75;
                             int y2 = (int)(616.18 - (17.223 * (inc + gears())));
@@ -373,6 +380,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
     #endif
     #endif
                         }
+                        */
                     }
                 }
 
@@ -513,6 +521,11 @@ void nordictrackifitadbbike::update() {
 
     QSettings settings;
     update_metrics(false, 0);
+
+    if (initRequest) {
+        initRequest = false;
+        emit connectedAndDiscovered();
+    }    
 
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {

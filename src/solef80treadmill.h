@@ -78,6 +78,7 @@ class solef80treadmill : public treadmill {
     typedef enum TYPE {
         F80 = 0,
         F63 = 1,
+        TRX7_5 = 2,
     } TYPE;
     volatile TYPE treadmill_type = F80;
 

@@ -158,7 +158,7 @@ void fitshowtreadmill::update() {
 
     if (initRequest) {
         initRequest = false;
-        btinit((lastSpeed > 0 ? true : false));
+        btinit(true);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
@@ -220,7 +220,22 @@ void fitshowtreadmill::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
-            btinit(true);
+
+            uint8_t startTape1[] = {
+                FITSHOW_SYS_CONTROL,
+                FITSHOW_CONTROL_READY_OR_START,
+                (FITSHOW_TREADMILL_SPORT_ID >> 0) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 8) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 16) & 0xFF,
+                (FITSHOW_TREADMILL_SPORT_ID >> 24) & 0xFF,
+                FITSHOW_SYS_MODE_NORMAL,
+                0x00, // number of blocks (u8)
+                0x00,
+                0x00 // mode-dependent value (u16le)
+            };       // to verify
+            scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
+            forceSpeedOrIncline(lastSpeed, lastInclination);
+
             lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
@@ -499,19 +514,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery) {
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                        long appleWatchHeartRate = h->heartRate();
-                        h->setKcal(KCal.value());
-                        h->setDistance(Distance.value());
-                        h->setSpeed(Speed.value());
-                        h->setPower(m_watt.value());
-                        h->setCadence(Cadence.value());
-                        Heart = appleWatchHeartRate;
-                        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
+                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled")) && 
+                        (heart == 0 || disable_hr_frommachinery)) {
+                        update_hr_from_external();
+                    } else {
                         Heart = heart;
-#endif
                     }
                 }
 

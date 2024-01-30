@@ -18,7 +18,7 @@ class lockscreen {
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios(bool disable_hr);
+    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility);
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
@@ -67,6 +67,13 @@ class lockscreen {
     // Elite Aria Fan
     void eliteAriaFan();
     void eliteAriaFan_fanSpeedRequest(unsigned char speed);
+    
+    // Zwift API
+    void zwift_api_decodemessage_player(const char* data, int len);
+    float zwift_api_getaltitude();
+    int zwift_api_getdistance();
+    float zwift_api_getlatitude();
+    float zwift_api_getlongitude();
 };
 
 #endif // LOCKSCREEN_H
