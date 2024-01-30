@@ -54,17 +54,25 @@ class EncryptionUtils {
 
         if (EVP_PKEY_derive_init(ctx) <= 0) {
             // Handle error
+            qDebug() << "error";
+            return "";
         }
         if (EVP_PKEY_derive_set_peer(ctx, serverPublicKey) <= 0) {
             // Handle error
+            qDebug() << "error";
+            return "";
         }
         size_t secret_len;
         if (EVP_PKEY_derive(ctx, nullptr, &secret_len) <= 0) {
             // Handle error
+            qDebug() << "error";
+            return "";
         }
         result.resize(secret_len);
         if (EVP_PKEY_derive(ctx, reinterpret_cast<unsigned char *>(result.data()), &secret_len) <= 0) {
             // Handle error
+            qDebug() << "error";
+            return "";
         }
 
         EVP_PKEY_CTX_free(ctx);
