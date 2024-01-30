@@ -267,6 +267,10 @@
 		8745B2782AFCB87B00991A39 /* libadb.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8745B2742AFCB3B300991A39 /* libadb.a */; };
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
+		874858972B694105001D7155 /* zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 874858952B694105001D7155 /* zwiftclickremote.cpp */; };
+		874858992B694110001D7155 /* moc_zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 874858982B694110001D7155 /* moc_zwiftclickremote.cpp */; };
+		8748589C2B694139001D7155 /* libssl.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8748589A2B694138001D7155 /* libssl.a */; };
+		8748589D2B694139001D7155 /* libcrypto.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8748589B2B694138001D7155 /* libcrypto.a */; };
 		874D272029AFA11F0007C079 /* apexbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 874D271E29AFA11F0007C079 /* apexbike.cpp */; };
 		874D272229AFA13B0007C079 /* moc_apexbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 874D272129AFA13B0007C079 /* moc_apexbike.cpp */; };
 		8752B4CD27F43D9200E2EC6C /* qz.storekit in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8752B4CC27F43D9200E2EC6C /* qz.storekit */; };
@@ -1038,6 +1042,11 @@
 		87473A9427ECA9EE00C203F5 /* proformrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformrower.h; path = ../src/proformrower.h; sourceTree = "<group>"; };
 		87473A9527ECA9EE00C203F5 /* proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformrower.cpp; path = ../src/proformrower.cpp; sourceTree = "<group>"; };
 		87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformrower.cpp; sourceTree = "<group>"; };
+		874858952B694105001D7155 /* zwiftclickremote.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = zwiftclickremote.cpp; path = ../src/zwift_play/zwiftclickremote.cpp; sourceTree = "<group>"; };
+		874858962B694105001D7155 /* zwiftclickremote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftclickremote.h; path = ../src/zwift_play/zwiftclickremote.h; sourceTree = "<group>"; };
+		874858982B694110001D7155 /* moc_zwiftclickremote.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_zwiftclickremote.cpp; sourceTree = "<group>"; };
+		8748589A2B694138001D7155 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = "../src/ios/openssl/iPhoneOS17.2-arm64.sdk/lib/libssl.a"; sourceTree = "<group>"; };
+		8748589B2B694138001D7155 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = "../src/ios/openssl/iPhoneOS17.2-arm64.sdk/lib/libcrypto.a"; sourceTree = "<group>"; };
 		874D271E29AFA11F0007C079 /* apexbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = apexbike.cpp; path = ../src/apexbike.cpp; sourceTree = "<group>"; };
 		874D271F29AFA11F0007C079 /* apexbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = apexbike.h; path = ../src/apexbike.h; sourceTree = "<group>"; };
 		874D272129AFA13B0007C079 /* moc_apexbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_apexbike.cpp; sourceTree = "<group>"; };
@@ -1604,6 +1613,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8748589C2B694139001D7155 /* libssl.a in Link Binary With Libraries */,
+				8748589D2B694139001D7155 /* libcrypto.a in Link Binary With Libraries */,
 				8745B2782AFCB87B00991A39 /* libadb.a in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
 				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
@@ -1765,6 +1776,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				874858982B694110001D7155 /* moc_zwiftclickremote.cpp */,
 				87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */,
 				878D83752A1F33D900D7F004 /* moc_bkoolbike.cpp */,
 				872DCC3A2A18D4C000EC9F68 /* moc_virtualdevice.cpp */,
@@ -1933,6 +1945,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				874858952B694105001D7155 /* zwiftclickremote.cpp */,
+				874858962B694105001D7155 /* zwiftclickremote.h */,
 				8730A3902B4040AF007E336D /* zwift_messages.pb.swift */,
 				8785D5412B3DD105005A2EB7 /* moc_PlayerStateWrapper.cpp */,
 				8785D5422B3DD105005A2EB7 /* moc_zwift_client_auth.cpp */,
@@ -2403,6 +2417,8 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8748589B2B694138001D7155 /* libcrypto.a */,
+				8748589A2B694138001D7155 /* libssl.a */,
 				8745B2742AFCB3B300991A39 /* libadb.a */,
 				873D388A29B0D744006A2611 /* ConnectIQ.xcframework */,
 				879F74142893D732009A64C8 /* CoreMedia.framework */,
@@ -3169,6 +3185,7 @@
 				333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */,
 				87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */,
 				8785D5442B3DD105005A2EB7 /* moc_zwift_client_auth.cpp in Compile Sources */,
+				874858972B694105001D7155 /* zwiftclickremote.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
 				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
 				8718CBA4263063BD004BF4EE /* templateinfosenderbuilder.cpp in Compile Sources */,
@@ -3391,6 +3408,7 @@
 				3DB7B5F0CE1E2390CEFFC1E8 /* moc_virtualbike.cpp in Compile Sources */,
 				8738249527E646E3004F1B46 /* characteristicnotifier2a37.cpp in Compile Sources */,
 				5FE99682776C1DE51F508F6B /* moc_virtualtreadmill.cpp in Compile Sources */,
+				874858992B694110001D7155 /* moc_zwiftclickremote.cpp in Compile Sources */,
 				8703BAED273C67B60058E206 /* moc_pafersbike.cpp in Compile Sources */,
 				873824E627E647A8004F1B46 /* hostname.cpp in Compile Sources */,
 				74C43649C9C4E2E5F9378019 /* moc_domyosbike.cpp in Compile Sources */,
@@ -3830,6 +3848,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios",
+					"../src/ios/openssl/iPhoneOS17.2-arm64.sdk/lib",
 				);
 				MARKETING_VERSION = 2.16;
 				OTHER_CFLAGS = (
@@ -4003,6 +4022,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 					"/Users/cagnulein/qdomyos-zwift/src/ios",
+					"../src/ios/openssl/iPhoneOS17.2-arm64.sdk/lib",
 				);
 				MARKETING_VERSION = 2.16;
 				ONLY_ACTIVE_ARCH = YES;
