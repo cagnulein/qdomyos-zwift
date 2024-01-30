@@ -10,15 +10,23 @@
 
 class AbstractZapDevice {
 public:
+    QByteArray RIDE_ON;
+    QByteArray REQUEST_START;
+    QByteArray RESPONSE_START;
+
     ZapCrypto zapEncryption;
-    AbstractZapDevice() : localKeyProvider(), zapEncryption(localKeyProvider) {}
+    AbstractZapDevice() : localKeyProvider(), zapEncryption(localKeyProvider) {
+        RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
+        REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
+        RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
+    }
 
     void processCharacteristic(const QString& characteristicName, const QByteArray& bytes) {
         if (bytes.isEmpty()) return;
 
         qDebug() << characteristicName << bytes.toHex();
 
-        if (bytes.startsWith(ZapConstants::RIDE_ON + ZapConstants::RESPONSE_START)) {
+        if (bytes.startsWith(RIDE_ON + RESPONSE_START)) {
             processDevicePublicKeyResponse(bytes);
         } else if (bytes.size() > static_cast<int>(sizeof(int)) + EncryptionUtils::MAC_LENGTH) {
             processEncryptedData(bytes);
@@ -28,7 +36,7 @@ public:
     }
 
     QByteArray buildHandshakeStart() {
-        return ZapConstants::RIDE_ON + ZapConstants::REQUEST_START + localKeyProvider.getPublicKeyBytes();
+        return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
     }
 
 protected:
@@ -39,7 +47,7 @@ private:
     LocalKeyProvider localKeyProvider;    
 
     void processDevicePublicKeyResponse(const QByteArray& bytes) {
-        devicePublicKeyBytes = bytes.mid(ZapConstants::RIDE_ON.size() + ZapConstants::RESPONSE_START.size());
+        devicePublicKeyBytes = bytes.mid(RIDE_ON.size() + RESPONSE_START.size());
         zapEncryption.initialise(devicePublicKeyBytes);
         qDebug() << "Device Public Key -" << devicePublicKeyBytes.toHex();
     }

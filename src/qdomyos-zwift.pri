@@ -56,6 +56,7 @@ macx {
 }
 INCLUDEPATH += qmdnsengine/src/include
 INCLUDEPATH += ../android_openssl/static/include
+ios:LIBS += -Lios/openssl/iPhoneOS17.2-arm64.sdk/lib -lssl -lcrypto
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -93,6 +94,7 @@ SOURCES += \
    $$PWD/windows_zwift_workout_paddleocr_thread.cpp \
    $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
+    $$PWD/zwift_play/zwiftclickremote.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -302,6 +304,7 @@ HEADERS += \
     $$PWD/zwift_play/zapConstants.h \
     $$PWD/zwift_play/zapCrypto.h \
     $$PWD/zwift_play/zwiftPlayDevice.h \
+    $$PWD/zwift_play/zwiftclickremote.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \

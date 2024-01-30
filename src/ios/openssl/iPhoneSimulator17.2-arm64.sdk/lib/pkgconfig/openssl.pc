@@ -1,0 +1,9 @@
+prefix=/Users/cagnulein/Documents/GitHub/OpenSSL-for-iPhone/bin/iPhoneSimulator17.2-arm64.sdk
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL
+Description: Secure Sockets Layer and cryptography libraries and tools
+Version: 1.1.1w
+Requires: libssl libcrypto

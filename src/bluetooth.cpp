@@ -2401,6 +2401,17 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device()) {
+            zwiftClickRemote = new zwiftclickremote(this->device());
+            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+            zwiftClickRemote->deviceDiscovered(b);
+            break;
+        }
+    }
+
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
