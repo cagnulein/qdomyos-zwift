@@ -132,6 +132,7 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &zwiftclickremote::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicRead, this, &zwiftclickremote::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &zwiftclickremote::characteristicWritten);
             connect(
                 s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
@@ -177,9 +178,11 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
-                    // s->readCharacteristic(c);
-                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                }
+                
+                if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                    s->readCharacteristic(c);
+                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 if (c.uuid() == _gattWriteCharacteristicId1) {
