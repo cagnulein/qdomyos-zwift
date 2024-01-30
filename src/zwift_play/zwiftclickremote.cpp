@@ -27,7 +27,9 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice) {
 void zwiftclickremote::update() {
     if (initRequest) {
         initRequest = false;
-
+        QByteArray s = playDevice->buildHandshakeStart();
+        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
+        
         initDone = true;
     }
 }
@@ -49,7 +51,7 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     emit packetReceived();
 
-    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ');
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid().toString();
 
     if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue);
@@ -107,8 +109,7 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
 }
 
 void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId1(QStringLiteral("a026e038-0a7d-4ab3-97fa-f1500f9feb8b")); // handle 0x20
-    QBluetoothUuid _gattWriteCharacteristicId2(QStringLiteral("a026e002-0a7d-4ab3-97fa-f1500f9feb8b")); // handle 0x19
+    QBluetoothUuid _syncRxChar(QStringLiteral("00000003-19CA-4651-86E5-FA29DCDD09D1")); // handle 0x20
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -185,14 +186,10 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
-                if (c.uuid() == _gattWriteCharacteristicId1) {
-                    qDebug() << QStringLiteral("_gattWriteCharacteristicId1 found");
+                if (c.uuid() == _syncRxChar) {
+                    qDebug() << QStringLiteral("_syncRxChar found");
                     gattWrite1Characteristic = c;
                     gattWrite1Service = s;
-                } else if (c.uuid() == _gattWriteCharacteristicId2) {
-                    qDebug() << QStringLiteral("_gattWriteCharacteristicId2 found");
-                    gattWrite2Characteristic = c;
-                    gattWrite2Service = s;
                 }
             }
         }

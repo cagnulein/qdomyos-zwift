@@ -5,6 +5,7 @@
 #include <openssl/evp.h>
 #include <openssl/ec.h>
 #include <openssl/hmac.h>
+#include <openssl/err.h>
 #include <QByteArray>
 #include <cassert>
 #include "localKeyProvider.h"
@@ -64,8 +65,10 @@ private:
 
         EVP_CipherUpdate(ctx, NULL, &outlen, NULL, data.size());
 
-        if (!EVP_CipherUpdate(ctx, reinterpret_cast<unsigned char *>(output.data()), &outlen,
-                              reinterpret_cast<const unsigned char *>(data.constData()), data.size())) {
+        int ret = EVP_CipherUpdate(ctx, reinterpret_cast<unsigned char *>(output.data()), &outlen,
+                                   reinterpret_cast<const unsigned char *>(data.constData()), data.size());
+        if (ret != 1) {
+            qDebug() << "error" << ERR_get_error();
             EVP_CIPHER_CTX_free(ctx);
             return QByteArray();
         }

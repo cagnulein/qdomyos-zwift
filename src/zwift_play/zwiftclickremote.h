@@ -40,8 +40,6 @@ class zwiftclickremote : public bluetoothdevice {
     QLowEnergyCharacteristic gattNotify2Characteristic;
     QLowEnergyCharacteristic gattWrite1Characteristic;
     QLowEnergyService *gattWrite1Service;
-    QLowEnergyCharacteristic gattWrite2Characteristic;
-    QLowEnergyService *gattWrite2Service;
 
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
                              uint8_t data_len, const QString &info, bool disable_log = false,
