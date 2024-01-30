@@ -91,10 +91,10 @@
     <tr class="pace" sort-order="2">
       <td class="icon">🏃</td>
       <td style="text-align: left">PACE</td>
-      <td><small>AVG</small></td>
+      <td class="pace-avg-title"><small>AVG</small></td>
       <td class="pace-avg">00:00</td>
       <td class="pace-value values"><b>00:00</b></td>
-      <td><small>MAX</small></td>
+      <td class="pace-max-title"><small>MAX</small></td>
       <td class="pace-max">00:00</td>
     </tr>    
     <tr class="elevation" sort-order="3">
@@ -590,7 +590,7 @@
       keys_arr = ['speed', 'speed_lapavg', 'cadence', 'cadence_lapavg', 'heart', 'heart_lapavg', 'calories', 'distance', 'watts', 'watts_lapavg',
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
-        'speed_color', 'power_zone_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
+        'speed_color', 'pace_color', 'power_zone_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
 		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace_h', 'target_pace_m', 'target_pace_s', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
@@ -776,6 +776,8 @@
               $('.watt-value').css('color', msg.content[key]);
             } else if (key === 'speed_color') {
               $('.speed-value').css('color', msg.content[key]);
+            } else if (key === 'pace_color') {
+              $('.pace-value').css('color', msg.content[key]);              
             } else if (key === 'power_zone_color') {
               $('.powerzone-value').css('color', msg.content[key]);              
             } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
@@ -838,10 +840,21 @@
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
             $('.pace-value').html("<b>N/A</b>");
           else {
-            if(tile_target_pace_enabled && (target_pace_s.toString() === "-1" || (target_pace_s.toString() === "0" && target_pace_m.toString() === "0")))
+            if(tile_target_pace_enabled && (target_pace_s.toString() === "-1" || (target_pace_s.toString() === "0" && target_pace_m.toString() === "0"))) {
               $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");				   
-            else
-              $('.pace-value').html("<b>" + pace_m.toString().padStart(1, "0") + ":" + pace_s.toString().padStart(2, "0") + "<br>" + target_pace_m.toString().padStart(1, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
+              $('.pace-avg').show();
+              $('.pace-avg-title').show();
+              $('.pace-max').show();
+              $('.pace-max-title').show();
+              $('.pace-value').attr('colspan', 0);
+            } else {
+              $('.pace-avg').hide();
+              $('.pace-avg-title').hide();
+              $('.pace-max').hide();
+              $('.pace-max-title').hide();
+              $('.pace-value').attr('colspan', 5);
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(1, "0") + ":" + pace_s.toString().padStart(2, "0") + " / " + target_pace_m.toString().padStart(1, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
+            }
           }
           if(avgpace_s.toString() === "-1" || (avgpace_s.toString() === "0" && avgpace_m.toString() === "0"))
             $('.pace-avg').html("<b>N/A</b>");
