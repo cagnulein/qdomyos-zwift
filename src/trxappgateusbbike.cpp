@@ -137,7 +137,7 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::CHANGYOW) {
+        } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -530,7 +530,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    } else if (bike_type == TYPE::CHANGYOW) {
+    } else if (bike_type == TYPE::CHANGYOW || bike_type == TYPE::ENERFIT_SPX_9500) {
 
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x23, 0x01, 0xb4};
@@ -927,6 +927,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool FYTTER_ri08_bike = settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool();
     bool ASVIVA_bike = settings.value(QZSettings::asviva_bike, QZSettings::default_asviva_bike).toBool();
     bool hertz_xr_770 = settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool();
+    bool enerfit_SPX_9500 = settings.value(QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")
@@ -942,6 +943,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::HERTZ_XR_770;
             qDebug() << QStringLiteral("HERTZ_XR_770 bike found");
+        } else if (enerfit_SPX_9500) {
+            refresh->start(500ms);
+
+            bike_type = TYPE::ENERFIT_SPX_9500;
+            qDebug() << QStringLiteral("ENERFIT_SPX_9500 bike found");            
         } else if (JLL_IC400_bike) {
             refresh->start(500ms);
 
@@ -964,6 +970,10 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::VIRTUFIT;
             qDebug() << QStringLiteral("VIRTUFIT bike found");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("FITHIWAY")) ||
+                    device.name().toUpper().startsWith(QStringLiteral("FIT HI WAY"))) {
+            bike_type = TYPE::FITHIWAY;
+            qDebug() << QStringLiteral("FITHIWAY bike found");           
         } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
 
             bike_type = TYPE::CHANGYOW;
@@ -984,10 +994,6 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::DKN_MOTION;
             qDebug() << QStringLiteral("DKN MOTION bike found");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("FITHIWAY")) ||
-                    device.name().toUpper().startsWith(QStringLiteral("FIT HI WAY"))) {
-            bike_type = TYPE::FITHIWAY;
-            qDebug() << QStringLiteral("FITHIWAY bike found");
         }
 
         bluetoothDevice = device;
@@ -1048,4 +1054,35 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
+    double P;
+    // Toorx SRX 3500 #1999
+    P = 37.069 
+        - 1.483 * Cadence.value() 
+        - 4.942 * resistance 
+        + 0.023 * Cadence.value() * Cadence.value() 
+        + 0.336 * Cadence.value() * resistance 
+        - 0.036 * resistance * resistance;
+    return P;
+}
+
+resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return maxResistance();
 }

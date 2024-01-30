@@ -12,11 +12,23 @@ void rower::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 void rower::changeResistance(resistance_t resistance) {
+    lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
-        requestResistance = resistance * m_difficult;
+        requestResistance = (resistance * m_difficult) + gears();;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult;
+    RequestedResistance = (resistance * m_difficult) + gears();;
+}
+
+double rower::gears() { return m_gears; }
+void rower::setGears(double gears) {
+    QSettings settings;
+    qDebug() << "setGears" << gears;
+    m_gears = gears;
+    settings.setValue(QZSettings::gears_current_value, m_gears);
+    if (lastRawRequestedResistanceValue != -1) {
+        changeResistance(lastRawRequestedResistanceValue);
+    }
 }
 
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }

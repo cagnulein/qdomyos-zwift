@@ -110,6 +110,10 @@ void lifefitnesstreadmill::btinit() {
     QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     QBluetoothUuid _gattTrainingStatusId((quint16)0x2AD3);
     QBluetoothUuid _gattCrossTrainerDataId((quint16)0x2ACE);
+    if(gattFTMSService == nullptr) {
+        qDebug() << "gattFTMSService is empty!";
+        return;
+    }
     QLowEnergyCharacteristic gattTreadmillData = gattFTMSService->characteristic(_gattTreadmillDataId);
     QLowEnergyCharacteristic gattTrainingStatus = gattFTMSService->characteristic(_gattTrainingStatusId);
     QLowEnergyCharacteristic gattCrossTrainerData = gattFTMSService->characteristic(_gattCrossTrainerDataId);

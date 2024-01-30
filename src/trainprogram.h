@@ -18,6 +18,8 @@
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
+    QDateTime started = QDateTime();
+    QDateTime ended = QDateTime();
     double distance = -1;
     double speed = -1;
     double lower_speed = -1;   // used for peloton

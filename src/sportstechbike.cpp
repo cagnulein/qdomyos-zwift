@@ -136,6 +136,8 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double resistance = GetResistanceFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     double watt = GetWattFromPacket(newValue);
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
@@ -144,7 +146,13 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(11));
+
+            uint8_t heart = ((uint8_t)newValue.at(11));
+            if (heart == 0 || disable_hr_frommachinery) {
+                update_hr_from_external();
+            } else {
+                Heart = heart;
+            }
         }
     }
     FanSpeed = 0;
@@ -408,4 +416,44 @@ void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerStat
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+uint16_t sportstechbike::wattsFromResistance(double resistance) {
+        // Coefficients from the polynomial regression
+    double intercept = 14.4968;
+    double b1 = -4.1878;
+    double b2 = -0.5051;
+    double b3 = 0.00387;
+    double b4 = 0.2392;
+    double b5 = 0.01108;
+    double cadence = Cadence.value();
+
+    // Calculate power using the polynomial equation
+    double power = intercept +
+                   (b1 * resistance) +
+                   (b2 * cadence) +
+                   (b3 * resistance * resistance) +
+                   (b4 * resistance * cadence) +
+                   (b5 * cadence * cadence);
+
+    return power;
+}
+
+resistance_t sportstechbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return maxResistance();
 }
