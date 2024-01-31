@@ -856,6 +856,8 @@ jobs:
 
       - name: Build
         run: |
+            cp src/windows/msvc/*.* .
+            cp src/windows/msvc/*.* /src
             qmake            
             nmake
             cd src/debug
