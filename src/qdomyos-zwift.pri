@@ -30,6 +30,7 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+win32:QMAKE_LIBDIR += $$PWD/windows/msvc/
 win32:LIBS += -lprotobuf-lite -lprotoc -lprotobuf -labsl_base -labsl_log_internal_message -labsl_log_internal_check_op -L$$PWD/windows/mingw64/ -L$$PWD/windows/msvc/
 unix:!android:LIBS += -lprotoc -lprotobuf -labsl_base
 
