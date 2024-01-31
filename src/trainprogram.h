@@ -22,6 +22,8 @@
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
+    QDateTime started = QDateTime();
+    QDateTime ended = QDateTime();
     double distance = -1;
     double speed = -1;
     double lower_speed = -1;   // used for peloton
@@ -139,6 +141,7 @@ private slots:
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     void changeTimestamp(QTime source, QTime actual);
     void toastRequest(QString message);
+    void zwiftLoginState(bool ok);
 
   private:
     mutable QRecursiveMutex schedulerMutex;

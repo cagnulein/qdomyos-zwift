@@ -861,6 +861,39 @@ import QtQuick.Dialogs 1.0
             property string proformtdf1ip: ""
             property string zwift_username: ""
             property string zwift_password: ""
+
+            // from version 2.16.31
+            property bool garmin_bluetooth_compatibility: false
+            property bool norditrack_s25_treadmill: false
+            property bool proform_8_5_treadmill: false
+            property real treadmill_incline_min: -100
+            property real treadmill_incline_max: 100
+
+            // from version 2.16.32
+            property bool proform_2000_treadmill: false
+            property bool android_documents_folder: false
+            property bool zwift_api_autoinclination: true
+
+            // from version 2.16.34
+            property real domyos_treadmill_button_5kmh: 5.0
+            property real domyos_treadmill_button_10kmh: 10.0
+            property real domyos_treadmill_button_16kmh: 16.0
+            property real domyos_treadmill_button_22kmh: 22.0
+
+            // from version 2.16.35
+            property bool proform_treadmill_sport_8_5: false
+
+            // from version 2.16.37
+            property bool domyos_treadmill_t900a: false
+
+            // from version 2.16.38
+            property bool enerfit_SPX_9500: false
+
+            // from version 2.16.39
+            property bool proform_treadmill_505_cst: false
+
+            // from version 2.16.40
+            property bool nordictrack_treadmill_t8_5s: false
         }
 
         function paddingZeros(text, limit) {
@@ -4466,8 +4499,7 @@ import QtQuick.Dialogs 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftPassword
-                            //text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
-                            text: qsTr("Password:")
+                            text: qsTr("Password:") + ((rootItem.zwiftLogin===-1)?"":(rootItem.zwiftLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -4492,6 +4524,33 @@ import QtQuick.Dialogs 1.0
                     Label {
                         //text: qsTr("Enter the password you use to login to Zwift. Click OK. If you have entered the correct login credentials and the QZ is able to access your account, you will see a when you reopen QZ. This is a secure login, not accessible by anyone but you.")
                         text: qsTr("Enter the password you use to login to Zwift. Click OK.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Zwift Treadmill Auto Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_api_autoinclination
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.zwift_api_autoinclination = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Only for Android and iOS: QZ will read the inclination in real time from the Zwift app and will adjust the inclination on your treadmill. It doesn't work on workout")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -4574,12 +4633,39 @@ import QtQuick.Dialogs 1.0
             }
 
             AccordionElement {
-                title: qsTr("Garmin Companion Options") + "\uD83E\uDD47"
+                title: qsTr("Garmin Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    SwitchDelegate {
+                        text: qsTr("Garmin Bluetooth Sensor")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.garmin_bluetooth_compatibility
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.garmin_bluetooth_compatibility = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("If you want to send metrics to your Garmin device from your Mac, enable this. Otherwise leave it disabled.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
 
                     SwitchDelegate {
                         text: qsTr("Enable Companion App")
@@ -5394,6 +5480,78 @@ import QtQuick.Dialogs 1.0
                     color: Material.color(Material.Lime)
                 }
 
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Min. Inclination:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationMinTextField
+                        text: settings.treadmill_incline_min
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_incline_min = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_incline_min = treadmillInclinationMinTextField.text; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("This overrides the minimum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }                
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        text: qsTr("Max. Inclination:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationMaxTextField
+                        text: settings.treadmill_incline_max
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        //inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_incline_max = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.treadmill_incline_max = treadmillInclinationMaxTextField.text; toast.show("Setting saved!"); }
+                    }
+                }
+
+                Label {
+                    text: qsTr("This overrides the maximum inclination value of your treadmill (in order to reduce the inclination movement). Default is -100")
+                    font.bold: true
+                    font.italic: true
+                    font.pixelSize: 9
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    color: Material.color(Material.Lime)
+                }                                
+
                 NewPageElement {
                     title: qsTr("Inclination Overrides")
                     indicatRectColor: Material.color(Material.Grey)
@@ -5416,7 +5574,7 @@ import QtQuick.Dialogs 1.0
                 }
 
                 SwitchDelegate {
-                    text: qsTr("Simulate Inclinatin with Speed")
+                    text: qsTr("Simulate Inclination with Speed")
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -5501,213 +5659,113 @@ import QtQuick.Dialogs 1.0
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
                     accordionContent: ColumnLayout {
-                        spacing: 0                        
-                        SwitchDelegate {
-                            id: nordictrackS25iDelegate
-                            text: qsTr("Nordictrack S25i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.norditrack_s25i_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        spacing: 0    
+                        Label {
+                            text: qsTr("Specific Model:")
                             Layout.fillWidth: true
-                            onClicked: { settings.norditrack_s25i_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
-                        SwitchDelegate {
-                            text: qsTr("Nordictrack Incline Trainer x7i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_incline_trainer_x7i
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        ComboBox {
                             Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_incline_trainer_x7i = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            text: qsTr("NordicTrack X22i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_x22i
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_x22i = checked; window.settings_restart_to_apply = true; settings.nordictrack_ifit_adb_remote = settings.nordictrack_x22i; }
-                        }                        
-                        SwitchDelegate {
-                            id: nordictrack10Delegate
-                            text: qsTr("Nordictrack 10")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_10_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: {settings.nordictrack_10_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            text: qsTr("Proform Pro 1000")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_pro_1000_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: {settings.proform_pro_1000_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            text: qsTr("Nordictrack L6.0S")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_l6_0s
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_l6_0s = checked; window.settings_restart_to_apply = true; }
-                        }
+                            id: treadmillModelComboBox
+                            model: [
+                                "Nordictrack S25", "Nordictrack S25i", "Nordictrack Incline Trainer x7i",
+                                "NordicTrack X22i", "Nordictrack 10", "Nordictrack T8.5s",
+                                "Proform 2000 (not pro)", "Proform 505 CST", "Proform 8.5",
+                                "Proform Sport 8.5", "Proform Pro 1000", "Nordictrack L6.0S",
+                                "Nordictrack T6.5S v81", "Nordictrack T6.5S v83", "Nordictrack T7.0",
+                                "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
+                                "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
+                                "Proform 8.0", "Proform 9.0"
+                            ]
 
-                        SwitchDelegate {
-                            id: nordictrackT65SDelegate
-                            text: qsTr("Nordictrack T6.5S v81")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_t65s_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_t65s_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
+                            onCurrentIndexChanged: {
+                                console.log("treadmillModelComboBox onCurrentIndexChanged " + currentIndex);
 
-                        SwitchDelegate {
-                            id: nordictrackT65S_83Delegate
-                            text: qsTr("Nordictrack T6.5S v83")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_t65s_83_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_t65s_83_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
+                                // Resetta tutti i settings
+                                settings.norditrack_s25_treadmill = false;
+                                settings.norditrack_s25i_treadmill = false;
+                                settings.nordictrack_incline_trainer_x7i = false;
+                                settings.nordictrack_x22i = false;
+                                settings.nordictrack_10_treadmill = false;
+                                settings.nordictrack_treadmill_t8_5s = false;
+                                settings.proform_2000_treadmill = false;
+                                settings.proform_treadmill_505_cst = false;
+                                settings.proform_8_5_treadmill = false;
+                                settings.proform_treadmill_sport_8_5 = false;
+                                settings.proform_pro_1000_treadmill = false;
+                                settings.proform_treadmill_l6_0s = false;
+                                settings.nordictrack_t65s_treadmill = false;
+                                settings.nordictrack_t65s_83_treadmill = false;
+                                settings.nordictrack_t70_treadmill = false;
+                                settings.nordictrack_s20_treadmill = false;
+                                settings.nordictrack_s30_treadmill = false;
+                                settings.proform_treadmill_1800i = false;
+                                settings.proform_treadmill_z1300i = false;
+                                settings.proform_treadmill_se = false;
+                                settings.proform_treadmill_cadence_lt = false;
+                                settings.proform_treadmill_8_0 = false;
+                                settings.proform_treadmill_9_0 = false;
 
-                        SwitchDelegate {
-                            id: nordictrackT70Delegate
-                            text: qsTr("Nordictrack T7.0")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_t70_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_t70_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
-                        SwitchDelegate {
-                            text: qsTr("Nordictrack S20")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_s20_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_s20_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }                        
-                        SwitchDelegate {
-                            id: nordictrackS30Delegate
-                            text: qsTr("Nordictrack S30")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_s30_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.nordictrack_s30_treadmill = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            id: proform1800iDelegate
-                            text: qsTr("Proform 1800i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_1800i
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_1800i = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            text: qsTr("Proform/NordicTrack z1300i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_z1300i
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_z1300i = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            id: proformSEDelegate
-                            text: qsTr("Proform SE")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_se
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_se = checked; window.settings_restart_to_apply = true; }
-                        }
-                        SwitchDelegate {
-                            id: proformCadenceLT
-                            text: qsTr("Proform Cadence LT")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_cadence_lt
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_cadence_lt = checked; window.settings_restart_to_apply = true; }
+                                // Imposta il setting corrispondente al modello selezionato
+                                switch (currentIndex) {
+                                    case 0: settings.norditrack_s25_treadmill = true; break;
+                                    case 1: settings.norditrack_s25i_treadmill = true; break;
+                                    case 2: settings.nordictrack_incline_trainer_x7i = true; break;
+                                    case 3: settings.nordictrack_x22i = true; break;
+                                    case 4: settings.nordictrack_10_treadmill = true; break;
+                                    case 5: settings.nordictrack_treadmill_t8_5s = true; break;
+                                    case 6: settings.proform_2000_treadmill = true; break;
+                                    case 7: settings.proform_treadmill_505_cst = true; break;
+                                    case 8: settings.proform_8_5_treadmill = true; break;
+                                    case 9: settings.proform_treadmill_sport_8_5 = true; break;
+                                    case 10: settings.proform_pro_1000_treadmill = true; break;
+                                    case 11: settings.proform_treadmill_l6_0s = true; break;
+                                    case 12: settings.nordictrack_t65s_treadmill = true; break;
+                                    case 13: settings.nordictrack_t65s_83_treadmill = true; break;
+                                    case 14: settings.nordictrack_t70_treadmill = true; break;
+                                    case 15: settings.nordictrack_s20_treadmill = true; break;
+                                    case 16: settings.nordictrack_s30_treadmill = true; break;
+                                    case 17: settings.proform_treadmill_1800i = true; break;
+                                    case 18: settings.proform_treadmill_z1300i = true; break;
+                                    case 19: settings.proform_treadmill_se = true; break;
+                                    case 20: settings.proform_treadmill_cadence_lt = true; break;
+                                    case 21: settings.proform_treadmill_8_0 = true; break;
+                                    case 22: settings.proform_treadmill_9_0 = true; break;
+                                }
+                            }
+
+                            Component.onCompleted: {
+                                // Logica per determinare e impostare il valore corretto all'avvio
+                                var selectedModel = settings.norditrack_s25_treadmill ? 0 :
+                                                    settings.norditrack_s25i_treadmill ? 1 :
+                                                    settings.nordictrack_incline_trainer_x7i ? 2 :
+                                                    settings.nordictrack_x22i ? 3 :
+                                                    settings.nordictrack_10_treadmill ? 4 :
+                                                    settings.nordictrack_treadmill_t8_5s ? 5 :
+                                                    settings.proform_2000_treadmill ? 6 :
+                                                    settings.proform_treadmill_505_cst ? 7 :
+                                                    settings.proform_8_5_treadmill ? 8 :
+                                                    settings.proform_treadmill_sport_8_5 ? 9 :
+                                                    settings.proform_pro_1000_treadmill ? 10 :
+                                                    settings.proform_treadmill_l6_0s ? 11 :
+                                                    settings.nordictrack_t65s_treadmill ? 12 :
+                                                    settings.nordictrack_t65s_83_treadmill ? 13 :
+                                                    settings.nordictrack_t70_treadmill ? 14 :
+                                                    settings.nordictrack_s20_treadmill ? 15 :
+                                                    settings.nordictrack_s30_treadmill ? 16 :
+                                                    settings.proform_treadmill_1800i ? 17 :
+                                                    settings.proform_treadmill_z1300i ? 18 :
+                                                    settings.proform_treadmill_se ? 19 :
+                                                    settings.proform_treadmill_cadence_lt ? 20 :
+                                                    settings.proform_treadmill_8_0 ? 21 :
+                                                    settings.proform_treadmill_9_0 ? 22 : -1;
+
+                                console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
+
+                                if (selectedModel >= 0) {
+                                    currentIndex = selectedModel;
+                                }
+                            }
                         }
                         RowLayout {
                             spacing: 10
@@ -5771,65 +5829,6 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
                         }
-
-                        SwitchDelegate {
-                            text: qsTr("Proform 8.0")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_8_0
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_8_0 = checked; window.settings_restart_to_apply = true; }
-                        }
-
-                        SwitchDelegate {
-                            id: proform90IDelegate
-                            text: qsTr("Proform 9.0")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_9_0
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: { settings.proform_treadmill_9_0 = checked; window.settings_restart_to_apply = true; }
-                        }
-                        /*
-                        SwitchDelegate {
-                            id: nordictrackFS5IDelegate
-                            text: qsTr("Nordictrack FS5i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.nordictrack_fs5i_treadmill
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.nordictrack_fs5i_treadmill = checked
-                        }*/
-                        /*
-                        SwitchDelegate {
-                            id: proform995iDelegate
-                            text: qsTr("Proform 995i")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.proform_treadmill_995i
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.proform_treadmill_995i = checked
-                        }*/
                     }
                 }
 
@@ -6063,6 +6062,20 @@ import QtQuick.Dialogs 1.0
                         }
 
                         SwitchDelegate {
+                            text: qsTr("T900A")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_treadmill_t900a
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_treadmill_t900a = checked
+                        }                        
+
+                        SwitchDelegate {
                             id: domyosTreadmillDistanceDisplayDelegate
                             text: qsTr("Distance on Console")
                             spacing: 0
@@ -6091,6 +6104,99 @@ import QtQuick.Dialogs 1.0
                             Layout.fillWidth: true
                             onClicked: settings.domyos_treadmill_display_invert = checked
                         }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 5km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton5KmhTimeTextField
+                                text: settings.domyos_treadmill_button_5kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_5kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_5kmh = domyosTreadmillButton5KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 10km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton10KmhTimeTextField
+                                text: settings.domyos_treadmill_button_10kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_10kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_10kmh = domyosTreadmillButton10KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 16km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton16KmhTimeTextField
+                                text: settings.domyos_treadmill_button_16kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_16kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_16kmh = domyosTreadmillButton16KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                text: qsTr("Remap 22km/h button:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: domyosTreadmillButton22KmhTimeTextField
+                                text: settings.domyos_treadmill_button_22kmh
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.domyos_treadmill_button_22kmh = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: { settings.domyos_treadmill_button_22kmh = domyosTreadmillButton22KmhTimeTextField.text; toast.show("Setting saved!"); window.settings_restart_to_apply = true;}
+                            }
+                        }
+
                         RowLayout {
                             spacing: 10
                             Label {
@@ -6662,6 +6768,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.enerfit_SPX_9500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.enerfit_SPX_9500 = checked; window.settings_restart_to_apply = true; }
+                    }                    
 
                     SwitchDelegate {
                         id: jtxFitnessSprintTreadmillDelegate
@@ -7379,7 +7499,7 @@ import QtQuick.Dialogs 1.0
                             id: okCadenceGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.cadence_gain = speedGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.cadence_gain = cadenceGainTextField.text; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -9605,6 +9725,33 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("Android Only: enable this to force Android to don't kill QZ when it's running on background")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    SwitchDelegate {
+                        text: qsTr("Android Force Documents/QZ Folder")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.android_documents_folder
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.android_documents_folder = checked; window.settings_restart_to_apply = true; }
+                    }
+
+                    Label {
+                        text: qsTr("Android Only: force QZ to use the /Documents/QZ folder for debug log and fit files")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9

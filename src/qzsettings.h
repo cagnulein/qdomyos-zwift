@@ -1944,6 +1944,56 @@ class QZSettings {
     static const QString zwift_password;
     static const QString default_zwift_password;
 
+    static const QString garmin_bluetooth_compatibility;
+    static constexpr bool default_garmin_bluetooth_compatibility = false;
+
+    static const QString norditrack_s25_treadmill;
+    static constexpr int default_norditrack_s25_treadmill = false;
+
+    static const QString proform_8_5_treadmill;
+    static constexpr int default_proform_8_5_treadmill = false;
+
+    static const QString treadmill_incline_min;
+    static constexpr float default_treadmill_incline_min = -100.0;
+
+    static const QString treadmill_incline_max;
+    static constexpr float default_treadmill_incline_max = 100.0;
+
+    static const QString proform_2000_treadmill;
+    static constexpr bool default_proform_2000_treadmill = false;
+
+    static const QString android_documents_folder;
+    static constexpr bool default_android_documents_folder = false;
+
+    static const QString zwift_api_autoinclination;
+    static constexpr bool default_zwift_api_autoinclination = true;
+
+    static const QString domyos_treadmill_button_5kmh;
+    static constexpr float default_domyos_treadmill_button_5kmh = 5.0;
+
+    static const QString domyos_treadmill_button_10kmh;
+    static constexpr float default_domyos_treadmill_button_10kmh = 10.0;
+
+    static const QString domyos_treadmill_button_16kmh;
+    static constexpr float default_domyos_treadmill_button_16kmh = 16.0;
+
+    static const QString domyos_treadmill_button_22kmh;
+    static constexpr float default_domyos_treadmill_button_22kmh = 22.0;
+
+    static const QString proform_treadmill_sport_8_5;
+    static constexpr bool default_proform_treadmill_sport_8_5 = false;
+
+    static const QString domyos_treadmill_t900a;
+    static constexpr bool default_domyos_treadmill_t900a = false;
+
+    static const QString enerfit_SPX_9500;
+    static constexpr bool default_enerfit_SPX_9500 = false;
+
+    static const QString proform_treadmill_505_cst;
+    static constexpr bool default_proform_treadmill_505_cst = false;
+
+    static const QString nordictrack_treadmill_t8_5s;
+    static constexpr bool default_nordictrack_treadmill_t8_5s = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

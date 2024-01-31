@@ -503,6 +503,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
 
+    qDebug() << "homeform constructor events linked";
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
 #endif
@@ -541,11 +543,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
-    }
-
+    }    
 #ifdef Q_OS_ANDROID
     // Android 14 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
+    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         QDirIterator itAndroid(getAndroidDataAppDir(), QDirIterator::Subdirectories);
         QDir().mkdir(getWritableAppDir());
         QDir().mkdir(getProfileDir());
@@ -653,6 +655,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                          });
     });
 #endif
+
+    bluetoothManager->homeformLoaded = true;
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -799,6 +803,17 @@ void homeform::pelotonLoginState(bool ok) {
     }
 }
 
+void homeform::zwiftLoginState(bool ok) {
+
+    m_zwiftLoginState = (ok ? 1 : 0);
+    emit zwiftLoginChanged(m_zwiftLoginState);
+    if (!ok) {
+        setToastRequested("Zwift Login Error!");
+        emit toastRequestedChanged(toastRequested());
+    }
+}
+
+
 void homeform::pelotonWorkoutStarted(const QString &name, const QString &instructor) {
     pelotonAskedName = name;
     pelotonAskedInstructor = instructor;
@@ -864,8 +879,9 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 QString homeform::getWritableAppDir() {
     QString path = QLatin1String("");
 #if defined(Q_OS_ANDROID)
-    // Android 14 restrics access to /Android/data folder
-    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
+    QSettings settings;
+    bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
+    if (android_documents_folder || QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 14)) {
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/QZ/";
         QDir().mkdir(path);
     } else {
@@ -1000,6 +1016,7 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::workoutEventStateChanged);
         disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         disconnect(trainProgram, &trainprogram::toastRequest, this, &homeform::onToastRequested);
+        disconnect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
@@ -1056,6 +1073,7 @@ void homeform::trainProgramSignals() {
         connect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                 &bluetoothdevice::workoutEventStateChanged);
+        connect(trainProgram, &trainprogram::zwiftLoginState, this, &homeform::zwiftLoginState);
 
         if (trainProgram) {
             setChartIconVisible(trainProgram->powerzoneWorkout());
@@ -2024,6 +2042,11 @@ void homeform::sortTiles() {
                 preset_resistance_5->setGridId(i);
                 dataList.append(preset_resistance_5);
             }
+            if (settings.value(QZSettings::tile_gears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_gears_order, 51).toInt() == i) {
+                gears->setGridId(i);
+                dataList.append(gears);
+            }            
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -2455,7 +2478,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
             ((elliptical *)bluetoothManager->device())
                 ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            ((rower *)bluetoothManager->device())
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
+                               .toDouble());
         }
+
     }
 }
 
@@ -2484,7 +2512,9 @@ void homeform::LargeButton(const QString &name) {
     if (!bluetoothManager || !bluetoothManager->device())
         return;
 
-    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
+        bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL ||
+        bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
         if (name.contains(QStringLiteral("preset_resistance_1"))) {
             bluetoothManager->device()->changeResistance(settings
                                                              .value(QZSettings::tile_preset_resistance_1_value,
@@ -2865,6 +2895,10 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                ((rower *)bluetoothManager->device())
+                    ->setGears(((rower *)bluetoothManager->device())->gears() +
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -3106,6 +3140,10 @@ void homeform::Minus(const QString &name) {
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() -
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                ((rower *)bluetoothManager->device())
+                    ->setGears(((rower *)bluetoothManager->device())->gears() -
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
@@ -3916,6 +3954,7 @@ void homeform::update() {
                 pace = 0;
             }
 
+            this->gears->setValue(QString::number(((rower *)bluetoothManager->device())->gears()));
             this->pace_last500m->setValue(
                 ((rower *)bluetoothManager->device())->lastPace500m().toString(QStringLiteral("m:ss")));
 

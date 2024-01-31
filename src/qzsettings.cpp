@@ -691,11 +691,28 @@ const QString QZSettings::default_proformtdf1ip = QStringLiteral("");
 const QString QZSettings::proform_bike_225_csx = QStringLiteral("proform_bike_225_csx");
 const QString QZSettings::proform_treadmill_l6_0s = QStringLiteral("proform_treadmill_l6_0s");
 const QString QZSettings::zwift_username = QStringLiteral("zwift_username");
-const QString QZSettings::default_zwift_username = QStringLiteral("username");
+const QString QZSettings::default_zwift_username = QStringLiteral("");
 const QString QZSettings::zwift_password = QStringLiteral("zwift_password");
-const QString QZSettings::default_zwift_password = QStringLiteral("password");
+const QString QZSettings::default_zwift_password = QStringLiteral("");
+const QString QZSettings::garmin_bluetooth_compatibility = QStringLiteral("garmin_bluetooth_compatibility");
+const QString QZSettings::norditrack_s25_treadmill = QStringLiteral("norditrack_s25_treadmill");
+const QString QZSettings::proform_8_5_treadmill = QStringLiteral("proform_8_5_treadmill");
+const QString QZSettings::treadmill_incline_min = QStringLiteral("treadmill_incline_min");
+const QString QZSettings::treadmill_incline_max = QStringLiteral("treadmill_incline_max");
+const QString QZSettings::proform_2000_treadmill = QStringLiteral("proform_2000_treadmill");
+const QString QZSettings::android_documents_folder = QStringLiteral("android_documents_folder");
+const QString QZSettings::zwift_api_autoinclination = QStringLiteral("zwift_api_autoinclination");
+const QString QZSettings::domyos_treadmill_button_5kmh = QStringLiteral("domyos_treadmill_button_5kmh");
+const QString QZSettings::domyos_treadmill_button_10kmh = QStringLiteral("domyos_treadmill_button_10kmh");
+const QString QZSettings::domyos_treadmill_button_16kmh = QStringLiteral("domyos_treadmill_button_16kmh");
+const QString QZSettings::domyos_treadmill_button_22kmh = QStringLiteral("domyos_treadmill_button_22kmh");
+const QString QZSettings::proform_treadmill_sport_8_5 = QStringLiteral("proform_treadmill_sport_8_5");
+const QString QZSettings::domyos_treadmill_t900a = QStringLiteral("domyos_treadmill_t900a");
+const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
+const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
+const QString QZSettings::nordictrack_treadmill_t8_5s = QStringLiteral("nordictrack_treadmill_t8_5s");
 
-const uint32_t allSettingsCount = 581;
+const uint32_t allSettingsCount = 598;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1283,7 +1300,23 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proformtdf1ip, QZSettings::default_proformtdf1ip},
     {QZSettings::zwift_username, QZSettings::default_zwift_username},
     {QZSettings::zwift_password, QZSettings::default_zwift_password},
-
+    {QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility},
+    {QZSettings::norditrack_s25_treadmill, QZSettings::default_norditrack_s25_treadmill},
+    {QZSettings::proform_8_5_treadmill, QZSettings::default_proform_8_5_treadmill},
+    {QZSettings::treadmill_incline_min, QZSettings::default_treadmill_incline_min},
+    {QZSettings::treadmill_incline_max, QZSettings::default_treadmill_incline_max},
+    {QZSettings::proform_2000_treadmill, QZSettings::default_proform_2000_treadmill},
+    {QZSettings::android_documents_folder, QZSettings::default_android_documents_folder},
+    {QZSettings::zwift_api_autoinclination, QZSettings::default_zwift_api_autoinclination},
+    {QZSettings::domyos_treadmill_button_5kmh, QZSettings::default_domyos_treadmill_button_5kmh},
+    {QZSettings::domyos_treadmill_button_10kmh, QZSettings::default_domyos_treadmill_button_10kmh},
+    {QZSettings::domyos_treadmill_button_16kmh, QZSettings::default_domyos_treadmill_button_16kmh},
+    {QZSettings::domyos_treadmill_button_22kmh, QZSettings::default_domyos_treadmill_button_22kmh},
+    {QZSettings::proform_treadmill_sport_8_5, QZSettings::default_proform_treadmill_sport_8_5},
+    {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
+    {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
+    {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
+    {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

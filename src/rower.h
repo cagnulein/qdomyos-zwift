@@ -36,6 +36,8 @@ class rower : public bluetoothdevice {
     void setLap() override;
     void setPaused(bool p) override;
     QTime speedToPace(double Speed);
+    void setGears(double d);
+    double gears();    
 
   public slots:
     void changeResistance(resistance_t res) override;
@@ -65,6 +67,8 @@ class rower : public bluetoothdevice {
     uint16_t LastCrankEventTime = 0;
     resistance_t requestResistance = -1;
     double CrankRevs = 0;
+    double m_gears = 0;
+    resistance_t lastRawRequestedResistanceValue = -1;
 
     metric m_pelotonResistance;
 

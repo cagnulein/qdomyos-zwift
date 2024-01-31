@@ -106,6 +106,7 @@ QTime bluetoothdevice::maxPace() {
     }
 }
 
+double bluetoothdevice::odometerFromStartup() { return Distance.valueRaw(); }
 double bluetoothdevice::odometer() { return Distance.value(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }

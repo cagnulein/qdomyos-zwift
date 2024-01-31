@@ -46,6 +46,8 @@ class lifefitnesstreadmill : public treadmill {
     double minStepInclination() override;
     double minStepSpeed() override;
     virtual bool canStartStop()  override{ return false; }
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }    
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,

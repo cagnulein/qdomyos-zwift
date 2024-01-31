@@ -211,14 +211,23 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     lastRefreshCharacteristicChanged = now;
 
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
+
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
-    } else
+    else
 #endif
     {
-        if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
-            update_hr_from_external();
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+
+            uint8_t heart = ((uint8_t)newValue.at(9));
+            if (heart == 0 || disable_hr_frommachinery) {
+                update_hr_from_external();
+            } else {
+                Heart = heart;
+            }
         }
     }
 
@@ -240,6 +249,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
+    qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

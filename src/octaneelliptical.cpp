@@ -405,18 +405,18 @@ void octaneelliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
     // Q37xi has a fixed stride length of 20.5 inches (52cm).
-    Speed = (((Cadence.value() / 2.0) * 52.07 * 60) / 10000) * 0.84135;
+    Speed = (((Cadence.value() / 2.0) * 52.07 * 60) / 10000) * 1.1218;
     emit speedChanged(speed.value());
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
 
     if (!firstCharacteristicChanged) {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) *
+                (((((0.048 * ((double)watts()) + 1.19) *
                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                QDateTime::currentDateTime())))) / 2.0); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

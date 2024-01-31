@@ -94,6 +94,7 @@ class fitshowtreadmill : public treadmill {
     void writeCharacteristic(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     bool writePayload(const uint8_t *data, uint8_t data_len, const QString &info = QString());
     void scheduleWrite(const uint8_t *data, uint8_t data_len, const QString &info = QString());
+    void getCadence(uint16_t step_count);
     void startDiscover();
     void sendSportData();
     void removeFromBuffer();
@@ -145,6 +146,8 @@ class fitshowtreadmill : public treadmill {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+
+    QDateTime lastChangedStepCount = QDateTime::currentDateTime();
 
     bool initDone = false;
     bool initRequest = false;

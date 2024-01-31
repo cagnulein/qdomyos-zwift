@@ -37,6 +37,8 @@ class trxappgateusbbike : public bike {
     trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                       double bikeResistanceGain);
     bool connected() override;
+    resistance_t maxResistance() override { return 32; }
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -54,6 +56,7 @@ class trxappgateusbbike : public bike {
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
+    uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
 
@@ -101,6 +104,7 @@ class trxappgateusbbike : public bike {
         TUNTURI = 16,
         TUNTURI_2 = 17,
         FITHIWAY = 18,
+        ENERFIT_SPX_9500 = 19,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

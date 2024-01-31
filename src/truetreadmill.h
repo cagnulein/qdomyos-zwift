@@ -41,6 +41,8 @@ class truetreadmill : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     bool canStartStop() override { return false; }
+    bool canHandleSpeedChange() override { return false; }
+    bool canHandleInclineChange() override { return false; }    
 
   private:
     void startDiscover();
