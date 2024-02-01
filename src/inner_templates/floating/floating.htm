@@ -73,10 +73,10 @@
     <tr class="speed" sort-order="0">
       <td class="icon">🏃</td>
       <td style="text-align: left">SPEED</td>
-      <td><small>AVG</small></td>
+      <td class="speed-avg-title"><small>AVG</small></td>
       <td class="speed-avg">0.0</td>
       <td class="speed-value values"><b>0.0</b></td>
-      <td><small>MAX</small></td>
+      <td class="speed-max-title"><small>MAX</small></td>
       <td class="speed-max">0.0</td>
     </tr>
     <tr class="inclination" sort-order="1">
@@ -793,10 +793,24 @@
                 $(".autoresistance").html('⊘')
             }
           }
-          if (tile_target_speed_enabled && target_speed > 0)
+
+          if (tile_target_speed_enabled && target_speed > 0) {
+            $('.speed-avg').hide();
+            $('.speed-avg-title').hide();
+            $('.speed-max').hide();
+            $('.speed-max-title').hide();
+            $('.speed-value').attr('colspan', 5);
+
             $('.speed-value').html("<b>" + speed.toFixed(1) + "/" + target_speed.toFixed(1) + "</b>");
-          else
+          } else {
+            $('.speed-avg').show();
+            $('.speed-avg-title').show();
+            $('.speed-max').show();
+            $('.speed-max-title').show();
+            $('.speed-value').attr('colspan', 0);
+
             $('.speed-value').html("<b>" + speed.toFixed(1) + "</b>");
+          }
           $('.speed-avg').html(speed_lapavg.toFixed(1));
           $('.speed-max').html(speed_lapmax.toFixed(1));
           if (tile_target_inclination_enabled && target_inclination > 0)

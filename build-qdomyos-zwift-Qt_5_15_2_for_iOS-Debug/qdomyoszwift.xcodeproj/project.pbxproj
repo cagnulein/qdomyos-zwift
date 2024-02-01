@@ -502,6 +502,7 @@
 		87F93429278E0ECF0088B596 /* moc_domyosrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87F93428278E0ECF0088B596 /* moc_domyosrower.cpp */; };
 		87FA11AB27C5ECD1008AC5D1 /* ultrasportbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FA11AA27C5ECD1008AC5D1 /* ultrasportbike.cpp */; };
 		87FA11AD27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FA11AC27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp */; };
+		87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */; };
 		87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */; };
 		87FFA13727BBE3FF00924E4E /* solebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FFA13527BBE3FE00924E4E /* solebike.cpp */; };
@@ -1396,6 +1397,8 @@
 		87FA11A927C5ECD1008AC5D1 /* ultrasportbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ultrasportbike.h; path = ../src/ultrasportbike.h; sourceTree = "<group>"; };
 		87FA11AA27C5ECD1008AC5D1 /* ultrasportbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ultrasportbike.cpp; path = ../src/ultrasportbike.cpp; sourceTree = "<group>"; };
 		87FA11AC27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ultrasportbike.cpp; sourceTree = "<group>"; };
+		87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		87FA94682B6B8A5A00B6AB9A /* libSystem.B.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libSystem.B.tbd; path = usr/lib/libSystem.B.tbd; sourceTree = SDKROOT; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tacxneo2.cpp; path = ../src/tacxneo2.cpp; sourceTree = "<group>"; };
 		87FE5BAE2692F3130056EFC8 /* tacxneo2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tacxneo2.h; path = ../src/tacxneo2.h; sourceTree = "<group>"; };
@@ -1615,6 +1618,7 @@
 			files = (
 				8748589C2B694139001D7155 /* libssl.a in Link Binary With Libraries */,
 				8748589D2B694139001D7155 /* libcrypto.a in Link Binary With Libraries */,
+				87FA94672B6B89FD00B6AB9A /* SwiftUI.framework in Link Binary With Libraries */,
 				8745B2782AFCB87B00991A39 /* libadb.a in Link Binary With Libraries */,
 				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
 				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
@@ -2419,6 +2423,8 @@
 			children = (
 				8748589B2B694138001D7155 /* libcrypto.a */,
 				8748589A2B694138001D7155 /* libssl.a */,
+				87FA94682B6B8A5A00B6AB9A /* libSystem.B.tbd */,
+				87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */,
 				8745B2742AFCB3B300991A39 /* libadb.a */,
 				873D388A29B0D744006A2611 /* ConnectIQ.xcframework */,
 				879F74142893D732009A64C8 /* CoreMedia.framework */,
@@ -3915,6 +3921,24 @@
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_MULTIMEDIA_LIB",
 				);
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-framework",
+					AssetsLibrary,
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+					"-framework",
+					OpenGLES,
+					"-weak-lSystem",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
 				QMAKE_FULL_VERSION = 1.7.0;
@@ -4089,6 +4113,24 @@
 					"-DQT_LOCATION_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_MULTIMEDIA_LIB",
+				);
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-e,_qt_main_wrapper",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-framework",
+					AssetsLibrary,
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+					"-framework",
+					OpenGLES,
+					"-weak-lSystem",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
