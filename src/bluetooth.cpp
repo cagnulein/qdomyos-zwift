@@ -2402,11 +2402,14 @@ void bluetooth::connectedAndDiscovered() {
     }
 
     for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
-        if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device()) {
+        if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
+                this->device()->deviceType() == bluetoothdevice::BIKE) {
             zwiftClickRemote = new zwiftclickremote(this->device());
             // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
             connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+            connect(zwiftClickRemote->playDevice, &AbstractZapDevice::plus, (bike*)this->device(), &bike::gearUp);
+            connect(zwiftClickRemote->playDevice, &AbstractZapDevice::minus, (bike*)this->device(), &bike::gearDown);
             zwiftClickRemote->deviceDiscovered(b);
             break;
         }

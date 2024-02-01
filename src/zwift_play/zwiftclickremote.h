@@ -33,6 +33,7 @@ class zwiftclickremote : public bluetoothdevice {
   public:
     zwiftclickremote(bluetoothdevice *parentDevice);
     bool connected() override;
+    ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
 
   private:
     QList<QLowEnergyService *> gattCommunicationChannelService;
@@ -50,9 +51,7 @@ class zwiftclickremote : public bluetoothdevice {
     bool initDone = false;
     bool initRequest = false;
 
-    QTimer *refresh;
-
-    ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
+    QTimer *refresh;    
 
   signals:
     void disconnected();
