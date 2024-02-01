@@ -90,7 +90,7 @@ private:
 
 
     QByteArray generateHmacKeyDerivationFunctionBytes(const QByteArray& devicePublicKeyBytes) {
-        qDebug() << devicePublicKeyBytes.toHex(" ")
+        qDebug() << devicePublicKeyBytes.toHex(' ');
         EC_KEY* localPublicKey = localKeyProvider.getPublicKey();
         const EC_GROUP* group = EC_KEY_get0_group(localPublicKey);
 
