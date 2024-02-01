@@ -25,12 +25,12 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice) {
 }
 
 void zwiftclickremote::update() {
-    if (initRequest) {
+    if (initRequest && !initDone) {
         initRequest = false;
-        QByteArray s = playDevice->buildHandshakeStart();
-        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
-        
         initDone = true;
+        QByteArray s = playDevice->buildHandshakeStart();
+        qDebug() << s.length();
+        writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
     }
 }
 

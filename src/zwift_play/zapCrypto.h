@@ -90,6 +90,7 @@ private:
 
 
     QByteArray generateHmacKeyDerivationFunctionBytes(const QByteArray& devicePublicKeyBytes) {
+        qDebug() << devicePublicKeyBytes.toHex(" ")
         EC_KEY* localPublicKey = localKeyProvider.getPublicKey();
         const EC_GROUP* group = EC_KEY_get0_group(localPublicKey);
 
@@ -107,9 +108,11 @@ private:
 
         // Now, use EVP_PKEY* for shared secret generation
         QByteArray sharedSecretBytes = EncryptionUtils::generateSharedSecretBytes(localKeyProvider.getPrivateKey(), serverPublicKey);
+        qDebug() << "sharedSecretBytes" << sharedSecretBytes;
         QByteArray salt = EncryptionUtils::publicKeyToByteArray(serverPublicKeyEC) + localKeyProvider.getPublicKeyBytes();
-
+        qDebug() << "salt" << salt;
         QByteArray hkdfOutput = hkdf(sharedSecretBytes, salt, QByteArray(), EncryptionUtils::HKDF_LENGTH);
+        qDebug() << "serverPublicKey" << serverPublicKey;
 
         EVP_PKEY_free(serverPublicKey); // This will also free serverPublicKeyEC
         return hkdfOutput;
