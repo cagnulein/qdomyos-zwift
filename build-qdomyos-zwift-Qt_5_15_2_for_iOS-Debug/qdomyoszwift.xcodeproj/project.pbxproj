@@ -388,6 +388,7 @@
 		87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC24265642A200D302E3 /* moc_rower.cpp */; };
 		87A3BC27265642A300D302E3 /* moc_echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */; };
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
+		87AD80F52B6BC8ED00FA9F0E /* moc_abstractZapDevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87AD80F42B6BC8ED00FA9F0E /* moc_abstractZapDevice.cpp */; };
 		87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */; };
 		87ADD2BD27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */; };
 		87AE0CB227760DCB00E547E9 /* virtualtreadmill_zwift.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87AE0CB127760DCB00E547E9 /* virtualtreadmill_zwift.swift */; };
@@ -1229,6 +1230,7 @@
 		87A4B75F25AF27CB0027EF3C /* metric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metric.cpp; path = ../src/metric.cpp; sourceTree = "<group>"; };
 		87A4B76025AF27CB0027EF3C /* metric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metric.h; path = ../src/metric.h; sourceTree = "<group>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		87AD80F42B6BC8ED00FA9F0E /* moc_abstractZapDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_abstractZapDevice.cpp; sourceTree = "<group>"; };
 		87ADD2B927634C1400B7A0AB /* technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmill.cpp; path = ../src/technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
 		87ADD2BA27634C1400B7A0AB /* technogymmyruntreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmill.h; path = ../src/technogymmyruntreadmill.h; sourceTree = "<group>"; };
 		87ADD2BC27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmill.cpp; sourceTree = "<group>"; };
@@ -1780,6 +1782,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87AD80F42B6BC8ED00FA9F0E /* moc_abstractZapDevice.cpp */,
 				874858982B694110001D7155 /* moc_zwiftclickremote.cpp */,
 				87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */,
 				878D83752A1F33D900D7F004 /* moc_bkoolbike.cpp */,
@@ -3374,6 +3377,7 @@
 				140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */,
 				873824BF27E64707004F1B46 /* moc_abstractserver.cpp in Compile Sources */,
 				87C5F0BA26285E5F0067A1B5 /* mimefile.cpp in Compile Sources */,
+				87AD80F52B6BC8ED00FA9F0E /* moc_abstractZapDevice.cpp in Compile Sources */,
 				879E5AA8289C057E00FEA38A /* proformwifitreadmill.cpp in Compile Sources */,
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
