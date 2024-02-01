@@ -12,7 +12,6 @@ buildscript {
 
 plugins {
   id "com.google.protobuf" version "0.9.4"
-  alias(libs.plugins.kotlin.android)
 }
 
 repositories {
