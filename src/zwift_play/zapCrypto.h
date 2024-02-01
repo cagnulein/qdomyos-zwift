@@ -108,11 +108,11 @@ private:
 
         // Now, use EVP_PKEY* for shared secret generation
         QByteArray sharedSecretBytes = EncryptionUtils::generateSharedSecretBytes(localKeyProvider.getPrivateKey(), serverPublicKey);
-        qDebug() << "sharedSecretBytes" << sharedSecretBytes;
+        qDebug() << "sharedSecretBytes" << sharedSecretBytes.toHex(' ');;
         QByteArray salt = EncryptionUtils::publicKeyToByteArray(serverPublicKeyEC) + localKeyProvider.getPublicKeyBytes();
-        qDebug() << "salt" << salt;
+        qDebug() << "salt" << salt.toHex(' ');;
         QByteArray hkdfOutput = hkdf(sharedSecretBytes, salt, QByteArray(), EncryptionUtils::HKDF_LENGTH);
-        qDebug() << "serverPublicKey" << serverPublicKey;
+        qDebug() << "hkdfOutput" << hkdfOutput.toHex(' ');
 
         EVP_PKEY_free(serverPublicKey); // This will also free serverPublicKeyEC
         return hkdfOutput;
