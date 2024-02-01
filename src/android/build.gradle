@@ -33,11 +33,11 @@ dependencies {
     implementation "androidx.core:core-ktx:1.12.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0"
     implementation 'com.google.protobuf:protobuf-javalite:3.25.1'
-    implementation libs.jakewharton.timber
+    implementation "libs.jakewharton.timber:timber:+"
 
     // all the crypto
-    implementation libs.bouncy.castle.bcpkix
-    implementation libs.bouncy.castle.prov
+    implementation 'org.bouncycastle:bcpkix-jdk15on:+'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
 
 
     if(amazon == "1") {
