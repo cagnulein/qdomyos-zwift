@@ -37,6 +37,7 @@ public:
         assert(!encryptionKeyBytes.isEmpty() && !ivBytes.isEmpty());
 
         QByteArray nonceBytes = ivBytes + counterArray;
+        qDebug() << "nonceBytes" << nonceBytes.toHex(' ');
         return encryptDecrypt(false, nonceBytes, payload);
     }
 
@@ -69,13 +70,13 @@ private:
                                    reinterpret_cast<const unsigned char *>(data.constData()), data.size());
         if (ret != 1) {
             qDebug() << "error" << ERR_get_error();
-            EVP_CIPHER_CTX_free(ctx);
-            return QByteArray();
+            //EVP_CIPHER_CTX_free(ctx);
+            //return QByteArray();
         }
 
         if (EVP_CipherFinal_ex(ctx, reinterpret_cast<unsigned char *>(output.data()) + outlen, &outlen) <= 0) {
             EVP_CIPHER_CTX_free(ctx);
-            return QByteArray();
+            //return QByteArray();
         }
 
         if (encrypt) {

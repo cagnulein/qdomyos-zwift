@@ -17,11 +17,10 @@ protected:
             qDebug() << "Decrypted:" << bytes.toHex();
 
             QByteArray counter = bytes.left(sizeof(int));
-            const int MAC_LENGHT = 4;
-            QByteArray payload = bytes.mid(sizeof(int), bytes.length() - MAC_LENGHT - sizeof(int));
+            QByteArray payload = bytes.mid(sizeof(int), bytes.length() - sizeof(int));
             
             QByteArray data = zapEncryption.decrypt(counter, payload);
-            qDebug() << data << counter << payload;
+            qDebug() << data.toHex(' ') << counter.toHex(' ') << payload.toHex(' ');
             char type = data[0];
             QByteArray message = data.mid(1);
 
