@@ -31,11 +31,6 @@ public:
             processDevicePublicKeyResponse(bytes);
         } else if (bytes.size() > static_cast<int>(sizeof(int)) + EncryptionUtils::MAC_LENGTH) {
             processEncryptedData(bytes);
-        } else if (bytes.size() == 5 && bytes.startsWith(0x37)) {
-            if(bytes[2] == 0x00)
-                emit plus();
-            else if(bytes[4] == 0x00)
-                emit minus();
         } else {
             qDebug() << "Unprocessed - Data Type:" << bytes.toHex();
         }
@@ -57,9 +52,6 @@ private:
         zapEncryption.initialise(devicePublicKeyBytes);
         qDebug() << "Device Public Key -" << devicePublicKeyBytes.toHex();
     }
-signals:
-    void plus();
-    void minus();
 };
 
 #endif // ABSTRACTZAPDEVICE_H

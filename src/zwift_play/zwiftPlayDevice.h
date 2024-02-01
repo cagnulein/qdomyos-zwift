@@ -8,6 +8,7 @@
 #include "controllerNotification.h"
 
 class ZwiftPlayDevice : public AbstractZapDevice {
+    Q_OBJECT
 public:
     ZwiftPlayDevice() : batteryLevel(0), lastButtonState(nullptr) {}
 
@@ -31,14 +32,19 @@ protected:
                 case ZapConstants::EMPTY_MESSAGE_TYPE:
                     qDebug() << "Empty Message";
                     break;
-                case ZapConstants::BATTERY_LEVEL_TYPE: {/*
+                case ZapConstants::BATTERY_LEVEL_TYPE: /*
                     BatteryStatus notification(message);
                     if (batteryLevel != notification.getLevel()) {
                         batteryLevel = notification.getLevel();
                         qDebug() << "Battery level update:" << batteryLevel;
                     }*/
                     break;
-                }
+                case 0x37:
+                    if(bytes[2] == 0x00)
+                        emit plus();
+                    else if(bytes[4] == 0x00)
+                        emit minus();
+                    break;
                 default:
                     qDebug() << "Unprocessed - Type:" << static_cast<unsigned char>(type) << "Data:" << data.toHex();
                     break;
@@ -62,6 +68,10 @@ private:
 
     int batteryLevel;
     std::unique_ptr<ControllerNotification> lastButtonState;
+        
+signals:
+    void plus();
+    void minus();
 };
 
 

@@ -51,12 +51,15 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     emit packetReceived();
 
-    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << characteristic.uuid().toString();
+    qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << characteristic.uuid().Name << characteristic.uuid().toString();
 
     if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("Async", newValue);
     } else if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("SyncTx", newValue);
+    } else if(characteristic.uuid() == QBluetoothUuid::BatteryLevel) {
+        if(!initDone)
+            initRequest = true;
     }
 }
 
@@ -109,7 +112,9 @@ void zwiftclickremote::writeCharacteristic(QLowEnergyService *service, QLowEnerg
 }
 
 void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _syncRxChar(QStringLiteral("00000003-19CA-4651-86E5-FA29DCDD09D1")); // handle 0x20
+    QBluetoothUuid _syncRxChar(QStringLiteral("00000003-19CA-4651-86E5-FA29DCDD09D1"));
+    QBluetoothUuid _syncTxChar(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"));
+    QBluetoothUuid _asyncChar(QStringLiteral("00000002-19CA-4651-86E5-FA29DCDD09D1"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -181,7 +186,8 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 }
                 
-                if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read &&
+                    c.uuid() != _syncTxChar && c.uuid() != _asyncChar) {
                     s->readCharacteristic(c);
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
@@ -198,7 +204,6 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
 
 void zwiftclickremote::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
-    initRequest = true;
 }
 
 void zwiftclickremote::characteristicWritten(const QLowEnergyCharacteristic &characteristic,

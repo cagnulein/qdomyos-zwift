@@ -2409,8 +2409,8 @@ void bluetooth::connectedAndDiscovered() {
             // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
             connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
-            connect(zwiftClickRemote->playDevice, &AbstractZapDevice::plus, (bike*)this->device(), &bike::gearUp);
-            connect(zwiftClickRemote->playDevice, &AbstractZapDevice::minus, (bike*)this->device(), &bike::gearDown);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+            connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
             zwiftClickRemote->deviceDiscovered(b);
             break;
         }
