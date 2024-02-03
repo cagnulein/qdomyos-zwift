@@ -3,7 +3,7 @@
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
-#include "virtualbike.h"
+#include <optional>
 #include <queue>
 
 class trixterxdreamv1bike : public bike
