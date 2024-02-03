@@ -726,6 +726,7 @@ RESOURCES += \
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
@@ -737,6 +738,7 @@ DISTFILES += \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
