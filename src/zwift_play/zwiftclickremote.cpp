@@ -58,8 +58,6 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
     } else if(characteristic.uuid() == QBluetoothUuid(QStringLiteral("00000004-19CA-4651-86E5-FA29DCDD09D1"))) {
         playDevice->processCharacteristic("SyncTx", newValue);
     } else if(characteristic.uuid() == QBluetoothUuid::BatteryLevel) {
-        if(!initDone)
-            initRequest = true;
     }
 }
 
@@ -186,11 +184,11 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 }
                 
-                if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read &&
+                /*if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read &&
                     c.uuid() != _syncTxChar && c.uuid() != _asyncChar) {
                     s->readCharacteristic(c);
                     qDebug() << s->serviceUuid() << c.uuid() << "reading!";
-                }
+                }*/
 
                 if (c.uuid() == _syncRxChar) {
                     qDebug() << QStringLiteral("_syncRxChar found");
@@ -204,6 +202,8 @@ void zwiftclickremote::stateChanged(QLowEnergyService::ServiceState state) {
 
 void zwiftclickremote::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
+    if(!initDone)
+        initRequest = true;
 }
 
 void zwiftclickremote::characteristicWritten(const QLowEnergyCharacteristic &characteristic,

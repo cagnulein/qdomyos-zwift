@@ -38,8 +38,13 @@ public class ZapClickLayer {
     private static final String TAG = "ZapClickLayer: ";
     private static ZwiftPlayDevice device;
 
-    public static void processEncryptedData(byte[] value) {
-        Log.d(TAG, "processEncryptedData");
-        device.processEncryptedData(value);
+    public static void processCharacteristic(byte[] value) {
+        Log.d(TAG, "processCharacteristic");
+        device.processCharacteristic("QZ", value);
+    }
+
+    public static byte[] buildHandshakeStart() {
+        Log.d(TAG, "buildHandshakeStart");
+        return device.buildHandshakeStart();
     }
 }

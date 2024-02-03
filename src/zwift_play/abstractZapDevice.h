@@ -7,6 +7,10 @@
 //#include "localKeyProvider.h"
 //#include "zapCrypto.h"
 #include "zapConstants.h"
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
+#endif
 
 class AbstractZapDevice: public QObject {
     Q_OBJECT
@@ -27,16 +31,42 @@ public:
 
         qDebug() << characteristicName << bytes.toHex();
 
-        if (bytes.startsWith(RIDE_ON + RESPONSE_START)) {
-            //processDevicePublicKeyResponse(bytes);
-        } else if (bytes.size() > static_cast<int>(sizeof(int)) + /*EncryptionUtils::MAC_LENGTH*/4) {
-            //processEncryptedData(bytes);
-        } else {
-            qDebug() << "Unprocessed - Data Type:" << bytes.toHex();
-        }
+#ifdef Q_OS_ANDROID
+        QAndroidJniEnvironment env;
+        jbyteArray d = env->NewByteArray(bytes.length());
+        jbyte *b = env->GetByteArrayElements(d, 0);
+        for (int i = 0; i < bytes.length(); i++)
+            b[i] = bytes[i];
+        env->SetByteArrayRegion(d, 0, bytes.length(), b);
+
+        QAndroidJniObject::callStaticMethod<void>(
+            "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)V", d);
+        env->DeleteLocalRef(d);
+#endif
+
     }
 
     QByteArray buildHandshakeStart() {
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject result =
+        QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
+    if (result.isValid()) {
+        // Ottiene la lunghezza dell'array di byte
+        jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
+
+        // Allocare memoria per i byte nativi
+        jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
+
+        // Costruire un QByteArray dal buffer di byte nativi
+        QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
+
+        // Rilasciare la memoria dell'array di byte JNI
+        QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
+
+        // Ora puoi usare byteArray come necessario
+        return byteArray;
+    }
+#endif
         //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
     }
 
@@ -45,13 +75,6 @@ protected:
 
 private:
     QByteArray devicePublicKeyBytes;
-    //LocalKeyProvider localKeyProvider;
-
-    void processDevicePublicKeyResponse(const QByteArray& bytes) {
-        devicePublicKeyBytes = bytes.mid(RIDE_ON.size() + RESPONSE_START.size());
-        //zapEncryption.initialise(devicePublicKeyBytes);
-        qDebug() << "Device Public Key -" << devicePublicKeyBytes.toHex();
-    }
 };
 
 #endif // ABSTRACTZAPDEVICE_H
