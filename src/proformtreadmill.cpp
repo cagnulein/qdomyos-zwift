@@ -53,7 +53,7 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 }
 
 void proformtreadmill::forceIncline(double incline) {
-    if (proform_treadmill_1800i) {
+    if (proform_treadmill_1800i || proform_2000_treadmill) {
         uint8_t i = abs(incline * 10);
         uint8_t r = i % 5;
         i = i - r;
@@ -342,8 +342,8 @@ void proformtreadmill::update() {
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 if (requestInclination != -100) {
-                    if (requestInclination < 0)
-                        requestInclination = 0;
+                    if (requestInclination < -3)
+                        requestInclination = -3;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
