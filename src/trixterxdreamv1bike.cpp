@@ -308,6 +308,24 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
     return result;
 }
 
+uint16_t trixterxdreamv1bike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
+    QSettings settings;
+
+    double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double bikeMass = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
+    double totalMass = riderMass+bikeMass;
+    double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
+
+    uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
+
+    qDebug() << "Inclination:" << inclination
+             << " Speed:" << speedMetresPerSecond << "m/s "
+             << " Total Mass:"<< totalMass << "kg "
+             << "= Power:" << power << "W ";
+
+    return power;
+}
+
 bool trixterxdreamv1bike::connected() {
     // If this is called from the connect() method, the timer won't have called the update() method
     // so go directly to the queue of states.
@@ -387,7 +405,7 @@ void trixterxdreamv1bike::update() {
         this->brakeLevel = 0;
         this->m_steeringAngle.setValue(0);
         this->Cadence.setValue(0);
-        this->Heart.setValue(0);
+        this->Heart.setValue(0);        
         return;
     }
 
@@ -429,7 +447,7 @@ void trixterxdreamv1bike::update() {
     }
 
     // Determine if the user is pressing the button to stop.
-    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
+    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0 && flywheel>0.0;
 
     // update the metrics
     if(!this->noHeartRate)
@@ -441,7 +459,6 @@ void trixterxdreamv1bike::update() {
     this->brakeLevel = brakeLevel;
     constexpr double minutesPerHour = 60.0;
     this->Speed.setValue(flywheel * minutesPerHour * this->wheelCircumference);
-
     bool steeringAngleChanged = false;
     if(!this->noSteering) {
         double newValue = steering;
@@ -450,19 +467,59 @@ void trixterxdreamv1bike::update() {
             this->m_steeringAngle.setValue(newValue);
     }
 
-    // simulate ERG hardware
     if(this->requestPower > -1) {
-        this->requestResistance = this->resistanceFromPowerRequest(this->requestPower);
+        // there's been a request to change power.
+        bool changedMode = !this->requestIsPower;
+        this->requestIsPower = true; // switch to ERG mode
+        this->requestedResistanceInput = this->requestPower;
+        this->requestPower = -1;
 
-        qDebug() << QStringLiteral("Power request: ")
-                 << QString::number(this->requestPower)
-                 << QStringLiteral("W with cadence ")
-                 << QString::number(this->Cadence.value())
-                 << QStringLiteral("RPM --> setting resistance request: ")
-                 << QString::number(this->requestResistance);
+        if(changedMode) {
+            qDebug() << "Changed to ERG mode detected";
+            this->Inclination.setValue(0.0); // remove the inclination from the previous mode from the UI tile
+        }
+    }
 
-        // leave requestPower as is because on the next update, the cadence could have changed
-        // and a new resistance level will be needed.
+    if(this->requestInclination>-100) {
+        // there's been a request to change inclination
+        bool changedMode = this->requestIsPower;
+        this->requestIsPower = false; // set to indoor bike simulation parameters mode
+        this->requestedResistanceInput = this->requestInclination;
+        this->requestInclination = -100;
+
+        if(changedMode) {
+            qDebug() << "Changed to Indoor Bike Simulation Parameters mode";
+            this->RequestedPower.setValue(0.0); // get rid of the target power from the UI tile
+        }
+    }
+
+    if(this->requestedResistanceInput.has_value()) {
+        // Get the value. This value is retained between update requests because the resistance that is
+        // calculated from it can change due to cadence or flywheel speed.
+        int16_t value = this->requestedResistanceInput.value();
+
+        if(this->requestIsPower) {
+            // simulate ERG hardware - value is target power in watts
+            this->requestResistance = this->resistanceFromPowerRequest(value);
+
+            qDebug() << "Power request: "
+                     << this->requestedResistanceInput.value()
+                     << "W with cadence "
+                     << this->Cadence.value()
+                     << "RPM --> setting resistance request: "
+                     << this->requestResistance;
+        } else {
+            // simulate inclination - value is inclination percentage
+            double groundSpeed = flywheel / 60.0 * 1000.0 * this->wheelCircumference;
+            uint16_t reqPower = this->calculatePowerFromInclination(value, groundSpeed);
+            this->requestResistance = this->resistanceFromPowerRequest(reqPower);
+
+            qDebug()  << "Inclination request: "
+                      << value
+                      << "% speed:"
+                      << groundSpeed << "m/s --> setting resistance request: "
+                      << this->requestResistance;
+        }
     }
 
     if (this->requestResistance > -1) {

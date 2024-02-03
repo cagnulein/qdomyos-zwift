@@ -105,6 +105,19 @@ private:
     double wheelCircumference;
 
     /**
+     * @brief requestIsPower Indicates if the last power request (for resistance) came
+     * for ERG mode (true, i.e. changePower) or via inclination (false, i.e. changeInclination).
+     */
+    bool requestIsPower = false;
+
+    /**
+     * @brief requestedResistanceInput Latest requested input for resistance.
+     * If requestIsPower is true, this is the target power in watts
+     * If requestIsPower is false, this is the inclination percentage
+     */
+    std::optional<int16_t> requestedResistanceInput;
+
+    /**
      * @brief t0 The start time in milliseconds. Used to determine elapsed time.
      */
     qint64 t0=0;
@@ -179,6 +192,13 @@ private:
      * @param resistance Bike resistance on full, not percentage scale.
      */
     double calculatePower(int cadenceRPM, int resistance);
+
+    /**
+     * @brief Calculate power from the specified inclination and speed. Uses rider and bike weight from settings.
+     * @param inclination Percentage inclination.
+     * @param speedMetersPerSecond Bike speed in meters per second.
+     */
+    uint16_t calculatePowerFromInclination(double inclination, double speedMetersPerSecond);
 
     /**
      * @brief Called to set the resistance level sent to the device.
