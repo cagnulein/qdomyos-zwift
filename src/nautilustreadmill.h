@@ -72,6 +72,8 @@ class nautilustreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
+    bool T628 = false;
+
   Q_SIGNALS:
     void disconnected();
     void debug(QString string);

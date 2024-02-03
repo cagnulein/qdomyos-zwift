@@ -1314,6 +1314,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("CITYSPORTS-LINKER")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
@@ -1474,6 +1475,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
+                        (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||

@@ -1992,6 +1992,12 @@ class QZSettings {
     static const QString proform_treadmill_505_cst;
     static constexpr bool default_proform_treadmill_505_cst = false;
 
+    static const QString nordictrack_treadmill_t8_5s;
+    static constexpr bool default_nordictrack_treadmill_t8_5s = false;
+
+    static const QString proform_treadmill_705_cst;
+    static constexpr bool default_proform_treadmill_705_cst = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

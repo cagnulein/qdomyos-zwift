@@ -325,6 +325,12 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
             lastInclinationChanged = QDateTime::currentDateTime();
             if (nordictrack_ifit_adb_remote) {
+                bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+                if (requestInclination != -100 && erg_mode && requestResistance != -100) {
+                    qDebug() << "forcing inclination based on the erg mode resistance request of" << requestResistance;
+                    requestInclination = requestResistance;
+                    requestResistance = -100;
+                }
                 if (requestInclination != -100) {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
@@ -556,3 +562,142 @@ void nordictrackifitadbbike::changeInclinationRequested(double grade, double per
 }
 
 bool nordictrackifitadbbike::connected() { return true; }
+
+resistance_t nordictrackifitadbbike::resistanceFromPowerRequest(uint16_t power) {
+    // actually it's using inclination for the s22i
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 0;
+
+    for (resistance_t i = 0; i < max_resistance; i++) {
+        if (wattsFromResistance(i, Cadence.value()) <= power && wattsFromResistance(i + 1, Cadence.value()) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i, Cadence.value())
+                     << wattsFromResistance(i + 1, Cadence.value()) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(0, Cadence.value()))
+        return 0;
+    else
+        return max_resistance;
+}
+
+uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double cadence) {
+    // this is for the s22i
+    double power = 0.0;
+
+    if (inclination == 0.0) {
+        power = 0.01 * cadence * cadence + -0.25 * cadence + 8.00;
+    }
+    else if (inclination == 0.5) {
+        power = 0.01 * cadence * cadence + -0.15 * cadence + 4.00;
+    }
+    else if (inclination == 1.0) {
+        power = 0.01 * cadence * cadence + -0.50 * cadence + 11.00;
+    }
+    else if (inclination == 1.5) {
+        power = 0.01 * cadence * cadence + -0.50 * cadence + 11.00;
+    }
+    else if (inclination == 2.0) {
+        power = 0.01 * cadence * cadence + -0.40 * cadence + 8.00;
+    }
+    else if (inclination == 2.5) {
+        power = 0.01 * cadence * cadence + 0.15 * cadence + -6.00;
+    }
+    else if (inclination == 3.0) {
+        power = 0.02 * cadence * cadence + -1.10 * cadence + 21.00;
+    }
+    else if (inclination == 3.5) {
+        power = 0.03 * cadence * cadence + -2.10 * cadence + 47.00;
+    }
+    else if (inclination == 4.0) {
+        power = 0.04 * cadence * cadence + -2.45 * cadence + 56.00;
+    }
+    else if (inclination == 4.5) {
+        power = 0.03 * cadence * cadence + -1.90 * cadence + 42.00;
+    }
+    else if (inclination == 5.0) {
+        power = 0.05 * cadence * cadence + -3.70 * cadence + 86.00;
+    }
+    else if (inclination == 5.5) {
+        power = 0.05 * cadence * cadence + -3.80 * cadence + 92.00;
+    }
+    else if (inclination == 6.0) {
+        power = 0.07 * cadence * cadence + -5.10 * cadence + 112.00;
+    }
+    else if (inclination == 6.5) {
+        power = 0.06 * cadence * cadence + -4.20 * cadence + 94.00;
+    }
+    else if (inclination == 7.0) {
+        power = 0.03 * cadence * cadence + -0.40 * cadence + -10.00;
+    }
+    else if (inclination == 7.5) {
+        power = 0.07 * cadence * cadence + -4.60 * cadence + 100.00;
+    }
+    else if (inclination == 8.0) {
+        power = 0.11 * cadence * cadence + -7.75 * cadence + 180.00;
+    }
+    else if (inclination == 8.5) {
+        power = 0.09 * cadence * cadence + -5.75 * cadence + 132.00;
+    }
+    else if (inclination == 9.0) {
+        power = 0.08 * cadence * cadence + -4.40 * cadence + 90.00;
+    }
+    else if (inclination == 9.5) {
+        power = 0.08 * cadence * cadence + -4.60 * cadence + 102.00;
+    }
+    else if (inclination == 10.0) {
+        power = 0.11 * cadence * cadence + -7.30 * cadence + 180.00;
+    }
+    else if (inclination == 10.5) {
+        power = 0.08 * cadence * cadence + -4.00 * cadence + 90.00;
+    }
+    else if (inclination == 11.0) {
+        power = 0.12 * cadence * cadence + -7.40 * cadence + 174.00;
+    }
+    else if (inclination == 11.5) {
+        power = 0.12 * cadence * cadence + -7.40 * cadence + 174.00;
+    }
+    else if (inclination == 12.0) {
+        power = 0.20 * cadence * cadence + -14.70 * cadence + 351.00;
+    }
+    else if (inclination == 12.5) {
+        power = 0.20 * cadence * cadence + -14.75 * cadence + 372.00;
+    }
+    else if (inclination == 13.0) {
+        power = 0.12 * cadence * cadence + -6.30 * cadence + 159.00;
+    }
+    else if (inclination == 13.5) {
+        power = 0.15 * cadence * cadence + -9.00 * cadence + 219.00;
+    }
+    else if (inclination == 14.0) {
+        power = 0.37 * cadence * cadence + -30.60 * cadence + 753.00;
+    }
+    else if (inclination == 14.5) {
+        power = 0.14 * cadence * cadence + -7.30 * cadence + 183.00;
+    }
+    else if (inclination == 15.0) {
+        power = 0.17 * cadence * cadence + -8.85 * cadence + 222.00;
+    }
+    else if (inclination == 15.5) {
+        power = 0.17 * cadence * cadence + -8.85 * cadence + 222.00;
+    }
+    else if (inclination == 16.0) {
+        power = 0.19 * cadence * cadence + -9.75 * cadence + 245.00;
+    }
+    else if (inclination == 16.5) {
+        power = 0.26 * cadence * cadence + -17.45 * cadence + 455.00;
+    }
+    else if (inclination == 17.0) {
+        power = 0.27 * cadence * cadence + -17.90 * cadence + 470.00;
+    }
+    else if (inclination == 17.5) {
+        power = 0.27 * cadence * cadence + -17.90 * cadence + 470.00;
+    }
+    else {
+        qDebug() << "Inclination level not supported";
+    }
+
+    return power;
+}

@@ -2720,7 +2720,9 @@ void horizontreadmill::testProfileCRC() {
 }
 
 double horizontreadmill::minStepInclination() {
-    if (kettler_treadmill || trx3500_treadmill)
+    QSettings settings;
+    bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill)
         return 1.0;
     else
         return 0.5;
