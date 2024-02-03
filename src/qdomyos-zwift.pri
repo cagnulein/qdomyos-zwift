@@ -738,20 +738,6 @@ DISTFILES += \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZwiftAPI.java \
-    $$PWD/android/src/com/che/zap/crypto/EncryptionUtils.kt \
-    $$PWD/android/src/com/che/zap/crypto/LocalKeyProvider.kt \
-    $$PWD/android/src/com/che/zap/crypto/ZapCrypto.kt \
-    $$PWD/android/src/com/che/zap/device/AbstractZapDevice.kt \
-    $$PWD/android/src/com/che/zap/device/ZapBleUuids.kt \
-    $$PWD/android/src/com/che/zap/device/ZapConstants.kt \
-    $$PWD/android/src/com/che/zap/play/ZwiftPlayDevice.kt \
-    $$PWD/android/src/com/che/zap/proto/BatteryStatus.kt \
-    $$PWD/android/src/com/che/zap/proto/ControllerNotification.kt \
-    $$PWD/android/src/com/che/zap/utils/BaseObservable.kt \
-    $$PWD/android/src/com/che/zap/utils/BleUuids.kt \
-    $$PWD/android/src/com/che/zap/utils/ByteArraryUtils.kt \
-    $$PWD/android/src/com/che/zap/utils/Logger.kt \
-    $$PWD/android/src/com/che/zap/utils/ProtoDecode.kt \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
    AppxManifest.xml \
