@@ -1989,6 +1989,9 @@ class QZSettings {
     static const QString enerfit_SPX_9500;
     static constexpr bool default_enerfit_SPX_9500 = false;
 
+    static const QString proform_treadmill_505_cst;
+    static constexpr bool default_proform_treadmill_505_cst = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

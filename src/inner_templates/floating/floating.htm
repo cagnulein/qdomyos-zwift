@@ -591,7 +591,7 @@
         'elapsed_h', 'elapsed_m', 'elapsed_s', 'resistance', 'resistance_lapavg', 'peloton_resistance', 'peloton_resistance_lapavg',
         'speed_lapmax', 'cadence_lapmax', 'heart_lapmax', 'watts_lapmax', 'resistance_lapmax', 'peloton_resistance_lapmax',
         'speed_color', 'power_zone_color', 'cadence_color', 'heart_color', 'watts_color', 'peloton_resistance_color', 'target_resistance', 'target_peloton_resistance',
-		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace', 'inclination', 'inclination_lapavg',
+		  'target_cadence', 'target_power', 'peloton_offset', 'peloton_ask_start', 'target_speed', 'target_pace_h', 'target_pace_m', 'target_pace_s', 'inclination', 'inclination_lapavg',
         'inclination_lapmax', 'target_inclination', 'power_zone', 'power_zone_lapavg', 'power_zone_lapmax', 'target_power_zone', 'jouls',
         'row_remaining_time_s', 'row_remaining_time_m', 'row_remaining_time_h' , 'autoresistance', 'gears', 'elevation', 'pace_s' , 'pace_m', 
         'avgpace_s', 'avgpace_m', 'maxpace_s' , 'maxpace_m', 'remaining_time_s', 'remaining_time_m', 'remaining_time_h']
@@ -837,12 +837,12 @@
           $('.gears-value').html("<b>" + gears.toFixed(0) + "</b>");
           if(pace_s.toString() === "-1" || (pace_s.toString() === "0" && pace_m.toString() === "0"))
             $('.pace-value').html("<b>N/A</b>");
-			 else {
-			   if(tile_target_pace_enabled && target_pace > 0)
-				   $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "/" + target_pace_m.toString().padStart(2, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
-					else
-					$('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");
-			 }
+          else {
+            if(tile_target_pace_enabled && (target_pace_s.toString() === "-1" || (target_pace_s.toString() === "0" && target_pace_m.toString() === "0")))
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(2, "0") + ":" + pace_s.toString().padStart(2, "0") + "</b>");				   
+            else
+              $('.pace-value').html("<b>" + pace_m.toString().padStart(1, "0") + ":" + pace_s.toString().padStart(2, "0") + "<br>" + target_pace_m.toString().padStart(1, "0") + ":" + target_pace_s.toString().padStart(2, "0") + "</b>");
+          }
           if(avgpace_s.toString() === "-1" || (avgpace_s.toString() === "0" && avgpace_m.toString() === "0"))
             $('.pace-avg').html("<b>N/A</b>");
           else

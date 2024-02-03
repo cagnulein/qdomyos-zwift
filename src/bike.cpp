@@ -50,6 +50,7 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+
 void bike::changePower(int32_t power) {
 
     RequestedPower = power; // in order to paint in any case the request power on the charts
@@ -59,11 +60,11 @@ void bike::changePower(int32_t power) {
         return;
     }
 
-    requestPower = power; // used by some bikes that have ERG mode builti
+    requestPower = power; // used by some bikes that have ERG mode builtin
 
     if(this->ergModeSupported)
     {
-        qDebug() << QStringLiteral("changePower to ") << power << "W";
+        qDebug() << QStringLiteral("changePower to ") << power << QStringLiteral("W using built-in ERG mode.");
         return;
     }
 
@@ -72,11 +73,11 @@ void bike::changePower(int32_t power) {
         settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance)
             .toBool();
 
-    if(!force_resistance)
+    if(!force_resistance) {
+        qDebug() << QStringLiteral("changePower to ") << power << QStringLiteral("W ignored because force_resistance setting is off");
         return;
+    }
 
-    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used
-    // anywhere in code
     double erg_filter_upper =
         settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower =
@@ -84,18 +85,12 @@ void bike::changePower(int32_t power) {
     double watts = this->wattsMetric().value();
     double deltaDown = watts - ((double)power);
     double deltaUp = -deltaDown;
-    qDebug() << QStringLiteral("requested change of power from ")
-             << QString::number(watts)
-             << QStringLiteral("W to ")
-             << QString::number(power)
-             << QStringLiteral("W");
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
-    if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
-        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+    if (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower) {
         resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
 
-        qDebug() << "Changing resistance to " << r;
+        qDebug() << QStringLiteral("Changing resistance to ") << r;
         changeResistance(r); // resistance start from 1
     }
 }

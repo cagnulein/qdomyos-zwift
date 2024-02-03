@@ -1090,6 +1090,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
             el = ((rower *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
             obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
             obj.setProperty(QStringLiteral("target_pace_h"), el.hour());

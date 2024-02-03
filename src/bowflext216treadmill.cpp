@@ -212,8 +212,9 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     else
 #endif
     {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        if (heartRateBeltName.startsWith(QLatin1String("Disabled"))) {
+            update_hr_from_external();
+        }
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
