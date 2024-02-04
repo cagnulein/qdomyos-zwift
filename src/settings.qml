@@ -8957,7 +8957,7 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                 }
-AccordionElement {
+                AccordionElement {
                         title: qsTr("Zwift Devices Options")
                         indicatRectColor: Material.color(Material.Grey)
                         textColor: Material.color(Material.Yellow)
@@ -8978,7 +8978,20 @@ AccordionElement {
                                 Layout.fillWidth: true
                                 onClicked: { settings.zwift_click = checked; window.settings_restart_to_apply = true; }
                             }
-													}
+
+                            Label {
+                                text: qsTr("Available only on Android: use it to change the gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+                        }
                     }
 
             }
