@@ -679,12 +679,12 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
 
 #ifdef Q_OS_IOS
     // Not supported in iOS
-    return false;
+    return nullptr;
 #endif
 
 #ifdef Q_OS_ANDROID
     // Not supported in Android
-    return false;
+    return nullptr;
 #endif
 
     // first check if there's a port specified
