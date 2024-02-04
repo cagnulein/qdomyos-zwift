@@ -53,26 +53,27 @@ public:
 
     QByteArray buildHandshakeStart() {
 #ifdef Q_OS_ANDROID
-    QAndroidJniObject result =
-        QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
-    if (result.isValid()) {
-        // Ottiene la lunghezza dell'array di byte
-        jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
+        QAndroidJniObject result =
+            QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
+        if (result.isValid()) {
+            // Ottiene la lunghezza dell'array di byte
+            jsize length = QAndroidJniEnvironment()->GetArrayLength(result.object<jbyteArray>());
 
-        // Allocare memoria per i byte nativi
-        jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
+            // Allocare memoria per i byte nativi
+            jbyte* bytes = QAndroidJniEnvironment()->GetByteArrayElements(result.object<jbyteArray>(), nullptr);
 
-        // Costruire un QByteArray dal buffer di byte nativi
-        QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
+            // Costruire un QByteArray dal buffer di byte nativi
+            QByteArray byteArray(reinterpret_cast<char*>(bytes), length);
 
-        // Rilasciare la memoria dell'array di byte JNI
-        QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
+            // Rilasciare la memoria dell'array di byte JNI
+            QAndroidJniEnvironment()->ReleaseByteArrayElements(result.object<jbyteArray>(), bytes, JNI_ABORT);
 
-        // Ora puoi usare byteArray come necessario
-        return byteArray;
-    }
+            // Ora puoi usare byteArray come necessario
+            return byteArray;
+        }
 #endif
         //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
+        return QByteArray();
     }
 
 protected:
