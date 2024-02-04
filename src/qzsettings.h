@@ -1994,6 +1994,10 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_t8_5s;
     static constexpr bool default_nordictrack_treadmill_t8_5s = false;
+    
+    static const QString zwift_click;
+    static constexpr bool default_zwift_click = false;
+
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
