@@ -59,7 +59,7 @@ class bike : public bluetoothdevice {
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
     virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }
     void gearUp() {setGears(gears() + 1);}
-    void gearDown() {setGears(gears() + 1);}
+    void gearDown() {setGears(gears() - 1);}
 
   Q_SIGNALS:
     void bikeStarted();

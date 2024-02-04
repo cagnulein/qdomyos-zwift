@@ -67,11 +67,7 @@ private:
     }
 
     int batteryLevel;
-    std::unique_ptr<ControllerNotification> lastButtonState;
-        
-signals:
-    void plus();
-    void minus();
+    std::unique_ptr<ControllerNotification> lastButtonState;        
 };
 
 

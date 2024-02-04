@@ -43,9 +43,9 @@ public class ZapClickLayer {
         return d;
     }
 
-    public static void processCharacteristic(byte[] value) {
+    public static int processCharacteristic(byte[] value) {
         Log.d(TAG, "processCharacteristic");
-        device.processCharacteristic("QZ", value);
+        return device.processCharacteristic("QZ", value);
     }
 
     public static byte[] buildHandshakeStart() {

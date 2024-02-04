@@ -26,8 +26,8 @@ public:
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
     }
 
-    void processCharacteristic(const QString& characteristicName, const QByteArray& bytes) {
-        if (bytes.isEmpty()) return;
+    int processCharacteristic(const QString& characteristicName, const QByteArray& bytes) {
+        if (bytes.isEmpty()) return 0;
 
         qDebug() << characteristicName << bytes.toHex();
 
@@ -39,9 +39,14 @@ public:
             b[i] = bytes[i];
         env->SetByteArrayRegion(d, 0, bytes.length(), b);
 
-        QAndroidJniObject::callStaticMethod<void>(
-            "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)V", d);
+        int button = QAndroidJniObject::callStaticMethod<int>(
+            "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
         env->DeleteLocalRef(d);
+        if(button == 1)
+            emit plus();
+        else if(button == 2)
+            emit minus();
+        return button;
 #endif
 
     }
@@ -75,6 +80,10 @@ protected:
 
 private:
     QByteArray devicePublicKeyBytes;
+
+signals:
+    void plus();
+    void minus();
 };
 
 #endif // ABSTRACTZAPDEVICE_H
