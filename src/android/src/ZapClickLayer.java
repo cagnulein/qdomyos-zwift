@@ -36,7 +36,12 @@ public class ZapClickLayer {
     private static Context context;
 
     private static final String TAG = "ZapClickLayer: ";
-    private static ZwiftPlayDevice device;
+    private static ZwiftPlayDevice device = initDevice();
+
+    private static ZwiftPlayDevice initDevice() {
+        ZwiftPlayDevice d = new ZwiftPlayDevice();
+        return d;
+    }
 
     public static void processCharacteristic(byte[] value) {
         Log.d(TAG, "processCharacteristic");
