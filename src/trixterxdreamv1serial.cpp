@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QTime>
 
-#ifndef Q_OS_IOS
+#ifndef Q_OS_IOS || Q_OS_ANDROID
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #endif
@@ -19,7 +19,7 @@ trixterxdreamv1serial::~trixterxdreamv1serial() {
 QStringList trixterxdreamv1serial::availablePorts(bool debug) {
     QStringList result;
 
-#ifndef Q_OS_IOS
+#ifndef Q_OS_IOS || Q_OS_ANDROID
     auto ports = QSerialPortInfo::availablePorts();
     for(const auto &port : ports) {
         QString portName = port.portName();
@@ -101,7 +101,7 @@ void trixterxdreamv1serial::set_SendReceiveLog(bool value) { this->sendReceiveLo
 
 void trixterxdreamv1serial::run() {
 
-#ifdef Q_OS_IOS
+#ifdef Q_OS_IOS || Q_OS_ANDROID
     return;
 #else
 
