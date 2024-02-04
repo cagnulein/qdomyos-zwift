@@ -894,8 +894,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.40
             property bool nordictrack_treadmill_t8_5s: false
-
-						// from version 2.16.41
+            
+            // from version 2.16.41
+            property bool proform_treadmill_705_cst: false
             property bool zwift_click: false
         }
 
@@ -5678,7 +5679,7 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack T6.5S v81", "Nordictrack T6.5S v83", "Nordictrack T7.0",
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
-                                "Proform 8.0", "Proform 9.0"
+                                "Proform 8.0", "Proform 9.0", "Proform 705 CST"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5708,6 +5709,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_cadence_lt = false;
                                 settings.proform_treadmill_8_0 = false;
                                 settings.proform_treadmill_9_0 = false;
+                                settings.proform_treadmill_705_cst = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5734,6 +5736,7 @@ import QtQuick.Dialogs 1.0
                                     case 20: settings.proform_treadmill_cadence_lt = true; break;
                                     case 21: settings.proform_treadmill_8_0 = true; break;
                                     case 22: settings.proform_treadmill_9_0 = true; break;
+                                    case 23: settings.proform_treadmill_705_cst = true; break;
                                 }
                             }
 
@@ -5761,7 +5764,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_se ? 19 :
                                                     settings.proform_treadmill_cadence_lt ? 20 :
                                                     settings.proform_treadmill_8_0 ? 21 :
-                                                    settings.proform_treadmill_9_0 ? 22 : -1;
+                                                    settings.proform_treadmill_9_0 ? 22 :
+                                                    settings.proform_treadmill_705_cst ? 23 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

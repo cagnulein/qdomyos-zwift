@@ -1999,6 +1999,9 @@ class QZSettings {
     static constexpr bool default_zwift_click = false;
 
 
+    static const QString proform_treadmill_705_cst;
+    static constexpr bool default_proform_treadmill_705_cst = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
