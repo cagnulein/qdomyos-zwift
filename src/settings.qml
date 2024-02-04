@@ -894,6 +894,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.40
             property bool nordictrack_treadmill_t8_5s: false
+
+						// from version 2.16.41
+            property bool zwift_click: false
         }
 
         function paddingZeros(text, limit) {
