@@ -7,6 +7,10 @@
 #include "zapConstants.h"
 #include "controllerNotification.h"
 
+// ****************************************************************************************
+// THIS CLASS IS USELESS SINCE I'M DOING EVERYTHING ON THE ANDROID, SWIFT NATIVE CODE
+// ****************************************************************************************
+
 class ZwiftPlayDevice : public AbstractZapDevice {
     Q_OBJECT
 public:
@@ -54,7 +58,7 @@ protected:
         }
     }
 
-private:
+private:    
     void processButtonNotification(const ControllerNotification& notification) {
         if (!lastButtonState) {
             qDebug() << notification.toString();
@@ -63,11 +67,11 @@ private:
             if (!diff.isEmpty()) // get repeats of the same state
                 qDebug() << diff;
         }
-        lastButtonState = std::make_unique<ControllerNotification>(notification);
+        lastButtonState = (ControllerNotification*)&notification;
     }
 
     int batteryLevel;
-    std::unique_ptr<ControllerNotification> lastButtonState;        
+    ControllerNotification* lastButtonState;
 };
 
 
