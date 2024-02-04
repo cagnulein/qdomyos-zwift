@@ -2006,18 +2006,13 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
         }
 
+
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
             trx3500_treadmill = true;
             qDebug() << QStringLiteral("TRX3500 TREADMILL workaround ON!");            
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = false;
-#endif
-        } else if (device.name().toUpper().startsWith(QStringLiteral("WDWAY")) && device.name().length() == 8) {
-#ifdef Q_OS_IOS
-           QZ_EnableDiscoveryCharsAndDescripttors = false;
-#endif
-           wdway_treadmill = true;
-           qDebug() << QStringLiteral("WDWAY TREADMILL workaround ON!");
+#endif            
         } else {
 #ifdef Q_OS_IOS            
             QZ_EnableDiscoveryCharsAndDescripttors = true;
