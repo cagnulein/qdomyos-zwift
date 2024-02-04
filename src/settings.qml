@@ -8957,6 +8957,30 @@ import QtQuick.Dialogs 1.0
                         }
                     }
                 }
+AccordionElement {
+                        title: qsTr("Zwift Devices Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            SwitchDelegate {
+                                text: qsTr("Zwift Click")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_click
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_click = checked; window.settings_restart_to_apply = true; }
+                            }
+													}
+                    }
+
             }
 
             NewPageElement {
