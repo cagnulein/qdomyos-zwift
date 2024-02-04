@@ -1994,6 +1994,10 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_t8_5s;
     static constexpr bool default_nordictrack_treadmill_t8_5s = false;
+    
+    static const QString zwift_click;
+    static constexpr bool default_zwift_click = false;
+
 
     static const QString proform_treadmill_705_cst;
     static constexpr bool default_proform_treadmill_705_cst = false;

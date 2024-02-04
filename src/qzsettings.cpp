@@ -712,8 +712,9 @@ const QString QZSettings::enerfit_SPX_9500 = QStringLiteral("enerfit_SPX_9500");
 const QString QZSettings::proform_treadmill_505_cst = QStringLiteral("proform_treadmill_505_cst");
 const QString QZSettings::nordictrack_treadmill_t8_5s = QStringLiteral("nordictrack_treadmill_t8_5s");
 const QString QZSettings::proform_treadmill_705_cst = QStringLiteral("proform_treadmill_705_cst");
+const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 
-const uint32_t allSettingsCount = 599;
+const uint32_t allSettingsCount = 600;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1317,8 +1318,9 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::domyos_treadmill_t900a, QZSettings::default_domyos_treadmill_t900a},
     {QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500},
     {QZSettings::proform_treadmill_505_cst, QZSettings::default_proform_treadmill_505_cst},
-    {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},
+    {QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s},    
     {QZSettings::proform_treadmill_705_cst, QZSettings::default_proform_treadmill_705_cst},
+    {QZSettings::zwift_click, QZSettings::default_zwift_click},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

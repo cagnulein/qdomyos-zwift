@@ -92,6 +92,7 @@ SOURCES += \
    $$PWD/windows_zwift_workout_paddleocr_thread.cpp \
    $$PWD/ypooelliptical.cpp \
    $$PWD/ziprotreadmill.cpp \
+    $$PWD/zwift_play/zwiftclickremote.cpp \
    Computrainer.cpp \
    PathController.cpp \
     characteristicnotifier2a53.cpp \
@@ -293,6 +294,11 @@ HEADERS += \
    $$PWD/fakerower.h \
     $$PWD/zwift-api/PlayerStateWrapper.h \
     $$PWD/zwift-api/zwift_client_auth.h \
+    $$PWD/zwift_play/abstractZapDevice.h \
+    $$PWD/zwift_play/zapBleUuids.h \
+    $$PWD/zwift_play/zapConstants.h \
+    $$PWD/zwift_play/zwiftPlayDevice.h \
+    $$PWD/zwift_play/zwiftclickremote.h \
     virtualdevice.h \
     $$PWD/androidactivityresultreceiver.h \
     $$PWD/androidadblog.h \
@@ -720,6 +726,7 @@ RESOURCES += \
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
     $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
@@ -731,6 +738,7 @@ DISTFILES += \
     $$PWD/android/src/ScreenCaptureService.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
+    $$PWD/android/src/ZapClickLayer.java \
     $$PWD/android/src/ZwiftAPI.java \
     $$PWD/android/src/main/proto/zwift_messages.proto \
     .clang-format \
