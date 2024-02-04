@@ -2831,7 +2831,7 @@ import QtQuick.Dialogs 1.0
                 }
                 AccordionElement {
                 id: trixterXDreamV1BikeAccordion
-                title: qsTr("Trixter X-Dream V1 Bike Options (non-iOS only)")
+                title: qsTr("Trixter X-Dream V1 Bike Options (Windows/Linux only)")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Yellow)
                 color: Material.backgroundColor

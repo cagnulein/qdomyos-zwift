@@ -3,7 +3,7 @@ QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 windows: QT += serialport
-unix:!android: QT += serialport
+unix:!android:!macx: QT += serialport
 
 unix:android: QT += androidextras gui-private
 
