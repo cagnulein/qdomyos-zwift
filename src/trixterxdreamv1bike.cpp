@@ -678,7 +678,12 @@ resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance)
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
 
 #ifdef Q_OS_IOS
-    // Not suported in iOS.
+    // Not supported in iOS
+    return false;
+#endif
+
+#ifdef Q_OS_ANDROID
+    // Not supported in Android
     return false;
 #endif
 
