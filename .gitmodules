@@ -20,3 +20,6 @@
 	path = zwiftplay
 	url = https://github.com/cagnulein/zwiftplay.git
 	branch = lib
+[submodule "src/ios/CryptoSwift"]
+	path = src/ios/CryptoSwift
+	url = https://github.com/krzyzanowskim/CryptoSwift.git
