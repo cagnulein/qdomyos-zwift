@@ -1,46 +1,31 @@
-import Foundation
 import CryptoKit
-import CommonCrypto
+import Foundation
 
 enum EncryptionUtils {
     static let keyLength = 32
     static let hkdfLength = 36
     static let macLength = 4
 
+    // Converti una chiave pubblica P-256 in Data concatenando le coordinate X e Y
     static func publicKeyToByteArray(publicKey: P256.KeyAgreement.PublicKey) -> Data {
-        // Concatenate X and Y coordinates
-        let x = publicKey.rawRepresentation[..<32] // First 32 bytes for X
-        let y = publicKey.rawRepresentation[32...] // Last 32 bytes for Y
-        return Data(x) + Data(y)
+        return publicKey.rawRepresentation
     }
 
-    static func generatePublicKey(publicKeyBytes: Data, curve: P256.Curve = .P256) throws -> P256.KeyAgreement.PublicKey {
-        // Assuming publicKeyBytes contains the X and Y coordinates concatenated
+    // Genera una chiave pubblica P-256 da Data
+    static func generatePublicKey(publicKeyBytes: Data) throws -> P256.KeyAgreement.PublicKey {
         return try P256.KeyAgreement.PublicKey(x963Representation: publicKeyBytes)
     }
 
+    // Genera byte del segreto condiviso utilizzando ECDH
     static func generateSharedSecretBytes(privateKey: P256.KeyAgreement.PrivateKey, publicKey: P256.KeyAgreement.PublicKey) -> Data {
         let sharedSecret = try! privateKey.sharedSecretFromKeyAgreement(with: publicKey)
         return sharedSecret.withUnsafeBytes { Data($0) }
     }
 
+    // Utilizza HKDF per derivare chiavi da un segreto condiviso
     static func generateHKDFBytes(secretKey: Data, salt: Data) -> Data {
-        let hkdf = HKDF<SHA256>(salt: salt, sharedSecret: secretKey, info: Data(), outputByteCount: hkdfLength)
-        return hkdf.expandedKey
-    }
-}
-
-// Extension to perform HKDF expansion using CryptoKit
-extension HKDF where HashFunction == SHA256 {
-    init(salt: Data, sharedSecret: Data, info: Data, outputByteCount: Int) {
-        self.init(secret: SymmetricKey(data: sharedSecret), salt: SymmetricKey(data: salt), info: info, outputByteCount: outputByteCount)
-    }
-
-    var expandedKey: Data {
-        var result = Data(repeating: 0, count: outputByteCount)
-        result.withUnsafeMutableBytes { buffer in
-            _ = self.expand(into: buffer.bindMemory(to: UInt8.self))
-        }
-        return result
+        let symmetricKey = SymmetricKey(data: secretKey)
+        let hkdfDerivedBytes = HKDF<SHA256>.deriveKey(inputKeyMaterial: symmetricKey, salt: salt, info: Data(), outputByteCount: hkdfLength)
+        return Data(hkdfDerivedBytes)
     }
 }
