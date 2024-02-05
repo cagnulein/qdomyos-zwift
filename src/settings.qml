@@ -898,6 +898,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.41
             property bool proform_treadmill_705_cst: false
             property bool zwift_click: false
+
+            // from version 2.16.42
+            property bool hop_sport_hs_090h_bike: false
           
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -6958,6 +6961,20 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.enerfit_SPX_9500 = checked; window.settings_restart_to_apply = true; }
+                    } 
+
+                    SwitchDelegate {
+                        text: qsTr("HOP-Sport HS-090h")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.hop_sport_hs_090h_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.hop_sport_hs_090h_bike = checked; window.settings_restart_to_apply = true; }
                     }                    
 
                     SwitchDelegate {
