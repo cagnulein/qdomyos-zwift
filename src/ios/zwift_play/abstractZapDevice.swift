@@ -17,7 +17,7 @@ class AbstractZapDevice {
 
     private var devicePublicKeyBytes: Data?
     private let localKeyProvider = LocalKeyProvider()
-    protected var zapEncryption: ZapCrypto
+    open var zapEncryption: ZapCrypto
 
     init() {
         self.zapEncryption = ZapCrypto(localKeyProvider: localKeyProvider)
