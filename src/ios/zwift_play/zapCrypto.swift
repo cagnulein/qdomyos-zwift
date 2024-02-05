@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 
+@available(iOS 14.0, *)
 class ZapCrypto {
     private let localKeyProvider: LocalKeyProvider
     private var encryptionKeyBytes: Data?
@@ -13,8 +14,8 @@ class ZapCrypto {
 
     func initialise(devicePublicKeyBytes: Data) {
         let hkdfBytes: Data = generateHmacKeyDerivationFunctionBytes(devicePublicKeyBytes: devicePublicKeyBytes)
-        self.encryptionKeyBytes = hkdfBytes.subdata(in: 0..<EncryptionUtils.KEY_LENGTH)
-        self.ivBytes = hkdfBytes.subdata(in: 32..<EncryptionUtils.HKDF_LENGTH)
+        self.encryptionKeyBytes = hkdfBytes.subdata(in: 0..<EncryptionUtils.keyLength)
+        self.ivBytes = hkdfBytes.subdata(in: 32..<EncryptionUtils.hkdfLength)
     }
 
     func encrypt(data: Data) -> Data? {
@@ -61,10 +62,15 @@ class ZapCrypto {
     }
 
     private func generateHmacKeyDerivationFunctionBytes(devicePublicKeyBytes: Data) -> Data {
-        let serverPublicKey = localKeyProvider.generatePublicKey(devicePublicKeyBytes: devicePublicKeyBytes)
-        let sharedSecretBytes = localKeyProvider.generateSharedSecretBytes(serverPublicKey: serverPublicKey)
-        let salt = serverPublicKey.toData() + localKeyProvider.getPublicKeyBytes()
-        return EncryptionUtils.generateHKDFBytes(sharedSecretBytes: sharedSecretBytes, salt: salt)
+        do {
+            let serverPublicKey = try EncryptionUtils.generatePublicKey(publicKeyBytes: devicePublicKeyBytes)
+            let sharedSecretBytes = EncryptionUtils.generateSharedSecretBytes(privateKey: localKeyProvider.getPrivateKey(), publicKey: serverPublicKey)
+            let salt = EncryptionUtils.publicKeyToByteArray(publicKey: serverPublicKey) + localKeyProvider.getPublicKeyBytes()
+            return EncryptionUtils.generateHKDFBytes(sharedSecretBytes: sharedSecretBytes, salt: salt)
+        } catch {
+            print(error)
+            return Data()
+        }
     }
 
     private func createNonce(iv: Data, messageCounter: Int) -> Data {

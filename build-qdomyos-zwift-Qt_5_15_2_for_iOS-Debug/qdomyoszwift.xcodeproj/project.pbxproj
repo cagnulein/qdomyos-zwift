@@ -316,6 +316,8 @@
 		876E510D2B70FDA30080FAAF /* localKeyProvider.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51062B70FDA30080FAAF /* localKeyProvider.swift */; };
 		876E510E2B70FDA30080FAAF /* zwiftPlayDevice.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51072B70FDA30080FAAF /* zwiftPlayDevice.swift */; };
 		876E510F2B70FDA30080FAAF /* zapBleUuids.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51082B70FDA30080FAAF /* zapBleUuids.swift */; };
+		876E51222B7146D90080FAAF /* CryptoSwift.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 876E51192B7146B00080FAAF /* CryptoSwift.framework */; };
+		876E51232B7146D90080FAAF /* CryptoSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 876E51192B7146B00080FAAF /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */; };
 		876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */; };
 		876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */; };
@@ -603,6 +605,41 @@
 			remoteGlobalIDString = 876E4E102594747F00BD5714;
 			remoteInfo = watchkit;
 		};
+		876E51182B7146B00080FAAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 754BE45519693E190098E6F3;
+			remoteInfo = CryptoSwift;
+		};
+		876E511A2B7146B00080FAAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 75211F92207249D8004E41F8;
+			remoteInfo = "CryptoSwift-TestHostApp";
+		};
+		876E511C2B7146B00080FAAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 754BE46019693E190098E6F3;
+			remoteInfo = CryptoSwiftTests;
+		};
+		876E511E2B7146B00080FAAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7595C14A2072E48C00EA1A5F;
+			remoteInfo = "TestsPerformance-Mac";
+		};
+		876E51202B7146B00080FAAF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7564F0602072EAEB00CA5A96;
+			remoteInfo = "TestsPerformance-iOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -635,6 +672,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */,
+				876E51232B7146D90080FAAF /* CryptoSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1132,6 +1170,7 @@
 		876E51062B70FDA30080FAAF /* localKeyProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = localKeyProvider.swift; path = ../src/ios/zwift_play/localKeyProvider.swift; sourceTree = "<group>"; };
 		876E51072B70FDA30080FAAF /* zwiftPlayDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zwiftPlayDevice.swift; path = ../src/ios/zwift_play/zwiftPlayDevice.swift; sourceTree = "<group>"; };
 		876E51082B70FDA30080FAAF /* zapBleUuids.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zapBleUuids.swift; path = ../src/ios/zwift_play/zapBleUuids.swift; sourceTree = "<group>"; };
+		876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CryptoSwift.xcodeproj; path = ../src/ios/CryptoSwift/CryptoSwift.xcodeproj; sourceTree = "<group>"; };
 		876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsbike.cpp; path = ../src/ftmsbike.cpp; sourceTree = "<group>"; };
 		876ED21125C3E8DD0065F3DC /* ftmsbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsbike.h; path = ../src/ftmsbike.h; sourceTree = "<group>"; };
 		876ED21225C3E8DD0065F3DC /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material.h; path = ../src/material.h; sourceTree = "<group>"; };
@@ -1681,6 +1720,7 @@
 				3D010A6A5D13BDBCE8308349 /* qtfreetype in Link Binary With Libraries */,
 				3B6367B8479BE459243BC9A6 /* Qt5GraphicsSupport in Link Binary With Libraries */,
 				A48EFCF98552C67DAB8515FD /* Qt5ClipboardSupport in Link Binary With Libraries */,
+				876E51222B7146D90080FAAF /* CryptoSwift.framework in Link Binary With Libraries */,
 				4B457EBD757B30AEB87115EA /* qgif in Link Binary With Libraries */,
 				3CD4CA4EC80AF4F839D1019B /* qicns in Link Binary With Libraries */,
 				B714316583081A00BDF9C0F2 /* qico in Link Binary With Libraries */,
@@ -2443,6 +2483,18 @@
 			name = zwift_play;
 			sourceTree = "<group>";
 		};
+		876E51112B7146B00080FAAF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				876E51192B7146B00080FAAF /* CryptoSwift.framework */,
+				876E511B2B7146B00080FAAF /* CryptoSwift-TestHostApp.app */,
+				876E511D2B7146B00080FAAF /* CryptoSwiftTests.xctest */,
+				876E511F2B7146B00080FAAF /* TestsPerformance-Mac.xctest */,
+				876E51212B7146B00080FAAF /* TestsPerformance-iOS.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		87917A6D28E768B000F8D9AC /* AppleWatchToIpad */ = {
 			isa = PBXGroup;
 			children = (
@@ -2466,6 +2518,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */,
 				87FA94682B6B8A5A00B6AB9A /* libSystem.B.tbd */,
 				87FA94662B6B89FD00B6AB9A /* SwiftUI.framework */,
 				8745B2742AFCB3B300991A39 /* libadb.a */,
@@ -2988,6 +3041,12 @@
 			);
 			productRefGroup = FE0A091FDBFB3E9C31B7A1BD /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 876E51112B7146B00080FAAF /* Products */;
+					ProjectRef = 876E51102B7146B00080FAAF /* CryptoSwift.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				799833E5566DEFFC37E4BF1E /* qdomyoszwift */,
@@ -2997,6 +3056,44 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		876E51192B7146B00080FAAF /* CryptoSwift.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CryptoSwift.framework;
+			remoteRef = 876E51182B7146B00080FAAF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		876E511B2B7146B00080FAAF /* CryptoSwift-TestHostApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "CryptoSwift-TestHostApp.app";
+			remoteRef = 876E511A2B7146B00080FAAF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		876E511D2B7146B00080FAAF /* CryptoSwiftTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = CryptoSwiftTests.xctest;
+			remoteRef = 876E511C2B7146B00080FAAF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		876E511F2B7146B00080FAAF /* TestsPerformance-Mac.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "TestsPerformance-Mac.xctest";
+			remoteRef = 876E511E2B7146B00080FAAF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		876E51212B7146B00080FAAF /* TestsPerformance-iOS.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "TestsPerformance-iOS.xctest";
+			remoteRef = 876E51202B7146B00080FAAF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		30414803F31797EB689AE508 /* Copy Bundle Resources */ = {

@@ -1,6 +1,8 @@
 import Foundation
 import CryptoSwift
+import CryptoKit
 
+@available(iOS 14.0, *)
 struct EncryptionUtils {
     static let keyLength = 32
     static let hkdfLength = 36
