@@ -309,6 +309,13 @@
 		876E50F42B701C050080FAAF /* moc_abstractZapDevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50F12B701C040080FAAF /* moc_abstractZapDevice.cpp */; };
 		876E50F52B701C050080FAAF /* moc_zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50F22B701C040080FAAF /* moc_zwiftclickremote.cpp */; };
 		876E51002B701C1E0080FAAF /* zwiftclickremote.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E50FB2B701C1E0080FAAF /* zwiftclickremote.cpp */; };
+		876E51092B70FDA30080FAAF /* abstractZapDevice.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51022B70FDA30080FAAF /* abstractZapDevice.swift */; };
+		876E510A2B70FDA30080FAAF /* zapCrypto.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51032B70FDA30080FAAF /* zapCrypto.swift */; };
+		876E510B2B70FDA30080FAAF /* encryptionUtils.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51042B70FDA30080FAAF /* encryptionUtils.swift */; };
+		876E510C2B70FDA30080FAAF /* zapConstants.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51052B70FDA30080FAAF /* zapConstants.swift */; };
+		876E510D2B70FDA30080FAAF /* localKeyProvider.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51062B70FDA30080FAAF /* localKeyProvider.swift */; };
+		876E510E2B70FDA30080FAAF /* zwiftPlayDevice.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51072B70FDA30080FAAF /* zwiftPlayDevice.swift */; };
+		876E510F2B70FDA30080FAAF /* zapBleUuids.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E51082B70FDA30080FAAF /* zapBleUuids.swift */; };
 		876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */; };
 		876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */; };
 		876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */; };
@@ -1118,6 +1125,13 @@
 		876E50FD2B701C1E0080FAAF /* abstractZapDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = abstractZapDevice.h; path = ../src/zwift_play/abstractZapDevice.h; sourceTree = "<group>"; };
 		876E50FE2B701C1E0080FAAF /* controllerNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controllerNotification.h; path = ../src/zwift_play/controllerNotification.h; sourceTree = "<group>"; };
 		876E50FF2B701C1E0080FAAF /* zwiftclickremote.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftclickremote.h; path = ../src/zwift_play/zwiftclickremote.h; sourceTree = "<group>"; };
+		876E51022B70FDA30080FAAF /* abstractZapDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = abstractZapDevice.swift; path = ../src/ios/zwift_play/abstractZapDevice.swift; sourceTree = "<group>"; };
+		876E51032B70FDA30080FAAF /* zapCrypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zapCrypto.swift; path = ../src/ios/zwift_play/zapCrypto.swift; sourceTree = "<group>"; };
+		876E51042B70FDA30080FAAF /* encryptionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = encryptionUtils.swift; path = ../src/ios/zwift_play/encryptionUtils.swift; sourceTree = "<group>"; };
+		876E51052B70FDA30080FAAF /* zapConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zapConstants.swift; path = ../src/ios/zwift_play/zapConstants.swift; sourceTree = "<group>"; };
+		876E51062B70FDA30080FAAF /* localKeyProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = localKeyProvider.swift; path = ../src/ios/zwift_play/localKeyProvider.swift; sourceTree = "<group>"; };
+		876E51072B70FDA30080FAAF /* zwiftPlayDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zwiftPlayDevice.swift; path = ../src/ios/zwift_play/zwiftPlayDevice.swift; sourceTree = "<group>"; };
+		876E51082B70FDA30080FAAF /* zapBleUuids.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = zapBleUuids.swift; path = ../src/ios/zwift_play/zapBleUuids.swift; sourceTree = "<group>"; };
 		876ED21025C3E8DD0065F3DC /* ftmsbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsbike.cpp; path = ../src/ftmsbike.cpp; sourceTree = "<group>"; };
 		876ED21125C3E8DD0065F3DC /* ftmsbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsbike.h; path = ../src/ftmsbike.h; sourceTree = "<group>"; };
 		876ED21225C3E8DD0065F3DC /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material.h; path = ../src/material.h; sourceTree = "<group>"; };
@@ -1954,6 +1968,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				876E51012B70FD800080FAAF /* zwift_play */,
 				876E50FD2B701C1E0080FAAF /* abstractZapDevice.h */,
 				876E50FE2B701C1E0080FAAF /* controllerNotification.h */,
 				876E50F62B701C1E0080FAAF /* encryptionUtils.h */,
@@ -2412,6 +2427,20 @@
 				876E4E2C2594748100BD5714 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		876E51012B70FD800080FAAF /* zwift_play */ = {
+			isa = PBXGroup;
+			children = (
+				876E51022B70FDA30080FAAF /* abstractZapDevice.swift */,
+				876E51042B70FDA30080FAAF /* encryptionUtils.swift */,
+				876E51062B70FDA30080FAAF /* localKeyProvider.swift */,
+				876E51082B70FDA30080FAAF /* zapBleUuids.swift */,
+				876E51052B70FDA30080FAAF /* zapConstants.swift */,
+				876E51032B70FDA30080FAAF /* zapCrypto.swift */,
+				876E51072B70FDA30080FAAF /* zwiftPlayDevice.swift */,
+			);
+			name = zwift_play;
 			sourceTree = "<group>";
 		};
 		87917A6D28E768B000F8D9AC /* AppleWatchToIpad */ = {
@@ -3144,6 +3173,7 @@
 				873824B927E64707004F1B46 /* moc_provider.cpp in Compile Sources */,
 				8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */,
 				DF1FD9718B75FA591A7E3D80 /* fit_decode.cpp in Compile Sources */,
+				876E510B2B70FDA30080FAAF /* encryptionUtils.swift in Compile Sources */,
 				878C9E6B28B77E9800669129 /* moc_nordictrackifitadbbike.cpp in Compile Sources */,
 				878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */,
 				952DBD14DF6369E885020EF4 /* fit_developer_field.cpp in Compile Sources */,
@@ -3157,6 +3187,7 @@
 				87C5F0C326285E5F0067A1B5 /* mimeinlinefile.cpp in Compile Sources */,
 				87646C2227B5065100F82131 /* moc_bhfitnesselliptical.cpp in Compile Sources */,
 				876E51002B701C1E0080FAAF /* zwiftclickremote.cpp in Compile Sources */,
+				876E510C2B70FDA30080FAAF /* zapConstants.swift in Compile Sources */,
 				873824B127E64706004F1B46 /* moc_browser_p.cpp in Compile Sources */,
 				873824B627E64707004F1B46 /* moc_hostname_p.cpp in Compile Sources */,
 				87A0D7542A3A4547005147F2 /* moc_fakerower.cpp in Compile Sources */,
@@ -3181,6 +3212,7 @@
 				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
 				873CD22327EF8E18000131BC /* inappstoreqmltype.cpp in Compile Sources */,
+				876E510E2B70FDA30080FAAF /* zwiftPlayDevice.swift in Compile Sources */,
 				87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */,
 				873824EE27E647A9004F1B46 /* service.cpp in Compile Sources */,
 				8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */,
@@ -3233,6 +3265,7 @@
 				23191C28CB29474279752FD3 /* fit_protocol_validator.cpp in Compile Sources */,
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
 				87F527BE28EEB5AA00A9F8D5 /* qzsettings.cpp in Compile Sources */,
+				876E510D2B70FDA30080FAAF /* localKeyProvider.swift in Compile Sources */,
 				8703BAEB273C67A90058E206 /* pafersbike.cpp in Compile Sources */,
 				87061399286D8D6500D2446E /* moc_wobjectdefs.cpp in Compile Sources */,
 				873824BA27E64707004F1B46 /* moc_server_p.cpp in Compile Sources */,
@@ -3257,6 +3290,7 @@
 				87E2F85F291ED315002BDC65 /* moc_lifefitnesstreadmill.cpp in Compile Sources */,
 				876BFCA127BE35D8001D7645 /* moc_bowflext216treadmill.cpp in Compile Sources */,
 				25FCD41CCCAF49293B9369E8 /* qfit.cpp in Compile Sources */,
+				876E510F2B70FDA30080FAAF /* zapBleUuids.swift in Compile Sources */,
 				87ADD2BD27634C2100B7A0AB /* moc_technogymmyruntreadmill.cpp in Compile Sources */,
 				8738249227E646E3004F1B46 /* characteristicnotifier2a63.cpp in Compile Sources */,
 				8738249327E646E3004F1B46 /* characteristicwriteprocessor2ad9.cpp in Compile Sources */,
@@ -3329,6 +3363,7 @@
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */,
 				873824E327E647A8004F1B46 /* bitmap.cpp in Compile Sources */,
+				876E510A2B70FDA30080FAAF /* zapCrypto.swift in Compile Sources */,
 				87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */,
 				873824E827E647A8004F1B46 /* provider.cpp in Compile Sources */,
 				8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */,
@@ -3373,6 +3408,7 @@
 				87EFE45927A518F5006EA1C3 /* nautiluselliptical.cpp in Compile Sources */,
 				E62DA5FF2436135448C94671 /* moc_toorxtreadmill.cpp in Compile Sources */,
 				87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */,
+				876E51092B70FDA30080FAAF /* abstractZapDevice.swift in Compile Sources */,
 				87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */,
 				87D105542909971100B3935B /* moc_mepanelbike.cpp in Compile Sources */,
 				87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */,
