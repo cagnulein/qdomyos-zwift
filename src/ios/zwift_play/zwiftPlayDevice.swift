@@ -3,7 +3,6 @@ import os.log
 
 class ZwiftPlayDevice: AbstractZapDevice {
     private var batteryLevel = 0
-    private var lastButtonState: ControllerNotification?
 
     override func processEncryptedData(bytes: Data) -> Int {
         do {
@@ -22,19 +21,14 @@ class ZwiftPlayDevice: AbstractZapDevice {
 
             switch type {
             case ZapConstants.controllerNotificationMessageType:
-                processButtonNotification(notification: ControllerNotification(data: message))
+                os_log("controllerNotificationMessageType")
+                //processButtonNotification(notification: ControllerNotification(data: message))
             case ZapConstants.clickType:
                 return processClickButtonNotification(data: data)
             case ZapConstants.emptyMessageType:
-                if AbstractZapDevice.logRaw {
-                    os_log("Empty Message", log: OSLog.default, type: .debug)
-                }
+                os_log("emptyMessageType")
             case ZapConstants.batteryLevelType:
-                let notification = BatteryStatus(data: message)
-                if batteryLevel != notification.level {
-                    batteryLevel = notification.level
-                    os_log("Battery level update: %d", log: OSLog.default, type: .debug, batteryLevel)
-                }
+                os_log("batteryLevelType")
             default:
                 os_log("Unprocessed - Type: %{public}@ Data: %{public}@", log: OSLog.default, type: .error, String(describing: type), data.toHexString())
             }
@@ -43,7 +37,7 @@ class ZwiftPlayDevice: AbstractZapDevice {
         }
         return 0
     }
-
+/*
     private func processButtonNotification(notification: ControllerNotification) {
         if let lastButtonState = lastButtonState {
             let diff = notification.diff(lastButtonState: lastButtonState)
@@ -54,7 +48,7 @@ class ZwiftPlayDevice: AbstractZapDevice {
             os_log("%{public}@", log: OSLog.default, type: .debug, notification.description)
         }
         lastButtonState = notification
-    }
+    }*/
 
     private func processClickButtonNotification(data: Data) -> Int {
         if data.count == 5 {
