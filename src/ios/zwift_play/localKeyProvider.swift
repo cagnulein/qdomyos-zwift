@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 
+@available(iOS 14.0, *)
 class LocalKeyProvider {
     private var keyPair: P256.KeyAgreement.PrivateKey?
 
