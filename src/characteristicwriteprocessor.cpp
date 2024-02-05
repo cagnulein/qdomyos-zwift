@@ -10,9 +10,6 @@ CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistance
 void CharacteristicWriteProcessor::changePower(uint16_t power) { Bike->changePower(power); }
 
 void CharacteristicWriteProcessor::changeSlope(int16_t iresistance, uint8_t crr, uint8_t cw) {
-
-    qDebug() << "changeSlope ir:" << iresistance << " crr:" << crr << " cw:" << cw;
-
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     QSettings settings;
     bool force_resistance =
