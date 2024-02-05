@@ -1,6 +1,7 @@
 import CryptoKit
 import Foundation
 
+@available(iOS 14.0, *)
 enum EncryptionUtils {
     static let keyLength = 32
     static let hkdfLength = 36
@@ -23,9 +24,9 @@ enum EncryptionUtils {
     }
 
     // Utilizza HKDF per derivare chiavi da un segreto condiviso
-    static func generateHKDFBytes(secretKey: Data, salt: Data) -> Data {
+    static func generateHKDFBytes(secretKey: Data, salt: Data) -> SymmetricKey {
         let symmetricKey = SymmetricKey(data: secretKey)
         let hkdfDerivedBytes = HKDF<SHA256>.deriveKey(inputKeyMaterial: symmetricKey, salt: salt, info: Data(), outputByteCount: hkdfLength)
-        return Data(hkdfDerivedBytes)
+        return hkdfDerivedBytes
     }
 }
