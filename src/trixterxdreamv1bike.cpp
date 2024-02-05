@@ -329,8 +329,8 @@ uint16_t trixterxdreamv1bike::calculatePowerFromInclination(double inclination, 
 bool trixterxdreamv1bike::connected() {
     // If this is called from the connect() method, the timer won't have called the update() method
     // so go directly to the queue of states.
-    QMutexLocker lockerA(&this->unprocessedStatesMutex);
-    if(!this->unprocessedStates[this->unprocessedStateIndex].empty())
+    QMutexLocker lockerA(&this->statesMutex);
+    if(!this->states.empty())
         return true;
     lockerA.unlock();
 
@@ -365,11 +365,11 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
     // send the bytes to the client and return if there's no change of state
     bool stateChanged = false;
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
+    queue<trixterxdreamv1client::state> * ups = &this->states;
 
     for(int i=0; i<bytes.length();i++) {
         if(this->client.ReceiveChar(bytes[i])) {
-            QMutexLocker locker(&this->unprocessedStatesMutex);
+            QMutexLocker locker(&this->statesMutex);
             ups->push(this->client.getLastState());
             stateChanged = true;
         }
@@ -378,8 +378,8 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
     if(!stateChanged)
         return;
 
-    QMutexLocker locker(&this->unprocessedStatesMutex);
-    auto timeLimit = getTime() - UpdateMetricsInterval;
+    QMutexLocker locker(&this->statesMutex);
+    auto timeLimit = getTime() - SmoothingInterval;
     while(!ups->empty() && ups->front().LastEventTime < timeLimit)
         ups->pop();
 
@@ -391,14 +391,13 @@ void trixterxdreamv1bike::update() {
     // get the current time
     auto currentTime = getTime();
 
-    // Switch to the the other queue for continued input on another thread
-    QMutexLocker statesLocker(&this->unprocessedStatesMutex);
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
-    this->unprocessedStateIndex ^= 1;
+    // Lock the states mutex and grab a copy of the queue
+    QMutexLocker statesLocker(&this->statesMutex);
+    queue<trixterxdreamv1client::state> ups = this->states;
     statesLocker.unlock();
 
     // If there are no states waiting to be processed, clear the metrics and return.
-    if(ups->empty()) {
+    if(ups.empty()) {
         qDebug() << "no states in queue";
         this->stopping = false;
         this->Speed.setValue(0);
@@ -409,20 +408,18 @@ void trixterxdreamv1bike::update() {
         return;
     }
 
-    // sweep the unprocessed states calculating some averages over the last update interval
+    // sweep the recent states calculating some averages over the last update interval
     // steering can ba a particularly wobbly signal so smoothing is important
-    double steering=0, cadence=0, flywheel=0, brakeLevel=0;
-    int count = ups->size();
+    double steering=0, cadence=0, flywheel=0, brakeLevel=0, heartRate = 0;
+    int count = ups.size();
 
     trixterxdreamv1client::state state{};
 
-    while(!ups->empty()) {
-        // update the packet count
-        this->packetsProcessed++;
+    while(!ups.empty()) {
         this->lastPacketProcessedTime = currentTime;
 
-        state = ups->front();
-        ups->pop();
+        state = ups.front();
+        ups.pop();
 
         constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
         uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
@@ -436,6 +433,10 @@ void trixterxdreamv1bike::update() {
         if(!this->noSteering) {
             steering += this->steeringMap[state.Steering];
         }
+
+        if(!this->noHeartRate) {
+            heartRate += state.HeartRate;
+        }
     }
 
     if(count>1) {
@@ -444,6 +445,7 @@ void trixterxdreamv1bike::update() {
         cadence *= scale;
         flywheel *= scale;
         brakeLevel *= scale;
+        heartRate *= scale;
     }
 
     // Determine if the user is pressing the button to stop.
@@ -451,7 +453,7 @@ void trixterxdreamv1bike::update() {
 
     // update the metrics
     if(!this->noHeartRate)
-        this->Heart.setValue(state.HeartRate);
+        this->Heart.setValue(heartRate);
     this->Distance.setValue(state.CumulativeWheelRevolutions * this->wheelCircumference);
     this->Cadence.setValue(cadence);
     this->LastCrankEventTime = state.LastEventTime;
@@ -677,7 +679,7 @@ resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance)
 
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
 
-#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     // Not supported in iOS or Android
     return nullptr;
 #endif

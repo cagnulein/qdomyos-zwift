@@ -17,19 +17,14 @@ private:
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
 
     /**
-     * @brief A queue of states read from the client. Syncronized but unprocessedStatesMutex.
+     * @brief A queue of states read from the client. Syncronized by statesMutex.
      */
-    std::queue<trixterxdreamv1client::state> unprocessedStates[2];
-
-    /**
-     * @brief The current unprocessed state queue. Syncronized but unprocessedStatesMutex.
-     */
-    uint32_t unprocessedStateIndex = 0;
+    std::queue<trixterxdreamv1client::state> states;
 
     /**
      * @brief Mutex for accessing the unprocessedStates queue.
      */
-    QMutex unprocessedStatesMutex;
+    QMutex statesMutex;
 
     /**
      * @brief An object that processes incoming data to CSCS, heart rate and steering data
@@ -121,11 +116,6 @@ private:
      * @brief t0 The start time in milliseconds. Used to determine elapsed time.
      */
     qint64 t0=0;
-
-    /**
-     * @brief The number of packets processed.
-     */
-    uint32_t packetsProcessed=0;
 
     /**
      * @brief The last time (from getTime()) a packet was processed.
@@ -251,6 +241,11 @@ public:
      * @brief The number of milliseconds to collect packets from the device before updating the metrics.
      */
     constexpr static int32_t UpdateMetricsInterval = 100;
+
+    /**
+     * @brief The number of milliseconds to smooth samples over.
+     */
+    constexpr static int32_t SmoothingInterval = 500;
 
     /**
      * @brief Constructor
