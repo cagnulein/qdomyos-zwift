@@ -586,7 +586,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.12.3
             property bool trainprogram_stop_at_end: false
 
-			// from version 2.12.5
+            // from version 2.12.5
             property bool domyos_elliptical_inclination: true
             property bool gpx_loop: false
 
