@@ -42,9 +42,7 @@ class ZapCrypto {
     }
 
     private func encryptDecrypt(encrypt: Bool, nonceBytes: Data, data: Data) -> Data? {
-        guard let encryptionKey = SymmetricKey(data: encryptionKeyBytes!) else {
-            return nil
-        }
+        let encryptionKey = SymmetricKey(data: encryptionKeyBytes!)
 
         let sealedBox: AES.GCM.SealedBox
         do {
@@ -66,7 +64,7 @@ class ZapCrypto {
             let serverPublicKey = try EncryptionUtils.generatePublicKey(publicKeyBytes: devicePublicKeyBytes)
             let sharedSecretBytes = EncryptionUtils.generateSharedSecretBytes(privateKey: localKeyProvider.getPrivateKey(), publicKey: serverPublicKey)
             let salt = EncryptionUtils.publicKeyToByteArray(publicKey: serverPublicKey) + localKeyProvider.getPublicKeyBytes()
-            return EncryptionUtils.generateHKDFBytes(sharedSecretBytes: sharedSecretBytes, salt: salt)
+            return EncryptionUtils.generateHKDFBytes(secretKey: sharedSecretBytes, salt: salt, outputByteCount: EncryptionUtils.hkdfLength) ?? Data()
         } catch {
             print(error)
             return Data()

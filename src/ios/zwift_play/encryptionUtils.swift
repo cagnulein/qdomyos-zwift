@@ -29,12 +29,14 @@ struct EncryptionUtils {
     }
 
     // Genera byte usando HKDF
-    static func generateHKDFBytes(secretKey: Data, salt: Data) -> Data {
-        // Utilizzo di HKDF in CryptoSwift
-        let keyMaterial = secretKey.bytes
-        let saltBytes = salt.bytes
-        let hkdf = HKDF(key: keyMaterial, salt: saltBytes, variant: .sha2(.sha256))
-        let derivedKey = try! hkdf.calculate(info: [], outputLength: hkdfLength)
-        return Data(derivedKey)
+    static func generateHKDFBytes(secretKey: Data, salt: Data, info: Data = Data(), outputByteCount: Int) -> Data? {
+        do {
+            let hkdf = try HKDF(password: secretKey.bytes, salt: salt.bytes, info: info.bytes, keyLength: outputByteCount, variant: .sha256)
+            let derivedKey = try hkdf.calculate()
+            return Data(derivedKey)
+        } catch {
+            print("Errore durante la derivazione HKDF: \(error)")
+            return nil
+        }
     }
 }
