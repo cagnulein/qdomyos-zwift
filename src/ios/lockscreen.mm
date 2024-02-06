@@ -31,7 +31,7 @@ static ios_eliteariafan* ios_eliteAriaFan = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
-static AbstractZapDevice *zapDevice = nil;
+static ZwiftPlayDevice *zapDevice = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -51,7 +51,7 @@ void lockscreen::request()
     }
     
     if (@available(iOS 14, *)) {
-        zapDevice = [[AbstractZapDevice alloc] init];
+        zapDevice = [[ZwiftPlayDevice alloc] init];
     }
 
 }
@@ -340,7 +340,7 @@ const char* lockscreen::zapDevice_buildHandshakeStart() {
 int lockscreen::zapDevice_processCharacteristic(const char* data, int len) {
     if(zapDevice) {
         NSData *d = [NSData dataWithBytes:data length:len];
-        return [zapDevice processCharacteristicWithCharacteristicName:@"" bytes:d];
+        return [zapDevice processEncryptedDataWithBytes:d];
     }
     return 0;
 }

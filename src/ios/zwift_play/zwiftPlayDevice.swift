@@ -2,15 +2,19 @@ import Foundation
 import os.log
 
 @available(iOS 14.0, *)
-class ZwiftPlayDevice: AbstractZapDevice {
+@objc class ZwiftPlayDevice: AbstractZapDevice {
     private var batteryLevel = 0
 
-    override func processEncryptedData(bytes: Data) -> Int {
+    @objc override func processEncryptedData(bytes: Data) -> Int {
         do {
             os_log("Decrypted: %{public}@", log: OSLog.default, type: .debug, bytes.toHexString())
 
-            let counter = bytes.prefix(MemoryLayout<Int>.size)
-            let payload = bytes.suffix(from: MemoryLayout<Int>.size)
+            if bytes.count < 5 {
+                return 0
+            }
+            
+            let counter = bytes.prefix(4)
+            let payload = bytes.suffix(from: 4)
 
             guard let data = zapEncryption.decrypt(counterArray: counter, payload: payload) else {
                 os_log("Decrypt failed", log: OSLog.default, type: .error)

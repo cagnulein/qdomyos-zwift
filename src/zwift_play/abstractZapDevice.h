@@ -52,7 +52,7 @@ public:
             "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
         env->DeleteLocalRef(d);
 #elif defined Q_OS_IOS
-        h->zapDevice_processCharacteristic(bytes, bytes.length());
+        button = h->zapDevice_processCharacteristic(bytes, bytes.length());
 #endif
         if(button == 1)
             emit plus();
