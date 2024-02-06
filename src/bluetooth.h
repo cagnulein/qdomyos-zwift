@@ -258,7 +258,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
     QList<eliteariafan *> eliteAriaFan;
-    QList<ZwiftPlayDevice* > zwiftPlayDevice;
+    QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
     QString filterDevice = QLatin1String("");
 

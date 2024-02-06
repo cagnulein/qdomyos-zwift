@@ -2004,6 +2004,9 @@ class QZSettings {
     static const QString hop_sport_hs_090h_bike;
     static constexpr bool default_hop_sport_hs_090h_bike = false;
 
+    static const QString zwift_play;
+    static constexpr bool default_zwift_play = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
