@@ -172,7 +172,14 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     double speed = 0;
 
-    if (assault_treadmill) {
+    if (wdway_treadmill) {
+        if (avalue.length() == 18) {
+            uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
+            speed = ((double)convertedData) / 100.0;
+        } else {
+            return;
+        }
+    } else if (assault_treadmill) {
         if (avalue.length() == 16) {
             uint16_t convertedData = (avalue.at(6) << 8) | ((uint8_t)avalue.at(5));
             speed = ((double)convertedData) / 100.0;
@@ -319,6 +326,9 @@ void truetreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL "))) {
             assault_treadmill = true;
             qDebug() << QStringLiteral("ASSAULT TREADMILL enabled!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("WDWAY")) && device.name().length() == 8) {
+            wdway_treadmill = true;
+            qDebug() << QStringLiteral("WDWAY TREADMILL workaround ON!");
         }
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &truetreadmill::serviceDiscovered);
