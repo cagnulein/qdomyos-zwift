@@ -1,6 +1,7 @@
 import Foundation
 import os.log
 
+@available(iOS 14.0, *)
 class ZwiftPlayDevice: AbstractZapDevice {
     private var batteryLevel = 0
 
