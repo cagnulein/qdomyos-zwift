@@ -622,8 +622,10 @@ void fitshowtreadmill::getCadence(uint16_t step_count) {
         int ms = abs(lastChangedStepCount.msecsTo(QDateTime::currentDateTime()));
         int cadence = (step_count - StepCount.value()) * 60000 / ms;
         if(cadence < 255) {
-            Cadence = cadence;
-            emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
+            cadenceRaw = cadence;
+            Cadence = cadenceRaw.average5s();
+            emit debug(QStringLiteral("Current raw cadence: ") + QString::number(cadence));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
         }
         lastChangedStepCount = QDateTime::currentDateTime();
     }

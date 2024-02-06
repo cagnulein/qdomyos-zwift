@@ -13,11 +13,12 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice) {
+zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, ZWIFT_PLAY_TYPE typeZap) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     this->parentDevice = parentDevice;
+    this->typeZap = typeZap;
 
     refresh = new QTimer(this);
     connect(refresh, &QTimer::timeout, this, &zwiftclickremote::update);

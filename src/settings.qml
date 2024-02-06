@@ -901,6 +901,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.42
             property bool hop_sport_hs_090h_bike: false
+            property bool zwift_play: false
           
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -9171,7 +9172,34 @@ import QtQuick.Dialogs 1.0
                             }
 
                             Label {
-                                text: qsTr("Available only on Android: use it to change the gears on QZ!")
+                                text: qsTr("Use it to change the gears on QZ!")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Zwift Play")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.zwift_play
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: { settings.zwift_play = checked; window.settings_restart_to_apply = true; }
+                            }
+
+                            Label {
+                                text: qsTr("Use it to change the gears on QZ!")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: 9

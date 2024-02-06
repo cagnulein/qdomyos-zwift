@@ -593,7 +593,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     QVector<quint16> ids = device.manufacturerIds();
-    qDebug() << "manufacturerData";
+    qDebug() << "manufacturerData" << ids;
     foreach (quint16 id, ids) {
         qDebug() << id << device.manufacturerData(id).toHex(' ');
 
@@ -2491,7 +2491,14 @@ void bluetooth::connectedAndDiscovered() {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
                     this->device()->deviceType() == bluetoothdevice::BIKE) {
-                zwiftClickRemote = new zwiftclickremote(this->device());
+
+                if(b.manufacturerData(2378).size() > 0) {
+                    qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
+                } else {
+                    qDebug() << "manufacturer not found for ZWIFT CLICK";
+                }
+
+                zwiftClickRemote = new zwiftclickremote(this->device(), zwiftclickremote::ZWIFT_PLAY_TYPE::NONE);
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
@@ -2499,6 +2506,28 @@ void bluetooth::connectedAndDiscovered() {
                 connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
                 zwiftClickRemote->deviceDiscovered(b);
                 break;
+            }
+        }
+    }
+
+    if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("ZWIFT PLAY"))) && zwiftPlayDevice.size() < 2 && this->device() &&
+                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                if(b.manufacturerData(2378).size() > 0) {
+                    qDebug() << "this should be 3 or 2. is it? " << int(b.manufacturerData(2378).at(0));
+                } else {
+                    qDebug() << "manufacturer not found for ZWIFT CLICK";
+                }
+                zwiftPlayDevice.append(new zwiftclickremote(this->device(),
+                                 int(b.manufacturerData(2378).at(0)) == 3 ? zwiftclickremote::ZWIFT_PLAY_TYPE::LEFT : zwiftclickremote::ZWIFT_PLAY_TYPE::RIGHT));
+                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                zwiftPlayDevice.last()->deviceDiscovered(b);
             }
         }
     }
