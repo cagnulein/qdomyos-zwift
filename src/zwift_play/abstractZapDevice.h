@@ -47,6 +47,18 @@ public:
         else if(button == 2)
             emit minus();
         return button;
+#else
+        switch(bytes[0]) {
+            case 0x37:
+                if(bytes.length() == 5) {
+                    if(bytes[2] == 0) {
+                        emit plus();
+                    } else if(bytes[4] == 0) {
+                        emit minus();
+                    }
+                }
+                break;
+        }
 #endif
 
     }
@@ -73,7 +85,14 @@ public:
         }
 #endif
         //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
-        return QByteArray();
+        QByteArray a;
+        a.append(0x52);
+        a.append(0x69);
+        a.append(0x64);
+        a.append(0x65);
+        a.append(0x4f);
+        a.append(0x6e);
+        return a;
     }
 
 protected:
