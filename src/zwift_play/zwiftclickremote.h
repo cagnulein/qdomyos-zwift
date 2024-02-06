@@ -25,7 +25,7 @@
 #include <QObject>
 #include <QTime>
 
-#include "bluetoothdevice.h"
+#include "devices/bluetoothdevice.h"
 #include "zwiftPlayDevice.h"
 
 class zwiftclickremote : public bluetoothdevice {

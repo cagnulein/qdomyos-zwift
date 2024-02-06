@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "concept2skierg.h"
+#include "devices/concept2skierg/concept2skierg.h"
 
 class Concept2SkiErgTestData : public BluetoothDeviceTestData {
 

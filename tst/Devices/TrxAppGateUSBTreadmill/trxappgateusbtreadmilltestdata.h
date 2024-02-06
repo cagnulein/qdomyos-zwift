@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "trxappgateusbtreadmill.h"
+#include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 
 class TrxAppGateUSBTreadmillTestData : public BluetoothDeviceTestData {
 
