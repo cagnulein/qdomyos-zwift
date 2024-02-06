@@ -10,6 +10,8 @@
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniObject>
 #include <QAndroidJniEnvironment>
+#elif defined Q_OS_IOS
+#include "ios/lockscreen.h"
 #endif
 
 class AbstractZapDevice: public QObject {
@@ -24,6 +26,12 @@ public:
         RIDE_ON = QByteArray::fromRawData("\x52\x69\x64\x65\x4F\x6E", 6);  // "RideOn"
         REQUEST_START = QByteArray::fromRawData("\x00\x09", 2);  // {0, 9}
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
+        
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        h = new lockscreen();
+#endif
+#endif
     }
 
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes) {
@@ -31,6 +39,7 @@ public:
 
         qDebug() << characteristicName << bytes.toHex();
 
+        int button = 0;
 #ifdef Q_OS_ANDROID
         QAndroidJniEnvironment env;
         jbyteArray d = env->NewByteArray(bytes.length());
@@ -39,16 +48,17 @@ public:
             b[i] = bytes[i];
         env->SetByteArrayRegion(d, 0, bytes.length(), b);
 
-        int button = QAndroidJniObject::callStaticMethod<int>(
+        button = QAndroidJniObject::callStaticMethod<int>(
             "org/cagnulen/qdomyoszwift/ZapClickLayer", "processCharacteristic", "([B)I", d);
         env->DeleteLocalRef(d);
+#elif defined Q_OS_IOS
+        h->zapDevice_processCharacteristic(bytes, bytes.length());
+#endif
         if(button == 1)
             emit plus();
         else if(button == 2)
             emit minus();
         return button;
-#endif
-
     }
 
     QByteArray buildHandshakeStart() {
@@ -71,6 +81,8 @@ public:
             // Ora puoi usare byteArray come necessario
             return byteArray;
         }
+#elif defined Q_OS_IOS
+        return h->zapDevice_buildHandshakeStart();
 #endif
         //return RIDE_ON + REQUEST_START + localKeyProvider.getPublicKeyBytes();
         return QByteArray();
@@ -80,6 +92,9 @@ protected:
     virtual void processEncryptedData(const QByteArray& bytes) = 0;
 
 private:
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
     QByteArray devicePublicKeyBytes;
 
 signals:

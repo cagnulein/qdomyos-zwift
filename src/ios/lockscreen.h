@@ -74,6 +74,10 @@ class lockscreen {
     int zwift_api_getdistance();
     float zwift_api_getlatitude();
     float zwift_api_getlongitude();
+    
+    // Zwift ZAP Device
+    const char* zapDevice_buildHandshakeStart();
+    int zapDevice_processCharacteristic(const char* data, int len);
 };
 
 #endif // LOCKSCREEN_H

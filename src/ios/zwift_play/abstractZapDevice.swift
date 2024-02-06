@@ -13,18 +13,18 @@ extension Data {
 }
 
 @available(iOS 14.0, *)
-class AbstractZapDevice {
+@objc class AbstractZapDevice: NSObject {
     private static let logRaw = true
 
     private var devicePublicKeyBytes: Data?
     private let localKeyProvider = LocalKeyProvider()
     open var zapEncryption: ZapCrypto
 
-    init() {
+    override init() {
         self.zapEncryption = ZapCrypto(localKeyProvider: localKeyProvider)
     }
 
-    func processCharacteristic(characteristicName: String, bytes: Data?) -> Int {
+    @objc func processCharacteristic(characteristicName: String, bytes: Data?) -> Int {
         guard let bytes = bytes else { return 0 }
 
         if Self.logRaw {
@@ -42,7 +42,7 @@ class AbstractZapDevice {
         return 0
     }
 
-    func buildHandshakeStart() -> Data {
+    @objc func buildHandshakeStart() -> Data {
         return ZapConstants.rideOn + ZapConstants.requestStart + localKeyProvider.getPublicKeyBytes()
     }
 
