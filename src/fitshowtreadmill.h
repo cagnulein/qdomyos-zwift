@@ -148,6 +148,7 @@ class fitshowtreadmill : public treadmill {
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     QDateTime lastChangedStepCount = QDateTime::currentDateTime();
+    metric cadenceRaw;
 
     bool initDone = false;
     bool initRequest = false;
