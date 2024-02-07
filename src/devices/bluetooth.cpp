@@ -2415,7 +2415,7 @@ void bluetooth::connectedAndDiscovered() {
                     qDebug() << "manufacturer not found for ZWIFT CLICK";
                 }
 
-                zwiftClickRemote = new zwiftclickremote(this->device(), zwiftclickremote::ZWIFT_PLAY_TYPE::NONE);
+                zwiftClickRemote = new zwiftclickremote(this->device(), AbstractZapDevice::ZWIFT_PLAY_TYPE::NONE);
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
@@ -2438,7 +2438,7 @@ void bluetooth::connectedAndDiscovered() {
                     qDebug() << "manufacturer not found for ZWIFT CLICK";
                 }
                 zwiftPlayDevice.append(new zwiftclickremote(this->device(),
-                                 int(b.manufacturerData(2378).at(0)) == 3 ? zwiftclickremote::ZWIFT_PLAY_TYPE::LEFT : zwiftclickremote::ZWIFT_PLAY_TYPE::RIGHT));
+                                 int(b.manufacturerData(2378).at(0)) == 3 ? AbstractZapDevice::ZWIFT_PLAY_TYPE::LEFT : AbstractZapDevice::ZWIFT_PLAY_TYPE::RIGHT));
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
