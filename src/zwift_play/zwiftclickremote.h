@@ -31,11 +31,6 @@
 class zwiftclickremote : public bluetoothdevice {
     Q_OBJECT
   public:
-    enum ZWIFT_PLAY_TYPE {
-        NONE,
-        LEFT,
-        RIGHT
-    };
 
     zwiftclickremote(bluetoothdevice *parentDevice, ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
