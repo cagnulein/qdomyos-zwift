@@ -2,7 +2,7 @@
 
 #include "Devices/bluetoothdevicetestdata.h"
 
-#include "snodebike.h"
+#include "devices/snodebike/snodebike.h"
 
 class SnodeBikeTestData : public BluetoothDeviceTestData {
 protected:

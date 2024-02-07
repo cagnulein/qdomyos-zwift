@@ -1,5 +1,5 @@
 #include "templateinfosenderbuilder.h"
-#include "bike.h"
+#include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
 #include <QJsonArray>
