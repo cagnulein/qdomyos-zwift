@@ -18,6 +18,7 @@ SOURCES += \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
         Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.cpp \
+        Devices/TrixterXDreamBike/testserialdatasource.cpp \
         Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
@@ -36,8 +37,8 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../src/release/ -lqdom
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../src/debug/ -lqdomyos-zwift
 else:unix: LIBS += -L$$OUT_PWD/../src/ -lqdomyos-zwift
 
-INCLUDEPATH += $$PWD/../src
-DEPENDPATH += $$PWD/../src
+INCLUDEPATH += $$PWD/../src $$PWD/../src/devices
+DEPENDPATH += $$PWD/../src $$PWD/../src/devices
 
 win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/release/libqdomyos-zwift.a
 else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../src/debug/libqdomyos-zwift.a
@@ -121,6 +122,7 @@ HEADERS += \
     Devices/ToorxTreadmill/toorxtreadmilltestdata.h \
     Devices/Treadmill/treadmilltestdata.h \
     Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.h \
+    Devices/TrixterXDreamBike/testserialdatasource.h \
     Devices/TrixterXDreamBike/trixterxdreamv1biketestdata.h \
     Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.h \
     Devices/TrueTreadmill/truetreadmilltestdata.h \

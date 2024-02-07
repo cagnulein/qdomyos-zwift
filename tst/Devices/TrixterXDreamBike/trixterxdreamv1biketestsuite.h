@@ -2,7 +2,6 @@
 
 #include "gtest/gtest.h"
 #include "bluetooth.h"
-
 #include "Tools/testsettings.h"
 
 
@@ -16,7 +15,7 @@ protected:
     TestSettings testSettings;
 
 public:
-    TrixterXDreamV1BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
+    TrixterXDreamV1BikeTestSuite();
 
     // Sets up the test fixture.
     //void SetUp() override;
@@ -26,10 +25,16 @@ public:
 
     void test_power_calculations();
 
+    void test_detection();
+
 
 };
 
 TEST_F(TrixterXDreamV1BikeTestSuite, TestPowerCalculations) {
     this->test_power_calculations();
+}
+
+TEST_F(TrixterXDreamV1BikeTestSuite, TestDetection) {
+    this->test_detection();
 }
 

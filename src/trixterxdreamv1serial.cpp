@@ -47,6 +47,12 @@ trixterxdreamv1serial::~trixterxdreamv1serial() {
 QStringList trixterxdreamv1serial::availablePorts(bool debug) {
     QStringList result;
 
+    if(serialDataSourceFactory!=nullptr)
+    {
+        result.append("stub");
+        return result;
+    }
+
 #if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
     auto ports = QSerialPortInfo::availablePorts();
     for(const auto &port : ports) {
