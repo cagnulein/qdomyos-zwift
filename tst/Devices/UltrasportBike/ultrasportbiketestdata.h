@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "devices/ultrasportbike/ultrasportbike.h"
+#include "ultrasportbike.h"
 
 class UltrasportBikeTestData : public BluetoothDeviceTestData {
 

@@ -1,5 +1,5 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
-#include "devices/elliptical.h"
+#include "elliptical.h"
 #if __has_include("aiserver.h")
 #include "aiserver.h"
 #endif

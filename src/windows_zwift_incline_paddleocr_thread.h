@@ -7,7 +7,7 @@
 #else
 #include <QtGui/qguiapplication.h>
 #endif
-#include "devices/bluetoothdevice.h"
+#include "bluetoothdevice.h"
 #include <QDateTime>
 #include <QObject>
 #include <QString>

@@ -3,7 +3,7 @@
 #include "Devices/bluetoothdevicetestdata.h"
 #include "Devices/FTMSBike/ftmsbiketestdata.h"
 
-#include "devices/stagesbike/stagesbike.h"
+#include "stagesbike.h"
 
 class StagesBikeTestData : public BluetoothDeviceTestData {
 protected:

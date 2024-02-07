@@ -1,6 +1,6 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
-#include "devices/bluetoothdevice.h"
+#include "bluetoothdevice.h"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>

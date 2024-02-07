@@ -3,7 +3,7 @@
 #include "Devices/bluetoothdevicetestdata.h"
 #include "Devices/EchelonRower/echelonrowertestdata.h"
 #include "Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
-#include "devices/echelonconnectsport/echelonconnectsport.h"
+#include "echelonconnectsport.h"
 
 class EchelonConnectSportBikeTestData : public BluetoothDeviceTestData {
 

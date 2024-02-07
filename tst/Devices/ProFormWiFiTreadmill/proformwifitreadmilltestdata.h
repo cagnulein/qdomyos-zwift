@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "devices/proformwifitreadmill/proformwifitreadmill.h"
+#include "proformwifitreadmill.h"
 
 class ProFormWiFiTreadmillTestData : public BluetoothDeviceTestData {
 protected:

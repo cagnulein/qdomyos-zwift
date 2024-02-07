@@ -2,7 +2,7 @@
 
 #include "Devices/bluetoothdevicetestdata.h"
 #include "Devices/KingsmithR2Treadmill/kingsmithr2treadmilltestdata.h"
-#include "devices/kingsmithr1protreadmill/kingsmithr1protreadmill.h"
+#include "kingsmithr1protreadmill.h"
 
 class KingsmithR1ProTreadmillTestData : public BluetoothDeviceTestData {
 protected:

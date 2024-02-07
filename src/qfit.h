@@ -1,7 +1,7 @@
 #ifndef QFIT_H
 #define QFIT_H
 
-#include "devices/bluetoothdevice.h"
+#include "bluetoothdevice.h"
 #include "fit_profile.hpp"
 #include "sessionline.h"
 #include <QFile>

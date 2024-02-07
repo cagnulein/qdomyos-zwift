@@ -10,11 +10,11 @@
 #include <QQmlContext>
 
 #include "bluetooth.h"
-#include "devices/domyostreadmill/domyostreadmill.h"
+#include "domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
-#include "virtualdevices/virtualtreadmill.h"
+#include "virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
