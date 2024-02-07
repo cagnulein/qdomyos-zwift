@@ -458,6 +458,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
                 }
 
+                getCadence(step_count);
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
@@ -600,6 +601,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double distance = array[4] | array[5] << 8;
                 uint16_t step_count = array[8] | array[9] << 8;
 
+                getCadence(step_count);
                 StepCount = step_count;
 
                 emit debug(QStringLiteral("Current elapsed from treadmill: ") + QString::number(seconds_elapsed));
@@ -612,6 +614,20 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 // Distance = distance;
             }
         }
+    }
+}
+
+void fitshowtreadmill::getCadence(uint16_t step_count) {
+    if(step_count != StepCount.value()) {
+        int ms = abs(lastChangedStepCount.msecsTo(QDateTime::currentDateTime()));
+        int cadence = (step_count - StepCount.value()) * 60000 / ms;
+        if(cadence < 255) {
+            cadenceRaw = cadence;
+            Cadence = cadenceRaw.average5s();
+            emit debug(QStringLiteral("Current raw cadence: ") + QString::number(cadence));
+            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        }
+        lastChangedStepCount = QDateTime::currentDateTime();
     }
 }
 

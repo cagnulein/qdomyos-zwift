@@ -105,6 +105,7 @@ class trxappgateusbbike : public bike {
         TUNTURI_2 = 17,
         FITHIWAY = 18,
         ENERFIT_SPX_9500 = 19,
+        HOP_SPORT_HS_090H = 20,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

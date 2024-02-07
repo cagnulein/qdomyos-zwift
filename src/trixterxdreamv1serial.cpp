@@ -2,12 +2,40 @@
 
 #include <QDebug>
 #include <QTime>
+#include <QMutex>
+#include <QMutexLocker>
+#include <memory>
 
-#ifndef Q_OS_IOS
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #endif
 
+class qserialdatasource : public trixterxdreamv1serial::serialdatasource {
+  private:
+    QSerialPort serial;
+  public:
+    qserialdatasource(QObject *parent, const QString& portName) : serialdatasource(), serial(parent)
+    {
+        serial.setPortName(portName);
+        serial.setBaudRate(QSerialPort::Baud115200);
+        serial.setDataBits(QSerialPort::Data8);
+        serial.setStopBits(QSerialPort::OneStop);
+        serial.setFlowControl(QSerialPort::NoFlowControl);
+        serial.setParity(QSerialPort::NoParity);
+        serial.setReadBufferSize(4096);
+    }
+
+    bool open() override { return serial.open(QIODevice::ReadWrite); }
+    qint64 write(const QByteArray& data) override { return this->serial.write(data); }
+    bool waitForReadyRead() override { return this->serial.waitForReadyRead(1);}
+    QByteArray readAll() override { return this->serial.readAll(); }
+    qint64 readBufferSize() override { return this->serial.readBufferSize();}
+    QString error() override { return serial.parent()->tr("%1").arg(this->serial.error());}
+    void close() override { this->serial.close(); }
+};
+
+std::function<trixterxdreamv1serial::serialdatasource*()> trixterxdreamv1serial::serialDataSourceFactory = nullptr;
 
 trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
 
@@ -19,7 +47,13 @@ trixterxdreamv1serial::~trixterxdreamv1serial() {
 QStringList trixterxdreamv1serial::availablePorts(bool debug) {
     QStringList result;
 
-#ifndef Q_OS_IOS
+    if(serialDataSourceFactory!=nullptr)
+    {
+        result.append("stub");
+        return result;
+    }
+
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
     auto ports = QSerialPortInfo::availablePorts();
     for(const auto &port : ports) {
         QString portName = port.portName();
@@ -101,24 +135,21 @@ void trixterxdreamv1serial::set_SendReceiveLog(bool value) { this->sendReceiveLo
 
 void trixterxdreamv1serial::run() {
 
-#ifdef Q_OS_IOS
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     return;
 #else
+    // create the serial data source
+    serialdatasource * serialDataSource = nullptr;
+    if(serialDataSourceFactory!=nullptr)
+        serialDataSource = serialDataSourceFactory();
+    else serialDataSource = new qserialdatasource(this, this->portName);
 
-    QSerialPort serial { this };
-
-    serial.setPortName(this->portName);
-    serial.setBaudRate(QSerialPort::Baud115200);
-    serial.setDataBits(QSerialPort::Data8);
-    serial.setStopBits(QSerialPort::OneStop);
-    serial.setFlowControl(QSerialPort::NoFlowControl);
-    serial.setParity(QSerialPort::NoParity);
-    serial.setReadBufferSize(4096);
+    std::unique_ptr<serialdatasource> serial(serialDataSource);
 
     bool openResult = false;
 
     try {
-        openResult = serial.open(QIODevice::ReadWrite);
+        openResult = serial->open();
         this->openAttemptsPending = 0;
     } catch(...) {
         this->openAttemptsPending = 0;
@@ -126,12 +157,12 @@ void trixterxdreamv1serial::run() {
     }
 
     if (!openResult) {
-        qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
-        this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
+        qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial->error());
+        this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial->error()));
         return;
     }
 
-    qDebug() << "Serial port " << this->portName << " opened with read buffer size=" << serial.readBufferSize();
+    qDebug() << "Serial port " << this->portName << " opened with read buffer size=" << serial->readBufferSize();
 
     while (!this->quitPending) {
         QByteArray requestData;
@@ -144,7 +175,7 @@ void trixterxdreamv1serial::run() {
 
             try {
                 this->writePending = 0;
-                serial.write(this->writeBuffer);
+                serial->write(this->writeBuffer);
             } catch(std::exception const& e) {
                 qDebug() <<  "Exception thrown by QSerialPort::write : " << e.what();
                 throw;
@@ -158,8 +189,8 @@ void trixterxdreamv1serial::run() {
         }
 
         // try to read some bytes, but only block for 1ms because a write attempt could come in.
-        while (!this->quitPending && serial.waitForReadyRead(1))
-            requestData += serial.readAll();
+        while (!this->quitPending && serial->waitForReadyRead())
+            requestData += serial->readAll();
 
         if(requestData.length()>0) {
 
@@ -177,7 +208,7 @@ void trixterxdreamv1serial::run() {
         }
     }
 
-    serial.close();
+    serial->close();
     qDebug() << "Serial port closed";
 #endif
 }

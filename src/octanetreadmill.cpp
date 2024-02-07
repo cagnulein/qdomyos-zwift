@@ -172,6 +172,7 @@ octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool n
     // ZR_PACE
     actualPaceSign.append(0x02);
     actualPaceSign.append(0x23);
+    actualPace2Sign.append(0x03);
     actualPace2Sign.append(0x01);
     actualPace2Sign.append(0x23);
     cadenceSign.append(0x2c);
@@ -376,7 +377,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     int16_t i = newValue.indexOf(actualPaceSign) + 2;
     if (i <= 1)
-        i = newValue.indexOf(actualPace2Sign) + 2;
+        i = newValue.indexOf(actualPace2Sign) + 3;
 
     if (i + 1 >= newValue.length())
         return;

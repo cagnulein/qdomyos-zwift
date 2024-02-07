@@ -129,6 +129,9 @@
 #include "ypooelliptical.h"
 #include "ziprotreadmill.h"
 
+#include "zwift_play/zwiftPlayDevice.h"
+#include "zwift_play/zwiftclickremote.h"
+
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
@@ -273,6 +276,8 @@ private:
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QList<wahookickrheadwind *> wahookickrHeadWind;
     QList<eliteariafan *> eliteAriaFan;
+    QList<zwiftclickremote* > zwiftPlayDevice;
+    zwiftclickremote* zwiftClickRemote = nullptr;
     QString filterDevice = QLatin1String("");
     trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
 

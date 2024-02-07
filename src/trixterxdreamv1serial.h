@@ -14,6 +14,27 @@ class trixterxdreamv1serial : public QThread {
     Q_OBJECT
 
 public:
+    /**
+     * @brief An interface for a serial I/O device, based on the interface of QSerialPort.
+     */
+    class serialdatasource
+    {
+      protected:
+        serialdatasource() {}
+        serialdatasource(const serialdatasource& other) {}
+      public:
+
+        virtual bool open() = 0;
+        virtual qint64 write(const QByteArray& data)=0;
+        virtual bool waitForReadyRead()=0;
+        virtual QByteArray readAll() = 0;
+        virtual qint64 readBufferSize() =0;
+        virtual QString error() =0;
+        virtual void close()=0;
+    };
+
+    static std::function<serialdatasource*()> serialDataSourceFactory;
+
     explicit trixterxdreamv1serial(QObject *parent = nullptr);
     ~trixterxdreamv1serial();
 

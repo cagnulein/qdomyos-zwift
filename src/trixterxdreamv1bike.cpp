@@ -308,11 +308,29 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
     return result;
 }
 
+uint16_t trixterxdreamv1bike::calculatePowerFromInclination(double inclination, double speedMetresPerSecond) {
+    QSettings settings;
+
+    double riderMass = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double bikeMass = settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat();
+    double totalMass = riderMass+bikeMass;
+    double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
+
+    uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
+
+    qDebug() << "Inclination:" << inclination
+             << " Speed:" << speedMetresPerSecond << "m/s "
+             << " Total Mass:"<< totalMass << "kg "
+             << "= Power:" << power << "W ";
+
+    return power;
+}
+
 bool trixterxdreamv1bike::connected() {
     // If this is called from the connect() method, the timer won't have called the update() method
     // so go directly to the queue of states.
-    QMutexLocker lockerA(&this->unprocessedStatesMutex);
-    if(!this->unprocessedStates[this->unprocessedStateIndex].empty())
+    QMutexLocker lockerA(&this->statesMutex);
+    if(!this->states.empty())
         return true;
     lockerA.unlock();
 
@@ -347,11 +365,11 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
     // send the bytes to the client and return if there's no change of state
     bool stateChanged = false;
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
+    queue<trixterxdreamv1client::state> * ups = &this->states;
 
     for(int i=0; i<bytes.length();i++) {
         if(this->client.ReceiveChar(bytes[i])) {
-            QMutexLocker locker(&this->unprocessedStatesMutex);
+            QMutexLocker locker(&this->statesMutex);
             ups->push(this->client.getLastState());
             stateChanged = true;
         }
@@ -360,8 +378,8 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
     if(!stateChanged)
         return;
 
-    QMutexLocker locker(&this->unprocessedStatesMutex);
-    auto timeLimit = getTime() - UpdateMetricsInterval;
+    QMutexLocker locker(&this->statesMutex);
+    auto timeLimit = getTime() - SmoothingInterval;
     while(!ups->empty() && ups->front().LastEventTime < timeLimit)
         ups->pop();
 
@@ -373,38 +391,35 @@ void trixterxdreamv1bike::update() {
     // get the current time
     auto currentTime = getTime();
 
-    // Switch to the the other queue for continued input on another thread
-    QMutexLocker statesLocker(&this->unprocessedStatesMutex);
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
-    this->unprocessedStateIndex ^= 1;
+    // Lock the states mutex and grab a copy of the queue
+    QMutexLocker statesLocker(&this->statesMutex);
+    queue<trixterxdreamv1client::state> ups = this->states;
     statesLocker.unlock();
 
     // If there are no states waiting to be processed, clear the metrics and return.
-    if(ups->empty()) {
+    if(ups.empty()) {
         qDebug() << "no states in queue";
         this->stopping = false;
         this->Speed.setValue(0);
         this->brakeLevel = 0;
         this->m_steeringAngle.setValue(0);
         this->Cadence.setValue(0);
-        this->Heart.setValue(0);
+        this->Heart.setValue(0);        
         return;
     }
 
-    // sweep the unprocessed states calculating some averages over the last update interval
+    // sweep the recent states calculating some averages over the last update interval
     // steering can ba a particularly wobbly signal so smoothing is important
-    double steering=0, cadence=0, flywheel=0, brakeLevel=0;
-    int count = ups->size();
+    double steering=0, cadence=0, flywheel=0, brakeLevel=0, heartRate = 0;
+    int count = ups.size();
 
     trixterxdreamv1client::state state{};
 
-    while(!ups->empty()) {
-        // update the packet count
-        this->packetsProcessed++;
+    while(!ups.empty()) {
         this->lastPacketProcessedTime = currentTime;
 
-        state = ups->front();
-        ups->pop();
+        state = ups.front();
+        ups.pop();
 
         constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
         uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
@@ -418,6 +433,10 @@ void trixterxdreamv1bike::update() {
         if(!this->noSteering) {
             steering += this->steeringMap[state.Steering];
         }
+
+        if(!this->noHeartRate) {
+            heartRate += state.HeartRate;
+        }
     }
 
     if(count>1) {
@@ -426,14 +445,15 @@ void trixterxdreamv1bike::update() {
         cadence *= scale;
         flywheel *= scale;
         brakeLevel *= scale;
+        heartRate *= scale;
     }
 
     // Determine if the user is pressing the button to stop.
-    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
+    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0 && flywheel>0.0;
 
     // update the metrics
     if(!this->noHeartRate)
-        this->Heart.setValue(state.HeartRate);
+        this->Heart.setValue(heartRate);
     this->Distance.setValue(state.CumulativeWheelRevolutions * this->wheelCircumference);
     this->Cadence.setValue(cadence);
     this->LastCrankEventTime = state.LastEventTime;
@@ -441,7 +461,6 @@ void trixterxdreamv1bike::update() {
     this->brakeLevel = brakeLevel;
     constexpr double minutesPerHour = 60.0;
     this->Speed.setValue(flywheel * minutesPerHour * this->wheelCircumference);
-
     bool steeringAngleChanged = false;
     if(!this->noSteering) {
         double newValue = steering;
@@ -450,19 +469,59 @@ void trixterxdreamv1bike::update() {
             this->m_steeringAngle.setValue(newValue);
     }
 
-    // simulate ERG hardware
     if(this->requestPower > -1) {
-        this->requestResistance = this->resistanceFromPowerRequest(this->requestPower);
+        // there's been a request to change power.
+        bool changedMode = !this->requestIsPower;
+        this->requestIsPower = true; // switch to ERG mode
+        this->requestedResistanceInput = this->requestPower;
+        this->requestPower = -1;
 
-        qDebug() << QStringLiteral("Power request: ")
-                 << QString::number(this->requestPower)
-                 << QStringLiteral("W with cadence ")
-                 << QString::number(this->Cadence.value())
-                 << QStringLiteral("RPM --> setting resistance request: ")
-                 << QString::number(this->requestResistance);
+        if(changedMode) {
+            qDebug() << "Changed to ERG mode detected";
+            this->Inclination.setValue(0.0); // remove the inclination from the previous mode from the UI tile
+        }
+    }
 
-        // leave requestPower as is because on the next update, the cadence could have changed
-        // and a new resistance level will be needed.
+    if(this->requestInclination>-100) {
+        // there's been a request to change inclination
+        bool changedMode = this->requestIsPower;
+        this->requestIsPower = false; // set to indoor bike simulation parameters mode
+        this->requestedResistanceInput = this->requestInclination;
+        this->requestInclination = -100;
+
+        if(changedMode) {
+            qDebug() << "Changed to Indoor Bike Simulation Parameters mode";
+            this->RequestedPower.setValue(0.0); // get rid of the target power from the UI tile
+        }
+    }
+
+    if(this->requestedResistanceInput.has_value()) {
+        // Get the value. This value is retained between update requests because the resistance that is
+        // calculated from it can change due to cadence or flywheel speed.
+        int16_t value = this->requestedResistanceInput.value();
+
+        if(this->requestIsPower) {
+            // simulate ERG hardware - value is target power in watts
+            this->requestResistance = this->resistanceFromPowerRequest(value);
+
+            qDebug() << "Power request: "
+                     << this->requestedResistanceInput.value()
+                     << "W with cadence "
+                     << this->Cadence.value()
+                     << "RPM --> setting resistance request: "
+                     << this->requestResistance;
+        } else {
+            // simulate inclination - value is inclination percentage
+            double groundSpeed = flywheel / 60.0 * 1000.0 * this->wheelCircumference;
+            uint16_t reqPower = this->calculatePowerFromInclination(value, groundSpeed);
+            this->requestResistance = this->resistanceFromPowerRequest(reqPower);
+
+            qDebug()  << "Inclination request: "
+                      << value
+                      << "% speed:"
+                      << groundSpeed << "m/s --> setting resistance request: "
+                      << this->requestResistance;
+        }
     }
 
     if (this->requestResistance > -1) {
@@ -620,9 +679,9 @@ resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance)
 
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
 
-#ifdef Q_OS_IOS
-    // Not suported in iOS.
-    return false;
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    // Not supported in iOS or Android
+    return nullptr;
 #endif
 
     // first check if there's a port specified

@@ -465,6 +465,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QZSettings::fytter_ri08_bike, QZSettings::default_fytter_ri08_bike).toBool() ||
                        settings.value(QZSettings::asviva_bike, QZSettings::default_asviva_bike).toBool() ||
                        settings.value(QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500).toBool() ||
+                       settings.value(QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike).toBool() ||
                        settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
@@ -595,7 +596,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     QVector<quint16> ids = device.manufacturerIds();
-    qDebug() << "manufacturerData";
+    qDebug() << "manufacturerData" << ids;
     foreach (quint16 id, ids) {
         qDebug() << id << device.manufacturerData(id).toHex(' ');
 
@@ -1211,6 +1212,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
                         (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination)) &&
                        !trueTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
@@ -1317,6 +1319,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULTRUNNER")) ||                    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("CITYSPORTS-LINKER")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("CTM")) && b.name().length() >= 15) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && !sole_inclination) ||       // FMTS
                         (b.name().toUpper().startsWith(QStringLiteral("F80")) && !sole_inclination) ||       // FMTS
@@ -1477,6 +1480,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
+                        (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
@@ -2486,6 +2490,50 @@ void bluetooth::connectedAndDiscovered() {
         }
     }
 
+    if(settings.value(QZSettings::zwift_click, QZSettings::default_zwift_click).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("ZWIFT CLICK"))) && !zwiftClickRemote && this->device() &&
+                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                if(b.manufacturerData(2378).size() > 0) {
+                    qDebug() << "this should be 9. is it? " << int(b.manufacturerData(2378).at(0));
+                } else {
+                    qDebug() << "manufacturer not found for ZWIFT CLICK";
+                }
+
+                zwiftClickRemote = new zwiftclickremote(this->device(), zwiftclickremote::ZWIFT_PLAY_TYPE::NONE);
+                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(zwiftClickRemote, &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                connect(zwiftClickRemote->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                zwiftClickRemote->deviceDiscovered(b);
+                break;
+            }
+        }
+    }
+
+    if(settings.value(QZSettings::zwift_play, QZSettings::default_zwift_play).toBool()) {
+        for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+            if (((b.name().toUpper().startsWith("ZWIFT PLAY"))) && zwiftPlayDevice.size() < 2 && this->device() &&
+                    this->device()->deviceType() == bluetoothdevice::BIKE) {
+
+                if(b.manufacturerData(2378).size() > 0) {
+                    qDebug() << "this should be 3 or 2. is it? " << int(b.manufacturerData(2378).at(0));
+                } else {
+                    qDebug() << "manufacturer not found for ZWIFT CLICK";
+                }
+                zwiftPlayDevice.append(new zwiftclickremote(this->device(),
+                                 int(b.manufacturerData(2378).at(0)) == 3 ? zwiftclickremote::ZWIFT_PLAY_TYPE::LEFT : zwiftclickremote::ZWIFT_PLAY_TYPE::RIGHT));
+                // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(zwiftPlayDevice.last(), &zwiftclickremote::debug, this, &bluetooth::debug);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::plus, (bike*)this->device(), &bike::gearUp);
+                connect(zwiftPlayDevice.last()->playDevice, &ZwiftPlayDevice::minus, (bike*)this->device(), &bike::gearDown);
+                zwiftPlayDevice.last()->deviceDiscovered(b);
+            }
+        }
+    }
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {

@@ -84,8 +84,6 @@ class horizontreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    bool lifeFitnessTreadmill = false;
-
     int32_t customRecv = 0;
     int32_t messageID = 0;
 

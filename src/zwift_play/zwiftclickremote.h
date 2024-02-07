@@ -1,5 +1,5 @@
-#ifndef NAUTILUSTREADMILL_H
-#define NAUTILUSTREADMILL_H
+#ifndef ZWIFTCLICKREMOTE_H
+#define ZWIFTCLICKREMOTE_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -22,66 +22,52 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-#include <QDateTime>
 #include <QObject>
+#include <QTime>
 
-#include "treadmill.h"
+#include "bluetoothdevice.h"
+#include "zwiftPlayDevice.h"
 
-class nautilustreadmill : public treadmill {
+class zwiftclickremote : public bluetoothdevice {
     Q_OBJECT
   public:
-    nautilustreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    enum ZWIFT_PLAY_TYPE {
+        NONE,
+        LEFT,
+        RIGHT
+    };
+
+    zwiftclickremote(bluetoothdevice *parentDevice, ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
-    double minStepInclination() override;
-    bool autoPauseWhenSpeedIsZero() override;
-    bool autoStartWhenSpeedIsGreaterThenZero() override;
-    virtual bool canStartStop() override { return false; }
-    bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }    
+    ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    void forceSpeed(double requestSpeed);
-    void forceIncline(double requestIncline);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
-    void startDiscover();
-    bool noConsole = false;
-    bool noHeartService = false;
-    uint32_t pollDeviceTime = 200;
-    uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
-    QByteArray lastPacket;
-    QDateTime lastTimeCharacteristicChanged;
-    bool firstCharacteristicChanged = true;
-
-    int64_t lastStart = 0;
-    int64_t lastStop = 0;
-
-    QTimer *refresh;
-
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
-    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattWrite1Characteristic;
+    QLowEnergyService *gattWrite1Service;
+
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic *writeChar, uint8_t *data,
+                             uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
+
+    bluetoothdevice *parentDevice = nullptr;
 
     bool initDone = false;
     bool initRequest = false;
+    ZWIFT_PLAY_TYPE typeZap = NONE;
 
-    bool T628 = false;
+    QTimer *refresh;    
 
-  Q_SIGNALS:
+  signals:
     void disconnected();
     void debug(QString string);
-    void speedChanged(double speed);
     void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void disconnectBluetooth();
 
   private slots:
 
@@ -98,4 +84,4 @@ class nautilustreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // NAUTILUSTREADMILL_H
+#endif // ZWIFTCLICKREMOTE_H

@@ -64,6 +64,7 @@ class truetreadmill : public treadmill {
     bool initRequest = false;
 
     bool assault_treadmill = false;
+    bool wdway_treadmill = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

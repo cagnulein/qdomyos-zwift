@@ -981,6 +981,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
+        obj.setProperty(QStringLiteral("pace_color"), homeform::singleton()->pace->valueFontColor());
         el = device->averagePace();
         obj.setProperty(QStringLiteral("avgpace_s"), el.second());
         obj.setProperty(QStringLiteral("avgpace_m"), el.minute());

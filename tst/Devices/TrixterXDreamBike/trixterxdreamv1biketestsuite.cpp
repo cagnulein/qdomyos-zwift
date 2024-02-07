@@ -1,6 +1,11 @@
 #include "trixterxdreamv1biketestsuite.h"
+#include "testserialdatasource.h"
 
 
+TrixterXDreamV1BikeTestSuite::TrixterXDreamV1BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
+    // use the test serial data source because the bike won't be there usually, during test runs.
+    trixterxdreamv1serial::serialDataSourceFactory = TestSerialDatasource::create;
+}
 
 void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
     std::shared_ptr<trixterxdreamv1bike> bike(new trixterxdreamv1bike(false, false, false));
@@ -64,6 +69,20 @@ void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
 
         }
     }
+}
+
+void TrixterXDreamV1BikeTestSuite::test_detection() {
+    DeviceDiscoveryInfo ddi;
+
+    ddi.trixter_xdream_v1_bike = true;
+    this->testSettings.loadFrom(ddi);
+
+    auto bike = trixterxdreamv1bike::tryCreate();
+    auto bikePtr = std::unique_ptr<trixterxdreamv1bike>(bike);
+
+    ASSERT_TRUE(bike!=nullptr) << "Bike should have been detected from fake serial data";
+
+    this->testSettings.activate();
 }
 
 

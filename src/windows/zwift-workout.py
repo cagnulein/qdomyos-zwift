@@ -1,6 +1,6 @@
 # iFit-Workout - Auto-incline and auto-speed control of treadmill via ADB and OCR for Zwift workouts
 # Author: Al Udell
-# Revised: November 23, 2023
+# Revised: January 26, 2024
 
 # zwift-workout.py - take Zwift screenshot, crop speed/incline instruction, OCR speed/incline
 
@@ -55,21 +55,23 @@ for line in result:
     for word in line:
         ocr_text += f"{word[1][0]} "
 
-# Find the speed number
-if "kph" in ocr_text.lower():
-    pattern = r'-?\d+(?:\.\d+)?'
-    numbers = re.findall(pattern, ocr_text)
-    speed = str(float(numbers[1]))
-else:
-    speed = 'None'
-
 # Find the incline number
 if "incline" in ocr_text.lower():
     pattern = r'-?\d+(?:\.\d+)?'
     numbers = re.findall(pattern, ocr_text)
     incline = str(float(numbers[0]))
+    speedindex = 1
 else:
     incline = 'None'
+    speedindex = 0
+
+# Find the speed number
+if "kph" in ocr_text.lower():
+    pattern = r'-?\d+(?:\.\d+)?'
+    numbers = re.findall(pattern, ocr_text)
+    speed = str(float(numbers[speedindex]))
+else:
+    speed = 'None'
 
 print(speed + ";" + incline)
 

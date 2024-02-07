@@ -3,7 +3,7 @@
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
-#include "virtualbike.h"
+#include <optional>
 #include <queue>
 
 class trixterxdreamv1bike : public bike
@@ -17,19 +17,14 @@ private:
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
 
     /**
-     * @brief A queue of states read from the client. Syncronized but unprocessedStatesMutex.
+     * @brief A queue of states read from the client. Syncronized by statesMutex.
      */
-    std::queue<trixterxdreamv1client::state> unprocessedStates[2];
-
-    /**
-     * @brief The current unprocessed state queue. Syncronized but unprocessedStatesMutex.
-     */
-    uint32_t unprocessedStateIndex = 0;
+    std::queue<trixterxdreamv1client::state> states;
 
     /**
      * @brief Mutex for accessing the unprocessedStates queue.
      */
-    QMutex unprocessedStatesMutex;
+    QMutex statesMutex;
 
     /**
      * @brief An object that processes incoming data to CSCS, heart rate and steering data
@@ -105,14 +100,22 @@ private:
     double wheelCircumference;
 
     /**
+     * @brief requestIsPower Indicates if the last power request (for resistance) came
+     * for ERG mode (true, i.e. changePower) or via inclination (false, i.e. changeInclination).
+     */
+    bool requestIsPower = false;
+
+    /**
+     * @brief requestedResistanceInput Latest requested input for resistance.
+     * If requestIsPower is true, this is the target power in watts
+     * If requestIsPower is false, this is the inclination percentage
+     */
+    std::optional<int16_t> requestedResistanceInput;
+
+    /**
      * @brief t0 The start time in milliseconds. Used to determine elapsed time.
      */
     qint64 t0=0;
-
-    /**
-     * @brief The number of packets processed.
-     */
-    uint32_t packetsProcessed=0;
 
     /**
      * @brief The last time (from getTime()) a packet was processed.
@@ -181,6 +184,13 @@ private:
     double calculatePower(int cadenceRPM, int resistance);
 
     /**
+     * @brief Calculate power from the specified inclination and speed. Uses rider and bike weight from settings.
+     * @param inclination Percentage inclination.
+     * @param speedMetersPerSecond Bike speed in meters per second.
+     */
+    uint16_t calculatePowerFromInclination(double inclination, double speedMetersPerSecond);
+
+    /**
      * @brief Called to set the resistance level sent to the device.
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
@@ -231,6 +241,11 @@ public:
      * @brief The number of milliseconds to collect packets from the device before updating the metrics.
      */
     constexpr static int32_t UpdateMetricsInterval = 100;
+
+    /**
+     * @brief The number of milliseconds to smooth samples over.
+     */
+    constexpr static int32_t SmoothingInterval = 500;
 
     /**
      * @brief Constructor

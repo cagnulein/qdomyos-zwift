@@ -198,7 +198,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     else if ((newValue.length() != 12) && bowflex_t8j == true)
         return;
 
-    if (bowflex_t6 == true && newValue.at(1) != 0x00)
+    if (bowflex_t6 == true && characteristic.uuid() != QBluetoothUuid(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b")))
         return;
 
     double speed = GetSpeedFromPacket(value);
@@ -275,7 +275,7 @@ double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
         double data = (double)convertedData / 100.0f;
         return data * 1.60934;
     } else {
-        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(9)) + ((uint16_t)((uint8_t)packet.at(10)) << 8);
+        uint16_t convertedData = (uint16_t)((uint8_t)packet.at(9)) + (((uint16_t)((uint8_t)packet.at(10)) << 8) & 0xFF00);
         double data = (double)convertedData / 100.0f;
         return data * 1.60934;
     }

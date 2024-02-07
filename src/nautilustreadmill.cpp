@@ -130,6 +130,10 @@ void nautilustreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            if(T628) {
+                Inclination = requestInclination;
+                emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
+            }
             if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -200,11 +204,13 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             emit speedChanged(speed);
         }
         Speed = speed;
-        if (Inclination.value() != incline) {
-            emit inclinationChanged(0.0, incline);
+        if(!T628) {
+            if (Inclination.value() != incline) {
+                emit inclinationChanged(0.0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
         }
-        Inclination = incline;
-        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
 
         // KCal = kcal;
         // Distance = distance;
@@ -365,6 +371,10 @@ void nautilustreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
+        if(device.name().toUpper().startsWith(QStringLiteral("NAUTILUS T628"))) {
+            qDebug() << "NAUTILUS T628 workaround";
+            T628 = true;
+        }
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &nautilustreadmill::serviceDiscovered);

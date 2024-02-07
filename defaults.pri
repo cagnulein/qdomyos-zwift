@@ -3,8 +3,10 @@ QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 windows: QT += serialport
-unix:!android: QT += serialport
 
+isEmpty(QMAKE_IOS_DEPLOYMENT_TARGET) {
+    unix:!android: QT += serialport
+}
 unix:android: QT += androidextras gui-private
 
 android: include(android_openssl/openssl.pri)
