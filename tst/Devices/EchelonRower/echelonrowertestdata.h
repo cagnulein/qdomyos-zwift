@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "echelonrower.h"
+#include "devices/echelonrower/echelonrower.h"
 
 class EchelonRowerTestData : public BluetoothDeviceTestData {
 

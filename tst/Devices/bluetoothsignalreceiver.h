@@ -2,7 +2,7 @@
 #define BLUETOOTHSIGNALRECEIVER_H
 
 #include <QObject>
-#include "bluetoothdevice.h"
+#include "devices/bluetoothdevice.h"
 #include "bluetooth.h"
 
 /**
