@@ -32,7 +32,7 @@ class zwiftclickremote : public bluetoothdevice {
     Q_OBJECT
   public:
 
-    zwiftclickremote(bluetoothdevice *parentDevice, ZWIFT_PLAY_TYPE typeZap);
+    zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap);
     bool connected() override;
     ZwiftPlayDevice* playDevice = new ZwiftPlayDevice();
 
@@ -51,7 +51,7 @@ class zwiftclickremote : public bluetoothdevice {
 
     bool initDone = false;
     bool initRequest = false;
-    ZWIFT_PLAY_TYPE typeZap = NONE;
+    AbstractZapDevice::ZWIFT_PLAY_TYPE typeZap = AbstractZapDevice::NONE;
 
     QTimer *refresh;    
 
