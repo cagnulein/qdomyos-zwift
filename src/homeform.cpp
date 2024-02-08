@@ -4763,7 +4763,7 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step) {
                             pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > 6) {
+                            if (pid_heart_zone_small_inc_counter > (1.0 / fabs(((float)zone) - currentHRZone))) {
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
@@ -4870,7 +4870,7 @@ void homeform::update() {
                         } else if (maxSpeed >= currentSpeed + step &&
                                    hrmax < bluetoothManager->device()->currentHeart().average5s()) {
                             pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > 6) {
+                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average5s()))) {
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,

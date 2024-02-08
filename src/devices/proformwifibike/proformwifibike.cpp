@@ -397,6 +397,7 @@ void proformwifibike::serviceDiscovered(const QBluetoothUuid &gatt) {
 void proformwifibike::binaryMessageReceived(const QByteArray &message) { characteristicChanged(message); }
 
 void proformwifibike::characteristicChanged(const QString &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -431,20 +432,24 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             Speed = kph;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
+
+        if (!values[QStringLiteral("Kilometers")].isUndefined()) {
+            double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
+            Distance = odometer;
+            emit debug("Current Distance: " + QString::number(odometer));
+        } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
+            double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
+            Distance = odometer;
+            emit debug("Current Distance: " + QString::number(odometer));
+        }
+
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-    }
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
 
-    if (!values[QStringLiteral("Kilometers")].isUndefined()) {
-        double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
-    } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
-        double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
+        Distance += ((Speed.value() / 3600000.0) *
+                    ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     if (!values[QStringLiteral("RPM")].isUndefined()) {
@@ -552,7 +557,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
                                                               /*
                                                                   Resistance = resistance;
@@ -576,7 +581,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
