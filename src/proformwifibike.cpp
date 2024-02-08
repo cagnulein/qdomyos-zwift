@@ -431,20 +431,24 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             Speed = kph;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
+
+        if (!values[QStringLiteral("Kilometers")].isUndefined()) {
+            double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
+            Distance = odometer;
+            emit debug("Current Distance: " + QString::number(odometer));
+        } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
+            double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
+            Distance = odometer;
+            emit debug("Current Distance: " + QString::number(odometer));
+        }
+
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
-    }
 
-    if (!values[QStringLiteral("Kilometers")].isUndefined()) {
-        double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
-    } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
-        double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
-        Distance = odometer;
-        emit debug("Current Distance: " + QString::number(odometer));
+        Distance += ((Speed.value() / 3600000.0) *
+                    ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
     }
 
     if (!values[QStringLiteral("RPM")].isUndefined()) {
