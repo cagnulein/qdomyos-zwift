@@ -397,6 +397,7 @@ void proformwifibike::serviceDiscovered(const QBluetoothUuid &gatt) {
 void proformwifibike::binaryMessageReceived(const QByteArray &message) { characteristicChanged(message); }
 
 void proformwifibike::characteristicChanged(const QString &newValue) {
+    QDateTime now = QDateTime::currentDateTime();
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -445,7 +446,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     } else {
         Speed = metric::calculateSpeedFromPower(
             watts(), Inclination.value(), Speed.value(),
-            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
 
         Distance += ((Speed.value() / 3600000.0) *
                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
@@ -556,7 +557,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
                                                               /*
                                                                   Resistance = resistance;
@@ -580,7 +581,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
         }
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
