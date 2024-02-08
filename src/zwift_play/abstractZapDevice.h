@@ -15,6 +15,12 @@
 class AbstractZapDevice: public QObject {
     Q_OBJECT
 public:
+    enum ZWIFT_PLAY_TYPE {
+        NONE,
+        LEFT,
+        RIGHT
+    };
+
     QByteArray RIDE_ON;
     QByteArray REQUEST_START;
     QByteArray RESPONSE_START;
@@ -26,7 +32,7 @@ public:
         RESPONSE_START = QByteArray::fromRawData("\x01\x03", 2);  // {1, 3}
     }
 
-    int processCharacteristic(const QString& characteristicName, const QByteArray& bytes) {
+    int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
         if (bytes.isEmpty()) return 0;
 
         qDebug() << characteristicName << bytes.toHex();
@@ -54,6 +60,15 @@ public:
                     if(bytes[2] == 0) {
                         emit plus();
                     } else if(bytes[4] == 0) {
+                        emit minus();
+                    }
+                }
+                break;
+            case 0x07:
+                if(bytes.length() > 2 && bytes[bytes.length() - 2] == 0x48 && bytes[bytes.length() - 1] != 0x00) {
+                    if(zapType == LEFT) {
+                        emit plus();
+                    } else {
                         emit minus();
                     }
                 }
