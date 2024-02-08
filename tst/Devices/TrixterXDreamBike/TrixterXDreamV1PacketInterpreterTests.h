@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "trixterxdreamv1client.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1client.h"
 
 
 // The fixture for testing class Foo.
