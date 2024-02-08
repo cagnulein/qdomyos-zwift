@@ -3824,6 +3824,7 @@
 					../src/purchasing/ios,
 					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 					../../Qt/5.15.2/ios/include/QtMultimedia,
+					../src/devices,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -4014,6 +4015,7 @@
 					../src/purchasing/ios,
 					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 					../../Qt/5.15.2/ios/include/QtMultimedia,
+					../src/devices,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
