@@ -1,6 +1,6 @@
 #include "devicediscoveryinfo.h"
 #include "qzsettings.h"
-#include "trixterxdreamv1settings.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1settings.h"
 
 
 DeviceDiscoveryInfo::DeviceDiscoveryInfo(bool loadDefaults){
