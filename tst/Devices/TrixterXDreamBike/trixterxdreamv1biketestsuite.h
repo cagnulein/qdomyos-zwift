@@ -23,18 +23,23 @@ public:
     // Tears down the test fixture.
     // virtual void TearDown();
 
+    /**
+     * @brief Power calculation tests.
+     */
     void test_power_calculations();
 
-    void test_detection();
 
-
+    /**
+     * @brief Test that the bike test stub works.
+     */
+    void test_stub();
 };
 
 TEST_F(TrixterXDreamV1BikeTestSuite, TestPowerCalculations) {
     this->test_power_calculations();
 }
 
-TEST_F(TrixterXDreamV1BikeTestSuite, TestDetection) {
-    this->test_detection();
+TEST_F(TrixterXDreamV1BikeTestSuite, TestStub) {
+    this->test_stub();
 }
 

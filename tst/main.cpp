@@ -1,8 +1,19 @@
 
 #include <gtest/gtest.h>
+#include <QApplication>
+#include <QTimer>
+
 
 int main(int argc, char *argv[])
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    QCoreApplication app{argc, argv};
+
+    QTimer::singleShot(500, [&]()
+    {
+        ::testing::InitGoogleTest(&argc, argv);
+        auto testResult = RUN_ALL_TESTS();
+        app.exit(testResult);
+    });
+
+    return app.exec();
 }

@@ -209,6 +209,12 @@ public:
     virtual bool get_isAbstract() const;
 
     /**
+     * @brief Indicates if non-bluetooth discovery should be used to perform the device detection test(s).
+     * @return
+     */
+    virtual bool get_useNonBluetoothDiscovery() const { return false; }
+
+    /**
      * @brief A list of bluetooth device names that should be recognised as this device.
      */
     virtual QStringList get_deviceNames() const;

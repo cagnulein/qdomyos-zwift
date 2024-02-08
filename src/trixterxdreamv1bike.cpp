@@ -173,7 +173,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     }
 
     // wait for up to the configured connection timeout for some packets to arrive
-    for(uint32_t start = getTime(), t=start, limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); t<limit; t=getTime()) {
+    for(uint32_t start = getTime(), t=start, limit=100000+start+this->appSettings->get_connectionTimeoutMilliseconds(); t<limit; t=getTime()) {
         if(this->connected()) {
             qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
             break;

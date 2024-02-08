@@ -2,7 +2,7 @@
 
 #include "Devices/bluetoothdevicetestdata.h"
 #include "trixterxdreamv1bike.h"
-#include "testserialdatasource.h"
+#include "trixterxdreamv1bikestub.h"
 
 class TrixterXDreamV1BikeTestData : public BluetoothDeviceTestData {
 protected:
@@ -17,8 +17,10 @@ public:
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
 
         // use the test serial data source because the bike won't be there usually, during test runs.
-        trixterxdreamv1serial::serialDataSourceFactory = TestSerialDatasource::create;
+        trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
     }
+
+    bool get_useNonBluetoothDiscovery() const override { return true; }
 
     deviceType get_expectedDeviceType() const override { return deviceType::TrixterXDreamV1Bike; }
 

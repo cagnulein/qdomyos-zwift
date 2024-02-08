@@ -152,20 +152,18 @@ class bluetooth : public QObject, public SignalHandler {
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
-protected:
-    /**
-     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
-     * @return An object for the first non-bluetooth device found.
-     */
-    bluetoothdevice * discoverNonBluetoothDevices();
 
     /**
      * @brief nonBluetoothDeviceDiscovery Called by the non-bluetooth discovery thread to identify using
      * discoverNonBluetoothDevices() and connect non-Bluetooth devices.
      */
     void nonBluetoothDeviceDiscovery();
-  private:
-
+protected:
+    /**
+     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
+     * @return An object for the first non-bluetooth device found.
+     */
+    bluetoothdevice * discoverNonBluetoothDevices();
 private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;

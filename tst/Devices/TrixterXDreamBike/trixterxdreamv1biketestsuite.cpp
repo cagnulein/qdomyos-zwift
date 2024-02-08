@@ -1,10 +1,10 @@
 #include "trixterxdreamv1biketestsuite.h"
-#include "testserialdatasource.h"
+#include "trixterxdreamv1bikestub.h"
 
 
 TrixterXDreamV1BikeTestSuite::TrixterXDreamV1BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
     // use the test serial data source because the bike won't be there usually, during test runs.
-    trixterxdreamv1serial::serialDataSourceFactory = TestSerialDatasource::create;
+    trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
 }
 
 void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
@@ -71,18 +71,21 @@ void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
     }
 }
 
-void TrixterXDreamV1BikeTestSuite::test_detection() {
-    DeviceDiscoveryInfo ddi;
 
-    ddi.trixter_xdream_v1_bike = true;
-    this->testSettings.loadFrom(ddi);
+void TrixterXDreamV1BikeTestSuite::test_stub() {
 
-    auto bike = trixterxdreamv1bike::tryCreate();
-    auto bikePtr = std::unique_ptr<trixterxdreamv1bike>(bike);
+    TrixterXDreamV1BikeStub serial;
 
-    ASSERT_TRUE(bike!=nullptr) << "Bike should have been detected from fake serial data";
+    EXPECT_TRUE(serial.open()) << "failed to open";
 
-    this->testSettings.activate();
+    QThread::msleep(1);
+
+    bool ready = serial.waitForReadyRead();
+    EXPECT_TRUE(ready) << "should have been ready to read";
+
+    auto data = serial.readAll();
+
+    EXPECT_LE(32, data.size()) << "readAll() should have returned 32+ chars";
 }
 
 

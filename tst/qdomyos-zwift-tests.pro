@@ -18,7 +18,7 @@ SOURCES += \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
         Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.cpp \
-        Devices/TrixterXDreamBike/testserialdatasource.cpp \
+        Devices/TrixterXDreamBike/trixterxdreamv1bikestub.cpp \
         Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
         Devices/bluetoothdevicetestdata.cpp \
@@ -122,7 +122,7 @@ HEADERS += \
     Devices/ToorxTreadmill/toorxtreadmilltestdata.h \
     Devices/Treadmill/treadmilltestdata.h \
     Devices/TrixterXDreamBike/TrixterXDreamV1PacketInterpreterTests.h \
-    Devices/TrixterXDreamBike/testserialdatasource.h \
+    Devices/TrixterXDreamBike/trixterxdreamv1bikestub.h \
     Devices/TrixterXDreamBike/trixterxdreamv1biketestdata.h \
     Devices/TrixterXDreamBike/trixterxdreamv1biketestsuite.h \
     Devices/TrueTreadmill/truetreadmilltestdata.h \

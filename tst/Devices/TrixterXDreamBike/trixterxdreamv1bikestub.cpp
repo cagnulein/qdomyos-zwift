@@ -1,4 +1,4 @@
-#include "testserialdatasource.h"
+#include "trixterxdreamv1bikestub.h"
 #include <QDateTime>
 #include <QString>
 
@@ -8,56 +8,62 @@ static uint32_t getTime() {
     return static_cast<uint32_t>(ms);
 }
 
-bool TestSerialDatasource::tryPopulate() {
+bool TrixterXDreamV1BikeStub::tryPopulate() {
     QMutexLocker locker(&this->mutex);
 
     uint32_t time = getTime();
-    uint32_t last = this->lastReadTime;
-    this->lastReadTime = time;
+    uint32_t last = this->lastAddedData;
+
     uint32_t delta = (time-last) / readInterval;
 
     if(delta==0)
         return false;
+
+    this->lastAddedData = time;
 
     if(delta>100) delta = 100;
 
     static std::string packet= "6a7f4500000000000000000000005000";
 
     for(;delta>0; delta--)
-        for(size_t i=0; i<packet.length(); i++)
+        for(size_t i=0; i<packet.length() && this->readBuffer.size()<4096; i++)
             this->readBuffer.push(packet[i]);
+
+    while(this->readBuffer.size()>4096)
+        this->readBuffer.pop();
 
     return true;
 }
 
-trixterxdreamv1serial::serialdatasource *TestSerialDatasource::create() { return new TestSerialDatasource(); }
+trixterxdreamv1serial::serialdatasource *TrixterXDreamV1BikeStub::create() { return new TrixterXDreamV1BikeStub(); }
 
 
 
-TestSerialDatasource::TestSerialDatasource() : trixterxdreamv1serial::serialdatasource()
+TrixterXDreamV1BikeStub::TrixterXDreamV1BikeStub() : trixterxdreamv1serial::serialdatasource()
 {
 
 }
 
-void TestSerialDatasource::appendTestData(const QByteArray &data) {
+void TrixterXDreamV1BikeStub::appendTestData(const QByteArray &data) {
     QMutexLocker locker(&this->mutex);
 
     for(int i=0; i<data.size(); i++)
         this->readBuffer.push(data[i]);
 }
 
-bool TestSerialDatasource::open() {
-    this->lastReadTime = getTime();
+bool TrixterXDreamV1BikeStub::open() {
+    this->lastAddedData = getTime()-readInterval;
     return true;
 }
 
-qint64 TestSerialDatasource::write(const QByteArray &data) { bytesWritten.append(data); return data.size(); }
+qint64 TrixterXDreamV1BikeStub::write(const QByteArray &data) { bytesWritten.append(data); return data.size(); }
 
-bool TestSerialDatasource::waitForReadyRead() {
+bool TrixterXDreamV1BikeStub::waitForReadyRead() {
+    QThread::msleep(1);
     return this->readBufferSize()>0;
 }
 
-QByteArray TestSerialDatasource::readAll() {
+QByteArray TrixterXDreamV1BikeStub::readAll() {
     QByteArray result;
     QMutexLocker locker(&this->mutex);
     auto count = this->readBufferSize();
@@ -69,15 +75,14 @@ QByteArray TestSerialDatasource::readAll() {
     return result;
 }
 
-
-
-qint64 TestSerialDatasource::readBufferSize() {
-
+qint64 TrixterXDreamV1BikeStub::readBufferSize() {
     QMutexLocker locker(&this->mutex);
     this->tryPopulate();
     return this->readBuffer.size();
 }
 
-QString TestSerialDatasource::error() { return "NoError";}
+QString TrixterXDreamV1BikeStub::error() { return "NoError";}
 
-void TestSerialDatasource::close() { }
+void TrixterXDreamV1BikeStub::close() {
+
+}

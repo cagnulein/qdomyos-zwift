@@ -7,13 +7,13 @@
 #include "trixterxdreamv1serial.h"
 
 
-class TestSerialDatasource : public trixterxdreamv1serial::serialdatasource {
+class TrixterXDreamV1BikeStub : public trixterxdreamv1serial::serialdatasource {
 
     QByteArray bytesWritten;
     std::queue<char> readBuffer;
     QRecursiveMutex mutex;
 
-    ulong lastReadTime = 0;
+    ulong lastAddedData = 0;
     const ulong readInterval = 10;
 
 protected:
@@ -23,7 +23,7 @@ public:
 
     static trixterxdreamv1serial::serialdatasource* create();
 
-    TestSerialDatasource();
+    TrixterXDreamV1BikeStub();
 
     void appendTestData(const QByteArray& data);
 

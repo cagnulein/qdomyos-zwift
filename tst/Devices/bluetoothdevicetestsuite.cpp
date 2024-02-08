@@ -13,7 +13,11 @@ void BluetoothDeviceTestSuite<T>::tryDetectDevice(bluetooth &bt,
         // It is possible to use an EXPECT_NO_THROW here, but this
         // way is easier to place a breakpoint on the call to bt.deviceDiscovered.
         bt.homeformLoaded = true;
-        bt.deviceDiscovered(deviceInfo);
+
+        if(this->typeParam.get_useNonBluetoothDiscovery())
+            bt.nonBluetoothDeviceDiscovery();
+        else
+            bt.deviceDiscovered(deviceInfo);
     } catch (...) {
         FAIL() << "Failed to perform device detection.";
     }
@@ -64,7 +68,6 @@ void BluetoothDeviceTestSuite<T>::testDeviceDetection(BluetoothDeviceTestData * 
                                                   const std::string& failMessage) const {
 
     BluetoothSignalReceiver signalReceiver(bt);
-
 
     this->tryDetectDevice(bt, deviceInfo);
 
