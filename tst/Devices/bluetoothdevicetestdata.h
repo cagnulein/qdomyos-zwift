@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bluetoothdevice.h>
+#include <devices/bluetoothdevice.h>
 #include <QStringList>
 #include <vector>
 #include <memory>
