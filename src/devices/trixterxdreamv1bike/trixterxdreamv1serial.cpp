@@ -17,6 +17,7 @@ class qserialdatasource : public trixterxdreamv1serial::serialdatasource {
   public:
     qserialdatasource(QObject *parent, const QString& portName) : serialdatasource(), serial(parent)
     {
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
         serial.setPortName(portName);
         serial.setBaudRate(QSerialPort::Baud115200);
         serial.setDataBits(QSerialPort::Data8);
@@ -24,6 +25,9 @@ class qserialdatasource : public trixterxdreamv1serial::serialdatasource {
         serial.setFlowControl(QSerialPort::NoFlowControl);
         serial.setParity(QSerialPort::NoParity);
         serial.setReadBufferSize(4096);
+#else
+        throw "Serial ports not supported in this OS.";
+#endif
     }
 
     bool open() override { return serial.open(QIODevice::ReadWrite); }
