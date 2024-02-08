@@ -1,8 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "ftmsbike.h"
-
+#include "devices/ftmsbike/ftmsbike.h"
 #include "Devices/SnodeBike/snodebiketestdata.h"
 #include "Devices/FitPlusBike/fitplusbiketestdata.h"
 #include "Devices/StagesBike/stagesbiketestdata.h"

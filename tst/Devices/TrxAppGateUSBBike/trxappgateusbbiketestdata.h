@@ -2,7 +2,7 @@
 
 #include "Devices/bluetoothdevicetestdata.h"
 #include "Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
-#include "trxappgateusbbike.h"
+#include "devices/trxappgateusbbike/trxappgateusbbike.h"
 
 class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
 protected:

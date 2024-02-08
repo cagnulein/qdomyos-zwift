@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "trixterxdreamv1bike.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1bike.h"
 #include "trixterxdreamv1bikestub.h"
 
 class TrixterXDreamV1BikeTestData : public BluetoothDeviceTestData {

@@ -4,7 +4,7 @@
 #include <QMutex>
 #include <queue>
 
-#include "trixterxdreamv1serial.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1serial.h"
 
 
 class TrixterXDreamV1BikeStub : public trixterxdreamv1serial::serialdatasource {
