@@ -39,7 +39,8 @@ function process_trainprogram(arr) {
     let elapsed = 0;
 
     for (let el of arr.list) {
-        if(el.power != -1) {
+        // if the power is ok or it was a power zone workout but this segment is a freeride tag...
+        if(el.power != -1 || powerWorkout) {
             powerWorkout = true;
             for (i=0; i<el.duration_s; i++) {
                 powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});                                            
