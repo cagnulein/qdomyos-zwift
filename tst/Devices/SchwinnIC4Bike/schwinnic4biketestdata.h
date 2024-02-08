@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "schwinnic4bike.h"
+#include "devices/schwinnic4bike/schwinnic4bike.h"
 
 class SchwinnIC4BikeTestData : public BluetoothDeviceTestData {
 

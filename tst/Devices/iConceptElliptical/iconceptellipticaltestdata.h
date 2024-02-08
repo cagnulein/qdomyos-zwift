@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "iconceptelliptical.h"
+#include "devices/iconceptelliptical/iconceptelliptical.h"
 
 class iConceptEllipticalTestData : public BluetoothDeviceTestData {
     void configureSettings(const DeviceDiscoveryInfo &info, bool enable,

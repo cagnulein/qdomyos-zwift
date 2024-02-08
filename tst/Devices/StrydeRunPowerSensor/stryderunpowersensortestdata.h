@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "strydrunpowersensor.h"
+#include "devices/strydrunpowersensor/strydrunpowersensor.h"
 
 class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
 private:
