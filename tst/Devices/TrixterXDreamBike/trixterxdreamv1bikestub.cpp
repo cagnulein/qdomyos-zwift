@@ -1,6 +1,7 @@
 #include "trixterxdreamv1bikestub.h"
 #include <QDateTime>
 #include <QString>
+#include <QThread>
 
 
 static uint32_t getTime() {
@@ -26,32 +27,27 @@ bool TrixterXDreamV1BikeStub::tryPopulate() {
     static std::string packet= "6a7f4500000000000000000000005000";
 
     for(;delta>0; delta--)
-        for(size_t i=0; i<packet.length() && this->readBuffer.size()<4096; i++)
+        for(size_t i=0; i<packet.length() && this->readBuffer.size()<bufferCapacity; i++)
             this->readBuffer.push(packet[i]);
 
-    while(this->readBuffer.size()>4096)
+    while(this->readBuffer.size()>bufferCapacity)
         this->readBuffer.pop();
 
     return true;
 }
 
-trixterxdreamv1serial::serialdatasource *TrixterXDreamV1BikeStub::create() { return new TrixterXDreamV1BikeStub(); }
+serialdatasource *TrixterXDreamV1BikeStub::create(QObject * parent) { return new TrixterXDreamV1BikeStub(); }
 
-
-
-TrixterXDreamV1BikeStub::TrixterXDreamV1BikeStub() : trixterxdreamv1serial::serialdatasource()
+TrixterXDreamV1BikeStub::TrixterXDreamV1BikeStub() : serialdatasource()
 {
 
 }
 
-void TrixterXDreamV1BikeStub::appendTestData(const QByteArray &data) {
-    QMutexLocker locker(&this->mutex);
-
-    for(int i=0; i<data.size(); i++)
-        this->readBuffer.push(data[i]);
+QStringList TrixterXDreamV1BikeStub::get_availablePorts() {
+    return QStringList("stub");
 }
 
-bool TrixterXDreamV1BikeStub::open() {
+bool TrixterXDreamV1BikeStub::open(const QString& portName) {
     this->lastAddedData = getTime()-readInterval;
     return true;
 }

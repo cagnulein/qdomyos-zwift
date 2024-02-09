@@ -4,7 +4,7 @@
 
 TrixterXDreamV1BikeTestSuite::TrixterXDreamV1BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {
     // use the test serial data source because the bike won't be there usually, during test runs.
-    trixterxdreamv1serial::serialDataSourceFactory = TrixterXDreamV1BikeStub::create;
+    trixterxdreamv1serial::serialDataSourceFactory = [](QObject*) { return new TrixterXDreamV1BikeStub(); };
 }
 
 void TrixterXDreamV1BikeTestSuite::test_power_calculations() {
@@ -76,7 +76,7 @@ void TrixterXDreamV1BikeTestSuite::test_stub() {
 
     TrixterXDreamV1BikeStub serial;
 
-    EXPECT_TRUE(serial.open()) << "failed to open";
+    EXPECT_TRUE(serial.open("stub")) << "failed to open";
 
     QThread::msleep(1);
 

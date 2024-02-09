@@ -710,7 +710,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     }
 
     // Find the available ports and return the first success
-    auto availablePorts = trixterxdreamv1serial::availablePorts(true);
+    auto availablePorts = trixterxdreamv1serial::availablePorts();
 
     for(int i=0; i<availablePorts.length(); i++)
     {

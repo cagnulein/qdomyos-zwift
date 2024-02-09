@@ -72,6 +72,8 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/trixterxdreamv1bike/qserialdatasource.cpp \
+    $$PWD/devices/trixterxdreamv1bike/serialdatasource.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csaferower/csafe.cpp \
@@ -289,6 +291,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/devices/trixterxdreamv1bike/qserialdatasource.h \
+    $$PWD/devices/trixterxdreamv1bike/serialdatasource.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
