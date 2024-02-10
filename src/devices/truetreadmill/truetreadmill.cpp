@@ -176,6 +176,15 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
         if (avalue.length() == 18) {
             uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
             speed = ((double)convertedData) / 100.0;
+
+            double incline = ((double)(avalue.at(16))) / 10.0;
+
+            if (Inclination.value() != incline) {
+
+                emit inclinationChanged(0, incline);
+            }
+            Inclination = incline;
+            emit debug(QStringLiteral("Current incline: ") + QString::number(incline));            
         } else {
             return;
         }
