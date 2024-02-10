@@ -11,6 +11,7 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
+        Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
@@ -45,8 +46,10 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../src/libqdomyos-zwift.a
 
 HEADERS += \
     Devices/ActivioTreadmill/activiotreadmilltestdata.h \
+    Devices/ApexBike/apexbiketestdata.h \
     Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.h \
     Devices/Bike/biketestdata.h \
+    Devices/BkoolBike/bkoolbiketestdata.h \
     Devices/BowflexT216Treadmill/bowflext216treadmilltestdata.h \
     Devices/BowflexTreadmill/bowflextreadmilltestdata.h \
     Devices/CSCBike/cscbiketestdata.h \
@@ -87,6 +90,7 @@ HEADERS += \
     Devices/NautilusTreadmill/nautilustreadmilltestdata.h \
     Devices/NordicTrackElliptical/nordictrackellipticaltestdata.h \
     Devices/NordicTrackIFitADBTreadmill/nordictrackifitadbtreadmilltestdata.h \
+    Devices/OctaneElliptical/octaneellipticaltestdata.h \
     Devices/OctaneTreadmill/octanetreadmilltestdata.h \
     Devices/PafersBike/pafersbiketestdata.h \
     Devices/PafersTreadmill/paferstreadmilltestdata.h \
