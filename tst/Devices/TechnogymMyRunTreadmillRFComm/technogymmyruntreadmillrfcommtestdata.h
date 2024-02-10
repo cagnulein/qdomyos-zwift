@@ -1,16 +1,19 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/technogymmyruntreadmillrfcomm/technogymmyruntreadmillrfcomm.h"
 
-class TechnogymMyRunTreadmillRFCommTestData : public BluetoothDeviceTestData {
+
+class TechnogymMyRunTreadmillRFCommTestData : public TreadmillTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.technogym_myrun_treadmill_experimental = enable;
         return true;
     }
 public:
-    TechnogymMyRunTreadmillRFCommTestData() : BluetoothDeviceTestData("Technogym MyRun Treadmill RF Comm") {
+    TechnogymMyRunTreadmillRFCommTestData() : TreadmillTestData("Technogym MyRun Treadmill RF Comm") {
         this->addDeviceName("MYRUN ", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MERACH-U3", comparison::StartsWithIgnoreCase);
     }

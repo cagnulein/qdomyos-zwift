@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Bike/biketestdata.h"
+
+
 #include "devices/schwinnic4bike/schwinnic4bike.h"
 
-class SchwinnIC4BikeTestData : public BluetoothDeviceTestData {
+
+class SchwinnIC4BikeTestData : public BikeTestData {
 
 public:
-    SchwinnIC4BikeTestData() : BluetoothDeviceTestData("Schwinn IC4 Bike") {
+    SchwinnIC4BikeTestData() : BikeTestData("Schwinn IC4 Bike") {
 
         this->addDeviceName("IC BIKE", comparison::StartsWithIgnoreCase);
         this->addDeviceName("C7-", comparison::StartsWithIgnoreCase);

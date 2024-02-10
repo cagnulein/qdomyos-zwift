@@ -1,12 +1,17 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/solef80treadmill/solef80treadmill.h"
 
-class SoleF80TreadmillTestData : public BluetoothDeviceTestData {
+
+class SoleF80TreadmillTestData : public TreadmillTestData {
 
 public:
-    SoleF80TreadmillTestData() : BluetoothDeviceTestData("Sole F80") {
+
+    SoleF80TreadmillTestData() : TreadmillTestData("Sole F80") {
+        
         this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
         this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
