@@ -2,8 +2,6 @@
 
 
 #include "Devices/Bike/biketestdata.h"
-
-
 #include "devices/pafersbike/pafersbike.h"
 
 

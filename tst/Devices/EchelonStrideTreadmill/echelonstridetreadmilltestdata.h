@@ -1,9 +1,6 @@
 ﻿#pragma once
 
-
 #include "Devices/Treadmill/treadmilltestdata.h"
-
-
 #include "devices/echelonstride/echelonstride.h"
 
 

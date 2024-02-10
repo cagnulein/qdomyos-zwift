@@ -2,7 +2,6 @@
 
 
 #include "Devices/Elliptical/ellipticaltestdata.h"
-
 #include "devices/ypooelliptical/ypooelliptical.h"
 
 

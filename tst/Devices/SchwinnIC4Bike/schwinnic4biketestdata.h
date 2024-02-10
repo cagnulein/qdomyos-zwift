@@ -2,8 +2,6 @@
 
 
 #include "Devices/Bike/biketestdata.h"
-
-
 #include "devices/schwinnic4bike/schwinnic4bike.h"
 
 

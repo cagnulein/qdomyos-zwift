@@ -2,9 +2,7 @@
 
 
 #include "Devices/Treadmill/treadmilltestdata.h"
-
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
-
 
 class TrxAppGateUSBTreadmillTestData : public TreadmillTestData {
 

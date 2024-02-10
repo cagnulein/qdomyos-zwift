@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Devices/Elliptical/ellipticaltestdata.h"
-#include "Devices/bluetoothdevicetestdata.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
 
 class DomyosEllipticalTestData : public EllipticalTestData {

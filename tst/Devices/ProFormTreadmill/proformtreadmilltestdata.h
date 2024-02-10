@@ -2,7 +2,6 @@
 
 
 #include "Devices/Treadmill/treadmilltestdata.h"
-
 #include "devices/proformtreadmill/proformtreadmill.h"
 
 
