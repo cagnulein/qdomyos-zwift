@@ -20,7 +20,10 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
+    signal profile_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
+    signal gpx_open_other_folder(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
@@ -46,6 +49,7 @@ ApplicationWindow {
         id: settings
         property string profile_name: "default"        
         property string theme_status_bar_background_color: "#800080"
+        property bool volume_change_gears: false
     }
 
     Store {
@@ -547,13 +551,13 @@ ApplicationWindow {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
             onClicked: { loadMaps(); }
-            anchors.right: toolButtonLockTiles.left
+            anchors.right: toolButtonChart.left
             visible: rootItem.mapsVisible
         }      
 
         ToolButton {
             function loadVideo() {
-                if(rootItem.currentCoordinateValid) {
+                if(rootItem.currentCoordinateValid || rootItem.trainProgramLoadedWithVideo) {
                     console.log("coordinate is valid for map");
                     //stackView.push("videoPlayback.qml");
                     rootItem.videoVisible = !rootItem.videoVisible
@@ -566,6 +570,14 @@ ApplicationWindow {
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoIconVisible
+        }
+
+        ToolButton {
+            id: toolButtonChart
+            icon.source: ( "icons/icons/chart.png" )
+            onClicked: { rootItem.chartFooterVisible = !rootItem.chartFooterVisible }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.chartIconVisible
         }
 
         ToolButton {
@@ -594,185 +606,195 @@ ApplicationWindow {
         width: window.width * 0.66
         height: window.height
 
-        Column {
+        ScrollView {
+            contentWidth: -1
+            focus: true
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.fill: parent
 
-            ItemDelegate {
-                text: qsTr("Profile: ") + settings.profile_name
-                width: parent.width
-                onClicked: {
-                    toolButtonLoadSettings.visible = true;
-                    toolButtonSaveSettings.visible = true;
-                    stackView.push("profiles.qml")
-                    drawer.close()
-                }
-            }
+            Column {
+                anchors.fill: parent
 
-            ItemDelegate {
-                text: qsTr("Settings")
-                width: parent.width
-                onClicked: {
-                    toolButtonLoadSettings.visible = true;
-                    toolButtonSaveSettings.visible = true;
-                    stackView.push("settings.qml")
-                    drawer.close()                    
+                ItemDelegate {
+                    text: qsTr("Profile: ") + settings.profile_name
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("profiles.qml")
+                        stackView.currentItem.profile_open_clicked.connect(profile_open_clicked)
+                        drawer.close()
+                    }
                 }
-            }
 
-            ItemDelegate {
-                text: qsTr("👜Swag Bag")
-                width: parent.width
-                onClicked: {
-                    stackView.push("SwagBagView.qml")
-                    drawer.close()
+                ItemDelegate {
+                    text: qsTr("Settings")
+                    width: parent.width
+                    onClicked: {
+                        toolButtonLoadSettings.visible = true;
+                        toolButtonSaveSettings.visible = true;
+                        stackView.push("settings.qml")
+                        drawer.close()
+                    }
                 }
-            }
 
-            ItemDelegate {
-                text: qsTr("Charts")
-                width: parent.width
-                onClicked: {
-                    console.log(CHARTJS)
-                    if(CHARTJS)
-                        stackView.push("ChartJsTest.qml")
-                    else
-                        stackView.push("ChartsEndWorkout.qml")
-                    drawer.close()
+                ItemDelegate {
+                    text: qsTr("👜Swag Bag")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("SwagBagView.qml")
+                        drawer.close()
+                    }
                 }
-            }
-            ItemDelegate {
-                id: gpx_open
-                text: qsTr("🗺️ Open GPX")
-                width: parent.width
-                onClicked: {
-                    stackView.push("GPXList.qml")
-                    stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
-                    stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
-                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                        stackView.pop();
-                        popup.open();
-                     });
-                    drawer.close()
-                }
-            }
-            ItemDelegate {
-                id: trainprogram_open
-                text: qsTr("📈 Open Train Program")
-                width: parent.width
-                onClicked: {
-                    stackView.push("TrainingProgramsList.qml")
-                    stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
-                    stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
-                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                        stackView.pop();
-                        popup.open();
-                     });
-                    drawer.close()
-                }
-            }
-            /*
-            ItemDelegate {
-                text: qsTr("What's On Zwift™")
-                width: parent.width
-                onClicked: {
-                    popupWhatsOnZwiftHelper.open()
-                }
-            }*/
 
-            ItemDelegate {
-                id: gpx_save
-                text: qsTr("Save GPX")
-                width: parent.width
-                onClicked: {
-                    gpx_save_clicked()
-                    drawer.close()
-                    popupSaveFile.open()
+                ItemDelegate {
+                    text: qsTr("Charts")
+                    width: parent.width
+                    onClicked: {
+                        console.log(CHARTJS)
+                        if(CHARTJS)
+                            stackView.push("ChartJsTest.qml")
+                        else
+                            stackView.push("ChartsEndWorkout.qml")
+                        drawer.close()
+                    }
                 }
-            }
-            ItemDelegate {
-                id: fit_save
-                text: qsTr("Save FIT")
-                width: parent.width
-                onClicked: {
-                    fit_save_clicked()
-                    drawer.close()
-                    popupSaveFile.open()
+                ItemDelegate {
+                    id: gpx_open
+                    text: qsTr("🗺️ Open GPX")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("GPXList.qml")
+                        stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                        stackView.currentItem.trainprogram_open_other_folder.connect(gpx_open_other_folder)
+                        stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
+                        stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                            stackView.pop();
+                            popup.open();
+                         });
+                        drawer.close()
+                    }
                 }
-            }
-            ItemDelegate {
-                id: help
-                text: qsTr("Help")
-                width: parent.width
-                onClicked: {
-                    Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
-                    drawer.close()
+                ItemDelegate {
+                    id: trainprogram_open
+                    text: qsTr("📈 Open Train Program")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("TrainingProgramsList.qml")
+                        stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                        stackView.currentItem.trainprogram_open_other_folder.connect(trainprogram_open_other_folder)
+                        stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
+                        stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                            stackView.pop();
+                            popup.open();
+                         });
+                        drawer.close()
+                    }
                 }
-            }
-            ItemDelegate {
-                id: community
-                text: qsTr("Community")
-                width: parent.width
-                onClicked: {
-                    Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
-                    drawer.close()
-                }
-            }
-            ItemDelegate {
-                text: qsTr("Credits")
-                width: parent.width
-                onClicked: {
-                    stackView.push("Credits.qml")
-                    drawer.close()
-                }
-            }
-            ItemDelegate {
-                text: qsTr("Quit")
-                width: parent.width
-                visible: OS_VERSION === "Other" ? true : false
-                onClicked: {
-                    console.log("closing...")
-                    Qt.callLater(Qt.quit)
-                }
-            }
+                /*
+                ItemDelegate {
+                    text: qsTr("What's On Zwift™")
+                    width: parent.width
+                    onClicked: {
+                        popupWhatsOnZwiftHelper.open()
+                    }
+                }*/
 
-            ItemDelegate {
-                text: "version 2.13.54"
-                width: parent.width
-            }
+                ItemDelegate {
+                    id: gpx_save
+                    text: qsTr("Save GPX")
+                    width: parent.width
+                    onClicked: {
+                        gpx_save_clicked()
+                        drawer.close()
+                        popupSaveFile.open()
+                    }
+                }
+                ItemDelegate {
+                    id: fit_save
+                    text: qsTr("Save FIT")
+                    width: parent.width
+                    onClicked: {
+                        fit_save_clicked()
+                        drawer.close()
+                        popupSaveFile.open()
+                    }
+                }
+                ItemDelegate {
+                    id: help
+                    text: qsTr("Help")
+                    width: parent.width
+                    onClicked: {
+                        Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    id: community
+                    text: qsTr("Community")
+                    width: parent.width
+                    onClicked: {
+                        Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    text: qsTr("Credits")
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("Credits.qml")
+                        drawer.close()
+                    }
+                }
+                ItemDelegate {
+                    text: qsTr("Quit")
+                    width: parent.width
+                    visible: OS_VERSION === "Other" ? true : false
+                    onClicked: {
+                        console.log("closing...")
+                        Qt.callLater(Qt.quit)
+                    }
+                }
 
-            ItemDelegate {
-                id: strava_connect
-                Image {
-                    anchors.left: parent.left;
-                    anchors.verticalCenter: parent.verticalCenter
-                    source: "icons/icons/btn_strava_connectwith_orange.png"
-                    fillMode: Image.PreserveAspectFit
-                    visible: true
+                ItemDelegate {
+                    text: "version 2.16.41"
                     width: parent.width
                 }
-                width: parent.width
-                onClicked: {
-                    stackView.push("WebStravaAuth.qml")
-                    strava_connect_clicked()
-                    drawer.close()
-                }
-            }
 
-				FileDialog {
-				    id: fileDialogGPX
-					 title: "Please choose a file"
-                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
-					 onAccepted: {
-					     console.log("You chose: " + fileDialogGPX.fileUrl)
-						  gpx_open_clicked(fileDialogGPX.fileUrl)
-						  fileDialogGPX.close()
-						  popup.open()
-						}
-					 onRejected: {
-					     console.log("Canceled")
-						  fileDialogGPX.close()
-						}
-					}
+                ItemDelegate {
+                    id: strava_connect
+                    Image {
+                        anchors.left: parent.left;
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icons/icons/btn_strava_connectwith_orange.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: true
+                        width: parent.width
+                    }
+                    width: parent.width
+                    onClicked: {
+                        stackView.push("WebStravaAuth.qml")
+                        strava_connect_clicked()
+                        drawer.close()
+                    }
+                }
+
+                    FileDialog {
+                        id: fileDialogGPX
+                         title: "Please choose a file"
+                         folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
+                         onAccepted: {
+                             console.log("You chose: " + fileDialogGPX.fileUrl)
+                              gpx_open_clicked(fileDialogGPX.fileUrl)
+                              fileDialogGPX.close()
+                              popup.open()
+                            }
+                         onRejected: {
+                             console.log("Canceled")
+                              fileDialogGPX.close()
+                            }
+                        }
+            }
         }
     }    
 
@@ -781,13 +803,15 @@ ApplicationWindow {
         initialItem: "Home.qml"
         anchors.fill: parent
         focus: true
-        Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
-        Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
-        Keys.onPressed: {
+        Keys.onVolumeUpPressed: (event)=> { console.log("onVolumeUpPressed"); volumeUp(); event.accepted = settings.volume_change_gears; }
+        Keys.onVolumeDownPressed: (event)=> { console.log("onVolumeDownPressed"); volumeDown(); event.accepted = settings.volume_change_gears; }
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_MediaPrevious)
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+
+            event.accepted = settings.volume_change_gears;
         }
     }
 }

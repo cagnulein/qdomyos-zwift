@@ -4,7 +4,7 @@
 #include "Devices/DomyosElliptical/domyosellipticaltestdata.h"
 #include "Devices/DomyosRower/domyosrowertestdata.h"
 #include "Devices/DomyosBike/domyosbiketestdata.h"
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 
 class DomyosTreadmillTestData : public BluetoothDeviceTestData {
 

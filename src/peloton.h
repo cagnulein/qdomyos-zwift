@@ -82,6 +82,24 @@ class peloton : public QObject {
 
     bool testMode = false;
 
+    // rowers
+    double rowerpaceToSpeed(double pace);
+    typedef struct _peloton_rower_pace_intensities_level {
+        QString display_name;
+        double fast_pace;
+        double slow_pace;
+        QString slug;
+    }_peloton_rower_pace_intensities_level;
+
+    typedef struct _peloton_rower_pace_intensities {
+        QString display_name;
+        int value;
+        _peloton_rower_pace_intensities_level levels[10];
+    } _peloton_rower_pace_intensities;
+
+    _peloton_rower_pace_intensities rower_pace[5];
+    int rower_pace_offset = 0;
+
   private slots:
     void login_onfinish(QNetworkReply *reply);
     void workoutlist_onfinish(QNetworkReply *reply);

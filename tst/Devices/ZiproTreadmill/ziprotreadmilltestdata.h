@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "ziprotreadmill.h"
+#include "devices/ziprotreadmill/ziprotreadmill.h"
 
 class ZiproTreadmillTestData : public BluetoothDeviceTestData {
 

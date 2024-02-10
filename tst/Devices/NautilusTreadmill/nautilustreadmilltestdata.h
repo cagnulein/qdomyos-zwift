@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "nautilustreadmill.h"
+#include "devices/nautilustreadmill/nautilustreadmill.h"
 
 class NautilusTreadmillTestData : public BluetoothDeviceTestData {
 

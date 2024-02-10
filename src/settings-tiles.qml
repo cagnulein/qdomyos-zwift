@@ -185,6 +185,8 @@ ScrollView {
 		  property int tile_avg_watt_lap_order: 48
         property bool tile_pace_last500m_enabled: true
         property int  tile_pace_last500m_order: 49
+        property bool tile_target_pace_enabled: false
+        property int  tile_target_pace_order: 50
     }
 
 
@@ -1456,6 +1458,39 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: targetPaceEnabledAccordion
+            title: qsTr("Target Pace")
+            linkedBoolSetting: "tile_target_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labeltargetpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: target_paceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_target_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = target_paceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: oktarget_paceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
         AccordionCheckElement {
             id: targetInclineEnabledAccordion
             title: qsTr("Target Incline")

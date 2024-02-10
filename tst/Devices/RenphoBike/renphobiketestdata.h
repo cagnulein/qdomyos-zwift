@@ -4,7 +4,7 @@
 #include "Devices/FitPlusBike/fitplusbiketestdata.h"
 #include "Devices/SnodeBike/snodebiketestdata.h"
 
-#include "renphobike.h"
+#include "devices/renphobike/renphobike.h"
 
 class RenphoBikeTestData : public BluetoothDeviceTestData {
 protected:

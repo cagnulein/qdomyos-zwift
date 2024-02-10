@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "apexbike.h"
+#include "devices/apexbike/apexbike.h"
 
 class ApexBikeTestData : public BluetoothDeviceTestData {
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "horizontreadmill.h"
+#include "devices/horizontreadmill/horizontreadmill.h"
 
 class HorizonTreadmillTestData : public BluetoothDeviceTestData {
 
@@ -24,6 +24,7 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("CTM780102C6BB32D62", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
