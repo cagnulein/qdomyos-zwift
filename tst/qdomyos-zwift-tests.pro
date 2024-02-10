@@ -11,7 +11,6 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
-        Devices/BHFitnessElliptical/bhfitnessellipticaltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
