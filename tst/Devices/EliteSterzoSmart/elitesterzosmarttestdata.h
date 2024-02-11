@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "devices/elitesterzosmart/elitesterzosmart.h"
 
-class EliteSterzoSmartTestData : public BluetoothDeviceTestData {
+class EliteSterzoSmartTestData : public BikeTestData {
 
 public:
-    EliteSterzoSmartTestData() : BluetoothDeviceTestData("Elite Sterzo Smart") {}
+    EliteSterzoSmartTestData() : BikeTestData("Elite Sterzo Smart") {}
 
     QStringList get_deviceNames() const override {
         QStringList result;

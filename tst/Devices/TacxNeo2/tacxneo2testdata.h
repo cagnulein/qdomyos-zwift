@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Bike/biketestdata.h"
+
 #include "devices/tacxneo2/tacxneo2.h"
 
-class TacxNeo2TestData : public BluetoothDeviceTestData {
+
+class TacxNeo2TestData : public BikeTestData {
 
 public:
-    TacxNeo2TestData() : BluetoothDeviceTestData("Tacx Neo 2 Bike") {
+    TacxNeo2TestData() : BikeTestData("Tacx Neo 2 Bike") {
         this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TACX FLOW", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TACX SMART BIKE", comparison::StartsWithIgnoreCase);

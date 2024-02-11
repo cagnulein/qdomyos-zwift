@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bluetoothdevice.h>
+#include "devices/bluetoothdevice.h"
 #include <QStringList>
 #include <vector>
 #include <memory>
@@ -176,6 +176,7 @@ protected:
      * @param configurations The variations of the provided object to test.
      */
     virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
+    
 
     /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
@@ -226,10 +227,13 @@ public:
     virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions();
 
     /**
-     * @brief get_configurations Gets combinations of configurations beginning with the specified object.
+     * @brief Gets combinations of configurations beginning with the specified object.
      * @param info
      */
     virtual std::vector<DeviceDiscoveryInfo> get_configurations(const DeviceDiscoveryInfo& info, bool enable);
+
+    
+
 
     /**
      * @brief Gets the expected device type enumeration value to be detected for this device.
@@ -264,6 +268,5 @@ public:
      */
     virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
 
+
 };
-
-

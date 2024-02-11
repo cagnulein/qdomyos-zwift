@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 
-class ToorxTreadmillTestData : public BluetoothDeviceTestData {
+
+class ToorxTreadmillTestData : public TreadmillTestData {
 
 public:
-    ToorxTreadmillTestData() : BluetoothDeviceTestData("Toorx Treadmill") {
+    ToorxTreadmillTestData() : TreadmillTestData("Toorx Treadmill") {
         this->addDeviceName("TRX ROUTE KEY", comparison::StartsWith);
     }
 
