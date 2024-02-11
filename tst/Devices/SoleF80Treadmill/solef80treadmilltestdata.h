@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "devices/solef80treadmill/solef80treadmill.h"
 
-class SoleF80TreadmillTestData : public BluetoothDeviceTestData {
 
+class SoleF80TreadmillTestData : public TreadmillTestData {
 public:
-    SoleF80TreadmillTestData() : BluetoothDeviceTestData("Sole F80") {
+    SoleF80TreadmillTestData() : TreadmillTestData("Sole F80") {
+        
         this->addDeviceName("F65", comparison::StartsWithIgnoreCase);
         this->addDeviceName("S77", comparison::StartsWithIgnoreCase);
         this->addDeviceName("TT8", comparison::StartsWithIgnoreCase);
@@ -21,7 +23,7 @@ public:
     }
 };
 
-class SoleF85TreadmillTestData : public BluetoothDeviceTestData {
+class SoleF85TreadmillTestData : public TreadmillTestData {
     void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
                            std::vector<DeviceDiscoveryInfo> &configurations) const override {
         DeviceDiscoveryInfo config(info);
@@ -37,7 +39,7 @@ class SoleF85TreadmillTestData : public BluetoothDeviceTestData {
     }
 
   public:
-    SoleF85TreadmillTestData() : BluetoothDeviceTestData("Sole F85 Treadmill") {
+    SoleF85TreadmillTestData() : TreadmillTestData("Sole F85 Treadmill") {
         this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
     }

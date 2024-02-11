@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 
-class TrxAppGateUSBTreadmillTestData : public BluetoothDeviceTestData {
+class TrxAppGateUSBTreadmillTestData : public TreadmillTestData {
 
 protected:
     void configureExclusions() override;

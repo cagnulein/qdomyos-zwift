@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "devices/bowflextreadmill/bowflextreadmill.h"
 
-class BowflexTreadmillTestData : public BluetoothDeviceTestData {
+class BowflexTreadmillTestData : public TreadmillTestData {
 
 public:
-    BowflexTreadmillTestData() : BluetoothDeviceTestData("Bowflex Treadmill"){}
+    BowflexTreadmillTestData() : TreadmillTestData("Bowflex Treadmill"){}
 
     QStringList get_deviceNames() const override {
         QStringList result;

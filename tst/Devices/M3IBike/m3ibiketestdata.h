@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Bike/biketestdata.h"
+
+
 #include "devices/m3ibike/m3ibike.h"
 
-class M3IBikeTestData : public BluetoothDeviceTestData {
+
+class M3IBikeTestData : public BikeTestData {
 
 public:
-    M3IBikeTestData() : BluetoothDeviceTestData("M3I Bike") {
+    M3IBikeTestData() : BikeTestData("M3I Bike") {
         this->testInvalidBluetoothDeviceInfo = true;
 
         this->addDeviceName("M3", comparison::StartsWith);

@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "Devices/FitPlusBike/fitplusbiketestdata.h"
 #include "Devices/SnodeBike/snodebiketestdata.h"
 
 #include "devices/renphobike/renphobike.h"
 
-class RenphoBikeTestData : public BluetoothDeviceTestData {
+class RenphoBikeTestData : public BikeTestData {
 protected:
-    RenphoBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
+    RenphoBikeTestData(std::string testName) : BikeTestData(testName) {
     }
 
     void configureExclusions() override;

@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Rower/rowertestdata.h"
 #include "devices/domyosrower/domyosrower.h"
 
-class DomyosRowerTestData : public BluetoothDeviceTestData {
+
+class DomyosRowerTestData : public RowerTestData {
 
 public:
-    DomyosRowerTestData() : BluetoothDeviceTestData("Domyos Rower") {
+    DomyosRowerTestData() : RowerTestData("Domyos Rower") {
         this->addDeviceName("DOMYOS-ROW", comparison::StartsWithIgnoreCase);
         this->addInvalidDeviceName("DomyosBridge", comparison::StartsWith);
     }

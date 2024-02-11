@@ -1,16 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "devices/computrainerbike/computrainerbike.h"
 
-class CompuTrainerTestData : public BluetoothDeviceTestData {
+class CompuTrainerTestData : public BikeTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.computrainer_serial_port = enable ? "X":QString();
         return true;
     }
 public:
-    CompuTrainerTestData() : BluetoothDeviceTestData("CompuTrainer Bike") {
+    CompuTrainerTestData() : BikeTestData("CompuTrainer Bike") {
         // any name
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
