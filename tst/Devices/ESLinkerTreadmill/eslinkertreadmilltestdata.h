@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/eslinkertreadmill/eslinkertreadmill.h"
 
-class ESLinkerTreadmillTestData : public BluetoothDeviceTestData {
+
+class ESLinkerTreadmillTestData : public TreadmillTestData {
 
 public:
-    ESLinkerTreadmillTestData(): BluetoothDeviceTestData("ES Linker Treadmill") {
+    ESLinkerTreadmillTestData(): TreadmillTestData("ES Linker Treadmill") {
         this->addDeviceName("ESLINKER", comparison::StartsWithIgnoreCase);
     }
 

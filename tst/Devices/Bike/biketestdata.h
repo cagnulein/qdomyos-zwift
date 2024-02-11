@@ -6,15 +6,7 @@
 class BikeTestData : public BluetoothDeviceTestData {
 
 public:
-    BikeTestData() : BluetoothDeviceTestData("Bike (Abstract)") {}
-
-    bool get_isAbstract() const override { return true; }
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
-    }
+    BikeTestData(std::string deviceName) : BluetoothDeviceTestData(deviceName) {}
 
     deviceType get_expectedDeviceType() const override {
         return deviceType::None; // abstract

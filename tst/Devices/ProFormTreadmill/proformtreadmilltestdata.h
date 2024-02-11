@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "devices/proformtreadmill/proformtreadmill.h"
 
-class ProFormTreadmillTestData : public BluetoothDeviceTestData {
+
+class ProFormTreadmillTestData : public TreadmillTestData {
 
 public:
-    ProFormTreadmillTestData(): BluetoothDeviceTestData("ProForm Treadmill") {
+    ProFormTreadmillTestData(): TreadmillTestData("ProForm Treadmill") {
         this->addDeviceName("I_TL", comparison::StartsWith);
     }
 

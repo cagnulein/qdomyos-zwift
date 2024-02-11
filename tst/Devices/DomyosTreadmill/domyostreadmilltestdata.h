@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "Devices/DomyosElliptical/domyosellipticaltestdata.h"
 #include "Devices/DomyosRower/domyosrowertestdata.h"
 #include "Devices/DomyosBike/domyosbiketestdata.h"
 #include "devices/domyostreadmill/domyostreadmill.h"
 
-class DomyosTreadmillTestData : public BluetoothDeviceTestData {
+class DomyosTreadmillTestData : public TreadmillTestData {
 
 public:
-    DomyosTreadmillTestData() : BluetoothDeviceTestData("Domyos Treadmill") {
+    DomyosTreadmillTestData() : TreadmillTestData("Domyos Treadmill") {
         this->addDeviceName("Domyos", comparison::StartsWith);
 
         this->addInvalidDeviceName("DomyosBr", comparison::StartsWith);

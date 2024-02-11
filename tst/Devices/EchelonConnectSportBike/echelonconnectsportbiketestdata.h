@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "Devices/EchelonRower/echelonrowertestdata.h"
 #include "Devices/EchelonStrideTreadmill/echelonstridetreadmilltestdata.h"
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 
-class EchelonConnectSportBikeTestData : public BluetoothDeviceTestData {
+class EchelonConnectSportBikeTestData : public BikeTestData {
 
 public:
-    EchelonConnectSportBikeTestData() : BluetoothDeviceTestData("Echelon Connect Sport Bike") {
+    EchelonConnectSportBikeTestData() : BikeTestData("Echelon Connect Sport Bike") {
         this->addDeviceName("ECH", comparison::StartsWith);
     }
 
