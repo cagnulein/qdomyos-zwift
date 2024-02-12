@@ -3510,6 +3510,7 @@ void homeform::update() {
         double strideLength = 0;
         double groundContact = 0;
         double verticalOscillation = 0;
+        double stepCount = 0;
 
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
@@ -3752,6 +3753,7 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
+            stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
             if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
                 this->pace->setValue(
@@ -5217,7 +5219,7 @@ void homeform::update() {
                     (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation);
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount);
 
             Session.append(s);
 

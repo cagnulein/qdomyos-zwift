@@ -78,6 +78,7 @@ class treadmill : public bluetoothdevice {
 
   private:
     bool simulateInclinationWithSpeed();
+    void evaluateStepCount();
 };
 
 #endif // TREADMILL_H

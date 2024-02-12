@@ -126,6 +126,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         qDebug() << "overriding FIT sport " << overrideSport;
     } else if (type == bluetoothdevice::TREADMILL) {
+        sessionMesg.SetTotalStrides(session.last().stepCount);
 
         if (speed_avg == 0 || speed_avg > 6.5)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
