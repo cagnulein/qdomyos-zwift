@@ -1,12 +1,11 @@
 ﻿#pragma once
-
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Elliptical/ellipticaltestdata.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
 
-class DomyosEllipticalTestData : public BluetoothDeviceTestData {
+class DomyosEllipticalTestData : public EllipticalTestData {
 
 public:
-    DomyosEllipticalTestData() : BluetoothDeviceTestData("Domyos Elliptical") {
+    DomyosEllipticalTestData() : EllipticalTestData("Domyos Elliptical") {
         this->addDeviceName("Domyos-EL", comparison::StartsWith);
         this->addInvalidDeviceName("DomyosBridge",comparison::StartsWith);
     }

@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
 #include "devices/bowflext216treadmill/bowflext216treadmill.h"
 
-class BowflexT216TreadmillTestData : public BluetoothDeviceTestData {
+class BowflexT216TreadmillTestData : public TreadmillTestData {
 
 public:
-    BowflexT216TreadmillTestData() : BluetoothDeviceTestData("Bowflex T216 Treadmill") {
+    BowflexT216TreadmillTestData() : TreadmillTestData("Bowflex T216 Treadmill") {
         this->addDeviceName("BOWFLEX T", comparison::StartsWithIgnoreCase);
     }
 

@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "devices/iconceptbike/iconceptbike.h"
 
-class iConceptBikeTestData : public BluetoothDeviceTestData {
+class iConceptBikeTestData : public BikeTestData {
 
 void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
                            std::vector<DeviceDiscoveryInfo> &configurations) const override {
@@ -19,7 +19,7 @@ void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
     }
 
   public:
-    iConceptBikeTestData() : BluetoothDeviceTestData("iConcept Bike") {
+    iConceptBikeTestData() : BikeTestData("iConcept Bike") {
         this->addDeviceName("BH DUALKIT", comparison::StartsWithIgnoreCase);
     }
 

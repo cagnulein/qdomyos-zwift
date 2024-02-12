@@ -228,8 +228,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     qDebug() << "actual lastPacket" << lastPacket.toHex(' ');
 
     // Focus Fitness Senator 54 iplus #1790
-    if((newValue.length() < 18 && lastPacket.length() > 2 && (lastPacket.at(0) != 0xf0 || lastPacket.at(1) != 0xb2)) || lastPacket.length() > 19) {
-        if(lastPacket.length() == 3 && lastPacket.at(1) == 0xf0 && lastPacket.at(2) == 0xb2) {
+    if((newValue.length() < 18 && lastPacket.length() > 2 && (((uint8_t)lastPacket.at(0)) != 0xf0 || ((uint8_t)lastPacket.at(1)) != 0xb2)) || lastPacket.length() > 19) {
+        if(lastPacket.length() == 3 && ((uint8_t)lastPacket.at(1)) == 0xf0 && ((uint8_t)lastPacket.at(2)) == 0xb2) {
             lastPacket.clear();
             lastPacket.append(0xf0);
             lastPacket.append(0xb2);

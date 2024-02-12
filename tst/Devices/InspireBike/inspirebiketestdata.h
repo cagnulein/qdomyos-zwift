@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Bike/biketestdata.h"
 #include "devices/inspirebike/inspirebike.h"
 
-class InspireBikeTestData : public BluetoothDeviceTestData {
+
+class InspireBikeTestData : public BikeTestData {
 
 public:
-    InspireBikeTestData() : BluetoothDeviceTestData("Inspire Bike") {
+    InspireBikeTestData() : BikeTestData("Inspire Bike") {
         this->addDeviceName("IC", comparison::StartsWithIgnoreCase, 8);
     }
 

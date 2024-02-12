@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/spirittreadmill/spirittreadmill.h"
 
-class SpiritTreadmillTestData : public BluetoothDeviceTestData {
+
+class SpiritTreadmillTestData : public TreadmillTestData {
 
 public:
-    SpiritTreadmillTestData(): BluetoothDeviceTestData("Spirit Treadmill") {
+    SpiritTreadmillTestData(): TreadmillTestData("Spirit Treadmill") {
 
         this->addDeviceName("XT385", comparison::StartsWithIgnoreCase);
         this->addDeviceName("XT485", comparison::StartsWithIgnoreCase);

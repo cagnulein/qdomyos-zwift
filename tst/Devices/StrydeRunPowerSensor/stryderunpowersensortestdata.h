@@ -1,9 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+
+#include "Devices/Treadmill/treadmilltestdata.h"
+
 #include "devices/strydrunpowersensor/strydrunpowersensor.h"
 
-class StrydeRunPowerSensorTestData : public BluetoothDeviceTestData {
+
+class StrydeRunPowerSensorTestData : public TreadmillTestData {
 private:
     QString powerSensorName;
 protected:
@@ -33,7 +36,7 @@ protected:
         }
     }
 public:
-    StrydeRunPowerSensorTestData() : BluetoothDeviceTestData("Stryderun Treadmill / Power Sensor") {
+    StrydeRunPowerSensorTestData() : TreadmillTestData("Stryderun Treadmill / Power Sensor") {
         this->powerSensorName = "WattsItCalled-";
         this->addDeviceName(this->powerSensorName, comparison::StartsWith);
     }
@@ -45,7 +48,7 @@ public:
     }
 };
 
-class ZwiftRunpodTestData : public BluetoothDeviceTestData {
+class ZwiftRunpodTestData : public TreadmillTestData {
 private:
     QString powerSensorName;
 protected:
@@ -82,7 +85,7 @@ protected:
         }
     }
 public:
-    ZwiftRunpodTestData() : BluetoothDeviceTestData("Zwift Runpod") {
+    ZwiftRunpodTestData() : TreadmillTestData("Zwift Runpod") {
         this->powerSensorName = "WattsItCalled-";
         this->addDeviceName("ZWIFT RUNPOD", comparison::StartsWithIgnoreCase);
     }

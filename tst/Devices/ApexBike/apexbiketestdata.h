@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h".h"
 #include "devices/apexbike/apexbike.h"
 
-class ApexBikeTestData : public BluetoothDeviceTestData {
+class ApexBikeTestData : public BikeTestData {
 
 public:
-    ApexBikeTestData() : BluetoothDeviceTestData("Apex Bike") {
+    ApexBikeTestData() : BikeTestData("Apex Bike") {
         this->addDeviceName("WLT8266BM", comparison::StartsWithIgnoreCase);
     }
 
