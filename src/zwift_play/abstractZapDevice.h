@@ -65,7 +65,7 @@ public:
                 }
                 break;
             case 0x07:
-                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && (uint8_t)bytes[bytes.length() - 4] == (uint8_t)0xc7
+                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && ((uint8_t)bytes[bytes.length() - 4]) == 0xc7
                     && bytes[bytes.length() - 3] == 0x01) {
                     if(zapType == LEFT) {
                         emit plus();

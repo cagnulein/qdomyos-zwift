@@ -390,7 +390,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     } else if (treadmill_type == COSTAWAY) {
         const double miles = 1.60934;
-        if(newValue.at(3) == 0xFF)
+        if(((uint8_t)newValue.at(3)) == 0xFF)
             Speed = 0;
         else
             Speed = (double)((uint8_t)newValue.at(3)) / 10.0 * miles;
