@@ -116,12 +116,12 @@ void proformwifitreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100 && waitStatePkg == false) {
-            if (requestInclination < 0)
-                requestInclination = 0;
+            if (requestInclination < min_incline_supported)
+                requestInclination = min_incline_supported;
             // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
+            if (requestInclination != currentInclination().value() && requestInclination >= min_incline_supported &&
+                requestInclination <= max_incline_supported) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
 
                 forceIncline(requestInclination);
@@ -226,6 +226,16 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
+
+    if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
+        max_incline_supported = values[QStringLiteral("Maximum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum Incline Supported: ") + QString::number(max_incline_supported));
+    }
+
+    if (!values[QStringLiteral("Minimum Incline")].isUndefined()) {
+        min_incline_supported = values[QStringLiteral("Minimum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Minimum Incline Supported: ") + QString::number(min_incline_supported));
+    }    
 
     waitStatePkg = false;
 
