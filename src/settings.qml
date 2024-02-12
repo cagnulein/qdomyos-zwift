@@ -903,6 +903,7 @@ import QtQuick.Dialogs 1.0
             property bool hop_sport_hs_090h_bike: false
             property bool zwift_play: false
             property bool nordictrack_treadmill_x14i: false
+            property int zwift_api_poll: 5
         }
 
         function paddingZeros(text, limit) {
@@ -4542,7 +4543,43 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }              
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Poll Time:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftPollTimeTextField
+                            text: settings.zwift_api_poll
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.zwift_api_poll = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+
+                    Label {
+                        text: qsTr("Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                          
 
                     SwitchDelegate {
                         text: qsTr("Zwift Treadmill Auto Inclination")

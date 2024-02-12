@@ -2010,6 +2010,9 @@ class QZSettings {
     static const QString nordictrack_treadmill_x14i;
     static constexpr bool default_nordictrack_treadmill_x14i = false;
 
+    static const QString zwift_api_poll;
+    static constexpr int default_zwift_api_poll = 5;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
