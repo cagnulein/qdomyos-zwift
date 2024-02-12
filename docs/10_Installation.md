@@ -42,7 +42,7 @@ This guide will walk you through steps to setup an autonomous, headless raspberr
 You can install a lightweight version of embedded OS to speed up your raspberry booting time.
 
 #### Prepare your SD Card 
-Get the latest [Raspberry Pi Imager](https://www.raspberrypi.org/software/) and install, on a SD card, the Raspberry lite OS version.  
+Get the latest [Raspberry Pi Imager](https://www.raspberrypi.org/software/) and install, on a SD card, the Raspberry lite OS version.  What is critical is that the OS is based on Debian 11 or later. 
 Boot on the raspberry (default credentials are pi/raspberry)
 
 #### Change default credentials
