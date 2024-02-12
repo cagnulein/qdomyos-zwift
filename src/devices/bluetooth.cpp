@@ -1018,8 +1018,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(soleElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
-                       !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
-                       !domyosBike && !domyosRower && !horizonTreadmill && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && filter) {
+                       !b.name().startsWith(QStringLiteral("DomyosBr")) &&
+                       !b.name().toUpper().startsWith(QStringLiteral("DOMYOS-BIKING-")) && !domyos && !domyosElliptical &&
+                       !domyosBike && !domyosRower && !ftmsBike && !horizonTreadmill && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1394,6 +1395,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("KICKR CORE")) ||
                         (b.name().toUpper().startsWith("MERACH-MR667-")) ||
                         (b.name().toUpper().startsWith("DS60-")) ||
+                        (b.name().toUpper().startsWith("DOMYOS-BIKING-")) ||
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
