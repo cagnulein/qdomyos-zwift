@@ -912,9 +912,6 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
             DU30_bike = true;
-        } else if ((bluetoothDevice.name().toUpper().startsWith("FAL-SPORTS"))) {
-            qDebug() << QStringLiteral("FAL-SPORTS found");
-            resistance_lvl_mode = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
