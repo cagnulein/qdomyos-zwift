@@ -598,7 +598,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
     if (device.name().startsWith(QStringLiteral("Domyos-Bike")) &&
-        !device.name().startsWith(QStringLiteral("DomyosBridge"))) {
+        !device.name().startsWith(virtualdevice::DomyosBridge)) {
         bluetoothDevice = device;
 
         if (device.address().toString().startsWith(QStringLiteral("57"))) {

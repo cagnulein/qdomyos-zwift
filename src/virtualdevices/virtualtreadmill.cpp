@@ -50,7 +50,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
-        advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+        QString deviceName = virtualdevice::get_VirtualDeviceName();
+        qDebug() << "advertising device as " << deviceName;
+        advertisingData.setLocalName(deviceName);
         QList<QBluetoothUuid> services;
 
         if (ftmsServiceEnable()) {

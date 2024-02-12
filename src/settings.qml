@@ -902,6 +902,10 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.42
             property bool hop_sport_hs_090h_bike: false
             property bool zwift_play: false
+
+            // from version ?
+            property string virtual_device_alt_name_suffix: "0"
+            property bool virtual_device_alt_name_enabled: false
         }
 
         function paddingZeros(text, limit) {
@@ -7263,11 +7267,64 @@ import QtQuick.Dialogs 1.0
                 //anchors.top: acc1.bottom
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
-                    spacing: 0
-                    Label {
-                        id: labelFilterDevice
-                        text: qsTr("Manual Device:")
+                    spacing: 0                   
+                    SwitchDelegate
+                    {
+                        id: virtualDeviceAltNameEnabled
+                        text: qsTr("Use Alternative Bluetooth Name")
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Use this to toggle the alternative advertised bluetooth device name.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtual_device_alt_name_enabled
+                        Layout.alignment: Qt.AlignRight | Qt.AlignTop
                         Layout.fillWidth: true
+                        onClicked: settings.virtual_device_alt_name_enabled = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        visible: virtualDeviceAltNameEnabled.checked
+                        Label {
+                            id: labelVirtualDeviceAltNameSuffix
+                            text: qsTr("Alternative Bluetooth Name")
+                            Layout.fillWidth: true
+                        }
+                        Label {
+                            id: labelVirtualDeviceAltNameBase
+                            text: qsTr("QZ")
+                            Layout.fillWidth: false
+                        }
+                        TextField {
+                            id: virtualDeviceAltNameSuffix
+                            text: settings.virtual_device_alt_name_suffix
+                            horizontalAlignment: Text.AlignRight
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Enter a unique suffix to distinguish this device from others.")
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhUppercaseOnly
+                            validator: RegExpValidator { regExp: /[0-9A-Z]/ }
+                            maximumLength: 1
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okVirtualDeviceAltNameSuffix
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: {
+                                if (virtualDeviceAltNameSuffix.length==0) {
+                                    settings.virtual_device_alt_name_suffix = "0";
+                                    virtualDeviceAltNameSuffix.text = "0";
+                                } else
+                                    settings.virtual_device_alt_name_suffix = virtualDeviceAltNameSuffix.text;
+                            }
+                        }
                     }
                     RowLayout {
                         spacing: 10

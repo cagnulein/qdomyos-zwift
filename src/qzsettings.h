@@ -2008,6 +2008,20 @@ class QZSettings {
     static constexpr bool default_zwift_play = false;
 
     /**
+     * @brief When the alternative bluetooth name that the application advertises is enabled,
+     * the alternative name is QZ followed by the value for this setting.
+     */
+    static const QString virtual_device_alt_name_suffix;
+    static const QString default_virtual_device_alt_name_suffix;
+
+    /**
+     * @brief Indicates if the alternative bluetooth name the application advertises as is enabled.
+     */
+    static const QString virtual_device_alt_name_enabled;
+    static constexpr bool default_virtual_device_alt_name_enabled = false;
+
+
+    /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */

@@ -716,7 +716,13 @@ const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
 
-const uint32_t allSettingsCount = 602;
+const QString QZSettings::virtual_device_alt_name_suffix = QStringLiteral("virtual_device_alt_name_suffix");
+const QString QZSettings::default_virtual_device_alt_name_suffix = QStringLiteral("0");
+
+const QString QZSettings::virtual_device_alt_name_enabled = QStringLiteral("virtual_device_alt_name_enabled");
+
+
+const uint32_t allSettingsCount = 604;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1325,6 +1331,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
+    {QZSettings::virtual_device_alt_name_suffix, QZSettings::default_virtual_device_alt_name_suffix},
+    {QZSettings::virtual_device_alt_name_enabled, QZSettings::default_virtual_device_alt_name_enabled}
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

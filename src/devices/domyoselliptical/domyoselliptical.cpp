@@ -534,7 +534,7 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     if (device.name().startsWith(QStringLiteral("Domyos-EL")) &&
-        !device.name().startsWith(QStringLiteral("DomyosBridge"))) {
+        !device.name().startsWith(virtualdevice::DomyosBridge)) {
         bluetoothDevice = device;
 
         if (device.address().toString().startsWith(QStringLiteral("57"))) {
