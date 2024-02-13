@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <QVector>
 
 #include "Devices/Bike/biketestdata.h"
 
@@ -98,5 +99,29 @@ public:
         this->ftmsAccessoryName = "accessory";
 
         this->addDeviceName(this->ftmsAccessoryName, comparison::StartsWithIgnoreCase);
+    }
+};
+
+class FTMSBike4TestData : public FTMSBikeTestData {
+public:
+
+    FTMSBike4TestData() : FTMSBikeTestData("FTMS KICKR CORE")  {
+        this->testInvalidBluetoothDeviceInfo = true;
+
+        this->addDeviceName("KICKR CORE", comparison::StartsWithIgnoreCase); // KICKR CORE
+    }
+
+    QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true) override
+    {
+        QBluetoothDeviceInfo result = BluetoothDeviceTestData::get_bluetoothDeviceInfo(uuid, name, true);
+
+        if(!valid) {
+            // No 0x1826 service
+            return result;
+        }
+
+        result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
+
+        return result;
     }
 };
