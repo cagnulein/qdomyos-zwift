@@ -619,6 +619,7 @@ class homeform : public QObject {
     DataObject *preset_inclination_4;
     DataObject *preset_inclination_5;
     DataObject *pace_last500m;
+    DataObject *stepCount;
 
   private:
     static homeform *m_singleton;

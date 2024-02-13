@@ -904,6 +904,10 @@ import QtQuick.Dialogs 1.0
             property bool zwift_play: false
             property bool nordictrack_treadmill_x14i: false
             property int zwift_api_poll: 5
+
+            // from version 2.16.43
+            property bool tile_step_count_enabled: false
+            property int  tile_step_count_order: 51            
         }
 
         function paddingZeros(text, limit) {
