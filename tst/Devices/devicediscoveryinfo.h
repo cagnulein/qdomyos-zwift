@@ -53,6 +53,8 @@ public :
 
     bool sole_treadmill_inclination = false;
 
+
+
     /**
      * @brief Constructor.
      * @param loadDefaults Indicates if the default values should be loaded.

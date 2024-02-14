@@ -187,6 +187,8 @@ ScrollView {
         property int  tile_pace_last500m_order: 49
         property bool tile_target_pace_enabled: false
         property int  tile_target_pace_order: 50
+        property bool tile_step_count_enabled: false
+        property int  tile_step_count_order: 51
     }
 
 
@@ -2212,6 +2214,38 @@ ScrollView {
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: stepCountEnabledAccordion
+            title: qsTr("Step Count")
+            linkedBoolSetting: "tile_step_count_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelStepCountOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: stepCountOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_step_count_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = stepCountOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okStepCountOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }

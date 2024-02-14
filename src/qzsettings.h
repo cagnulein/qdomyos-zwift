@@ -2013,6 +2013,13 @@ class QZSettings {
     static const QString zwift_api_poll;
     static constexpr int default_zwift_api_poll = 5;
 
+    static const QString tile_step_count_enabled;
+    static constexpr bool default_tile_step_count_enabled = false;
+
+    static const QString tile_step_count_order;
+    static constexpr int default_tile_step_count_order = 51;
+
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
