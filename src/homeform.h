@@ -70,6 +70,7 @@ class DataObject : public QObject {
     void setLabelFontSize(int value);
     void setVisible(bool visible);
     void setGridId(int id);
+    void setLargeButtonColor(const QString &color);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
@@ -620,6 +621,7 @@ class homeform : public QObject {
     DataObject *preset_inclination_5;
     DataObject *pace_last500m;
     DataObject *stepCount;
+    DataObject *ergMode;
 
   private:
     static homeform *m_singleton;

@@ -35,7 +35,7 @@ public:
     int processCharacteristic(const QString& characteristicName, const QByteArray& bytes, ZWIFT_PLAY_TYPE zapType) {
         if (bytes.isEmpty()) return 0;
 
-        qDebug() << characteristicName << bytes.toHex();
+        qDebug() << zapType << characteristicName << bytes.toHex() ;
 
 #ifdef Q_OS_ANDROID
         QAndroidJniEnvironment env;
@@ -65,8 +65,10 @@ public:
                 }
                 break;
             case 0x07:
-                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && ((uint8_t)bytes[bytes.length() - 4]) == 0xc7
-                    && bytes[bytes.length() - 3] == 0x01) {
+                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && (
+                        (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
+                        (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
+                    ) && bytes[bytes.length() - 3] == 0x01) {
                     if(zapType == LEFT) {
                         emit plus();
                     } else {

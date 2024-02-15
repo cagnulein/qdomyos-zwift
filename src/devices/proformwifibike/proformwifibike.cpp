@@ -318,6 +318,12 @@ void proformwifibike::update() {
             // updateDisplay(elapsed);
         }
 
+        if(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 10000) {
+            // the bike is not responding
+            qDebug() << "bike not responding...Let's close the connection!";
+            websocket.close();
+        }
+
         innerWriteResistance();
 
         if (requestStart != -1) {

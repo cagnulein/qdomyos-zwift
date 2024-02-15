@@ -189,6 +189,8 @@ ScrollView {
         property int  tile_target_pace_order: 50
         property bool tile_step_count_enabled: false
         property int  tile_step_count_order: 51
+        property bool tile_erg_mode_enabled: false
+        property int  tile_erg_mode_order: 52
     }
 
 
@@ -2246,6 +2248,38 @@ ScrollView {
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: ergModeEnabledAccordion
+            title: qsTr("Erg Mode")
+            linkedBoolSetting: "tile_erg_mode_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelErgModeOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: ergModeOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_erg_mode_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = ergModeOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okErgModeOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
