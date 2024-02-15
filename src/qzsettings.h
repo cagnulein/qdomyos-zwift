@@ -2019,6 +2019,11 @@ class QZSettings {
     static const QString tile_step_count_order;
     static constexpr int default_tile_step_count_order = 51;
 
+    static const QString tile_erg_mode_enabled;
+    static constexpr bool default_tile_erg_mode_enabled = false;
+
+    static const QString tile_erg_mode_order;
+    static constexpr int default_tile_erg_mode_order = 52;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
