@@ -1362,3 +1362,11 @@ void QZSettings::qDebugAllSettings(bool showDefaults) {
         }
     }
 }
+
+void QZSettings::restoreAll() {
+    qDebug() << QStringLiteral("RESTORING SETTINGS!");
+    QSettings settings;
+    for (uint32_t i = 0; i < allSettingsCount; i++) {
+        settings.setValue(allSettings[i][0].toString(), allSettings[i][1]);
+    }
+}

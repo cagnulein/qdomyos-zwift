@@ -2029,7 +2029,12 @@ class QZSettings {
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
-    void qDebugAllSettings(bool showDefaults = false);
+    static void qDebugAllSettings(bool showDefaults = false);
+
+    /**
+     * @brief Restore the default value to all the settings
+     */
+    static void restoreAll();
 };
 
 #endif

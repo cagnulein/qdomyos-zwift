@@ -33,6 +33,7 @@ ApplicationWindow {
     signal loadSettings(url name)
     signal saveSettings(url name)
     signal deleteSettings(url name)
+    signal restoreSettings()
     signal saveProfile(string profilename)
     signal restart()
     signal volumeUp()
