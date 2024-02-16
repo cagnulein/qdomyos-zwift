@@ -482,7 +482,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-        if (s->state() == QLowEnergyService::ServiceDiscovered && s->serviceUuid() != QBluetoothUuid::GenericAttribute) {
+        if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
             connect(s, &QLowEnergyService::characteristicChanged, this, &strydrunpowersensor::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &strydrunpowersensor::characteristicWritten);
