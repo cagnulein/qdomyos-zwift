@@ -908,6 +908,10 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.43
             property bool tile_step_count_enabled: false
             property int  tile_step_count_order: 51            
+
+            // from version 2.16.44
+            property bool tile_erg_mode_enabled: false
+            property int  tile_erg_mode_order: 52
         }
 
         function paddingZeros(text, limit) {

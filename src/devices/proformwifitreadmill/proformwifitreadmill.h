@@ -67,6 +67,7 @@ class proformwifitreadmill : public treadmill {
     double bikeResistanceGain = 1.0;
     double max_incline_supported = 15;
     double min_incline_supported = 0;
+    double maximum_kph = 999;
 
     uint8_t sec1Update = 0;
     QString lastPacket;

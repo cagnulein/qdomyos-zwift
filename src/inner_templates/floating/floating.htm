@@ -413,7 +413,7 @@
         'tile_heart_order', 'tile_elapsed_order', 'tile_peloton_resistance_order', 'floating_transparency', 'tile_target_resistance_order', 'tile_target_peloton_resistance_order',
 		  'tile_target_cadence_order', 'tile_target_power_order', 'tile_peloton_offset_order', 'tile_target_speed_order', 'tile_target_pace_order', 'tile_inclination_order',
         'tile_target_incline_order', 'tile_target_zone_order', 'tile_ftp_order', 'tile_jouls_order', 'tile_remainingtimetrainprogramrow_order', 'tile_gears_order', 
-        'tile_elevation_order', 'tile_pace_order']
+        'tile_elevation_order', 'tile_pace_order', 'theme_tile_icon_enabled']
       let el = new MainWSQueueElement({
         msg: 'getsettings',
         content: {
@@ -550,6 +550,13 @@
               $(".jouls").attr('sort-order', msg.content[key]);
             } else if(key === 'tile_ftp_order') {
               $(".powerzone").attr('sort-order', msg.content[key]);              
+            } else if(key === 'theme_tile_icon_enabled') {
+              if (msg.content[key] === false || msg.content[key] === 'false') {
+                var icons = document.querySelectorAll('.icon');
+                icons.forEach(function(icon) {
+                    icon.style.display = 'none';
+                });
+              }
             } /*else if(key === 'tile_target_peloton_resistance_order') {
               $(".pelotonresistance").attr('sort-order', msg.content[key]);              
             } else if(key === 'tile_target_cadence_order') {

@@ -1006,6 +1006,7 @@ void horizontreadmill::update() {
                         }
                     }
                 } else {
+                    Speed = 0;
                     uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
                     writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                         QStringLiteral("stopping"), false, true);

@@ -33,13 +33,14 @@ wahookickrsnapbike::wahookickrsnapbike(bool noWriteResistance, bool noHeartServi
     refresh->start(200ms);
 }
 
-void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+bool wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
                                              bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (gattPowerChannelService == nullptr) {
         qDebug() << QStringLiteral("gattPowerChannelService not found, write skipping...");
+        return false;
     }
 
     if (wait_for_response) {
@@ -63,6 +64,8 @@ void wahookickrsnapbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QS
         debug(" >> " + writeBuffer->toHex(' ') + " // " + info);
 
     loop.exec();
+
+    return true;
 }
 
 QByteArray wahookickrsnapbike::unlockCommand() {
@@ -176,13 +179,17 @@ void wahookickrsnapbike::update() {
         QByteArray a = unlockCommand();
         uint8_t b[20];
         memcpy(b, a.constData(), a.length());
-        writeCharacteristic(b, a.length(), "init", false, true);
+        if(!writeCharacteristic(b, a.length(), "init", false, true)) {
+            return;
+        }
         QThread::msleep(700);
 
         QByteArray c = setSimMode(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat(), 0.004,
                                   0.4); // wind and rolling should arrive from FTMS
         memcpy(b, c.constData(), c.length());
-        writeCharacteristic(b, c.length(), "setSimMode", false, true);
+        if(!writeCharacteristic(b, c.length(), "setSimMode", false, true)) {
+            return;
+        }
         QThread::msleep(700);
 
         // required to the SS2K only one time

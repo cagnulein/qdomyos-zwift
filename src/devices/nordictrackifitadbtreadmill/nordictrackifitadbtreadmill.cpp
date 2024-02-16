@@ -241,9 +241,16 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                         heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
             ) {                
                 QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                qDebug() << splitted;
                 if (splitted.length() > 14) {
-                    Heart = splitted[14].toInt();
-                    hrmFound = true;
+                    int heart = splitted[14].toInt();
+                    if(heart == 0) {
+                        heart = splitted[10].toInt();
+                    }
+                    if(heart > 0) {
+                        Heart = heart;
+                        hrmFound = true;
+                    }
                 }
             }
         }
@@ -551,7 +558,7 @@ int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclinat
     else if (reqInclination == 7) { y2 = 696; }
     else if (reqInclination == 7.5) { y2 = 691; }
     else if (reqInclination == 8) { y2 = 687; }
-    else if (reqInclination == 8.5) { y2 = 684; }
+    else if (reqInclination == 8.5) { y2 = 683; }
     else if (reqInclination == 9) { y2 = 677; }
     else if (reqInclination == 9.5) { y2 = 671; }
     else if (reqInclination == 10) { y2 = 665; }
