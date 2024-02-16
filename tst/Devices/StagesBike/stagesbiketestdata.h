@@ -57,8 +57,9 @@ protected:
             QBluetoothDeviceInfo hasInvalid = info;
             hasInvalid.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
             QBluetoothDeviceInfo hasBoth = hasInvalid;
-            hasBoth.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818)}));
+            hasBoth.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1818),QBluetoothUuid((quint16)0x1826)}));
 
+            bluetoothDeviceInfos.push_back(info); // has neither
             bluetoothDeviceInfos.push_back(hasInvalid);
             bluetoothDeviceInfos.push_back(hasBoth);
         }

@@ -27,6 +27,8 @@ void M3IBikeTestData::configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& 
     if(!enable) {
         result.setManufacturerData(1, QByteArray("Invalid manufacturer data."));
         bluetoothDeviceInfos.push_back(result);
+
+        return;
     }
 
     int key=0;
