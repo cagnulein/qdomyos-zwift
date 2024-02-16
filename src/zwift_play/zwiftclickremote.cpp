@@ -27,8 +27,6 @@ zwiftclickremote::zwiftclickremote(bluetoothdevice *parentDevice, AbstractZapDev
 
 void zwiftclickremote::update() {
     if (initRequest && !initDone) {
-        initRequest = false;
-        initDone = true;
         QByteArray s = playDevice->buildHandshakeStart();
         qDebug() << s.length();
         writeCharacteristic(gattWrite1Service, &gattWrite1Characteristic, (uint8_t *) s.data(), s.length(), "handshakeStart");
@@ -51,6 +49,9 @@ void zwiftclickremote::characteristicChanged(const QLowEnergyCharacteristic &cha
                                                const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit packetReceived();
+
+    initRequest = false;
+    initDone = true;
 
     qDebug() << QStringLiteral(" << ") << newValue.toHex(' ') << QString(newValue) << characteristic.uuid().Name << characteristic.uuid().toString() << typeZap;
 
