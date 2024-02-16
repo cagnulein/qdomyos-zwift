@@ -124,11 +124,6 @@ protected:
     };
 
     /**
-     * @brief Indicates if invalid bluetooth device info should be tested for.
-     */
-    bool testInvalidBluetoothDeviceInfo = false;
-
-    /**
      * @brief Call exclude(...) to populate the exclusions vector. This vector is populated on demand
      * to avoid circularities in the constructors.
      */
@@ -176,7 +171,15 @@ protected:
      * @param configurations The variations of the provided object to test.
      */
     virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
-    
+
+
+    /**
+     * @brief Configure multiple QBluetoothDeviceInfo objects to either enable or disable the device in multiple ways.
+     * @info An initial object configured aith a name and UUID for copying. This is expceted to have no service UUIDs.
+     * @param enable Indicates if the request is for enabling (true) or disabling (false) configurations on the bluetooth device info.
+     * @param bluetoothDeviceInfos The objects to test.
+     */
+    virtual void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const {}
 
     /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
@@ -248,25 +251,18 @@ public:
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
 
     /**
-     * @brief Indicates if invalid bluetooth device info should be tested for.
-     * @return
-     */
-    bool get_testInvalidBluetoothDeviceInfo() const;
-
-    /**
      * @brief Specifies a test IP address for wifi devices.
      */
     virtual QString get_testIP() const;
 
-
     /**
-     * @brief Gets a QBluetoothDeviceInfo object for the specified name and UUID. Can be used to
-     * generate invalid objects where device identification relies on more than just the name.
+     * @brief Gets a vector QBluetoothDeviceInfo objects for the specified name and UUID. Can be used to
+     * generate valid and invalid objects where device identification relies on more than just the name.
      * @param uuid
      * @param name
      * @param valid
      */
-    virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
+    std::vector<QBluetoothDeviceInfo> get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
 
 
 };

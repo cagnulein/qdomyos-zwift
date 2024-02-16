@@ -9,8 +9,6 @@
 #include "Devices/FTMSBike/ftmsbiketestdata.h"
 
 DomyosTreadmillTestData::DomyosTreadmillTestData() : TreadmillTestData("Domyos Treadmill") {
-    this->testInvalidBluetoothDeviceInfo = true;
-
     this->addDeviceName("Domyos", comparison::StartsWith);
 
     this->addInvalidDeviceName("DomyosBr", comparison::StartsWith);
@@ -37,17 +35,12 @@ bool DomyosTreadmillTestData::get_isExpectedDevice(bluetoothdevice *detectedDevi
 }
 
 
-QBluetoothDeviceInfo DomyosTreadmillTestData::get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid)
-{
-    QBluetoothDeviceInfo result = BluetoothDeviceTestData::get_bluetoothDeviceInfo(uuid, name, true);
-
-    if(valid) {
-        // No 0x1826 service
-        return result;
+void DomyosTreadmillTestData::configureBluetoothDeviceInfos(const QBluetoothDeviceInfo &info, bool enable, std::vector<QBluetoothDeviceInfo> &bluetoothDeviceInfos) const {
+    auto result = info;
+    if(!enable) {
+        result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
     }
 
-    // Should not be created if the 0x1826 service is present
-    result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
-
-    return result;
+    bluetoothDeviceInfos.push_back(result);
 }
+

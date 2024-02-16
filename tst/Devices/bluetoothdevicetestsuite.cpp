@@ -121,10 +121,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_enabled() {
         {
             this->testSettings.loadFrom(discoveryInfo);
 
-            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);            
-            QString failMessage = QString("Failed to detect device for %1s using name: %2s, got a {typeName} instead")
-                    .arg(testData.get_testName().c_str()).arg(deviceName);
-            this->testDeviceDetection(&testData, bt, deviceInfo, true, true, failMessage);
+            auto enablingBluetoothDeviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+            for(size_t i=0; i<enablingBluetoothDeviceInfo.size();i++) {
+                const QBluetoothDeviceInfo& deviceInfo = enablingBluetoothDeviceInfo[i];
+
+                QString failMessage = QString("Failed to detect device for %1s using name: %2s and valid bluetooth device info: %3, got a {typeName} instead")
+                                          .arg(testData.get_testName().c_str()).arg(deviceName).arg(i);
+                this->testDeviceDetection(&testData, bt, deviceInfo, true, true, failMessage);
+            }
         }
     }
 }
@@ -144,12 +148,17 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_disabled() {
         {
             this->testSettings.loadFrom(discoveryInfo);
 
-            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);            
-            QString failMessage = QString("Created the device %1 when expected not to: %2")
-                    .arg(testData.get_testName().c_str()).arg(deviceName);
+            auto enablingBluetoothDeviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+            for(size_t i=0; i<enablingBluetoothDeviceInfo.size();i++) {
+                const QBluetoothDeviceInfo& deviceInfo = enablingBluetoothDeviceInfo[i];
+
+
+            QString failMessage = QString("Created the device %1 with valid bluetooth device info config %3 when expected not to: %2")
+                                          .arg(testData.get_testName().c_str()).arg(deviceName).arg(i);
 
             // try to create the device
             this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+            }
         }
     }
 }
@@ -162,7 +171,9 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
     bluetooth bt(this->defaultDiscoveryOptions);
     bool hasInvalidBluetoothDeviceInfo = false;
 
-    if(testData.get_testInvalidBluetoothDeviceInfo()) {
+    auto invalidBluetoothDeviceInfos = testData.get_bluetoothDeviceInfo(uuid, "fred", false);
+
+    if(!invalidBluetoothDeviceInfos.empty()) {
         hasInvalidBluetoothDeviceInfo = true;
 
         std::vector<DeviceDiscoveryInfo> allConfigurations;
@@ -177,12 +188,14 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_validNames_invalidBluetoo
             {
                 this->testSettings.loadFrom(discoveryInfo);
 
-                QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName, false);
-                QString failMessage = QString("Created the device %1 when bluetooth device info is invalid: %2")
-                        .arg(testData.get_testName().c_str()).arg(deviceName);
+                for(const QBluetoothDeviceInfo& deviceInfo : testData.get_bluetoothDeviceInfo(uuid, deviceName, false)) {
 
-                // try to create the device
-                this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+                    QString failMessage = QString("Created the device %1 when bluetooth device info is invalid: %2")
+                            .arg(testData.get_testName().c_str()).arg(deviceName);
+
+                    // try to create the device
+                    this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+                }
             }
         }
     }
@@ -212,7 +225,7 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
                 // get an enabling configuration for the exclusion
                 DeviceDiscoveryInfo exclusionDiscoveryInfo(true);
                 QString exclusionDeviceName = exclusion.get()->get_deviceNames()[0];
-                QBluetoothDeviceInfo exclusionDeviceInfo = exclusion.get()->get_bluetoothDeviceInfo(uuid, exclusionDeviceName);
+                QBluetoothDeviceInfo exclusionDeviceInfo = exclusion.get()->get_bluetoothDeviceInfo(uuid, exclusionDeviceName)[0];
                 std::vector<DeviceDiscoveryInfo> configurationsEnablingTheExclusion = exclusion.get()->get_configurations(exclusionDiscoveryInfo, true);
 
                 if(configurationsEnablingTheExclusion.size()>0) {
@@ -228,12 +241,16 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_exclusions() {
 
                 // now configure to have the bluetooth object try, but fail to detect the target device
                 this->testSettings.loadFrom(discoveryInfo);
-                QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
 
-                failMessage = QString("Detected the %1 from %2 in spite of exclusion")
-                        .arg(testData.get_testName().c_str()).arg(deviceName);
-                this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+                auto enablingBluetoothDeviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+                for(size_t i=0; i<enablingBluetoothDeviceInfo.size();i++) {
+                    const QBluetoothDeviceInfo& deviceInfo = enablingBluetoothDeviceInfo[i];
+                    failMessage = QString("Detected the %1 from %2 with valid bluetooth device info config %3 in spite of exclusion")
+                                      .arg(testData.get_testName().c_str()).arg(deviceName).arg(i);
+                    this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+                }
             }
+
         }
     }
 }
@@ -259,12 +276,15 @@ void BluetoothDeviceTestSuite<T>::test_deviceDetection_invalidNames_enabled()
         {
             this->testSettings.loadFrom(discoveryInfo);
 
-            QBluetoothDeviceInfo deviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+            auto enablingBluetoothDeviceInfo = testData.get_bluetoothDeviceInfo(uuid, deviceName);
+            for(size_t i=0; i<enablingBluetoothDeviceInfo.size();i++) {
+                const QBluetoothDeviceInfo& deviceInfo = enablingBluetoothDeviceInfo[i];
 
-            QString failMessage = QString("Detected device %1 from %2")
-                    .arg(testData.get_testName().c_str()).arg(deviceName);
+                QString failMessage = QString("Detected device %1 from %2 with valid bluetooth device info config %3")
+                                          .arg(testData.get_testName().c_str()).arg(deviceName).arg(i);
 
-            this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+                this->testDeviceDetection(&testData, bt, deviceInfo, false, true, failMessage);
+            }
         }
     }
 }
