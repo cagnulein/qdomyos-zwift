@@ -745,6 +745,7 @@ class homeform : public QObject {
     void saveSettings(const QUrl &filename);
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
+    void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }

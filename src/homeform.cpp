@@ -505,6 +505,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
     QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
+    QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
     QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
     QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
 
@@ -4887,14 +4888,14 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s() &&
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
                             minSpeed <= currentSpeed - step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
@@ -4903,9 +4904,9 @@ void homeform::update() {
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step &&
-                                   hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                                   hrmax < bluetoothManager->device()->currentHeart().average20s()) {
                             pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average5s()))) {
+                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
@@ -4918,10 +4919,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxResistance >= currentResistance + step) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
@@ -4931,10 +4932,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s()) {
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -6530,6 +6531,7 @@ void homeform::loadSettings(const QUrl &filename) {
 }
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
+void homeform::restoreSettings() { QZSettings::restoreAll(); }
 
 QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";
