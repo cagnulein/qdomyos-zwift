@@ -241,9 +241,16 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                         heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
             ) {                
                 QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                qDebug() << splitted;
                 if (splitted.length() > 14) {
-                    Heart = splitted[14].toInt();
-                    hrmFound = true;
+                    int heart = splitted[14].toInt();
+                    if(heart == 0) {
+                        heart = splitted[10].toInt();
+                    }
+                    if(heart > 0) {
+                        Heart = heart;
+                        hrmFound = true;
+                    }
                 }
             }
         }
