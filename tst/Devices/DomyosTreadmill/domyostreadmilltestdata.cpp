@@ -36,11 +36,14 @@ bool DomyosTreadmillTestData::get_isExpectedDevice(bluetoothdevice *detectedDevi
 
 
 void DomyosTreadmillTestData::configureBluetoothDeviceInfos(const QBluetoothDeviceInfo &info, bool enable, std::vector<QBluetoothDeviceInfo> &bluetoothDeviceInfos) const {
-    auto result = info;
-    if(!enable) {
-        result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
-    }
 
+    if(enable) return;
+
+    // Should not be identified if it has 0x1826
+    auto result = info;
+    result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
     bluetoothDeviceInfos.push_back(result);
+
+
 }
 

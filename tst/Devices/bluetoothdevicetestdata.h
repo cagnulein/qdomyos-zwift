@@ -204,7 +204,6 @@ public:
      */
     virtual std::string get_testName() const;
 
-
     /**
      * @brief Indicates if the test data is for an abstract class.
      * @return
@@ -235,9 +234,6 @@ public:
      */
     virtual std::vector<DeviceDiscoveryInfo> get_configurations(const DeviceDiscoveryInfo& info, bool enable);
 
-    
-
-
     /**
      * @brief Gets the expected device type enumeration value to be detected for this device.
      */
@@ -256,7 +252,7 @@ public:
     virtual QString get_testIP() const;
 
     /**
-     * @brief Gets a vector QBluetoothDeviceInfo objects for the specified name and UUID. Can be used to
+     * @brief Gets a vector of QBluetoothDeviceInfo objects for the specified name and UUID. Can be used to
      * generate valid and invalid objects where device identification relies on more than just the name.
      * @param uuid
      * @param name
