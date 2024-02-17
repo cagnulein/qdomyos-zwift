@@ -902,18 +902,16 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.42
             property bool hop_sport_hs_090h_bike: false
             property bool zwift_play: false
-          
-            // from version ?
-	        property bool trixter_xdream_v1_bike: false
-	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
-	        property bool trixter_xdream_v1_bike_steering_enabled: true
-	        property int trixter_xdream_v1_bike_steering_L : -45
-	        property int trixter_xdream_v1_bike_steering_CL : -2
-	        property int trixter_xdream_v1_bike_steering_CR : 2
-	        property int trixter_xdream_v1_bike_steering_R : 45
-	        property int trixter_xdream_v1_bike_steering_MAX : 45
-	        property int trixter_xdream_v1_bike_connection_timeout_ms : 500
-           
+            property bool nordictrack_treadmill_x14i: false
+            property int zwift_api_poll: 5
+
+            // from version 2.16.43
+            property bool tile_step_count_enabled: false
+            property int  tile_step_count_order: 51            
+
+            // from version 2.16.44
+            property bool tile_erg_mode_enabled: false
+            property int  tile_erg_mode_order: 52
         }
 
         function paddingZeros(text, limit) {
@@ -4711,7 +4709,43 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }                    
+                    }              
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Poll Time:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftPollTimeTextField
+                            text: settings.zwift_api_poll
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.zwift_api_poll = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.zwift_api_poll = zwiftPollTimeTextField.text; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                        }
+                    }
+
+
+                    Label {
+                        text: qsTr("Define the number of delay seconds between each inclination change from Zwift. This value can't be less than 5. Default: 5")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                          
 
                     SwitchDelegate {
                         text: qsTr("Zwift Treadmill Auto Inclination")
@@ -5853,7 +5887,7 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack T6.5S v81", "Nordictrack T6.5S v83", "Nordictrack T7.0",
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
-                                "Proform 8.0", "Proform 9.0", "Proform 705 CST"
+                                "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5884,6 +5918,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_8_0 = false;
                                 settings.proform_treadmill_9_0 = false;
                                 settings.proform_treadmill_705_cst = false;
+                                settings.nordictrack_treadmill_x14i = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5911,6 +5946,7 @@ import QtQuick.Dialogs 1.0
                                     case 21: settings.proform_treadmill_8_0 = true; break;
                                     case 22: settings.proform_treadmill_9_0 = true; break;
                                     case 23: settings.proform_treadmill_705_cst = true; break;
+                                    case 24: settings.nordictrack_treadmill_x14i = true; break;
                                 }
                             }
 
@@ -5939,7 +5975,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_cadence_lt ? 20 :
                                                     settings.proform_treadmill_8_0 ? 21 :
                                                     settings.proform_treadmill_9_0 ? 22 :
-                                                    settings.proform_treadmill_705_cst ? 23 : -1;
+                                                    settings.proform_treadmill_705_cst ? 23 :
+                                                    settings.nordictrack_treadmill_x14i ? 24 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

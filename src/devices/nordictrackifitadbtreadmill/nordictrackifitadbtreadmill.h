@@ -89,6 +89,8 @@ class nordictrackifitadbtreadmill : public treadmill {
 
     nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
 
+    int x14i_inclination_lookuptable(double reqInclination);
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

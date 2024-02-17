@@ -715,8 +715,14 @@ const QString QZSettings::proform_treadmill_705_cst = QStringLiteral("proform_tr
 const QString QZSettings::zwift_click = QStringLiteral("zwift_click");
 const QString QZSettings::hop_sport_hs_090h_bike = QStringLiteral("hop_sport_hs_090h_bike");
 const QString QZSettings::zwift_play = QStringLiteral("zwift_play");
+const QString QZSettings::nordictrack_treadmill_x14i = QStringLiteral("nordictrack_treadmill_x14i");
+const QString QZSettings::zwift_api_poll = QStringLiteral("zwift_api_poll");
+const QString QZSettings::tile_step_count_enabled = QStringLiteral("tile_step_count_enabled");
+const QString QZSettings::tile_step_count_order = QStringLiteral("tile_step_count_order");
+const QString QZSettings::tile_erg_mode_enabled = QStringLiteral("tile_erg_mode_enabled");
+const QString QZSettings::tile_erg_mode_order = QStringLiteral("tile_erg_mode_order");
 
-const uint32_t allSettingsCount = 602;
+const uint32_t allSettingsCount = 608;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1325,6 +1331,12 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::zwift_click, QZSettings::default_zwift_click},
     {QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike},
     {QZSettings::zwift_play, QZSettings::default_zwift_play},
+    {QZSettings::nordictrack_treadmill_x14i, QZSettings::default_nordictrack_treadmill_x14i},
+    {QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll},
+    {QZSettings::tile_step_count_enabled, QZSettings::default_tile_step_count_enabled},
+    {QZSettings::tile_step_count_order, QZSettings::default_tile_step_count_order},
+    {QZSettings::tile_erg_mode_enabled, QZSettings::default_tile_erg_mode_enabled},
+    {QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
@@ -1348,5 +1360,13 @@ void QZSettings::qDebugAllSettings(bool showDefaults) {
         } else {
             qDebug() << "(" << key << ", " << defaultValue << ") = " << settings.value(key, defaultValue);
         }
+    }
+}
+
+void QZSettings::restoreAll() {
+    qDebug() << QStringLiteral("RESTORING SETTINGS!");
+    QSettings settings;
+    for (uint32_t i = 0; i < allSettingsCount; i++) {
+        settings.setValue(allSettings[i][0].toString(), allSettings[i][1]);
     }
 }

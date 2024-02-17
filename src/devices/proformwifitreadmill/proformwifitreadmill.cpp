@@ -116,12 +116,12 @@ void proformwifitreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100 && waitStatePkg == false) {
-            if (requestInclination < 0)
-                requestInclination = 0;
+            if (requestInclination < min_incline_supported)
+                requestInclination = min_incline_supported;
             // only 0.5 steps ara available
             requestInclination = qRound(requestInclination * 2.0) / 2.0;
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
+            if (requestInclination != currentInclination().value() && requestInclination >= min_incline_supported &&
+                requestInclination <= max_incline_supported) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
 
                 forceIncline(requestInclination);
@@ -178,12 +178,20 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
 
     if (!values[QStringLiteral("Current KPH")].isUndefined()) {
         double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
-        Speed = kph;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        if(kph <= maximum_kph) {
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        } else {
+            qDebug() << "filtering speed due to firmware bug";
+        }
     } else if (!values[QStringLiteral("KPH")].isUndefined()) {
         double kph = values[QStringLiteral("KPH")].toString().toDouble();
-        Speed = kph;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        if(kph <= maximum_kph) {
+            Speed = kph;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        } else {
+            qDebug() << "filtering speed due to firmware bug";
+        }
     }
 
     if (!values[QStringLiteral("Kilometers")].isUndefined()) {
@@ -225,6 +233,21 @@ void proformwifitreadmill::characteristicChanged(const QString &newValue) {
         double incline = values[QStringLiteral("Incline")].toString().toDouble();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    }
+
+    if (!values[QStringLiteral("Maximum Incline")].isUndefined()) {
+        max_incline_supported = values[QStringLiteral("Maximum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum Incline Supported: ") + QString::number(max_incline_supported));
+    }
+
+    if (!values[QStringLiteral("Minimum Incline")].isUndefined()) {
+        min_incline_supported = values[QStringLiteral("Minimum Incline")].toString().toDouble();
+        emit debug(QStringLiteral("Minimum Incline Supported: ") + QString::number(min_incline_supported));
+    }    
+
+    if (!values[QStringLiteral("Maximum KPH")].isUndefined()) {
+        maximum_kph = values[QStringLiteral("Maximum KPH")].toString().toDouble();
+        emit debug(QStringLiteral("Maximum KPH: ") + QString::number(maximum_kph));
     }
 
     waitStatePkg = false;

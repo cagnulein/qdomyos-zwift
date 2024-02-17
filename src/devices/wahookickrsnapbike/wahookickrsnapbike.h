@@ -67,7 +67,7 @@ class wahookickrsnapbike : public bike {
     QByteArray setSimWindSpeed(double metersPerSecond);
     QByteArray setWheelCircumference(double millimeters);
 
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+    bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;

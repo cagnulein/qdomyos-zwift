@@ -241,9 +241,16 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                         heartRateBeltName.startsWith(QStringLiteral("Disabled")) && !disable_hr_frommachinery
             ) {                
                 QStringList splitted = line.split(' ', Qt::SkipEmptyParts);
+                qDebug() << splitted;
                 if (splitted.length() > 14) {
-                    Heart = splitted[14].toInt();
-                    hrmFound = true;
+                    int heart = splitted[14].toInt();
+                    if(heart == 0) {
+                        heart = splitted[10].toInt();
+                    }
+                    if(heart > 0) {
+                        Heart = heart;
+                        hrmFound = true;
+                    }
                 }
             }
         }
@@ -270,6 +277,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             bool nordictrack_x22i =
                 settings.value(QZSettings::nordictrack_x22i, QZSettings::default_nordictrack_x22i).toBool();
             bool nordictrack_treadmill_t8_5s = settings.value(QZSettings::nordictrack_treadmill_t8_5s, QZSettings::default_nordictrack_treadmill_t8_5s).toBool();
+            bool nordictrack_treadmill_x14i = settings.value(QZSettings::nordictrack_treadmill_x14i, QZSettings::nordictrack_treadmill_x14i).toBool();
             if (requestSpeed != -1) {
                 int x1 = 1845;
                 int y1Speed = 807 - (int)((Speed.value() - 1) * 31);
@@ -316,6 +324,10 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                     x1 = 78;
                     y1Inclination = (int) (620 - (32.916 * (currentInclination().value())));
                     y2 = y1Inclination - (int)((requestInclination - currentInclination().value()) * 32.916);
+                } else if (nordictrack_treadmill_x14i) {
+                    x1 = 75;
+                    y1Inclination = x14i_inclination_lookuptable(currentInclination().value());
+                    y2 = x14i_inclination_lookuptable(requestInclination);
                 }
 
                 lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Inclination) + " " +
@@ -513,4 +525,102 @@ void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
     logcatAdbThread->stop = true;
+}
+
+int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclination) {
+    int y2 = 0;
+    if (reqInclination == -6) { y2 = 856; }
+    else if (reqInclination == -5.5) { y2 = 850; }
+    else if (reqInclination == -5) { y2 = 844; }
+    else if (reqInclination == -4.5) { y2 = 838; }
+    else if (reqInclination == -4) { y2 = 832; }
+    else if (reqInclination == -3.5) { y2 = 826; }
+    else if (reqInclination == -3) { y2 = 820; }
+    else if (reqInclination == -2.5) { y2 = 814; }
+    else if (reqInclination == -2) { y2 = 808; }
+    else if (reqInclination == -1.5) { y2 = 802; }
+    else if (reqInclination == -1) { y2 = 796; }
+    else if (reqInclination == -0.5) { y2 = 785; }
+    else if (reqInclination == 0) { y2 = 783; }
+    else if (reqInclination == 0.5) { y2 = 778; }
+    else if (reqInclination == 1) { y2 = 774; }
+    else if (reqInclination == 1.5) { y2 = 768; }
+    else if (reqInclination == 2) { y2 = 763; }
+    else if (reqInclination == 2.5) { y2 = 757; }
+    else if (reqInclination == 3) { y2 = 751; }
+    else if (reqInclination == 3.5) { y2 = 745; }
+    else if (reqInclination == 4) { y2 = 738; }
+    else if (reqInclination == 4.5) { y2 = 731; }
+    else if (reqInclination == 5) { y2 = 724; }
+    else if (reqInclination == 5.5) { y2 = 717; }
+    else if (reqInclination == 6) { y2 = 710; }
+    else if (reqInclination == 6.5) { y2 = 703; }
+    else if (reqInclination == 7) { y2 = 696; }
+    else if (reqInclination == 7.5) { y2 = 691; }
+    else if (reqInclination == 8) { y2 = 687; }
+    else if (reqInclination == 8.5) { y2 = 683; }
+    else if (reqInclination == 9) { y2 = 677; }
+    else if (reqInclination == 9.5) { y2 = 671; }
+    else if (reqInclination == 10) { y2 = 665; }
+    else if (reqInclination == 10.5) { y2 = 658; }
+    else if (reqInclination == 11) { y2 = 651; }
+    else if (reqInclination == 11.5) { y2 = 645; }
+    else if (reqInclination == 12) { y2 = 638; }
+    else if (reqInclination == 12.5) { y2 = 631; }
+    else if (reqInclination == 13) { y2 = 624; }
+    else if (reqInclination == 13.5) { y2 = 617; }
+    else if (reqInclination == 14) { y2 = 610; }
+    else if (reqInclination == 14.5) { y2 = 605; }
+    else if (reqInclination == 15) { y2 = 598; }
+    else if (reqInclination == 15.5) { y2 = 593; }
+    else if (reqInclination == 16) { y2 = 587; }
+    else if (reqInclination == 16.5) { y2 = 581; }
+    else if (reqInclination == 17) { y2 = 575; }
+    else if (reqInclination == 17.5) { y2 = 569; }
+    else if (reqInclination == 18) { y2 = 563; }
+    else if (reqInclination == 18.5) { y2 = 557; }
+    else if (reqInclination == 19) { y2 = 551; }
+    else if (reqInclination == 19.5) { y2 = 545; }
+    else if (reqInclination == 20) { y2 = 539; }
+    else if (reqInclination == 20.5) { y2 = 533; }
+    else if (reqInclination == 21) { y2 = 527; }
+    else if (reqInclination == 21.5) { y2 = 521; }
+    else if (reqInclination == 22) { y2 = 515; }
+    else if (reqInclination == 22.5) { y2 = 509; }
+    else if (reqInclination == 23) { y2 = 503; }
+    else if (reqInclination == 23.5) { y2 = 497; }
+    else if (reqInclination == 24) { y2 = 491; }
+    else if (reqInclination == 24.5) { y2 = 485; }
+    else if (reqInclination == 25) { y2 = 479; }
+    else if (reqInclination == 25.5) { y2 = 473; }
+    else if (reqInclination == 26) { y2 = 467; }
+    else if (reqInclination == 26.5) { y2 = 461; }
+    else if (reqInclination == 27) { y2 = 455; }
+    else if (reqInclination == 27.5) { y2 = 449; }
+    else if (reqInclination == 28) { y2 = 443; }
+    else if (reqInclination == 28.5) { y2 = 437; }
+    else if (reqInclination == 29) { y2 = 431; }
+    else if (reqInclination == 29.5) { y2 = 425; }
+    else if (reqInclination == 30) { y2 = 418; }
+    else if (reqInclination == 30.5) { y2 = 412; }
+    else if (reqInclination == 31) { y2 = 406; }
+    else if (reqInclination == 31.5) { y2 = 400; }
+    else if (reqInclination == 32) { y2 = 394; }
+    else if (reqInclination == 32.5) { y2 = 388; }
+    else if (reqInclination == 33) { y2 = 382; }
+    else if (reqInclination == 33.5) { y2 = 375; }
+    else if (reqInclination == 34) { y2 = 369; }
+    else if (reqInclination == 34.5) { y2 = 363; }
+    else if (reqInclination == 35) { y2 = 357; }
+    else if (reqInclination == 35.5) { y2 = 351; }
+    else if (reqInclination == 36) { y2 = 345; }
+    else if (reqInclination == 36.5) { y2 = 338; }
+    else if (reqInclination == 37) { y2 = 332; }
+    else if (reqInclination == 37.5) { y2 = 326; }
+    else if (reqInclination == 38) { y2 = 320; }
+    else if (reqInclination == 38.5) { y2 = 314; }
+    else if (reqInclination == 39) { y2 = 308; }
+    else if (reqInclination == 39.5) { y2 = 302; }
+    else if (reqInclination == 40) { y2 = 295; }
+    return y2;        
 }

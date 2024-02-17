@@ -11,6 +11,7 @@ CONFIG += thread
 CONFIG += androidextras
 
 SOURCES += \
+        Devices/DomyosTreadmill/domyostreadmilltestdata.cpp \
         Devices/FTMSBike/ftmsbiketestdata.cpp \
         Devices/FitPlusBike/fitplusbiketestdata.cpp \
         Devices/M3IBike/m3ibiketestdata.cpp \
