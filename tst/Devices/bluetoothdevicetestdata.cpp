@@ -111,13 +111,19 @@ std::vector<DeviceDiscoveryInfo> BluetoothDeviceTestData::get_configurations(con
     return result;
 }
 
-bool BluetoothDeviceTestData::get_testInvalidBluetoothDeviceInfo() const { return this->testInvalidBluetoothDeviceInfo; }
-
 QString BluetoothDeviceTestData::get_testIP() const { return "1.2.3.4"; }
 
-QBluetoothDeviceInfo BluetoothDeviceTestData::get_bluetoothDeviceInfo(const QBluetoothUuid &uuid, const QString &name, bool valid) {
-    if(!valid)
-        throw "Invalid bluetooth device info is not implemented in this class.";
-    return QBluetoothDeviceInfo(uuid, name, 0);
+std::vector<QBluetoothDeviceInfo> BluetoothDeviceTestData::get_bluetoothDeviceInfo(const QBluetoothUuid &uuid, const QString &name, bool valid) {
+    std::vector<QBluetoothDeviceInfo> result;
+
+    QBluetoothDeviceInfo info(uuid, name, 0);
+
+    this->configureBluetoothDeviceInfos(info, valid, result);
+
+    // make sure there is always a valid item
+    if(valid && result.empty())
+        result.push_back(info);
+
+    return result;
 }
 
