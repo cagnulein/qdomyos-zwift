@@ -322,7 +322,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             qDebug() << QString::number(ret) + " >> " + message;                
         }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
+        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) >= 0) {
             lastInclinationChanged = QDateTime::currentDateTime();
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
