@@ -23,9 +23,9 @@ class StagesBike1TestData : public StagesBikeTestData {
 public:
     StagesBike1TestData() : StagesBikeTestData("Stages Bike") {
         this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("TACX SATORI", comparison::StartsWithIgnoreCase);
         this->addDeviceName("QD", comparison::IgnoreCase);
     }
-
 };
 
 
