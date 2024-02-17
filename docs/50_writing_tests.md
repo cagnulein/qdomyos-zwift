@@ -52,7 +52,7 @@ Consider the detection code for the Domyos Bike:
 
 ```
 
-Reading this, to identify this device, the bluetooth name should:
+Reading this, to identify this device:
 - bluetooth name should start with "Domyos-Bike" using a case sensitive comparison
 - bluetooth name should NOT start with "DomyosBridge", also using a case sensitive comparison
 - there should not have been a device using the corresponding device class detected already (i.e. domyos)
