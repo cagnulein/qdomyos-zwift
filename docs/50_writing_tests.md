@@ -6,12 +6,12 @@ The testing project tst/qdomyos-zwift-tests.pro contains tests code that uses th
 
 ## Adding a new device
 
-New devices are added by creating a sublcass of the bluetoothdevice class. 
+New devices are added to the main QZ application by creating a sublcass of the bluetoothdevice class. 
 
 At minimum, each device has a corresponding TestData class in the test project, which is coded to provide information to the test framework to generate tests for device detection and potentially other things.
 
 In the test project
-* create a new folder for the device under tst/Devices.
+* create a new folder for the device under tst/Devices. This is for anything you define for testing this device.
 * add a new class with header file and optionally .cpp file to the project in that folder. Name the cass DeviceNameTestData.
 * edit the header file to inherit the class from the testdata abstract class appropriate to the device type, i.e. BikeTestData, RowerTestData, EllipticalTestData, TreadmillTestData.
 * have this subclass' constructor pass a unique test name to the superclass.
@@ -85,7 +85,7 @@ public:
 };
 ```
 
-The constructor adds a valid device name, and an invalid one. Various overloads of these methods and other members of the comparison enumeration provide other capabilities for specifying test data. If you add a valid device name that says the name should start with a value, additional names will be added to the valid list with additional characters to test that it is in fact a "starts with" relationship. Also, valid and invalid names will be generated base on whether the comparison is case senstitive or not.
+The constructor adds a valid device name, and an invalid one. Various overloads of these methods and other members of the comparison enumeration provide other capabilities for specifying test data. If you add a valid device name that says the name should start with a value, additional names will be added automatically to the valid list with additional characters to test that it is in fact a "starts with" relationship. Also, valid and invalid names will be generated base on whether the comparison is case sensitive or not.
 
 The get_expectedDeviceType() function is not actually used and is part of an unfinished refactoring of the device detection code, whereby the bluetoothdevice object doesn't actually get created intially. You could add a new value to the deviceType enum and return that, but it's not used yet. There's always deviceType::None.
 
@@ -94,7 +94,7 @@ The get_isExpectedDevice(bluetoothdevice *) function must be overridden to indic
 ### Configuration Settings
 
 Consider the CompuTrainerTestData. This device is not detected by name, but only by whether or not it is enabled in the settings.
-To specify this in the test data, we override one of the configureSettings methods, the one for the simple case where there is single valid and a single invalid configuration. 
+To specify this in the test data, we override one of the configureSettings methods, the one for the simple case where there is a single valid and a single invalid configuration. 
 
 The DeviceDiscoveryInfo class has been updated to contain the device's configuration setting (computrainer_serial_port). 
 - if an enabling configuration is requested (enable==true) a string that is known to be accepted is supplied
@@ -247,7 +247,7 @@ Detection code from bluetooth.cpp:
 ((b.name().toUpper().startsWith("KICKR CORE")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)) && deviceHasService(b, QBluetoothUuid((quint16)0x1818)))
 ```
 
-This is actually a more complicated example where the current test data classes can't cover all the detection criteria in one implementation. This is why this class inherits from StagesBikeTestData rather than BikeTestData directly.
+This condition is actually extracted from a more complicated example where the current test data classes can't cover all the detection criteria in one implementation. This is why this class inherits from StagesBikeTestData rather than BikeTestData directly.
 
 ```
 class StagesBike3TestData : public StagesBikeTestData {
@@ -345,11 +345,11 @@ QString powerSensorName =
 
 This presents 3 scenarios for the current test framework. 
 1. Match names only (starts with:"STAGES ", starts with: "TACX SATORI", equals: "QD")
-2. Match the name "KICKR CORE", presence and absense of specific service ids
-3. Match the name "ASSIOMA" and the power sensor name setting is not "Disabled"
+2. Match the name "KICKR CORE", presence and absence of specific service ids
+3. Match the name "ASSIOMA" and the power sensor name setting starts with "Disabled"
 					   
 The framework is not currently capable of specifying all these scenarios in a single class. 
-The generated test data is loosely the combinations of these lists: names * settings * bluetoothdeviceInfo * exclusions.
+The generated test data is approximately the combinations of these lists: names * settings * bluetoothdeviceInfo * exclusions.
 If a combination should not exist, a separate class should be used.
 
 In the example of the StagesBikeTestData classes, the exclusions, which apply to all situations, are implemented in the superclass StagesBikeTestData,
