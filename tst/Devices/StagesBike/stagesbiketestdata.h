@@ -1,8 +1,6 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-#include "Devices/FTMSBike/ftmsbiketestdata.h"
-
 #include "devices/stagesbike/stagesbike.h"
 
 class StagesBikeTestData : public BikeTestData {
@@ -25,6 +23,7 @@ class StagesBike1TestData : public StagesBikeTestData {
 public:
     StagesBike1TestData() : StagesBikeTestData("Stages Bike") {
         this->addDeviceName("STAGES ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("QD", comparison::IgnoreCase);
     }
 
 };
