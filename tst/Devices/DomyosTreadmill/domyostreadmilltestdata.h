@@ -4,7 +4,8 @@
 
 
 class DomyosTreadmillTestData : public TreadmillTestData {
-
+protected:
+    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override;
 public:
     DomyosTreadmillTestData();
 
@@ -14,6 +15,5 @@ public:
 
     bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const override;
 
-    QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true) override;
 };
 
