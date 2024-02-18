@@ -46,11 +46,16 @@ bool qserialdatasource::open(const QString& portName) {
     this->serial->setFlowControl(QSerialPort::NoFlowControl);
     this->serial->setParity(QSerialPort::NoParity);
     this->serial->setReadBufferSize(4096);
+
     return this->serial->open(QIODevice::ReadWrite);
 }
 
 qint64 qserialdatasource::write(const QByteArray &data) {
     return this->serial->write(data);
+}
+
+void qserialdatasource::flush() {
+    this->serial->flush();
 }
 
 bool qserialdatasource::waitForReadyRead() {

@@ -24,9 +24,21 @@ class serialdatasource
      * @return Boolean indicating success.
      */
     virtual bool open(const QString& portName) = 0;
-    virtual qint64 write(const QByteArray& data)=0;
+
     /**
-     * @brief Returns true/false to indicate if data is ready for reading after 1ms.
+     * @brief Writes the specified data to the port.
+     * @param data The data to write.
+     * @return
+     */
+    virtual qint64 write(const QByteArray& data)=0;
+
+    /**
+     * @brief Flush the port buffer.
+     */
+    virtual void flush() = 0;
+
+    /**
+     * @brief Returns true/false to indicate if data is ready for reading after a maximum of 1ms.
      * @return
      */
     virtual bool waitForReadyRead()=0;
