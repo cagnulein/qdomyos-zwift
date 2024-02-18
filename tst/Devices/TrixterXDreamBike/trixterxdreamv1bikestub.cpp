@@ -52,7 +52,14 @@ bool TrixterXDreamV1BikeStub::open(const QString& portName) {
     return true;
 }
 
-qint64 TrixterXDreamV1BikeStub::write(const QByteArray &data) { bytesWritten.append(data); return data.size(); }
+qint64 TrixterXDreamV1BikeStub::write(const QByteArray &data) {
+    bytesWritten.append(data);
+    return data.size();
+}
+
+void TrixterXDreamV1BikeStub::flush() {
+
+}
 
 bool TrixterXDreamV1BikeStub::waitForReadyRead() {
     QThread::msleep(1);

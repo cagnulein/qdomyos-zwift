@@ -40,6 +40,7 @@ public:
 
     bool open(const QString& portName) override;
     qint64 write(const QByteArray& data) override;
+    void flush() override;
     bool waitForReadyRead() override;
     QByteArray readAll() override;
     qint64 readBufferSize() override;

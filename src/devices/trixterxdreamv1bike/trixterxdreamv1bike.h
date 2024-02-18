@@ -48,11 +48,6 @@ private:
     uint8_t brakeLevel = 0;
 
     /**
-     * @brief The id for identifying the resistance timer in void timerEvent(QEvent*).
-     */
-    int resistanceTimerId = 0;
-
-    /**
      * @brief The id for identifying the settings update timer in void timerEvent(QEVent*).
      */
     int settingsUpdateTimerId = 0;
@@ -123,6 +118,11 @@ private:
     uint32_t lastPacketProcessedTime=0;
 
     /**
+     * @brief The last time (from getTime()) a resistance packet was sent.
+     */
+    uint32_t lastResistancePacketTime = 0;
+
+    /**
      * @brief The application settings.
      */
     trixterxdreamv1settings * appSettings = nullptr;
@@ -148,7 +148,7 @@ private:
     void update();
 
     /**
-     * @brief Gets the time in miliseconds since this object was created.
+     * @brief Gets a measure of time in milliseconds.
      */
     static uint32_t getTime();
 

@@ -138,13 +138,13 @@ bool trixterxdreamv1bike::connect(QString portName) {
     this->disconnectPort();
 
     // Get the current time in milliseconds since ancient times.
-    // This will be subtracted from further readings from getTime() to get an easier to look at number.
     this->t0 = getTime();
 
     // create the port object and connect it
     auto thisObject = this;
     this->port = new trixterxdreamv1serial(this);
     this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->receiveBytes(bytes);});
+    this->port->set_getTime(getTime);
 
     // tell the client where to get the time
     this->client.set_GetTime(getTime);
@@ -173,7 +173,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     }
 
     // wait for up to the configured connection timeout for some packets to arrive
-    for(uint32_t start = getTime(), t=start, limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); t<limit; t=getTime()) {
+    for(uint32_t start = getTime(), limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); getTime()<limit;) {
         if(this->connected()) {
             qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
             break;
@@ -190,12 +190,9 @@ bool trixterxdreamv1bike::connect(QString portName) {
 
     if(!this->noWriteResistance)
     {
-        this->resistanceTimerId = this->startTimer(trixterxdreamv1client::ResistancePulseIntervalMilliseconds, Qt::PreciseTimer);
-        if(this->resistanceTimerId==0)
-        {
-            qDebug() << "Failed to start resistance timer";
-            throw "Failed to start resistance timer";
-        }
+        // latch onto the port accessor's pulse to send the resistance signal
+        this->port->set_pulse([thisObject]()->void{thisObject->updateResistance();},
+                              trixterxdreamv1client::ResistancePulseIntervalMilliseconds);
     }
 
     this->settingsUpdateTimerId = this->startTimer(SettingsUpdateTimerIntervalMilliseconds, Qt::VeryCoarseTimer);
@@ -219,11 +216,6 @@ void trixterxdreamv1bike::disconnectPort() {
         qDebug() << "Killing metricsUpdate timer";
         this->killTimer(this->metricsUpdateTimerId);
         this->metricsUpdateTimerId = 0;
-    }
-    if(this->resistanceTimerId) {
-        qDebug() << "Killing resistance timer";
-        this->killTimer(this->resistanceTimerId);
-        this->resistanceTimerId = 0;
     }
     if(this->settingsUpdateTimerId) {
         qDebug() << "Killing settings update timer";
@@ -349,10 +341,7 @@ void trixterxdreamv1bike::timerEvent(QTimerEvent *event) {
     int timerId = event->timerId();
 
     // check the options, most frequent to least frequent
-    if(timerId==this->resistanceTimerId){
-        event->accept();
-        this->updateResistance();
-    } else if(timerId==this->metricsUpdateTimerId) {
+    if(timerId==this->metricsUpdateTimerId) {
         event->accept();
         this->update();
     } else if(timerId==this->settingsUpdateTimerId) {
@@ -650,7 +639,22 @@ uint16_t trixterxdreamv1bike::watts() {
 void trixterxdreamv1bike::updateResistance() {
     QMutexLocker locker(&this->updateMutex);
     resistance_t actualResistance = this->stopping ? (trixterxdreamv1client::MaxResistance): this->resistanceLevel;
+
+    // get the time the request is made
+    uint32_t t = getTime();
+
     this->client.SendResistance(actualResistance);
+
+    // determine if the request was late
+    int32_t late = t - this->lastResistancePacketTime - trixterxdreamv1client::ResistancePulseIntervalMilliseconds;
+    this->lastResistancePacketTime = t;
+
+    // no need to lock access
+    locker.unlock();
+
+    if(late>0) {
+        qDebug() << QStringLiteral("WARNING: resistance packet was sent %1ms too late").arg(late);
+    }
 }
 
 trixterxdreamv1bike::~trixterxdreamv1bike() {

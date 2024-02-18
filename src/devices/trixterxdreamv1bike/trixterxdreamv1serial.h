@@ -33,11 +33,27 @@ public:
     void write(const QByteArray& buffer);
 
     /**
-     * @brief set_receiveBytes Set a delegate to receive bytes. This is an alternative
+     * @brief Set a function pointer to receive bytes. This is an alternative
      * to sublcassing and overrding the virtual receive function.
      * @param value
      */
     void set_receiveBytes(std::function<void(const QByteArray& bytes)> value) { this->receiveBytes = value; }
+
+    /**
+     * @brief Sets an optional pulse function - while this object's thread is running, the pulse
+     * function is called repeatedly with a period defined by the pulse interval. The pulse function
+     * should take less than 1ms.
+     * @param function The pulse function.
+     * @param pulseIntervalMilliseconds
+     */
+    void set_pulse(std::function<void()> function, uint32_t pulseIntervalMilliseconds);
+
+    /**
+     * @brief Sets the function to get the time in milliseconds since
+     * a starting point understood by the client.
+     * @param get_time_ms A function to get the time.
+     */
+    void set_getTime(std::function<uint32_t()> get_time_ms);
 
     /**
      * @brief availablePorts Returns a list of port names for the serial ports found in the system
@@ -52,14 +68,13 @@ protected:
      */
     virtual void receive(const QByteArray &bytes);
 
-    /**
-     * @brief error Log an error.
-     * @param s The error text.
-     */
-    virtual void error(const QString &s);
-
   private:
     void run() override;
+
+    /**
+     * @brief The number of milliseconds the pulse function should execute in.
+     */
+    const uint32_t pulseTolerance = 1;
 
     QMutex writeBufferMutex;
     QByteArray writeBuffer;
@@ -69,6 +84,9 @@ protected:
     QAtomicInt openAttemptsPending{0};
     QAtomicInt quitPending{0};
     std::function<void(const QByteArray& bytes)> receiveBytes=nullptr;
+    std::function<uint32_t()> getTime=nullptr;
+    std::function<void()> pulse=nullptr;
+    uint32_t pulseIntervalMilliseconds = 10;
 };
 
 #endif // TRIXTERXDREAMSERIAL_H
