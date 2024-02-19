@@ -428,19 +428,19 @@ uint16_t nautilusbike::wattsFromResistance(double resistance) {
     double coefResistanceSquared = -0.01031992;
 
     double wattage = intercept +
-                     coefCadence * Cadence.value() +
+                     coefCadence * Cadence.average5s() +
                      coefResistance * resistance +
-                     coefCadenceSquared * Cadence.value() * Cadence.value() +
-                     coefCadenceResistance * Cadence.value() * resistance +
+                     coefCadenceSquared * Cadence.average5s() * Cadence.average5s() +
+                     coefCadenceResistance * Cadence.average5s() * resistance +
                      coefResistanceSquared * resistance * resistance;
 
     return wattage;
 }
 
 resistance_t nautilusbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.average5s();
 
-    if (Cadence.value() == 0)
+    if (Cadence.average5s() == 0)
         return 1;
 
     for (resistance_t i = 1; i < maxResistance(); i++) {
