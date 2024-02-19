@@ -416,3 +416,47 @@ void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState 
 }
 
 uint16_t nautilusbike::watts() { return m_watt.value(); }
+
+
+uint16_t nautilusbike::wattsFromResistance(double resistance) {
+    // power table nautilus u626 #2118
+    double intercept = 12.16860795336126;
+    double coefCadence = 0.12260211;
+    double coefResistance = -0.39240546;
+    double coefCadenceSquared = 0.00464781;
+    double coefCadenceResistance = 0.34516268;
+    double coefResistanceSquared = -0.01031992;
+
+    double wattage = intercept +
+                     coefCadence * Cadence.value() +
+                     coefResistance * resistance +
+                     coefCadenceSquared * Cadence.value() * Cadence.value() +
+                     coefCadenceResistance * Cadence.value() * resistance +
+                     coefResistanceSquared * resistance * resistance;
+
+    return wattage;
+}
+
+resistance_t nautilusbike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return maxResistance();
+}
+
+resistance_t nautilusbike::maxResistance() {
+    // power table nautilus u626 #2118
+    return 25;
+}
