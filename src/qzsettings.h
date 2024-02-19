@@ -2028,6 +2028,9 @@ class QZSettings {
     static const QString toorx_srx_3500;
     static constexpr bool default_toorx_srx_3500 = false;
 
+    static const QString stryd_speed_instead_treadmill;
+    static constexpr bool default_stryd_speed_instead_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

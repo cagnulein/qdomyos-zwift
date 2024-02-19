@@ -452,3 +452,13 @@ QTime treadmill::lastRequestedPace() {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
+
+void treadmill::parseSpeed(double speed) {
+    QSettings settings;
+    bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+    if(!stryd_speed_instead_treadmill) {
+        Speed = speed;
+    } else {
+        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
+    }
+}

@@ -76,6 +76,8 @@ class treadmill : public bluetoothdevice {
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
 
+    void parseSpeed(double speed);
+
   private:
     bool simulateInclinationWithSpeed();
     void evaluateStepCount();
