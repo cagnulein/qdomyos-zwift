@@ -2025,6 +2025,9 @@ class QZSettings {
     static const QString tile_erg_mode_order;
     static constexpr int default_tile_erg_mode_order = 52;
 
+    static const QString toorx_srx_3500;
+    static constexpr bool default_toorx_srx_3500 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

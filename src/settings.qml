@@ -912,6 +912,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.44
             property bool tile_erg_mode_enabled: false
             property int  tile_erg_mode_order: 52
+
+            // from version 2.16.45
+            property bool toorx_srx_3500: false
         }
 
         function paddingZeros(text, limit) {
@@ -6828,6 +6831,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Toorx SRX 3500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_srx_3500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorx_srx_3500 = checked; window.settings_restart_to_apply = true; }
+                    } 
 
                     SwitchDelegate {
                         text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
