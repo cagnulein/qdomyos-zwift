@@ -1157,32 +1157,44 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
 }
 
 uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
-    double P;
-    // Toorx SRX 3500 #1999
-    P = 37.069 
-        - 1.483 * Cadence.value() 
-        - 4.942 * resistance 
-        + 0.023 * Cadence.value() * Cadence.value() 
-        + 0.336 * Cadence.value() * resistance 
-        - 0.036 * resistance * resistance;
-    return P;
+    QSettings settings;
+    bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
+    if(toorx_srx_3500) {
+        double P;
+        // Toorx SRX 3500 #1999
+        P = 37.069 
+            - 1.483 * Cadence.value() 
+            - 4.942 * resistance 
+            + 0.023 * Cadence.value() * Cadence.value() 
+            + 0.336 * Cadence.value() * resistance 
+            - 0.036 * resistance * resistance;
+        return P;
+    } else {
+        qDebug() << "no power table for this bike";
+    }
 }
 
 resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    QSettings settings;
+    bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
+    if(toorx_srx_3500) {
+        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    if (Cadence.value() == 0)
-        return 1;
+        if (Cadence.value() == 0)
+            return 1;
 
-    for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
+        for (resistance_t i = 1; i < maxResistance(); i++) {
+            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                        << wattsFromResistance(i + 1) << power;
+                return i;
+            }
         }
+        if (power < wattsFromResistance(1))
+            return 1;
+        else
+            return maxResistance();
+    } else {
+        return power / 10;
     }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
 }

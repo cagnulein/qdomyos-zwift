@@ -37,7 +37,7 @@ public:
 
         qDebug() << zapType << characteristicName << bytes.toHex() ;
 
-#ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID_ENCRYPTION
         QAndroidJniEnvironment env;
         jbyteArray d = env->NewByteArray(bytes.length());
         jbyte *b = env->GetByteArrayElements(d, 0);
@@ -77,12 +77,13 @@ public:
                 }
                 break;
         }
+        return 1;
 #endif
 
     }
 
     QByteArray buildHandshakeStart() {
-#ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID_ENCRYPTION
         QAndroidJniObject result =
             QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/ZapClickLayer", "buildHandshakeStart", "()[B");
         if (result.isValid()) {

@@ -285,6 +285,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         bool nordictrack_ifit_adb_remote =
             settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)
                 .toBool();
+        double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
 
         // only resistance
         if(proform_studio_NTEX71021) {
@@ -322,7 +323,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             qDebug() << QString::number(ret) + " >> " + message;                
         }
         // since the motor of the bike is slow, let's filter the inclination changes to more than 4 seconds
-        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > 4) {
+        else if (lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
             lastInclinationChanged = QDateTime::currentDateTime();
             if (nordictrack_ifit_adb_remote) {
                 bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();

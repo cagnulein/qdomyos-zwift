@@ -257,6 +257,7 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #ifdef Q_OS_ANDROID
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
+        qDebug() << "WearOS Companion Heart:" << Heart.value();
 #endif
     }
 }
