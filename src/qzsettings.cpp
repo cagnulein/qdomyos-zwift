@@ -722,8 +722,9 @@ const QString QZSettings::tile_step_count_order = QStringLiteral("tile_step_coun
 const QString QZSettings::tile_erg_mode_enabled = QStringLiteral("tile_erg_mode_enabled");
 const QString QZSettings::tile_erg_mode_order = QStringLiteral("tile_erg_mode_order");
 const QString QZSettings::toorx_srx_3500 = QStringLiteral("toorx_srx_3500");
+const QString QZSettings::inclination_delay_seconds = QStringLiteral("inclination_delay_seconds");
 
-const uint32_t allSettingsCount = 609;
+const uint32_t allSettingsCount = 610;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1339,6 +1340,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_erg_mode_enabled, QZSettings::default_tile_erg_mode_enabled},
     {QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order},
     {QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500},
+    {QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
