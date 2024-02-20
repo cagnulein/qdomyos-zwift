@@ -11,9 +11,15 @@ treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
     QSettings settings;
+    bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    if(stryd_speed_instead_treadmill) {
+        double delta = (Speed.value() - rawSpeed.value());
+        qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
+        speed -= delta;
+    }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
@@ -128,6 +134,7 @@ void treadmill::clearStats() {
     moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
+    rawSpeed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
@@ -148,6 +155,7 @@ void treadmill::setPaused(bool p) {
     moving.setPaused(p);
     elapsed.setPaused(p);
     Speed.setPaused(p);
+    rawSpeed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
@@ -165,6 +173,7 @@ void treadmill::setLap() {
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
+    rawSpeed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
@@ -461,4 +470,5 @@ void treadmill::parseSpeed(double speed) {
     } else {
         qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
     }
+    rawSpeed = speed;
 }
