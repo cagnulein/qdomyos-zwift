@@ -15,7 +15,7 @@ void treadmill::changeSpeed(double speed) {
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
-    if(stryd_speed_instead_treadmill) {
+    if(stryd_speed_instead_treadmill && Speed.value() > 0) {
         double delta = (Speed.value() - rawSpeed.value());
         qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
         speed -= delta;
