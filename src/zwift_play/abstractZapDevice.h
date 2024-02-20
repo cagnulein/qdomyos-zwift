@@ -77,6 +77,7 @@ public:
                 }
                 break;
         }
+        return 1;
 #endif
 
     }
