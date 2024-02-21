@@ -11,7 +11,7 @@ int CharacteristicNotifier2A53::notify(QByteArray &value) {
     uint32_t distance = Bike->odometer() * 10000.0;
     value.append((char)((speed & 0xFF)));
     value.append((char)((speed >> 8) & 0xFF));
-    value.append((char)(Bike->currentCadence().value()));
+    value.append((char)(Bike->currentCadence().value() / 2.0));
     value.append((char)((distance & 0xFF)));
     value.append((char)((distance >> 8) & 0xFF));
     value.append((char)((distance >> 16) & 0xFF));
