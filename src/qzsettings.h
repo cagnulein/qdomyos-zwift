@@ -2031,6 +2031,9 @@ class QZSettings {
     static const QString inclination_delay_seconds;
     static constexpr float default_inclination_delay_seconds = 0.0;
 
+    static const QString cadence_sensor_zwift_half;
+    static constexpr bool default_cadence_sensor_zwift_half = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

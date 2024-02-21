@@ -916,6 +916,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.45
             property bool toorx_srx_3500: false
             property real inclination_delay_seconds: 0.0
+            property bool cadence_sensor_zwift_half: false
         }
 
         function paddingZeros(text, limit) {
@@ -8261,6 +8262,33 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            SwitchDelegate {
+                                text: qsTr("Doubling Cadence for Run Only on Zwift")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.cadence_sensor_zwift_half
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.cadence_sensor_zwift_half = checked
+                            }
+
+                            Label {
+                                text: qsTr("Sometimes you can see cadence for run on Zwift doubled. This setting will fix this behavior. Disabled by default")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             SwitchDelegate {
                                 id: powerSensorRunCadenceHalfStravaDelegate

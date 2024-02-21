@@ -8,7 +8,7 @@ CharacteristicNotifier2A53::CharacteristicNotifier2A53(bluetoothdevice *Bike, QO
 
 int CharacteristicNotifier2A53::notify(QByteArray &value) {
     QSettings settings;
-    bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
+    bool double_cadence = settings.value(QZSettings::cadence_sensor_zwift_half, QZSettings::default_cadence_sensor_zwift_half).toBool();
     double cadence_multiplier = 1.0;
     if (double_cadence)
         cadence_multiplier = 2.0;    
