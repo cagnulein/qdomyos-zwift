@@ -123,7 +123,7 @@ jobs:
             cd ../..
 
       - name: Secrets
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -209,7 +209,7 @@ jobs:
         if:  ${{ ! matrix.config.python }}
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/main'
+      #   if: github.ref == 'refs/heads/master'
       #   run: exit 1
 
       # - uses: actions/checkout@v3
@@ -636,7 +636,7 @@ jobs:
           path: ${{ github.workspace }}/output/android/build/outputs/apk/debug/
 
       # - name: Exit if not on master branch
-      #   if: github.ref == 'refs/heads/main'
+      #   if: github.ref == 'refs/heads/master'
       #   run: exit 1
 
       # - name: upload windows artifact
@@ -814,7 +814,7 @@ jobs:
             cd ../..          
 
       - name: Secrets
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
@@ -963,7 +963,7 @@ jobs:
             cd ../..          
 
       - name: Secrets
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           cd src
           echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
