@@ -4808,16 +4808,35 @@ void homeform::update() {
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-
-                        const int step = 1;
+                        double step = 1;
+                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
+                        if(ergMode) {
+                            step = 10;
+                        }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
+                        double current_target_watt = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
                         if (zone < ((uint8_t)currentHRZone)) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > ((uint8_t)currentHRZone) && maxResistance >= currentResistance + step) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt - step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else if (zone > ((uint8_t)currentHRZone) && ((maxResistance >= currentResistance + step && !ergMode) || ergMode)) {
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else {
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > (5 * fabs(((float)zone) - currentHRZone))) {
+                                if(ergMode)
+                                    ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                                else
+                                    ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
 
