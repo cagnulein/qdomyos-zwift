@@ -4811,7 +4811,7 @@ void homeform::update() {
                         double step = 1;
                         bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
                         if(ergMode) {
-                            step = 10;
+                            step = 5;
                         }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
