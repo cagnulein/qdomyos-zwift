@@ -67,14 +67,14 @@ void smartspin2k::lowInit(resistance_t resistance) {
     forceResistance(resistance);
     QThread::sleep(2);
     writeCharacteristic(disable_syncmode, sizeof(disable_syncmode), "BLE_syncMode disabling", false, true);
-
+/*
     uint8_t simulate_watt[] = {0x02, 0x0E, 0x01};
     uint8_t simulate_cad[] = {0x02, 0x0F, 0x01};
     uint8_t simulate_hr[] = {0x02, 0x0D, 0x01};
 
     writeCharacteristic(simulate_watt, sizeof(simulate_watt), "simulate_watt", false, true);
     writeCharacteristic(simulate_cad, sizeof(simulate_cad), "simulate_cad", false, true);
-    writeCharacteristic(simulate_hr, sizeof(simulate_hr), "simulate_hr", false, true);
+    writeCharacteristic(simulate_hr, sizeof(simulate_hr), "simulate_hr", false, true);*/
 }
 
 void smartspin2k::resistanceReadFromTheBike(resistance_t resistance) {
@@ -253,6 +253,7 @@ void smartspin2k::update() {
             sec1Update = 0;
 
             if (parentDevice) {
+/*
                 // watt sync
                 uint8_t watt[] = {0x02, 0x03, 0x00, 0x00};
                 watt[2] = (uint8_t)((uint16_t)(parentDevice->wattsMetric().value()) & 0xFF);
@@ -280,7 +281,7 @@ void smartspin2k::update() {
                 writeCharacteristic(
                     heart, sizeof(heart),
                     QStringLiteral("heart sync ") + QString::number(parentDevice->currentHeart().value()), false, true);
-            }
+           */ }
         }
 
         if (parentDevice && parentDevice->ergManagedBySS2K() && parentDevice->lastRequestedPower().value() != 0) {
