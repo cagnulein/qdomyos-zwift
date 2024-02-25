@@ -38,9 +38,10 @@ private:
     trixterxdreamv1serial * port = nullptr;
 
     /**
-     * @brief Indicates if the deice should be sent full resistance instead of the currently requested resistance.
+     * @brief Indicates if the device should be sent full resistance instead of the currently requested resistance.
      */
-    bool stopping = false;
+    QAtomicInt stopping = 0;
+
 
     /**
      * @brief Sum of brakes 1 and 2 each normalised to 0..125.
@@ -86,7 +87,7 @@ private:
     /**
      * @brief The last requested resistance level, actual value sent to device.
      */
-    resistance_t resistanceLevel = 0;
+    QAtomicInt resistanceLevel = 0;
 
     /**
      * @brief The simulated circumference of the bike's wheels, for converting

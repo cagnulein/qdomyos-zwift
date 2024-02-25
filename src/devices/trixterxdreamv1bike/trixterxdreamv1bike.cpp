@@ -2,7 +2,7 @@
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
 #include "qcoreevent.h"
-
+#include <algorith>
 #include <cmath>
 #include <qmath.h>
 #include <QTimer>
@@ -388,7 +388,7 @@ void trixterxdreamv1bike::update() {
     // If there are no states waiting to be processed, clear the metrics and return.
     if(ups.empty()) {
         qDebug() << "no states in queue";
-        this->stopping = false;
+        this->stopping = 0;
         this->Speed.setValue(0);
         this->brakeLevel = 0;
         this->m_steeringAngle.setValue(0);
@@ -438,7 +438,7 @@ void trixterxdreamv1bike::update() {
     }
 
     // Determine if the user is pressing the button to stop.
-    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0 && flywheel>0.0;
+    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0 && flywheel>0.0 ? 1:0;
 
     // update the metrics
     if(!this->noHeartRate)
@@ -638,7 +638,12 @@ uint16_t trixterxdreamv1bike::watts() {
 
 void trixterxdreamv1bike::updateResistance() {
     QMutexLocker locker(&this->updateMutex);
-    resistance_t actualResistance = this->stopping ? (trixterxdreamv1client::MaxResistance): this->resistanceLevel;
+    resistance_t actualResistance;
+
+    if(this->stopping==1)
+        actualResistance = trixterxdreamv1client::MaxResistance;
+    else
+        actualResistance = std::max(trixterxdreamv1client::MaxResistance, this->resistanceLevel);
 
     // get the time the request is made
     uint32_t t = getTime();
