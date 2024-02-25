@@ -913,6 +913,10 @@ import QtQuick.Dialogs 1.0
             property bool tile_erg_mode_enabled: false
             property int  tile_erg_mode_order: 52
 
+            // from version 2.16.45
+            property bool toorx_srx_3500: false
+            property real inclination_delay_seconds: 0.0
+
             // from version ?
             property bool trixter_xdream_v1_bike: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -5795,7 +5799,7 @@ import QtQuick.Dialogs 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     color: Material.color(Material.Lime)
-                }                                
+                }            
 
                 NewPageElement {
                     title: qsTr("Inclination Overrides")
@@ -7021,6 +7025,20 @@ import QtQuick.Dialogs 1.0
                     }
 
                     SwitchDelegate {
+                        text: qsTr("Toorx SRX 3500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_srx_3500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorx_srx_3500 = checked; window.settings_restart_to_apply = true; }
+                    } 
+
+                    SwitchDelegate {
                         text: qsTr("Enerfit SPX 9500 / Toorx SRX 500")
                         spacing: 0
                         bottomPadding: 0
@@ -8158,6 +8176,42 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
                     }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Inclination Delay:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillInclinationDelayTextField
+                            text: settings.inclination_delay_seconds
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.inclination_delay_seconds = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.inclination_delay_seconds = treadmillInclinationDelayTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("This slow down the inclination changes adding a delay between each change. This is not applied to all the model of treadmill/bike. Default is 0.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }                    
                 }
             }
 
