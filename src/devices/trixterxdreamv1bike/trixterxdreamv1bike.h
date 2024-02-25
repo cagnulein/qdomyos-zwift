@@ -40,7 +40,7 @@ private:
     /**
      * @brief Indicates if the device should be sent full resistance instead of the currently requested resistance.
      */
-    QAtomicInt stopping = 0;
+    QAtomicInteger<bool> stopping = false;
 
 
     /**
@@ -87,7 +87,7 @@ private:
     /**
      * @brief The last requested resistance level, actual value sent to device.
      */
-    QAtomicInt resistanceLevel = 0;
+    QAtomicInteger<resistance_t> resistanceLevel = 0;
 
     /**
      * @brief The simulated circumference of the bike's wheels, for converting

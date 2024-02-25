@@ -2,7 +2,7 @@
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
 #include "qcoreevent.h"
-#include <algorith>
+#include <algorithm>
 #include <cmath>
 #include <qmath.h>
 #include <QTimer>
@@ -637,13 +637,8 @@ uint16_t trixterxdreamv1bike::watts() {
 }
 
 void trixterxdreamv1bike::updateResistance() {
-    QMutexLocker locker(&this->updateMutex);
-    resistance_t actualResistance;
 
-    if(this->stopping==1)
-        actualResistance = trixterxdreamv1client::MaxResistance;
-    else
-        actualResistance = std::max(trixterxdreamv1client::MaxResistance, this->resistanceLevel);
+    resistance_t actualResistance = this->stopping ?  (resistance_t)trixterxdreamv1client::MaxResistance : std::max((uint32_t)this->resistanceLevel,(uint32_t)trixterxdreamv1client::MaxResistance );
 
     // get the time the request is made
     uint32_t t = getTime();
@@ -653,9 +648,6 @@ void trixterxdreamv1bike::updateResistance() {
     // determine if the request was late
     int32_t late = t - this->lastResistancePacketTime - trixterxdreamv1client::ResistancePulseIntervalMilliseconds;
     this->lastResistancePacketTime = t;
-
-    // no need to lock access
-    locker.unlock();
 
     if(late>0) {
         qDebug() << QStringLiteral("WARNING: resistance packet was sent %1ms too late").arg(late);
