@@ -84,6 +84,7 @@ class bike : public bluetoothdevice {
 
     double m_gears = 0;
     resistance_t lastRawRequestedResistanceValue = -1;
+    double lastRawRequestedInclinationValue = -100;
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;
 
