@@ -2069,7 +2069,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 fitPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(fitPlusBike);
-            } else if (b.name().startsWith(QStringLiteral("EW-TM-")) &&
+            } else if (b.name().toUpper().startsWith(QStringLiteral("EW-TM-")) &&
                        !focusTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
