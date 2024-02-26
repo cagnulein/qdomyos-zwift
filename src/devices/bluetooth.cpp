@@ -852,6 +852,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(domyosBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) &&
+                       !trxappgateusbElliptical && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                trxappgateusbElliptical = new trxappgateusbelliptical(noWriteResistance, noHeartService,
+                                                        bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(trxappgateusbElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(trxappgateusbElliptical, &trxappgateusbelliptical::debug, this, &bluetooth::debug);
+                trxappgateusbElliptical->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, trxappgateusbElliptical, &trxappgateusbelliptical::searchingStop);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(trxappgateusbElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosElliptical && filter) {
                 this->setLastBluetoothDevice(b);
@@ -2785,6 +2802,11 @@ void bluetooth::restart() {
         delete trxappgateusbBike;
         trxappgateusbBike = nullptr;
     }
+    if (trxappgateusbElliptical) {
+
+        delete trxappgateusbElliptical;
+        trxappgateusbElliptical = nullptr;
+    }
     if (soleBike) {
 
         delete soleBike;
@@ -3144,6 +3166,8 @@ bluetoothdevice *bluetooth::device() {
         return trxappgateusb;
     } else if (trxappgateusbBike) {
         return trxappgateusbBike;
+    } else if (trxappgateusbElliptical) {
+        return trxappgateusbElliptical;
     } else if (soleBike) {
         return soleBike;
     } else if (keepBike) {

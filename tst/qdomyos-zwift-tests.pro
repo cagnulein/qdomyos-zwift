@@ -138,5 +138,6 @@ HEADERS += \
     Devices/iConceptBike/iconceptbiketestdata.h \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/YpooElliptical/ypooellipticaltestdata.h \
+    Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h
