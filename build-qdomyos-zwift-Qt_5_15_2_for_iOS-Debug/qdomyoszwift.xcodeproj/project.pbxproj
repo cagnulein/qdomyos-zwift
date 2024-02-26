@@ -399,6 +399,8 @@
 		87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */; };
 		87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F025F260140094A1CB /* moc_snodebike.cpp */; };
 		87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F125F260150094A1CB /* moc_screencapture.cpp */; };
+		87BAFE482B8CA7AA00065FCD /* moc_focustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BAFE472B8CA7AA00065FCD /* moc_focustreadmill.cpp */; };
+		87BAFE4B2B8CAA4200065FCD /* focustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */; };
 		87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */; };
 		87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87BB1775269E987000F46A1C /* libQt5HttpServer.a */; };
 		87BCE6BD29F28F72001F70EB /* ypooelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BCE6BC29F28F72001F70EB /* ypooelliptical.cpp */; };
@@ -1253,6 +1255,9 @@
 		87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitshowtreadmill.cpp; sourceTree = "<group>"; };
 		87B617F025F260140094A1CB /* moc_snodebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_snodebike.cpp; sourceTree = "<group>"; };
 		87B617F125F260150094A1CB /* moc_screencapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_screencapture.cpp; sourceTree = "<group>"; };
+		87BAFE472B8CA7AA00065FCD /* moc_focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_focustreadmill.cpp; sourceTree = "<group>"; };
+		87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = focustreadmill.cpp; path = ../src/devices/focustreadmill/focustreadmill.cpp; sourceTree = "<group>"; };
+		87BAFE4A2B8CAA4200065FCD /* focustreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = focustreadmill.h; path = ../src/devices/focustreadmill/focustreadmill.h; sourceTree = "<group>"; };
 		87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_webserverinfosender.cpp; sourceTree = "<group>"; };
 		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = ../../Qt/5.15.2/ios/lib/libQt5HttpServer.a; sourceTree = "<group>"; };
 		87BCE6BB29F28F72001F70EB /* ypooelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ypooelliptical.h; path = ../src/devices/ypooelliptical/ypooelliptical.h; sourceTree = "<group>"; };
@@ -1954,6 +1959,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */,
+				87BAFE4A2B8CAA4200065FCD /* focustreadmill.h */,
+				87BAFE472B8CA7AA00065FCD /* moc_focustreadmill.cpp */,
 				876E50FD2B701C1E0080FAAF /* abstractZapDevice.h */,
 				876E50FE2B701C1E0080FAAF /* controllerNotification.h */,
 				876E50F62B701C1E0080FAAF /* encryptionUtils.h */,
@@ -3059,6 +3067,7 @@
 				8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */,
 				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
 				87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */,
+				87BAFE482B8CA7AA00065FCD /* moc_focustreadmill.cpp in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
 				8738249827E646E3004F1B46 /* dirconmanager.cpp in Compile Sources */,
 				87D4693629B64D8100C9A382 /* ios_app_delegate.mm in Compile Sources */,
@@ -3423,6 +3432,7 @@
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
 				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
+				87BAFE4B2B8CAA4200065FCD /* focustreadmill.cpp in Compile Sources */,
 				874D272029AFA11F0007C079 /* apexbike.cpp in Compile Sources */,
 				8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */,
 				87C5F0B626285E5F0067A1B5 /* quotedprintable.cpp in Compile Sources */,
