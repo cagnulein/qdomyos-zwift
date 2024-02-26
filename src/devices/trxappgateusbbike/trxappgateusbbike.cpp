@@ -1190,9 +1190,9 @@ uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
 }
 
 resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
-    QSettings settings;
-    bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
-    if(toorx_srx_3500) {
+    //QSettings settings;
+    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
+    /*if(toorx_srx_3500)*/ {
         qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
         if (Cadence.value() == 0)
@@ -1209,7 +1209,7 @@ resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
             return 1;
         else
             return maxResistance();
-    } else {
+    } /*else {
         return power / 10;
-    }
+    }*/
 }
