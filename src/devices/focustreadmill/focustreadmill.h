@@ -57,6 +57,7 @@ class focustreadmill : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+    bool searchStopped = false;
 
     int64_t lastStart = 0;
     int64_t lastStop = 0;
@@ -78,6 +79,7 @@ class focustreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
   private slots:
 

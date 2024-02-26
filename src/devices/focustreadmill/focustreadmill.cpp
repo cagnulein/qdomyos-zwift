@@ -446,3 +446,6 @@ bool focustreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     else
         return false;
 }*/
+
+
+void focustreadmill::searchingStop() { searchStopped = true; }
