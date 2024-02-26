@@ -31,6 +31,7 @@
 #include "FakeTreadmill/faketreadmilltestdata.h"
 #include "FitPlusBike/fitplusbiketestdata.h"
 #include "FitshowTreadmill/fitshowtreadmilltestdata.h"
+#include "FocusTreadmill/focustreadmilltestdata.h"
 #include "FlywheelBike/flywheelbiketestdata.h"
 #include "FTMSBike/ftmsbiketestdata.h"
 #include "FTMSRower/ftmsrowertestdata.h"
@@ -125,6 +126,7 @@ FitPlusBikeMRKTestData,
 FitshowTreadmillBFTestData,
 FitshowTreadmillFSTestData,
 FitshowTreadmillSWTestData,
+FocusTreadmillTestData,
 FlywheelBike1TestData,
 FlywheelBike2TestData,
 HorizonGR7BikeTestData,

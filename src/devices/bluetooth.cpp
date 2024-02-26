@@ -2069,6 +2069,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 fitPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(fitPlusBike);
+            } else if (b.name().startsWith(QStringLiteral("EW-TM-")) &&
+                       !focusTreadmill && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                focusTreadmill = new focustreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                emit deviceConnected(b);
+                connect(focusTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(focusTreadmill, &focustreadmill::debug, this, &bluetooth::debug);
+                focusTreadmill->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, focusTreadmill, &focustreadmill::searchingStop);
+                if (this->discoveryAgent && !this->discoveryAgent->isActive())
+                    emit searchingStop();
+                this->signalBluetoothDeviceConnected(focusTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
                         b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
@@ -2559,6 +2573,11 @@ void bluetooth::restart() {
 
         delete fitshowTreadmill;
         fitshowTreadmill = nullptr;
+    }
+    if (focusTreadmill) {
+
+        delete focusTreadmill;
+        focusTreadmill = nullptr;
     }
     if (horizonTreadmill) {
 
@@ -3067,6 +3086,8 @@ bluetoothdevice *bluetooth::device() {
         return domyosRower;
     } else if (fitshowTreadmill) {
         return fitshowTreadmill;
+    } else if (focusTreadmill) {
+        return focusTreadmill;
     } else if (domyosElliptical) {
         return domyosElliptical;
     } else if (ypooElliptical) {

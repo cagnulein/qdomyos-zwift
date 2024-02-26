@@ -56,6 +56,7 @@
 #include "devices/flywheelbike/flywheelbike.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "devices/ftmsrower/ftmsrower.h"
+#include "devices/focustreadmill/focustreadmill.h"
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
@@ -162,6 +163,7 @@ class bluetooth : public QObject, public SignalHandler {
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+    focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     csaferower *csafeRower = nullptr;
