@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bluetoothdevice.h>
+#include "devices/bluetoothdevice.h"
 #include <QStringList>
 #include <vector>
 #include <memory>
@@ -97,7 +97,9 @@ enum deviceType {
     LifeFitnessTreadmill,
     YpooElliptical,
     ZiproTreadmill,
-    CompuTrainerBike
+    CompuTrainerBike,
+    FocusTreadmill,
+    TrxAppGateUSBElliptical,
 };
 
 class BluetoothDeviceTestData;
@@ -122,11 +124,6 @@ protected:
         StartsWith = 2,
         StartsWithIgnoreCase = IgnoreCase+StartsWith
     };
-
-    /**
-     * @brief Indicates if invalid bluetooth device info should be tested for.
-     */
-    bool testInvalidBluetoothDeviceInfo = false;
 
     /**
      * @brief Call exclude(...) to populate the exclusions vector. This vector is populated on demand
@@ -177,6 +174,15 @@ protected:
      */
     virtual void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const;
 
+
+    /**
+     * @brief Configure multiple QBluetoothDeviceInfo objects to either enable or disable the device in multiple ways.
+     * @info An initial object configured aith a name and UUID for copying. This is expceted to have no service UUIDs.
+     * @param enable Indicates if the request is for enabling (true) or disabling (false) configurations on the bluetooth device info.
+     * @param bluetoothDeviceInfos The objects to test.
+     */
+    virtual void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const {}
+
     /**
      * @brief Configure the devicediscoveryinfo object to either enable or disable the device.
      * Used for where there is only 1 scenario.
@@ -199,7 +205,6 @@ public:
      * @return
      */
     virtual std::string get_testName() const;
-
 
     /**
      * @brief Indicates if the test data is for an abstract class.
@@ -226,7 +231,7 @@ public:
     virtual std::vector<std::shared_ptr<BluetoothDeviceTestData>> get_exclusions();
 
     /**
-     * @brief get_configurations Gets combinations of configurations beginning with the specified object.
+     * @brief Gets combinations of configurations beginning with the specified object.
      * @param info
      */
     virtual std::vector<DeviceDiscoveryInfo> get_configurations(const DeviceDiscoveryInfo& info, bool enable);
@@ -244,26 +249,18 @@ public:
     virtual bool get_isExpectedDevice(bluetoothdevice * detectedDevice) const =0;
 
     /**
-     * @brief Indicates if invalid bluetooth device info should be tested for.
-     * @return
-     */
-    bool get_testInvalidBluetoothDeviceInfo() const;
-
-    /**
      * @brief Specifies a test IP address for wifi devices.
      */
     virtual QString get_testIP() const;
 
-
     /**
-     * @brief Gets a QBluetoothDeviceInfo object for the specified name and UUID. Can be used to
-     * generate invalid objects where device identification relies on more than just the name.
+     * @brief Gets a vector of QBluetoothDeviceInfo objects for the specified name and UUID. Can be used to
+     * generate valid and invalid objects where device identification relies on more than just the name.
      * @param uuid
      * @param name
      * @param valid
      */
-    virtual QBluetoothDeviceInfo get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
+    std::vector<QBluetoothDeviceInfo> get_bluetoothDeviceInfo(const QBluetoothUuid& uuid, const QString& name, bool valid=true);
+
 
 };
-
-

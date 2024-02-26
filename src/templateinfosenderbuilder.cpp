@@ -1,5 +1,5 @@
 #include "templateinfosenderbuilder.h"
-#include "bike.h"
+#include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
 #include <QJsonArray>
@@ -1090,6 +1090,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
             obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());

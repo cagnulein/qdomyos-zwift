@@ -1994,12 +1994,53 @@ class QZSettings {
 
     static const QString nordictrack_treadmill_t8_5s;
     static constexpr bool default_nordictrack_treadmill_t8_5s = false;
+    
+    static const QString zwift_click;
+    static constexpr bool default_zwift_click = false;
+
+    static const QString proform_treadmill_705_cst;
+    static constexpr bool default_proform_treadmill_705_cst = false;
+
+    static const QString hop_sport_hs_090h_bike;
+    static constexpr bool default_hop_sport_hs_090h_bike = false;
+
+    static const QString zwift_play;
+    static constexpr bool default_zwift_play = false;
+
+    static const QString nordictrack_treadmill_x14i;
+    static constexpr bool default_nordictrack_treadmill_x14i = false;
+
+    static const QString zwift_api_poll;
+    static constexpr int default_zwift_api_poll = 5;
+
+    static const QString tile_step_count_enabled;
+    static constexpr bool default_tile_step_count_enabled = false;
+
+    static const QString tile_step_count_order;
+    static constexpr int default_tile_step_count_order = 51;
+
+    static const QString tile_erg_mode_enabled;
+    static constexpr bool default_tile_erg_mode_enabled = false;
+
+    static const QString tile_erg_mode_order;
+    static constexpr int default_tile_erg_mode_order = 52;
+
+    static const QString toorx_srx_3500;
+    static constexpr bool default_toorx_srx_3500 = false;
+
+    static const QString inclination_delay_seconds;
+    static constexpr float default_inclination_delay_seconds = 0.0;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
-    void qDebugAllSettings(bool showDefaults = false);
+    static void qDebugAllSettings(bool showDefaults = false);
+
+    /**
+     * @brief Restore the default value to all the settings
+     */
+    static void restoreAll();
 };
 
 #endif

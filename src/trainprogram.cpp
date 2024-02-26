@@ -623,7 +623,10 @@ void trainprogram::scheduler() {
                     emit zwiftLoginState(true);
                 } else {                    
                     static int zwift_counter = 5;
-                    if(zwift_counter++ >= 4) {
+                    int timeout = settings.value(QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll).toInt();
+                    if(timeout < 5)
+                        timeout = 5;
+                    if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
 #ifdef Q_OS_IOS

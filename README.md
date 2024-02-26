@@ -69,6 +69,7 @@ Zwift bridge for Treadmills and Bike!
 |Echelon app Compatibility|X|||||
 |Wahoo Dircon Compatibility|X|X|X|X|in order to send data to Zwift or RGT with Wifi only!|
 |One device only support for Zwift and Wahoo RGT|X|X|X|X|using Wahoo Dircon https://www.youtube.com/watch?v=gYYUXNWFAok|
+|BitGym Compatibility|X|X|X|X||
 
 # Training Program
 |Feature|Bike|Treadmill|Elliptical|Rower|Notes|

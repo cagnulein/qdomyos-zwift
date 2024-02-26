@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "cscbike.h"
+#include "Devices/Bike/biketestdata.h"
+#include "devices/cscbike/cscbike.h"
 
-class CSCBikeTestData : public BluetoothDeviceTestData {
+class CSCBikeTestData : public BikeTestData {
 protected:
     QString cscBikeName;
 public:
-    CSCBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
+    CSCBikeTestData(std::string testName) : BikeTestData(testName) {
         this->cscBikeName = "CyclingSpeedCadenceBike-";
     }
 

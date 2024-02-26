@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformrower.h"
+#include "Devices/Rower/rowertestdata.h"
+#include "devices/proformrower/proformrower.h"
 
-class ProFormRowerTestData : public BluetoothDeviceTestData {
+class ProFormRowerTestData : public RowerTestData {
 
 public:
-    ProFormRowerTestData() : BluetoothDeviceTestData("ProForm Rower") {
+    ProFormRowerTestData() : RowerTestData("ProForm Rower") {
         this->addDeviceName("I_RW", comparison::StartsWithIgnoreCase);
     }
 

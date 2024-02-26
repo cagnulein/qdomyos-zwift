@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "octanetreadmill.h"
 
-class OctaneTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+
+#include "devices/octanetreadmill/octanetreadmill.h"
+
+
+class OctaneTreadmillTestData : public TreadmillTestData {
 
 public:
-    OctaneTreadmillTestData() : BluetoothDeviceTestData("Octane Treadmill") {
+    OctaneTreadmillTestData() : TreadmillTestData("Octane Treadmill") {
         this->addDeviceName("ZR7", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ZR8", comparison::StartsWithIgnoreCase);
     }
