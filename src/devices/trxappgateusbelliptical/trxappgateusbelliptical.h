@@ -72,6 +72,7 @@ class trxappgateusbelliptical : public elliptical {
     bool noHeartService = false;
 
     uint8_t counterPoll = 0;
+    bool searchStopped = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -83,6 +84,7 @@ class trxappgateusbelliptical : public elliptical {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
   private slots:
 
