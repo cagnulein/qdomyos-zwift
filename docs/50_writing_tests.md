@@ -2,29 +2,29 @@
 
 ## About
 
-The testing project tst/qdomyos-zwift-tests.pro contains tests code that uses the Google Test library.
+The testing project tst/qdomyos-zwift-tests.pro contains test code that uses the Google Test library.
 
 ## Adding a new device
 
-New devices are added to the main QZ application by creating a sublcass of the bluetoothdevice class. 
+New devices are added to the main QZ application by creating or modifying a subclass of the bluetoothdevice class.
 
-At minimum, each device has a corresponding TestData class in the test project, which is coded to provide information to the test framework to generate tests for device detection and potentially other things.
+At minimum, each device has a corresponding BluetoothDeviceTestData subclass in the test project, which is coded to provide information to the test framework to generate tests for device detection and potentially other things.
 
 In the test project
 * create a new folder for the device under tst/Devices. This is for anything you define for testing this device.
-* add a new class with header file and optionally .cpp file to the project in that folder. Name the cass DeviceNameTestData.
-* edit the header file to inherit the class from the testdata abstract class appropriate to the device type, i.e. BikeTestData, RowerTestData, EllipticalTestData, TreadmillTestData.
-* have this subclass' constructor pass a unique test name to the superclass.
+* add a new class with header file and optionally .cpp file to the project in that folder. Name the class DeviceNameTestData, substituting an appropriate name in place of "Device".
+* edit the header file to inherit the class from the BluetoothDeviceTestData abstract subclass appropriate to the device type, i.e. BikeTestData, RowerTestData, EllipticalTestData, TreadmillTestData.
+* have this new subclass' constructor pass a unique test name to its superclass.
 
-The tests are not organised around real devices that are handled, but the bluetoothdevice class that handles them - the "driver" of sorts.
+The tests are not organised around real devices that are handled, but the bluetoothdevice subclass that handles them - the "driver" of sorts.
 
 You need to provide the following:
 - patterns for valid names (e.g. equals a value, starts with a value, case sensitivity, specific length)
 - invalid names to ensure the device is not identified when the name is invalid
 - configuration settings that are required for the device to be detected
 - invalid configurations to test that the device is not detected, e.g. when it's disabled in the settings, but the name is correct
-- exclusion devices: if a device with the same name but of a higher priority type is detected, this devivce should not be detected
-- valid and invalid QBluetoothDeviceInfo configurations, e.g. to check the device is only detected when the manufacturer data is set correctly, or certain services are availble or not.
+- exclusion devices: if a device with the same name but of a higher priority type is detected, this device should not be detected
+- valid and invalid QBluetoothDeviceInfo configurations, e.g. to check the device is only detected when the manufacturer data is set correctly, or certain services are available or not.
 
 ## Tools in the Test Framework
 
@@ -36,6 +36,14 @@ i.e. a test will
 * apply a configuration from a TestSettings object
 * perform device detection
 * use the TestSettings object to restore the previous settings either directly or by letting its destructor be called.
+
+### DeviceDiscoveryInfo
+
+This class contains a set of fields that store strongly typed QSettings values. 
+It also provides methods to read and write the values it knows about from and to a QSettings object.
+
+It is used in conjunction with a TestSettings object to write a configuration during a test.
+
 
 ## Writing a device detection test
 
@@ -96,9 +104,43 @@ The get_isExpectedDevice(bluetoothdevice *) function must be overridden to indic
 Consider the CompuTrainerTestData. This device is not detected by name, but only by whether or not it is enabled in the settings.
 To specify this in the test data, we override one of the configureSettings methods, the one for the simple case where there is a single valid and a single invalid configuration. 
 
-The DeviceDiscoveryInfo class has been updated to contain the device's configuration setting (computrainer_serial_port). 
+Settings from QSettings that contribute to tests should be put into the DeviceDiscoveryInfo class.
+
+For example, for the Computrainer Bike, the "computrainer_serial_port" value from the QSettings determines if the bike should be detected or not.
+
+```
+class DeviceDiscoveryInfo {
+public :
+	...
+	QString computrainer_serial_port = nullptr;	
+	...
+}
+```
+
+The getValues and setValues methods should be updated to include the addition(s):
+
+```
+
+void DeviceDiscoveryInfo::setValues(QSettings &settings, bool clear) const {
+	if(clear) settings.clear();	
+	...
+	settings.setValue(QZSettings::computrainer_serialport, this->computrainer_serial_port);
+	...
+}
+
+void DeviceDiscoveryInfo::getValues(QSettings &settings){
+	...
+	this->computrainer_serial_port = settings.value(QZSettings::computrainer_serialport, QZSettings::default_computrainer_serialport).toString();
+	...
+}
+
+```
+
+In the following example, the DeviceDiscoveryInfo class has been updated to contain the device's configuration setting (computrainer_serial_port). 
 - if an enabling configuration is requested (enable==true) a string that is known to be accepted is supplied
 - if a disabling configuration is requested (enable==false) an empty string is supplied.
+
+This example uses the simpler of 2 configureSettings methods returns true/false to indicate if the configuration should be used for the test.
 
 ```
 #pragma once
@@ -170,7 +212,7 @@ bool pafers_treadmill_bh_iboxster_plus =
 ```
 
 Here the device could be activated due to a name match and various combinations of settings.
-For this, the configureSettings function that takes a vector of DeviceDiscoveryInfo objects which is populated with configurations that lead to the specified result (enable = detected, !enable=not detected).
+For this, the configureSettings function that takes a vector of DeviceDiscoveryInfo objects which is populated with configurations that lead to the specified result (enable = detected, !enable=not detected). Instead of returning a boolean to indicate if a configuration has been supplied, it populates a vector of DeviceDiscoveryInfo objects.
 
 ```
 #pragma once
