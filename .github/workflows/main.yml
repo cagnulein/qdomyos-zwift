@@ -854,14 +854,17 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+      
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+      
       - name: Install dependencies
-        uses: lukka/run-vcpkg@v10
-        with:
-          vcpkgArguments: 'protobuf protobuf-c'
-          vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
-          appendedCacheKey: ${{ hashFiles('**/vcpkg.json') }}
-          setupOnly: false
-          vcpkgGitCommitId: '3dd44b931481d7a8e9ba412621fa810232b66289'
+        run: .\vcpkg\vcpkg install protobuf protobuf-c
+        working-directory: ${{ runner.workspace }}
   
       - name: Build
         run: |
