@@ -856,8 +856,8 @@ jobs:
 
       - name: Build
         run: |
-            cp src/windows/msvc/*.* .
-            cp src/windows/msvc/*.* /src
+            Copy-Item -Path src/windows/msvc/*.* -Destination . -Verbose
+            Copy-Item -Path src/windows/msvc/*.* -Destination src/ -Verbose
             qmake            
             nmake
             cd src/debug
