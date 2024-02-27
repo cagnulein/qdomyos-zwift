@@ -10,6 +10,13 @@ class TrxAppGateUSBEllipticalTestData : public EllipticalTestData {
 public:
     TrxAppGateUSBEllipticalTestData() : EllipticalTestData("TrxAppGateUSB Elliptical") {
         this->addDeviceName("FAL-SPORTS", comparison::StartsWithIgnoreCase);
+        if(enable) {
+            config.ftms_bike = "Disabled";
+            configurations.push_back(config);
+        } else {
+            config.ftms_bike = "PLACEHOLDER";
+            configurations.push_back(config);
+        }        
     }
 
 
