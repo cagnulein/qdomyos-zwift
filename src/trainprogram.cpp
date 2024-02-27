@@ -10,9 +10,11 @@
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #elif defined(Q_OS_WINDOWS)
-#include "zwift-api/zwift_messages.pb.h"
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
+#endif
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#include "zwift-api/zwift_messages.pb.h"
 #endif
 #include "localipaddress.h"
 
@@ -653,7 +655,7 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
-#elif defined(Q_OS_WIN)
+#elif !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                         PlayerState state;
                         float alt = 0;
                         float distance = 0;
