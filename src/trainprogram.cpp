@@ -10,6 +10,7 @@
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #elif defined(Q_OS_WINDOWS)
+#include "zwift-api/zwift_messages.pb.h"
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
@@ -652,6 +653,18 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
+#elif defined(Q_OS_WIN)
+                        PlayerState state;
+                        float alt = 0;
+                        float distance = 0;
+                        if (state.ParseFromArray(bb.data(), bb.length())) {
+                            // Parsing riuscito, ora puoi accedere ai dati in `state`
+                            alt = state.altitude();
+                            distance = state.distance();
+                        } else {
+                            // Errore durante il parsing
+                            qDebug() << "Error parsing PlayerState";
+                        }
 #else
                         float alt = 0;
                         float distance = 0;
