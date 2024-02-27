@@ -866,6 +866,7 @@ jobs:
       - name: Run vcpkg install
         run: |
           .\vcpkg\vcpkg install
+        shell: pwsh
         working-directory: ${{ runner.workspace }}/vcpkg
 
       - name: Build
