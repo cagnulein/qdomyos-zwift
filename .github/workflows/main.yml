@@ -854,10 +854,21 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
+      - name: Install dependencies
+        uses: lukka/run-vcpkg@v10
+        with:
+          vcpkgArguments: 'protobuf protobuf-c'
+          vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
+          appendedCacheKey: ${{ hashFiles('**/vcpkg.json') }}
+          setupOnly: true
+  
+      - name: Run vcpkg install
+        run: |
+          .\vcpkg\vcpkg install
+        working-directory: ${{ runner.workspace }}/vcpkg
+
       - name: Build
         run: |
-            Copy-Item -Path src/windows/msvc/*.* -Destination . -Verbose
-            Copy-Item -Path src/windows/msvc/*.* -Destination src/ -Verbose
             qmake            
             nmake
             cd src/debug
