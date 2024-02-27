@@ -6,7 +6,8 @@
 
 
 class TrxAppGateUSBEllipticalTestData : public EllipticalTestData {
-
+/*
+    TODO
 protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);        
@@ -18,6 +19,7 @@ protected:
             configurations.push_back(config);
         }     
     }
+*/
 
 public:
     TrxAppGateUSBEllipticalTestData() : EllipticalTestData("TrxAppGateUSB Elliptical") {           
