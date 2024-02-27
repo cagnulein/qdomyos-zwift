@@ -46,6 +46,7 @@ public :
     bool ss2k_peloton = false;
 
     QString ftmsAccessoryName = nullptr;
+    QString ftms_bike = nullptr;
 
     bool pafers_treadmill_bh_iboxster_plus = false;
 

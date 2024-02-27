@@ -7,8 +7,8 @@
 
 class TrxAppGateUSBEllipticalTestData : public EllipticalTestData {
 
-public:
-    TrxAppGateUSBEllipticalTestData() : EllipticalTestData("TrxAppGateUSB Elliptical") {
+protected:
+    void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
         DeviceDiscoveryInfo config(info);
         this->addDeviceName("FAL-SPORTS", comparison::StartsWithIgnoreCase);
         if(enable) {
@@ -17,7 +17,11 @@ public:
         } else {
             config.ftms_bike = "PLACEHOLDER";
             configurations.push_back(config);
-        }        
+        }     
+    }
+
+public:
+    TrxAppGateUSBEllipticalTestData() : EllipticalTestData("TrxAppGateUSB Elliptical") {           
     }
 
 
