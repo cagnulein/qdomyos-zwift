@@ -881,7 +881,9 @@ jobs:
         if: matrix.config.python
             
       - name: Build without python
-        run: |             
+        run: |          
+            Copy-Item -Path src/windows/msvc/*.* -Destination . -Verbose
+            Copy-Item -Path src/windows/msvc/*.* -Destination src/ -Verbose        
             qmake           
             nmake
             cd src/debug
