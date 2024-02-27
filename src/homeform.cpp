@@ -793,17 +793,18 @@ void homeform::peloton_start_workout() {
             stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+
+        pelotonHandler->downloadImage();
     } else {
         stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     }
     emit workoutNameChanged(workoutName());
     emit instructorNameChanged(instructorName());
 
-    if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
-        return;
+    if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+        m_info = stravaPelotonActivityName;
+        emit infoChanged(m_info);
     }
-    m_info = stravaPelotonActivityName;
-    emit infoChanged(m_info);
 
     m_pelotonAskStart = false;
     emit changePelotonAskStart(pelotonAskStart());

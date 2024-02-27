@@ -447,6 +447,12 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     { getRide(current_ride_id); }
 }
 
+void peloton::downloadImage() {
+    if (!current_image_url.isEmpty()) {
+        current_image_downloaded = new fileDownloader(current_image_url);
+    }
+}
+
 void peloton::workout_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
@@ -464,9 +470,6 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     if (current_image_downloaded) {
         delete current_image_downloaded;
         current_image_downloaded = 0;
-    }
-    if (!current_image_url.isEmpty()) {
-        current_image_downloaded = new fileDownloader(current_image_url);
     }
 
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
