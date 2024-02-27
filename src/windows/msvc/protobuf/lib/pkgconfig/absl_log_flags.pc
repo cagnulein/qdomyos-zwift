@@ -1,0 +1,12 @@
+prefix=C:/Program Files/protobuf
+exec_prefix=${prefix}
+libdir=C:/Program Files/protobuf/lib
+includedir=C:/Program Files/protobuf/include
+
+Name: absl_log_flags
+Description: Abseil log_flags library
+URL: https://abseil.io/
+Version: 20230802
+Requires: absl_config = 20230802, absl_core_headers = 20230802, absl_log_globals = 20230802, absl_log_severity = 20230802, absl_log_internal_config = 20230802, absl_log_internal_flags = 20230802, absl_flags = 20230802, absl_flags_marshalling = 20230802, absl_strings = 20230802
+Libs: -L${libdir}  -labsl_log_flags -ignore:4221
+Cflags: -I${includedir} /W3 /bigobj /wd4005 /wd4068 /wd4180 /wd4244 /wd4267 /wd4503 /wd4800 /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /D_SCL_SECURE_NO_WARNINGS /D_ENABLE_EXTENDED_ALIGNED_STORAGE
