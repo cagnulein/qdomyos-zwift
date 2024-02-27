@@ -775,6 +775,37 @@ void homeform::peloton_abort_workout() {
 }
 
 void homeform::peloton_start_workout() {
+
+    QSettings settings;
+    stravaPelotonActivityName = pelotonAskedName;
+    stravaPelotonInstructorName = pelotonAskedInstructor;
+    if (pelotonHandler) {
+        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
+            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else
+            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+
+        pelotonHandler->downloadImage();
+    } else {
+        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    }
+    emit workoutNameChanged(workoutName());
+    emit instructorNameChanged(instructorName());
+
+    if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+        m_info = stravaPelotonActivityName;
+        emit infoChanged(m_info);
+    }
+
     m_pelotonAskStart = false;
     emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_start_workout!");
@@ -858,35 +889,6 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
 
 void homeform::pelotonWorkoutChanged(const QString &name, const QString &instructor) {
 
-    QSettings settings;
-
-    stravaPelotonActivityName = name;
-    stravaPelotonInstructorName = instructor;
-    if (pelotonHandler) {
-        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
-            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
-            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
-            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
-        else
-            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    } else {
-        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    }
-    emit workoutNameChanged(workoutName());
-    emit instructorNameChanged(instructorName());
-
-    if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
-        return;
-    }
-    m_info = name;
-    emit infoChanged(m_info);
 }
 
 QString homeform::getWritableAppDir() {
@@ -4808,16 +4810,35 @@ void homeform::update() {
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-
-                        const int step = 1;
+                        double step = 1;
+                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
+                        if(ergMode) {
+                            step = 5;
+                        }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
+                        double current_target_watt = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
                         if (zone < ((uint8_t)currentHRZone)) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > ((uint8_t)currentHRZone) && maxResistance >= currentResistance + step) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt - step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else if (zone > ((uint8_t)currentHRZone) && ((maxResistance >= currentResistance + step && !ergMode) || ergMode)) {
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else {
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > (5 * fabs(((float)zone) - currentHRZone))) {
+                                if(ergMode)
+                                    ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                                else
+                                    ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
 

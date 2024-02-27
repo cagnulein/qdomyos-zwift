@@ -56,6 +56,7 @@
 #include "devices/flywheelbike/flywheelbike.h"
 #include "devices/ftmsbike/ftmsbike.h"
 #include "devices/ftmsrower/ftmsrower.h"
+#include "devices/focustreadmill/focustreadmill.h"
 #include "devices/heartratebelt/heartratebelt.h"
 #include "devices/horizongr7bike/horizongr7bike.h"
 #include "devices/horizontreadmill/horizontreadmill.h"
@@ -121,6 +122,7 @@
 #include "devices/truetreadmill/truetreadmill.h"
 #include "devices/trixterxdreamv1bike/trixterxdreamv1bike.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
+#include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
 #include "devices/ultrasportbike/ultrasportbike.h"
 #include "devices/wahookickrheadwind/wahookickrheadwind.h"
@@ -178,6 +180,7 @@ private:
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+    focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
     computrainerbike *computrainerBike = nullptr;
     csaferower *csafeRower = nullptr;
@@ -197,6 +200,7 @@ private:
     nautiluselliptical *nautilusElliptical = nullptr;
     nautilustreadmill *nautilusTreadmill = nullptr;
     trxappgateusbbike *trxappgateusbBike = nullptr;
+    trxappgateusbelliptical *trxappgateusbElliptical = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
     flywheelbike *flywheelBike = nullptr;

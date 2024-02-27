@@ -318,7 +318,7 @@ void proformtelnetbike::characteristicChanged(const char *buff, int len) {
     } else if(newValue.contains("Enter New Value")) {
         if(poolIndex >= 4) {
             if(!erg_mode) {
-                sendFrame((QString::number(requestInclination) + "\n").toLocal8Bit()); // target incline
+                sendFrame((QString::number(requestInclination * 10.0) + "\n").toLocal8Bit()); // target incline
                 qDebug() << "forceInclination" << requestInclination;
                 requestInclination = -100;
             } else {

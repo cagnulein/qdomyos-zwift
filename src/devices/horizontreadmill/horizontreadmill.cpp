@@ -1006,10 +1006,19 @@ void horizontreadmill::update() {
                         }
                     }
                 } else {
+                    // horizon paragon x
                     Speed = 0;
-                    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
-                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
-                                        QStringLiteral("stopping"), false, true);
+                    if (requestPause == -1) {
+                        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x14, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                            QStringLiteral("requestStop"), false, true);
+                    } else {
+                        requestPause = -1;
+                        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                            QStringLiteral("requestPause"), false, true);
+                        horizonPaused = true;
+                    }
                 }
             } else if (gattFTMSService) {
                 if (requestPause == -1) {

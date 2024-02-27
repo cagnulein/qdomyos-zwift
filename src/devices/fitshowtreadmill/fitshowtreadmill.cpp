@@ -416,7 +416,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         } else if (par == FITSHOW_STATUS_RUNNING || par == FITSHOW_STATUS_STOP || par == FITSHOW_STATUS_PAUSED ||
                    par == FITSHOW_STATUS_END) {
-            if (full_len >= 17) {
+            if (full_len >= 16) {
                 if (par == FITSHOW_STATUS_RUNNING)
                     IS_RUNNING = true;
                 else {
@@ -619,15 +619,14 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void fitshowtreadmill::getCadence(uint16_t step_count) {
     if(step_count != StepCount.value()) {
-        int ms = abs(lastChangedStepCount.msecsTo(QDateTime::currentDateTime()));
+        QDateTime now = QDateTime::currentDateTime();
+        int ms = abs(lastChangedStepCount.msecsTo(now));
         int cadence = (step_count - StepCount.value()) * 60000 / ms;
-        if(cadence < 255) {
-            cadenceRaw = cadence;
-            Cadence = cadenceRaw.average20s();
-            emit debug(QStringLiteral("Current raw cadence: ") + QString::number(cadence));
-            emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
-        }
-        lastChangedStepCount = QDateTime::currentDateTime();
+        cadenceRaw = cadence;
+        Cadence = cadenceRaw.average20s();
+        emit debug(QStringLiteral("Current raw cadence: ") + QString::number(cadence));
+        emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+        lastChangedStepCount = now;
     }
 }
 
