@@ -9,8 +9,7 @@ class TrxAppGateUSBEllipticalTestData : public EllipticalTestData {
 
 protected:
     void configureSettings(const DeviceDiscoveryInfo& info, bool enable, std::vector<DeviceDiscoveryInfo>& configurations) const override {
-        DeviceDiscoveryInfo config(info);
-        this->addDeviceName("FAL-SPORTS", comparison::StartsWithIgnoreCase);
+        DeviceDiscoveryInfo config(info);        
         if(enable) {
             config.ftms_bike = "Disabled";
             configurations.push_back(config);
@@ -22,6 +21,7 @@ protected:
 
 public:
     TrxAppGateUSBEllipticalTestData() : EllipticalTestData("TrxAppGateUSB Elliptical") {           
+        this->addDeviceName("FAL-SPORTS", comparison::StartsWithIgnoreCase);
     }
 
 
