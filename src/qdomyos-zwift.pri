@@ -31,7 +31,7 @@ CONFIG += qmltypes
 #unix:!android: CONFIG += webengine
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
-win32:LIBS += -llibprotobuf -llibprotoc -labseil_dll
+win32:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite
 unix:!android:LIBS += -lprotoc -lprotobuf -labsl_base
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
