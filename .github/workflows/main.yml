@@ -863,11 +863,13 @@ jobs:
         working-directory: ${{ runner.workspace }}
       
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install protobuf protobuf-c
+        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
         working-directory: ${{ runner.workspace }}
   
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
             qmake            
             nmake
             cd src/debug
