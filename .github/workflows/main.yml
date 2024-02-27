@@ -793,13 +793,6 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
-      - uses: actions/checkout@v2
-      - name: Checkout vcpkg
-        uses: actions/checkout@v2
-        with:
-          repository: microsoft/vcpkg
-          path: "src/vcpkg"
-
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7
@@ -868,6 +861,7 @@ jobs:
           vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
           appendedCacheKey: ${{ hashFiles('**/vcpkg.json') }}
           setupOnly: true
+          vcpkgGitCommitId: '3dd44b931481d7a8e9ba412621fa810232b66289'
   
       - name: Run vcpkg install
         run: |
