@@ -30,7 +30,7 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
-win32:LIBS += -llibprotobuf-lite -llibprotoc -llibprotobuf -L$$PWD/windows/mingw64/
+win32:LIBS += -llibprotobuf-lite -llibprotoc -llibprotobuf -labsl_base -labsl_log_internal_message -labsl_log_internal_check_op -L$$PWD/windows/mingw64/
 unix:!android:LIBS += -lprotoc -lprotobuf -labsl_base
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
