@@ -793,6 +793,13 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"
 
+      - uses: actions/checkout@v2
+      - name: Checkout vcpkg
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/vcpkg
+          path: "vcpkg"
+
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7

@@ -20,3 +20,6 @@
 	path = zwiftplay
 	url = https://github.com/cagnulein/zwiftplay.git
 	branch = lib
+[submodule "vcpkg"]
+	path = vcpkg
+	url = https://github.com/microsoft/vcpkg.git
