@@ -860,15 +860,9 @@ jobs:
           vcpkgArguments: 'protobuf protobuf-c'
           vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
           appendedCacheKey: ${{ hashFiles('**/vcpkg.json') }}
-          setupOnly: true
+          setupOnly: false
           vcpkgGitCommitId: '3dd44b931481d7a8e9ba412621fa810232b66289'
   
-      - name: Run vcpkg install
-        run: |
-          .\vcpkg\vcpkg install
-        shell: pwsh
-        working-directory: ${{ runner.workspace }}/vcpkg
-
       - name: Build
         run: |
             qmake            
