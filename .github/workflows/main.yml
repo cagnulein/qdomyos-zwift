@@ -872,7 +872,7 @@ jobs:
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\debug\bin\*.* -Destination . -Verbose
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
@@ -901,7 +901,7 @@ jobs:
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\debug\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
