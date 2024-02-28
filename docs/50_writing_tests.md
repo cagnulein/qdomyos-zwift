@@ -12,7 +12,7 @@ At minimum, each device has a corresponding BluetoothDeviceTestData subclass in 
 
 In the test project
 * create a new folder for the device under tst/Devices. This is for anything you define for testing this device.
-* add a new class with header file and optionally .cpp file to the project in that folder. Name the class DeviceNameTestData, substituting an appropriate name in place of "Device".
+* add a new class with header file and optionally .cpp file to the project in that folder. Name the class DeviceNameTestData, substituting an appropriate name in place of "DeviceName".
 * edit the header file to inherit the class from the BluetoothDeviceTestData abstract subclass appropriate to the device type, i.e. BikeTestData, RowerTestData, EllipticalTestData, TreadmillTestData.
 * have this new subclass' constructor pass a unique test name to its superclass.
 
