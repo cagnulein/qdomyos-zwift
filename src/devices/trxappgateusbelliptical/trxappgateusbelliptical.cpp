@@ -211,32 +211,19 @@ void trxappgateusbelliptical::btinit() {
         uint8_t initData5[] = {0xf0, 0xa4, 0x35, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xd4};
         uint8_t initData6[] = {0xf0, 0xa5, 0x35, 0x01, 0x02, 0xcd};
 
-        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-        QThread::msleep(1000);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
