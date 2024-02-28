@@ -212,7 +212,7 @@ void trxappgateusbelliptical::btinit() {
         uint8_t initData6[] = {0xf0, 0xa5, 0x35, 0x01, 0x02, 0xcd};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+        QThread::msleep(1000);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
