@@ -78,7 +78,7 @@ void trxappgateusbelliptical::update() {
         update_metrics(true, watts());
 
         {
-            uint8_t noOpData1[] = {0xf0, 0xa1, 0x35, 0x01, 0xc7};
+            uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
             writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             if (requestResistance != -1) {
                 if (requestResistance < 1)
