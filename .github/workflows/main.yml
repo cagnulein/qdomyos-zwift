@@ -148,7 +148,8 @@ jobs:
             #cp "C:/mingw64/bin/libproto*.*" .
             #cp "C:/mingw64/lib/libproto*.*" .            
             mkdir -p src/google/protobuf
-            cp -rv "$MINGW_PREFIX/include/google/protobuf" src/google/            
+            cp -r "$MINGW_PREFIX/include/google/protobuf" src/google/            
+            ls src/google
             qmake
             make -j8
             cd src/debug
@@ -186,7 +187,8 @@ jobs:
             #cp "C:/mingw64/bin/libproto*.*" .
             #cp "C:/mingw64/lib/libproto*.*" .                    
             mkdir -p src/google/protobuf
-            cp -rv "$MINGW_PREFIX/include/google/protobuf" src/google/                        
+            cp -r "$MINGW_PREFIX/include/google/protobuf" src/google/        
+            ls src/google
             qmake
             make -j8
             cd src/debug
