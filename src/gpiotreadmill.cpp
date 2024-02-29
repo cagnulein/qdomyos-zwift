@@ -1,7 +1,7 @@
 #include "gpiotreadmill.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#include "virtualtreadmill.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>

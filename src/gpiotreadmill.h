@@ -35,9 +35,9 @@
 #include <QtSerialBus/QModbusRtuSerialMaster>
 #include <QtSerialPort/QSerialPort>
 
-#include "treadmill.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
+#include "devices/treadmill.h"
+#include "virtualdevices/virtualbike.h"
+#include "virtualdevices/virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
