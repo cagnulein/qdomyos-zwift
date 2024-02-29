@@ -19,14 +19,16 @@ static QByteArray hex2bytes(const std::string& s)
     return v;
 }
 
-QBluetoothDeviceInfo M3IBikeTestData::get_bluetoothDeviceInfo(const QBluetoothUuid &uuid, const QString &name, bool valid) {
+void M3IBikeTestData::configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const {
     // The M3I bike detector looks into the manufacturer data.
 
-    QBluetoothDeviceInfo result = BluetoothDeviceTestData::get_bluetoothDeviceInfo(uuid, name, true);
+    QBluetoothDeviceInfo result = info;
 
-    if(!valid) {
+    if(!enable) {
         result.setManufacturerData(1, QByteArray("Invalid manufacturer data."));
-        return result;
+        bluetoothDeviceInfos.push_back(result);
+
+        return;
     }
 
     int key=0;
@@ -70,7 +72,7 @@ QBluetoothDeviceInfo M3IBikeTestData::get_bluetoothDeviceInfo(const QBluetoothUu
     result.setManufacturerData(key++, hex2bytes("02010639009FD3000000030000000000000001"));
     */
 
-    return result;
+    bluetoothDeviceInfos.push_back(result);
 }
 
 

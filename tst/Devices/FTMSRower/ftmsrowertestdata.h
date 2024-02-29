@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "ftmsrower.h"
 
-class FTMSRowerTestData : public BluetoothDeviceTestData {
+#include "Devices/Rower/rowertestdata.h"
+
+#include "devices/ftmsrower/ftmsrower.h"
+
+
+class FTMSRowerTestData : public RowerTestData {
 
 public:
-    FTMSRowerTestData() : BluetoothDeviceTestData("FTMS Rower") {
+    FTMSRowerTestData() : RowerTestData("FTMS Rower") {
 
         this->addDeviceName("CR 00", comparison::StartsWithIgnoreCase);
         this->addDeviceName("KAYAKPRO", comparison::StartsWithIgnoreCase);

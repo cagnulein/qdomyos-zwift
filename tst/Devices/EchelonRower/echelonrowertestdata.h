@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "echelonrower.h"
 
-class EchelonRowerTestData : public BluetoothDeviceTestData {
+#include "Devices/Rower/rowertestdata.h"
+
+#include "devices/echelonrower/echelonrower.h"
+
+
+class EchelonRowerTestData : public RowerTestData {
 
 public:
-    EchelonRowerTestData() : BluetoothDeviceTestData("Echelon Rower") {
+    EchelonRowerTestData() : RowerTestData("Echelon Rower") {
         this->addDeviceName("ECH-ROW", comparison::StartsWith);
         this->addDeviceName("ROWSPORT-", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ROW-S", comparison::StartsWith);

@@ -10,11 +10,11 @@
 #include <QQmlContext>
 
 #include "bluetooth.h"
-#include "domyostreadmill.h"
+#include "devices/domyostreadmill/domyostreadmill.h"
 #include "homeform.h"
 #include "mainwindow.h"
 #include "qfit.h"
-#include "virtualtreadmill.h"
+#include "virtualdevices/virtualtreadmill.h"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
@@ -285,7 +285,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
-
 #ifdef Q_OS_WIN32
     qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
 #endif
