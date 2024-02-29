@@ -238,7 +238,10 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
-        if (CrankRevsRead != oldCrankRevs && deltaT) {
+        // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
+        if(m_watt.value() == 0) {
+            Cadence = 0;
+        } else if (CrankRevsRead != oldCrankRevs && deltaT) {
             double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;

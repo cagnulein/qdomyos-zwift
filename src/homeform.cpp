@@ -775,6 +775,37 @@ void homeform::peloton_abort_workout() {
 }
 
 void homeform::peloton_start_workout() {
+
+    QSettings settings;
+    stravaPelotonActivityName = pelotonAskedName;
+    stravaPelotonInstructorName = pelotonAskedInstructor;
+    if (pelotonHandler) {
+        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
+            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else
+            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+
+        pelotonHandler->downloadImage();
+    } else {
+        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    }
+    emit workoutNameChanged(workoutName());
+    emit instructorNameChanged(instructorName());
+
+    if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+        m_info = stravaPelotonActivityName;
+        emit infoChanged(m_info);
+    }
+
     m_pelotonAskStart = false;
     emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_start_workout!");
@@ -858,35 +889,6 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
 
 void homeform::pelotonWorkoutChanged(const QString &name, const QString &instructor) {
 
-    QSettings settings;
-
-    stravaPelotonActivityName = name;
-    stravaPelotonInstructorName = instructor;
-    if (pelotonHandler) {
-        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
-            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
-            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
-            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
-        else
-            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    } else {
-        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    }
-    emit workoutNameChanged(workoutName());
-    emit instructorNameChanged(instructorName());
-
-    if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
-        return;
-    }
-    m_info = name;
-    emit infoChanged(m_info);
 }
 
 QString homeform::getWritableAppDir() {
