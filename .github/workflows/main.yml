@@ -92,6 +92,14 @@ jobs:
           msystem: mingw64
           release: false
 
+      - name: Print MSYS2 Installation Path
+        run: echo $MSYSTEM_PREFIX
+        shell: msys2 {0}         
+
+      - name: List Protocol Buffers Header Files
+        run: ls $MINGW_PREFIX/include/google/protobuf
+        shell: msys2 {0}        
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
