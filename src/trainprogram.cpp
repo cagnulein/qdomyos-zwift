@@ -659,7 +659,7 @@ void trainprogram::scheduler() {
                         PlayerState state;
                         float alt = 0;
                         float distance = 0;
-                        if (state.ParseFromArray(bb.data(), bb.length())) {
+                        if (state.ParseFromArray(bb.constData(), bb.size())) {
                             // Parsing riuscito, ora puoi accedere ai dati in `state`
                             alt = state.altitude();
                             distance = state.distance();
