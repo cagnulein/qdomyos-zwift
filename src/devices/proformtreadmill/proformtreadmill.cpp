@@ -341,10 +341,14 @@ void proformtreadmill::update() {
                 break;
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
-                if (requestInclination != -100) {
-                    if (requestInclination < -3)
+                if (requestInclination != -100) {                    
+                    if (requestInclination < -3 && proform_2000_treadmill)
                         requestInclination = -3;
-                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                    else if (requestInclination < 0 && !proform_2000_treadmill)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && 
+                            ((requestInclination >= -3 && proform_2000_treadmill) || 
+                            (requestInclination >= 0 && !proform_2000_treadmill)) &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                         forceIncline(requestInclination);
