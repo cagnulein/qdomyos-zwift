@@ -735,7 +735,7 @@ double domyostreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 
 double domyostreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data;
 
     if (convertedData > 10000) {
