@@ -38,6 +38,7 @@ protected:
 public:
     TrxAppGateUSBBike1TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike")  {
         this->addDeviceName("TUN ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("PASYOU-", comparison::StartsWithIgnoreCase);
     }
 
 };
