@@ -15,6 +15,10 @@
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#include "zwift-api/zwift_messages.pb.h"
+#endif
+
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);

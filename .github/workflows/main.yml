@@ -88,7 +88,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-protobuf mingw-w64-x86_64-abseil-cpp
           msystem: mingw64
           release: false
 
@@ -135,6 +135,10 @@ jobs:
 
       - name: Build
         run: |
+            #cp "C:/mingw64/bin/libabsl*.*" .
+            #cp "C:/mingw64/lib/libabsl*.*" .
+            #cp "C:/mingw64/bin/libproto*.*" .
+            #cp "C:/mingw64/lib/libproto*.*" .            
             qmake
             make -j8
             cd src/debug
@@ -146,6 +150,11 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/zlib1.dll" .
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .            
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
@@ -162,6 +171,10 @@ jobs:
             
       - name: Build without python
         run: |
+            #cp "C:/mingw64/bin/libabsl*.*" .
+            #cp "C:/mingw64/lib/libabsl*.*" .
+            #cp "C:/mingw64/bin/libproto*.*" .
+            #cp "C:/mingw64/lib/libproto*.*" .                    
             qmake
             make -j8
             cd src/debug
@@ -173,6 +186,11 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/zlib1.dll" .
+            cp "C:/mingw64/bin/libabsl*.*" .
+            cp "C:/mingw64/lib/libabsl*.*" .
+            cp "C:/mingw64/bin/libproto*.*" .
+            cp "C:/mingw64/lib/libproto*.*" .                  
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
@@ -406,7 +424,7 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5serialbus* libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5serialbus* libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev  cmake protobuf-compiler libprotobuf-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -824,8 +842,23 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+      
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+      
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+  
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake            
             nmake
             cd src/debug
@@ -839,6 +872,7 @@ jobs:
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
@@ -849,7 +883,10 @@ jobs:
         if: matrix.config.python
             
       - name: Build without python
-        run: |
+        run: |          
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
             cd src/debug
@@ -860,10 +897,11 @@ jobs:
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
-            cp "C:/mingw64/bin/libstdc++-6.dll" .
+            cp "C:/mingw64/bin/libstdc++-6.dll" .              
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -930,6 +968,19 @@ jobs:
           repository: qt-labs/qthttpserver
           path: "src/qthttpserver"      
 
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+  
+      - name: Download protobuf
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
+          Expand-Archive protobuf.zip -DestinationPath "protobuf"
+          cd protobuf/protobuf-25.1
+          Invoke-WebRequest -Uri "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -OutFile "abseil-cpp.zip"
+          Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
+          cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/                    
+          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
+  
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
