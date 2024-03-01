@@ -2104,7 +2104,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 this->signalBluetoothDeviceConnected(focusTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !horizonTreadmill && !snode_bike && !fitplus_bike && !ftmsBike && !iconsole_elliptical) ||
-                        b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) || // FTMS
+                        (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && ftms_treadmill.contains(QZSettings::default_ftms_treadmill)) || // FTMS
                         (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14 &&
                          !b.name().contains('(') && !b.name().contains(')')) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WINFITA"))) || //  also FTMS
