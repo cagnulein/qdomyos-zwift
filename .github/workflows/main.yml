@@ -202,11 +202,11 @@ jobs:
             mkdir appx
             cp qdomyos-zwift.exe output/
             cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp "C:/mingw64/bin/zlib1.dll" .   
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
@@ -231,11 +231,11 @@ jobs:
             mkdir appx
             cp qdomyos-zwift.exe output/
             cd output
-            windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp "C:/mingw64/bin/zlib1.dll" .
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
