@@ -1041,8 +1041,23 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..                    
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
             cd ..
@@ -1061,6 +1076,7 @@ jobs:
             cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
