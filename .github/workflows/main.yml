@@ -142,9 +142,11 @@ jobs:
           cd ..  
 
       - name: Copy Protobuf Headers to a Repo Subfolder
-        run: |
-          cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
-          cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
+        run: cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
+        shell: msys2 {0}          
+
+      - name: Copy Abseil Headers to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
         shell: msys2 {0}          
 
       - name: Build
