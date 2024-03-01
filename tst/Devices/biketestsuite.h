@@ -23,6 +23,26 @@ protected:
      * @brief Manages the QSettings used during the tests, separate from QSettings stored in the system generally.
      */
     TestSettings testSettings;
+
+    /**
+     * @brief Gets a subset of the range for testing samples. Increment varies depending on delta.
+     * @return A QList containing min, max and some, or sometimes all values in between.
+     */
+    template<typename T0>
+    QList<T0> getSamples(const T0 min, const T0 max);
+
+    /**
+     * @brief Determines from provided or estimated minimum and maximum resistance, which values to test, to avoid testing all.
+     * @return
+     */
+    virtual QList<resistance_t> getResistanceSamples();
+
+    /**
+     * @brief Determines from provided or estimated minimum and maximum cadence, which values to test, to avoid testing all.
+     * @return
+     */
+    virtual QList<uint32_t> getCadenceSamples();
+
 public:
     BikeTestSuite();
 

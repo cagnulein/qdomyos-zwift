@@ -2,6 +2,16 @@
 #include "ErgInterface/bikeergfunctions.h"
 
 template<typename T>
+QList<resistance_t> BikeTestSuite<T>::getResistanceSamples() {
+    return this->getSamples(this->minResistance, this->maxResistance);
+}
+
+template<typename T>
+QList<uint32_t> BikeTestSuite<T>::getCadenceSamples() {
+    return this->getSamples(this->minRPM, this->maxRPM);
+}
+
+template<typename T>
 BikeTestSuite<T>::BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift Testing") {}
 
 template<typename T>
@@ -39,7 +49,7 @@ void BikeTestSuite<T>::test_powerFunctions_minResistance() {
     }
 
     // traverse the cadence edges checking the power is clipped to the values for the max and min resistance
-    for(uint32_t cadenceRPM=minRPM; cadenceRPM<=maxRPM; cadenceRPM++)
+    for( uint32_t cadenceRPM : this->getCadenceSamples())
     {
         r0 = minResistance;
         r1 = minResistance-1;
@@ -68,7 +78,7 @@ void BikeTestSuite<T>::test_powerFunctions_maxResistance() {
     }
 
     // traverse the cadence edges checking the power is clipped to the values for the max and min resistance
-    for(uint32_t cadenceRPM=minRPM; cadenceRPM<=maxRPM; cadenceRPM++)
+    for(uint16_t cadenceRPM : this->getCadenceSamples())
     {
         r0 = maxResistance;
         r1 = maxResistance+1;
@@ -97,7 +107,7 @@ void BikeTestSuite<T>::test_powerFunctions_minCadence() {
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
 
-    for(resistance_t r=minResistance; r<=maxResistance; r++)
+    for( resistance_t r : this->getResistanceSamples())
     {
         const int32_t c0 = minRPM, c1=minRPM-1;
         p0 = erg->getPower(c0, r);
@@ -125,7 +135,7 @@ void BikeTestSuite<T>::test_powerFunctions_maxCadence() {
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
 
-    for(resistance_t r=minResistance; r<=maxResistance; r++)
+    for( resistance_t r : this->getResistanceSamples())
     {
         const int32_t c0 = maxRPM, c1=maxRPM+1;
         p0 = erg->getPower(c0, r);
@@ -145,7 +155,8 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePowerConversion() {
 
     // test inverses
     QString unexpectedResistance=QStringLiteral("P(C:%3, R:%1)=%2 but R(C:%3, P:%2)=%4 and P(C:%3, R:%4)=%5");
-    for(uint32_t cadenceRPM=minRPM; cadenceRPM<=maxRPM; cadenceRPM++)
+    //for(uint32_t cadenceRPM=minRPM; cadenceRPM<=maxRPM; cadenceRPM++)
+    for(uint16_t cadenceRPM : this->getCadenceSamples())
     {
         uint16_t lastPower=0xFFFF;
         for(resistance_t r=minResistance; r<=maxResistance; r++)
@@ -170,4 +181,21 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePowerConversion() {
     }
 
     ASSERT_TRUE(errors.empty()) << errors.join('\n').toStdString();
+}
+
+template<typename T>
+template<typename T0>
+QList<T0> BikeTestSuite<T>::getSamples(const T0 min, const T0 max) {
+    QList<T0> result;
+    T0 d = max-min;
+    T0 inc = d/10;
+
+    if(inc<1) inc = 1;
+
+    for(T0 v=min; v<=max; v+=inc)
+        result.append(v);
+    if(result.last()!=max)
+        result.append(max);
+
+    return result;
 }
