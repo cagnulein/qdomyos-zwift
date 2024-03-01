@@ -452,6 +452,10 @@ jobs:
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
 
+      - name: compile zwift protobuf
+        run: |
+            protoc --proto_path=src/zwift-api/ --cpp_out=zwift_messages zwift_messages.proto
+
       - name: Build qthttpserver
         run: |
             cd src/qthttpserver 
