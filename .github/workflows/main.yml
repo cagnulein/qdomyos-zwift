@@ -141,15 +141,16 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..  
 
+      - name: Copy Protobuf Headers to a Repo Subfolder
+        run: cp -r "$MINGW_PREFIX/include/google/protobuf" "${GITHUB_WORKSPACE}/src/google/"
+        shell: msys2 {0}          
+
       - name: Build
         run: |
             #cp "C:/mingw64/bin/libabsl*.*" .
             #cp "C:/mingw64/lib/libabsl*.*" .
             #cp "C:/mingw64/bin/libproto*.*" .
             #cp "C:/mingw64/lib/libproto*.*" .            
-            mkdir -p src/google/protobuf
-            cp -r "$MINGW_PREFIX/include/google/protobuf" src/google/            
-            ls src/google
             qmake
             make -j8
             cd src/debug
@@ -186,9 +187,7 @@ jobs:
             #cp "C:/mingw64/lib/libabsl*.*" .
             #cp "C:/mingw64/bin/libproto*.*" .
             #cp "C:/mingw64/lib/libproto*.*" .                    
-            mkdir -p src/google/protobuf
-            cp -r "$MINGW_PREFIX/include/google/protobuf" src/google/        
-            ls src/google
+            ls src/google/ -l
             qmake
             make -j8
             cd src/debug
