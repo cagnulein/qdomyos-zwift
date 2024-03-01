@@ -149,6 +149,10 @@ jobs:
         run: cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
         shell: msys2 {0}          
 
+      - name: Compile Zwift Protopuf
+        run: protoc  --proto_path="${GITHUB_WORKSPACE}/src/zwift-api/" --cpp_out="${GITHUB_WORKSPACE}/src/zwift-api/" zwift_messages.proto 
+        shell: msys2 {0}          
+
       - name: Build
         run: |
             #cp "C:/mingw64/bin/libabsl*.*" .
