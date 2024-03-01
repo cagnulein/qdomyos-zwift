@@ -454,7 +454,7 @@ jobs:
 
       - name: compile zwift protobuf
         run: |
-            protoc --proto_path=src/zwift-api/ --cpp_out=./ zwift_messages.proto
+            protoc --proto_path=src/zwift-api/ --cpp_out=src/zwift-api/ zwift_messages.proto
 
       - name: Build qthttpserver
         run: |
