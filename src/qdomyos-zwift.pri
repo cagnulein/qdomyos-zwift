@@ -284,7 +284,7 @@ macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
 #zwift api
-unix:!android: SOURCES += zwift-api/zwift_messages.pb.cc
+unix:!android:!ios: SOURCES += zwift-api/zwift_messages.pb.cc
 win32: SOURCES += zwift-api/zwift_messages.pb.cc
 
 # Default rules for deployment.
