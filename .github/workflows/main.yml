@@ -96,9 +96,13 @@ jobs:
         run: echo $MSYSTEM_PREFIX
         shell: msys2 {0}         
 
-      - name: List Protocol Buffers Header Files
-        run: ls $MINGW_PREFIX/include/google/protobuf
+      - name: List Protocol Buffers Lib Files
+        run: ls $MINGW_PREFIX/lib/
         shell: msys2 {0}        
+
+      - name: List Protocol Buffers Bin Files
+        run: ls $MINGW_PREFIX/bin/
+        shell: msys2 {0}                      
         
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
