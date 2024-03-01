@@ -129,6 +129,10 @@ jobs:
         shell: msys2 {0}
 
       - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_check_op.dll.a "${GITHUB_WORKSPACE}/src/"
+        shell: msys2 {0}
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
         run: cp -v $MINGW_PREFIX/lib/libabsl_base.dll.a "${GITHUB_WORKSPACE}/src/"
         shell: msys2 {0}        
 
@@ -143,7 +147,11 @@ jobs:
       - name: Copy Abseil Binaries to a Repo Subfolder
         run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_message.dll.a "${GITHUB_WORKSPACE}/"
         shell: msys2 {0}
-        
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_check_op.dll.a "${GITHUB_WORKSPACE}/"
+        shell: msys2 {0}        
+
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
