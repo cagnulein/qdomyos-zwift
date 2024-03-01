@@ -32,7 +32,7 @@ CONFIG += qmltypes
 
 win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
 win32:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
-unix:!android:LIBS += -lprotobuf-lite -lprotobuf -labsl_base
+unix:!android:!ios:LIBS += -lprotobuf-lite -lprotobuf -labsl_base
 
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
