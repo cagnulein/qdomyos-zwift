@@ -103,6 +103,34 @@ jobs:
       - name: List Protocol Buffers Bin Files
         run: ls $MINGW_PREFIX/bin/
         shell: msys2 {0}                      
+
+      - name: Copy Protobuf Headers to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
+        shell: msys2 {0}          
+
+      - name: Copy Abseil Headers to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
+        shell: msys2 {0}          
+
+      - name: Compile Zwift Protopuf
+        run: protoc  --proto_path="${GITHUB_WORKSPACE}/src/zwift-api/" --cpp_out="${GITHUB_WORKSPACE}/src/zwift-api/" zwift_messages.proto 
+        shell: msys2 {0}          
+
+      - name: Copy Protobuf Binaries to a Repo Subfolder
+        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/src/"
+        shell: msys2 {0}        
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/src/"
+        shell: msys2 {0}        
+
+      - name: Copy Protobuf Binaries to a Repo Subfolder
+        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/"
+        shell: msys2 {0}        
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/"
+        shell: msys2 {0}                        
         
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
@@ -144,34 +172,6 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..  
-
-      - name: Copy Protobuf Headers to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
-        shell: msys2 {0}          
-
-      - name: Copy Abseil Headers to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
-        shell: msys2 {0}          
-
-      - name: Compile Zwift Protopuf
-        run: protoc  --proto_path="${GITHUB_WORKSPACE}/src/zwift-api/" --cpp_out="${GITHUB_WORKSPACE}/src/zwift-api/" zwift_messages.proto 
-        shell: msys2 {0}          
-
-      - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}        
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}        
-
-      - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}        
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}                
 
       - name: Build
         run: |            
