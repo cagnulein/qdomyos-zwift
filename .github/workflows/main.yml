@@ -158,19 +158,19 @@ jobs:
         shell: msys2 {0}          
 
       - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/lib/libprotobuf*.*" "${GITHUB_WORKSPACE}/src/"
+        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/src/"
         shell: msys2 {0}        
 
       - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/src/"
+        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/src/"
         shell: msys2 {0}        
 
       - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/lib/libprotobuf*.*" "${GITHUB_WORKSPACE}/"
+        run: cp -v "$MINGW_PREFIX/lib/libproto*.*" "${GITHUB_WORKSPACE}/"
         shell: msys2 {0}        
 
       - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/"
+        run: cp -v "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/"
         shell: msys2 {0}                
 
       - name: Build
