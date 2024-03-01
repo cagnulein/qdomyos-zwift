@@ -7,7 +7,10 @@
 
 
 class TacxNeo2TestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new tacxneo2(options.noResistance, options.noHeartService);
+    }
 public:
     TacxNeo2TestData() : BikeTestData("Tacx Neo 2 Bike") {
         this->addDeviceName("TACX NEO", comparison::StartsWithIgnoreCase);

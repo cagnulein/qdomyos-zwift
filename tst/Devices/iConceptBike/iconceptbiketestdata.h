@@ -5,7 +5,12 @@
 
 class iConceptBikeTestData : public BikeTestData {
 
-void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new iconceptbike();
+    }
+
+    void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
                            std::vector<DeviceDiscoveryInfo> &configurations) const override {
         DeviceDiscoveryInfo config(info);
 

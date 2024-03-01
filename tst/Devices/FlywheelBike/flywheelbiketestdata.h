@@ -10,6 +10,9 @@
 class FlywheelBikeTestData : public BikeTestData {
 
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new flywheelbike(options.noResistance, options.noHeartService);
+    }
     FlywheelBikeTestData(std::string testName) : BikeTestData(testName) {
     }
 public:

@@ -6,6 +6,9 @@
 
 class TrxAppGateUSBBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new trxappgateusbbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
     TrxAppGateUSBBikeTestData(std::string testName) : BikeTestData(testName) {
 
     }

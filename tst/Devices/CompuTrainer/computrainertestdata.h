@@ -5,6 +5,10 @@
 
 class CompuTrainerTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new computrainerbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
+
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.computrainer_serial_port = enable ? "X":QString();
         return true;

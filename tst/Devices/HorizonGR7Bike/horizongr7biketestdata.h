@@ -7,7 +7,10 @@
 
 
 class HorizonGR7BikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new horizongr7bike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     HorizonGR7BikeTestData() : BikeTestData("Horizon GR7 Bike") {
         this->addDeviceName("JFIC", comparison::StartsWithIgnoreCase);

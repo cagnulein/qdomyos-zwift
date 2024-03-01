@@ -8,6 +8,9 @@
 
 class NPECableBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new npecablebike(options.noResistance, options.noHeartService);
+    }
     NPECableBikeTestData(std::string testName) : BikeTestData(testName) {}
 public:
     deviceType get_expectedDeviceType() const override { return deviceType::NPECableBike; }

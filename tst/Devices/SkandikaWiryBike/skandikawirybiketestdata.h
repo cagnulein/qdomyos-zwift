@@ -7,7 +7,10 @@
 
 
 class SkandikaWiryBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new skandikawiribike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     SkandikaWiryBikeTestData() : BikeTestData("Skandika Wiry Bike") {
         this->addDeviceName("BFCP", comparison::StartsWithIgnoreCase);

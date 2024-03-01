@@ -7,7 +7,10 @@
 
 
 class SportsPlusBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new sportsplusbike(options.noResistance, options.noHeartService);
+    }
 public:
     SportsPlusBikeTestData() : BikeTestData("Sports Plus Bike") {
         this->addDeviceName("CARDIOFIT", comparison::StartsWithIgnoreCase);

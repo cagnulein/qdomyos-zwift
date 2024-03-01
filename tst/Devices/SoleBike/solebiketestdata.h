@@ -7,7 +7,10 @@
 
 
 class SoleBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new solebike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     SoleBikeTestData() : BikeTestData("Sole Bike") {
         this->addDeviceName("LCB", comparison::StartsWithIgnoreCase);

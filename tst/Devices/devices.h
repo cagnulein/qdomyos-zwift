@@ -1,11 +1,9 @@
-#ifndef DEVICES_H
-#define DEVICES_H
+#pragma once
 
 #include <QMap>
 #include <memory>
 
 #include "gtest/gtest.h"
-#include "bluetoothdevicetestdata.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
 #include "ApexBike/apexbiketestdata.h"
 #include "BkoolBike/bkoolbiketestdata.h"
@@ -199,7 +197,58 @@ ZiproTreadmillTestData,
 iConceptBikeTestData,
 iConceptEllipticalTestData>;
 
-#endif
+using BikeTestDataTypes = ::testing::Types<
+ApexBikeTestData,
+BkoolBikeTestData,
+CompuTrainerTestData,
+CSCBike1TestData,
+CSCBike2TestData,
+ChronobikeTestData,
+DomyosBikeTestData,
+EchelonConnectSportBikeTestData,
+FTMSBike1TestData,
+FTMSBike2TestData,
+FTMSBike3TestData,
+FakeBikeTestData,
+FitPlusBikeFSTestData,
+FitPlusBikeMRKTestData,
+FlywheelBike1TestData,
+FlywheelBike2TestData,
+HorizonGR7BikeTestData,
+InspireBikeTestData,
+KeepBikeTestData,
+M3IBikeTestData,
+MCFBikeTestData,
+MepanelBikeTestData,
+NPECableBike1TestData,
+NPECableBike2TestData,
+NautilusBikeTestData,
+PafersBikeTestData,
+ProFormBikeTestData,
+ProFormWiFiBikeTestData,
+RenphoBike1TestData,
+RenphoBike2TestData,
+Schwinn170BikeTestData,
+SchwinnIC4BikeTestData,
+SkandikaWiryBikeTestData,
+SnodeBike1TestData,
+SnodeBike2TestData,
+SoleBikeTestData,
+SportsPlusBikeTestData,
+SportsTechBikeTestData,
+StagesBike1TestData,
+StagesBike2TestData,
+TacxNeo2TestData,
+TrxAppGateUSBBike1TestData,
+TrxAppGateUSBBike2TestData,
+UltrasportBikeTestData,
+WahooKickrSnapBikeTestData,
+YesoulBikeTestData,
+iConceptBikeTestData>;
+
+
+
+
 
 
 

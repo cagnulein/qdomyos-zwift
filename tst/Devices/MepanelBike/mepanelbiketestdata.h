@@ -9,7 +9,10 @@
 
 
 class MepanelBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new mepanelbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     MepanelBikeTestData() : BikeTestData("Mepanel Bike") {
         this->addDeviceName("MEPANEL", comparison::StartsWithIgnoreCase);

@@ -6,7 +6,10 @@
 
 
 class SchwinnIC4BikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new schwinnic4bike(options.noResistance, options.noHeartService);
+    }
 public:
     SchwinnIC4BikeTestData() : BikeTestData("Schwinn IC4 Bike") {
 

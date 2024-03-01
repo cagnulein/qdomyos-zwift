@@ -8,7 +8,10 @@
 
 
 class MCFBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new mcfbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     MCFBikeTestData() : BikeTestData("MCF Bike") {
         this->addDeviceName("MCF-", comparison::StartsWithIgnoreCase);
