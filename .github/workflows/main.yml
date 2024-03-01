@@ -142,7 +142,7 @@ jobs:
           cd ..  
 
       - name: Copy Protobuf Headers to a Repo Subfolder
-        run: cp -r "$MINGW_PREFIX/include/google/protobuf" "${GITHUB_WORKSPACE}/src/google/"
+        run: cp -rv "$MINGW_PREFIX/include/google/protobuf" "${GITHUB_WORKSPACE}/src/google/"
         shell: msys2 {0}          
 
       - name: Build
@@ -187,7 +187,7 @@ jobs:
             #cp "C:/mingw64/lib/libabsl*.*" .
             #cp "C:/mingw64/bin/libproto*.*" .
             #cp "C:/mingw64/lib/libproto*.*" .                    
-            ls src/google/ -l
+            ls src/google/
             qmake
             make -j8
             cd src/debug
