@@ -142,7 +142,7 @@ jobs:
           cd ..  
 
       - name: Copy Protobuf Headers to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/include/google/protobuf" "${GITHUB_WORKSPACE}/src/google/"
+        run: cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
         shell: msys2 {0}          
 
       - name: Build
@@ -454,7 +454,7 @@ jobs:
 
       - name: compile zwift protobuf
         run: |
-            protoc --proto_path=src/zwift-api/ --cpp_out=src/zwift-api/ zwift_messages.proto
+            protoc --proto_path=src/zwift-api/ --cpp_out=./ zwift_messages.proto
 
       - name: Build qthttpserver
         run: |
