@@ -99,7 +99,7 @@ jobs:
       - name: List Protocol Buffers Header Files
         run: ls $MINGW_PREFIX/include/google/protobuf
         shell: msys2 {0}        
-
+        
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
         with:
@@ -153,12 +153,24 @@ jobs:
         run: protoc  --proto_path="${GITHUB_WORKSPACE}/src/zwift-api/" --cpp_out="${GITHUB_WORKSPACE}/src/zwift-api/" zwift_messages.proto 
         shell: msys2 {0}          
 
+      - name: Copy Protobuf Binaries to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/lib/libprotobuf*.*" "${GITHUB_WORKSPACE}/src/"
+        shell: msys2 {0}        
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/src/"
+        shell: msys2 {0}        
+
+      - name: Copy Protobuf Binaries to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/lib/libprotobuf*.*" "${GITHUB_WORKSPACE}/"
+        shell: msys2 {0}        
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -rv "$MINGW_PREFIX/lib/libabsl_base.dll.a" "${GITHUB_WORKSPACE}/"
+        shell: msys2 {0}                
+
       - name: Build
-        run: |
-            #cp "C:/mingw64/bin/libabsl*.*" .
-            #cp "C:/mingw64/lib/libabsl*.*" .
-            #cp "C:/mingw64/bin/libproto*.*" .
-            #cp "C:/mingw64/lib/libproto*.*" .            
+        run: |            
             qmake
             make -j8
             cd src/debug
@@ -170,11 +182,7 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
-            cp "C:/mingw64/bin/zlib1.dll" .
-            cp "C:/mingw64/bin/libabsl*.*" .
-            cp "C:/mingw64/lib/libabsl*.*" .
-            cp "C:/mingw64/bin/libproto*.*" .
-            cp "C:/mingw64/lib/libproto*.*" .            
+            cp "C:/mingw64/bin/zlib1.dll" .   
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
@@ -191,10 +199,6 @@ jobs:
             
       - name: Build without python
         run: |
-            #cp "C:/mingw64/bin/libabsl*.*" .
-            #cp "C:/mingw64/lib/libabsl*.*" .
-            #cp "C:/mingw64/bin/libproto*.*" .
-            #cp "C:/mingw64/lib/libproto*.*" .                    
             ls src/google/
             qmake
             make -j8
@@ -208,10 +212,6 @@ jobs:
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
             cp "C:/mingw64/bin/zlib1.dll" .
-            cp "C:/mingw64/bin/libabsl*.*" .
-            cp "C:/mingw64/lib/libabsl*.*" .
-            cp "C:/mingw64/bin/libproto*.*" .
-            cp "C:/mingw64/lib/libproto*.*" .                  
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
