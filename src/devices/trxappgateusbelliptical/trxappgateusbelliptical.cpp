@@ -78,8 +78,6 @@ void trxappgateusbelliptical::update() {
         update_metrics(true, watts());
 
         {
-            uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             if (requestResistance != -1) {
                 if (requestResistance < 1)
                     requestResistance = 1;
@@ -89,6 +87,9 @@ void trxappgateusbelliptical::update() {
                     forceResistance(requestResistance);
                 }
                 requestResistance = -100;
+            } else {
+                uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             }
         }
 
