@@ -40,7 +40,8 @@ class fakebike : public bike {
     fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
-
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    
   private:
     QTimer *refresh;
 
