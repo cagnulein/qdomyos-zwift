@@ -73,6 +73,7 @@ double elliptical::speedFromWatts() {
 }
 
 void elliptical::changeResistance(resistance_t resistance) {
+    qDebug() << "changeResistance" << resistance;
     lastRawRequestedResistanceValue = resistance;
     requestResistance = resistance + gears();
     RequestedResistance = resistance + gears();
@@ -88,7 +89,7 @@ void elliptical::setGears(double gears) {
     }
 }
 void elliptical::changeInclination(double grade, double inclination) {
-    Q_UNUSED(grade);
+    qDebug() << "changeInclination" << grade << inclination;
     if (autoResistanceEnable) {
         requestInclination = inclination;
     }

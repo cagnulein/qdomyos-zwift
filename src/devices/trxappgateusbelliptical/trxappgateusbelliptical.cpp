@@ -386,3 +386,8 @@ uint16_t trxappgateusbelliptical::watts() { return m_watt.value(); }
 
 
 void trxappgateusbelliptical::searchingStop() { searchStopped = true; }
+
+bool trxappgateusbelliptical::inclinationAvailableByHardware() {
+    // actually it has but i don't have the bluetooth code to change inclination
+    return false;
+}
