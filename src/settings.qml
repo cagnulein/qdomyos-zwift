@@ -9551,7 +9551,7 @@ import QtQuick.Dialogs 1.0
                                     spacing: 0
                                     SwitchDelegate {
                                         id: wahooRGTDirconDelegate
-                                        text: qsTr("Wahoo RGT Compatibility")
+                                        text: qsTr("MyWhoosh Compatibility")
                                         spacing: 0
                                         bottomPadding: 0
                                         topPadding: 0
