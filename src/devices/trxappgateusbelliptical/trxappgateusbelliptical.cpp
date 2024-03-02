@@ -164,7 +164,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
         return;
     }
 
-    Resistance = newValue.at(18);
+    Resistance = newValue.at(18) - 1;
     Speed = GetSpeedFromPacket(newValue);
     Cadence = (GetCadenceFromPacket(newValue) * cadence_gain) + cadence_offset;
     m_watt = GetWattFromPacket(newValue);
