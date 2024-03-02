@@ -67,6 +67,8 @@ class fakebike : public bike {
     lockscreen *h = 0;
 #endif
 
+    uint16_t wattsFromResistance(double resistance);
+
   signals:
     void disconnected();
     void debug(QString string);
