@@ -35,7 +35,7 @@ public:
     }
 
     void collectData(double cadence, double wattage, double resistance) {
-        if (!dataPointExists(cadence, wattage, resistance)) {
+        if (wattage > 0 && !dataPointExists(cadence, wattage, resistance)) {
             qDebug() << "newPointAdded" << "C" << cadence << "W" << wattage << "R" << resistance;
             DataPoint point(cadence, wattage, resistance);
             dataTable.append(point);
