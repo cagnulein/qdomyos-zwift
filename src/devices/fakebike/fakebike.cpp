@@ -79,6 +79,8 @@ void fakebike::update() {
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    _ergTable.collectData(Cadence.value(), watt, Resistance.value());
+
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
