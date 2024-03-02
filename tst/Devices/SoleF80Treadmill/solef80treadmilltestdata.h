@@ -41,6 +41,7 @@ class SoleF85TreadmillTestData : public TreadmillTestData {
   public:
     SoleF85TreadmillTestData() : TreadmillTestData("Sole F85 Treadmill") {
         this->addDeviceName("F85", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("F89", comparison::StartsWithIgnoreCase);
         this->addDeviceName("F80", comparison::StartsWithIgnoreCase);
     }
 
