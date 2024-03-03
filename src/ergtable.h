@@ -75,6 +75,13 @@ public:
 
             qDebug() << "interpolation" << lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * (cadenceRatio + resistanceRatio) / 2;
 
+            if(qIsNaN(cadenceRatio) || qIsInf(cadenceRatio)) {
+                cadenceRatio = 1.0;
+            }
+            if(qIsNaN(resistanceRatio) || qIsInf(resistanceRatio)) {
+                resistanceRatio = 1.0;
+            }
+
             return lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * (cadenceRatio + resistanceRatio) / 2;
         }
 
