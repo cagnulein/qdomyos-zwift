@@ -896,7 +896,7 @@ jobs:
   
       - name: Install Protobuf Dependencies
         run: |
-          choco install -y protobuf
+          choco install -y protoc
   
       - name: Clone Protobuf Repository
         run: git clone https://github.com/protocolbuffers/protobuf.git
