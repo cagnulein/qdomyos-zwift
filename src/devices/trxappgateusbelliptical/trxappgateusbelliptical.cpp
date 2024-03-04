@@ -86,7 +86,7 @@ void trxappgateusbelliptical::update() {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
-                requestResistance = -100;
+                requestResistance = -1;
             } else {
                 uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
                 writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
