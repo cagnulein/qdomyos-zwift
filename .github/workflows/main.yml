@@ -247,11 +247,11 @@ jobs:
         if: matrix.config.python == false
 
       - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_* "${GITHUB_WORKSPACE}/src/debug/output/"
+        run: cp -v $MINGW_PREFIX/bin/libabsl_* "${GITHUB_WORKSPACE}/src/debug/output/"
         shell: msys2 {0}
 
       - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libproto_* "${GITHUB_WORKSPACE}/src/debug/output/"
+        run: cp -v $MINGW_PREFIX/bin/libproto_* "${GITHUB_WORKSPACE}/src/debug/output/"
         shell: msys2 {0}
 
       - name: patching qt for bluetooth
