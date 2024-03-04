@@ -100,18 +100,24 @@ public:
         double r;
 
         // Estimate wattage
-        if (lowerDiff != std::numeric_limits<double>::max() && upperDiff != std::numeric_limits<double>::max()) {
+        if (lowerDiff != std::numeric_limits<double>::max() && upperDiff != std::numeric_limits<double>::max() && lowerDiff !=0 && upperDiff != 0) {
             // Interpolation between lower and upper points
             double cadenceRatio = 1.0;
             if (upperPoint.cadence != lowerPoint.cadence) { // Avoid division by zero
                 cadenceRatio = (givenCadence - lowerPoint.cadence) / (double)(upperPoint.cadence - lowerPoint.cadence);
             }
             r = lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * cadenceRatio;
-            qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << cadenceRatio;
+            qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << lowerPoint.cadence << upperPoint.cadence << cadenceRatio << lowerDiff << upperDiff;
             return r;
+        } else if (lowerDiff == 0) {
+            qDebug() << "case3" << lowerDiff.wattage;
+            return lowerDiff.wattage;
+        } else if (upperDiff == 0) {
+            qDebug() << "case4" << upperDiff.wattage;
+            return upperDiff.wattage;            
         } else {
             r = (lowerDiff < upperDiff) ? lowerPoint.wattage : upperPoint.wattage;
-            qDebug() << "case3" << r;
+            qDebug() << "case5" << r;
             // Use the closest point if only one match is found
             return r;
         }

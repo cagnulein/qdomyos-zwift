@@ -576,16 +576,16 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     // Now try some interpolated points
     expected.clear();
 
-    expected.append(ergDataPoint(71, 100, 4)); 
-    expected.append(ergDataPoint(71, 100, 20)); 
-    expected.append(ergDataPoint(72, 100, 20)); 
-    expected.append(ergDataPoint(73, 100, 20)); 
-    expected.append(ergDataPoint(74, 100, 20)); 
-    expected.append(ergDataPoint(75, 100, 20));
-    expected.append(ergDataPoint(76, 100, 20)); 
-    expected.append(ergDataPoint(77, 100, 20)); 
-    expected.append(ergDataPoint(78, 100, 20));
-    expected.append(ergDataPoint(79, 100, 20));
+    expected.append(ergDataPoint(71, 126, 4)); 
+    expected.append(ergDataPoint(71, 287, 20)); 
+    expected.append(ergDataPoint(72, 296, 20)); 
+    expected.append(ergDataPoint(73, 305, 20)); 
+    expected.append(ergDataPoint(74, 323, 20)); 
+    expected.append(ergDataPoint(75, 328, 20));
+    expected.append(ergDataPoint(76, 332, 20)); 
+    expected.append(ergDataPoint(77, 340, 20)); 
+    expected.append(ergDataPoint(78, 350, 20));
+    expected.append(ergDataPoint(79, 360, 20));
     this->test_wattageEstimation(inputs, expected);
 
 }
