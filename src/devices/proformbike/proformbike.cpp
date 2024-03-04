@@ -904,7 +904,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool proform_bike_sb = settings.value(QZSettings::proform_bike_sb, QZSettings::default_proform_bike_sb).toBool();
     bool proform_bike_PFEVEX71316_1 =
         settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1).toBool();
-    bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
+    //bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -913,11 +913,11 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     if (ifit_bike) {
         if (newValue.length() != 20 ||
             // frames with power
-            (newValue.at(0) != 0x00 && newValue.at(0) != 0x01 && newValue.at(1) != 0x12) {
+            (newValue.at(0) != 0x00 && newValue.at(0) != 0x01 && newValue.at(1) != 0x12)) {
             return;
         }
 
-        if (newValue.at(3) == 0x01 && newValue.at(4) == 0x04 && newValue.at(5) == 0x02 && newValue.at(6) == 0x34)) {
+        if (newValue.at(3) == 0x01 && newValue.at(4) == 0x04 && newValue.at(5) == 0x02 && newValue.at(6) == 0x34) {
             m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
