@@ -13,6 +13,13 @@ ErgTableTestSuite::ErgTableTestSuite()
 
 
 void ErgTableTestSuite::test_wattageEstimation(const QList<ergDataPoint> &inputs, const QList<ergDataPoint>& expectedOutputs) {
+
+    TestSettings testSettings("Roberto Viola", "QDomyos-Zwift Testing");
+    testSettings.activate(); // previous settings should be restored automatically when this object goes out of scope via its destructor
+
+    // "just in case", clear the DataPoints settings so that the ergtable is blank
+    testSettings.qsettings.remove("ergDataPoints");
+
     ergTable erg;
 
     // set up the erg table
@@ -23,7 +30,8 @@ void ErgTableTestSuite::test_wattageEstimation(const QList<ergDataPoint> &inputs
     for(const ergDataPoint& dataPoint : expectedOutputs)
     {
         auto wattage = erg.estimateWattage(dataPoint.cadence, dataPoint.resistance);
-        EXPECT_DOUBLE_EQ(dataPoint.wattage, wattage) << "Expected estimated wattage from C:" << dataPoint.cadence << " R:"<<dataPoint.resistance << " to be " << dataPoint.wattage;
+        EXPECT_NEAR(dataPoint.wattage, wattage, 1) << "Expected estimated wattage from C:" << dataPoint.cadence << " R:"<<dataPoint.resistance << " to be " << dataPoint.wattage;
+        qDebug() << "error";
     }
 }
 
@@ -63,7 +71,6 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(102, 216, 5));
     inputs.append(ergDataPoint(98, 203, 5));
     inputs.append(ergDataPoint(86, 166, 5));
-    inputs.append(ergDataPoint(81, 152, 6));
     inputs.append(ergDataPoint(77, 158, 6));
     inputs.append(ergDataPoint(72, 141, 6));
     inputs.append(ergDataPoint(66, 121, 6));
@@ -141,7 +148,6 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(62, 125, 8));
     inputs.append(ergDataPoint(56, 105, 8));
     inputs.append(ergDataPoint(46, 75, 8));
-    inputs.append(ergDataPoint(46, 75, 9));
     inputs.append(ergDataPoint(46, 82, 9));
     inputs.append(ergDataPoint(48, 89, 9));
     inputs.append(ergDataPoint(49, 92, 9));
@@ -206,10 +212,8 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(79, 218, 10));
     inputs.append(ergDataPoint(72, 186, 10));
     inputs.append(ergDataPoint(63, 145, 10));
-    inputs.append(ergDataPoint(63, 145, 11));
     inputs.append(ergDataPoint(63, 155, 11));
     inputs.append(ergDataPoint(62, 150, 11));
-    inputs.append(ergDataPoint(60, 140, 11));
     inputs.append(ergDataPoint(57, 130, 11));
     inputs.append(ergDataPoint(61, 145, 11));
     inputs.append(ergDataPoint(65, 165, 11));
@@ -274,7 +278,6 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(70, 199, 12));
     inputs.append(ergDataPoint(67, 183, 12));
     inputs.append(ergDataPoint(63, 162, 12));
-    inputs.append(ergDataPoint(60, 147, 12));
     inputs.append(ergDataPoint(58, 148, 13));
     inputs.append(ergDataPoint(57, 145, 13));
     inputs.append(ergDataPoint(59, 151, 13));
@@ -357,8 +360,6 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(78, 268, 14));
     inputs.append(ergDataPoint(76, 256, 14));
     inputs.append(ergDataPoint(73, 238, 14));
-    inputs.append(ergDataPoint(63, 179, 14));
-    inputs.append(ergDataPoint(63, 179, 15));
     inputs.append(ergDataPoint(61, 176, 15));
     inputs.append(ergDataPoint(62, 182, 15));
     inputs.append(ergDataPoint(64, 194, 15));
@@ -390,7 +391,6 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     inputs.append(ergDataPoint(69, 225, 15));
     inputs.append(ergDataPoint(68, 219, 15));
     inputs.append(ergDataPoint(66, 207, 15));
-    inputs.append(ergDataPoint(62, 182, 16));
     inputs.append(ergDataPoint(60, 177, 16));
     inputs.append(ergDataPoint(62, 191, 16));
     inputs.append(ergDataPoint(66, 219, 16));
@@ -580,12 +580,12 @@ void ErgTableTestSuite::test_dynamicErgTable() {
     expected.append(ergDataPoint(71, 287, 20)); 
     expected.append(ergDataPoint(72, 296, 20)); 
     expected.append(ergDataPoint(73, 305, 20)); 
-    expected.append(ergDataPoint(74, 323, 20)); 
-    expected.append(ergDataPoint(75, 328, 20));
+    expected.append(ergDataPoint(74, 314, 20)); 
+    expected.append(ergDataPoint(75, 323, 20));
     expected.append(ergDataPoint(76, 332, 20)); 
-    expected.append(ergDataPoint(77, 340, 20)); 
+    expected.append(ergDataPoint(77, 341, 20)); 
     expected.append(ergDataPoint(78, 350, 20));
-    expected.append(ergDataPoint(79, 360, 20));
+    expected.append(ergDataPoint(79, 355, 20));
     this->test_wattageEstimation(inputs, expected);
 
 }

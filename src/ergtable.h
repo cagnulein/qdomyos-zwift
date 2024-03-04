@@ -129,7 +129,7 @@ private:
 
     bool ergDataPointExists(uint16_t cadence, uint16_t wattage, uint16_t resistance) {
         for (const ergDataPoint& point : dataTable) {
-            if (point.cadence == cadence && point.wattage == wattage && point.resistance == resistance) {
+            if (point.cadence == cadence && point.resistance == resistance && cadence != 0 && wattage != 0) {
                 return true; // Found duplicate
             }
         }
@@ -147,6 +147,9 @@ private:
                 uint16_t cadence = fields[0].toUInt();
                 uint16_t wattage = fields[1].toUInt();
                 uint16_t resistance = fields[2].toUInt();
+
+                qDebug() << "inputs.append(ergDataPoint(" << cadence << ", " << wattage << ", "<< resistance << "));";
+
                 dataTable.append(ergDataPoint(cadence, wattage, resistance));
             }
         }
