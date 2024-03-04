@@ -1910,7 +1910,7 @@ void proformbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if(device.name().toUpper().contains(QStringLiteral("_IFIT_BIKE")) {
+        if(device.name().toUpper().contains(QStringLiteral("_IFIT_BIKE"))) {
             ifit_bike = true;
             qDebug() << "IFIT_BIKE workaround enabled";
         }
