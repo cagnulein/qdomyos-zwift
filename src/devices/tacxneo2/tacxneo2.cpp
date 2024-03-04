@@ -120,25 +120,31 @@ void tacxneo2::update() {
             // updateDisplay(elapsed);
         }
 
+        auto virtualBike = this->VirtualBike();
+
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value() || lastGearValue != gears()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                auto virtualBike = this->VirtualBike();
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;
-            }
-            lastGearValue = gears();
+            }            
             requestResistance = -1;
         }
         if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
-            requestInclination = -100;
+            requestInclination = -100;            
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100) {
+            // in order to send the new gear value ASAP
+            forceInclination(lastRawRequestedInclinationValue + gears());   // since this bike doesn't have the concept of resistance,
+                                                                            // i'm using the gears in the inclination
         }
+
+        lastGearValue = gears();
 
         if (requestPower != -1) {
             changePower(requestPower);
@@ -232,7 +238,10 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
             deltaT = LastCrankEventTimeRead + 65535 - oldLastCrankEventTime;
         }
 
-        if (CrankRevsRead != oldCrankRevs && deltaT) {
+        // Tacx Neo flywheel spins up when freewheeling in a low virtual gear (Issue #2157)
+        if(m_watt.value() == 0) {
+            Cadence = 0;
+        } else if (CrankRevsRead != oldCrankRevs && deltaT) {
             double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
             if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;

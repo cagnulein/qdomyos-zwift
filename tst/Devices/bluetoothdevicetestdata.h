@@ -97,7 +97,9 @@ enum deviceType {
     LifeFitnessTreadmill,
     YpooElliptical,
     ZiproTreadmill,
-    CompuTrainerBike
+    CompuTrainerBike,
+    FocusTreadmill,
+    TrxAppGateUSBElliptical,
 };
 
 class BluetoothDeviceTestData;

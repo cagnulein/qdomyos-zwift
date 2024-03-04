@@ -73,6 +73,7 @@ HEADERS += \
     Devices/FakeTreadmill/faketreadmilltestdata.h \
     Devices/FitPlusBike/fitplusbiketestdata.h \
     Devices/FitshowTreadmill/fitshowtreadmilltestdata.h \
+    Devices/FocusTreadmill/focustreadmilltestdata.h \
     Devices/FlywheelBike/flywheelbiketestdata.h \
     Devices/HorizonGR7Bike/horizongr7biketestdata.h \
     Devices/HorizonTreadmill/horizontreadmilltestdata.h \
@@ -137,5 +138,6 @@ HEADERS += \
     Devices/iConceptBike/iconceptbiketestdata.h \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/YpooElliptical/ypooellipticaltestdata.h \
+    Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h

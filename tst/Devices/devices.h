@@ -31,6 +31,7 @@
 #include "FakeTreadmill/faketreadmilltestdata.h"
 #include "FitPlusBike/fitplusbiketestdata.h"
 #include "FitshowTreadmill/fitshowtreadmilltestdata.h"
+#include "FocusTreadmill/focustreadmilltestdata.h"
 #include "FlywheelBike/flywheelbiketestdata.h"
 #include "FTMSBike/ftmsbiketestdata.h"
 #include "FTMSRower/ftmsrowertestdata.h"
@@ -91,6 +92,7 @@
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
 #include "YpooElliptical/ypooellipticaltestdata.h"
+#include "TrxAppGateUSBElliptical/trxappgateusbellipticaltestdata.h"
 #include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
@@ -125,6 +127,7 @@ FitPlusBikeMRKTestData,
 FitshowTreadmillBFTestData,
 FitshowTreadmillFSTestData,
 FitshowTreadmillSWTestData,
+FocusTreadmillTestData,
 FlywheelBike1TestData,
 FlywheelBike2TestData,
 HorizonGR7BikeTestData,
@@ -190,6 +193,7 @@ UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
 YpooEllipticalTestData,
+TrxAppGateUSBEllipticalTestData,
 ZwiftRunpodTestData,
 ZiproTreadmillTestData,
 iConceptBikeTestData,

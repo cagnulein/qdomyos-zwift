@@ -72,6 +72,8 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csaferower/csafe.cpp \
@@ -285,6 +287,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/devices/focustreadmill/focustreadmill.h \
+    $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
@@ -836,4 +840,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.45
+VERSION = 2.16.47

@@ -10,6 +10,7 @@ class YpooEllipticalTestData : public EllipticalTestData {
 public:
     YpooEllipticalTestData() : EllipticalTestData("Ypoo Elliptical") {
         this->addDeviceName("YPOO-U3-", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("SCH_590E", comparison::StartsWithIgnoreCase);
     }
 
 

@@ -1,5 +1,5 @@
-#ifndef YPOOELLIPTICAL_H
-#define YPOOELLIPTICAL_H
+#ifndef TRXAPPGATEUSBELLIPTICAL_H
+#define TRXAPPGATEUSBELLIPTICAL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -27,32 +27,35 @@
 #include <QString>
 
 #include "devices/elliptical.h"
-#include "virtualdevices/virtualbike.h"
-#include "virtualdevices/virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class ypooelliptical : public elliptical {
+class trxappgateusbelliptical : public elliptical {
     Q_OBJECT
   public:
-    ypooelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+    trxappgateusbelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
+    void btinit();
+    double GetSpeedFromPacket(const QByteArray &packet);
+    double GetCadenceFromPacket(const QByteArray &packet);
+    double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
 
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattCustomService = nullptr;
+    QLowEnergyService* gattCommunicationChannelService;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -70,7 +73,7 @@ class ypooelliptical : public elliptical {
     bool noHeartService = false;
 
     uint8_t counterPoll = 0;
-    bool SCH_590E = false;
+    bool searchStopped = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -82,14 +85,13 @@ class ypooelliptical : public elliptical {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
   private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
@@ -102,4 +104,4 @@ class ypooelliptical : public elliptical {
     // void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
-#endif // YPOOELLIPTICAL_H
+#endif // TRXAPPGATEUSBELLIPTICAL_H
