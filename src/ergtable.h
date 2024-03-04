@@ -110,11 +110,11 @@ public:
             qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << lowerPoint.cadence << upperPoint.cadence << cadenceRatio << lowerDiff << upperDiff;
             return r;
         } else if (lowerDiff == 0) {
-            qDebug() << "case3" << lowerDiff.wattage;
-            return lowerDiff.wattage;
+            qDebug() << "case3" << lowerPoint.wattage;
+            return lowerPoint.wattage;
         } else if (upperDiff == 0) {
-            qDebug() << "case4" << upperDiff.wattage;
-            return upperDiff.wattage;            
+            qDebug() << "case4" << upperPoint.wattage;
+            return upperPoint.wattage;            
         } else {
             r = (lowerDiff < upperDiff) ? lowerPoint.wattage : upperPoint.wattage;
             qDebug() << "case5" << r;
