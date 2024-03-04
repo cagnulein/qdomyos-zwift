@@ -43,54 +43,80 @@ public:
     }
 
     double estimateWattage(uint16_t givenCadence, uint16_t givenResistance) {
+        QList<ergDataPoint> filteredByResistance;
+        double minResDiff = std::numeric_limits<double>::max();
+
+               // Initial filtering by resistance
+        for (const ergDataPoint& point : dataTable) {
+            double resDiff = std::abs(point.resistance - givenResistance);
+            if (resDiff < minResDiff) {
+                filteredByResistance.clear();
+                filteredByResistance.append(point);
+                minResDiff = resDiff;
+            } else if (resDiff == minResDiff) {
+                filteredByResistance.append(point);
+            }
+        }
+
+               // Fallback search if no close resistance match is found
+        if (filteredByResistance.isEmpty()) {
+            double minSimilarity = std::numeric_limits<double>::max();
+            ergDataPoint closestPoint;
+
+            for (const ergDataPoint& point : dataTable) {
+                double cadenceDiff = std::abs(point.cadence - givenCadence);
+                double resDiff = std::abs(point.resistance - givenResistance);
+                // Weighted similarity measure: Giving more weight to resistance
+                double similarity = resDiff * 2 + cadenceDiff;
+
+                if (similarity < minSimilarity) {
+                    minSimilarity = similarity;
+                    closestPoint = point;
+                }
+            }
+
+            qDebug() << "case1" << closestPoint.wattage;
+            // Use the wattage of the closest match based on similarity
+            return closestPoint.wattage;
+        }
+
+               // Find lower and upper points based on cadence within the filtered list
         double lowerDiff = std::numeric_limits<double>::max();
         double upperDiff = std::numeric_limits<double>::max();
         ergDataPoint lowerPoint, upperPoint;
 
-        for (const ergDataPoint& point : dataTable) {
-            double diff = std::abs(point.cadence - givenCadence) + std::abs(point.resistance - givenResistance);
+        for (const ergDataPoint& point : filteredByResistance) {
+            double cadenceDiff = std::abs(point.cadence - givenCadence);
 
-            if (point.cadence <= givenCadence && diff < lowerDiff) {
-                lowerDiff = diff;
+            if (point.cadence <= givenCadence && cadenceDiff < lowerDiff) {
+                lowerDiff = cadenceDiff;
                 lowerPoint = point;
-            } else if (point.cadence > givenCadence && diff < upperDiff) {
-                upperDiff = diff;
+            } else if (point.cadence > givenCadence && cadenceDiff < upperDiff) {
+                upperDiff = cadenceDiff;
                 upperPoint = point;
             }
         }
 
-        qDebug() << lowerDiff << upperDiff << lowerPoint.cadence << lowerPoint.resistance << lowerPoint.wattage << upperPoint.cadence << upperPoint.resistance << upperPoint.wattage;
-
         double r;
 
-        // If no exact match found, interpolate between the closest lower and upper points
+        // Estimate wattage
         if (lowerDiff != std::numeric_limits<double>::max() && upperDiff != std::numeric_limits<double>::max()) {
-            double cadenceRange = upperPoint.cadence - lowerPoint.cadence;
-            double resistanceRange = upperPoint.resistance - lowerPoint.resistance;
-            double cadenceRatio = (givenCadence - lowerPoint.cadence) / cadenceRange;
-            double resistanceRatio = (givenResistance - lowerPoint.resistance) / resistanceRange;
-
-            if(qIsNaN(cadenceRatio) || qIsInf(cadenceRatio)) {
-                cadenceRatio = 1.0;
+            // Interpolation between lower and upper points
+            double cadenceRatio = 1.0;
+            if (upperPoint.cadence != lowerPoint.cadence) { // Avoid division by zero
+                cadenceRatio = (givenCadence - lowerPoint.cadence) / (double)(upperPoint.cadence - lowerPoint.cadence);
             }
-            if(qIsNaN(resistanceRatio) || qIsInf(resistanceRatio)) {
-                resistanceRatio = 1.0;
-            }
-
-            r = (double)lowerPoint.wattage + ((double)(upperPoint.wattage - lowerPoint.wattage)) * (cadenceRatio + resistanceRatio) / 2.0;
-
-            qDebug() << "interpolation" << r;
-
+            r = lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * cadenceRatio;
+            qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << cadenceRatio;
+            return r;
+        } else {
+            r = (lowerDiff < upperDiff) ? lowerPoint.wattage : upperPoint.wattage;
+            qDebug() << "case3" << r;
+            // Use the closest point if only one match is found
             return r;
         }
-
-        r = (lowerDiff < upperDiff ? lowerPoint.wattage : upperPoint.wattage);
-
-        qDebug() << "closest point" << r;
-
-        // Fallback if only one closest point is found or none
-        return r;
     }
+
 
 private:
     QList<ergDataPoint> dataTable;
