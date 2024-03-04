@@ -246,6 +246,14 @@ jobs:
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
 
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v $MINGW_PREFIX/lib/libabsl_* "${GITHUB_WORKSPACE}/src/debug/output/"
+        shell: msys2 {0}
+
+      - name: Copy Abseil Binaries to a Repo Subfolder
+        run: cp -v $MINGW_PREFIX/lib/libproto_* "${GITHUB_WORKSPACE}/src/debug/output/"
+        shell: msys2 {0}
+
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
 
