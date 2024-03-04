@@ -31,7 +31,6 @@ void ErgTableTestSuite::test_wattageEstimation(const QList<ergDataPoint> &inputs
     {
         auto wattage = erg.estimateWattage(dataPoint.cadence, dataPoint.resistance);
         EXPECT_NEAR(dataPoint.wattage, wattage, 1) << "Expected estimated wattage from C:" << dataPoint.cadence << " R:"<<dataPoint.resistance << " to be " << dataPoint.wattage;
-        qDebug() << "error";
     }
 }
 
