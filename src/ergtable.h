@@ -4,23 +4,20 @@
 #include <QList>
 #include <QSettings>
 #include <QObject>
-#include <cmath>
-
-#include <QMetaType>
 #include <QDebug>
+#include "qzsettings.h"
 
-class DataPoint {
-public:
-    double cadence = 0; // RPM, default initialized
-    double wattage = 0; // Watts, default initialized
-    double resistance = 0; // Some unit, default initialized
+struct ergDataPoint {
+    uint16_t cadence = 0; // RPM
+    uint16_t wattage = 0; // Watts
+    uint16_t resistance = 0; // Some unit
 
-    DataPoint() = default; // Default constructor
+    ergDataPoint() = default;
 
-    DataPoint(double c, double w, double r) : cadence(c), wattage(w), resistance(r) {} // Custom constructor
+    ergDataPoint(uint16_t c, uint16_t w, uint16_t r) : cadence(c), wattage(w), resistance(r) {}
 };
 
-Q_DECLARE_METATYPE(DataPoint)
+Q_DECLARE_METATYPE(ergDataPoint)
 
 class ergTable : public QObject {
     Q_OBJECT
@@ -34,27 +31,25 @@ public:
         saveSettings();
     }
 
-    void collectData(double cadence, double wattage, double resistance) {
-        if (wattage > 0 && !dataPointExists(cadence, wattage, resistance)) {
+    void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance) {
+        if (wattage > 0 && !ergDataPointExists(cadence, wattage, resistance)) {
             qDebug() << "newPointAdded" << "C" << cadence << "W" << wattage << "R" << resistance;
-            DataPoint point(cadence, wattage, resistance);
+            ergDataPoint point(cadence, wattage, resistance);
             dataTable.append(point);
-            saveDataPoint(point); // Save each new point to QSettings
+            saveergDataPoint(point); // Save each new point to QSettings
         } else {
             qDebug() << "discarded" << "C" << cadence << "W" << wattage << "R" << resistance;
         }
     }
 
-    double estimateWattage(double givenCadence, double givenResistance) {
-        // Placeholder for closest points. Initialize with max possible difference.
+    double estimateWattage(uint16_t givenCadence, uint16_t givenResistance) {
         double lowerDiff = std::numeric_limits<double>::max();
         double upperDiff = std::numeric_limits<double>::max();
-        DataPoint lowerPoint, upperPoint;
+        ergDataPoint lowerPoint, upperPoint;
 
-        for (const DataPoint& point : dataTable) {
+        for (const ergDataPoint& point : dataTable) {
             double diff = std::abs(point.cadence - givenCadence) + std::abs(point.resistance - givenResistance);
 
-            // Update lower or upper point based on being lower or higher than the given values
             if (point.cadence <= givenCadence && diff < lowerDiff) {
                 lowerDiff = diff;
                 lowerPoint = point;
@@ -66,14 +61,14 @@ public:
 
         qDebug() << lowerDiff << upperDiff << lowerPoint.cadence << lowerPoint.resistance << lowerPoint.wattage << upperPoint.cadence << upperPoint.resistance << upperPoint.wattage;
 
+        double r;
+
         // If no exact match found, interpolate between the closest lower and upper points
         if (lowerDiff != std::numeric_limits<double>::max() && upperDiff != std::numeric_limits<double>::max()) {
             double cadenceRange = upperPoint.cadence - lowerPoint.cadence;
             double resistanceRange = upperPoint.resistance - lowerPoint.resistance;
             double cadenceRatio = (givenCadence - lowerPoint.cadence) / cadenceRange;
             double resistanceRatio = (givenResistance - lowerPoint.resistance) / resistanceRange;
-
-            qDebug() << "interpolation" << lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * (cadenceRatio + resistanceRatio) / 2;
 
             if(qIsNaN(cadenceRatio) || qIsInf(cadenceRatio)) {
                 cadenceRatio = 1.0;
@@ -82,21 +77,26 @@ public:
                 resistanceRatio = 1.0;
             }
 
-            return lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * (cadenceRatio + resistanceRatio) / 2;
+            r = (double)lowerPoint.wattage + ((double)(upperPoint.wattage - lowerPoint.wattage)) * (cadenceRatio + resistanceRatio) / 2.0;
+
+            qDebug() << "interpolation" << r;
+
+            return r;
         }
 
-        qDebug() << "closest point" << (lowerDiff < upperDiff ? lowerPoint.wattage : upperPoint.wattage);
+        r = (lowerDiff < upperDiff ? lowerPoint.wattage : upperPoint.wattage);
+
+        qDebug() << "closest point" << r;
 
         // Fallback if only one closest point is found or none
-        return lowerDiff < upperDiff ? lowerPoint.wattage : upperPoint.wattage;
+        return r;
     }
 
-
 private:
-    QList<DataPoint> dataTable;
+    QList<ergDataPoint> dataTable;
 
-    bool dataPointExists(double cadence, double wattage, double resistance) {
-        for (const DataPoint& point : dataTable) {
+    bool ergDataPointExists(uint16_t cadence, uint16_t wattage, uint16_t resistance) {
+        for (const ergDataPoint& point : dataTable) {
             if (point.cadence == cadence && point.wattage == wattage && point.resistance == resistance) {
                 return true; // Found duplicate
             }
@@ -106,42 +106,36 @@ private:
 
     void loadSettings() {
         QSettings settings;
-        int size = settings.beginReadArray("DataPoints");
-        for (int i = 0; i < size; ++i) {
-            settings.setArrayIndex(i);
-            double cadence = settings.value("cadence").toDouble();
-            double wattage = settings.value("wattage").toDouble();
-            double resistance = settings.value("resistance").toDouble();
-            dataTable.append(DataPoint(cadence, wattage, resistance));
+        QString data = settings.value(QZSettings::ergDataPoints, QZSettings::default_ergDataPoints).toString();
+        QStringList dataList = data.split(";");
+
+        for (const QString& triple : dataList) {
+            QStringList fields = triple.split("|");
+            if (fields.size() == 3) {
+                uint16_t cadence = fields[0].toUInt();
+                uint16_t wattage = fields[1].toUInt();
+                uint16_t resistance = fields[2].toUInt();
+                dataTable.append(ergDataPoint(cadence, wattage, resistance));
+            }
         }
-        settings.endArray();
     }
 
     void saveSettings() {
         QSettings settings;
-        settings.beginWriteArray("DataPoints");
-        for (int i = 0; i < dataTable.size(); ++i) {
-            settings.setArrayIndex(i);
-            settings.setValue("cadence", dataTable[i].cadence);
-            settings.setValue("wattage", dataTable[i].wattage);
-            settings.setValue("resistance", dataTable[i].resistance);
+        QString data;
+        for (const ergDataPoint& point : dataTable) {
+            QString triple = QString::number(point.cadence) + "|" + QString::number(point.wattage) + "|" + QString::number(point.resistance);
+            data += triple + ";";
         }
-        settings.endArray();
+        settings.setValue(QZSettings::ergDataPoints, data);
     }
 
-    void saveDataPoint(const DataPoint& point) {
+    void saveergDataPoint(const ergDataPoint& point) {
         QSettings settings;
-        int size = settings.beginReadArray("DataPoints");
-        settings.endArray();
-
-        settings.beginWriteArray("DataPoints", size + 1);
-        settings.setArrayIndex(size);
-        settings.setValue("cadence", point.cadence);
-        settings.setValue("wattage", point.wattage);
-        settings.setValue("resistance", point.resistance);
-        settings.endArray();
+        QString data = settings.value(QZSettings::ergDataPoints, QZSettings::default_ergDataPoints).toString();
+        data += QString::number(point.cadence) + "|" + QString::number(point.wattage) + "|" + QString::number(point.resistance) + ";";
+        settings.setValue(QZSettings::ergDataPoints, data);
     }
 };
-
 
 #endif // ERGTABLE_H

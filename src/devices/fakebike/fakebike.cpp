@@ -194,4 +194,6 @@ resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
     }*/
 }
 
+
+uint16_t fakebike::watts() { return m_watt.value(); }
 bool fakebike::connected() { return true; }

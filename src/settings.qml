@@ -916,6 +916,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.45
             property bool toorx_srx_3500: false
             property real inclination_delay_seconds: 0.0
+
+            // from version 2.16.47
+            property string ergDataPoints: ""
         }
 
         function paddingZeros(text, limit) {

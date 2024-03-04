@@ -39,6 +39,7 @@ class fakebike : public bike {
   public:
     fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
+    uint16_t watts() override;
     resistance_t maxResistance() override { return 100; }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     
