@@ -910,7 +910,46 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    if (proform_studio || proform_tdf_10) {
+    if (ifit_bike) {
+        if (newValue.length() != 20 ||
+            // frames with power
+            (newValue.at(0) != 0x00 && newValue.at(0) != 0x01 && newValue.at(1) != 0x12) {
+            return;
+        }
+
+        if (newValue.at(3) == 0x01 && newValue.at(4) == 0x04 && newValue.at(5) == 0x02 && newValue.at(6) == 0x34)) {
+            m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
+                         100.0);
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+
+            double incline =
+                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((uint8_t)newValue.at(10))) / 100.0);
+
+            if ((uint16_t)(qAbs(incline) * 10) % 5 == 0) {
+                Inclination = incline;
+                emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            } else {
+                emit debug(QStringLiteral("Filtering bad inclination"));
+            }
+        } else {
+
+            Resistance = newValue.at(19);
+            m_pelotonResistance = (100 / 32) * Resistance.value();
+            emit resistanceRead(Resistance.value());
+
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((uint8_t)newValue.at(2));
+            }
+        }
+    } else if (proform_studio || proform_tdf_10) {
         if (newValue.length() != 20 ||
             // frames with power
             (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
