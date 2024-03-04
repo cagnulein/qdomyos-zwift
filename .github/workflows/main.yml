@@ -251,7 +251,7 @@ jobs:
         shell: msys2 {0}
 
       - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/bin/libproto_*.* "${GITHUB_WORKSPACE}/src/debug/output/"
+        run: cp -v $MINGW_PREFIX/bin/libproto*.* "${GITHUB_WORKSPACE}/src/debug/output/"
         shell: msys2 {0}
 
       - name: patching qt for bluetooth
