@@ -7,7 +7,7 @@
 class ErgTableTestSuite: public testing::Test {
 protected:
 
-    void test_wattageEstimation(const QList<DataPoint>& inputs, const QList<DataPoint>& expectedOutputs);
+    void test_wattageEstimation(const QList<ergDataPoint>& inputs, const QList<ergDataPoint>& expectedOutputs);
 public:
     ErgTableTestSuite();
 
