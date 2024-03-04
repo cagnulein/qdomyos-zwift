@@ -890,6 +890,9 @@ jobs:
           echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
   
       - name: Install Protobuf Dependencies
         run: |
