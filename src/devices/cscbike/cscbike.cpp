@@ -139,7 +139,7 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     // QString heartRateBeltName = //unused QString
@@ -152,8 +152,6 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     uint8_t battery = 0;
 
     charNotified = true;
-
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
         battery = newValue.at(0);
