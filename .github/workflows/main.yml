@@ -891,23 +891,17 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..        
 
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-  
-      - name: Install Protobuf Dependencies
-        run: |
-          choco install -y protobuf
-  
-      - name: Clone Protobuf Repository
-        run: git clone https://github.com/protocolbuffers/protobuf.git
-  
-      - name: Compile Protobuf
-        run: |
-          cd protobuf
-          mkdir cmake/build
-          cd cmake/build
-          cmake -G "Visual Studio 16 2019" -A x64 ..
-          cmake --build . --config Release --target INSTALL
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+      
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+      
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
   
       - name: Build
         run: |
