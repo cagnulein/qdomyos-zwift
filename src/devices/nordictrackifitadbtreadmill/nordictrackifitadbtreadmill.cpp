@@ -226,7 +226,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     speed = getDouble(aValues.last());
-                    Speed = speed;
+                    parseSpeed(speed);
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
@@ -425,7 +425,7 @@ void nordictrackifitadbtreadmill::onWatt(double watt) {
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
-    Speed = speed;
+    parseSpeed(speed);
     Inclination = inclination;
 
     QSettings settings;

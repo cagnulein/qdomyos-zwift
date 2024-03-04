@@ -66,6 +66,7 @@ class treadmill : public bluetoothdevice {
     double requestInclination = -100;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    metric rawSpeed;
     metric RequestedSpeed;
     metric RequestedInclination;
     metric InstantaneousStrideLengthCM;
@@ -75,6 +76,8 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+
+    void parseSpeed(double speed);
 
   private:
     bool simulateInclinationWithSpeed();

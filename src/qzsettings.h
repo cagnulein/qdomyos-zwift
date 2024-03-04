@@ -2028,6 +2028,8 @@ class QZSettings {
     static const QString toorx_srx_3500;
     static constexpr bool default_toorx_srx_3500 = false;
 
+    static const QString stryd_speed_instead_treadmill;
+    static constexpr bool default_stryd_speed_instead_treadmill = false;
     static const QString inclination_delay_seconds;
     static constexpr float default_inclination_delay_seconds = 0.0;
 
