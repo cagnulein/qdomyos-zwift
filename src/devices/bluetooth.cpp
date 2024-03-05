@@ -1738,7 +1738,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 sportsPlusBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(sportsPlusBike);
-            } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
+            } else if ((b.name().startsWith(yesoulbike::bluetoothName) || 
+                        b.name().toUpper().startsWith("YS_G1M_")) && !yesoulBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 yesoulBike =
