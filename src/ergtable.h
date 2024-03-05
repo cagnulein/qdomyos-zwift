@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QObject>
 #include <QDebug>
+#include <QDateTime>>
 #include "qzsettings.h"
 
 struct ergDataPoint {
@@ -31,7 +32,16 @@ public:
         saveSettings();
     }
 
-    void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance) {
+    void collectData(uint16_t cadence, uint16_t wattage, uint16_t resistance, bool ignoreResistanceTiming = false) {
+        if(resistance != lastResistanceValue) {
+            qDebug() << "resistance changed";
+            lastResistanceTime = QDateTime::currentDateTime();
+            lastResistanceValue = resistance;
+        }
+        if(lastResistanceTime.msecsTo(QDateTime::currentDateTime()) < 1000 && ignoreResistanceTiming == false) {
+            qDebug() << "skipping collecting data due to resistance changing too fast";
+            return;
+        }
         if (wattage > 0 && !ergDataPointExists(cadence, wattage, resistance)) {
             qDebug() << "newPointAdded" << "C" << cadence << "W" << wattage << "R" << resistance;
             ergDataPoint point(cadence, wattage, resistance);
@@ -126,6 +136,8 @@ public:
 
 private:
     QList<ergDataPoint> dataTable;
+    uint16_t lastResistanceValue = 0xFFFF;
+    QDateTime lastResistanceTime = QDateTime::currentDateTime();
 
     bool ergDataPointExists(uint16_t cadence, uint16_t wattage, uint16_t resistance) {
         for (const ergDataPoint& point : dataTable) {

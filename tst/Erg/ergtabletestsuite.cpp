@@ -24,7 +24,7 @@ void ErgTableTestSuite::test_wattageEstimation(const QList<ergDataPoint> &inputs
 
     // set up the erg table
     for(const ergDataPoint& dataPoint : inputs)
-        erg.collectData(dataPoint.cadence, dataPoint.wattage, dataPoint.resistance);
+        erg.collectData(dataPoint.cadence, dataPoint.wattage, dataPoint.resistance, true);
 
     // tst the results
     for(const ergDataPoint& dataPoint : expectedOutputs)
