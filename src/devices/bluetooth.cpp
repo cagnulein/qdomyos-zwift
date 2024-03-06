@@ -1251,6 +1251,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("XT685")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T118_")) ||
                         b.name().toUpper().startsWith(QStringLiteral("FIT-")) ||                            // FIT-1596
+                        (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TUNTURI T60-")) ||                     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("KETTLER TREADMILL")) ||                // FTMS
@@ -1400,7 +1401,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("YS_G1_")) ||                       // Yesoul S3
                         (b.name().toUpper().startsWith("DS25-")) ||                        // Bodytone DS25
                         (b.name().toUpper().startsWith("SCHWINN 510T")) ||
-                        (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith("3G CARDIO ")) ||
                         (b.name().toUpper().startsWith("ZWIFT HUB")) || (b.name().toUpper().startsWith("MAGNUS ")) ||
                         (b.name().toUpper().startsWith("HAMMER ") && !power_as_bike && !saris_trainer) ||      // HAMMER 64123
