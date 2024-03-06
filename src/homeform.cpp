@@ -669,6 +669,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     });
 #endif
 
+    if (QSslSocket::supportsSsl()) {
+        qDebug() << "SSL supported";
+    } else {
+        qDebug() << "SSL non supported";
+    }
+
     bluetoothManager->homeformLoaded = true;
 }
 
