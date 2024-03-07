@@ -26,6 +26,7 @@
 #include <QTime>
 
 #include "devices/bike.h"
+#include "ergtable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -59,6 +60,8 @@ class trxappgateusbbike : public bike {
     uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
+
+    ergTable _ergTable;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

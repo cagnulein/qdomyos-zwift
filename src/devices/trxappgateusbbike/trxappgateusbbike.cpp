@@ -368,6 +368,9 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     Resistance = resistance;
     emit resistanceRead(Resistance.value());
+
+    _ergTable.collectData(Cadence.value(), watt, Resistance.value());
+
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
@@ -1170,22 +1173,7 @@ uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
             - 0.036 * resistance * resistance;
         return P;
     } else {
-        // toorx srx 500 #2138
-        double intercept = -1.0174902288995327;
-        double coef_x1 = -0.2596697;
-        double coef_x2 = -1.63400699;
-        double coef_x1_squared = 0.01471623;
-        double coef_x2_squared = 0.21051417;
-        double coef_x1_x2 = -0.08509624;
-
-        double power = intercept +
-                       coef_x1 * Cadence.value() +
-                       coef_x2 * resistance +
-                       coef_x1_squared * Cadence.value() * Cadence.value() +
-                       coef_x2_squared * resistance * resistance +
-                       coef_x1_x2 * Cadence.value() * resistance;
-        return power;
-        //qDebug() << "no power table for this bike";
+        return _ergTable.estimateWattage(Cadence.value(), resistance);
     }
 }
 

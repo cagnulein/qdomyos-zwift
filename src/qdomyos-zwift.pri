@@ -289,6 +289,7 @@ INCLUDEPATH += fit-sdk/ devices/
 HEADERS += \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+    $$PWD/ergtable.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
