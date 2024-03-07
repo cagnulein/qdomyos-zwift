@@ -57,8 +57,8 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData1[] = {0xf0, 0xa6, 0x35, 0x01, 0x02, 0xce};
-    noOpData1[4] = requestResistance;
-    noOpData1[5] = requestResistance + 0xcc;
+    noOpData1[4] = requestResistance + 1;
+    noOpData1[5] = noOpData1[4] + 0xcc;
     writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("writingResistance"));
 }
 
@@ -78,8 +78,6 @@ void trxappgateusbelliptical::update() {
         update_metrics(true, watts());
 
         {
-            uint8_t noOpData1[] = {0xf0, 0xa1, 0x35, 0x01, 0xc7};
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             if (requestResistance != -1) {
                 if (requestResistance < 1)
                     requestResistance = 1;
@@ -88,7 +86,10 @@ void trxappgateusbelliptical::update() {
                     emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
-                requestResistance = -100;
+                requestResistance = -1;
+            } else {
+                uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             }
         }
 
@@ -163,7 +164,7 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
         return;
     }
 
-    Resistance = newValue.at(18);
+    Resistance = newValue.at(18) - 1;
     Speed = GetSpeedFromPacket(newValue);
     Cadence = (GetCadenceFromPacket(newValue) * cadence_gain) + cadence_offset;
     m_watt = GetWattFromPacket(newValue);
@@ -211,32 +212,19 @@ void trxappgateusbelliptical::btinit() {
         uint8_t initData5[] = {0xf0, 0xa4, 0x35, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xd4};
         uint8_t initData6[] = {0xf0, 0xa5, 0x35, 0x01, 0x02, 0xcd};
 
-        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
-        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
-        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
@@ -398,3 +386,8 @@ uint16_t trxappgateusbelliptical::watts() { return m_watt.value(); }
 
 
 void trxappgateusbelliptical::searchingStop() { searchStopped = true; }
+
+bool trxappgateusbelliptical::inclinationAvailableByHardware() {
+    // actually it has but i don't have the bluetooth code to change inclination
+    return false;
+}

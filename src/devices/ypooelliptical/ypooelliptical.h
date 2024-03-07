@@ -70,6 +70,7 @@ class ypooelliptical : public elliptical {
     bool noHeartService = false;
 
     uint8_t counterPoll = 0;
+    bool SCH_590E = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

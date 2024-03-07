@@ -917,6 +917,9 @@ import QtQuick.Dialogs 1.0
             property bool toorx_srx_3500: false
             property real inclination_delay_seconds: 0.0
 
+            // from version 2.16.47
+            property string ergDataPoints: ""
+
             // from version ?
             property bool trixter_xdream_v1_bike: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -7591,7 +7594,7 @@ import QtQuick.Dialogs 1.0
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -7629,7 +7632,7 @@ import QtQuick.Dialogs 1.0
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_gain = wattGainTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -8505,7 +8508,7 @@ import QtQuick.Dialogs 1.0
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText;; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 
@@ -9742,7 +9745,7 @@ import QtQuick.Dialogs 1.0
                                     spacing: 0
                                     SwitchDelegate {
                                         id: wahooRGTDirconDelegate
-                                        text: qsTr("Wahoo RGT Compatibility")
+                                        text: qsTr("MyWhoosh Compatibility")
                                         spacing: 0
                                         bottomPadding: 0
                                         topPadding: 0

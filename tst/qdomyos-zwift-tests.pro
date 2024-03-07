@@ -26,6 +26,7 @@ SOURCES += \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         main.cpp
@@ -146,5 +147,6 @@ HEADERS += \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/YpooElliptical/ypooellipticaltestdata.h \
     Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
+    Erg/ergtabletestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h

@@ -474,9 +474,14 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         QBluetoothUuid _gattCustomService((quint16)0xFFF0);
+        QBluetoothUuid _gattFTMSService((quint16)0x1826);
         if (s->serviceUuid() != _gattCustomService && iconsole_elliptical) {
             qDebug() << "skipping service" << s->serviceUuid();
             continue;
+        }
+        else if(s->serviceUuid() != _gattFTMSService && SCH_590E) {
+            qDebug() << "skipping service" << s->serviceUuid();
+            continue;            
         }
 
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
@@ -670,6 +675,10 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(device.name().toUpper().startsWith(QStringLiteral("SCH_590E"))) {
+            SCH_590E = true;
+            qDebug() << "SCH_590E workaround ON!";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ypooelliptical::serviceDiscovered);

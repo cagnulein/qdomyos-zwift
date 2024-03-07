@@ -341,10 +341,14 @@ void proformtreadmill::update() {
                 break;
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
-                if (requestInclination != -100) {
-                    if (requestInclination < -3)
+                if (requestInclination != -100) {                    
+                    if (requestInclination < -3 && proform_2000_treadmill)
                         requestInclination = -3;
-                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                    else if (requestInclination < 0 && !proform_2000_treadmill)
+                        requestInclination = 0;
+                    if (requestInclination != currentInclination().value() && 
+                            ((requestInclination >= -3 && proform_2000_treadmill) || 
+                            (requestInclination >= 0 && !proform_2000_treadmill)) &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                         forceIncline(requestInclination);
@@ -504,13 +508,10 @@ void proformtreadmill::update() {
                     emit debug(QStringLiteral("starting..."));
 
                     uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
-                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
-                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x30};
-                    uint8_t start3[] = {0xff, 0x0e, 0x2a, 0x00, 0x00, 0xef, 0x1a, 0x58, 0x02, 0x00,
-                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09, 0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0xca};
+                    uint8_t start3[] = {0xff, 0x0e, 0x05, 0x00, 0x00, 0xc7, 0x20, 0x58, 0x02, 0x01, 0xb4, 0x00, 0x58, 0x02, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00};
                     uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
-                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
-                                        0x03, 0x10, 0xa0, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xd2, 0x00};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02, 0x03, 0x10, 0xc8, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xfa, 0x00};
                     writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
                     writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
                     writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
@@ -1563,7 +1564,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     } else {
         if (!proform_cadence_lt) {
             Inclination =
-                (double)(((int16_t)((int16_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
+                (double)(((int16_t)((int8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         }
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
         if (watts(weight))
