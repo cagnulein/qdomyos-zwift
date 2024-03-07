@@ -1,5 +1,5 @@
 #include "biketestsuite.h"
-#include "ErgInterface/bikeergfunctions.h"
+#include "Erg/bikeergfunctions.h"
 
 template<typename T>
 QList<resistance_t> BikeTestSuite<T>::getResistanceSamples() {

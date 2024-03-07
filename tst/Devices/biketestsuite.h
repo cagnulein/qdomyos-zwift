@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 #include "devices.h"
-#include "ErgInterface/erginterface.h"
+#include "Erg/erginterface.h"
 
 #include "Tools/testsettings.h"
 
