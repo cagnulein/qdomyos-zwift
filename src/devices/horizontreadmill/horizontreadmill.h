@@ -93,6 +93,7 @@ class horizontreadmill : public treadmill {
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
+    bool sole_f89_treadmill = false;
 
     void testProfileCRC();
     void updateProfileCRC();

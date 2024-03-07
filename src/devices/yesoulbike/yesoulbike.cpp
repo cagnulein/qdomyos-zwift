@@ -332,6 +332,10 @@ void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     // if (device.name().startsWith(QStringLiteral("YESOUL")))
     {
         bluetoothDevice = device;
+        if(device.name().toUpper().startsWith("YS_G1M_")) {
+            YS_G1M = true;
+            qDebug() << "YS_G1M workaround";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &yesoulbike::serviceDiscovered);
