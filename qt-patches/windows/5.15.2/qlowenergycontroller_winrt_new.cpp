@@ -329,6 +329,7 @@ public slots:
                     descData.uuid = QBluetoothUuid(descriptorUuid);
                     charData.descriptorList.insert(descHandle, descData);
                     if (descData.uuid == QBluetoothUuid(QBluetoothUuid::ClientCharacteristicConfiguration)) {
+			mIndicateChars << charData.uuid;
                         ComPtr<IAsyncOperation<ClientCharConfigDescriptorResult *>> readOp;
                         hr = characteristic->ReadClientCharacteristicConfigurationDescriptorAsync(&readOp);
                         WARN_AND_CONTINUE_IF_FAILED(hr, "Could not read descriptor value")
@@ -356,7 +357,7 @@ public slots:
 
                         descData.value = QByteArray(2, Qt::Uninitialized);
                         qToLittleEndian(result, descData.value.data());
-                        mIndicateChars << charData.uuid;
+                        
                     } else {
                         ComPtr<IAsyncOperation<GattReadResult *>> readOp;
                         hr = descriptor->ReadValueWithCacheModeAsync(BluetoothCacheMode_Uncached,
@@ -612,6 +613,7 @@ HRESULT QLowEnergyControllerPrivateWinRTNew::onValueChange(IGattCharacteristic *
 {
     HRESULT hr;
     quint16 handle;
+    qCDebug(QT_BT_WINRT) << __FUNCTION__ << characteristic;
     hr = characteristic->get_AttributeHandle(&handle);
     RETURN_IF_FAILED("Could not obtain characteristic's handle", return S_OK)
     ComPtr<IBuffer> buffer;

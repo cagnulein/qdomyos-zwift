@@ -2014,8 +2014,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_f85_treadmill = true;
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("F89"))) {
+            sole_f89_treadmill = true;
+            minInclination = -5.0;
+            qDebug() << QStringLiteral("SOLE F89 TREADMILL workaround ON!");
         }
-
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
             trx3500_treadmill = true;

@@ -289,6 +289,7 @@ INCLUDEPATH += fit-sdk/ devices/
 HEADERS += \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+    $$PWD/ergtable.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
@@ -840,4 +841,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.46
+VERSION = 2.16.47

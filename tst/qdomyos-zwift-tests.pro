@@ -25,6 +25,7 @@ SOURCES += \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
         ErgInterface/bikeergfunctions.cpp \
+        Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
         main.cpp
@@ -144,5 +145,6 @@ HEADERS += \
     Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
     ErgInterface/bikeergfunctions.h \
     ErgInterface/erginterface.h \
+    Erg/ergtabletestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h
