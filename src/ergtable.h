@@ -117,17 +117,17 @@ public:
                 cadenceRatio = (givenCadence - lowerPoint.cadence) / (double)(upperPoint.cadence - lowerPoint.cadence);
             }
             r = lowerPoint.wattage + (upperPoint.wattage - lowerPoint.wattage) * cadenceRatio;
-            qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << lowerPoint.cadence << upperPoint.cadence << cadenceRatio << lowerDiff << upperDiff;
+            //qDebug() << "case2" << r << lowerPoint.wattage << upperPoint.wattage << lowerPoint.cadence << upperPoint.cadence << cadenceRatio << lowerDiff << upperDiff;
             return r;
         } else if (lowerDiff == 0) {
-            qDebug() << "case3" << lowerPoint.wattage;
+            //qDebug() << "case3" << lowerPoint.wattage;
             return lowerPoint.wattage;
         } else if (upperDiff == 0) {
-            qDebug() << "case4" << upperPoint.wattage;
+            //qDebug() << "case4" << upperPoint.wattage;
             return upperPoint.wattage;            
         } else {
             r = (lowerDiff < upperDiff) ? lowerPoint.wattage : upperPoint.wattage;
-            qDebug() << "case5" << r;
+            //qDebug() << "case5" << r;
             // Use the closest point if only one match is found
             return r;
         }
