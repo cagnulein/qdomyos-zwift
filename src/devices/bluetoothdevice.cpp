@@ -182,7 +182,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
     if(deviceType() == bluetoothdevice::BIKE)
-        _ergTable.collectData(Cadence.value(), watts(), Resistance.value());
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
