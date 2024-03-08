@@ -60,9 +60,7 @@ class fakebike : public bike {
     bool noVirtualDevice = false;
 
     uint16_t oldLastCrankEventTime = 0;
-    uint16_t oldCrankRevs = 0;
-    
-    ergTable _ergTable;
+    uint16_t oldCrankRevs = 0;    
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

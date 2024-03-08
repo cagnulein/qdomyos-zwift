@@ -4,6 +4,7 @@
 #include "devices/bluetoothdevice.h"
 #include "virtualdevices/virtualbike.h"
 #include <QObject>
+#include "ergtable.h"
 
 class bike : public bluetoothdevice {
 
@@ -79,6 +80,7 @@ class bike : public bluetoothdevice {
     double requestInclination = -100;
     int16_t requestPower = -1;
 
+    ergTable _ergTable;
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power
                                    // request there is no need to translate in resistance levels
 
