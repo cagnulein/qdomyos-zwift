@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
+#include "ergtable.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -640,6 +641,8 @@ class bluetoothdevice : public QObject {
      * @brief TargetPowerZone A metric to get and set the target power zone. Unit: depends on implementation
      */
     metric TargetPowerZone;
+
+    ergTable _ergTable;
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 
