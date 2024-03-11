@@ -391,7 +391,7 @@ bool proformtelnetbike::connected() { return telnet.isConnected(); }
 uint16_t proformtelnetbike::watts() { return m_watt.value(); }
 
 
-uint16_t proformtelnetbike::wattsFromResistance(double resistance) {
+uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
     return _ergTable.estimateWattage(Cadence.value(), resistance);
 }
 
