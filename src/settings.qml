@@ -920,6 +920,7 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.47
             property string ergDataPoints: ""
             property bool proform_carbon_tl: false
+            property bool proform_proshox2: false
         }
 
         function paddingZeros(text, limit) {
@@ -5738,7 +5739,7 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
-                                "Proform Carbon TL"
+                                "Proform Carbon TL", "Proform Proshox 2"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5771,6 +5772,7 @@ import QtQuick.Dialogs 1.0
                                 settings.proform_treadmill_705_cst = false;
                                 settings.nordictrack_treadmill_x14i = false;
                                 settings.proform_carbon_tl = false;
+                                settings.proform_proshox2 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5800,6 +5802,7 @@ import QtQuick.Dialogs 1.0
                                     case 23: settings.proform_treadmill_705_cst = true; break;
                                     case 24: settings.nordictrack_treadmill_x14i = true; break;
                                     case 25: settings.proform_carbon_tl = true; break;
+                                    case 26: settings.proform_proshox2 = true; break;
                                 }
                             }
 
@@ -5830,7 +5833,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_9_0 ? 22 :
                                                     settings.proform_treadmill_705_cst ? 23 :
                                                     settings.nordictrack_treadmill_x14i ? 24 :
-                                                    settings.proform_carbon_tl ? 25 : -1;
+                                                    settings.proform_carbon_tl ? 25 :
+                                                    settings.proform_proshox2 ? 26 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 

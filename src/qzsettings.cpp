@@ -726,8 +726,9 @@ const QString QZSettings::inclination_delay_seconds = QStringLiteral("inclinatio
 const QString QZSettings::ergDataPoints = QStringLiteral("ergDataPoints");
 const QString QZSettings::default_ergDataPoints = QStringLiteral("");
 const QString QZSettings::proform_carbon_tl = QStringLiteral("proform_carbon_tl");
+const QString QZSettings::proform_proshox2 = QStringLiteral("proform_proshox2");
 
-const uint32_t allSettingsCount = 612;
+const uint32_t allSettingsCount = 613;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1346,6 +1347,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds},
     {QZSettings::ergDataPoints, QZSettings::default_ergDataPoints},
     {QZSettings::proform_carbon_tl, QZSettings::default_proform_carbon_tl},
+    {QZSettings::proform_proshox2, QZSettings::default_proform_proshox2},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
