@@ -919,6 +919,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
+            property bool proform_tdf_10_0 = false
         }
 
         function paddingZeros(text, limit) {
@@ -3015,6 +3016,7 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.proform_tdf_10 = checked; window.settings_restart_to_apply = true; }
                     }
+
                     SwitchDelegate {
                         text: qsTr("TDF 1.0 PFEVEX71316.1")
                         spacing: 0
@@ -3028,6 +3030,21 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.proform_bike_PFEVEX71316_1 = checked; window.settings_restart_to_apply = true; }
                     }
+
+                    SwitchDelegate {
+                        text: qsTr("Proform TDF 10")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_tdf_10_0
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_tdf_10_0 = checked; window.settings_restart_to_apply = true; }
+                    }
+
                     SwitchDelegate {
                         id: nordictrackGX27odelegate
                         text: qsTr("NordicTrack GX 2.7")
