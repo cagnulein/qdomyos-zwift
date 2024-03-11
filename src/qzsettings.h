@@ -2034,6 +2034,9 @@ class QZSettings {
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;
 
+    static const QString proform_carbon_tl;
+    static constexpr bool default_proform_carbon_tl = false;    
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
