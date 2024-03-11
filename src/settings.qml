@@ -919,7 +919,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.47
             property string ergDataPoints: ""
-            property bool proform_tdf_10_0 = false
+            property bool proform_tdf_10_0: false
         }
 
         function paddingZeros(text, limit) {
