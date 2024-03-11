@@ -917,7 +917,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
-        if (newValue.at(3) == 0x01 && newValue.at(4) == 0x04 && newValue.at(5) == 0x02 && newValue.at(6) == 0x34) {
+        if (newValue.at(2) == 0x01 && newValue.at(3) == 0x04 && newValue.at(4) == 0x02 && newValue.at(5) == 0x34) {
             m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
@@ -937,7 +937,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             } else {
                 emit debug(QStringLiteral("Filtering bad inclination"));
             }
-        } else {
+        } else if (newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x00) {
 
             Resistance = newValue.at(19);
             m_pelotonResistance = (100 / 32) * Resistance.value();
