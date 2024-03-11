@@ -79,6 +79,8 @@ void fakebike::update() {
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    _ergTable.collectData(Cadence.value(), watts(), Resistance.value());
+
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
@@ -163,4 +165,35 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, percentage);
 }
 
+uint16_t fakebike::wattsFromResistance(double resistance) {
+    return _ergTable.estimateWattage(Cadence.value(), resistance);
+}
+
+resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
+    //QSettings settings;
+    //bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
+    /*if(toorx_srx_3500)*/ {
+        qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+        if (Cadence.value() == 0)
+            return 1;
+
+        for (resistance_t i = 1; i < maxResistance(); i++) {
+            if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+                qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                        << wattsFromResistance(i + 1) << power;
+                return i;
+            }
+        }
+        if (power < wattsFromResistance(1))
+            return 1;
+        else
+            return maxResistance();
+    } /*else {
+        return power / 10;
+    }*/
+}
+
+
+uint16_t fakebike::watts() { return m_watt.value(); }
 bool fakebike::connected() { return true; }

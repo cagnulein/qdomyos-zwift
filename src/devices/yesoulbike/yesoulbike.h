@@ -74,6 +74,8 @@ class yesoulbike : public bike {
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
+    bool YS_G1M = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

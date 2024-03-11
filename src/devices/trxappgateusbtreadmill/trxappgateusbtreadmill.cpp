@@ -311,7 +311,7 @@ uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(const QByteArray &packet) 
 }
 
 double trxappgateusbtreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(13) - 1) + ((packet.at(12) - 1) * 100);
+    uint16_t convertedData = (uint16_t)((packet.at(13) - 1)) + (((uint16_t)((uint8_t)packet.at(12) - 1)) * 100);
     double data = (double)(convertedData) / 10.0f;
     return data;
 }

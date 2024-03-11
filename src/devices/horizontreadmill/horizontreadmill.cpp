@@ -1751,6 +1751,42 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (Flags.remainingTime) {
             // todo
         }
+    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+        uint8_t flags = (uint8_t)newValue.at(0);
+        bool InstantaneousStrideLengthPresent = (flags & 0x01);
+        bool TotalDistancePresent = (flags & 0x02) ? true : false;
+        bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
+        bool double_cadence = settings
+                                  .value(QZSettings::powr_sensor_running_cadence_double,
+                                         QZSettings::default_powr_sensor_running_cadence_double)
+                                  .toBool();
+        double cadence_multiplier = 1.0;
+        if (double_cadence)
+            cadence_multiplier = 2.0;
+
+        // Unit is in m/s with a resolution of 1/256
+        uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
+        double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
+        if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            instantaneousStrideLengthCMAvailableFromDevice = true;
+            InstantaneousStrideLengthCM =
+                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
+            emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
+            qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
+            if (InstantaneousStrideLengthCM.value() == 0) {
+                GroundContactMS.setValue(0);
+                VerticalOscillationMM.setValue(0);
+                emit groundContactChanged(GroundContactMS.value());
+                emit verticalOscillationChanged(VerticalOscillationMM.value());
+                qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
+                qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+            }
+        }
+
+        Cadence = cadence;
+        emit cadenceChanged(cadence);
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
@@ -1855,7 +1891,10 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    ((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid() && !gattCustomService) ||
+                    // if it's a FTMS treadmill and has FTMS and/or RSC service too
+                    ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
+                       || s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence)
+                      && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
@@ -2014,8 +2053,11 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_f85_treadmill = true;
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F85 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("F89"))) {
+            sole_f89_treadmill = true;
+            minInclination = -5.0;
+            qDebug() << QStringLiteral("SOLE F89 TREADMILL workaround ON!");
         }
-
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
             trx3500_treadmill = true;
