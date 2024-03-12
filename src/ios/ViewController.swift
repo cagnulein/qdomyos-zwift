@@ -17,14 +17,17 @@ class ViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        WorkoutTracking.shared.authorizeHealthKit()
-        WorkoutTracking.shared.observerHeartRateSamples()
+        if #available(iOS 17.0, *) {
+            WorkoutTracking.authorizeHealthKit()
+        } else {
+            // Fallback on earlier versions
+        }
         WatchKitConnection.shared.delegate = self
     }
 }
 
 extension ViewController: WatchKitConnectionDelegate {
     func didFinishedActiveSession() {
-        WatchKitConnection.shared.sendMessage(message: ["username" : "nhathm" as AnyObject])
+        
     }
 }

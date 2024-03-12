@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreMotion
+import HealthKit
 
 var pedometer = CMPedometer()
 
@@ -27,9 +28,7 @@ var pedometer = CMPedometer()
         } else {
             // Fallback on earlier versions
         }
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
-        }
+        Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         Server.server?.start()
 	
         LocalNotificationHelper.requestPermission()
@@ -124,6 +123,13 @@ var pedometer = CMPedometer()
         var sender: String
         if UIDevice.current.userInterfaceIdiom == .pad {
             sender = "PAD"
+            if #available(iOS 17.0, *) {
+                WorkoutTracking.shared.fetchLatestHeartRateSample { sample in
+                    WatchKitConnection.currentHeartRate = Int(sample?.quantity.doubleValue(for: HKUnit(from: "count/min")) ?? 0)
+                }
+            } else {
+                // Fallback on earlier versions
+            }
         } else {
             sender = "PHONE"
         }

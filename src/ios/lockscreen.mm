@@ -23,6 +23,8 @@ static virtualbike_zwift* _virtualbike_zwift = nil;
 static virtualrower* _virtualrower = nil;
 static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
+static WorkoutTracking* workoutTracking = nil;
+
 static GarminConnect* Garmin = 0;
 
 static AdbClient *_adb = 0;
@@ -46,6 +48,10 @@ void lockscreen::request()
     // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
     if (@available(iOS 17, *)) {
         _adb = [[AdbClient alloc] initWithVerbose:YES];
+    }
+    if (@available(iOS 17, *)) {
+        workoutTracking = [[WorkoutTracking alloc] init];
+        [WorkoutTracking requestAuth];
     }
 }
 
