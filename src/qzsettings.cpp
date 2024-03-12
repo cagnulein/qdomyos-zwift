@@ -727,8 +727,9 @@ const QString QZSettings::ergDataPoints = QStringLiteral("ergDataPoints");
 const QString QZSettings::default_ergDataPoints = QStringLiteral("");
 const QString QZSettings::proform_carbon_tl = QStringLiteral("proform_carbon_tl");
 const QString QZSettings::proform_proshox2 = QStringLiteral("proform_proshox2");
+const QString QZSettings::proform_tdf_10_0 = QStringLiteral("proform_tdf_10_0");
 
-const uint32_t allSettingsCount = 613;
+const uint32_t allSettingsCount = 614;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1348,6 +1349,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::ergDataPoints, QZSettings::default_ergDataPoints},
     {QZSettings::proform_carbon_tl, QZSettings::default_proform_carbon_tl},
     {QZSettings::proform_proshox2, QZSettings::default_proform_proshox2},
+    {QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
