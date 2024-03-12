@@ -2034,8 +2034,15 @@ class QZSettings {
     static const QString ergDataPoints;
     static const QString default_ergDataPoints;
 
+    static const QString proform_carbon_tl;
+    static constexpr bool default_proform_carbon_tl = false;    
+
+    static const QString proform_proshox2;
+    static constexpr bool default_proform_proshox2 = false;    
+
     static const QString proform_tdf_10_0;
     static constexpr bool default_proform_tdf_10_0 = false;
+
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
