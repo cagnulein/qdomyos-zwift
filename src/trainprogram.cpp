@@ -183,8 +183,11 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (rows.at(row).distance == -1)
         return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
                 (rows.at(row).duration.hour() * 3600));
-    else
-        return 0;
+    else {
+        if(rows.at(row).started.isValid() && rows.at(row).ended.isValid())
+            return rows.at(row).started.secsTo(rows.at(row).ended);
+    }
+    return 0;
 }
 
 double trainprogram::calculateDistanceForRow(int32_t row) {
@@ -597,7 +600,7 @@ void trainprogram::scheduler() {
         bluetoothManager->device()->isPaused()) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
-           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 &&
+           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
            zwift_auth_token->access_token.length() > 0) {
             if(!zwift_world) {
                 zwift_world = new World(1, zwift_auth_token->getAccessToken());
@@ -620,7 +623,10 @@ void trainprogram::scheduler() {
                     emit zwiftLoginState(true);
                 } else {                    
                     static int zwift_counter = 5;
-                    if(zwift_counter++ >= 4) {
+                    int timeout = settings.value(QZSettings::zwift_api_poll, QZSettings::default_zwift_api_poll).toInt();
+                    if(timeout < 5)
+                        timeout = 5;
+                    if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
 #ifdef Q_OS_IOS
@@ -810,6 +816,7 @@ void trainprogram::scheduler() {
 
     // entry point
     if (ticks == 1 && currentStep == 0) {
+        rows[currentStep].started = QDateTime::currentDateTime();
         currentStepDistance = 0;
         lastOdometer = odometerFromTheDevice;
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -944,10 +951,15 @@ void trainprogram::scheduler() {
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
+                rows[currentStep].ended = QDateTime::currentDateTime();
+
                 if (!distanceStep)
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                rows[currentStep].started = QDateTime::currentDateTime();
+
                 currentStepDistance = 0;
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {

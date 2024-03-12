@@ -1,5 +1,5 @@
 #include "templateinfosenderbuilder.h"
-#include "bike.h"
+#include "devices/bike.h"
 #include "treadmill.h"
 #include <QDirIterator>
 #include <QJsonArray>
@@ -981,6 +981,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("pace_s"), el.second());
         obj.setProperty(QStringLiteral("pace_m"), el.minute());
         obj.setProperty(QStringLiteral("pace_h"), el.hour());
+        obj.setProperty(QStringLiteral("pace_color"), homeform::singleton()->pace->valueFontColor());
         el = device->averagePace();
         obj.setProperty(QStringLiteral("avgpace_s"), el.second());
         obj.setProperty(QStringLiteral("avgpace_m"), el.minute());
@@ -1089,7 +1090,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("req_resistance"),
                             (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("gears"), ((rower *)device)->gears());
             el = ((rower *)device)->lastRequestedPace();
+            obj.setProperty(QStringLiteral("target_speed"), ((rower *)device)->lastRequestedSpeed().value());
             obj.setProperty(QStringLiteral("target_pace_s"), el.second());
             obj.setProperty(QStringLiteral("target_pace_m"), el.minute());
             obj.setProperty(QStringLiteral("target_pace_h"), el.hour());
@@ -1101,7 +1104,11 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
             obj.setProperty(QStringLiteral("cadence_lapavg"), dep.lapAverage());
             obj.setProperty(QStringLiteral("cadence_lapmax"), dep.lapMax());
+
+            // use to preserve compatibility to dochart.js and floating.htm
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((rower *)device)->lastRequestedCadence()).value());
+            obj.setProperty(QStringLiteral("target_cadence"), (dep = ((rower *)device)->lastRequestedCadence()).value());
+            
             obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());

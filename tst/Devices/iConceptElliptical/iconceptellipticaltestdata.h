@@ -1,9 +1,8 @@
 ﻿#pragma once
+#include "Devices/Elliptical/ellipticaltestdata.h"
+#include "devices/iconceptelliptical/iconceptelliptical.h"
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "iconceptelliptical.h"
-
-class iConceptEllipticalTestData : public BluetoothDeviceTestData {
+class iConceptEllipticalTestData : public EllipticalTestData {
     void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
                            std::vector<DeviceDiscoveryInfo> &configurations) const override {
         DeviceDiscoveryInfo config(info);
@@ -18,7 +17,7 @@ class iConceptEllipticalTestData : public BluetoothDeviceTestData {
     }
 
   public:
-    iConceptEllipticalTestData() : BluetoothDeviceTestData("iConcept Elliptical") {
+    iConceptEllipticalTestData() : EllipticalTestData("iConcept Elliptical") {
         this->addDeviceName("BH DUALKIT", comparison::StartsWithIgnoreCase);
     }
 

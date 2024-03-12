@@ -1,20 +1,12 @@
 ﻿#pragma once
 
 #include "Devices/bluetoothdevicetestdata.h"
-#include "elliptical.h"
+#include "devices/elliptical.h"
 
 class EllipticalTestData : public BluetoothDeviceTestData {
 
 public:
-    EllipticalTestData() : BluetoothDeviceTestData("Elliptical (Abstract)") {}
-
-    bool get_isAbstract() const override { return true; }
-
-    QStringList get_deviceNames() const override {
-        QStringList result;
-
-        return result;
-    }
+    EllipticalTestData(std::string deviceName) : BluetoothDeviceTestData(deviceName) {}
 
     deviceType get_expectedDeviceType() const override { return deviceType::None; }
 

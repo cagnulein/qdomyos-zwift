@@ -105,6 +105,10 @@ void DataObject::setValueFontColor(const QString &value) {
     m_valueFontColor = value;
     emit valueFontColorChanged(m_valueFontColor);
 }
+void DataObject::setLargeButtonColor(const QString &color) {
+    m_largeButtonColor = color;
+    emit largeButtonColorChanged(m_largeButtonColor);
+}
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);
@@ -283,6 +287,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     verticalOscillationMM =
         new DataObject(QStringLiteral("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("vertical_oscillation"), 48, labelFontSize);
+
+    stepCount =
+        new DataObject(QStringLiteral("Step Count"), QStringLiteral("icons/icons/pace.png"),
+                       QStringLiteral("0"), false, QStringLiteral("step_count"), 48, labelFontSize);
+
+    ergMode = new DataObject(
+        "", "", "", false, QStringLiteral("erg_mode"), 48, labelFontSize, QStringLiteral("white"),
+        QLatin1String(""), 0, true, QStringLiteral("ERG MODE"), "#696969");
 
     preset_resistance_1 = new DataObject(
         "", "", "", false, QStringLiteral("preset_resistance_1"), 48, labelFontSize, QStringLiteral("white"),
@@ -493,6 +505,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
     QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
+    QObject::connect(stack, SIGNAL(restoreSettings()), this, SLOT(restoreSettings()));
     QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
     QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
 
@@ -766,6 +779,37 @@ void homeform::peloton_abort_workout() {
 }
 
 void homeform::peloton_start_workout() {
+
+    QSettings settings;
+    stravaPelotonActivityName = pelotonAskedName;
+    stravaPelotonInstructorName = pelotonAskedInstructor;
+    if (pelotonHandler) {
+        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
+            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
+        else
+            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+
+        pelotonHandler->downloadImage();
+    } else {
+        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    }
+    emit workoutNameChanged(workoutName());
+    emit instructorNameChanged(instructorName());
+
+    if (settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
+        m_info = stravaPelotonActivityName;
+        emit infoChanged(m_info);
+    }
+
     m_pelotonAskStart = false;
     emit changePelotonAskStart(pelotonAskStart());
     qDebug() << QStringLiteral("peloton_start_workout!");
@@ -849,35 +893,6 @@ void homeform::pelotonWorkoutStarted(const QString &name, const QString &instruc
 
 void homeform::pelotonWorkoutChanged(const QString &name, const QString &instructor) {
 
-    QSettings settings;
-
-    stravaPelotonActivityName = name;
-    stravaPelotonInstructorName = instructor;
-    if (pelotonHandler) {
-        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
-            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
-            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
-            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
-        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
-            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
-        else
-            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    } else {
-        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    }
-    emit workoutNameChanged(workoutName());
-    emit instructorNameChanged(instructorName());
-
-    if (!settings.value(QZSettings::top_bar_enabled, QZSettings::default_top_bar_enabled).toBool()) {
-        return;
-    }
-    m_info = name;
-    emit infoChanged(m_info);
 }
 
 QString homeform::getWritableAppDir() {
@@ -1430,6 +1445,15 @@ void homeform::sortTiles() {
                 target_pace->setGridId(i);
                 dataList.append(target_pace);
             }
+
+            if (settings.value(QZSettings::tile_step_count_enabled, QZSettings::default_tile_step_count_enabled)
+                    .toBool() &&
+                settings.value(QZSettings::tile_step_count_order, QZSettings::default_tile_step_count_order)
+                        .toInt() == i) {
+
+                stepCount->setGridId(i);
+                dataList.append(stepCount);
+            }            
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {
@@ -1758,6 +1782,11 @@ void homeform::sortTiles() {
                 preset_resistance_5->setGridId(i);
                 dataList.append(preset_resistance_5);
             }
+            if (settings.value(QZSettings::tile_erg_mode_enabled, QZSettings::default_tile_erg_mode_enabled).toBool() &&
+                settings.value(QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order).toInt() == i) {
+                ergMode->setGridId(i);
+                dataList.append(ergMode);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
         for (int i = 0; i < 100; i++) {
@@ -2046,6 +2075,11 @@ void homeform::sortTiles() {
                 preset_resistance_5->setGridId(i);
                 dataList.append(preset_resistance_5);
             }
+            if (settings.value(QZSettings::tile_gears_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_gears_order, 51).toInt() == i) {
+                gears->setGridId(i);
+                dataList.append(gears);
+            }            
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -2477,7 +2511,12 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
             ((elliptical *)bluetoothManager->device())
                 ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
                                .toDouble());
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            ((rower *)bluetoothManager->device())
+                ->setGears(settings.value(QZSettings::gears_current_value, QZSettings::default_gears_current_value)
+                               .toDouble());
         }
+
     }
 }
 
@@ -2506,8 +2545,12 @@ void homeform::LargeButton(const QString &name) {
     if (!bluetoothManager || !bluetoothManager->device())
         return;
 
-    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-        if (name.contains(QStringLiteral("preset_resistance_1"))) {
+    if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || 
+        bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL ||
+        bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        if (name.contains(QStringLiteral("erg_mode"))) {
+            settings.setValue(QZSettings::zwift_erg, !settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool());
+        } else if (name.contains(QStringLiteral("preset_resistance_1"))) {
             bluetoothManager->device()->changeResistance(settings
                                                              .value(QZSettings::tile_preset_resistance_1_value,
                                                                     QZSettings::default_tile_preset_resistance_1_value)
@@ -2887,6 +2930,10 @@ void homeform::Plus(const QString &name) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() +
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                ((rower *)bluetoothManager->device())
+                    ->setGears(((rower *)bluetoothManager->device())->gears() +
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
@@ -3128,6 +3175,10 @@ void homeform::Minus(const QString &name) {
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->setGears(((elliptical *)bluetoothManager->device())->gears() -
+                               settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                ((rower *)bluetoothManager->device())
+                    ->setGears(((rower *)bluetoothManager->device())->gears() -
                                settings.value(QZSettings::gears_gain, QZSettings::default_gears_gain).toDouble());
             }
         }
@@ -3506,6 +3557,7 @@ void homeform::update() {
         double strideLength = 0;
         double groundContact = 0;
         double verticalOscillation = 0;
+        double stepCount = 0;
 
         bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
         double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
@@ -3552,7 +3604,7 @@ void homeform::update() {
         jouls->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
                              " /min");
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("h:mm:ss")));
-        moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
+        moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));        
 
         if (trainProgram) {
             // sync the video with the zwo workout file
@@ -3748,6 +3800,7 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->currentStrideLength().value() * cm_inches_conversion;
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
+            stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
             if (((treadmill *)bluetoothManager->device())->currentSpeed().value() > 2)
                 this->pace->setValue(
@@ -3773,6 +3826,10 @@ void homeform::update() {
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
+
+            this->stepCount->setValue(QString::number(
+                ((treadmill *)bluetoothManager->device())->currentStepCount().value(), 'f', 0));
+
             this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
             this->instantaneousStrideLengthCM->setSecondLine(
                 QStringLiteral("AVG: ") +
@@ -3880,6 +3937,7 @@ void homeform::update() {
                     QString::number(bluetoothManager->externalInclination()->currentInclination().value(), 'f', 1));
             double elite_rizer_gain =
                 settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain).toDouble();
+            ergMode->setLargeButtonColor(settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool() ? "#008000" :"#8B0000");
             extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
@@ -3950,6 +4008,7 @@ void homeform::update() {
                 pace = 0;
             }
 
+            this->gears->setValue(QString::number(((rower *)bluetoothManager->device())->gears()));
             this->pace_last500m->setValue(
                 ((rower *)bluetoothManager->device())->lastPace500m().toString(QStringLiteral("m:ss")));
 
@@ -4758,7 +4817,7 @@ void homeform::update() {
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step) {
                             pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > 6) {
+                            if (pid_heart_zone_small_inc_counter > (5 * fabs(((float)zone) - currentHRZone))) {
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
@@ -4767,16 +4826,35 @@ void homeform::update() {
                             }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-
-                        const int step = 1;
+                        double step = 1;
+                        bool ergMode = ((bike*)bluetoothManager->device())->ergModeSupportedAvailableByHardware();
+                        if(ergMode) {
+                            step = 5;
+                        }
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
+                        double current_target_watt = ((bike *)bluetoothManager->device())->lastRequestedPower().value();
                         if (zone < ((uint8_t)currentHRZone)) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > ((uint8_t)currentHRZone) && maxResistance >= currentResistance + step) {
-
-                            ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt - step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else if (zone > ((uint8_t)currentHRZone) && ((maxResistance >= currentResistance + step && !ergMode) || ergMode)) {
+                            if(ergMode)
+                                ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                            else
+                                ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else {
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > (5 * fabs(((float)zone) - currentHRZone))) {
+                                if(ergMode)
+                                    ((bike *)bluetoothManager->device())->changePower(current_target_watt + step);
+                                else
+                                    ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
 
@@ -4847,14 +4925,14 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s() &&
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s() &&
                             minSpeed <= currentSpeed - step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
@@ -4863,9 +4941,9 @@ void homeform::update() {
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
                         } else if (maxSpeed >= currentSpeed + step &&
-                                   hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                                   hrmax < bluetoothManager->device()->currentHeart().average20s()) {
                             pid_heart_zone_small_inc_counter++;
-                            if (pid_heart_zone_small_inc_counter > 6) {
+                            if (pid_heart_zone_small_inc_counter > (30 / abs(hrmax - bluetoothManager->device()->currentHeart().average20s()))) {
                                 ((treadmill *)bluetoothManager->device())
                                     ->changeSpeedAndInclination(
                                         currentSpeed + step,
@@ -4878,10 +4956,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s() &&
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s() &&
                                    maxResistance >= currentResistance + step) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
@@ -4891,10 +4969,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (hrmax < bluetoothManager->device()->currentHeart().average5s()) {
+                        if (hrmax < bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (hrmin > bluetoothManager->device()->currentHeart().average5s()) {
+                        } else if (hrmin > bluetoothManager->device()->currentHeart().average20s()) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -5212,7 +5290,7 @@ void homeform::update() {
                     (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                 lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation);
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation, stepCount);
 
             Session.append(s);
 
@@ -6490,6 +6568,7 @@ void homeform::loadSettings(const QUrl &filename) {
 }
 
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
+void homeform::restoreSettings() { QZSettings::restoreAll(); }
 
 QString homeform::getProfileDir() {
     QString path = getWritableAppDir() + "profiles";

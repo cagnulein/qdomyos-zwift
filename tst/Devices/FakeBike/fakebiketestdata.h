@@ -1,16 +1,20 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "fakebike.h"
 
-class FakeBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+
+#include "devices/fakebike/fakebike.h"
+
+
+class FakeBikeTestData : public BikeTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fake_bike = enable;
         return true;
     }
 public:
-    FakeBikeTestData() : BluetoothDeviceTestData("Fake Bike"){
+    FakeBikeTestData() : BikeTestData("Fake Bike"){
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 

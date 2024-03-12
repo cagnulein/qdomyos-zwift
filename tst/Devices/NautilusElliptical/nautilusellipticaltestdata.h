@@ -1,12 +1,12 @@
 ﻿#pragma once
+#include "Devices/Elliptical/ellipticaltestdata.h"
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "nautiluselliptical.h"
+#include "devices/nautiluselliptical/nautiluselliptical.h"
 
-class NautilusEllipticalTestData : public BluetoothDeviceTestData {
+class NautilusEllipticalTestData : public EllipticalTestData {
 
 public:
-    NautilusEllipticalTestData(): BluetoothDeviceTestData("Nautilus Elliptical") {
+    NautilusEllipticalTestData(): EllipticalTestData("Nautilus Elliptical") {
         this->addDeviceName("NAUTILUS E", comparison::StartsWithIgnoreCase);
     }
 

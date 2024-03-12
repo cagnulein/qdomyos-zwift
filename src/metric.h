@@ -21,10 +21,12 @@ class metric {
     void setType(_metric_type t);
     void setValue(double value, bool applyGainAndOffset = true);
     double value();
+    double valueRaw();
     QDateTime lastChanged() { return m_lastChanged; }
     QDateTime valueChanged() { return m_valueChanged; }
     double average();
     double average5s();
+    double average20s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
     // minute if i keep the current pace
@@ -61,6 +63,7 @@ class metric {
     double m_max = 0;
     double m_offset = 0;
     QList<double> m_last5;
+    QList<double> m_last20;
 
     double m_lapOffset = 0;
     double m_lapTotValue = 0;

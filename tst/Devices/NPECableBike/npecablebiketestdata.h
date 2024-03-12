@@ -1,11 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "npecablebike.h"
 
-class NPECableBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+#include "devices/npecablebike/npecablebike.h"
+
+
+class NPECableBikeTestData : public BikeTestData {
 protected:
-    NPECableBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {}
+    NPECableBikeTestData(std::string testName) : BikeTestData(testName) {}
 public:
     deviceType get_expectedDeviceType() const override { return deviceType::NPECableBike; }
 
