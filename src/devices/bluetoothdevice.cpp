@@ -472,7 +472,7 @@ void bluetoothdevice::setHeartZone(double hz) {
     HeartZone = hz;
     if(isPaused() == false) {
         hz = hz -1;
-        if(maxHeartZone() >= hz) {
+        if(maxHeartZone() <= hz) {
             hrZonesSeconds[maxHeartZone() - 1].setValue(hrZonesSeconds[maxHeartZone() - 1].value() + 1);
         } else if(hz <= 0) {
             hrZonesSeconds[0].setValue(hrZonesSeconds[0].value() + 1);
