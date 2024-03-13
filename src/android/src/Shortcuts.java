@@ -20,32 +20,36 @@ import java.util.concurrent.Callable;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
+import android.content.pm.ShortcutManager;
+
 
 public class Shortcuts {
     public static void createShortcutsForFiles(Context context) {
-        ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 
-        List<ShortcutInfo> shortcuts = new ArrayList<>();
+            List<ShortcutInfo> shortcuts = new ArrayList<>();
 
-        File[] files = new File("profiles").listFiles();
-        if (files != null) {
-            for (File file : files) {
-                Log.d("Shortcuts", file.getAbsolutePath());
-                Intent intent = new Intent(context, YourActivity.class);
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.putExtra("profile_path", file.getAbsolutePath());
+            File[] files = new File("profiles").listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    Log.d("Shortcuts", file.getAbsolutePath());
+                    Intent intent = new Intent(context, YourActivity.class);
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.putExtra("profile_path", file.getAbsolutePath());
 
-                ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "id" + file.getName())
-                        .setShortLabel(file.getName())
-                        .setLongLabel("Open " + file.getName())
-                        .setIcon(Icon.createWithResource(context, R.drawable.icon))
-                        .setIntent(intent)
-                        .build();
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "id" + file.getName())
+                            .setShortLabel(file.getName())
+                            .setLongLabel("Open " + file.getName())
+                            .setIcon(Icon.createWithResource(context, R.drawable.icon))
+                            .setIntent(intent)
+                            .build();
 
-                shortcuts.add(shortcut);
+                    shortcuts.add(shortcut);
+                }
             }
-        }
 
-        shortcutManager.setDynamicShortcuts(shortcuts);
+            shortcutManager.setDynamicShortcuts(shortcuts);
+        }
     }
 }
