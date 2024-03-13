@@ -669,6 +669,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     });
 #endif
 
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
+                                                "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#endif
+
     bluetoothManager->homeformLoaded = true;
 }
 
