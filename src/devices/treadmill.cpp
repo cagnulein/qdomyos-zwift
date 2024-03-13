@@ -140,6 +140,9 @@ void treadmill::clearStats() {
     Cadence.clear(false);
 
     Inclination.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void treadmill::setPaused(bool p) {
@@ -158,6 +161,9 @@ void treadmill::setPaused(bool p) {
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void treadmill::setLap() {
@@ -176,6 +182,9 @@ void treadmill::setLap() {
     Cadence.setLap(false);
 
     Inclination.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }
 }
 
 void treadmill::setLastSpeed(double speed) { lastSpeed = speed; }

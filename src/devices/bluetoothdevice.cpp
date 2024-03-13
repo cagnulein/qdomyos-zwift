@@ -277,6 +277,9 @@ void bluetoothdevice::clearStats() {
     WeightLoss.clear(false);
     WattKg.clear(false);
     Cadence.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void bluetoothdevice::setPaused(bool p) {
@@ -294,6 +297,9 @@ void bluetoothdevice::setPaused(bool p) {
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void bluetoothdevice::setLap() {
@@ -310,6 +316,9 @@ void bluetoothdevice::setLap() {
     WeightLoss.setLap(false);
     WattKg.setLap(false);
     Cadence.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 QStringList bluetoothdevice::metrics() {
@@ -457,4 +466,18 @@ void bluetoothdevice::setGPXFile(QString filename) {
         gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
         input.close();
     }
+}
+
+void bluetoothdevice::setHeartZone(double hz) { 
+    if(maxHeartZone() < hz && hz >= 0 && isPaused() == false) {
+        hrZonesSeconds[(int)hz].setValue(hrZonesSeconds->value() + 1);
+    }
+    HeartZone = hz; 
+}
+
+uint32_t bluetoothdevice::secondsForHeartZone(uint8_t zone) {
+    if(zone < maxHeartZone()) {
+       return hrZonesSeconds[zone].value();
+    }
+    return 0;
 }
