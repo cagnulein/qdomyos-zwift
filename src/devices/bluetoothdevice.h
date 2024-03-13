@@ -656,7 +656,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
      */
-    static const uint8_t maxhrzone = 6;
+    static const uint8_t maxhrzone = 5;
     metric hrZonesSeconds[maxhrzone];
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
