@@ -37,7 +37,7 @@ public class Shortcuts {
             if (files != null) {
                 for (File file : files) {
                     Log.d("Shortcuts", file.getAbsolutePath());
-                    Intent intent = new Intent(context, org.qtproject.qt5.android.bindings.QtActivity);
+                    Intent intent = new Intent(context, context.getClass());
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.putExtra("profile_path", file.getAbsolutePath());
 
