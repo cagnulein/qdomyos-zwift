@@ -470,9 +470,15 @@ void bluetoothdevice::setGPXFile(QString filename) {
 
 void bluetoothdevice::setHeartZone(double hz) { 
     HeartZone = hz;
-    hz = hz -1;
-    if(maxHeartZone() > hz && hz >= 0 && isPaused() == false) {
-        hrZonesSeconds[(int)hz].setValue(hrZonesSeconds->value() + 1);
+    if(isPaused() == false) {
+        hz = hz -1;
+        if(maxHeartZone() >= hz) {
+            hrZonesSeconds[maxHeartZone() - 1].setValue(hrZonesSeconds[maxHeartZone() - 1].value() + 1);
+        } else if(hz <= 0) {
+            hrZonesSeconds[0].setValue(hrZonesSeconds[0].value() + 1);
+        } else {
+            hrZonesSeconds[(int)hz].setValue(hrZonesSeconds[(int)hz].value() + 1);
+        }
     }
 }
 
