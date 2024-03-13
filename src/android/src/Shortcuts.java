@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
 import android.content.pm.ShortcutManager;
+import android.content.pm.ShortcutInfo;
+import java.io.File;
+import android.graphics.drawable.Icon;
 
 
 public class Shortcuts {
@@ -34,7 +37,7 @@ public class Shortcuts {
             if (files != null) {
                 for (File file : files) {
                     Log.d("Shortcuts", file.getAbsolutePath());
-                    Intent intent = new Intent(context, YourActivity.class);
+                    Intent intent = new Intent(context, org.qtproject.qt5.android.bindings.QtActivity);
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.putExtra("profile_path", file.getAbsolutePath());
 
