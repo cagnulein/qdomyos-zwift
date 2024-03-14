@@ -317,13 +317,16 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-    qInstallMessageHandler(myMessageOutput);
-    
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
     QString profileName = lockscreen::get_action_profile();
-    qDebug() << "quick_action profile" << profileName;
     lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+#endif
+#else
+    QString profileName = "";
+#endif
     if(profileName.count()) {
         if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
             profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
@@ -390,6 +393,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
     
+    qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
         if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
