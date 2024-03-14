@@ -27,13 +27,14 @@ import android.graphics.drawable.Icon;
 
 
 public class Shortcuts {
-    public static void createShortcutsForFiles(Context context) {
+    public static void createShortcutsForFiles(String folder, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
 
             List<ShortcutInfo> shortcuts = new ArrayList<>();
 
-            File[] files = new File("profiles").listFiles();
+            Log.d("Shortcuts", folder);
+            File[] files = new File(folder, "profiles").listFiles();
             if (files != null) {
                 for (File file : files) {
                     Log.d("Shortcuts", file.getAbsolutePath());
