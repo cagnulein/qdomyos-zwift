@@ -31,7 +31,7 @@
     NSString *documentsDirectory = [paths firstObject];
     NSString *profilesDirectory = [documentsDirectory stringByAppendingPathComponent:@"profiles"];
     
-    NSError *error;
+    NSError *error = nil;
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:profilesDirectory error:&error];
     if (error) {
         NSLog(@"Error reading files: %@", error.localizedDescription);
