@@ -319,16 +319,17 @@ int main(int argc, char *argv[]) {
     QSettings settings;
 
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = "";
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    QString profileName = lockscreen::get_action_profile();
+    profileName = lockscreen::get_action_profile();
     lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
 #endif
 #else
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
     QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
                                                 "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
-    QString profileName = r.toString();
+    profileName = r.toString();
     QFileInfo pp(profileName);
     profileName = pp.baseName();
 #endif
