@@ -6250,6 +6250,12 @@ void homeform::sendMail() {
                    QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + QStringLiteral("\n");
     textMessage += QStringLiteral("Max Heart Rate: ") +
                    QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + QStringLiteral("\n");
+
+    for(int i=0; i<bluetoothManager->device()->maxHeartZone(); i++) {
+        textMessage += QStringLiteral("Heart Rate Z") + QString::number(i + 1) + QStringLiteral(": ") +
+                    QTime(0, 0, 0, 0).addSecs(bluetoothManager->device()->secondsForHeartZone(i)).toString("H:mm:ss") + QStringLiteral("\n");        
+    }
+
     textMessage += QStringLiteral("Total Output: ") +
                    QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + QStringLiteral("\n");
     textMessage +=
