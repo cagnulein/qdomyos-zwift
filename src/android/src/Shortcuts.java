@@ -4,11 +4,13 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.content.IntentFilter;
 import android.util.Log;
 import android.app.Service;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.app.Activity;
 import android.os.Build;
 
 import java.io.IOException;
@@ -54,6 +56,33 @@ public class Shortcuts {
             }
 
             shortcutManager.setDynamicShortcuts(shortcuts);
+            getAllExtras(context);
+        }
+    }
+
+    public static String getProfileExtras(Context context) {
+        Intent intent = ((Activity)context).getIntent(); // Ottieni l'Intent che ha avviato l'attività
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                if("profile_path".equals(key)) {
+                    Log.d("Shortcuts", "profile_path: " + value.toString());
+                    return value.toString();
+                }
+            }
+        }
+        return "";
+    }
+
+    public static void getAllExtras(Context context) {
+        Intent intent = ((Activity)context).getIntent(); // Ottieni l'Intent che ha avviato l'attività
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            for (String key : extras.keySet()) {
+                Object value = extras.get(key);
+                Log.d("Shortcuts", "Key: " + key + ", Value: " + value.toString());
+            }
         }
     }
 }

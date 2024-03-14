@@ -325,7 +325,12 @@ int main(int argc, char *argv[]) {
     lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
 #endif
 #else
-    QString profileName = "";
+    QAndroidJniObject javaPath = QAndroidJniObject::fromString(homeform::getWritableAppDir());
+    QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
+                                                "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
+    QString profileName = r.toString();
+    QFileInfo pp(profileName);
+    profileName = pp.baseName();
 #endif
     if(profileName.count()) {
         if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
