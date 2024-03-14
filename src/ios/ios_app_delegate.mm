@@ -2,6 +2,7 @@
 #import <ConnectIQ/ConnectIQ.h>
 #import "UIKit/UIKit.h"
 #import "UserNotifications/UserNotifications.h"
+#include "lockscreen.h"
 
 @interface QIOSApplicationDelegate <IQAppMessageDelegate, IQUIOverrideDelegate, IQDeviceEventDelegate>
 @end
@@ -54,9 +55,12 @@
 }
 
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void(^)(BOOL succeeded))completionHandler {
-    if ([shortcutItem.type hasPrefix:@"com.yourapp."]) {
+    if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
+        NSLog(@"performActionForShortcutItem");
         NSString *fileName = [shortcutItem.type stringByReplacingOccurrencesOfString:@"org.cagnulein.qdomyoszwift." withString:@""];
         //self.selectedShortcutItem = fileName;
+        lockscreen::set_action_profile([fileName UTF8String]);
+        NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
     }
 }
 

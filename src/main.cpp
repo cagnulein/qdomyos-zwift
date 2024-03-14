@@ -317,10 +317,27 @@ int main(int argc, char *argv[]) {
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    qInstallMessageHandler(myMessageOutput);
+    
+
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    QString profileName = lockscreen::get_action_profile();
+    qDebug() << "quick_action profile" << profileName;
+    lockscreen::nslog(QString("quick_action profile " + profileName).toLatin1());
+    if(profileName.count()) {
+        if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
+            profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
+        } else {
+            qDebug() << homeform::getProfileDir() + "/" + profileName << "not found!";
+        }
+    }
+#endif
+
     if (!profileToLoad.isEmpty()) {
         homeform::loadSettings(profileToLoad);
     }
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
 
     if (fit_file_saved_on_quit) {
         settings.setValue(QZSettings::fit_file_saved_on_quit, true);
@@ -372,8 +389,7 @@ int main(int argc, char *argv[]) {
         qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
     }
 #endif
-
-    qInstallMessageHandler(myMessageOutput);
+    
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
         if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
