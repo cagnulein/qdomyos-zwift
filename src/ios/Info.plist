@@ -78,14 +78,6 @@
 	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>access to step cadence in order to show it on the iphone</string>
-	<key>NSPrivacyAccessedAPICategorySystemBootTime</key>
-	<string>the app calculates the metrics from the fitness device using the system boot time</string>
-	<key>NSPrivacyAccessedAPICategoryFileTimestamp</key>
-	<string>the app uses the file timestamp to save the correct timestamp of the workout</string>
-	<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
-	<string>the app uses the user defaults to save its settings</string>
-	<key>NSPrivacyAccessedAPICategoryDiskSpace</key>
-	<string>the app uses the disk space in order to don't fill the device with too much logs</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

@@ -10,8 +10,6 @@
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>NSMotionUsageDescription</key>
 	<string>access to step cadence in order to show it in the application</string>
-	<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
-	<string>The app saves the current workout type on user defaults</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
