@@ -41,6 +41,7 @@ class wahookickrsnapbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
     resistance_t maxResistance() override { return 100; }
+    bool inclinationAvailableByHardware() override;
 
     enum OperationCode : uint8_t {
         _unlock = 32,

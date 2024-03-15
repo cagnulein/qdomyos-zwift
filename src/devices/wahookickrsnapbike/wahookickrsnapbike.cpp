@@ -254,6 +254,11 @@ void wahookickrsnapbike::update() {
             lastGearValue = gears();
             requestResistance = -1;
         }
+        else if (requestInclination != -100) {
+            inclinationChanged(requestInclination, requestInclination);
+            requestInclination = -100;
+        }
+
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -807,4 +812,8 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);
+}
+
+bool wahookickrsnapbike::inclinationAvailableByHardware() {
+    return true;
 }
