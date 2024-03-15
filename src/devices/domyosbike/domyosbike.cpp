@@ -353,7 +353,21 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
        and speed status return;*/
 
     double speed = GetSpeedFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
+    double kcal;
+    if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
+        kcal = GetKcalFromPacket(newValue);
+    else {
+        if (watts())
+            kcal =
+                KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                    settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                                    200.0) /
+                                (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                                now)))); //(( (0.048* Output in watts +1.19) * body
+                                                                            // weight in kg * 3.5) / 200 ) / 60
+        else
+            kcal = KCal.value();
+    }
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
