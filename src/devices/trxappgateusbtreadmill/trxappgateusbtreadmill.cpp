@@ -687,6 +687,17 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
                 treadmill_type = TYPE::REEBOK_2;
                 qDebug() << QStringLiteral("treadmill_type REEBOK_2");
             }
+        } else if (treadmill_type == TYPE::DKN) {
+            uuid = QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455");
+            QBluetoothUuid _gattCommunicationChannelServiceId2((QString)uuid);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId2);
+            if (gattCommunicationChannelService == nullptr) {
+                qDebug() << QStringLiteral("invalid service") << uuid;
+                return;
+            } else {
+                treadmill_type = TYPE::DKN_2;
+                qDebug() << QStringLiteral("treadmill_type DKN_2");
+            }            
         } else {
             qDebug() << QStringLiteral("invalid service") << uuid;
             return;
