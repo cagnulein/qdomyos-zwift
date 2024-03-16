@@ -572,7 +572,7 @@ jobs:
       - name: Install Qt Android
         uses: jurplel/install-qt-action@v3
         with:
-          version: '5.15.0'
+          version: '5.15.2'
           host: 'linux'
           target: 'android'
           arch: 'android'
