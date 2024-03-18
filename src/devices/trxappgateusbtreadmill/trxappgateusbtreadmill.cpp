@@ -584,7 +584,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         QString uuidNotify = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-ACA3-481C-91EC-D85E28A60318");
 
-        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2 || treadmill_type == TYPE::DKN_3) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
         }
