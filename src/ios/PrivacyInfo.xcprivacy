@@ -11,16 +11,22 @@
    <array>
     <string>CA92.1</string>
    </array>
+   </dict>
+   <dict>
    <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
    <key>NSPrivacyAccessedAPITypeReasons</key>
    <array>
     <string>35F9.1</string>
    </array>
+   </dict>
+   <dict>
    <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
    <key>NSPrivacyAccessedAPITypeReasons</key>
    <array>
     <string>0A2A.1</string>
    </array>
+   </dict>
+   <dict>
    <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
    <key>NSPrivacyAccessedAPITypeReasons</key>
    <array>
