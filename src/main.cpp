@@ -330,9 +330,11 @@ int main(int argc, char *argv[]) {
     QAndroidJniObject r = QAndroidJniObject::callStaticObjectMethod("org/cagnulen/qdomyoszwift/Shortcuts", "getProfileExtras",
                                                 "(Landroid/content/Context;)Ljava/lang/String;", QtAndroid::androidContext().object());
     profileName = r.toString();
+#endif
+    
     QFileInfo pp(profileName);
     profileName = pp.baseName();
-#endif
+    
     if(profileName.count()) {
         if (QFile::exists(homeform::getProfileDir() + "/" + profileName + ".qzs")) {
             profileToLoad = QUrl::fromLocalFile(homeform::getProfileDir() + "/" + profileName + ".qzs");
