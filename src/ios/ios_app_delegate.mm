@@ -54,6 +54,18 @@
     [UIApplication sharedApplication].shortcutItems = quickActions;
 }
 
+- (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    UIApplicationShortcutItem *shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+    if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
+        NSLog(@"performActionForShortcutItem");
+        NSString *fileName = [shortcutItem.type stringByReplacingOccurrencesOfString:@"org.cagnulein.qdomyoszwift." withString:@""];
+        //self.selectedShortcutItem = fileName;
+        lockscreen::set_action_profile([fileName UTF8String]);
+        NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
+    }
+    return YES;
+}
+
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void(^)(BOOL succeeded))completionHandler {
     if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
         NSLog(@"performActionForShortcutItem");
