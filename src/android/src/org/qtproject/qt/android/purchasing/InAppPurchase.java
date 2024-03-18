@@ -129,11 +129,11 @@ public class InAppPurchase implements PurchasesUpdatedListener
             public void onBillingSetupFinished(BillingResult billingResult) {
 					Log.w(TAG, "onBillingSetupFinished");
                                         return;
-                if (billingResult.getResponseCode() == RESULT_OK) {
+/*                if (billingResult.getResponseCode() == RESULT_OK) {
                     purchasedProductsQueried(m_nativePointer);
 						} else {
 					     Log.w(TAG, "onBillingSetupFinished error!" + billingResult.getResponseCode());
-					 }
+                                         }*/
             }
 
             @Override
