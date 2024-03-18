@@ -137,7 +137,7 @@ void trxappgateusbtreadmill::update() {
         } else if (treadmill_type == TYPE::ADIDAS) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x5b, 0xd3, 0xc0};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false ||
+        } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || treadmill_type == TYPE::DKN_3 || toorx30 == false ||
                    jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -352,7 +352,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         settings.value(QZSettings::jtx_fitness_sprint_treadmill, QZSettings::default_jtx_fitness_sprint_treadmill)
             .toBool();
 
-    if (treadmill_type == TYPE::DKN) {
+    if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_3) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0xd3, 0x64};
         const uint8_t initData3[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};
@@ -695,8 +695,8 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
                 qDebug() << QStringLiteral("invalid service") << uuid;
                 return;
             } else {
-                treadmill_type = TYPE::DKN_2;
-                qDebug() << QStringLiteral("treadmill_type DKN_2");
+                treadmill_type = TYPE::DKN_3;
+                qDebug() << QStringLiteral("treadmill_type DKN_3");
             }            
         } else {
             qDebug() << QStringLiteral("invalid service") << uuid;
