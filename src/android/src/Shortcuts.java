@@ -32,29 +32,30 @@ public class Shortcuts {
     public static void createShortcutsForFiles(String folder, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = context.getSystemService(ShortcutManager.class);
-
+        
             List<ShortcutInfo> shortcuts = new ArrayList<>();
-
+        
             Log.d("Shortcuts", folder);
             File[] files = new File(folder, "profiles").listFiles();
             if (files != null) {
-                for (File file : files) {
+                for (int i = 0; i < files.length && i < 5; i++) { // Limit to 5 shortcuts
+                    File file = files[i];
                     Log.d("Shortcuts", file.getAbsolutePath());
                     Intent intent = new Intent(context, context.getClass());
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.putExtra("profile_path", file.getAbsolutePath());
-
+        
                     ShortcutInfo shortcut = new ShortcutInfo.Builder(context, "id" + file.getName())
                             .setShortLabel(file.getName())
                             .setLongLabel("Open " + file.getName())
                             .setIcon(Icon.createWithResource(context, R.drawable.icon))
                             .setIntent(intent)
                             .build();
-
+        
                     shortcuts.add(shortcut);
                 }
             }
-
+        
             shortcutManager.setDynamicShortcuts(shortcuts);
             getAllExtras(context);
         }
