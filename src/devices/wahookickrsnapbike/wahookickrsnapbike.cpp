@@ -225,7 +225,7 @@ void wahookickrsnapbike::update() {
             requestResistance = -1;
         }
 
-        if (KICKR_BIKE)
+        if (KICKR_BIKE) {
             if(requestInclination != -100) {
                 debug("writing inclination request " + QString::number(requestInclination));
                 inclinationChanged(requestInclination, requestInclination);
