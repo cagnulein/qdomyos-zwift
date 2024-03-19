@@ -1,16 +1,17 @@
 ﻿#pragma once
+#include "Devices/Elliptical/ellipticaltestdata.h"
+#include "devices/fakeelliptical/fakeelliptical.h"
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "fakeelliptical.h"
-
-class FakeEllipticalTestData : public BluetoothDeviceTestData {
+class FakeEllipticalTestData : public EllipticalTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fakedevice_elliptical = enable;
         return true;
     }
+
+ 
 public:
-    FakeEllipticalTestData() : BluetoothDeviceTestData("Fake Elliptical") {
+    FakeEllipticalTestData() : EllipticalTestData("Fake Elliptical") {
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }
 

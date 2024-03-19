@@ -17,9 +17,11 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
+    let SwiftDebug = swiftDebug()
         
     @objc public func request()
     {
+        SwiftDebug.qtDebug("swift debug test")
         if #available(iOS 13.0, *) {
             Client.client.start()
         } else {

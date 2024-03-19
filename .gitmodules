@@ -16,3 +16,7 @@
 [submodule "src/qthttpserver"]
 	path = src/qthttpserver
 	url = https://github.com/qt-labs/qthttpserver
+[submodule "zwiftplay"]
+	path = zwiftplay
+	url = https://github.com/cagnulein/zwiftplay.git
+	branch = lib

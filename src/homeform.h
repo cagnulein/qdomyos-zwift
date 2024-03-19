@@ -70,6 +70,7 @@ class DataObject : public QObject {
     void setLabelFontSize(int value);
     void setVisible(bool visible);
     void setGridId(int id);
+    void setLargeButtonColor(const QString &color);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
@@ -157,6 +158,7 @@ class homeform : public QObject {
     Q_PROPERTY(double currentSpeed READ currentSpeed NOTIFY currentSpeedChanged)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
+    Q_PROPERTY(int zwiftLogin READ zwiftLogin NOTIFY zwiftLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
@@ -199,6 +201,7 @@ class homeform : public QObject {
         QObject *stack = rootObject;
         screenCapture s(reinterpret_cast<QQuickView *>(stack));
         s.capture(filenameScreenshot);
+        chartImagesFilenames.append(filenameScreenshot);
     }
 
     Q_INVOKABLE void save_screenshot_chart(QQuickItem *item, QString filename) {
@@ -389,6 +392,7 @@ class homeform : public QObject {
     QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
+    int zwiftLogin() { return m_zwiftLoginState; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
@@ -554,69 +558,7 @@ class homeform : public QObject {
     QString getStravaAuthUrl() { return stravaAuthUrl; }
     bool stravaWebVisible() { return stravaAuthWebVisible; }
     trainprogram *trainingProgram() { return trainProgram; }
-
-  private:
-    static homeform *m_singleton;
-    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
-    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
-    QList<QObject *> dataList;
-    QList<SessionLine> Session;
-    bluetooth *bluetoothManager;
-    QQmlApplicationEngine *engine;
-    trainprogram *trainProgram = nullptr;
-    trainprogram *previewTrainProgram = nullptr;
-    QString backupFitFileName =
-        QStringLiteral("QZ-backup-") +
-        QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
-        QStringLiteral(".fit");
-
-    int m_topBarHeight = 120;
-    QString m_info = QStringLiteral("Connecting...");
-    bool m_labelHelp = true;
-    bool m_generalPopupVisible = false;
-    bool m_LicensePopupVisible = false;
-    bool m_MapsVisible = false;
-    bool m_VideoIconVisible = false;
-    bool m_VideoVisible = false;
-    bool m_ChartFooterVisible = false;
-    bool m_ChartIconVisible = false;
-    int m_VideoPosition = 0;
-    double m_VideoRate = 1;
-    QOAuth2AuthorizationCodeFlow *strava = nullptr;
-    QNetworkAccessManager *manager = nullptr;
-    QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
-
-    bool paused = false;
-    bool stopped = false;
-    bool lapTrigger = false;
-
-    peloton *pelotonHandler = nullptr;
-    bool m_pelotonAskStart = false;
-    QString m_pelotonProvider = "";
-    QString m_toastRequested = "";
-    int m_pelotonLoginState = -1;
-    int m_pzpLoginState = -1;
-    QString stravaPelotonActivityName;
-    QString stravaPelotonInstructorName;
-    QString stravaWorkoutName = "";
-    QUrl movieFileName;
-    FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-    QString activityDescription;
-    QString pelotonAskedName = QStringLiteral("");
-    QString pelotonAskedInstructor = QStringLiteral("");
-    QString pelotonAbortedName = QStringLiteral("");
-    QString pelotonAbortedInstructor = QStringLiteral("");
-
-    QString lastFitFileSaved = QLatin1String("");
-    QString lastTrainProgramFileSaved = QLatin1String("");
-
-    QList<QString> chartImagesFilenames;
-
-    bool m_autoresistance = true;
-    bool m_stopRequested = false;
-    bool m_startRequested = false;
-    bool m_overridePower = false;
-
+    
     DataObject *speed;
     DataObject *inclination;
     DataObject *cadence;
@@ -678,6 +620,71 @@ class homeform : public QObject {
     DataObject *preset_inclination_4;
     DataObject *preset_inclination_5;
     DataObject *pace_last500m;
+    DataObject *stepCount;
+    DataObject *ergMode;
+
+  private:
+    static homeform *m_singleton;
+    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
+    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
+    QList<QObject *> dataList;
+    QList<SessionLine> Session;
+    bluetooth *bluetoothManager;
+    QQmlApplicationEngine *engine;
+    trainprogram *trainProgram = nullptr;
+    trainprogram *previewTrainProgram = nullptr;
+    QString backupFitFileName =
+        QStringLiteral("QZ-backup-") +
+        QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+        QStringLiteral(".fit");
+
+    int m_topBarHeight = 120;
+    QString m_info = QStringLiteral("Connecting...");
+    bool m_labelHelp = true;
+    bool m_generalPopupVisible = false;
+    bool m_LicensePopupVisible = false;
+    bool m_MapsVisible = false;
+    bool m_VideoIconVisible = false;
+    bool m_VideoVisible = false;
+    bool m_ChartFooterVisible = false;
+    bool m_ChartIconVisible = false;
+    int m_VideoPosition = 0;
+    double m_VideoRate = 1;
+    QOAuth2AuthorizationCodeFlow *strava = nullptr;
+    QNetworkAccessManager *manager = nullptr;
+    QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+
+    bool paused = false;
+    bool stopped = false;
+    bool lapTrigger = false;
+
+    peloton *pelotonHandler = nullptr;
+    bool m_pelotonAskStart = false;
+    QString m_pelotonProvider = "";
+    QString m_toastRequested = "";
+    int m_pelotonLoginState = -1;
+    int m_pzpLoginState = -1;
+    int m_zwiftLoginState = -1;
+    QString stravaPelotonActivityName;
+    QString stravaPelotonInstructorName;
+    QString stravaWorkoutName = "";
+    QUrl movieFileName;
+    FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    QString activityDescription;
+    QString pelotonAskedName = QStringLiteral("");
+    QString pelotonAskedInstructor = QStringLiteral("");
+    QString pelotonAbortedName = QStringLiteral("");
+    QString pelotonAbortedInstructor = QStringLiteral("");
+
+    QString lastFitFileSaved = QLatin1String("");
+    QString lastTrainProgramFileSaved = QLatin1String("");
+
+    QList<QString> chartImagesFilenames;
+
+    bool m_autoresistance = true;
+    bool m_stopRequested = false;
+    bool m_startRequested = false;
+    bool m_overridePower = false;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -694,7 +701,8 @@ class homeform : public QObject {
 
     static quint64 cryptoKeySettingsProfiles();
 
-    static void copyAndroidContentsURI(QFile* file, QString subfolder);
+    static QString copyAndroidContentsURI(QUrl file, QString subfolder);
+    static QString getFileNameFromContentUri(const QString &uriString);
 
     int16_t fanOverride = 0;
 
@@ -737,6 +745,7 @@ class homeform : public QObject {
     void saveSettings(const QUrl &filename);
     static void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
+    void restoreSettings();
     void saveProfile(QString profilename);
     void restart();
     bool pelotonAskStart() { return m_pelotonAskStart; }
@@ -760,6 +769,8 @@ class homeform : public QObject {
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_open_other_folder(const QUrl &fileName);
+    void gpx_open_other_folder(const QUrl &fileName);
     void profile_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);
@@ -781,6 +792,7 @@ class homeform : public QObject {
     void pelotonWorkoutStarted(const QString &name, const QString &instructor);
     void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
+    void zwiftLoginState(bool ok);
     void pzpLoginState(bool ok);
     void peloton_start_workout();
     void peloton_abort_workout();
@@ -836,8 +848,9 @@ class homeform : public QObject {
     void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
-    void pelotonLoginChanged(int ok);
+    void pelotonLoginChanged(int ok);    
     void pzpLoginChanged(int ok);
+    void zwiftLoginChanged(int ok);
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
