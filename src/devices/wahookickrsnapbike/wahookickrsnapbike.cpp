@@ -225,11 +225,16 @@ void wahookickrsnapbike::update() {
             requestResistance = -1;
         }
 
-        if (KICKR_BIKE && requestInclination != -100) {
-            debug("writing inclination request " + QString::number(requestInclination));
-            inclinationChanged(requestInclination + gears(), requestInclination + gears());
-            Inclination = requestInclination + gears(); // the bike is not sending back the inclination?
-            requestInclination = -100;
+        if (KICKR_BIKE) {
+            if(requestInclination != -100) {
+                debug("writing inclination request " + QString::number(requestInclination));
+                inclinationChanged(requestInclination, requestInclination);
+                Inclination = requestInclination; // the bike is not sending back the inclination?
+                requestInclination = -100;
+            } else if (lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
+            }
+            lastGearValue = gears();
         } else if (requestResistance != -1 && KICKR_BIKE == false) {
             if (requestResistance > 100) {
                 requestResistance = 100;
