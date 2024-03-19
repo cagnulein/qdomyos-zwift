@@ -22,7 +22,9 @@
               [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
           };
       }];
-    [self setupDynamicQuickActions];
+		if (@available(iOS 13.0, *)) {
+	    [self setupDynamicQuickActions];
+		}
 
     return YES;
 }
@@ -59,6 +61,7 @@
 }
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+	if (@available(iOS 13.0, *)) {
     UIApplicationShortcutItem *shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
     if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
         NSLog(@"performActionForShortcutItem");
@@ -68,6 +71,7 @@
         lockscreen::set_action_profile([fileNameWithExtension UTF8String]);
         NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
     }
+	}
 
     return YES;
 }
