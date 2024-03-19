@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "nautilusbike.h"
 
-class NautilusBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+#include "devices/nautilusbike/nautilusbike.h"
+
+
+class NautilusBikeTestData : public BikeTestData {
 
 public:
-    NautilusBikeTestData(): BluetoothDeviceTestData("Nautilus Bike") {
+    NautilusBikeTestData(): BikeTestData("Nautilus Bike") {
         this->addDeviceName("NAUTILUS B", comparison::StartsWithIgnoreCase);
     }
 

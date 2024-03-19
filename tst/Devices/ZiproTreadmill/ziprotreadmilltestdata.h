@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "ziprotreadmill.h"
 
-class ZiproTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+#include "devices/ziprotreadmill/ziprotreadmill.h"
+
+
+class ZiproTreadmillTestData : public TreadmillTestData {
 
 public:
-    ZiproTreadmillTestData() : BluetoothDeviceTestData("Zipro Treadmill") {
+    ZiproTreadmillTestData() : TreadmillTestData("Zipro Treadmill") {
         this->addDeviceName("RZ_TREADMIL", comparison::StartsWithIgnoreCase);
     }
 

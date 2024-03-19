@@ -1,16 +1,20 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "fitplusbike.h"
 
-class FitPlusBikeFSTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+
+#include "devices/fitplusbike/fitplusbike.h"
+
+
+class FitPlusBikeFSTestData : public BikeTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fitplus_bike = enable;
         return true;
     }
 public:
-    FitPlusBikeFSTestData() : BluetoothDeviceTestData("FitPlus Bike"){
+    FitPlusBikeFSTestData() : BikeTestData("FitPlus Bike"){
         this->addDeviceName("FS-", comparison::StartsWith);
     }
 
@@ -22,10 +26,10 @@ public:
     }
 };
 
-class FitPlusBikeMRKTestData : public BluetoothDeviceTestData {
+class FitPlusBikeMRKTestData : public BikeTestData {
 
 public:
-    FitPlusBikeMRKTestData() : BluetoothDeviceTestData("FitPlus Bike (MRK, no settings)"){
+    FitPlusBikeMRKTestData() : BikeTestData("FitPlus Bike (MRK, no settings)"){
 
         this->addDeviceName("MRK-", comparison::StartsWith);
     }

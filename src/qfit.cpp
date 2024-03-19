@@ -18,7 +18,7 @@ using namespace std;
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport) {
+                uint32_t processFlag, FIT_SPORT overrideSport, QString workoutName, QString bluetooth_device_name) {
     QSettings settings;
     bool strava_virtual_activity =
         settings.value(QZSettings::strava_virtual_activity, QZSettings::default_strava_virtual_activity).toBool();
@@ -59,7 +59,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::FileIdMesg fileIdMesg; // Every FIT file requires a File ID message
     fileIdMesg.SetType(FIT_FILE_ACTIVITY);
-    fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
+    if(bluetooth_device_name.toUpper().startsWith("DOMYOS"))
+        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DECATHLON);
+    else
+        fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     fileIdMesg.SetProduct(1);
     fileIdMesg.SetSerialNumber(12345);
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -123,6 +126,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         qDebug() << "overriding FIT sport " << overrideSport;
     } else if (type == bluetoothdevice::TREADMILL) {
+        if(session.last().stepCount > 0)
+            sessionMesg.SetTotalStrides(session.last().stepCount);
 
         if (speed_avg == 0 || speed_avg > 6.5)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
@@ -195,6 +200,33 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
+
+    if (workoutName.length() > 0) {
+        fit::TrainingFileMesg trainingFile;
+        trainingFile.SetTimestamp(sessionMesg.GetTimestamp());
+        trainingFile.SetTimeCreated(sessionMesg.GetTimestamp());
+        trainingFile.SetType(FIT_FILE_WORKOUT);
+        encode.Write(trainingFile);
+
+        fit::WorkoutMesg workout;
+        workout.SetSport(sessionMesg.GetSport());
+        workout.SetSubSport(sessionMesg.GetSubSport());
+        workout.SetWktName(workoutName.toStdWString());
+        workout.SetNumValidSteps(1);
+        encode.Write(workout);
+
+        fit::WorkoutStepMesg workoutStep;
+        workoutStep.SetDurationTime(sessionMesg.GetTotalTimerTime());
+        workoutStep.SetTargetValue(0);
+        workoutStep.SetCustomTargetValueHigh(0);
+        workoutStep.SetCustomTargetValueLow(0);
+        workoutStep.SetMessageIndex(0);
+        workoutStep.SetDurationType(FIT_WKT_STEP_DURATION_TIME);
+        workoutStep.SetTargetType(FIT_WKT_STEP_TARGET_SPEED);
+        workoutStep.SetIntensity(FIT_INTENSITY_INTERVAL);
+        encode.Write(workoutStep);
+    }
+
     encode.Write(eventMesg);
 
     fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
@@ -305,6 +337,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
     }
 
+    lapMesg.SetTotalDistance((session.last().distance - lastLapOdometer) * 1000.0); // meters
     lapMesg.SetTotalElapsedTime(session.last().elapsedTime - lastLapTimer);
     lapMesg.SetTotalTimerTime(session.last().elapsedTime - lastLapTimer);
     lapMesg.SetEvent(FIT_EVENT_LAP);

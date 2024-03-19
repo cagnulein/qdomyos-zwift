@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "mcfbike.h"
 
-class MCFBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+
+#include "devices/mcfbike/mcfbike.h"
+
+
+class MCFBikeTestData : public BikeTestData {
 
 public:
-    MCFBikeTestData() : BluetoothDeviceTestData("MCF Bike") {
+    MCFBikeTestData() : BikeTestData("MCF Bike") {
         this->addDeviceName("MCF-", comparison::StartsWithIgnoreCase);
     }
 

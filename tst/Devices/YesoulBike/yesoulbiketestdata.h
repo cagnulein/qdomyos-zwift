@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "yesoulbike.h"
 
-class YesoulBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+#include "devices/yesoulbike/yesoulbike.h"
+
+
+class YesoulBikeTestData : public BikeTestData {
 
 public:
-    YesoulBikeTestData() : BluetoothDeviceTestData("Yesoul Bike") {
+    YesoulBikeTestData() : BikeTestData("Yesoul Bike") {
         this->addDeviceName(yesoulbike::bluetoothName, comparison::StartsWith);
     }
 

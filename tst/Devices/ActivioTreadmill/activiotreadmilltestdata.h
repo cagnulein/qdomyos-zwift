@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "activiotreadmill.h"
+#include "Devices/Treadmill/treadmilltestdata.h"
+#include "devices/activiotreadmill/activiotreadmill.h"
 
-class ActivioTreadmillTestData : public BluetoothDeviceTestData {
+class ActivioTreadmillTestData : public TreadmillTestData {
 
 public:
-    ActivioTreadmillTestData() : BluetoothDeviceTestData("Activio Treadmill") {
+    ActivioTreadmillTestData() : TreadmillTestData("Activio Treadmill") {
         this->addDeviceName("RUNNERT", comparison::StartsWithIgnoreCase);
     }
 

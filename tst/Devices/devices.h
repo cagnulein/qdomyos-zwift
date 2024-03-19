@@ -8,6 +8,7 @@
 #include "bluetoothdevicetestdata.h"
 #include "ActivioTreadmill/activiotreadmilltestdata.h"
 #include "ApexBike/apexbiketestdata.h"
+#include "BkoolBike/bkoolbiketestdata.h"
 #include "BHFitnessElliptical/bhfitnessellipticaltestdata.h"
 #include "Bike/biketestdata.h"
 #include "BowflexT216Treadmill/bowflext216treadmilltestdata.h"
@@ -30,12 +31,14 @@
 #include "FakeTreadmill/faketreadmilltestdata.h"
 #include "FitPlusBike/fitplusbiketestdata.h"
 #include "FitshowTreadmill/fitshowtreadmilltestdata.h"
+#include "FocusTreadmill/focustreadmilltestdata.h"
 #include "FlywheelBike/flywheelbiketestdata.h"
 #include "FTMSBike/ftmsbiketestdata.h"
 #include "FTMSRower/ftmsrowertestdata.h"
 #include "HorizonGR7Bike/horizongr7biketestdata.h"
 #include "HorizonTreadmill/horizontreadmilltestdata.h"
 #include "iConceptBike/iconceptbiketestdata.h"
+#include "iConceptElliptical/iconceptellipticaltestdata.h"
 #include "InspireBike/inspirebiketestdata.h"
 #include "KeepBike/keepbiketestdata.h"
 #include "LifeFitnessTreadmill/lifefitnesstreadmilltestdata.h"
@@ -64,6 +67,7 @@
 #include "RenphoBike/renphobiketestdata.h"
 #include "Rower/rowertestdata.h"
 #include "SchwinnIC4Bike/schwinnic4biketestdata.h"
+#include "Schwinn170Bike/schwinn170biketestdata.h"
 #include "Shuaa5Treadmill/shuaa5treadmilltestdata.h"
 #include "SkandikaWiryBike/skandikawirybiketestdata.h"
 #include "SmartRowRower/smartrowrowertestdata.h"
@@ -87,13 +91,15 @@
 #include "UltrasportBike/ultrasportbiketestdata.h"
 #include "WahooKickrSnapBike/wahookickrsnapbiketestdata.h"
 #include "YesoulBike/yesoulbiketestdata.h"
+#include "YpooElliptical/ypooellipticaltestdata.h"
+#include "TrxAppGateUSBElliptical/trxappgateusbellipticaltestdata.h"
 #include "ZiproTreadmill/ziprotreadmilltestdata.h"
 
 using BluetoothDeviceTestDataTypes = ::testing::Types<
 ActivioTreadmillTestData,
 ApexBikeTestData,
+BkoolBikeTestData,
 BHFitnessEllipticalTestData,
-BikeTestData,
 BowflexT216TreadmillTestData,
 CompuTrainerTestData,
 CSCBike1TestData,
@@ -108,10 +114,10 @@ ESLinkerTreadmillTestData,
 EchelonConnectSportBikeTestData,
 EchelonRowerTestData,
 EchelonStrideTreadmillTestData,
-EllipticalTestData,
 FTMSBike1TestData,
 FTMSBike2TestData,
 FTMSBike3TestData,
+FTMSBike4TestData,
 FTMSRowerTestData,
 FakeBikeTestData,
 FakeEllipticalTestData,
@@ -121,11 +127,14 @@ FitPlusBikeMRKTestData,
 FitshowTreadmillBFTestData,
 FitshowTreadmillFSTestData,
 FitshowTreadmillSWTestData,
+FocusTreadmillTestData,
 FlywheelBike1TestData,
 FlywheelBike2TestData,
 HorizonGR7BikeTestData,
 HorizonTreadmillTestData,
 HorizonTreadmillToorxTestData,
+HorizonTreadmillBodyToneTestData,
+HorizonTreadmillDomyosTCTestData,
 InspireBikeTestData,
 KeepBikeTestData,
 KingsmithR1ProTreadmillTestData,
@@ -154,7 +163,7 @@ ProFormWiFiBikeTestData,
 ProFormWiFiTreadmillTestData,
 RenphoBike1TestData,
 RenphoBike2TestData,
-RowerTestData,
+Schwinn170BikeTestData,
 SchwinnIC4BikeTestData,
 Shuaa5TreadmillTestData,
 SkandikaWiryBikeTestData,
@@ -164,17 +173,18 @@ SnodeBike2TestData,
 SoleBikeTestData,
 SoleEllipticalTestData,
 SoleF80TreadmillTestData,
+SoleF85TreadmillTestData,
 SpiritTreadmillTestData,
 SportsPlusBikeTestData,
 SportsTechBikeTestData,
 StagesBike1TestData,
 StagesBike2TestData,
+StagesBike3TestData,
 StrydeRunPowerSensorTestData,
 TacxNeo2TestData,
 TechnoGymMyRunTreadmillTestData,
 TechnogymMyRunTreadmillRFCommTestData,
 ToorxTreadmillTestData,
-TreadmillTestData,
 TrueTreadmillTestData,
 TrxAppGateUSBBike1TestData,
 TrxAppGateUSBBike2TestData,
@@ -182,9 +192,12 @@ TrxAppGateUSBTreadmillTestData,
 UltrasportBikeTestData,
 WahooKickrSnapBikeTestData,
 YesoulBikeTestData,
+YpooEllipticalTestData,
+TrxAppGateUSBEllipticalTestData,
 ZwiftRunpodTestData,
 ZiproTreadmillTestData,
-iConceptBikeTestData>;
+iConceptBikeTestData,
+iConceptEllipticalTestData>;
 
 #endif
 

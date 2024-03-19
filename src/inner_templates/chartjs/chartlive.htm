@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart</title>
+	 <meta charset="utf-8">
+         <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
+    <script src="resize-observer.min.js"></script>
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="chartjs.3.4.1.min.js"></script>
+    <script src="moment.js"></script>
+    <script src="chartjs-adapter-moment.js"></script>
+    <script src="chartjs-plugin-annotation.min.js"></script>
+    <script src="globals.js"></script>
+    <script src="main_ws_manager.js"></script>
+              <script src="dochartlive.js"></script>
+         <script src="html2canvas.min.js"></script>
+    <style>
+    canvas{
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    html, body
+        {
+          -ms-content-zooming:none;
+          touch-action: none;
+          content-zooming: none;
+          overflow-y: hidden;
+        overflow-x: hidden;
+        overflow-y: none;
+        overflow-x: none;
+        margin: 0px;
+        }
+    </style>
+</head>
+
+<body style="background-color:#1d2330">    
+    <div id="divcanvas" style="width:100vw;height:100vh; background-color:white; border: 0px solid #aaa; overflow: hidden;">
+             <canvas id="canvas"></canvas>
+		</div>
+</body>
+</html>

@@ -1,12 +1,11 @@
 ﻿#pragma once
+#include "Devices/Elliptical/ellipticaltestdata.h"
+#include "devices/proformellipticaltrainer/proformellipticaltrainer.h"
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformellipticaltrainer.h"
-
-class ProFormEllipticalTrainerTestData : public BluetoothDeviceTestData {
+class ProFormEllipticalTrainerTestData : public EllipticalTestData {
 
 public:
-    ProFormEllipticalTrainerTestData(): BluetoothDeviceTestData("ProForm Elliptical Trainer") {
+    ProFormEllipticalTrainerTestData(): EllipticalTestData("ProForm Elliptical Trainer") {
         this->addDeviceName("I_VE", comparison::StartsWithIgnoreCase);
     }
 

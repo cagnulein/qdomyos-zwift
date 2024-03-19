@@ -1,12 +1,14 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "horizontreadmill.h"
 
-class HorizonTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+#include "devices/horizontreadmill/horizontreadmill.h"
+
+
+class HorizonTreadmillTestData : public TreadmillTestData {
 
   public:
-    HorizonTreadmillTestData() : BluetoothDeviceTestData("Horizon Treadmill") {
+    HorizonTreadmillTestData() : TreadmillTestData("Horizon Treadmill") {
 
         this->addDeviceName("HORIZON", comparison::StartsWithIgnoreCase);
         this->addDeviceName("AFG SPORT", comparison::StartsWithIgnoreCase);
@@ -24,8 +26,12 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
         this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
         this->addDeviceName("ESANGLINKER", comparison::StartsWithIgnoreCase);
         this->addDeviceName("DK202000725", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("CTM780102C6BB32D62", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MX-TM ", comparison::StartsWithIgnoreCase);
         this->addDeviceName("MATRIXTF50", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("MOBVOI TM", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("KETTLER TREADMILL", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("ASSAULTRUNNER", comparison::StartsWithIgnoreCase);
     }
 
     deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }
@@ -35,7 +41,7 @@ class HorizonTreadmillTestData : public BluetoothDeviceTestData {
     }
 };
 
-class HorizonTreadmillToorxTestData : public BluetoothDeviceTestData {
+class HorizonTreadmillToorxTestData : public TreadmillTestData {
     void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
                            std::vector<DeviceDiscoveryInfo> &configurations) const override {
         DeviceDiscoveryInfo config(info);
@@ -63,7 +69,7 @@ class HorizonTreadmillToorxTestData : public BluetoothDeviceTestData {
     }
 
   public:
-    HorizonTreadmillToorxTestData() : BluetoothDeviceTestData("Horizon Treadmill (Toorx)") {
+    HorizonTreadmillToorxTestData() : TreadmillTestData("Horizon Treadmill (Toorx)") {
         this->addDeviceName("TOORX", comparison::StartsWithIgnoreCase);
         this->addDeviceName("I-CONSOLE+", comparison::StartsWithIgnoreCase);
     }
@@ -73,4 +79,54 @@ class HorizonTreadmillToorxTestData : public BluetoothDeviceTestData {
     bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override {
         return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
     }
+};
+
+class HorizonTreadmillBodyToneTestData : public TreadmillTestData {
+    void configureSettings(const DeviceDiscoveryInfo &info, bool enable,
+                           std::vector<DeviceDiscoveryInfo> &configurations) const override {
+        DeviceDiscoveryInfo config(info);
+
+        if (enable) {
+            config.horizon_treadmill_force_ftms = true;
+            configurations.push_back(config);
+        } else {
+            // Basic case where the device is disabled in the settings
+            config.horizon_treadmill_force_ftms = false;
+            configurations.push_back(config);
+        }
+    }
+
+  public:
+    HorizonTreadmillBodyToneTestData() : TreadmillTestData("Horizon Treadmill (Bodytone)") {
+        this->addDeviceName("TF-", comparison::StartsWithIgnoreCase);
+    }
+
+    deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }
+
+    bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override {
+        return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
+    }
+};
+
+
+class HorizonTreadmillDomyosTCTestData : public TreadmillTestData {
+protected:
+    void configureBluetoothDeviceInfos(const QBluetoothDeviceInfo& info,  bool enable, std::vector<QBluetoothDeviceInfo>& bluetoothDeviceInfos) const override {
+        auto result = info;
+        if(enable) {
+            result.setServiceUuids(QVector<QBluetoothUuid>({QBluetoothUuid((quint16)0x1826)}));
+        }
+
+        bluetoothDeviceInfos.push_back(result);
+    }
+public:
+    HorizonTreadmillDomyosTCTestData() : TreadmillTestData("Horizon Treadmill (Domyos TC)") {
+        this->addDeviceName("DOMYOS-TC", comparison::StartsWithIgnoreCase);
+    }
+
+    deviceType get_expectedDeviceType() const override { return deviceType::HorizonTreadmill; }
+
+    bool get_isExpectedDevice(bluetoothdevice *detectedDevice) const override {
+        return dynamic_cast<horizontreadmill *>(detectedDevice) != nullptr;
+    }   
 };

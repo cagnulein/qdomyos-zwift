@@ -26,6 +26,223 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
         return;
     }
 
+    rower_pace_offset = 1;
+
+    rower_pace[0].value = -1;
+    rower_pace[0].display_name = QStringLiteral("Recovery");
+    rower_pace[0].levels[0].fast_pace = 4.31;
+    rower_pace[0].levels[0].slow_pace = 15;
+    rower_pace[0].levels[0].display_name = QStringLiteral("Level 1");
+    rower_pace[0].levels[0].slug = QStringLiteral("level_1");        
+    rower_pace[0].levels[1].fast_pace = 3.58;
+    rower_pace[0].levels[1].slow_pace = 15;
+    rower_pace[0].levels[1].display_name = QStringLiteral("Level 2");
+    rower_pace[0].levels[1].slug = QStringLiteral("level_2");    
+    rower_pace[0].levels[2].fast_pace = 3.34;
+    rower_pace[0].levels[2].slow_pace = 15;
+    rower_pace[0].levels[2].display_name = QStringLiteral("Level 3");
+    rower_pace[0].levels[2].slug = QStringLiteral("level_3");        
+    rower_pace[0].levels[3].fast_pace = 3.17;
+    rower_pace[0].levels[3].slow_pace = 15;
+    rower_pace[0].levels[3].display_name = QStringLiteral("Level 4");
+    rower_pace[0].levels[3].slug = QStringLiteral("level_4");        
+    rower_pace[0].levels[4].fast_pace = 3.03;
+    rower_pace[0].levels[4].slow_pace = 15;
+    rower_pace[0].levels[4].display_name = QStringLiteral("Level 5");
+    rower_pace[0].levels[4].slug = QStringLiteral("level_5");        
+    rower_pace[0].levels[5].fast_pace = 2.5;
+    rower_pace[0].levels[5].slow_pace = 15;
+    rower_pace[0].levels[5].display_name = QStringLiteral("Level 6");
+    rower_pace[0].levels[5].slug = QStringLiteral("level_6");        
+    rower_pace[0].levels[6].fast_pace = 2.38;
+    rower_pace[0].levels[6].slow_pace = 15;
+    rower_pace[0].levels[6].display_name = QStringLiteral("Level 7");
+    rower_pace[0].levels[6].slug = QStringLiteral("level_7");        
+    rower_pace[0].levels[7].fast_pace = 2.28;
+    rower_pace[0].levels[7].slow_pace = 15;
+    rower_pace[0].levels[7].display_name = QStringLiteral("Level 8");
+    rower_pace[0].levels[7].slug = QStringLiteral("level_8");        
+    rower_pace[0].levels[8].fast_pace = 2.17;
+    rower_pace[0].levels[8].slow_pace = 15;
+    rower_pace[0].levels[8].display_name = QStringLiteral("Level 9");
+    rower_pace[0].levels[8].slug = QStringLiteral("level_9");        
+    rower_pace[0].levels[9].fast_pace = 2.07;
+    rower_pace[0].levels[9].slow_pace = 15;
+    rower_pace[0].levels[9].display_name = QStringLiteral("Level 10");
+    rower_pace[0].levels[9].slug = QStringLiteral("level_10");
+
+    rower_pace[1].value = 0;
+    rower_pace[1].display_name = QStringLiteral("Easy");
+    rower_pace[1].levels[0].fast_pace = 3.51;
+    rower_pace[1].levels[0].slow_pace = 4.31;
+    rower_pace[1].levels[0].display_name = QStringLiteral("Level 1");
+    rower_pace[1].levels[0].slug = QStringLiteral("level_1");        
+    rower_pace[1].levels[1].fast_pace = 3.22;
+    rower_pace[1].levels[1].slow_pace = 3.58;
+    rower_pace[1].levels[1].display_name = QStringLiteral("Level 2");
+    rower_pace[1].levels[1].slug = QStringLiteral("level_2");    
+    rower_pace[1].levels[2].fast_pace = 3.02;
+    rower_pace[1].levels[2].slow_pace = 3.34;
+    rower_pace[1].levels[2].display_name = QStringLiteral("Level 3");
+    rower_pace[1].levels[2].slug = QStringLiteral("level_3");        
+    rower_pace[1].levels[3].fast_pace = 2.47;
+    rower_pace[1].levels[3].slow_pace = 3.17;
+    rower_pace[1].levels[3].display_name = QStringLiteral("Level 4");
+    rower_pace[1].levels[3].slug = QStringLiteral("level_4");        
+    rower_pace[1].levels[4].fast_pace = 2.36;
+    rower_pace[1].levels[4].slow_pace = 3.03;
+    rower_pace[1].levels[4].display_name = QStringLiteral("Level 5");
+    rower_pace[1].levels[4].slug = QStringLiteral("level_5");        
+    rower_pace[1].levels[5].fast_pace = 2.24;
+    rower_pace[1].levels[5].slow_pace = 2.5;
+    rower_pace[1].levels[5].display_name = QStringLiteral("Level 6");
+    rower_pace[1].levels[5].slug = QStringLiteral("level_6");        
+    rower_pace[1].levels[6].fast_pace = 2.14;
+    rower_pace[1].levels[6].slow_pace = 2.38;
+    rower_pace[1].levels[6].display_name = QStringLiteral("Level 7");
+    rower_pace[1].levels[6].slug = QStringLiteral("level_7");        
+    rower_pace[1].levels[7].fast_pace = 2.06;
+    rower_pace[1].levels[7].slow_pace = 2.28;
+    rower_pace[1].levels[7].display_name = QStringLiteral("Level 8");
+    rower_pace[1].levels[7].slug = QStringLiteral("level_8");        
+    rower_pace[1].levels[8].fast_pace = 1.56;
+    rower_pace[1].levels[8].slow_pace = 2.17;
+    rower_pace[1].levels[8].display_name = QStringLiteral("Level 9");
+    rower_pace[1].levels[8].slug = QStringLiteral("level_9");        
+    rower_pace[1].levels[9].fast_pace = 1.48;
+    rower_pace[1].levels[9].slow_pace = 2.07;
+    rower_pace[1].levels[9].display_name = QStringLiteral("Level 10");
+    rower_pace[1].levels[9].slug = QStringLiteral("level_10");
+
+    rower_pace[2].value = 1;
+    rower_pace[2].display_name = QStringLiteral("Moderate");
+    rower_pace[2].levels[0].fast_pace = 3.35;
+    rower_pace[2].levels[0].slow_pace = 3.51;
+    rower_pace[2].levels[0].display_name = QStringLiteral("Level 1");
+    rower_pace[2].levels[0].slug = QStringLiteral("level_1");        
+    rower_pace[2].levels[1].fast_pace = 3.09;
+    rower_pace[2].levels[1].slow_pace = 3.22;
+    rower_pace[2].levels[1].display_name = QStringLiteral("Level 2");
+    rower_pace[2].levels[1].slug = QStringLiteral("level_2");    
+    rower_pace[2].levels[2].fast_pace = 2.5;
+    rower_pace[2].levels[2].slow_pace = 3.02;
+    rower_pace[2].levels[2].display_name = QStringLiteral("Level 3");
+    rower_pace[2].levels[2].slug = QStringLiteral("level_3");        
+    rower_pace[2].levels[3].fast_pace = 2.36;
+    rower_pace[2].levels[3].slow_pace = 2.47;
+    rower_pace[2].levels[3].display_name = QStringLiteral("Level 4");
+    rower_pace[2].levels[3].slug = QStringLiteral("level_4");        
+    rower_pace[2].levels[4].fast_pace = 2.25;
+    rower_pace[2].levels[4].slow_pace = 2.36;
+    rower_pace[2].levels[4].display_name = QStringLiteral("Level 5");
+    rower_pace[2].levels[4].slug = QStringLiteral("level_5");        
+    rower_pace[2].levels[5].fast_pace = 2.15;
+    rower_pace[2].levels[5].slow_pace = 2.24;
+    rower_pace[2].levels[5].display_name = QStringLiteral("Level 6");
+    rower_pace[2].levels[5].slug = QStringLiteral("level_6");        
+    rower_pace[2].levels[6].fast_pace = 2.05;
+    rower_pace[2].levels[6].slow_pace = 2.14;
+    rower_pace[2].levels[6].display_name = QStringLiteral("Level 7");
+    rower_pace[2].levels[6].slug = QStringLiteral("level_7");        
+    rower_pace[2].levels[7].fast_pace = 1.57;
+    rower_pace[2].levels[7].slow_pace = 2.06;
+    rower_pace[2].levels[7].display_name = QStringLiteral("Level 8");
+    rower_pace[2].levels[7].slug = QStringLiteral("level_8");        
+    rower_pace[2].levels[8].fast_pace = 1.49;
+    rower_pace[2].levels[8].slow_pace = 1.57;
+    rower_pace[2].levels[8].display_name = QStringLiteral("Level 9");
+    rower_pace[2].levels[8].slug = QStringLiteral("level_9");        
+    rower_pace[2].levels[9].fast_pace = 1.41;
+    rower_pace[2].levels[9].slow_pace = 1.48;
+    rower_pace[2].levels[9].display_name = QStringLiteral("Level 10");
+    rower_pace[2].levels[9].slug = QStringLiteral("level_10");
+
+    rower_pace[3].value = 2;
+    rower_pace[3].display_name = QStringLiteral("Challenging");
+    rower_pace[3].levels[0].fast_pace = 3.17;
+    rower_pace[3].levels[0].slow_pace = 3.35;
+    rower_pace[3].levels[0].display_name = QStringLiteral("Level 1");
+    rower_pace[3].levels[0].slug = QStringLiteral("level_1");        
+    rower_pace[3].levels[1].fast_pace = 2.52;
+    rower_pace[3].levels[1].slow_pace = 3.09;
+    rower_pace[3].levels[1].display_name = QStringLiteral("Level 2");
+    rower_pace[3].levels[1].slug = QStringLiteral("level_2");    
+    rower_pace[3].levels[2].fast_pace = 2.35;
+    rower_pace[3].levels[2].slow_pace = 2.5;
+    rower_pace[3].levels[2].display_name = QStringLiteral("Level 3");
+    rower_pace[3].levels[2].slug = QStringLiteral("level_3");        
+    rower_pace[3].levels[3].fast_pace = 2.23;
+    rower_pace[3].levels[3].slow_pace = 2.36;
+    rower_pace[3].levels[3].display_name = QStringLiteral("Level 4");
+    rower_pace[3].levels[3].slug = QStringLiteral("level_4");        
+    rower_pace[3].levels[4].fast_pace = 2.13;
+    rower_pace[3].levels[4].slow_pace = 2.25;
+    rower_pace[3].levels[4].display_name = QStringLiteral("Level 5");
+    rower_pace[3].levels[4].slug = QStringLiteral("level_5");        
+    rower_pace[3].levels[5].fast_pace = 2.03;
+    rower_pace[3].levels[5].slow_pace = 2.15;
+    rower_pace[3].levels[5].display_name = QStringLiteral("Level 6");
+    rower_pace[3].levels[5].slug = QStringLiteral("level_6");        
+    rower_pace[3].levels[6].fast_pace = 1.54;
+    rower_pace[3].levels[6].slow_pace = 2.05;
+    rower_pace[3].levels[6].display_name = QStringLiteral("Level 7");
+    rower_pace[3].levels[6].slug = QStringLiteral("level_7");        
+    rower_pace[3].levels[7].fast_pace = 1.47;
+    rower_pace[3].levels[7].slow_pace = 1.57;
+    rower_pace[3].levels[7].display_name = QStringLiteral("Level 8");
+    rower_pace[3].levels[7].slug = QStringLiteral("level_8");        
+    rower_pace[3].levels[8].fast_pace = 1.4;
+    rower_pace[3].levels[8].slow_pace = 1.49;
+    rower_pace[3].levels[8].display_name = QStringLiteral("Level 9");
+    rower_pace[3].levels[8].slug = QStringLiteral("level_9");        
+    rower_pace[3].levels[9].fast_pace = 1.32;
+    rower_pace[3].levels[9].slow_pace = 1.41;
+    rower_pace[3].levels[9].display_name = QStringLiteral("Level 10");
+    rower_pace[3].levels[9].slug = QStringLiteral("level_10");
+
+    rower_pace[4].value = 3;
+    rower_pace[4].display_name = QStringLiteral("Max");
+    rower_pace[4].levels[0].fast_pace = 3.06;
+    rower_pace[4].levels[0].slow_pace = 3.17;
+    rower_pace[4].levels[0].display_name = QStringLiteral("Level 1");
+    rower_pace[4].levels[0].slug = QStringLiteral("level_1");        
+    rower_pace[4].levels[1].fast_pace = 2.42;
+    rower_pace[4].levels[1].slow_pace = 2.52;
+    rower_pace[4].levels[1].display_name = QStringLiteral("Level 2");
+    rower_pace[4].levels[1].slug = QStringLiteral("level_2");    
+    rower_pace[4].levels[2].fast_pace = 2.26;
+    rower_pace[4].levels[2].slow_pace = 2.35;
+    rower_pace[4].levels[2].display_name = QStringLiteral("Level 3");
+    rower_pace[4].levels[2].slug = QStringLiteral("level_3");        
+    rower_pace[4].levels[3].fast_pace = 2.15;
+    rower_pace[4].levels[3].slow_pace = 2.23;
+    rower_pace[4].levels[3].display_name = QStringLiteral("Level 4");
+    rower_pace[4].levels[3].slug = QStringLiteral("level_4");        
+    rower_pace[4].levels[4].fast_pace = 2.05;
+    rower_pace[4].levels[4].slow_pace = 2.13;
+    rower_pace[4].levels[4].display_name = QStringLiteral("Level 5");
+    rower_pace[4].levels[4].slug = QStringLiteral("level_5");        
+    rower_pace[4].levels[5].fast_pace = 1.56;
+    rower_pace[4].levels[5].slow_pace = 2.03;
+    rower_pace[4].levels[5].display_name = QStringLiteral("Level 6");
+    rower_pace[4].levels[5].slug = QStringLiteral("level_6");        
+    rower_pace[4].levels[6].fast_pace = 1.48;
+    rower_pace[4].levels[6].slow_pace = 1.54;
+    rower_pace[4].levels[6].display_name = QStringLiteral("Level 7");
+    rower_pace[4].levels[6].slug = QStringLiteral("level_7");        
+    rower_pace[4].levels[7].fast_pace = 1.41;
+    rower_pace[4].levels[7].slow_pace = 1.47;
+    rower_pace[4].levels[7].display_name = QStringLiteral("Level 8");
+    rower_pace[4].levels[7].slug = QStringLiteral("level_8");        
+    rower_pace[4].levels[8].fast_pace = 1.34;
+    rower_pace[4].levels[8].slow_pace = 1.4;
+    rower_pace[4].levels[8].display_name = QStringLiteral("Level 9");
+    rower_pace[4].levels[8].slug = QStringLiteral("level_9");        
+    rower_pace[4].levels[9].fast_pace = 1.27;
+    rower_pace[4].levels[9].slow_pace = 1.32;
+    rower_pace[4].levels[9].display_name = QStringLiteral("Level 10");
+    rower_pace[4].levels[9].slug = QStringLiteral("level_10");
+
     connect(timer, &QTimer::timeout, this, &peloton::startEngine);
 
     PZP = new powerzonepack(bl, this);
@@ -109,6 +326,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
+        emit loginState(false);
         return;
     }
 
@@ -229,6 +447,16 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     { getRide(current_ride_id); }
 }
 
+void peloton::downloadImage() {
+    if (current_image_downloaded) {
+        delete current_image_downloaded;
+        current_image_downloaded = 0;
+    }
+    if (!current_image_url.isEmpty()) {
+        current_image_downloaded = new fileDownloader(current_image_url);
+    }
+}
+
 void peloton::workout_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
@@ -242,14 +470,6 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
     current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
     current_image_url = ride[QStringLiteral("image_url")].toString();
-
-    if (current_image_downloaded) {
-        delete current_image_downloaded;
-        current_image_downloaded = 0;
-    }
-    if (!current_image_url.isEmpty()) {
-        current_image_downloaded = new fileDownloader(current_image_url);
-    }
 
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
     qDebug() << QStringLiteral("original_air_time") << time;
@@ -365,7 +585,9 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     }
 
     bool atLeastOnePower = false;
-    if (trainrows.empty() && !segments_segment_list.isEmpty()) {
+    if (trainrows.empty() && !segments_segment_list.isEmpty() &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::ROWING &&
+        bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -375,9 +597,13 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     int len = s["length"].toInt();
                     if (!zone.toUpper().compare(QStringLiteral("SPIN UPS")) ||
                         !zone.toUpper().compare(QStringLiteral("SPIN-UPS"))) {
-                        bool peloton_spinups_autoresistance = settings.value(QZSettings::peloton_spinups_autoresistance, QZSettings::default_peloton_spinups_autoresistance).toBool();
+                        bool peloton_spinups_autoresistance =
+                            settings
+                                .value(QZSettings::peloton_spinups_autoresistance,
+                                       QZSettings::default_peloton_spinups_autoresistance)
+                                .toBool();
                         uint32_t Duration = len;
-                        if(peloton_spinups_autoresistance) {
+                        if (peloton_spinups_autoresistance) {
                             double PowerLow = 0.5;
                             double PowerHigh = 0.83;
                             for (uint32_t i = 0; i < Duration; i++) {
@@ -426,6 +652,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             trainrows.append(row);
                             atLeastOnePower = true;
                         }
+                    } else if (!zone.toUpper().compare(QStringLiteral("RECOVERY"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.45;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
@@ -506,6 +740,16 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         }
                         trainrows.append(r);
                         qDebug() << r.duration << "power" << r.power;
+                    } else {
+                        if(len > 0 && atLeastOnePower) {
+                            r.duration = QTime(0, len / 60, len % 60, 0);
+                            r.power = -1;
+                            if (r.power != -1) {
+                                atLeastOnePower = true;
+                            }
+                            qDebug() << "ERROR not handled!" << zone;
+                            trainrows.append(r);
+                        }
                     }
                 }
             }
@@ -513,6 +757,59 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         // this list doesn't have nothing useful for this session
         if (!atLeastOnePower) {
             trainrows.clear();
+        }
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        QJsonObject target_metrics_data_list = ride[QStringLiteral("target_metrics_data")].toObject();
+        QJsonArray pace_intensities_list = target_metrics_data_list[QStringLiteral("pace_intensities")].toArray();
+
+        int pace_count = 0;        
+        rower_pace_offset = 0;
+
+        foreach (QJsonValue o, pace_intensities_list) {
+            if(o["value"].toInt() < 0) {
+                if(abs(o["value"].toInt()) > rower_pace_offset)
+                    rower_pace_offset = abs(o["value"].toInt());
+            }
+        }
+        
+        qDebug() << "rower_pace_offset" << rower_pace_offset;
+
+        foreach (QJsonValue o, pace_intensities_list) {
+            qDebug() << o;
+            pace_count = o["value"].toInt() + rower_pace_offset;
+            if (pace_count < 5 && pace_count >= 0) {
+                rower_pace[pace_count].display_name = o["display_name"].toString();
+                rower_pace[pace_count].value = o["value"].toInt();
+
+                QJsonArray levels = o["pace_levels"].toArray();
+                if (levels.count() > 10) {
+                    qDebug() << "peloton pace levels had been changed!";
+                }
+                int count = 0;
+                foreach (QJsonValue level, levels) {
+                    if(level["slug"].toString().split("_").count() > 1 ) {
+                        count = level["slug"].toString().split("_")[1].toInt() - 1;
+                        if (count >= 0 && count < 11) {
+                            rower_pace[pace_count].levels[count].fast_pace = level["fast_pace"].toDouble();
+                            rower_pace[pace_count].levels[count].slow_pace = level["slow_pace"].toDouble();
+                            rower_pace[pace_count].levels[count].display_name = level["display_name"].toString();
+                            rower_pace[pace_count].levels[count].slug = level["slug"].toString();
+                            
+                            qDebug() << count << level << rower_pace[pace_count].levels[count].display_name
+                            << rower_pace[pace_count].levels[count].fast_pace
+                            << rower_pace[pace_count].levels[count].slow_pace
+                            << rower_pace[pace_count].levels[count].slug;
+                        } else {
+                            qDebug() << level["slug"].toString() << "slug error";
+                        }
+                    } else {
+                        qDebug() << level["slug"].toString() << "slug count error";
+                    }
+                }
+                qDebug() << pace_count << rower_pace[pace_count].display_name << rower_pace[pace_count].value;
+            } else {
+                qDebug() << "pace_count error!";
+            }
         }
     }
 
@@ -622,7 +919,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.upper_inclination = inc_upper;
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
-            } else if (segment_type.contains("floor")) {
+            } else if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
                 trainrow r;
@@ -630,6 +927,78 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
+            }
+        }
+    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+        trainrows.reserve(target_metrics.count() + 2);
+        for (int i = 0; i < target_metrics.count(); i++) {
+            QJsonObject metrics = target_metrics.at(i).toObject();
+            QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
+            QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            QString segment_type = metrics[QStringLiteral("segment_type")].toString();
+            if (metrics_ar.count() > 1 && !offset.isEmpty()) {
+                QJsonObject strokes_rate = metrics_ar.at(0).toObject();
+                QJsonObject pace_intensity = metrics_ar.at(1).toObject();
+                int peloton_rower_level =
+                    settings.value(QZSettings::peloton_rower_level, QZSettings::default_peloton_rower_level).toInt() -
+                    1;
+                double strokes_rate_lower = strokes_rate[QStringLiteral("lower")].toDouble();
+                double strokes_rate_upper = strokes_rate[QStringLiteral("upper")].toDouble();
+                int pace_intensity_lower = pace_intensity[QStringLiteral("lower")].toInt() + rower_pace_offset;
+                int pace_intensity_upper = pace_intensity[QStringLiteral("upper")].toInt() + rower_pace_offset;
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                double strokes_rate_average = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+                if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                    r.cadence = strokes_rate_lower;
+                } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                    r.cadence = strokes_rate_upper;
+                } else {
+                    r.cadence = ((strokes_rate_upper - strokes_rate_lower) / 2.0) + strokes_rate_lower;
+                }
+
+                if (pace_intensity_lower >= 0 && pace_intensity_lower < 5) {
+                    r.average_speed =
+                        (rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace) +
+                         rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace)) /
+                        2.0;
+                    r.upper_speed =
+                        rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].fast_pace);
+                    r.lower_speed =
+                        rowerpaceToSpeed(rower_pace[pace_intensity_lower].levels[peloton_rower_level].slow_pace);
+
+                    if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                        r.pace_intensity = pace_intensity_lower;
+                        r.speed = r.lower_speed;
+                    } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                        r.pace_intensity = pace_intensity_upper;
+                        r.speed = r.upper_speed;
+                    } else {
+                        r.pace_intensity = (pace_intensity_upper + pace_intensity_lower) / 2;
+                        r.speed = r.average_speed;
+                    }
+                    r.forcespeed = 1;
+                }                
+
+                r.lower_cadence = strokes_rate_lower;
+                r.average_cadence = strokes_rate_average;
+                r.upper_cadence = strokes_rate_upper;
+
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.cadence << r.speed << r.upper_speed << r.lower_speed;
+            } else if (segment_type.contains("floor") || segment_type.contains("free_mode")) {
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.cadence;
             }
         }
     }
@@ -669,6 +1038,17 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     timer->start(30s); // check for a status changed
+}
+
+double peloton::rowerpaceToSpeed(double pace) {
+    float whole, fractional;
+
+    fractional = std::modf(pace, &whole);
+    double seconds = whole * 60.0;
+    seconds += (fractional * 100.0);
+    seconds *= 2.0;
+
+    return 3600.0 / seconds;
 }
 
 void peloton::getInstructor(const QString &instructor_id) {

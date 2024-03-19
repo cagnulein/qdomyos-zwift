@@ -185,6 +185,12 @@ ScrollView {
 		  property int tile_avg_watt_lap_order: 48
         property bool tile_pace_last500m_enabled: true
         property int  tile_pace_last500m_order: 49
+        property bool tile_target_pace_enabled: false
+        property int  tile_target_pace_order: 50
+        property bool tile_step_count_enabled: false
+        property int  tile_step_count_order: 51
+        property bool tile_erg_mode_enabled: false
+        property int  tile_erg_mode_order: 52
     }
 
 
@@ -219,7 +225,7 @@ ScrollView {
                     id: okSpeedOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_speed_order = speedOrderTextField.displayText
+                    onClicked: {settings.tile_speed_order = speedOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -264,7 +270,7 @@ ScrollView {
                     id: okinclinationOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_inclination_order = inclinationOrderTextField.displayText
+                    onClicked: {settings.tile_inclination_order = inclinationOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -325,7 +331,7 @@ ScrollView {
                         id: okcadenceOrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                        onClicked: {settings.tile_cadence_order = cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
             }
@@ -371,7 +377,7 @@ ScrollView {
                     id: okelevationOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_elevation_order = elevationOrderTextField.displayText
+                    onClicked: {settings.tile_elevation_order = elevationOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }            
@@ -403,7 +409,7 @@ ScrollView {
                     id: okcaloriesOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_calories_order = caloriesOrderTextField.displayText
+                    onClicked: {settings.tile_calories_order = caloriesOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -448,7 +454,7 @@ ScrollView {
                     id: okodometerOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_odometer_order = odometerOrderTextField.displayText
+                    onClicked: {settings.tile_odometer_order = odometerOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -493,7 +499,7 @@ ScrollView {
                     id: okpaceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_pace_order = paceOrderTextField.displayText
+                    onClicked: {settings.tile_pace_order = paceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -538,7 +544,7 @@ ScrollView {
                     id: okresistanceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_resistance_order = resistanceOrderTextField.displayText
+                    onClicked: {settings.tile_resistance_order = resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -583,7 +589,7 @@ ScrollView {
                     id: okwattOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_watt_order = wattOrderTextField.displayText
+                    onClicked: {settings.tile_watt_order = wattOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -628,7 +634,7 @@ ScrollView {
                     id: okweightLossOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_weight_loss_order = weightLossOrderTextField.displayText
+                    onClicked: {settings.tile_weight_loss_order = weightLossOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -674,7 +680,7 @@ ScrollView {
                     id: okavgwattOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_avgwatt_order = avgwattOrderTextField.displayText
+                    onClicked: {settings.tile_avgwatt_order = avgwattOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -720,7 +726,7 @@ ScrollView {
 					     id: okavgwattLapOrderButton
 						  text: "OK"
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText
+						  onClicked: {settings.tile_avg_watt_lap_order = avgwattLapOrderTextField.displayText; toast.show("Setting saved!"); }
 						}
 					}
 				}
@@ -752,7 +758,7 @@ ScrollView {
                     id: okftpOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_ftp_order = ftpOrderTextField.displayText
+                    onClicked: {settings.tile_ftp_order = ftpOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -797,7 +803,7 @@ ScrollView {
                     id: okheartrateOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_heart_order = heartrateOrderTextField.displayText
+                    onClicked: {settings.tile_heart_order = heartrateOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -829,7 +835,7 @@ ScrollView {
                     id: okfanOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_fan_order = fanOrderTextField.displayText
+                    onClicked: {settings.tile_fan_order = fanOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -874,7 +880,7 @@ ScrollView {
                     id: okjoulsOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_jouls_order = joulsOrderTextField.displayText
+                    onClicked: {settings.tile_jouls_order = joulsOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -919,7 +925,7 @@ ScrollView {
                     id: okelapsedOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_elapsed_order = elapsedOrderTextField.displayText
+                    onClicked: {settings.tile_elapsed_order = elapsedOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -964,7 +970,7 @@ ScrollView {
                     id: okmovingTimeOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_moving_time_order = movingTimeOrderTextField.displayText
+                    onClicked: {settings.tile_moving_time_order = movingTimeOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1009,7 +1015,7 @@ ScrollView {
                     id: okpelotonOffsetOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText
+                    onClicked: {settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1054,7 +1060,7 @@ ScrollView {
                     id: okPelotonRemainingOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText
+                    onClicked: {settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1100,7 +1106,7 @@ ScrollView {
                     id: okpelotonDifficultyOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText
+                    onClicked: {settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }*/
@@ -1132,7 +1138,7 @@ ScrollView {
                     id: oklapElapsedOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText
+                    onClicked: {settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1179,7 +1185,7 @@ ScrollView {
                         id: okpeloton_resistanceOrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                        onClicked: {settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
             }
@@ -1225,7 +1231,7 @@ ScrollView {
                     id: oktarget_resistanceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText
+                    onClicked: {settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1271,7 +1277,7 @@ ScrollView {
                     id: oktarget_peloton_resistanceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText
+                    onClicked: {settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1316,7 +1322,7 @@ ScrollView {
                     id: oktarget_cadenceOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText
+                    onClicked: {settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1361,7 +1367,7 @@ ScrollView {
                     id: oktarget_powerOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_power_order = target_powerOrderTextField.displayText
+                    onClicked: {settings.tile_target_power_order = target_powerOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1407,7 +1413,7 @@ ScrollView {
                     id: oktarget_zoneOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_zone_order = target_zoneOrderTextField.displayText
+                    onClicked: {settings.tile_target_zone_order = target_zoneOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1452,10 +1458,43 @@ ScrollView {
                     id: oktarget_speedOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_speed_order = target_speedOrderTextField.displayText
+                    onClicked: {settings.tile_target_speed_order = target_speedOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: targetPaceEnabledAccordion
+            title: qsTr("Target Pace")
+            linkedBoolSetting: "tile_target_pace_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labeltargetpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: target_paceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_target_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = target_paceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: oktarget_paceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_target_pace_order = target_paceOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
         AccordionCheckElement {
             id: targetInclineEnabledAccordion
             title: qsTr("Target Incline")
@@ -1483,7 +1522,7 @@ ScrollView {
                     id: oktarget_inclineOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_target_incline_order = target_inclineOrderTextField.displayText
+                    onClicked: {settings.tile_target_incline_order = target_inclineOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1514,7 +1553,7 @@ ScrollView {
                     id: okwatt_kgOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_watt_kg_order = watt_kgOrderTextField.displayText
+                    onClicked: {settings.tile_watt_kg_order = watt_kgOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1559,7 +1598,7 @@ ScrollView {
                     id: okgearsOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_gears_order = gearsOrderTextField.displayText
+                    onClicked: {settings.tile_gears_order = gearsOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1604,7 +1643,7 @@ ScrollView {
                     id: okremainingTimeTrainingProgramRowOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText
+                    onClicked: {settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1649,7 +1688,7 @@ ScrollView {
                     id: oknextRowsTrainingProgramOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText
+                    onClicked: {settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1694,7 +1733,7 @@ ScrollView {
                     id: okmetsOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_mets_order = metsOrderTextField.displayText
+                    onClicked: {settings.tile_mets_order = metsOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1739,7 +1778,7 @@ ScrollView {
                     id: oktargetmetsOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_targetmets_order = targetmetsOrderTextField.displayText
+                    onClicked: {settings.tile_targetmets_order = targetmetsOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1771,7 +1810,7 @@ ScrollView {
                     id: okdatetimeOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                    onClicked: {settings.tile_datetime_order = datetimeOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1816,7 +1855,7 @@ ScrollView {
                     id: okstrokes_countOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_strokes_count_order = strokes_countOrderTextField.displayText
+                    onClicked: {settings.tile_strokes_count_order = strokes_countOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1861,7 +1900,7 @@ ScrollView {
                     id: okstrokes_lengthOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText
+                    onClicked: {settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1906,7 +1945,7 @@ ScrollView {
                     id: oksteeringAngleOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText
+                    onClicked: {settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1951,7 +1990,7 @@ ScrollView {
                     id: okpidHROrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_pid_hr_order = pidHROrderTextField.displayText
+                    onClicked: {settings.tile_pid_hr_order = pidHROrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -1996,7 +2035,7 @@ ScrollView {
                     id: okextInclineOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_ext_incline_order = extInclineOrderTextField.displayText
+                    onClicked: {settings.tile_ext_incline_order = extInclineOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -2041,7 +2080,7 @@ ScrollView {
                     id: okStrideLengthOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText
+                    onClicked: {settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -2086,7 +2125,7 @@ ScrollView {
                     id: okGroundContactOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_ground_contact_order = groundContactOrderTextField.displayText
+                    onClicked: {settings.tile_ground_contact_order = groundContactOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -2131,7 +2170,7 @@ ScrollView {
                     id: okVerticalOscillationOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText
+                    onClicked: {settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -2176,7 +2215,71 @@ ScrollView {
                     id: okPacelast500mOrderButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText
+                    onClicked: {settings.tile_pace_last500m_order = pacelast500mOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: stepCountEnabledAccordion
+            title: qsTr("Step Count")
+            linkedBoolSetting: "tile_step_count_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelStepCountOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: stepCountOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_step_count_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = stepCountOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okStepCountOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_step_count_order = stepCountOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }
+
+        AccordionCheckElement {
+            id: ergModeEnabledAccordion
+            title: qsTr("Erg Mode")
+            linkedBoolSetting: "tile_erg_mode_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    id: labelErgModeOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: ergModeOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_erg_mode_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = ergModeOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okErgModeOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_erg_mode_order = ergModeOrderTextField.displayText; toast.show("Setting saved!"); }
                 }
             }
         }
@@ -2209,7 +2312,7 @@ ScrollView {
                         id: okPresetResistance1OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText
+                        onClicked: {settings.tile_preset_resistance_1_order = presetResistance1TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2230,7 +2333,7 @@ ScrollView {
                         id: okPresetResistance1ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_1_value = presetResistance1ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2251,7 +2354,7 @@ ScrollView {
                         id: okPresetResistance1LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_1_label = presetResistance1LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2285,7 +2388,7 @@ ScrollView {
 						      id: okPresetResistance1ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText
+								onClicked: {settings.tile_preset_resistance_1_color = presetResistance1ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2318,7 +2421,7 @@ ScrollView {
                         id: okPresetResistance2OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText
+                        onClicked: {settings.tile_preset_resistance_2_order = presetResistance2TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2339,7 +2442,7 @@ ScrollView {
                         id: okPresetResistance2ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_2_value = presetResistance2ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2360,7 +2463,7 @@ ScrollView {
                         id: okPresetResistance2LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_2_label = presetResistance2LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2394,7 +2497,7 @@ ScrollView {
 						      id: okPresetResistance2ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText
+								onClicked: {settings.tile_preset_resistance_2_color = presetResistance2ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2427,7 +2530,7 @@ ScrollView {
                         id: okPresetResistance3OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText
+                        onClicked: {settings.tile_preset_resistance_3_order = presetResistance3TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2448,7 +2551,7 @@ ScrollView {
                         id: okPresetResistance3ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_3_value = presetResistance3ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2469,7 +2572,7 @@ ScrollView {
                         id: okPresetResistance3LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_3_label = presetResistance3LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2503,7 +2606,7 @@ ScrollView {
 						      id: okPresetResistance3ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText
+								onClicked: {settings.tile_preset_resistance_3_color = presetResistance3ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2536,7 +2639,7 @@ ScrollView {
                         id: okPresetResistance4OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText
+                        onClicked: {settings.tile_preset_resistance_4_order = presetResistance4TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2557,7 +2660,7 @@ ScrollView {
                         id: okPresetResistance4ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_4_value = presetResistance4ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2578,7 +2681,7 @@ ScrollView {
                         id: okPresetResistance4LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_4_label = presetResistance4LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2612,7 +2715,7 @@ ScrollView {
 						      id: okPresetResistance4ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText
+								onClicked: {settings.tile_preset_resistance_4_color = presetResistance4ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2645,7 +2748,7 @@ ScrollView {
                         id: okPresetResistance5OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText
+                        onClicked: {settings.tile_preset_resistance_5_order = presetResistance5TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2666,7 +2769,7 @@ ScrollView {
                         id: okPresetResistance5ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_5_value = presetResistance5ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2687,7 +2790,7 @@ ScrollView {
                         id: okPresetResistance5LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText
+                        onClicked: {settings.tile_preset_resistance_5_label = presetResistance5LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2721,7 +2824,7 @@ ScrollView {
 						      id: okPresetResistance5ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText
+								onClicked: {settings.tile_preset_resistance_5_color = presetResistance5ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2754,7 +2857,7 @@ ScrollView {
                         id: okPresetSpeed1OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText
+                        onClicked: {settings.tile_preset_speed_1_order = presetSpeed1TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2775,7 +2878,7 @@ ScrollView {
                         id: okPresetSpeed1ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_1_value = presetSpeed1ValueTextField.displayText
+                        onClicked: {settings.tile_preset_speed_1_value = presetSpeed1ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2796,7 +2899,7 @@ ScrollView {
                         id: okPresetSpeed1LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText
+                        onClicked: {settings.tile_preset_speed_1_label = presetSpeed1LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2830,7 +2933,7 @@ ScrollView {
 						      id: okPresetSpeed1ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText
+								onClicked: {settings.tile_preset_speed_1_color = presetSpeed1ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2863,7 +2966,7 @@ ScrollView {
                         id: okPresetSpeed2OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText
+                        onClicked: {settings.tile_preset_speed_2_order = presetSpeed2TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2884,7 +2987,7 @@ ScrollView {
                         id: okPresetSpeed2ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_2_value = presetSpeed2ValueTextField.displayText
+                        onClicked: {settings.tile_preset_speed_2_value = presetSpeed2ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2905,7 +3008,7 @@ ScrollView {
                         id: okPresetSpeed2LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText
+                        onClicked: {settings.tile_preset_speed_2_label = presetSpeed2LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -2939,7 +3042,7 @@ ScrollView {
 						      id: okPresetSpeed2ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText
+								onClicked: {settings.tile_preset_speed_2_color = presetSpeed2ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -2972,7 +3075,7 @@ ScrollView {
                         id: okPresetSpeed3OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText
+                        onClicked: {settings.tile_preset_speed_3_order = presetSpeed3TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -2993,7 +3096,7 @@ ScrollView {
                         id: okPresetSpeed3ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_3_value = presetSpeed3ValueTextField.displayText
+                        onClicked: {settings.tile_preset_speed_3_value = presetSpeed3ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3014,7 +3117,7 @@ ScrollView {
                         id: okPresetSpeed3LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText
+                        onClicked: {settings.tile_preset_speed_3_label = presetSpeed3LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3048,7 +3151,7 @@ ScrollView {
 						      id: okPresetSpeed3ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText
+								onClicked: {settings.tile_preset_speed_3_color = presetSpeed3ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3081,7 +3184,7 @@ ScrollView {
                         id: okPresetSpeed4OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText
+                        onClicked: {settings.tile_preset_speed_4_order = presetSpeed4TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3102,7 +3205,7 @@ ScrollView {
                         id: okPresetSpeed4ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_4_value = presetSpeed4ValueTextField.displayText
+                        onClicked: {settings.tile_preset_speed_4_value = presetSpeed4ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3123,7 +3226,7 @@ ScrollView {
                         id: okPresetSpeed4LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText
+                        onClicked: {settings.tile_preset_speed_4_label = presetSpeed4LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3157,7 +3260,7 @@ ScrollView {
 						      id: okPresetSpeed4ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText
+								onClicked: {settings.tile_preset_speed_4_color = presetSpeed4ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3190,7 +3293,7 @@ ScrollView {
                         id: okPresetSpeed5OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText
+                        onClicked: {settings.tile_preset_speed_5_order = presetSpeed5TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3211,7 +3314,7 @@ ScrollView {
                         id: okPresetSpeed5ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_5_value = presetSpeed5ValueTextField.displayText
+                        onClicked: {settings.tile_preset_speed_5_value = presetSpeed5ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3232,7 +3335,7 @@ ScrollView {
                         id: okPresetSpeed5LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText
+                        onClicked: {settings.tile_preset_speed_5_label = presetSpeed5LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3266,7 +3369,7 @@ ScrollView {
 						      id: okPresetSpeed5ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText
+								onClicked: {settings.tile_preset_speed_5_color = presetSpeed5ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3299,7 +3402,7 @@ ScrollView {
                         id: okPresetInclination1OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText
+                        onClicked: {settings.tile_preset_inclination_1_order = presetInclination1TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3320,7 +3423,7 @@ ScrollView {
                         id: okPresetInclination1ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_1_value = presetInclination1ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3341,7 +3444,7 @@ ScrollView {
                         id: okPresetInclination1LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_1_label = presetInclination1LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3375,7 +3478,7 @@ ScrollView {
 						      id: okPresetInclination1ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText
+								onClicked: {settings.tile_preset_inclination_1_color = presetInclination1ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3408,7 +3511,7 @@ ScrollView {
                         id: okPresetInclination2OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText
+                        onClicked: {settings.tile_preset_inclination_2_order = presetInclination2TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3429,7 +3532,7 @@ ScrollView {
                         id: okPresetInclination2ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_2_value = presetInclination2ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3450,7 +3553,7 @@ ScrollView {
                         id: okPresetInclination2LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_2_label = presetInclination2LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
             }
@@ -3485,7 +3588,7 @@ ScrollView {
 					     id: okPresetInclination2ColorButton
 						  text: "OK"
 						  Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-						  onClicked: settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText
+						  onClicked: {settings.tile_preset_inclination_2_color = presetInclination2ColorTextField.displayText; toast.show("Setting saved!"); }
 						}
 					}
         }
@@ -3517,7 +3620,7 @@ ScrollView {
                         id: okPresetInclination3OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText
+                        onClicked: {settings.tile_preset_inclination_3_order = presetInclination3TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3538,7 +3641,7 @@ ScrollView {
                         id: okPresetInclination3ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_3_value = presetInclination3ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3559,7 +3662,7 @@ ScrollView {
                         id: okPresetInclination3LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_3_label = presetInclination3LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3593,7 +3696,7 @@ ScrollView {
 						      id: okPresetInclination3ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText
+								onClicked: {settings.tile_preset_inclination_3_color = presetInclination3ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3626,7 +3729,7 @@ ScrollView {
                         id: okPresetInclination4OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText
+                        onClicked: {settings.tile_preset_inclination_4_order = presetInclination4TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3647,7 +3750,7 @@ ScrollView {
                         id: okPresetInclination4ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_4_value = presetInclination4ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3668,7 +3771,7 @@ ScrollView {
                         id: okPresetInclination4LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_4_label = presetInclination4LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
 						}
 					 RowLayout {
@@ -3702,7 +3805,7 @@ ScrollView {
 						      id: okPresetInclination4ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText
+								onClicked: {settings.tile_preset_inclination_4_color = presetInclination4ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
@@ -3735,7 +3838,7 @@ ScrollView {
                         id: okPresetInclination5OrderButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText
+                        onClicked: {settings.tile_preset_inclination_5_order = presetInclination5TextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3756,7 +3859,7 @@ ScrollView {
                         id: okPresetInclination5ValueButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_5_value = presetInclination5ValueTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
                 RowLayout {
@@ -3777,7 +3880,7 @@ ScrollView {
                         id: okPresetInclination5LabelButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText
+                        onClicked: {settings.tile_preset_inclination_5_label = presetInclination5LabelTextField.displayText; toast.show("Setting saved!"); }
                     }
                 }
 					 RowLayout {
@@ -3811,7 +3914,7 @@ ScrollView {
 						      id: okPresetInclination5ColorButton
 								text: "OK"
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								onClicked: settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText
+								onClicked: {settings.tile_preset_inclination_5_color = presetInclination5ColorTextField.displayText; toast.show("Setting saved!"); }
 						  }
 					 }
             }
