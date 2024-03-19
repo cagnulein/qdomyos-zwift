@@ -71,7 +71,9 @@ class Connection {
     func send(_ message: String) {
         print("sending \(message)")
         connection.send(content: message.data(using: .utf8), contentContext: .defaultMessage, isComplete: true, completion: .contentProcessed({ error in
-            print("Connection send error: \(String(describing: error))")
+            if error != nil {
+                print("Connection send error: \(String(describing: error))")
+            }
         }))
     }
 
