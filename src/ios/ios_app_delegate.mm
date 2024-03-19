@@ -40,17 +40,21 @@
     }
     
     NSMutableArray *quickActions = [NSMutableArray array];
-    
+
     for (NSString *fileName in files) {
+        if (quickActions.count >= 4) {
+            break;
+        }
+        NSString *fileNameWithoutExtension = [fileName stringByDeletingPathExtension];
         UIApplicationShortcutIcon *icon = [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeCompose];
-        UIApplicationShortcutItem *shortcutItem = [[UIApplicationShortcutItem alloc] initWithType:[@"org.cagnulein.qdomyoszwift." stringByAppendingString:fileName]
-                                                                                   localizedTitle:fileName
+        UIApplicationShortcutItem *shortcutItem = [[UIApplicationShortcutItem alloc] initWithType:[@"org.cagnulein.qdomyoszwift." stringByAppendingString:fileNameWithoutExtension]
+                                                                                localizedTitle:fileNameWithoutExtension
                                                                                 localizedSubtitle:nil
-                                                                                             icon:icon
-                                                                                         userInfo:nil];
+                                                                                            icon:icon
+                                                                                        userInfo:nil];
         [quickActions addObject:shortcutItem];
     }
-    
+
     [UIApplication sharedApplication].shortcutItems = quickActions;
 }
 
@@ -59,21 +63,13 @@
     if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
         NSLog(@"performActionForShortcutItem");
         NSString *fileName = [shortcutItem.type stringByReplacingOccurrencesOfString:@"org.cagnulein.qdomyoszwift." withString:@""];
-        //self.selectedShortcutItem = fileName;
-        lockscreen::set_action_profile([fileName UTF8String]);
+        NSString *fileNameWithExtension = [fileName stringByAppendingString:@".qzs"];
+        //self.selectedShortcutItem = fileNameWithExtension;
+        lockscreen::set_action_profile([fileNameWithExtension UTF8String]);
         NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
     }
-    return YES;
-}
 
-- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void(^)(BOOL succeeded))completionHandler {
-    if ([shortcutItem.type hasPrefix:@"org.cagnulein.qdomyoszwift."]) {
-        NSLog(@"performActionForShortcutItem");
-        NSString *fileName = [shortcutItem.type stringByReplacingOccurrencesOfString:@"org.cagnulein.qdomyoszwift." withString:@""];
-        //self.selectedShortcutItem = fileName;
-        lockscreen::set_action_profile([fileName UTF8String]);
-        NSLog(@"performActionForShortcutItem %@", [[NSString alloc] initWithUTF8String:lockscreen::get_action_profile()]);
-    }
+    return YES;
 }
 
 - (void)application:(UIApplication *)application
