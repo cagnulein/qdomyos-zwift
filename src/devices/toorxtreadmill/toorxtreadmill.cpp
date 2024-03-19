@@ -75,7 +75,8 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
 }
 
 void toorxtreadmill::send(char * buffer, int size) {
-    qDebug() << ">>" << buffer.toHex(' ');
+    QByteArray byteArray(buffer, size);
+    qDebug() << ">>" << byteArray.toHex(' ');    
     socket->write((char *)buffer, size);
 }
 
