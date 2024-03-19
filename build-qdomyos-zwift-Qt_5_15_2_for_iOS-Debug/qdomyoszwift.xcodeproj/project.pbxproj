@@ -400,6 +400,8 @@
 		87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */; };
 		87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F025F260140094A1CB /* moc_snodebike.cpp */; };
 		87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F125F260150094A1CB /* moc_screencapture.cpp */; };
+		87BAC3BF2BA497160003E925 /* PrivacyInfo.xcprivacy in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87BAC3BE2BA497160003E925 /* PrivacyInfo.xcprivacy */; };
+		87BAC3C12BA497350003E925 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 87BAC3C02BA497350003E925 /* PrivacyInfo.xcprivacy */; };
 		87BAFE482B8CA7AA00065FCD /* moc_focustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BAFE472B8CA7AA00065FCD /* moc_focustreadmill.cpp */; };
 		87BAFE4B2B8CAA4200065FCD /* focustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */; };
 		87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */; };
@@ -1260,6 +1262,8 @@
 		87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitshowtreadmill.cpp; sourceTree = "<group>"; };
 		87B617F025F260140094A1CB /* moc_snodebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_snodebike.cpp; sourceTree = "<group>"; };
 		87B617F125F260150094A1CB /* moc_screencapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_screencapture.cpp; sourceTree = "<group>"; };
+		87BAC3BE2BA497160003E925 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = ../src/ios/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		87BAC3C02BA497350003E925 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		87BAFE472B8CA7AA00065FCD /* moc_focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_focustreadmill.cpp; sourceTree = "<group>"; };
 		87BAFE492B8CAA4200065FCD /* focustreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = focustreadmill.cpp; path = ../src/devices/focustreadmill/focustreadmill.cpp; sourceTree = "<group>"; };
 		87BAFE4A2B8CAA4200065FCD /* focustreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = focustreadmill.h; path = ../src/devices/focustreadmill/focustreadmill.h; sourceTree = "<group>"; };
@@ -2423,6 +2427,7 @@
 				876E4E2E2594748100BD5714 /* Info.plist */,
 				876E4E2F2594748100BD5714 /* PushNotificationPayload.apns */,
 				876E4E2B2594748100BD5714 /* Preview Content */,
+				87BAC3C02BA497350003E925 /* PrivacyInfo.xcprivacy */,
 			);
 			path = "watchkit Extension";
 			sourceTree = "<group>";
@@ -2850,6 +2855,7 @@
 		E8C543AB96796ECAA2E65C57 /* qdomyoszwift */ = {
 			isa = PBXGroup;
 			children = (
+				87BAC3BE2BA497160003E925 /* PrivacyInfo.xcprivacy */,
 				8745B2752AFCB4A300991A39 /* android */,
 				8752B4CC27F43D9200E2EC6C /* qz.storekit */,
 				2EB56BE3C2D93CDAB0C52E67 /* Sources */,
@@ -2996,6 +3002,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8745B2762AFCB4A300991A39 /* android in Copy Bundle Resources */,
+				87BAC3BF2BA497160003E925 /* PrivacyInfo.xcprivacy in Copy Bundle Resources */,
 				87C5F0BC26285E5F0067A1B5 /* SmtpMime in Copy Bundle Resources */,
 				2188AA0A52E9CD610922F82E /* Default-568h@2x.png in Copy Bundle Resources */,
 				8752B4CD27F43D9200E2EC6C /* qz.storekit in Copy Bundle Resources */,
@@ -3019,6 +3026,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87BAC3C12BA497350003E925 /* PrivacyInfo.xcprivacy in Resources */,
 				876E4E2D2594748100BD5714 /* Preview Assets.xcassets in Resources */,
 				876E4E2A2594748100BD5714 /* Assets.xcassets in Resources */,
 			);
@@ -3820,7 +3828,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -4009,7 +4017,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -4234,7 +4242,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -4330,7 +4338,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -4422,7 +4430,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4536,7 +4544,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 762;
+				CURRENT_PROJECT_VERSION = 767;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
