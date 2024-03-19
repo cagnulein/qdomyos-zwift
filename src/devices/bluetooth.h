@@ -120,6 +120,7 @@
 #include "devices/toorxtreadmill/toorxtreadmill.h"
 #include "devices/treadmill.h"
 #include "devices/truetreadmill/truetreadmill.h"
+#include "devices/trixterxdreamv1bike/trixterxdreamv1bike.h"
 #include "devices/trxappgateusbbike/trxappgateusbbike.h"
 #include "devices/trxappgateusbelliptical/trxappgateusbelliptical.h"
 #include "devices/trxappgateusbtreadmill/trxappgateusbtreadmill.h"
@@ -154,10 +155,25 @@ class bluetooth : public QObject, public SignalHandler {
     bool onlyDiscover = false;
     volatile bool homeformLoaded = false;
 
-  private:
+    /**
+     * @brief nonBluetoothDeviceDiscovery Called by the non-bluetooth discovery thread to identify using
+     * discoverNonBluetoothDevices() and connect non-Bluetooth devices.
+     */
+    void nonBluetoothDeviceDiscovery();
+protected:
+    /**
+     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
+     * @return An object for the first non-bluetooth device found.
+     */
+    bluetoothdevice * discoverNonBluetoothDevices();
+private:
     bool useDiscovery = false;
     QFile *debugCommsLog = nullptr;
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+    // Indicates generally discovering, bluetooth and others
+    bool discovering = false;
+    // Indicates the non-bluetooth discovery is active
+    bool discoveringNonBluetooth = false;
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent=nullptr;
     apexbike *apexBike = nullptr;
     bkoolbike *bkoolBike = nullptr;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
@@ -265,6 +281,7 @@ class bluetooth : public QObject, public SignalHandler {
     QList<zwiftclickremote* > zwiftPlayDevice;
     zwiftclickremote* zwiftClickRemote = nullptr;
     QString filterDevice = QLatin1String("");
+    trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -298,6 +315,13 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetriaFanfitAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+
+    /**
+     * @brief findTrixterXDreamV1Bike Searches serial ports for a Trixter X-Dream V1 Bike
+     * @param settings The application settings.
+     * @return A trixterxdreamv1bike object if a bike has been found, nullptr otherwise.
+     */
+    class trixterxdreamv1bike * findTrixterXDreamV1Bike(const QSettings& settings);
 
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
@@ -336,7 +360,8 @@ class bluetooth : public QObject, public SignalHandler {
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
 
-  signals:
+signals:
+
 };
 
 #endif // BLUETOOTH_H
