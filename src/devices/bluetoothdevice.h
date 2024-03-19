@@ -340,6 +340,18 @@ class bluetoothdevice : public QObject {
      */
     metric currentHeartZone() { return HeartZone; }
 
+    /*
+    * @brief maxHeartZone Gets the maximum number of heart zones.
+    */
+    uint8_t maxHeartZone() { return maxhrzone; }
+
+    /**
+     * @brief secondsForHeartZone Gets the number of seconds in the current heart zone.
+     * 
+     * @param zone The heart zone.
+     */
+    uint32_t secondsForHeartZone(uint8_t zone);
+
     /**
      * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
      * implementation.
@@ -372,7 +384,7 @@ class bluetoothdevice : public QObject {
      * This is equivalent to currentHeartZone().setvalue(hz)
      * @param hz The heart zone. Unit: depends on implementation.
      */
-    void setHeartZone(double hz) { HeartZone = hz; }
+    void setHeartZone(double hz);
 
     /**
      * @brief setPowerZone Set the current power zone.
@@ -640,6 +652,12 @@ class bluetoothdevice : public QObject {
      * @brief TargetPowerZone A metric to get and set the target power zone. Unit: depends on implementation
      */
     metric TargetPowerZone;
+
+    /**
+     * @brief Collect the number of seconds in each zone for the current heart rate
+     */
+    static const uint8_t maxhrzone = 5;
+    metric hrZonesSeconds[maxhrzone];
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 

@@ -297,7 +297,7 @@ uint16_t spirittreadmill::GetElapsedFromPacket(const QByteArray &packet) {
 }
 
 double spirittreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(10);
+    uint16_t convertedData = (uint8_t)packet.at(10);
     double data = (double)convertedData / 10.0f;
     return data;
 }

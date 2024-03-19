@@ -147,6 +147,9 @@ void bike::clearStats() {
     Cadence.clear(false);
     Resistance.clear(false);
     WattKg.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void bike::setPaused(bool p) {
@@ -170,6 +173,9 @@ void bike::setPaused(bool p) {
     RequestedCadence.setPaused(p);
     RequestedPower.setPaused(p);
     WattKg.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void bike::setLap() {
@@ -193,6 +199,9 @@ void bike::setLap() {
     m_pelotonResistance.setLap(false);
     Cadence.setLap(false);
     Resistance.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 uint8_t bike::metrics_override_heartrate() {

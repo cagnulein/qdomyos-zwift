@@ -157,11 +157,12 @@ void bowflext216treadmill::update() {
             requestStart = -1;
             emit tapeStarted();
         }
-        if (requestStop != -1) {
+        if (requestStop != -1 || requestPause != -1) {
             uint8_t stop[] = {0x0a, 0x08, 0x7a, 0x00, 0x19, 0x28, 0x01, 0x32, 0x00, 0x00};
             emit debug(QStringLiteral("stopping..."));
             writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
             requestStop = -1;
+            requestPause = -1;
         }
     }
 }
