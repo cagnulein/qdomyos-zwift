@@ -14,7 +14,7 @@ toorxtreadmill::toorxtreadmill() {
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &toorxtreadmill::update);
-    refresh->start(500ms);
+    refresh->start(1s);
 }
 
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -52,7 +52,7 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
             emit debug(QStringLiteral("Serial port service found"));
-            // discoveryAgent->stop(); // could lead to a crash?
+            discoveryAgent->stop();
 
             serialPortService = service;
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
@@ -72,6 +72,11 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
             emit debug(QStringLiteral("ConnectToService done"));
         }
     }
+}
+
+void toorxtreadmill::send(char * buffer, int size) {
+    qDebug() << ">>" << buffer.toHex(' ');
+    socket->write((char *)buffer, size);
 }
 
 void toorxtreadmill::update() {
@@ -99,7 +104,7 @@ void toorxtreadmill::update() {
                 char speed[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
                 speed[3] = (uint8_t)(requestSpeed);
                 speed[4] = (uint8_t)((requestSpeed - (double)((uint8_t)(requestSpeed))) * 100.0);
-                socket->write((char *)speed, sizeof(speed));
+                send((char *)speed, sizeof(speed));
             }
             requestSpeed = -1;
         } else if (requestInclination != -100) {
@@ -110,13 +115,13 @@ void toorxtreadmill::update() {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
                 incline[3] = requestInclination;
-                socket->write((char *)incline, sizeof(incline));
+                send((char *)incline, sizeof(incline));
             }
             requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
             const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
-            socket->write((char *)start, sizeof(start));
+            send((char *)start, sizeof(start));
             start_phase = 0;
             requestStart = -1;
             emit tapeStarted();
@@ -126,55 +131,55 @@ void toorxtreadmill::update() {
                 switch (start_phase) {
                     case 0: {
                         const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
-                        socket->write((char *)start0, sizeof(start0));
+                        send((char *)start0, sizeof(start0));
                         start_phase++;
                         break;
                     }
                     case 1: {
-                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x2f, 0x01, 0x4f, 0x00, 0xb4, 0x00};
-                        socket->write((char *)start, sizeof(start));
+                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x1f, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+                        send((char *)start, sizeof(start));
                         start_phase++;
                         break;
                     }
                     case 2: {
                         const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 3: {
                         const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 4: {
                         const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 5: {
                         const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
-                        socket->write((char *)start2, sizeof(start2));
+                        send((char *)start2, sizeof(start2));
                         start_phase++;
                         break;
                     }
                     case 6: {
                         const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
-                        socket->write((char *)start3, sizeof(start3));
+                        send((char *)start3, sizeof(start3));
                         start_phase++;
                         break;
                     }
                     case 7: {
                         const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 8: {
                         const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
-                        socket->write((char *)start4, sizeof(start4));
+                        send((char *)start4, sizeof(start4));
                         start_phase++;
                         break;
                     }
@@ -183,20 +188,20 @@ void toorxtreadmill::update() {
                     case 11:
                     case 12: {
                         const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 13:
                     case 14: {
                         const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
-                        socket->write((char *)start5, sizeof(start5));
+                        send((char *)start5, sizeof(start5));
                         start_phase++;
                         break;
                     }
                     case 15: {
                         const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
-                        socket->write((char *)start6, sizeof(start6));
+                        send((char *)start6, sizeof(start6));
                         start_phase = -1;
                         break;
                     }
@@ -205,50 +210,50 @@ void toorxtreadmill::update() {
                 switch (start_phase) {
                     case 0: {
                         const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
-                        socket->write((char *)start0, sizeof(start0));
+                        send((char *)start0, sizeof(start0));
                         start_phase++;
                         break;
                     }
                     case 1: {
                         const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
-                        socket->write((char *)start, sizeof(start));
+                        send((char *)start, sizeof(start));
                         start_phase++;
                         break;
                     }
                     case 2: {
                         const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
-                        socket->write((char *)start1, sizeof(start1));
+                        send((char *)start1, sizeof(start1));
                         start_phase++;
                         break;
                     }
                     case 3: {
                         const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
-                        socket->write((char *)start2, sizeof(start2));
+                        send((char *)start2, sizeof(start2));
                         start_phase++;
                         break;
                     }
                     case 4: {
                         const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
-                        socket->write((char *)start3, sizeof(start3));
+                        send((char *)start3, sizeof(start3));
                         start_phase++;
                         break;
                     }
                     case 5: {
                         const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
-                        socket->write((char *)start4, sizeof(start4));
+                        send((char *)start4, sizeof(start4));
                         start_phase++;
                         break;
                     }
                     case 6:
                     case 7: {
                         const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
-                        socket->write((char *)start5, sizeof(start5));
+                        send((char *)start5, sizeof(start5));
                         start_phase++;
                         break;
                     }
                     case 8: {
                         const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
-                        socket->write((char *)start6, sizeof(start6));
+                        send((char *)start6, sizeof(start6));
                         start_phase = -1;
                         break;
                     }
@@ -257,7 +262,7 @@ void toorxtreadmill::update() {
             qDebug() << " start phase " << start_phase;
         } else {
             const char poll[] = {0x55, 0x17, 0x01, 0x01};
-            socket->write(poll, sizeof(poll));
+            send(poll, sizeof(poll));
             emit debug(QStringLiteral("write poll"));
         }
 
@@ -277,13 +282,17 @@ void toorxtreadmill::rfCommConnected() {
                              0x01, 0xff, 0x55, 0xba, 0x01, 0xff, 0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff,
                              0x55, 0x19, 0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
 
-    socket->write((char *)init1, sizeof(init1));
+    send((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
-    socket->write((char *)init2, sizeof(init2));
+    send((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
-    initDone = true;
-    // requestStart = 1;
-    emit connectedAndDiscovered();
+    QTimer::singleShot(2000, []() {
+        const uint8_t init3[] = {0x55, 0x01, 0x06, 0x2f, 0x00, 0x56, 0x00, 0xb7, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
+        send((char *)init3, sizeof(init3));
+        initDone = true;
+        // requestStart = 1;
+        emit connectedAndDiscovered();
+    });
 }
 
 void toorxtreadmill::readSocket() {
@@ -293,10 +302,6 @@ void toorxtreadmill::readSocket() {
     while (socket->bytesAvailable()) {
         QByteArray line = socket->readAll();
         qDebug() << QStringLiteral(" << ") + line.toHex(' ');
-
-        if(line.length() > 20 && line.at(0) == 0x55 && line.at(1) == 0x06 && line.at(2) == 0x02) {
-            requestStart = 1;
-        }
 
         if (line.length() == 17) {
             elapsed = GetElapsedTimeFromPacket(line);
