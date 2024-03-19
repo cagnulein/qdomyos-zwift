@@ -263,7 +263,7 @@ void toorxtreadmill::update() {
             qDebug() << " start phase " << start_phase;
         } else {
             const char poll[] = {0x55, 0x17, 0x01, 0x01};
-            send(poll, sizeof(poll));
+            send((char*)poll, sizeof(poll));
             emit debug(QStringLiteral("write poll"));
         }
 
@@ -287,12 +287,12 @@ void toorxtreadmill::rfCommConnected() {
     qDebug() << QStringLiteral(" init1 write");
     send((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
-    QTimer::singleShot(2000, []() {
+    QTimer::singleShot(2000, [this]() {
         const uint8_t init3[] = {0x55, 0x01, 0x06, 0x2f, 0x00, 0x56, 0x00, 0xb7, 0x00, 0x55, 0xb9, 0x01, 0xff, 0x55, 0xb5, 0x01, 0xff};
-        send((char *)init3, sizeof(init3));
-        initDone = true;
-        // requestStart = 1;
-        emit connectedAndDiscovered();
+        this->send((char *)init3, sizeof(init3)); // Usa this per chiamare send
+        this->initDone = true; // Usa this per accedere a initDone
+        // this->requestStart = 1; // Commentato, ma ecco come si farebbe
+        emit this->connectedAndDiscovered(); // Usa this per emettere segnali
     });
 }
 
