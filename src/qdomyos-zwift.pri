@@ -30,6 +30,11 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+win32:mingw:LIBS += -lprotobuf -lprotoc -labsl_base -lprotobuf-lite -labsl_log_internal_message -labsl_log_internal_check_op -L$$PWD
+unix:!android:!ios:LIBS += -lprotobuf-lite -lprotobuf -labsl_base
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -278,6 +283,10 @@ zwiftworkout.cpp
    
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
+
+#zwift api
+unix:!android:!ios: SOURCES += zwift-api/zwift_messages.pb.cc
+win32: SOURCES += zwift-api/zwift_messages.pb.cc
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
