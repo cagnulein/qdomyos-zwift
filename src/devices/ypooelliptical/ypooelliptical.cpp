@@ -221,15 +221,17 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if (newvalue.length() == 18) {
-            qDebug() << QStringLiteral("let's wait for the next piece of frame");
-            lastPacket = newvalue;
-            return;
-        } else if (newvalue.length() == 17) {
-            lastPacket.append(newvalue);
-        } else {
-            qDebug() << "packet not handled!!";
-            return;
+        if(E35 == false) {
+            if (newvalue.length() == 18) {
+                qDebug() << QStringLiteral("let's wait for the next piece of frame");
+                lastPacket = newvalue;
+                return;
+            } else if (newvalue.length() == 17) {
+                lastPacket.append(newvalue);
+            } else {
+                qDebug() << "packet not handled!!";
+                return;
+            }
         }
 
         int index = 0;
@@ -678,6 +680,9 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(device.name().toUpper().startsWith(QStringLiteral("SCH_590E"))) {
             SCH_590E = true;
             qDebug() << "SCH_590E workaround ON!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("E35"))) {
+            E35 = true;
+            qDebug() << "E35 workaround ON!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

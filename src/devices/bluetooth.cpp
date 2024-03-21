@@ -888,6 +888,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(domyosElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("YPOO-U3-")) ||
                         b.name().toUpper().startsWith(QStringLiteral("SCH_590E")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("E35")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().startsWith(QStringLiteral("FS-")) && iconsole_elliptical)) && !ypooElliptical && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1015,7 +1016,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->signalBluetoothDeviceConnected(bhFitnessElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E25")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("E35")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("E35")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("E55")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E95")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E98")) ||
