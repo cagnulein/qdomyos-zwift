@@ -232,6 +232,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                 qDebug() << "packet not handled!!";
                 return;
             }
+        } else {
+            lastPacket = newvalue;
         }
 
         int index = 0;
