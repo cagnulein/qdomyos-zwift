@@ -52,6 +52,7 @@ class toorxtreadmill : public treadmill {
     QTimer *refresh;
     bool initDone = false;
 
+    void send(char * buffer, int size);
     uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
     uint16_t GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetCaloriesFromPacket(const QByteArray &packet);
