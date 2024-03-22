@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
+#include "ergtable.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -652,6 +653,11 @@ class bluetoothdevice : public QObject {
      * @brief TargetPowerZone A metric to get and set the target power zone. Unit: depends on implementation
      */
     metric TargetPowerZone;
+
+    /**
+     * @brief _ergTable The current erg table
+     */
+    ergTable _ergTable;
 
     /**
      * @brief Collect the number of seconds in each zone for the current heart rate
