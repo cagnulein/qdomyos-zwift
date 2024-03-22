@@ -174,6 +174,7 @@ void ypooelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+    QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
@@ -221,15 +222,19 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if (newvalue.length() == 18) {
-            qDebug() << QStringLiteral("let's wait for the next piece of frame");
-            lastPacket = newvalue;
-            return;
-        } else if (newvalue.length() == 17) {
-            lastPacket.append(newvalue);
+        if(E35 == false) {
+            if (newvalue.length() == 18) {
+                qDebug() << QStringLiteral("let's wait for the next piece of frame");
+                lastPacket = newvalue;
+                return;
+            } else if (newvalue.length() == 17) {
+                lastPacket.append(newvalue);
+            } else {
+                qDebug() << "packet not handled!!";
+                return;
+            }
         } else {
-            qDebug() << "packet not handled!!";
-            return;
+            lastPacket = newvalue;
         }
 
         int index = 0;
@@ -237,24 +242,28 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
 
         if (!Flags.moreData) {
-            /*Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));*/
+            if(E35) {
+                Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                (uint16_t)((uint8_t)lastPacket.at(index)))) /
+                        100.0;
+                emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+            }
             index += 2;
         }
 
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
             // double avgSpeed;
-            Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+            if(!E35) {
+                Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)lastPacket.at(index)))) /
                     100.0;
-            index += 2;
-            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
+                emit debug(QStringLiteral("Current Average Speed: ") + QString::number(Speed.value()));
+            }
+            index += 2;            
         }
 
-        if (Flags.totDistance) {
+        if (Flags.totDistance && !E35) {
             Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)lastPacket.at(index)))) /
@@ -262,7 +271,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
         }
 
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -271,8 +280,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                    (uint16_t)((uint8_t)lastPacket.at(index))));
+                double divisor = 1.0;
+                if(E35)
+                    divisor = 2.0;
+                Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
             }
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -290,6 +302,9 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.rampAngle) {
+            Inclination = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)lastPacket.at(index))));
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));            
             index += 2;
             index += 2;
         }
@@ -326,10 +341,16 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (Flags.instantPower) {
             if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
-                    .startsWith(QStringLiteral("Disabled")))
+                    .startsWith(QStringLiteral("Disabled"))) {
+                double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
+
+                if(E35)
+                    divisor = 1.0;
+
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index)))) /
-                         100.0; // i added this because this device seems to send it multiplied by 100
+                         divisor;
+            }
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
             index += 2;
         }
@@ -359,7 +380,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
         }
 
@@ -397,7 +418,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             Cadence = newvalue.at(6);
 
             Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
             if (watts())
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
@@ -405,7 +426,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                 // kg * 3.5) / 200 ) / 60
 
 #ifdef Q_OS_ANDROID
@@ -428,7 +449,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = now;
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
         (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
@@ -678,6 +699,9 @@ void ypooelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if(device.name().toUpper().startsWith(QStringLiteral("SCH_590E"))) {
             SCH_590E = true;
             qDebug() << "SCH_590E workaround ON!";
+        } else if(device.name().toUpper().startsWith(QStringLiteral("E35"))) {
+            E35 = true;
+            qDebug() << "E35 workaround ON!";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

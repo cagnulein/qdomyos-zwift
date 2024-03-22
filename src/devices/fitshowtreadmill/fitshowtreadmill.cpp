@@ -521,11 +521,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled")) && 
-                        (heart == 0 || disable_hr_frommachinery)) {
-                        update_hr_from_external();
-                    } else {
-                        Heart = heart;
+                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled"))) {
+                        if (heart == 0 || disable_hr_frommachinery)
+                            update_hr_from_external();
+                        else 
+                            Heart = heart;
                     }
                 }
 
