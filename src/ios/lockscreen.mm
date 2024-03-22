@@ -31,6 +31,8 @@ static ios_eliteariafan* ios_eliteAriaFan = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
+static NSString* profile_selected;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -270,6 +272,18 @@ double lockscreen::getVolume()
 
 void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
+}
+
+void lockscreen::nslog(const char* log) {
+    NSLog([[NSString alloc] initWithUTF8String:log]);
+}
+
+void lockscreen::set_action_profile(const char* profile) {
+    profile_selected = [[NSString alloc] initWithUTF8String:profile];
+}
+
+const char* lockscreen::get_action_profile() {
+    return [profile_selected UTF8String];
 }
 
 void lockscreen::adb_connect(const char*  IP) {

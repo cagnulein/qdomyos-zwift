@@ -742,6 +742,7 @@ DISTFILES += \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
