@@ -1,6 +1,5 @@
 #include "ypooelliptical.h"
 #include "devices/ftmsbike/ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,7 +11,6 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
-#include "keepawakehelper.h"
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -34,21 +32,21 @@ ypooelliptical::ypooelliptical(bool noWriteResistance, bool noHeartService, uint
     Resistance = default_resistance;
 }
 
-void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+void ypooelliptical::writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
-    if (!gattCustomService) {
+    if (!service) {
         qDebug() << "gattCustomService nullptr";
         return;
     }
 
     if (wait_for_response) {
-        connect(gattCustomService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCustomService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        connect(service, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
@@ -57,11 +55,10 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharControlPointId.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
+    if (characteristic->properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        service->writeCharacteristic(*characteristic, *writeBuffer, QLowEnergyService::WriteWithoutResponse);
     } else {
-        gattCustomService->writeCharacteristic(gattWriteCharControlPointId, *writeBuffer);
+        service->writeCharacteristic(*characteristic, *writeBuffer);
     }
 
     if (!disable_log) {
@@ -73,15 +70,22 @@ void ypooelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
 
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+    if(E35) {
+        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+        write[1] = ((uint8_t)(requestResistance));
+        writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance));        
+    } else {
+        uint8_t write[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-    write[3] = (uint8_t)(requestResistance);
-    write[5] = (uint8_t)(0x39 + requestResistance);
+        write[3] = (uint8_t)(requestResistance);
+        write[5] = (uint8_t)(0x39 + requestResistance);
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 
-    // this bike doesn't send resistance, so I have to use the value forced
-    Resistance = requestResistance;
+        // this bike doesn't send resistance, so I have to use the value forced
+        Resistance = requestResistance;
+    }
 }
 
 void ypooelliptical::update() {
@@ -101,15 +105,15 @@ void ypooelliptical::update() {
         uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
         uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init2, sizeof(init2), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init4, sizeof(init4), QStringLiteral("init"), false, true);
-        writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
-        writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(init5, sizeof(init5), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
         initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -129,9 +133,9 @@ void ypooelliptical::update() {
         uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
 
         if (counterPoll == 0)
-            writeCharacteristic(init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
         else
-            writeCharacteristic(init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
 
         counterPoll++;
         if (counterPoll > 1)
@@ -263,11 +267,16 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;            
         }
 
-        if (Flags.totDistance && !E35) {
-            Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
+        if (Flags.totDistance) {
+            if(!E35) {
+                Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)lastPacket.at(index)))) /
                        1000.0;
+            } else {
+                Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+            }
             index += 3;
         } else {
             Distance += ((Speed.value() / 3600000.0) *
@@ -445,16 +454,16 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
             emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         }
+
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+            (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
+            update_hr_from_external();
+        }
     } else {
         return;
     }
 
     lastRefreshCharacteristicChanged = now;
-
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
-        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
-        update_hr_from_external();
-    }
 
     #ifdef Q_OS_IOS
     #ifndef IO_UNDER_QT
@@ -560,6 +569,13 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
                     // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
+                QBluetoothUuid _gattFTMSWriteCharControlPointId((quint16)0x2AD9);
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattFTMSWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("FTMS service and Control Point found");
+                    gattFTMSWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                }                
+
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0xFFF2);
                 if (c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
@@ -587,14 +603,14 @@ void ypooelliptical::stateChanged(QLowEnergyService::ServiceState state) {
                     .toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
-                    debug("creating virtual treadmill interface...");
+                    emit debug("creating virtual treadmill interface...");
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &ypooelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &ypooelliptical::changeInclinationRequested);
                     this->setVirtualDevice(virtualTreadmill, VIRTUAL_DEVICE_MODE::PRIMARY);
                 } else {
-                    debug("creating virtual bike interface...");
+                    emit debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &ypooelliptical::changeInclinationRequested);
