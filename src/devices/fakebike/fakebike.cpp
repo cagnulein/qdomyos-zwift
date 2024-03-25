@@ -175,20 +175,22 @@ resistance_t fakebike::resistanceFromPowerRequest(uint16_t power) {
     /*if(toorx_srx_3500)*/ {
         qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-        if (Cadence.value() == 0)
-            return 1;
+        auto minMaxR = this->resistanceLimits();
 
-        for (resistance_t i = 1; i < maxResistance(); i++) {
+        if (Cadence.value() == 0)
+            return minMaxR.min();
+
+        for (resistance_t i = 1; i < minMaxR.max(); i++) {
             if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
                 qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                         << wattsFromResistance(i + 1) << power;
                 return i;
             }
         }
-        if (power < wattsFromResistance(1))
-            return 1;
+        if (power < wattsFromResistance(minMaxR.min()))
+            return minMaxR.min();
         else
-            return maxResistance();
+            return minMaxR.max();
     } /*else {
         return power / 10;
     }*/

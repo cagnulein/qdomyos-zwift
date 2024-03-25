@@ -99,12 +99,7 @@ void sportstechbike::update() {
 
         QSettings settings;
         uint8_t noOpData[] = {0xf2, 0xc3, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbe};
-        if (requestResistance < 0) {
-            requestResistance = 0;
-        }
-        if (requestResistance > 23) {
-            requestResistance = 23;
-        }
+        requestResistance = this->resistanceLimits().clip(requestResistance);
         noOpData[4] = requestResistance;
         noOpData[10] += requestResistance;
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -439,21 +434,3 @@ uint16_t sportstechbike::wattsFromResistance(double resistance) {
     return power;
 }
 
-resistance_t sportstechbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < maxResistance(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return maxResistance();
-}

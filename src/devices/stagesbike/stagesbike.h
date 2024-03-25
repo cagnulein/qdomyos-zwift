@@ -38,7 +38,7 @@ class stagesbike : public bike {
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
-    resistance_t maxResistance() override { return 100; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
     bool ergManagedBySS2K() override { return true; }
 
   private:

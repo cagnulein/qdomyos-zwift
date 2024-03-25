@@ -45,15 +45,12 @@ class proformwifibike : public bike {
     proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                     double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(-20,100);}
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
   private:
     QWebSocket websocket;
-    resistance_t max_resistance = 100;
-    resistance_t min_resistance = -20;
     double max_incline_supported = 20;
     void connectToDevice();
     uint16_t wattsFromResistance(resistance_t resistance);

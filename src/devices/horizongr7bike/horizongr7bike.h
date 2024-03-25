@@ -40,6 +40,8 @@ class horizongr7bike : public bike {
                    double bikeResistanceGain);
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,12);}
+
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -58,7 +60,7 @@ class horizongr7bike : public bike {
     QLowEnergyCharacteristic customWriteChar;
 
     double bikeResistanceToPeloton(double resistance);
-    const resistance_t max_resistance = 12;
+
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

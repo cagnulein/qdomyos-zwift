@@ -97,10 +97,7 @@ void apexbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance <= 0)
-                requestResistance = 1;
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);

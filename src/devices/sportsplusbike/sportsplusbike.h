@@ -35,6 +35,8 @@ class sportsplusbike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,24);}
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
@@ -74,8 +76,6 @@ class sportsplusbike : public bike {
     bool readyToStart = false;
 
     bool carefitness_bike = false;
-
-    const resistance_t max_resistance = 24;
 
   signals:
     void disconnected();

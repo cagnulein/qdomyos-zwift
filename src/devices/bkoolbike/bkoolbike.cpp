@@ -732,17 +732,6 @@ void bkoolbike::controllerStateChanged(QLowEnergyController::ControllerState sta
     }
 }
 
-resistance_t bkoolbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 0; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
-            return i;
-        }
-    }
-    if (pelotonResistance < bikeResistanceToPeloton(1))
-        return 0;
-    else
-        return max_resistance;
-}
 
 double bkoolbike::bikeResistanceToPeloton(double resistance) {
     QSettings settings;

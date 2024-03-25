@@ -104,24 +104,6 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
     return 1;
 }
 
-resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
-}
 
 void ftmsbike::forceResistance(resistance_t requestResistance) {
 
@@ -894,7 +876,7 @@ void ftmsbike::error(QLowEnergyController::Error err) {
 }
 
 resistance_t ftmsbike::pelotonToBikeResistance(int pelotonResistance) {
-    return (pelotonResistance * max_resistance) / 100;
+    return (pelotonResistance * this->resistanceLimits().max()) / 100;
 }
 
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
@@ -904,13 +886,13 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
         if (bluetoothDevice.name().toUpper().startsWith("SUITO")) {
             qDebug() << QStringLiteral("SUITO found");
-            max_resistance = 16;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,16);
         } else if ((bluetoothDevice.name().toUpper().startsWith("MAGNUS "))) {
             qDebug() << QStringLiteral("MAGNUS found");
             resistance_lvl_mode = true;
         } else if ((bluetoothDevice.name().toUpper().startsWith("DU30-"))) {
             qDebug() << QStringLiteral("DU30 found");
-            max_resistance = 32;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,32);
             DU30_bike = true;
         }
 

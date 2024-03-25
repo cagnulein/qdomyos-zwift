@@ -236,11 +236,7 @@ void wahookickrsnapbike::update() {
             }
             lastGearValue = gears();
         } else if (requestResistance != -1 && KICKR_BIKE == false) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
-            } else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             auto virtualBike = this->VirtualBike();
             if (requestResistance != currentResistance().value() &&

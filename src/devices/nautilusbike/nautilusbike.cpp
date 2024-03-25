@@ -440,23 +440,26 @@ uint16_t nautilusbike::wattsFromResistance(double resistance) {
 resistance_t nautilusbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.average5s();
 
-    if (Cadence.average5s() == 0)
-        return 1;
+    auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = 1; i < maxResistance(); i++) {
+    if (Cadence.average5s() == 0)
+        return minMaxR.min();
+
+    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
-        return 1;
+    if (power < wattsFromResistance(minMaxR.min()))
+        return minMaxR.min();
     else
-        return maxResistance();
+        return minMaxR.max();
 }
 
-resistance_t nautilusbike::maxResistance() {
-    // power table nautilus u626 #2118
-    return 25;
+minmax<resistance_t> nautilusbike::resistanceLimits() {
+    return minmax<resistance_t>(1,25);// power table nautilus u626 #2118
 }
+
+

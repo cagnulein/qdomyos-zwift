@@ -25,7 +25,9 @@ class bike : public bluetoothdevice {
     bool connected() override;
     virtual uint16_t watts();
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
+    virtual double bikeResistanceToPeloton(double resistance) { return resistance; }
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
+    virtual uint16_t wattsFromResistance(double resistance) { return this->powerFromResistanceRequest(resistance); }
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
     bluetoothdevice::BLUETOOTH_TYPE deviceType() override;

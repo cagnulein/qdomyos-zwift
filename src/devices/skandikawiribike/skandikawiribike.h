@@ -39,6 +39,7 @@ class skandikawiribike : public bike {
                      double bikeResistanceGain);
     ~skandikawiribike();
     bool connected() override;
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,32);}
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);

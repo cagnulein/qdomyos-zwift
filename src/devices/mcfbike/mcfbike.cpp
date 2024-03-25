@@ -104,10 +104,7 @@ void mcfbike::update() {
         sendPoll();
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance <= 0)
-                requestResistance = 1;
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -135,33 +132,6 @@ void mcfbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-resistance_t mcfbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
-            return i;
-        }
-    }
-    if (pelotonResistance < bikeResistanceToPeloton(1))
-        return 1;
-    else
-        return max_resistance;
-}
-
-resistance_t mcfbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
-}
 
 // TO CHANGE
 uint16_t mcfbike::wattsFromResistance(double resistance) {
@@ -169,7 +139,7 @@ uint16_t mcfbike::wattsFromResistance(double resistance) {
 }
 
 double mcfbike::bikeResistanceToPeloton(double resistance) {
-    double p = resistance * (100.0 / max_resistance);
+    double p = resistance * (100.0 / this->resistanceLimits().max());
     if (p < 0) {
         p = 0;
     }

@@ -32,9 +32,7 @@ class sportstechbike : public bike {
   public:
     sportstechbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
-    resistance_t maxResistance() override { return 24; }
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
-
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,24);}
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetResistanceFromPacket(const QByteArray &packet);

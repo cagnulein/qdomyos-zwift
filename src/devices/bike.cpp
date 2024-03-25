@@ -41,10 +41,20 @@ void bike::changeInclination(double grade, double percentage) {
 
 // originally made for renphobike, but i guess it could be very generic
 uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
+    auto minMaxR = this->resistanceLimits();
+    if(requestResistance<=minMaxR.min())
+        return 0;
+
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
     double cadence = RequestedCadence.value();
     if (cadence <= 0)
         cadence = Cadence.value();
+
+    if(cadence <= 0)
+        return 0;
+
+    requestResistance = minMaxR.clip(requestResistance);
+
     return (requestResistance * cadence) / 9.5488;
 }
 
@@ -103,8 +113,45 @@ uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
-resistance_t bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
-resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+
+resistance_t bike::pelotonToBikeResistance(int pelotonResistance) {
+
+    auto minMaxR = this->resistanceLimits();
+
+    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
+        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+            return i;
+        }
+    }
+    if (pelotonResistance < bikeResistanceToPeloton(minMaxR.min()))
+        return minMaxR.min();
+    else
+        return minMaxR.max();
+}
+resistance_t bike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    QSettings settings;
+
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
+
+    auto minMaxR = this->resistanceLimits();
+
+    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
+        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
+            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest")
+                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
+                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
+            return i;
+        }
+    }
+    if (power < ((wattsFromResistance(minMaxR.min()) * watt_gain) + watt_offset))
+        return minMaxR.min();
+    else
+        return minMaxR.max();
+} // in order to have something
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 

@@ -109,35 +109,13 @@ void proformtelnetbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
  loop.exec();
 }*/
 
-resistance_t proformtelnetbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    QSettings settings;
-
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
-            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest")
-                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
-                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
-            return i;
-        }
-    }
-    if (power < ((wattsFromResistance(1) * watt_gain) + watt_offset))
-        return 1;
-    else
-        return max_resistance;
-}
-
-uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
+uint16_t proformtelnetbike::wattsFromResistance(double resistance) {
 
     if (currentCadence().value() == 0)
         return 0;
 
-    switch (resistance) {
+    switch ((resistance_t)resistance) {
     case 0:
     case 1:
         // -13.5 + 0.999x + 0.00993x²

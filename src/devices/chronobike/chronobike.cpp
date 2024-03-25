@@ -93,11 +93,7 @@ void chronobike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15) {
-                requestResistance = 15;
-            } else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

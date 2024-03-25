@@ -55,35 +55,12 @@ void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     loop.exec();
 }
 
-resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    QSettings settings;
-
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
-            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest")
-                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
-                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
-            return i;
-        }
-    }
-    if (power < ((wattsFromResistance(1) * watt_gain) + watt_offset))
-        return 1;
-    else
-        return max_resistance;
-}
-
-uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
+uint16_t proformbike::wattsFromResistance(double resistance) {
 
     if (currentCadence().value() == 0)
         return 0;
 
-    switch (resistance) {
+    switch ((resistance_t)resistance) {
     case 0:
     case 1:
         // -13.5 + 0.999x + 0.00993x²
@@ -482,11 +459,7 @@ void proformbike::forceIncline(double incline) {
 
 void proformbike::innerWriteResistance() {
     if (requestResistance != -1) {
-        if (requestResistance > max_resistance) {
-            requestResistance = max_resistance;
-        } else if (requestResistance == 0) {
-            requestResistance = 1;
-        }
+        requestResistance = this->resistanceLimits().clip(requestResistance);
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -1321,8 +1294,7 @@ void proformbike::btinit() {
     bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
 
     if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
-
-        max_resistance = 32;
+        this->bikeResistanceLimits = minmax<resistance_t>(1,32);
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
@@ -1383,7 +1355,8 @@ void proformbike::btinit() {
     } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool() ||
                settings.value(QZSettings::proform_bike_PFEVEX71316_1, QZSettings::default_proform_bike_PFEVEX71316_1)
                    .toBool()) {
-        max_resistance = 26;
+        this->bikeResistanceLimits = minmax<resistance_t>(1,26);
+
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
@@ -1520,7 +1493,7 @@ void proformbike::btinit() {
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_bike_sb) {
-            max_resistance = 16;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,16);
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
                                     0x01, 0x86, 0x64, 0x38, 0x1a, 0xfa, 0xe8, 0xcc, 0xa6, 0x9e};
@@ -1536,7 +1509,7 @@ void proformbike::btinit() {
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (nordictrack_gx_2_7) {
-            max_resistance = 20;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,20);
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
                                     0x00, 0x9e, 0x84, 0x60, 0x4a, 0x32, 0x28, 0x04, 0xf6, 0xe6};
@@ -1552,7 +1525,7 @@ void proformbike::btinit() {
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_cycle_trainer_400) {
-            max_resistance = 16;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,16);
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
                                     0x01, 0x52, 0x74, 0x94, 0xb2, 0xde, 0x08, 0x20, 0x5e, 0x8a};
@@ -1568,7 +1541,7 @@ void proformbike::btinit() {
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_cycle_trainer_300_ci) {
-            max_resistance = 16;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,16);
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
                                     0x00, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
@@ -1677,7 +1650,7 @@ void proformbike::btinit() {
             writeCharacteristic(noOpData22, sizeof(noOpData22), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_bike_225_csx) {
-            max_resistance = 10;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,10);
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07, 0x01, 0xd2, 0x74, 0x14, 0xb2, 0x5e, 0x08, 0xa0, 0x5e, 0x0a};
             uint8_t initData11[] = {0x01, 0x12, 0xbc, 0x6c, 0x1a, 0xc6, 0x90, 0x28, 0xe6, 0xa2, 0x64, 0x24, 0xe2, 0xae, 0x98, 0x50, 0x0e, 0xfa, 0xac, 0x9c};
             uint8_t initData12[] = {0xff, 0x08, 0x4a, 0x36, 0x20, 0x98, 0x02, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1689,7 +1662,7 @@ void proformbike::btinit() {
             writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
             QThread::msleep(400);
         } else if (proform_hybrid_trainer_PFEL03815) {
-            max_resistance = 16;
+            this->bikeResistanceLimits = minmax<resistance_t>(1,16);
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x04,
                                     0x00, 0xb8, 0xac, 0x92, 0x8e, 0x7c, 0x78, 0x6e, 0x6a, 0x50};
             uint8_t initData11[] = {0x01, 0x12, 0x54, 0x5a, 0x56, 0x54, 0x70, 0x76, 0x62, 0x68,

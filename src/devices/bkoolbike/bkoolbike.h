@@ -38,19 +38,17 @@ class bkoolbike : public bike {
     bkoolbike(bool noWriteResistance, bool noHeartService);
     void changePower(int32_t power) override;
     bool connected() override;
-    resistance_t pelotonToBikeResistance(int pelotonResistance);
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     void forceInclination(double inclination);
     uint16_t watts() override;
-    double bikeResistanceToPeloton(double resistance);
+    double bikeResistanceToPeloton(double resistance) override;
 
     QTimer *refresh;
-
-    const int max_resistance = 100;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

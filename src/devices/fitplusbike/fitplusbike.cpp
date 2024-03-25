@@ -343,11 +343,8 @@ void fitplusbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
-            } else if (requestResistance <= 0) {
-                requestResistance = 1;
-            }
+
+            requestResistance  = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -584,7 +581,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             } else {
-                m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+                m_pelotonResistance = (100 * Resistance.value()) / this->resistanceLimits().max();
             }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -734,8 +731,7 @@ void fitplusbike::btinit() {
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         writeCharacteristic(initData1, sizeof(initData2), QStringLiteral("init"), false, false);
 
-        max_resistance = 32;
-
+        this->bikeResistanceLimits = minmax<resistance_t>(1,32);
     } else {
 
         uint8_t initData1[] = {0x02, 0x44, 0x01, 0x45, 0x03};
@@ -1079,18 +1075,20 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
 resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    auto minMaxR = this->resistanceLimits();
+
     if (Cadence.value() == 0)
         return 1;
 
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < minMaxR.max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
-        return 1;
+    if (power < wattsFromResistance(minMaxR.min()))
+        return minMaxR.min();
     else
-        return max_resistance;
+        return minMaxR.max();
 }

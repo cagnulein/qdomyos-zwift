@@ -34,6 +34,8 @@ class iconceptbike : public bike {
   public:
     explicit iconceptbike();
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,12);}
+
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 

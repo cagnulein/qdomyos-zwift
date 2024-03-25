@@ -74,6 +74,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 SOURCES += \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
+    $$PWD/minmax.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
 devices/csaferower/csafe.cpp \
@@ -290,6 +291,7 @@ HEADERS += \
     $$PWD/devices/focustreadmill/focustreadmill.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
+    $$PWD/minmax.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \

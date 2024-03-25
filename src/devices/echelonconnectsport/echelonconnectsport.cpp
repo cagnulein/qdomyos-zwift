@@ -125,10 +125,7 @@ void echelonconnectsport::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance <= 0)
-                requestResistance = 1;
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -157,34 +154,37 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    auto minMaxR = this->resistanceLimits();
+    for (resistance_t i = 1; i < minMaxR.max(); i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
-    if (pelotonResistance < bikeResistanceToPeloton(1))
+    if (pelotonResistance < bikeResistanceToPeloton(minMaxR.min()))
         return 1;
     else
-        return max_resistance;
+        return minMaxR.max();
 }
 
 resistance_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    if (Cadence.value() == 0)
-        return 1;
+    auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    if (Cadence.value() == 0)
+        return minMaxR.min();
+
+    for (resistance_t i = 1; i < minMaxR.max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
+    if (power < wattsFromResistance(minMaxR.min()))
         return 1;
     else
-        return max_resistance;
+        return minMaxR.max();
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance) {

@@ -8,9 +8,9 @@ std::optional<int32_t> bikeergfunctions::getMaxCadence() const { return std::opt
 
 std::optional<int32_t> bikeergfunctions::getMinCadence() const { return 0; }
 
-std::optional<resistance_t> bikeergfunctions::getMaxResistance() const { return this->device->maxResistance(); }
+std::optional<resistance_t> bikeergfunctions::getMaxResistance() const { return this->device->resistanceLimits().max(); }
 
-std::optional<resistance_t> bikeergfunctions::getMinResistance() const { return 0; }
+std::optional<resistance_t> bikeergfunctions::getMinResistance() const { return this->device->resistanceLimits().min(); }
 
 double bikeergfunctions::getPower(const int32_t cadence, resistance_t resistance) {
     auto originalCadence = this->device->currentCadence().value();

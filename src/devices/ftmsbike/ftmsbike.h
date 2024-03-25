@@ -71,8 +71,7 @@ class ftmsbike : public bike {
     ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -82,7 +81,7 @@ class ftmsbike : public bike {
     void init();
     void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
-    uint16_t wattsFromResistance(double resistance);
+    uint16_t wattsFromResistance(double resistance) override;
 
     QTimer *refresh;
 
@@ -96,7 +95,7 @@ class ftmsbike : public bike {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
-    int max_resistance = 100;
+    minmax<resistance_t> bikeResistanceLimits { 1,100};
 
     bool initDone = false;
     bool initRequest = false;

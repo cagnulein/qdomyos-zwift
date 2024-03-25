@@ -38,8 +38,10 @@ class apexbike : public bike {
     apexbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,32);}
+
   private:
-    const resistance_t max_resistance = 32;
+
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);

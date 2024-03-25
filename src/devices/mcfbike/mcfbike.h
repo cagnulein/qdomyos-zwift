@@ -36,16 +36,14 @@ class mcfbike : public bike {
     Q_OBJECT
   public:
     mcfbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    resistance_t maxResistance() override { return max_resistance; }
+
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,14);}
     bool connected() override;
 
   private:
-    const resistance_t max_resistance = 14;
-    double bikeResistanceToPeloton(double resistance);
+    double bikeResistanceToPeloton(double resistance) override;
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
+    uint16_t wattsFromResistance(double resistance) override;
     QTime GetElapsedFromPacket(const QByteArray &packet);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

@@ -65,10 +65,11 @@ class nordictrackifitadbbike : public bike {
     bool connected() override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool inclinationAvailableByHardware() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;    
-
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    minmax<resistance_t> resistanceLimits() override {
+        return minmax<resistance_t>(0,17); // max inclination for s22i
+    }
   private:
-    const resistance_t max_resistance = 17; // max inclination for s22i
     void forceResistance(double resistance);
     uint16_t watts() override;
     double getDouble(QString v);

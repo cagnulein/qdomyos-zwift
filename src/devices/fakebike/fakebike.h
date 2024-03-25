@@ -40,7 +40,7 @@ class fakebike : public bike {
     fakebike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
     uint16_t watts() override;
-    resistance_t maxResistance() override { return 100; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     
   private:

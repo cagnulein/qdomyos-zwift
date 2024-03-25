@@ -40,7 +40,8 @@ class domyosbike : public bike {
                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,15);}
+
     ~domyosbike() override;
     bool connected() override;
 
@@ -59,7 +60,6 @@ class domyosbike : public bike {
     void startDiscover();
     uint16_t watts() override;
 
-    const resistance_t max_resistance = 15;
     QTimer *refresh;
     uint8_t firstVirtual = 0;
     uint8_t firstStateChanged = 0;

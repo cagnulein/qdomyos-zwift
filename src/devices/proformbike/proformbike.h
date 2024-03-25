@@ -37,14 +37,13 @@ class proformbike : public bike {
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    resistance_t maxResistance() override { return max_resistance; }
+
+    minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
   private:
-    resistance_t max_resistance = 16;
-    uint16_t wattsFromResistance(resistance_t resistance);
+    uint16_t wattsFromResistance(double resistance) override;
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
@@ -71,6 +70,7 @@ class proformbike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     uint16_t m_watts = 0;
+    minmax<resistance_t> bikeResistanceLimits{1,16};
 
     bool initDone = false;
     bool initRequest = false;
