@@ -1,5 +1,6 @@
 #include "ypooelliptical.h"
 #include "devices/ftmsbike/ftmsbike.h"
+#include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,6 +13,7 @@
 #include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
+#include "keepawakehelper.h"
 
 using namespace std::chrono_literals;
 
