@@ -42,7 +42,7 @@ class ypooelliptical : public elliptical {
     bool connected() override;
 
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+    void writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
@@ -53,6 +53,9 @@ class ypooelliptical : public elliptical {
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattCustomService = nullptr;
+
+    QLowEnergyCharacteristic gattFTMSWriteCharControlPointId;
+    QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -71,6 +74,7 @@ class ypooelliptical : public elliptical {
 
     uint8_t counterPoll = 0;
     bool SCH_590E = false;
+    bool E35 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

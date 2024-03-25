@@ -59,6 +59,7 @@ class lockscreen {
     
     // debug
     static void debug(const char* debugstring);
+    static void nslog(const char* log);
     
     //adb
     void adb_connect(const char* IP);
@@ -74,6 +75,11 @@ class lockscreen {
     int zwift_api_getdistance();
     float zwift_api_getlatitude();
     float zwift_api_getlongitude();
+    
+    // quick actions    
+    static void set_action_profile(const char* profile);
+    static const char* get_action_profile();
+
 };
 
 #endif // LOCKSCREEN_H
