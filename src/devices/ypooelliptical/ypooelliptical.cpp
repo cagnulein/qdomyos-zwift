@@ -313,8 +313,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.rampAngle) {
-            Inclination = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)lastPacket.at(index))));
+            Inclination = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)lastPacket.at(index))))) / 10.0;
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));            
             index += 2;
             index += 2;
