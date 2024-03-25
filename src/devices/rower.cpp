@@ -84,6 +84,10 @@ void rower::clearStats() {
     WattKg.clear(false);
 
     speedLast500mValues.clear();
+
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void rower::setPaused(bool p) {
@@ -109,6 +113,10 @@ void rower::setPaused(bool p) {
     StrokesCount.setPaused(p);
     StrokesLength.setPaused(p);
     WattKg.setPaused(p);
+
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void rower::setLap() {
@@ -136,6 +144,9 @@ void rower::setLap() {
     WattKg.setLap(false);
 
     speedLast500mValues.clear();
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }    
 }
 
 // min/500m

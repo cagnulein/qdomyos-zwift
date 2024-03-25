@@ -750,15 +750,20 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             iFit_LastResistanceRequested = newValue.at(12);
             qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(iFit_LastResistanceRequested);
 
-            for (int i = 0; i < 100; i++) {
-                if (iFit_pelotonToBikeResistance(i) == iFit_LastResistanceRequested) {
-                    if (force_resistance) {
-                        // same on the training program
-                        Bike->changeResistance(
-                            (resistance_t)(round((((bike *)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) +
-                            bikeResistanceOffset); // resistance start from 1
+            if(((bike*)Bike)->inclinationAvailableByHardware()) {
+                Bike->changeInclination((iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset, (iFit_LastResistanceRequested * bikeResistanceGain) + bikeResistanceOffset);
+            } else {
+                for (int i = 0; i < 100; i++) {
+                    if (iFit_pelotonToBikeResistance(i) == iFit_LastResistanceRequested) {
+                        if (force_resistance) {                        
+                            // same on the training program
+                            Bike->changeResistance(
+                                (resistance_t)(round((((bike *)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) +
+                                bikeResistanceOffset); // resistance start from 1
+                        }
+                        break;
                     }
-                    break;
+
                 }
             }
         } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0F &&

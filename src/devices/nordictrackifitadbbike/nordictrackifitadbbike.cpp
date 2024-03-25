@@ -339,6 +339,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                     double inc = qRound(requestInclination / 0.5) * 0.5;
                     if (inc != currentInclination().value()) {
                         bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();                        
+                        bool proform_tdf_10_0 = settings.value(QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0).toBool();                        
                         int x1 = 75;
                         int y2 = (int)(616.18 - (17.223 * (inc + gears())));
                         int y1Resistance = (int)(616.18 - (17.223 * currentInclination().value()));
@@ -347,6 +348,10 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                             x1 = 1827;
                             y2 = (int)(806 - (21.375 * (inc + gears())));
                             y1Resistance = (int)(806 - (21.375 * currentInclination().value()));
+                        } else if(proform_tdf_10_0) {
+                            x1 = 75;
+                            y2 = (int)(477 - (12.5 * (inc + gears())));
+                            y1Resistance = (int)(477 - (12.5 * currentInclination().value()));
                         }
 
                         lastCommand = "input swipe " + QString::number(x1) + " " + QString::number(y1Resistance) + " " +
