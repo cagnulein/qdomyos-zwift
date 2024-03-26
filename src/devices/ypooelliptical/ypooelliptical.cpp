@@ -1,5 +1,6 @@
 #include "ypooelliptical.h"
 #include "devices/ftmsbike/ftmsbike.h"
+#include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -12,6 +13,7 @@
 #include <QLowEnergyConnectionParameters>
 #endif
 #include <chrono>
+#include "keepawakehelper.h"
 
 using namespace std::chrono_literals;
 
@@ -68,6 +70,17 @@ void ypooelliptical::writeCharacteristic(QLowEnergyCharacteristic* characteristi
     loop.exec();
 }
 
+void ypooelliptical::forceInclination(double inclination) {
+        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        requestInclination = inclination;
+
+        write[3] = ((uint16_t)requestInclination * 10) & 0xFF;
+        write[4] = ((uint16_t)requestInclination * 10) >> 8;
+
+        writeCharacteristic(write, sizeof(write),
+                            QStringLiteral("forceInclination ") + QString::number(requestInclination));
+}
+
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
     if(E35) {
@@ -99,21 +112,28 @@ void ypooelliptical::update() {
 
     if (initRequest) {
         initRequest = false;
-        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
-        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-        uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
-        uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+        if(E35) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "requestControl", false, true);
+            write[0] = {FTMS_START_RESUME};
+            writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "start simulation", false, true);
+        } else {
+            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+            uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+        }
         initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -154,6 +174,13 @@ void ypooelliptical::update() {
                 }
             }
             requestResistance = -1;
+        }
+        if (requestInclination != -100) {
+            if (requestInclination != currentInclination().value()) {
+                emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                forceInclination(requestInclination);
+            }
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -311,8 +338,8 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.rampAngle) {
-            Inclination = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)lastPacket.at(index))));
+            Inclination = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)lastPacket.at(index))))) / 10.0;
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));            
             index += 2;
             index += 2;
