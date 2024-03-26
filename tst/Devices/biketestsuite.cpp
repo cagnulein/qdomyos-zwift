@@ -131,6 +131,10 @@ void BikeTestSuite<T>::test_powerFunctions_maxCadence() {
         GTEST_SKIP() << "No maximum cadence defined";
     }
 
+    ASSERT_TRUE(this->testSettings.get_active()) << "TestSettings object should be active.";
+    this->testSettings.qsettings.setValue(QZSettings::watt_gain, 1.0);
+    this->testSettings.qsettings.setValue(QZSettings::watt_offset, 0.0);
+
     // traverse the resistance edge checking the power is clipped to the values for the max and min cadence
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
@@ -159,20 +163,20 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePowerConversion() {
     for(uint16_t cadenceRPM : this->getCadenceSamples())
     {
         uint16_t lastPower=0xFFFF;
-        for(resistance_t r=minResistance; r<=maxResistance; r++)
+        for(resistance_t resistanceToPower=minResistance; resistanceToPower<=maxResistance; resistanceToPower++)
         {
-            uint16_t power = erg->getPower(cadenceRPM, r);
+            uint16_t power = erg->getPower(cadenceRPM, resistanceToPower);
 
             // if this resistance reaches a new power level, check the inverse
             if(power!=lastPower)
             {
                 lastPower = power;
-                resistance_t resistance = erg->getResistance(cadenceRPM, power);
+                resistance_t resistanceFromPower = erg->getResistance(cadenceRPM, power);
 
-                if(r!=resistance) {
-                    uint16_t newPower = erg->getPower(cadenceRPM, resistance);
+                if(resistanceToPower!=resistanceFromPower) {
+                    uint16_t newPower = erg->getPower(cadenceRPM, resistanceFromPower);
 
-                    errors.append(unexpectedResistance.arg(r).arg(power).arg(cadenceRPM).arg(resistance).arg(newPower));
+                    errors.append(unexpectedResistance.arg(resistanceToPower).arg(power).arg(cadenceRPM).arg(resistanceFromPower).arg(newPower));
                 }
 
             }

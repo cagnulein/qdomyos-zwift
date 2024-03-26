@@ -138,20 +138,27 @@ resistance_t bike::resistanceFromPowerRequest(uint16_t power) {
 
     auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
-        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
-            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest")
-                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
-                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
+    uint16_t power0 = (wattsFromResistance(minMaxR.min()) * watt_gain) + watt_offset;
+
+    // Is the requested power at or below the power of the minimum resistance the device provides?
+    if (power <= power0)
+        return minMaxR.min();
+
+    // Search from the 1st resistance level above minimum to the maximum
+    for (resistance_t i = 1 + minMaxR.min(); i < minMaxR.max(); i++) {
+        uint16_t power1 = wattsFromResistance(i)*watt_gain + watt_offset;
+
+        if(power0 <= power && power1>=power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << power0 << power1 << power;
             return i;
         }
+
+        power0 = power1;
     }
-    if (power < ((wattsFromResistance(minMaxR.min()) * watt_gain) + watt_offset))
-        return minMaxR.min();
-    else
-        return minMaxR.max();
-} // in order to have something
+
+    // requested power requires resistance beyond the maximum
+    return minMaxR.max();
+}
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
