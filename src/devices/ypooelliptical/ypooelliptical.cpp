@@ -71,14 +71,10 @@ void ypooelliptical::writeCharacteristic(QLowEnergyCharacteristic* characteristi
 }
 
 void ypooelliptical::forceInclination(double inclination) {
-        uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        requestInclination = inclination;
-
-        write[3] = ((uint16_t)requestInclination * 10) & 0xFF;
-        write[4] = ((uint16_t)requestInclination * 10) >> 8;
-
-        writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
-                            QStringLiteral("forceInclination ") + QString::number(requestInclination));
+    uint8_t write[] = {FTMS_SET_TARGET_INCLINATION, 0x00};
+    write[1] = ((uint8_t)(inclination));
+    writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
+                        QStringLiteral("forceInclination ") + QString::number(inclination));
 }
 
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
@@ -682,6 +678,9 @@ void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
     if (gattCustomService != nullptr) {
         if(!iconsole_elliptical)
             initRequest = true;
+        emit connectedAndDiscovered();
+    } else if(E35) {
+        initRequest = true;
         emit connectedAndDiscovered();
     }
 }
