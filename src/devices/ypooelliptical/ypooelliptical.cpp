@@ -77,7 +77,7 @@ void ypooelliptical::forceInclination(double inclination) {
         write[3] = ((uint16_t)requestInclination * 10) & 0xFF;
         write[4] = ((uint16_t)requestInclination * 10) >> 8;
 
-        writeCharacteristic(write, sizeof(write),
+        writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
                             QStringLiteral("forceInclination ") + QString::number(requestInclination));
 }
 
