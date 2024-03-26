@@ -46,16 +46,16 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
         return 0;
 
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
-    double cadence = RequestedCadence.value();
+    double cadence = this->RequestedCadence.value();
     if (cadence <= 0)
         cadence = Cadence.value();
 
-    if(cadence <= 0)
+    if(cadence <= this->cadenceLimits().min())
         return 0;
 
     requestResistance = minMaxR.clip(requestResistance);
 
-    return (requestResistance * cadence) / 9.5488;
+    return (requestResistance * this->cadenceLimits().clip(cadence)) / 9.5488;
 }
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }

@@ -4,9 +4,9 @@ void bikeergfunctions::setCadence(int32_t cadence) { this->device->cadenceSensor
 
 bikeergfunctions::bikeergfunctions(bike *device) : device(device) {}
 
-std::optional<int32_t> bikeergfunctions::getMaxCadence() const { return std::optional<int32_t>{};}
+std::optional<int32_t> bikeergfunctions::getMaxCadence() const { return this->device->cadenceLimits().max();}
 
-std::optional<int32_t> bikeergfunctions::getMinCadence() const { return 0; }
+std::optional<int32_t> bikeergfunctions::getMinCadence() const { return this->device->cadenceLimits().min(); }
 
 std::optional<resistance_t> bikeergfunctions::getMaxResistance() const { return this->device->resistanceLimits().max(); }
 

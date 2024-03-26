@@ -50,6 +50,7 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableByHardware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
 
+    virtual minmax<int16_t> cadenceLimits() { return minmax<int16_t>(0, 250); }
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;
     virtual void changeCadence(int16_t cad);

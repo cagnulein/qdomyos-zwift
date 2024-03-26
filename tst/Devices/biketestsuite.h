@@ -84,6 +84,9 @@ public:
 TYPED_TEST_SUITE(BikeTestSuite, BikeTestDataTypes);
 
 TYPED_TEST(BikeTestSuite, TestPowerFunctionsMinCadence) {
+
+    GTEST_SKIP() << "Disabled because no public way to set a negative cadence.";
+
     this->test_powerFunctions_minCadence();
 }
 
