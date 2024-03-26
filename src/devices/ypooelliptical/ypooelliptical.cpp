@@ -203,8 +203,6 @@ void ypooelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
     QString heartRateBeltName =
@@ -214,7 +212,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool iconsole_elliptical =
         settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
-    emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
+    qDebug() << characteristic.uuid() << QStringLiteral("<<") << newvalue.toHex(' ');
 
     if (characteristic.uuid() == QBluetoothUuid::HeartRate && newvalue.length() > 1) {
         Heart = (uint8_t)newvalue[1];
@@ -391,7 +389,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;
         }
 
-        if (Flags.avgPower && lastPacket.length() > index + 1) {
+        if (Flags.avgPower && lastPacket.length() > index + 1 && !E35) { // E35 has a bug about this
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)lastPacket.at(index))));
