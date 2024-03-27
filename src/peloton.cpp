@@ -263,10 +263,11 @@ void peloton::hfb_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::pzp_trainrows(QList<trainrow> *list) {
@@ -276,10 +277,11 @@ void peloton::pzp_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::startEngine() {
