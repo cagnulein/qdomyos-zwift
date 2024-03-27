@@ -17,6 +17,10 @@ BikeTestSuite<T>::BikeTestSuite() : testSettings("Roberto Viola", "QDomyos-Zwift
 template<typename T>
 void BikeTestSuite<T>::SetUp() {
     BikeOptions options;
+
+    // activate the test settings before doing anything
+    this->testSettings.activate();
+
     this->device =this->typeParam.createInstance(options);
     this->ergInterface = new bikeergfunctions(this->device);
 
@@ -24,7 +28,6 @@ void BikeTestSuite<T>::SetUp() {
     this->minRPM = this->ergInterface->getMinCadence().value_or(1);
     this->maxResistance = this->ergInterface->getMaxResistance().value_or(255);
     this->minResistance = this->ergInterface->getMinResistance().value_or(0);
-
 }
 
 template<typename T>
@@ -131,10 +134,6 @@ void BikeTestSuite<T>::test_powerFunctions_maxCadence() {
         GTEST_SKIP() << "No maximum cadence defined";
     }
 
-    ASSERT_TRUE(this->testSettings.get_active()) << "TestSettings object should be active.";
-    this->testSettings.qsettings.setValue(QZSettings::watt_gain, 1.0);
-    this->testSettings.qsettings.setValue(QZSettings::watt_offset, 0.0);
-
     // traverse the resistance edge checking the power is clipped to the values for the max and min cadence
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
@@ -157,13 +156,18 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePowerConversion() {
     const auto erg = this->ergInterface;
     QStringList errors;
 
+    ASSERT_TRUE(this->testSettings.get_active()) << "TestSettings object should be active.";
+    this->testSettings.qsettings.setValue(QZSettings::watt_gain, 1.0);
+    this->testSettings.qsettings.setValue(QZSettings::watt_offset, 0.0);
+
     // test inverses
     QString unexpectedResistance=QStringLiteral("P(C:%3, R:%1)=%2 but R(C:%3, P:%2)=%4 and P(C:%3, R:%4)=%5");
     //for(uint32_t cadenceRPM=minRPM; cadenceRPM<=maxRPM; cadenceRPM++)
     for(uint16_t cadenceRPM : this->getCadenceSamples())
     {
         uint16_t lastPower=0xFFFF;
-        for(resistance_t resistanceToPower=minResistance; resistanceToPower<=maxResistance; resistanceToPower++)
+        for( resistance_t resistanceToPower : this->getResistanceSamples())
+        //for(resistance_t resistanceToPower=minResistance; resistanceToPower<=maxResistance; resistanceToPower++)
         {
             uint16_t power = erg->getPower(cadenceRPM, resistanceToPower);
 
