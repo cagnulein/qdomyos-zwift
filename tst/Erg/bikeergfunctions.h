@@ -26,4 +26,7 @@ public:
 
     int32_t getResistance(const int32_t cadence, const double power) override;
 
+    int32_t toPeloton(const resistance_t resistance) override;
+    resistance_t fromPeloton(const int pelotonResistance) override;
+
 };

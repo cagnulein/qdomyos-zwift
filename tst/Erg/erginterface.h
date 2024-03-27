@@ -54,6 +54,19 @@ class erginterface {
     virtual int32_t getResistance(const int32_t cadence, const double power) = 0;
 
     /**
+     * @brief Converts the specified device resistance to its corresponding Peloton resistance level.
+     * @return
+     */
+    virtual int32_t toPeloton(const resistance_t resistance) = 0;
+
+    /**
+     * @brief Converts the specified Peloton resistance level to its corresponding device resistance level.
+     * @return
+     */
+    virtual resistance_t fromPeloton(const int32_t pelotonResistance) = 0;
+
+
+    /**
      * @brief Destructor
      */
     virtual ~erginterface() = default;

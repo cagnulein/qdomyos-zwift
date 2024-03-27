@@ -78,6 +78,10 @@ public:
      */
     void test_powerFunctions_resistancePowerConversion();
 
+    /**
+     * @brief Test that conversions to and from Peloton levels work.
+     */
+    void test_powerFunctions_resistancePelotonConversion();
 };
 
 
@@ -106,3 +110,6 @@ TYPED_TEST(BikeTestSuite, TestPowerFunctionsResistancePowerConversion) {
     this->test_powerFunctions_resistancePowerConversion();
 }
 
+TYPED_TEST(BikeTestSuite, TestPowerFunctionsPelotonResistanceConversion) {
+    this->test_powerFunctions_resistancePelotonConversion();
+}

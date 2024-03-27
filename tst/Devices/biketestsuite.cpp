@@ -192,6 +192,45 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePowerConversion() {
 }
 
 template<typename T>
+void BikeTestSuite<T>::test_powerFunctions_resistancePelotonConversion() {
+    const auto erg = this->ergInterface;
+    QStringList errors;
+
+    ASSERT_TRUE(this->testSettings.get_active()) << "TestSettings object should be active.";
+    this->testSettings.qsettings.setValue(QZSettings::watt_gain, 1.0);
+    this->testSettings.qsettings.setValue(QZSettings::watt_offset, 0.0);
+
+    // test inverses
+    QString unexpectedResistance=QStringLiteral("R2P(R:%1)=%2 but P2R(P:%2)=%3 and R2P(R:%3)=%4");
+
+    int lastPeloton = 0xFFFFFFFF;
+
+    for( resistance_t resistanceToPeloton : this->getResistanceSamples())
+    //for(resistance_t resistanceToPower=minResistance; resistanceToPower<=maxResistance; resistanceToPower++)
+    {
+        int pelotonFromResistance = erg->toPeloton(resistanceToPeloton);
+
+        // if this resistance reaches a new Peloton level, check the inverse
+        if(pelotonFromResistance!=lastPeloton)
+        {
+            lastPeloton = pelotonFromResistance;
+            resistance_t resistanceFromPeloton = erg->fromPeloton(pelotonFromResistance);
+
+            if(resistanceToPeloton!=resistanceFromPeloton) {
+                int newPeloton = erg->toPeloton(resistanceFromPeloton);
+
+                errors.append(unexpectedResistance.arg(resistanceToPeloton).arg(pelotonFromResistance).arg(resistanceFromPeloton).arg(newPeloton));
+            }
+
+        }
+
+    }
+
+
+    ASSERT_TRUE(errors.empty()) << errors.join('\n').toStdString();
+}
+
+template<typename T>
 template<typename T0>
 QList<T0> BikeTestSuite<T>::getSamples(const T0 min, const T0 max) {
     QList<T0> result;

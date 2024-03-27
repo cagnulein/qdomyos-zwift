@@ -28,3 +28,9 @@ int32_t bikeergfunctions::getResistance(const int32_t cadence, const double powe
     this->setCadence(originalCadence);
     return result;
 }
+
+int32_t bikeergfunctions::toPeloton(const resistance_t resistance) { return device->bikeResistanceToPeloton(resistance); }
+
+resistance_t bikeergfunctions::fromPeloton(const int pelotonResistance) { return device->pelotonToBikeResistance(pelotonResistance); }
+
+
