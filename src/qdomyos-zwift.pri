@@ -38,8 +38,8 @@ QML_IMPORT_PATH =
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc -llibcrypto -llibssl -L../windows_openssl
-win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto -llibssl -L../windows_openssl
+win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x64 -llibssl-1_1-x64 -L$$PWD/../windows_openssl
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x64 -llibssl-1_1-x64 -L$$PWD/../windows_openssl
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
