@@ -72,8 +72,8 @@ void ypooelliptical::writeCharacteristic(QLowEnergyCharacteristic* characteristi
 
 void ypooelliptical::forceInclination(double inclination) {
     uint8_t write[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-    write[1] = ((uint16_t)inclination) & 0xFF;
-    write[2] = ((uint16_t)inclination) >> 8;
+    write[1] = ((uint16_t)inclination * 10) & 0xFF;
+    write[2] = ((uint16_t)inclination * 10) >> 8;
     writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
                         QStringLiteral("forceInclination ") + QString::number(inclination));
 }
@@ -81,9 +81,8 @@ void ypooelliptical::forceInclination(double inclination) {
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
     if(E35) {
-        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00, 0x00};
-        write[1] = ((uint16_t)requestResistance) & 0xFF;
-        write[2] = ((uint16_t)requestResistance) >> 8;
+        uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+        write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
         writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));        
     } else {
