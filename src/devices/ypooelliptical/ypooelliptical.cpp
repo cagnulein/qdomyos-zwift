@@ -799,3 +799,5 @@ void ypooelliptical::controllerStateChanged(QLowEnergyController::ControllerStat
         m_control->connectToDevice();
     }
 }
+
+double ypooelliptical::minStepInclination() { return 1.0; }
