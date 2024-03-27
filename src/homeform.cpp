@@ -669,6 +669,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     });
 #endif
 
+    if (QSslSocket::supportsSsl()) {
+        qDebug() << "SSL supported";
+    } else {
+        qDebug() << "SSL non supported";
+    }
+    
 #ifdef Q_OS_ANDROID
     QAndroidJniObject javaPath = QAndroidJniObject::fromString(getWritableAppDir());
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
