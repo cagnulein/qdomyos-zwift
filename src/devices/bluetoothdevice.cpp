@@ -353,7 +353,6 @@ QStringList bluetoothdevice::metrics() {
     return r;
 }
 
-resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 

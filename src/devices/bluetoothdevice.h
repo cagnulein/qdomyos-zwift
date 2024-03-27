@@ -2,6 +2,7 @@
 #define BLUETOOTHDEVICE_H
 
 #include "definitions.h"
+#include "minmax.h"
 #include "metric.h"
 #include "qzsettings.h"
 
@@ -421,9 +422,19 @@ class bluetoothdevice : public QObject {
     virtual uint8_t metrics_override_heartrate();
 
     /**
+     * @brief Overridden in subclasses to specify the range of resistance levels supported by the device.
+     */
+    virtual minmax<resistance_t> resistanceLimits() { return minmax<resistance_t>(0,100); }
+
+    /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
-    virtual resistance_t maxResistance();
+ //   virtual resistance_t maxResistance() { return 100; }
+
+    /**
+     * @brief Overridden in subclasses to specify the minimum resistance level supported by the device.
+     */
+  //  virtual resistance_t minResistance() { return 0; }
 
   public Q_SLOTS:
     virtual void start();

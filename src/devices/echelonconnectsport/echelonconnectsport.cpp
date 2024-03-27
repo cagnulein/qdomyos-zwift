@@ -125,10 +125,7 @@ void echelonconnectsport::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance <= 0)
-                requestResistance = 1;
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -157,34 +154,37 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    auto minMaxR = this->resistanceLimits();
+    for (resistance_t i = 1; i < minMaxR.max(); i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) > pelotonResistance) {
             return i;
         }
     }
-    if (pelotonResistance < bikeResistanceToPeloton(1))
+    if (pelotonResistance < bikeResistanceToPeloton(minMaxR.min()))
         return 1;
     else
-        return max_resistance;
+        return minMaxR.max();
 }
 
 resistance_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    if (Cadence.value() == 0)
-        return 1;
+    auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    if (Cadence.value() == 0)
+        return minMaxR.min();
+
+    for (resistance_t i = 1; i < minMaxR.max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
+    if (power < wattsFromResistance(minMaxR.min()))
         return 1;
     else
-        return max_resistance;
+        return minMaxR.max();
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
@@ -537,7 +537,7 @@ uint16_t echelonconnectsport::watts() {
     return wattsFromResistance(Resistance.value());
 }
 
-uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
+uint16_t echelonconnectsport::wattsFromResistance(resistance_t resistance) {
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
@@ -547,7 +547,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     const double Epsilon = 4.94065645841247E-324;
     const int wattTableFirstDimension = 33;
     const int wattTableSecondDimension = 11;
-    double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+    static double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},
@@ -582,7 +582,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         {Epsilon, 12.5, 48.0, 99.3, 162.2, 232.9, 310.4, 400.3, 435.5, 530.5, 589.0},
         {Epsilon, 13.0, 53.0, 102.0, 170.3, 242.0, 320.0, 427.9, 475.2, 570.0, 625.0}};
 
-    double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
+    static double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},

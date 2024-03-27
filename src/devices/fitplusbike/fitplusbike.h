@@ -37,12 +37,11 @@ class fitplusbike : public bike {
     Q_OBJECT
   public:
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
     bool connected() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+	uint16_t wattsFromResistance(resistance_t resistance) override;
 
   private:
-    resistance_t max_resistance = 24;
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -50,7 +49,7 @@ class fitplusbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts() override;
-    uint16_t wattsFromResistance(double resistance);
+    
 
     QTimer *refresh;
 
@@ -60,6 +59,7 @@ class fitplusbike : public bike {
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotifyFTMSCharacteristic;
 
+    minmax<resistance_t> bikeResistanceLimits{1,24};
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;

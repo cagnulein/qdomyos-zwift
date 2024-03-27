@@ -36,8 +36,8 @@ class nautilusbike : public bike {
     ~nautilusbike();
     bool connected() override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
-    resistance_t maxResistance() override;
-
+    minmax<resistance_t> resistanceLimits() override;
+    uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
@@ -48,7 +48,7 @@ class nautilusbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t wattsFromResistance(double resistance);
+
 
     QTimer *refresh;
     uint8_t firstVirtual = 0;

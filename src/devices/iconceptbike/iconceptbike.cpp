@@ -104,11 +104,8 @@ void iconceptbike::update() {
         // ********************************************************************************************************
 
         if (requestResistance != -1) {
-            if (requestResistance > 12) {
-                requestResistance = 12;
-            } else if (requestResistance < 1) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
+
             char resValues[] = {0x08, 0x0a, 0x0b, 0x0d, 0x0e, 0x10, 0x11, 0x13, 0x14, 0x16, 0x17, 0x18};
             char res[] = {0x55, 0x11, 0x01, 0x12};
             res[3] = resValues[requestResistance - 1];

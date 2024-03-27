@@ -6,7 +6,10 @@
 
 
 class InspireBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new inspirebike(options.noResistance, options.noHeartService);
+    }
 public:
     InspireBikeTestData() : BikeTestData("Inspire Bike") {
         this->addDeviceName("IC", comparison::StartsWithIgnoreCase, 8);

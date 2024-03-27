@@ -6,6 +6,11 @@
 class CSCBikeTestData : public BikeTestData {
 protected:
     QString cscBikeName;
+
+
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new cscbike(options.noResistance, options.noHeartService, options.noVirtualDevice);
+    }
 public:
     CSCBikeTestData(std::string testName) : BikeTestData(testName) {
         this->cscBikeName = "CyclingSpeedCadenceBike-";

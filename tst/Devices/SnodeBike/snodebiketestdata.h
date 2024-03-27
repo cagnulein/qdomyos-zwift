@@ -6,6 +6,9 @@
 
 class SnodeBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new snodebike(options.noResistance, options.noHeartService);
+    }
     SnodeBikeTestData(std::string testName) : BikeTestData(testName) { }
 
     void configureExclusions() override;

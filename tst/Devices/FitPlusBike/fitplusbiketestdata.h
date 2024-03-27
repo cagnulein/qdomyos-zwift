@@ -9,6 +9,10 @@
 
 class FitPlusBikeFSTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new fitplusbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
+
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fitplus_bike = enable;
         return true;
@@ -27,7 +31,10 @@ public:
 };
 
 class FitPlusBikeMRKTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new fitplusbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     FitPlusBikeMRKTestData() : BikeTestData("FitPlus Bike (MRK, no settings)"){
 

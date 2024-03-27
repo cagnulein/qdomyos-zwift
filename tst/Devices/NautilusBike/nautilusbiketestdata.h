@@ -6,7 +6,10 @@
 
 
 class NautilusBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new nautilusbike(options.noResistance, options.noHeartService, false, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     NautilusBikeTestData(): BikeTestData("Nautilus Bike") {
         this->addDeviceName("NAUTILUS B", comparison::StartsWithIgnoreCase);

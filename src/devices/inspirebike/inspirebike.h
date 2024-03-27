@@ -37,10 +37,10 @@ class inspirebike : public bike {
     Q_OBJECT
   public:
     inspirebike(bool noWriteResistance, bool noHeartService);
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,40);}
     bool connected() override;
 
-    const resistance_t max_resistance = 40;
+
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,

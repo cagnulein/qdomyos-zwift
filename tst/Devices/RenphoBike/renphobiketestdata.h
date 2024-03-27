@@ -1,13 +1,14 @@
 ﻿#pragma once
 
 #include "Devices/Bike/biketestdata.h"
-#include "Devices/FitPlusBike/fitplusbiketestdata.h"
-#include "Devices/SnodeBike/snodebiketestdata.h"
-
 #include "devices/renphobike/renphobike.h"
 
 class RenphoBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new renphobike(options.noResistance, options.noHeartService);
+    }
+
     RenphoBikeTestData(std::string testName) : BikeTestData(testName) {
     }
 

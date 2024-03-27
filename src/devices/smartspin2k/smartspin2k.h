@@ -42,6 +42,8 @@ class smartspin2k : public bike {
     smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice);
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
+
   private:
     #define max_calibration_samples  4
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -67,6 +69,7 @@ class smartspin2k : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    minmax<resistance_t> bikeResistanceLimits {1,100};
 
     bool initDone = false;
     bool initRequest = false;
@@ -79,7 +82,6 @@ class smartspin2k : public bike {
     resistance_t lastResistance;
     resistance_t lastRequestResistance;
 
-    resistance_t max_resistance;
 
     double slope = 0.0;
     double intercept = 0.0;

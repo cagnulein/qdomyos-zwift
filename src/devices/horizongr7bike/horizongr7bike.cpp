@@ -110,12 +110,7 @@ void horizongr7bike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
-            } // TODO, use the bluetooth value
-            else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance); // TODO, use the bluetooth value
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

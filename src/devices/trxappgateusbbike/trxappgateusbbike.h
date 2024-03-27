@@ -38,9 +38,8 @@ class trxappgateusbbike : public bike {
     trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                       double bikeResistanceGain);
     bool connected() override;
-    resistance_t maxResistance() override { return 32; }
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
-
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,32);}
+    uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetResistanceFromPacket(const QByteArray &packet);
@@ -57,7 +56,6 @@ class trxappgateusbbike : public bike {
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
 
     QTimer *refresh;
 

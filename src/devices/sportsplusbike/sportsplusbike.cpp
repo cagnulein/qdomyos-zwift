@@ -71,7 +71,7 @@ void sportsplusbike::forceResistance(resistance_t requestResistance) {
 }
 
 resistance_t sportsplusbike::pelotonToBikeResistance(int pelotonResistance) {
-    return (pelotonResistance * max_resistance) / 100;
+    return (pelotonResistance * this->resistanceLimits().max()) / 100;
 }
 
 void sportsplusbike::update() {
@@ -103,12 +103,9 @@ void sportsplusbike::update() {
 
         QSettings settings;
         uint8_t noOpData[] = {0x20, 0x01, 0x09, 0x00, 0x2a};
-        if (requestResistance < 0) {
-            requestResistance = 0;
-        }
-        if (requestResistance > max_resistance) {
-            requestResistance = max_resistance;
-        }
+
+        requestResistance = this->resistanceLimits().clip(requestResistance);
+
         noOpData[2] = requestResistance;
         noOpData[4] = (0x21 + requestResistance);
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -521,7 +518,7 @@ void sportsplusbike::controllerStateChanged(QLowEnergyController::ControllerStat
     }
 }
 
-uint16_t sportsplusbike::wattsFromResistance(double resistance) {
+uint16_t sportsplusbike::wattsFromResistance(resistance_t resistance) {
     const int wattTableFirstDimension = 24;
     const int wattTableSecondDimension = 6;
     double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {

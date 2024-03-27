@@ -343,11 +343,8 @@ void fitplusbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
-            } else if (requestResistance <= 0) {
-                requestResistance = 1;
-            }
+
+            requestResistance  = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -584,7 +581,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                      settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
                     settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
             } else {
-                m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
+                m_pelotonResistance = (100 * Resistance.value()) / this->resistanceLimits().max();
             }
 
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -734,8 +731,7 @@ void fitplusbike::btinit() {
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         writeCharacteristic(initData1, sizeof(initData2), QStringLiteral("init"), false, false);
 
-        max_resistance = 32;
-
+        this->bikeResistanceLimits = minmax<resistance_t>(1,32);
     } else {
 
         uint8_t initData1[] = {0x02, 0x44, 0x01, 0x45, 0x03};
@@ -981,7 +977,7 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
     }
 }
 
-uint16_t fitplusbike::wattsFromResistance(double resistance) {
+uint16_t fitplusbike::wattsFromResistance(resistance_t resistance) {
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
@@ -1076,21 +1072,3 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
     }
 }
 
-resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(1))
-        return 1;
-    else
-        return max_resistance;
-}

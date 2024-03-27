@@ -7,6 +7,9 @@
 
 class PafersBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new pafersbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         // the treadmill is given priority
         info.pafers_treadmill = !enable;

@@ -38,6 +38,8 @@ class flywheelbike : public bike {
     flywheelbike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,15);}
+
   private:
     typedef enum DecoderRXState { WFSYNC_1 = 0, WFLENGTH, WFID, DATA, CHECKSUM, EOF_1 } DecoderRXState;
 

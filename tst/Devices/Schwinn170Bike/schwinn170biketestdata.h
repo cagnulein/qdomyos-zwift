@@ -5,7 +5,10 @@
 
 
 class Schwinn170BikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new schwinn170bike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     Schwinn170BikeTestData() : BikeTestData("Schwinn 170 Bike") {
 

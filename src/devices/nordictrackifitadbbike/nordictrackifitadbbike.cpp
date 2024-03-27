@@ -576,20 +576,24 @@ resistance_t nordictrackifitadbbike::resistanceFromPowerRequest(uint16_t power) 
     // actually it's using inclination for the s22i
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    if (Cadence.value() == 0)
-        return 0;
+    auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = 0; i < max_resistance; i++) {
-        if (wattsFromResistance(i, Cadence.value()) <= power && wattsFromResistance(i + 1, Cadence.value()) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i, Cadence.value())
-                     << wattsFromResistance(i + 1, Cadence.value()) << power;
+    if (Cadence.value() == 0)
+        return minMaxR.min();
+
+    const double cadence = Cadence.value();
+
+    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
+        if (wattsFromResistance(i, cadence) <= power && wattsFromResistance(i + 1, cadence) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i, cadence)
+                     << wattsFromResistance(i + 1, cadence) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(0, Cadence.value()))
-        return 0;
+    if (power < wattsFromResistance(this->resistanceLimits().min(), cadence))
+        return this->resistanceLimits().min();
     else
-        return max_resistance;
+        return this->resistanceLimits().max();
 }
 
 uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double cadence) {

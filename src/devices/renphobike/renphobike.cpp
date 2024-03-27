@@ -136,10 +136,7 @@ void renphobike::update() {
             // if zwift is connected we have to avoid to send resistance to the bike
             if ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) {
                 if (requestResistance != -1) {
-                    if (requestResistance > max_resistance)
-                        requestResistance = max_resistance;
-                    else if (requestResistance == 0)
-                        requestResistance = 1;
+                    requestResistance = this->resistanceLimits().clip(requestResistance);
 
                     lastRequestResistance = lastRawRequestedResistanceValue;
                     debug("writing resistance " + QString::number(requestResistance));
@@ -688,7 +685,7 @@ void renphobike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 resistance_t renphobike::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 1; i < max_resistance - 1; i++) {
+    for (resistance_t i = 1, max = this->resistanceLimits().max(); i < max - 1; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance)
             return i;
     }

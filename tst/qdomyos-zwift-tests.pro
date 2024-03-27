@@ -5,7 +5,7 @@ include(gtest_dependency.pri)
 
 TEMPLATE = app
 
-CONFIG += console c++11
+CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG += androidextras
@@ -19,10 +19,12 @@ SOURCES += \
         Devices/SnodeBike/snodebiketestdata.cpp \
         Devices/StagesBike/stagesbiketestdata.cpp \
         Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.cpp \
+        Devices/biketestsuite.cpp \
         Devices/bluetoothdevicetestdata.cpp \
         Devices/bluetoothdevicetestsuite.cpp \
         Devices/bluetoothsignalreceiver.cpp \
         Devices/devicediscoveryinfo.cpp \
+        Erg/bikeergfunctions.cpp \
         Erg/ergtabletestsuite.cpp \
         ToolTests/testsettingstestsuite.cpp \
         Tools/testsettings.cpp \
@@ -131,6 +133,7 @@ HEADERS += \
     Devices/WahooKickrSnapBike/wahookickrsnapbiketestdata.h \
     Devices/YesoulBike/yesoulbiketestdata.h \
     Devices/ZiproTreadmill/ziprotreadmilltestdata.h \
+    Devices/biketestsuite.h \
     Devices/bluetoothdevicetestdata.h \
     Devices/bluetoothdevicetestsuite.h \
     Devices/bluetoothsignalreceiver.h \
@@ -140,6 +143,8 @@ HEADERS += \
     Devices/iConceptElliptical/iconceptellipticaltestdata.h \
     Devices/YpooElliptical/ypooellipticaltestdata.h \
     Devices/TrxAppGateUsbElliptical/trxappgateusbellipticaltestdata.h \
+    Erg/bikeergfunctions.h \
+    Erg/erginterface.h \
     Erg/ergtabletestsuite.h \
     ToolTests/testsettingstestsuite.h \
     Tools/testsettings.h

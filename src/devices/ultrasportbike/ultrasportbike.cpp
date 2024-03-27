@@ -107,10 +107,7 @@ void ultrasportbike::update() {
     }
 
     if (requestResistance != -1) {
-        if (requestResistance > max_resistance)
-            requestResistance = max_resistance;
-        else if (requestResistance <= 0)
-            requestResistance = 1;
+        requestResistance = this->resistanceLimits().clip(requestResistance);
 
         if (requestResistance != currentResistance().value()) {
             qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -137,17 +134,6 @@ void ultrasportbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-resistance_t ultrasportbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (resistance_t i = 1; i < max_resistance; i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
-            return i;
-        }
-    }
-    if (pelotonResistance < bikeResistanceToPeloton(1))
-        return 1;
-    else
-        return max_resistance;
-}
 
 double ultrasportbike::bikeResistanceToPeloton(double resistance) {
     // 0,0097x3 - 0,4972x2 + 10,126x - 37,08

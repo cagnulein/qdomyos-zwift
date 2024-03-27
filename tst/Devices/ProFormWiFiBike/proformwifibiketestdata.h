@@ -8,6 +8,10 @@
 
 class ProFormWiFiBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new proformwifibike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
+
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.proformtdf4ip = enable ? this->get_testIP():QString();
         return true;

@@ -22,7 +22,7 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, resistance
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
-    this->max_resistance = max_resistance;
+    this->bikeResistanceLimits = minmax<resistance_t>(1,max_resistance);
     this->parentDevice = parentDevice;
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -298,12 +298,7 @@ void smartspin2k::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
-            } // TODO, use the bluetooth value
-            else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance); // TODO, use the bluetooth value
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

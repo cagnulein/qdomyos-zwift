@@ -9,6 +9,10 @@
 
 class FakeBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new fakebike(options.noResistance, options.noHeartService, options.noVirtualDevice);
+    }
+
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         info.fake_bike = enable;
         return true;

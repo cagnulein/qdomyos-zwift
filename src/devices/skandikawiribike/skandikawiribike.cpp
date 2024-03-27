@@ -102,11 +102,7 @@ void skandikawiribike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 32) {
-                requestResistance = 32;
-            } else if (requestResistance < 1) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

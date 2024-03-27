@@ -37,13 +37,12 @@ class keepbike : public bike {
     Q_OBJECT
   public:
     keepbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
+
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,36);}
     bool connected() override;
 
   private:
-    const resistance_t max_resistance = 36;
-    double bikeResistanceToPeloton(double resistance);
+    double bikeResistanceToPeloton(double resistance) override;
     double GetDistanceFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetWattFromPacket(const QByteArray &packet);

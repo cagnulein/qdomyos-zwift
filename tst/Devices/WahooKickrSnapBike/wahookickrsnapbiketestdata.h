@@ -7,7 +7,10 @@
 
 
 class WahooKickrSnapBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new wahookickrsnapbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     WahooKickrSnapBikeTestData() : BikeTestData("Wahoo Kickr Snap Bike") {
         this->addDeviceName("KICKR SNAP", comparison::StartsWithIgnoreCase);

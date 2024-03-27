@@ -7,7 +7,10 @@
 
 
 class ProFormBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new proformbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     ProFormBikeTestData() : BikeTestData("ProForm Bike") {
         this->addDeviceName("I_EB", comparison::StartsWith);

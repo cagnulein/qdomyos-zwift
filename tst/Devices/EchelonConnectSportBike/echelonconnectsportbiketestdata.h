@@ -6,7 +6,10 @@
 #include "devices/echelonconnectsport/echelonconnectsport.h"
 
 class EchelonConnectSportBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new echelonconnectsport(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     EchelonConnectSportBikeTestData() : BikeTestData("Echelon Connect Sport Bike") {
         this->addDeviceName("ECH", comparison::StartsWith);

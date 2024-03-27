@@ -39,10 +39,9 @@ class renphobike : public bike {
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     // uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected() override;
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,80);}
 
   private:
-    const resistance_t max_resistance = 80;
     double bikeResistanceToPeloton(double resistance);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);

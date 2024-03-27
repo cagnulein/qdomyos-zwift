@@ -246,11 +246,7 @@ void domyosbike::update() {
             }
 
             if (requestResistance != -1) {
-                if (requestResistance > max_resistance) {
-                    requestResistance = max_resistance;
-                } else if (requestResistance < 1) {
-                    requestResistance = 1;
-                }
+                requestResistance = this->resistanceLimits().clip(requestResistance);
 
                 if (requestResistance != currentResistance().value()) {
                     qDebug() << QStringLiteral("writing resistance ") + QString::number(requestResistance);
@@ -391,7 +387,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         Resistance = 1;
     }
     emit resistanceRead(Resistance.value());
-    m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
+    m_pelotonResistance = (Resistance.value() * 100) / this->resistanceLimits().max();
 
     bool disable_hr_frommachinery =
         settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
@@ -666,31 +662,31 @@ bool domyosbike::connected() {
 }
 
 resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) {
-    return (pelotonResistance * max_resistance) / 100;
+    return (pelotonResistance * this->resistanceLimits().max()) / 100;
 }
 
 resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 
-    for (resistance_t i = 1; i < max_resistance; i++) {
+    for (resistance_t i = this->resistanceLimits().min(); i < this->resistanceLimits().max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
-        return 1;
+    if (power < wattsFromResistance(this->resistanceLimits().min()))
+        return this->resistanceLimits().min();
     else
-        return max_resistance;
+        return this->resistanceLimits().max();
 }
 
-uint16_t domyosbike::wattsFromResistance(double resistance) {
+uint16_t domyosbike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
     if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
              .toBool() ||
         resistance < 8)
         return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
     else {
-        switch ((int)resistance) {
+        switch (resistance) {
         case 8:
             return (13.6 * Cadence.value()) / 9.5488;
         case 9:

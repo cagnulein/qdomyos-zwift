@@ -36,14 +36,12 @@ class solebike : public bike {
     Q_OBJECT
   public:
     solebike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,40);}
     bool connected() override;
 
   private:
     bool r92 = false;
-    const resistance_t max_resistance = 40;
-    double bikeResistanceToPeloton(double resistance);
+    double bikeResistanceToPeloton(double resistance) override;
     double GetDistanceFromPacket(const QByteArray &packet);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetWattFromPacket(const QByteArray &packet);

@@ -44,6 +44,8 @@ class yesoulbike : public bike {
                double bikeResistanceGain);
     bool connected() override;
 
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,15);}
+
   private:
     double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(QByteArray packet);

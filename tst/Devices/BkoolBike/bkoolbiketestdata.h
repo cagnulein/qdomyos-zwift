@@ -1,12 +1,15 @@
 #pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "devices/bkoolbike/bkoolbike.h"
 
-class BkoolBikeTestData : public BluetoothDeviceTestData {
-
+class BkoolBikeTestData : public BikeTestData {
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new bkoolbike(options.noResistance, options.noHeartService);
+    }
 public:
-    BkoolBikeTestData() : BluetoothDeviceTestData("Bkool Bike") {
+    BkoolBikeTestData() : BikeTestData("Bkool Bike") {
         this->addDeviceName("BKOOLSMARTPRO", comparison::StartsWithIgnoreCase);
     }
 

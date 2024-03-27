@@ -39,6 +39,7 @@ class snodebike : public bike {
   public:
     snodebike(bool noWriteResistance, bool noHeartService);
     bool connected() override;
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,15);}
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,

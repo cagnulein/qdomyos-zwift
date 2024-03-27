@@ -38,13 +38,14 @@ class stagesbike : public bike {
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
-    resistance_t maxResistance() override { return 100; }
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
     bool ergManagedBySS2K() override { return true; }
+    uint16_t wattsFromResistance(resistance_t resistance) override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
-    uint16_t wattsFromResistance(double resistance);
+
     metric ResistanceFromFTMSAccessory;
     uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
     void startDiscover();

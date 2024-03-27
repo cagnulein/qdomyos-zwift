@@ -94,11 +94,7 @@ void inspirebike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance) {
-                requestResistance = max_resistance;
-            } else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -390,7 +386,7 @@ uint16_t inspirebike::watts() {
             -136.8333333, -132.3333333, -160,         -66.16666667, -93.5,        -131.5,       -149.5, -92.16666667};
 
         uint8_t res = qRound(currentResistance().value());
-        if (res - 1 < max_resistance && res > 0) {
+        if (res - 1 < this->resistanceLimits().max() && res > 0) {
             double w = ((m[res - 1] * (double)(currentCadence().value())) + q[res - 1]);
             if (w < 0)
                 w = 0;

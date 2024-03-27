@@ -40,15 +40,16 @@ class echelonconnectsport : public bike {
     echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                         double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
-    resistance_t maxResistance() override { return max_resistance; }
+    minmax<resistance_t> resistanceLimits() override { return minmax<resistance_t>(1,32); }
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool connected() override;
 
+	uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
-    const resistance_t max_resistance = 32;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
+    
     QTime GetElapsedFromPacket(const QByteArray &packet);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

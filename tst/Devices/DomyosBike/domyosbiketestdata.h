@@ -4,7 +4,10 @@
 #include "devices/domyosbike/domyosbike.h"
 
 class DomyosBikeTestData : public BikeTestData {
-
+protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new domyosbike(options.noResistance, options.noHeartService, false, options.resistanceOffset, options.resistanceGain);
+    }
 public:
     DomyosBikeTestData() : BikeTestData("Domyos Bike") {
 

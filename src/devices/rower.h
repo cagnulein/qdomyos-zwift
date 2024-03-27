@@ -37,8 +37,8 @@ class rower : public bluetoothdevice {
     void setPaused(bool p) override;
     QTime speedToPace(double Speed);
     void setGears(double d);
-    double gears();    
-
+    double gears();
+    minmax<resistance_t> resistanceLimits() override { return minmax<resistance_t>(0, this->maxResistance()); }
   public slots:
     void changeResistance(resistance_t res) override;
     virtual void changeCadence(int16_t cad);
@@ -83,6 +83,8 @@ class rower : public bluetoothdevice {
     };
 
     QList<rowerSpeedDistance *> speedLast500mValues;
+
+    virtual resistance_t maxResistance() { return 100; }
 };
 
 #endif // ROWER_H

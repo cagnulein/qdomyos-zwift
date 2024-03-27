@@ -81,11 +81,7 @@ void schwinnic4bike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance == 0) {
-                requestResistance = 1;
-            }
+            requestResistance = this->resistanceLimits().clip(requestResistance);
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
@@ -590,7 +586,7 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     }
 }
 
-uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
+uint16_t schwinnic4bike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
 
     double ac = 0.01243107769;
@@ -601,15 +597,19 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
     double br = -5.841344538;
     double cr = 97.62165482;
 
+    const double peloton_gain = settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble();
+    const double peloton_offset = settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    const double cadence = this->Cadence.value(), cadenceSq = cadence*cadence;
+
     for (uint16_t i = 1; i < 2000; i += 5) {
         double res =
             (((sqrt(pow(br, 2.0) -
                     4.0 * ar *
-                        (cr - ((double)i * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                        (cr - ((double)i * 132.0 / (ac * cadenceSq + bc * cadence + cc)))) -
                br) /
               (2.0 * ar)) *
-             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
-            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+             peloton_gain) +
+            peloton_offset;
 
         if (!isnan(res) && res >= resistance) {
             return i;

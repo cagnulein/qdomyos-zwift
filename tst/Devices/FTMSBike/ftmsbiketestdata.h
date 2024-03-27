@@ -7,12 +7,12 @@
 
 #include "devices/ftmsbike/ftmsbike.h"
 
-#include "Devices/SnodeBike/snodebiketestdata.h"
-#include "Devices/FitPlusBike/fitplusbiketestdata.h"
-#include "Devices/StagesBike/stagesbiketestdata.h"
 
 class FTMSBikeTestData : public BikeTestData {
 protected:
+    bike* doCreateInstance(const BikeOptions& options) override {
+        return new ftmsbike(options.noResistance, options.noHeartService, options.resistanceOffset, options.resistanceGain);
+    }
     void configureExclusions() override;
 
     FTMSBikeTestData(std::string testName) : BikeTestData(testName)  {
