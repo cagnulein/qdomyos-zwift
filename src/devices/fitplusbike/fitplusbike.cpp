@@ -977,7 +977,7 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
     }
 }
 
-uint16_t fitplusbike::wattsFromResistance(double resistance) {
+uint16_t fitplusbike::wattsFromResistance(resistance_t resistance) {
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
@@ -1072,23 +1072,3 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
     }
 }
 
-resistance_t fitplusbike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
-
-    auto minMaxR = this->resistanceLimits();
-
-    if (Cadence.value() == 0)
-        return 1;
-
-    for (resistance_t i = 1; i < minMaxR.max(); i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return i;
-        }
-    }
-    if (power < wattsFromResistance(minMaxR.min()))
-        return minMaxR.min();
-    else
-        return minMaxR.max();
-}

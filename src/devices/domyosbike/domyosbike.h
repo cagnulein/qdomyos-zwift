@@ -45,12 +45,13 @@ class domyosbike : public bike {
     ~domyosbike() override;
     bool connected() override;
 
+	uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
     void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);

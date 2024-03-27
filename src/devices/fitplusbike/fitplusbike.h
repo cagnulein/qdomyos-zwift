@@ -39,7 +39,7 @@ class fitplusbike : public bike {
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
     bool connected() override;
-    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+	uint16_t wattsFromResistance(resistance_t resistance) override;
 
   private:
     void btinit();
@@ -49,7 +49,7 @@ class fitplusbike : public bike {
     void forceResistance(resistance_t requestResistance);
     void sendPoll();
     uint16_t watts() override;
-    uint16_t wattsFromResistance(double resistance);
+    
 
     QTimer *refresh;
 

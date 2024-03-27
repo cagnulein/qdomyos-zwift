@@ -1156,7 +1156,7 @@ void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerS
     }
 }
 
-uint16_t trxappgateusbbike::wattsFromResistance(double resistance) {
+uint16_t trxappgateusbbike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
     bool toorx_srx_3500 = settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool();
     if(toorx_srx_3500) {

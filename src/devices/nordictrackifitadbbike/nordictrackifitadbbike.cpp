@@ -574,7 +574,26 @@ bool nordictrackifitadbbike::connected() { return true; }
 
 resistance_t nordictrackifitadbbike::resistanceFromPowerRequest(uint16_t power) {
     // actually it's using inclination for the s22i
-    return bike::resistanceFromPowerRequest(power);
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    auto minMaxR = this->resistanceLimits();
+
+    if (Cadence.value() == 0)
+        return minMaxR.min();
+
+    const double cadence = Cadence.value();
+
+    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
+        if (wattsFromResistance(i, cadence) <= power && wattsFromResistance(i + 1, cadence) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i, cadence)
+                     << wattsFromResistance(i + 1, cadence) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(this->resistanceLimits().min(), cadence))
+        return this->resistanceLimits().min();
+    else
+        return this->resistanceLimits().max();
 }
 
 uint16_t nordictrackifitadbbike::wattsFromResistance(double inclination, double cadence) {

@@ -668,25 +668,25 @@ resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) {
 resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 
-    for (resistance_t i = 1; i < this->resistanceLimits().max(); i++) {
+    for (resistance_t i = this->resistanceLimits().min(); i < this->resistanceLimits().max(); i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             return i;
         }
     }
     if (power < wattsFromResistance(this->resistanceLimits().min()))
-        return 1;
+        return this->resistanceLimits().min();
     else
         return this->resistanceLimits().max();
 }
 
-uint16_t domyosbike::wattsFromResistance(double resistance) {
+uint16_t domyosbike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
     if (!settings.value(QZSettings::domyos_bike_500_profile_v1, QZSettings::default_domyos_bike_500_profile_v1)
              .toBool() ||
         resistance < 8)
         return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
     else {
-        switch ((int)resistance) {
+        switch (resistance) {
         case 8:
             return (13.6 * Cadence.value()) / 9.5488;
         case 9:

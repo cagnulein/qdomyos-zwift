@@ -119,7 +119,7 @@ uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
     if (currentCadence().value() == 0)
         return 0;
 
-    switch (resistance) {
+    switch ((resistance_t)resistance) {
     case 0:
     case 1:
         // -13.5 + 0.999x + 0.00993x²
@@ -225,11 +225,8 @@ void proformwifibike::innerWriteResistance() {
     static QString last_mode = "MANUAL";
 
     if (requestResistance != -1) {
-        if(!this->resistanceLimits().contains(requestResistance)) {
-            requestResistance = this->resistanceLimits().clip(requestResistance);
-        } else if (requestResistance == 0) {
-            requestResistance = 1;
-        }
+
+        requestResistance = this->resistanceLimits().clip(requestResistance);
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

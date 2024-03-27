@@ -537,7 +537,7 @@ uint16_t echelonconnectsport::watts() {
     return wattsFromResistance(Resistance.value());
 }
 
-uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
+uint16_t echelonconnectsport::wattsFromResistance(resistance_t resistance) {
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
@@ -547,7 +547,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     const double Epsilon = 4.94065645841247E-324;
     const int wattTableFirstDimension = 33;
     const int wattTableSecondDimension = 11;
-    double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
+    static double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},
@@ -582,7 +582,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         {Epsilon, 12.5, 48.0, 99.3, 162.2, 232.9, 310.4, 400.3, 435.5, 530.5, 589.0},
         {Epsilon, 13.0, 53.0, 102.0, 170.3, 242.0, 320.0, 427.9, 475.2, 570.0, 625.0}};
 
-    double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
+    static double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},

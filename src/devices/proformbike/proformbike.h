@@ -42,8 +42,10 @@ class proformbike : public bike {
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
+    uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
-    uint16_t wattsFromResistance(double resistance) override;
+
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();

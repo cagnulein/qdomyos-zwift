@@ -140,7 +140,7 @@ void pafersbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-uint16_t pafersbike::wattsFromResistance(double resistance) {
+uint16_t pafersbike::wattsFromResistance(resistance_t resistance) {
     // to be changed
     return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
 }

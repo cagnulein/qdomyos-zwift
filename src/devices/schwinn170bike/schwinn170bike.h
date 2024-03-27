@@ -45,10 +45,11 @@ class schwinn170bike : public bike {
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
     bool connected() override;
 
+    uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
                              uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
-    uint16_t wattsFromResistance(double resistance) override;
+
     void startDiscover();
     uint16_t watts() override;
 

@@ -518,7 +518,7 @@ void sportsplusbike::controllerStateChanged(QLowEnergyController::ControllerStat
     }
 }
 
-uint16_t sportsplusbike::wattsFromResistance(double resistance) {
+uint16_t sportsplusbike::wattsFromResistance(resistance_t resistance) {
     const int wattTableFirstDimension = 24;
     const int wattTableSecondDimension = 6;
     double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {

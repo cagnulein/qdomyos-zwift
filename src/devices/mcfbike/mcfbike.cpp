@@ -134,7 +134,7 @@ void mcfbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 
 // TO CHANGE
-uint16_t mcfbike::wattsFromResistance(double resistance) {
+uint16_t mcfbike::wattsFromResistance(resistance_t resistance) {
     return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
 }
 

@@ -69,6 +69,9 @@ class nordictrackifitadbbike : public bike {
     minmax<resistance_t> resistanceLimits() override {
         return minmax<resistance_t>(0,17); // max inclination for s22i
     }
+
+    uint16_t wattsFromResistance(resistance_t resistance) override { return this->wattsFromResistance(resistance, this->Cadence.value()); }
+
   private:
     void forceResistance(double resistance);
     uint16_t watts() override;

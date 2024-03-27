@@ -418,7 +418,7 @@ void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState 
 uint16_t nautilusbike::watts() { return m_watt.value(); }
 
 
-uint16_t nautilusbike::wattsFromResistance(double resistance) {
+uint16_t nautilusbike::wattsFromResistance(resistance_t resistance) {
     // power table nautilus u626 #2118
     double intercept = 12.16860795336126;
     double coefCadence = 0.12260211;

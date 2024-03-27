@@ -520,7 +520,7 @@ resistance_t schwinn170bike::pelotonToBikeResistance(int pelotonResistance) {
     }
 }
 
-uint16_t schwinn170bike::wattsFromResistance(double resistance) {
+uint16_t schwinn170bike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
 
     constexpr double ac = 0.01243107769;

@@ -300,7 +300,7 @@ resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) 
     }
 }
 
-uint16_t wahookickrsnapbike::wattsFromResistance(double resistance) {
+uint16_t wahookickrsnapbike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
 
     double ac = 0.01243107769;

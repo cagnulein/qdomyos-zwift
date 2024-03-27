@@ -36,11 +36,13 @@ class computrainerbike : public bike {
                      double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
-    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(-20,100);}
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,100);}
     bool inclinationAvailableByHardware() override;
     bool connected() override;
+
+    uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
-    uint16_t wattsFromResistance(resistance_t resistance);
+
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();

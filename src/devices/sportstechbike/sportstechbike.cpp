@@ -413,7 +413,7 @@ void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerStat
     }
 }
 
-uint16_t sportstechbike::wattsFromResistance(double resistance) {
+uint16_t sportstechbike::wattsFromResistance(resistance_t resistance) {
         // Coefficients from the polynomial regression
     double intercept = 14.4968;
     double b1 = -4.1878;

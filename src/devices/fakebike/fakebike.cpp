@@ -165,7 +165,7 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, percentage);
 }
 
-uint16_t fakebike::wattsFromResistance(double resistance) {
+uint16_t fakebike::wattsFromResistance(resistance_t resistance) {
     return _ergTable.estimateWattage(Cadence.value(), resistance);
 }
 

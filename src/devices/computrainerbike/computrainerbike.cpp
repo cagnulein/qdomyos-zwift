@@ -161,11 +161,9 @@ void computrainerbike::innerWriteResistance() {
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     if (requestResistance != -1) {
-        if(!this->resistanceLimits().contains(requestResistance)) {
-            requestResistance = resistanceLimits().clip(requestResistance);
-        } else if (requestResistance == 0) {
-            requestResistance = 1;
-        }
+
+        requestResistance = resistanceLimits().clip(requestResistance);
+
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));

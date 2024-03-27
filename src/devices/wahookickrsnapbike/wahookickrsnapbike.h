@@ -56,6 +56,8 @@ class wahookickrsnapbike : public bike {
         _setWheelCircumference = 72,
     };
 
+    uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
     QByteArray unlockCommand();
     QByteArray setResistanceMode(double resistance);
@@ -70,7 +72,7 @@ class wahookickrsnapbike : public bike {
 
     bool writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
-    uint16_t wattsFromResistance(double resistance);
+
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
     uint16_t watts() override;

@@ -130,7 +130,7 @@ resistance_t stagesbike::pelotonToBikeResistance(int pelotonResistance) {
     }
 }
 
-uint16_t stagesbike::wattsFromResistance(double resistance) {
+uint16_t stagesbike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
 
     double ac = 0.01243107769;

@@ -110,7 +110,7 @@ void proformtelnetbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }*/
 
 
-uint16_t proformtelnetbike::wattsFromResistance(double resistance) {
+uint16_t proformtelnetbike::wattsFromResistance(resistance_t resistance) {
 
     if (currentCadence().value() == 0)
         return 0;

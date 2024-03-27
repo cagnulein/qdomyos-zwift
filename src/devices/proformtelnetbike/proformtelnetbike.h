@@ -49,15 +49,16 @@ class proformtelnetbike : public bike {
                     double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
-    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(-20,100);}
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,100);}
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
+    uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
     QTelnet telnet;
     double max_incline_supported = 20;
     void connectToDevice();
-    uint16_t wattsFromResistance(double resistance) override;
+
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();

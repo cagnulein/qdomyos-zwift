@@ -44,10 +44,12 @@ class echelonconnectsport : public bike {
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     bool connected() override;
 
+	uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance);
+    
     QTime GetElapsedFromPacket(const QByteArray &packet);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

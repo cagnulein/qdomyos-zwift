@@ -55,7 +55,7 @@ void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     loop.exec();
 }
 
-uint16_t proformbike::wattsFromResistance(double resistance) {
+uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
     if (currentCadence().value() == 0)
         return 0;

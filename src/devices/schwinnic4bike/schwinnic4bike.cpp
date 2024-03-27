@@ -586,7 +586,7 @@ resistance_t schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     }
 }
 
-uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
+uint16_t schwinnic4bike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;
 
     double ac = 0.01243107769;

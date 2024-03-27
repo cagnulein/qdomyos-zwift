@@ -40,10 +40,12 @@ class pafersbike : public bike {
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,24);}
     bool connected() override;
 
+    uint16_t wattsFromResistance(resistance_t resistance) override;
+
   private:
     double bikeResistanceToPeloton(double resistance) override;
     double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t wattsFromResistance(double resistance) override;
+
     QTime GetElapsedFromPacket(const QByteArray &packet);
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

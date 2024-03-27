@@ -42,6 +42,7 @@ class fakebike : public bike {
     uint16_t watts() override;
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,100);}
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
+	uint16_t wattsFromResistance(resistance_t resistance) override;
     
   private:
     QTimer *refresh;
@@ -67,8 +68,7 @@ class fakebike : public bike {
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
-
-    uint16_t wattsFromResistance(double resistance);
+   
 
   signals:
     void disconnected();

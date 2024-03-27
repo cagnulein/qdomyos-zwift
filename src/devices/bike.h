@@ -27,7 +27,8 @@ class bike : public bluetoothdevice {
     virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
     virtual double bikeResistanceToPeloton(double resistance) { return resistance; }
     virtual resistance_t resistanceFromPowerRequest(uint16_t power);
-    virtual uint16_t wattsFromResistance(double resistance) { return this->powerFromResistanceRequest(resistance); }
+    uint16_t wattsFromResistance(double resistance) { return this->wattsFromResistance((resistance_t)resistance); }
+    virtual uint16_t wattsFromResistance(resistance_t resistance) { return this->powerFromResistanceRequest(resistance); }
     virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
     bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
@@ -50,6 +51,9 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableByHardware();
     bool ergModeSupportedAvailableByHardware() { return ergModeSupported; }
 
+    /**
+     * @brief The inclusive minimum and maximum cadence values that power can be calculated for.
+     */
     virtual minmax<int16_t> cadenceLimits() { return minmax<int16_t>(0, 250); }
   public Q_SLOTS:
     void changeResistance(resistance_t res) override;

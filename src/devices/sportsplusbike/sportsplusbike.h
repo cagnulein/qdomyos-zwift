@@ -36,6 +36,7 @@ class sportsplusbike : public bike {
     bool connected() override;
 
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,24);}
+    uint16_t wattsFromResistance(resistance_t resistance) override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -47,7 +48,7 @@ class sportsplusbike : public bike {
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
-    uint16_t wattsFromResistance(double resistance);
+
     void startDiscover();
     uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
