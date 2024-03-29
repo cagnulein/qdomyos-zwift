@@ -781,55 +781,19 @@ bool proformbike::inclinationAvailableByHardware() {
         return false;
 }
 
+std::vector<int> proformbike::bikeToPeloton({ 10,20,25,30,35,40,45,50,55,60,65,70,75,80,85,100 });
+
+double proformbike::bikeResistanceToPeloton(double resistance) {
+
+    auto r = this->resistanceLimits().clip(resistance);
+
+    return bikeToPeloton[r-1];
+}
+
 resistance_t proformbike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance <= 10) {
-        return 1;
-    }
-    if (pelotonResistance <= 20) {
-        return 2;
-    }
-    if (pelotonResistance <= 25) {
-        return 3;
-    }
-    if (pelotonResistance <= 30) {
-        return 4;
-    }
-    if (pelotonResistance <= 35) {
-        return 5;
-    }
-    if (pelotonResistance <= 40) {
-        return 6;
-    }
-    if (pelotonResistance <= 45) {
-        return 7;
-    }
-    if (pelotonResistance <= 50) {
-        return 8;
-    }
-    if (pelotonResistance <= 55) {
-        return 9;
-    }
-    if (pelotonResistance <= 60) {
-        return 10;
-    }
-    if (pelotonResistance <= 65) {
-        return 11;
-    }
-    if (pelotonResistance <= 70) {
-        return 12;
-    }
-    if (pelotonResistance <= 75) {
-        return 13;
-    }
-    if (pelotonResistance <= 80) {
-        return 14;
-    }
-    if (pelotonResistance <= 85) {
-        return 15;
-    }
-    if (pelotonResistance <= 100) {
-        return 16;
-    }
+    for(int i=0; i<bikeToPeloton.size(); i++)
+        if(pelotonResistance<=bikeToPeloton[i])
+            return (resistance_t)(i+1);
     return Resistance.value();
 }
 

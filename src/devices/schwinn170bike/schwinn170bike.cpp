@@ -28,6 +28,7 @@ schwinn170bike::schwinn170bike(bool noWriteResistance, bool noHeartService, uint
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
+
     connect(refresh, &QTimer::timeout, this, &schwinn170bike::update);
     refresh->start(200ms);
 }
@@ -504,6 +505,7 @@ resistance_t schwinn170bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
     bool schwinn_bike_resistance_v2 =
         settings.value(QZSettings::schwinn_bike_resistance_v2, QZSettings::default_schwinn_bike_resistance_v2).toBool();
+
     if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
@@ -519,6 +521,8 @@ resistance_t schwinn170bike::pelotonToBikeResistance(int pelotonResistance) {
             return 1;
     }
 }
+
+
 
 uint16_t schwinn170bike::wattsFromResistance(resistance_t resistance) {
     QSettings settings;

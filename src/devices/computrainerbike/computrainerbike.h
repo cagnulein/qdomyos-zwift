@@ -35,13 +35,18 @@ class computrainerbike : public bike {
     computrainerbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                      double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    virtual double bikeResistanceToPeloton(double resistance) override;
 
-    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,100);}
+    minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,16);} // limits inferred from Peloton conversion
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
     uint16_t wattsFromResistance(resistance_t resistance) override;
   private:
+    /**
+     * @brief A mapping of peloton->(resistance-1)
+     */
+    static std::vector<int> bikeToPeloton;
 
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

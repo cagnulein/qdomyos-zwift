@@ -40,6 +40,8 @@ class domyosbike : public bike {
                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    double bikeResistanceToPeloton(double resistance) override;
+
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(1,15);}
 
     ~domyosbike() override;

@@ -33,6 +33,7 @@ class sportsplusbike : public bike {
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    double bikeResistanceToPeloton(double resistance) override;
     bool connected() override;
 
     minmax<resistance_t> resistanceLimits() override {return minmax<resistance_t>(0,24);}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include "minmax.h"
 #include "definitions.h"
 
 /**
@@ -12,29 +12,16 @@ class erginterface {
     erginterface(const erginterface&) {}
   public:
     /**
-     * @brief The maximum cadence the object understands.
+     * @brief The cadence domain of the power functions.
      * @return
      */
-    virtual std::optional<int32_t> getMaxCadence() const = 0;
+      virtual minmax<int16_t> getCadenceLimits() const = 0;
 
     /**
-     * @brief The minimum cadence the object understands.
+     * @brief The inclusive bounds of resistance the device provides.
      * @return
      */
-    virtual std::optional<int32_t> getMinCadence() const = 0;
-
-    /**
-     * @brief The maximum resistance the device accepts.
-     * @return
-     */
-    virtual std::optional<resistance_t> getMaxResistance() const = 0;
-
-    /**
-     * @brief The minimum resistance level.
-     * @return
-     */
-    virtual std::optional<resistance_t> getMinResistance() const = 0;
-
+      virtual minmax<resistance_t> getResistanceLimits() const = 0;
 
     /**
      * @brief Gets the power in watts for the given cadence and resistance level.
@@ -57,7 +44,7 @@ class erginterface {
      * @brief Converts the specified device resistance to its corresponding Peloton resistance level.
      * @return
      */
-    virtual int32_t toPeloton(const resistance_t resistance) = 0;
+    virtual double toPeloton(const resistance_t resistance) = 0;
 
     /**
      * @brief Converts the specified Peloton resistance level to its corresponding device resistance level.

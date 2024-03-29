@@ -74,6 +74,10 @@ resistance_t sportsplusbike::pelotonToBikeResistance(int pelotonResistance) {
     return (pelotonResistance * this->resistanceLimits().max()) / 100;
 }
 
+double sportsplusbike::bikeResistanceToPeloton(double resistance) {
+    return (int)(1+resistance * 100.0/this->resistanceLimits().max());
+}
+
 void sportsplusbike::update() {
     // qDebug() << bike.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;

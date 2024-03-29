@@ -118,15 +118,20 @@ resistance_t bike::pelotonToBikeResistance(int pelotonResistance) {
 
     auto minMaxR = this->resistanceLimits();
 
-    for (resistance_t i = minMaxR.min(); i < minMaxR.max(); i++) {
-        if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
+    auto pr0 = bikeResistanceToPeloton(minMaxR.min());
+
+    if(pelotonResistance<=pr0)
+        return minMaxR.min();
+
+    for (resistance_t i = 1+minMaxR.min(); i < minMaxR.max(); i++) {
+        auto pr1 = bikeResistanceToPeloton(i);
+        if (pr0 <= pelotonResistance && pr1 >= pelotonResistance) {
             return i;
         }
+        pr0 = pr1;
     }
-    if (pelotonResistance < bikeResistanceToPeloton(minMaxR.min()))
-        return minMaxR.min();
-    else
-        return minMaxR.max();
+
+    return minMaxR.max();
 }
 resistance_t bike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();

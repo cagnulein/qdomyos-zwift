@@ -3,12 +3,12 @@
 
 template<typename T>
 QList<resistance_t> BikeTestSuite<T>::getResistanceSamples() {
-    return this->getSamples(this->minResistance, this->maxResistance);
+    return this->getSamples(this->ergInterface->getResistanceLimits());
 }
 
 template<typename T>
-QList<uint32_t> BikeTestSuite<T>::getCadenceSamples() {
-    return this->getSamples(this->minRPM, this->maxRPM);
+QList<int16_t> BikeTestSuite<T>::getCadenceSamples() {
+    return this->getSamples(this->ergInterface->getCadenceLimits());
 }
 
 template<typename T>
@@ -23,11 +23,6 @@ void BikeTestSuite<T>::SetUp() {
 
     this->device =this->typeParam.createInstance(options);
     this->ergInterface = new bikeergfunctions(this->device);
-
-    this->maxRPM = this->ergInterface->getMaxCadence().value_or(120);
-    this->minRPM = this->ergInterface->getMinCadence().value_or(1);
-    this->maxResistance = this->ergInterface->getMaxResistance().value_or(255);
-    this->minResistance = this->ergInterface->getMinResistance().value_or(0);
 }
 
 template<typename T>
@@ -46,16 +41,12 @@ void BikeTestSuite<T>::test_powerFunctions_minResistance() {
     QStringList errors;
     QString  powerBeyondResistanceLimit = QStringLiteral("Power at C:%1 RPM not bounded at %6 resistance (R:%2, P:%3W), (R:%4, P:%5W)");
 
-    if(!erg->getMinResistance().has_value())
-    {
-        GTEST_SKIP() << "No minimum resistance defined";
-    }
+    r0 = erg->getResistanceLimits().min();
+    r1 = r0-1;
 
     // traverse the cadence edges checking the power is clipped to the values for the max and min resistance
     for( uint32_t cadenceRPM : this->getCadenceSamples())
-    {
-        r0 = minResistance;
-        r1 = minResistance-1;
+    {        
         p0 = erg->getPower(cadenceRPM, r0);
         p1 = erg->getPower(cadenceRPM, r1);
 
@@ -75,16 +66,13 @@ void BikeTestSuite<T>::test_powerFunctions_maxResistance() {
     QStringList errors;
     QString  powerBeyondResistanceLimit = QStringLiteral("Power at C:%1 RPM not bounded at %6 resistance (R:%2, P:%3W), (R:%4, P:%5W)");
 
-    if(!erg->getMaxResistance().has_value())
-    {
-        GTEST_SKIP() << "No maximum resistance defined.";
-    }
+    r0 = erg->getResistanceLimits().max();
+    r1 = r0+1;
 
     // traverse the cadence edges checking the power is clipped to the values for the max and min resistance
     for(uint16_t cadenceRPM : this->getCadenceSamples())
     {
-        r0 = maxResistance;
-        r1 = maxResistance+1;
+
         p0 = erg->getPower(cadenceRPM, r0);
         p1 = erg->getPower(cadenceRPM, r1);
 
@@ -101,18 +89,14 @@ void BikeTestSuite<T>::test_powerFunctions_minCadence() {
     uint16_t p0, p1;
     QStringList errors;
 
-    if(!erg->getMinCadence().has_value())
-    {
-        GTEST_SKIP() << "No minimum cadence defined.";
-    }
+    const int32_t c0 = erg->getCadenceLimits().min(), c1=c0-1;
 
     // traverse the resistance edge checking the power is clipped to the values for the max and min cadence
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
 
     for( resistance_t r : this->getResistanceSamples())
-    {
-        const int32_t c0 = minRPM, c1=minRPM-1;
+    {        
         p0 = erg->getPower(c0, r);
         p1 = erg->getPower(c1, r);
 
@@ -129,18 +113,14 @@ void BikeTestSuite<T>::test_powerFunctions_maxCadence() {
     uint16_t p0, p1;
     QStringList errors;
 
-    if(!erg->getMaxCadence().has_value())
-    {
-        GTEST_SKIP() << "No maximum cadence defined";
-    }
+    const int32_t c0 = erg->getCadenceLimits().max(),  c1=c0+1;
 
     // traverse the resistance edge checking the power is clipped to the values for the max and min cadence
 
     QString  powerBeyondCadenceLimit = QStringLiteral("Power at R:%1 not bounded at %6 cadence (C:%2 RPM, P:%3W), (C:%4 RPM, P:%5W)");
 
     for( resistance_t r : this->getResistanceSamples())
-    {
-        const int32_t c0 = maxRPM, c1=maxRPM+1;
+    {        
         p0 = erg->getPower(c0, r);
         p1 = erg->getPower(c1, r);
 
@@ -217,6 +197,8 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePelotonConversion() {
             resistance_t resistanceFromPeloton = erg->fromPeloton(pelotonFromResistance);
 
             if(resistanceToPeloton!=resistanceFromPeloton) {
+                // do it again for debugging
+                resistanceFromPeloton = erg->fromPeloton(pelotonFromResistance);
                 int newPeloton = erg->toPeloton(resistanceFromPeloton);
 
                 errors.append(unexpectedResistance.arg(resistanceToPeloton).arg(pelotonFromResistance).arg(resistanceFromPeloton).arg(newPeloton));
@@ -232,17 +214,17 @@ void BikeTestSuite<T>::test_powerFunctions_resistancePelotonConversion() {
 
 template<typename T>
 template<typename T0>
-QList<T0> BikeTestSuite<T>::getSamples(const T0 min, const T0 max) {
+QList<T0> BikeTestSuite<T>::getSamples(minmax<T0> range) {
     QList<T0> result;
-    T0 d = max-min;
+    T0 d = range.max()-range.min();
     T0 inc = d/10;
 
     if(inc<1) inc = 1;
 
-    for(T0 v=min; v<=max; v+=inc)
+    for(T0 v=range.min(); v<=range.max(); v+=inc)
         result.append(v);
-    if(result.last()!=max)
-        result.append(max);
+    if(result.last()!=range.max())
+        result.append(range.max());
 
     return result;
 }

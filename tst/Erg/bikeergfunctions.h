@@ -12,13 +12,9 @@ public:
     bikeergfunctions(bike *device);
 
 
-    std::optional<int32_t> getMaxCadence() const override;
+    minmax<int16_t> getCadenceLimits() const override { return this->device->cadenceLimits(); }
 
-    std::optional<int32_t> getMinCadence() const override;
-
-    std::optional<resistance_t> getMaxResistance() const override;
-
-    std::optional<resistance_t> getMinResistance() const override;
+    minmax<resistance_t> getResistanceLimits() const override { return this->device->resistanceLimits(); }
 
 
     double getPower(const int32_t cadence, const resistance_t resistance) override;
@@ -26,7 +22,7 @@ public:
 
     int32_t getResistance(const int32_t cadence, const double power) override;
 
-    int32_t toPeloton(const resistance_t resistance) override;
+    double toPeloton(const resistance_t resistance) override;
     resistance_t fromPeloton(const int pelotonResistance) override;
 
 };

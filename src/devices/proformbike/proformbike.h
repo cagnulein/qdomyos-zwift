@@ -37,6 +37,7 @@ class proformbike : public bike {
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    double bikeResistanceToPeloton(double resistance) override;
 
     minmax<resistance_t> resistanceLimits() override {return this->bikeResistanceLimits;}
     bool inclinationAvailableByHardware() override;
@@ -44,7 +45,12 @@ class proformbike : public bike {
 
     uint16_t wattsFromResistance(resistance_t resistance) override;
 
+
   private:
+    /**
+     * @brief A mapping of peloton->(resistance-1)
+     */
+    static std::vector<int> bikeToPeloton;
 
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

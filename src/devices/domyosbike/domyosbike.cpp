@@ -665,6 +665,10 @@ resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) {
     return (pelotonResistance * this->resistanceLimits().max()) / 100;
 }
 
+double domyosbike::bikeResistanceToPeloton(double resistance) {
+    return (int)(1+resistance * 100.0/this->resistanceLimits().max());
+}
+
 resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 

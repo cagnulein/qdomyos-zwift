@@ -14,9 +14,6 @@ private:
 protected:
     T typeParam;
 
-    uint32_t maxRPM, minRPM;
-    resistance_t maxResistance, minResistance;
-
     erginterface * ergInterface = nullptr;
 
     /**
@@ -29,7 +26,7 @@ protected:
      * @return A QList containing min, max and some, or sometimes all values in between.
      */
     template<typename T0>
-    QList<T0> getSamples(const T0 min, const T0 max);
+    QList<T0> getSamples(minmax<T0> range);
 
     /**
      * @brief Determines from provided or estimated minimum and maximum resistance, which values to test, to avoid testing all.
@@ -41,7 +38,7 @@ protected:
      * @brief Determines from provided or estimated minimum and maximum cadence, which values to test, to avoid testing all.
      * @return
      */
-    virtual QList<uint32_t> getCadenceSamples();
+    virtual QList<int16_t> getCadenceSamples();
 
 public:
     BikeTestSuite();
