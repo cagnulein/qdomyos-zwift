@@ -875,6 +875,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < minInclination)
                 requestInclination = minInclination;
@@ -1152,7 +1153,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if(tunturi_t60_treadmill)
-        Inclination = requestIncline;
+        Inclination = treadmillInclinationOverride(requestIncline);
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1357,7 +1358,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 1.60934; // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)lastPacketComplete.at(30)) / 10.0;
+        Inclination = treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
@@ -1384,7 +1385,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             1.60934; // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)newValue.at(63)) / 10.0;
+        Inclination = treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
@@ -1504,13 +1505,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.inclination) {
             if(!tunturi_t60_treadmill)
-                Inclination = (double)(
+                Inclination = treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
                                       (uint8_t)newValue.at(index)
                                       )
                                   ) /
-                              10.0;
+                              10.0);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
