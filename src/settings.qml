@@ -923,6 +923,9 @@ import QtQuick.Dialogs 1.0
             property bool proform_carbon_tl: false
             property bool proform_proshox2: false            
 
+            // from version 2.16.51
+            property bool nordictrack_GX4_5_bike: false            
+
         }
 
         function paddingZeros(text, limit) {
@@ -3062,6 +3065,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("NordicTrack GX 4.5")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_GX4_5_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
+                    }
+                    
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")

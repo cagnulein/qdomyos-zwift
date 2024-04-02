@@ -2043,6 +2043,8 @@ class QZSettings {
     static const QString proform_tdf_10_0;
     static constexpr bool default_proform_tdf_10_0 = false;
 
+    static const QString nordictrack_GX4_5_bike;
+    static constexpr bool default_nordictrack_GX4_5_bike = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
