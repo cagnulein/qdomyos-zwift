@@ -2062,6 +2062,10 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_f89_treadmill = true;
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F89 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TT8"))) {
+            sole_tt8_treadmill = true;
+            minInclination = -6.0;
+            qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -2779,7 +2783,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill)
         return 1.0;
     else
         return 0.5;
