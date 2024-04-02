@@ -16,7 +16,8 @@
 QModbusReply *gpiotreadmill::lastRequest;
 QModbusClient *gpiotreadmill::modbusDevice = nullptr;
 void gpiotreadmill::digitalWrite(int pin, int state) {
-    const int server_address = 255;
+    /*
+    const int server_address = 1;
     QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);
     writeUnit.setValue(0, state);  
     if(modbusDevice) {
@@ -31,6 +32,7 @@ void gpiotreadmill::digitalWrite(int pin, int state) {
         qDebug() << "modbusDevice nullptr!";
 
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
+*/
 }
 
 void pinMode(int pin, int state) {
@@ -115,7 +117,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
         QSerialPort::Data8);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
-        QSerialPort::StopBits::OneStop);
+        QSerialPort::StopBits::TwoStop);
 
     modbusDevice->setTimeout(50);
     modbusDevice->setNumberOfRetries(3);
@@ -152,6 +154,41 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     refresh->start(pollDeviceTime);
 
     Speed = 0.8;
+
+    // Supponendo che vuoi leggere i holding registers partendo dall'indirizzo 0, con una quantità di 10.
+    int startAddress = 0;
+    int numberOfRegisters = 113;
+    QModbusDataUnit readRequest(QModbusDataUnit::HoldingRegisters, startAddress, numberOfRegisters);
+
+    if (auto *reply = modbusDevice->sendReadRequest(readRequest, 1)) {
+        if (!reply->isFinished()) {
+            connect(reply, &QModbusReply::finished, this, &gpiotreadmill::handleReadResponse);
+        } else {
+            delete reply; // La risposta è già arrivata e può essere eliminata.
+        }
+    } else {
+        // Errore nell'invio della richiesta.
+    }
+}
+
+void gpiotreadmill::handleReadResponse() {
+    auto reply = qobject_cast<QModbusReply *>(sender());
+    if (!reply) {
+        return;
+    }
+
+    if (reply->error() == QModbusDevice::NoError) {
+        const QModbusDataUnit unit = reply->result();
+        for (uint i = 0; i < unit.valueCount(); i++) {
+            quint16 value = unit.value(i);
+            qDebug() << "Value at address" << unit.startAddress() + i << "=" << value;
+        }
+    } else {
+        // Gestisci l'errore.
+        qDebug() << "Modbus error:" << reply->errorString();
+    }
+
+    reply->deleteLater();
 }
 
 gpiotreadmill::~gpiotreadmill() {

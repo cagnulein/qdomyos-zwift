@@ -131,6 +131,8 @@ class gpiotreadmill : public treadmill {
 
   private slots:
 
+    void handleReadResponse();
+
     void changeInclinationRequested(double grade, double percentage);
     void onReadReady();
 
