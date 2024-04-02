@@ -27,6 +27,7 @@ class metric {
     double average();
     double average5s();
     double average20s();
+    double average30s();
 
     // rate of the current metric in a second, useful to know how many Kcal i will burn in a
     // minute if i keep the current pace
@@ -52,6 +53,7 @@ class metric {
     static double calculateWeightLoss(double kcal);
     static double calculateVO2Max(QList<SessionLine> *session);
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
+    double calculateNormalized();
 
     static double powerPeak(QList<SessionLine> *session, int seconds);
     
@@ -64,6 +66,7 @@ class metric {
     double m_offset = 0;
     QList<double> m_last5;
     QList<double> m_last20;
+    QList<double> m_last30;
 
     double m_lapOffset = 0;
     double m_lapTotValue = 0;

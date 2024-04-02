@@ -2046,6 +2046,9 @@ class QZSettings {
     static const QString nordictrack_GX4_5_bike;
     static constexpr bool default_nordictrack_GX4_5_bike = false;
 
+    static const QString ftp_run;
+    static constexpr float default_ftp_run = 200.0;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

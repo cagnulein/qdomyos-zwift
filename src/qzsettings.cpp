@@ -729,8 +729,9 @@ const QString QZSettings::proform_carbon_tl = QStringLiteral("proform_carbon_tl"
 const QString QZSettings::proform_proshox2 = QStringLiteral("proform_proshox2");
 const QString QZSettings::proform_tdf_10_0 = QStringLiteral("proform_tdf_10_0");
 const QString QZSettings::nordictrack_GX4_5_bike = QStringLiteral("nordictrack_GX4_5_bike");
+const QString QZSettings::ftp_run = QStringLiteral("ftp_run");
 
-const uint32_t allSettingsCount = 615;
+const uint32_t allSettingsCount = 616;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1352,6 +1353,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_proshox2, QZSettings::default_proform_proshox2},
     {QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0},
     {QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike},
+    {QZSettings::ftp_run, QZSettings::default_ftp_run},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
