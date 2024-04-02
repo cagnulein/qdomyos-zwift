@@ -165,6 +165,27 @@ double metric::average5s() {
     }
 }
 
+double metric::average30s() {
+    if (m_last30.count() == 0)
+        return 0;
+    else {
+        double sum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last30);
+        while (i.hasNext()) {
+            double b = i.next();
+            sum += b;
+            c++;
+        }
+
+        if (c > 0)
+            return (sum / c);
+        else
+            return 0;
+    }
+}
+
+
 double metric::average20s() {
     if (m_last20.count() == 0)
         return 0;
@@ -403,4 +424,30 @@ Women:
     } else {
         return (T * ((0.6309 * H) + (0.1988 * W) + (0.2017 * A) - 55.0969) / 4.184);
     }
+}
+
+double metric::calculateNormalized() {
+    const int rollingPeriod = 30; // Periodo della media mobile
+
+    if (m_last30.size() < rollingPeriod) {
+        return 0.0;
+    }
+
+    QList<double> rollingAverages;
+    for (int i = rollingPeriod - 1; i < m_last30.size(); ++i) {
+        double sum = 0.0;
+        for (int j = i - rollingPeriod + 1; j <= i; ++j) {
+            sum += m_last30.at(j);
+        }
+        double average = sum / rollingPeriod;
+        rollingAverages.append(std::pow(average, 4));
+    }
+
+    double sumOfFourthPowers = 0.0;
+    foreach (double value, rollingAverages) {
+        sumOfFourthPowers += value;
+    }
+    double averageOfFourthPowers = sumOfFourthPowers / rollingAverages.size();
+
+    return std::pow(averageOfFourthPowers, 0.25);
 }

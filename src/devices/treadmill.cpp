@@ -461,3 +461,16 @@ QTime treadmill::lastRequestedPace() {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
+
+/*
+ * Running Stress Score
+ */
+double treadmill::runningStressScore() {
+    QSettings settings;
+    double sec = this->elapsed.value();
+    double NP = this->m_watt.calculateNormalized();
+    double CP = settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+    double part1 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100) * 0.6139);
+    double part2 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100));
+    return (part1 + part2) / 2;
+}

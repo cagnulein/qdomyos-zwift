@@ -70,11 +70,19 @@ void ypooelliptical::writeCharacteristic(QLowEnergyCharacteristic* characteristi
     loop.exec();
 }
 
+void ypooelliptical::forceInclination(double inclination) {
+    uint8_t write[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
+    write[1] = ((uint16_t)inclination * 10) & 0xFF;
+    write[2] = ((uint16_t)inclination * 10) >> 8;
+    writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
+                        QStringLiteral("forceInclination ") + QString::number(inclination));
+}
+
 void ypooelliptical::forceResistance(resistance_t requestResistance) {
 
-    if(E35) {
+    if(E35 || SCH_590E) {
         uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
-        write[1] = ((uint8_t)(requestResistance));
+        write[1] = ((uint16_t)requestResistance * 10) & 0xFF;
         writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write),
                             QStringLiteral("forceResistance ") + QString::number(requestResistance));        
     } else {
@@ -101,21 +109,26 @@ void ypooelliptical::update() {
 
     if (initRequest) {
         initRequest = false;
-        uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
-        uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
-        uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
-        uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
-        uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
+        if(E35 || SCH_590E) {
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(&gattFTMSWriteCharControlPointId, gattFTMSService, write, sizeof(write), "requestControl", false, true);
+        } else {
+            uint8_t init1[] = {0x02, 0x42, 0x42, 0x03};
+            uint8_t init2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+            uint8_t init3[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+            uint8_t init4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+            uint8_t init5[] = {0x02, 0x44, 0x05, 0x01, 0x00, 0x40, 0x03};
 
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
-        writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init2, sizeof(init2), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init4, sizeof(init4), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init3, sizeof(init3), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init1, sizeof(init1), QStringLiteral("init"), false, true);
+            writeCharacteristic(&gattWriteCharControlPointId, gattCustomService, init5, sizeof(init5), QStringLiteral("init"), false, true);
+        }
         initDone = true;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -157,6 +170,13 @@ void ypooelliptical::update() {
             }
             requestResistance = -1;
         }
+        if (requestInclination != -100) {
+            if (requestInclination != currentInclination().value()) {
+                emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                forceInclination(requestInclination);
+            }
+            requestInclination = -100;
+        }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -178,8 +198,6 @@ void ypooelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
     QDateTime now = QDateTime::currentDateTime();
     QSettings settings;
     QString heartRateBeltName =
@@ -189,7 +207,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool iconsole_elliptical =
         settings.value(QZSettings::iconsole_elliptical, QZSettings::default_iconsole_elliptical).toBool();
 
-    emit debug(QStringLiteral(" << ") + newvalue.toHex(' '));
+    qDebug() << characteristic.uuid() << QStringLiteral("<<") << newvalue.toHex(' ');
 
     if (characteristic.uuid() == QBluetoothUuid::HeartRate && newvalue.length() > 1) {
         Heart = (uint8_t)newvalue[1];
@@ -228,7 +246,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACE) && !iconsole_elliptical) {
 
-        if(E35 == false) {
+        if(E35 == false && SCH_590E == false) {
             if (newvalue.length() == 18) {
                 qDebug() << QStringLiteral("let's wait for the next piece of frame");
                 lastPacket = newvalue;
@@ -248,7 +266,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 3;
 
         if (!Flags.moreData) {
-            if(E35) {
+            if(E35 || SCH_590E) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)lastPacket.at(index)))) /
                         100.0;
@@ -260,7 +278,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         // this particular device, seems to send the actual speed here
         if (Flags.avgSpeed) {
             // double avgSpeed;
-            if(!E35) {
+            if(!E35 && !SCH_590E) {
                 Speed = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)lastPacket.at(index)))) /
                     100.0;
@@ -270,7 +288,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.totDistance) {
-            if(!E35) {
+            if(!E35 && !SCH_590E) {
                 Distance = ((double)((((uint32_t)((uint8_t)lastPacket.at(index + 2)) << 16) |
                                   (uint32_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint32_t)((uint8_t)lastPacket.at(index)))) /
@@ -292,7 +310,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 1.0;
-                if(E35)
+                if(E35 || SCH_590E)
                     divisor = 2.0;
                 Cadence = (((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)lastPacket.at(index))))) / divisor;
@@ -355,7 +373,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
                     .startsWith(QStringLiteral("Disabled"))) {
                 double divisor = 100.0; // i added this because this device seems to send it multiplied by 100
 
-                if(E35)
+                if(E35 || SCH_590E)
                     divisor = 1.0;
 
                 m_watt = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
@@ -366,7 +384,7 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;
         }
 
-        if (Flags.avgPower && lastPacket.length() > index + 1) {
+        if (Flags.avgPower && lastPacket.length() > index + 1 && !E35 && !SCH_590E) { // E35 has a bug about this
             double avgPower;
             avgPower = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                  (uint16_t)((uint8_t)lastPacket.at(index))));
@@ -660,6 +678,9 @@ void ypooelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
         if(!iconsole_elliptical)
             initRequest = true;
         emit connectedAndDiscovered();
+    } else if(E35) {
+        initRequest = true;
+        emit connectedAndDiscovered();
     }
 }
 
@@ -778,3 +799,5 @@ void ypooelliptical::controllerStateChanged(QLowEnergyController::ControllerStat
         m_control->connectToDevice();
     }
 }
+
+double ypooelliptical::minStepInclination() { return 1.0; }
