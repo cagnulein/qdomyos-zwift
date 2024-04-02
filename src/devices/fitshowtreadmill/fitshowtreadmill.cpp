@@ -434,7 +434,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 double speed = array[2] / 10.0;
-                double incline = array[3];
+                double incline = (int8_t)array[3];
                 uint16_t seconds_elapsed = anyrun ? array[4] * 60 + array[5] : array[4] | array[5] << 8;
                 double distance = (anyrun ? (array[7] | array[6] << 8) : (array[6] | array[7] << 8)) / 10.0;
                 double kcal = anyrun ? (array[9] | array[8] << 8) : (array[8] | array[9] << 8);
