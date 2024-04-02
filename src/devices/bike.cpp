@@ -40,9 +40,9 @@ void bike::changeInclination(double grade, double percentage) {
 }
 
 // originally made for renphobike, but i guess it could be very generic
-uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
+uint16_t bike::wattsFromResistance(resistance_t resistance) {
     auto minMaxR = this->resistanceLimits();
-    if(requestResistance<=minMaxR.min())
+    if(resistance<=minMaxR.min())
         return 0;
 
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
@@ -53,9 +53,9 @@ uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
     if(cadence <= this->cadenceLimits().min())
         return 0;
 
-    requestResistance = minMaxR.clip(requestResistance);
+    resistance = minMaxR.clip(resistance);
 
-    return (requestResistance * this->cadenceLimits().clip(cadence)) / 9.5488;
+    return (resistance * this->cadenceLimits().clip(cadence)) / 9.5488;
 }
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }

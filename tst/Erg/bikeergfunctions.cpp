@@ -8,7 +8,7 @@ double bikeergfunctions::getPower(const int32_t cadence, resistance_t resistance
     auto originalCadence = this->device->currentCadence().value();
 
     this->setCadence(cadence);
-    auto result = this->device->powerFromResistanceRequest(resistance);
+    auto result = this->device->wattsFromResistance(resistance);
     this->setCadence(originalCadence);
     return result;
 }
