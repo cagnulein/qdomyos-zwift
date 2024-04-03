@@ -835,6 +835,10 @@ void trainprogram::scheduler() {
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(avgInclinationNext300Meters());
             }
+            if (rows.at(0).power != -1) {
+                qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(0).power);
+                emit changePower(rows.at(0).power);
+            }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
@@ -984,6 +988,11 @@ void trainprogram::scheduler() {
                         emit changeInclination(inc, inc);
                         emit changeNextInclination300Meters(avgInclinationNext300Meters());
                     }
+                    if (rows.at(currentStep).power != -1) {
+                        qDebug() << QStringLiteral("trainprogram change power ") +
+                                        QString::number(rows.at(currentStep).power);
+                        emit changePower(rows.at(currentStep).power);
+                    }
                 } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
                     if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                         qDebug() << QStringLiteral("trainprogram change speed ") +
@@ -1114,14 +1123,10 @@ void trainprogram::scheduler() {
                 }
             }
         } else {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-
-            } else {
-                if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
-                    qDebug() << QStringLiteral("trainprogram change power ") +
-                                    QString::number(rows.at(currentStep).power);
-                    emit changePower(rows.at(currentStep).power);
-                }
+            if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
+                qDebug() << QStringLiteral("trainprogram change power ") +
+                                QString::number(rows.at(currentStep).power);
+                emit changePower(rows.at(currentStep).power);
             }
 
             if (rows.at(currentStep).inclination != -200 &&

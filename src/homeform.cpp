@@ -1023,6 +1023,7 @@ void homeform::trainProgramSignals() {
                    &bike::changeRequestedPelotonResistance);
         disconnect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
                    &bike::changeCadence);
+        disconnect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         disconnect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()), &bike::changePower);
         disconnect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                    &rower::changePower);
@@ -1065,6 +1066,7 @@ void homeform::trainProgramSignals() {
                     &treadmill::changeSpeedAndInclination);
             connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                     &trainprogram::onTapeStarted);
+            connect(trainProgram, &trainprogram::changePower, ((treadmill *)bluetoothManager->device()), &treadmill::changePower);
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()),
                     &bike::changeCadence);
@@ -1472,6 +1474,12 @@ void homeform::sortTiles() {
                 settings.value(QZSettings::tile_rss_order, 53).toInt() == i) {
                 rss->setGridId(i);
                 dataList.append(rss);
+            }
+
+            if (settings.value(QZSettings::tile_target_power_enabled, false).toBool() &&
+                settings.value(QZSettings::tile_target_power_order, 20).toInt() == i) {
+                target_power->setGridId(i);
+                dataList.append(target_power);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -3002,6 +3010,14 @@ void homeform::Plus(const QString &name) {
                     trainProgram->overridePowerForCurrentRow(
                         ((bike *)bluetoothManager->device())->lastRequestedPower().value());
                 }
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                m_overridePower = true;
+                ((treadmill *)bluetoothManager->device())
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() + 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
+                }
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
@@ -3247,6 +3263,14 @@ void homeform::Minus(const QString &name) {
                 if (trainProgram) {
                     trainProgram->overridePowerForCurrentRow(
                         ((bike *)bluetoothManager->device())->lastRequestedPower().value());
+                }
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                m_overridePower = true;
+                ((treadmill *)bluetoothManager->device())
+                    ->changePower(((treadmill *)bluetoothManager->device())->lastRequestedPower().value() - 10);
+                if (trainProgram) {
+                    trainProgram->overridePowerForCurrentRow(
+                        ((treadmill *)bluetoothManager->device())->lastRequestedPower().value());
                 }
             }
         }
@@ -3819,6 +3843,8 @@ void homeform::update() {
                 ((treadmill *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
                 ((treadmill *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
+            this->target_power->setValue(
+                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
                 QStringLiteral("AVG: ") +

@@ -17,6 +17,7 @@ class treadmill : public bluetoothdevice {
     virtual double requestedSpeed();
     virtual double currentTargetSpeed();
     virtual double requestedInclination();
+    metric lastRequestedPower();
     virtual double minStepInclination();
     virtual double minStepSpeed();
     virtual bool canStartStop() { return true; }
@@ -50,6 +51,7 @@ class treadmill : public bluetoothdevice {
   public slots:
     virtual void changeSpeed(double speed);
     void changeInclination(double grade, double percentage) override;
+    void changePower(int32_t power) override;
     virtual void changeSpeedAndInclination(double speed, double inclination);
     void cadenceSensor(uint8_t cadence) override;
     void powerSensor(uint16_t power) override;
@@ -76,6 +78,8 @@ class treadmill : public bluetoothdevice {
     double m_lastRawSpeedRequested = -1;
     double m_lastRawInclinationRequested = -100;
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
+    metric RequestedPower;
+    int16_t requestPower = -1;
 
   private:
     bool simulateInclinationWithSpeed();
