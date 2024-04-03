@@ -2287,7 +2287,6 @@ ScrollView {
         }
 
         AccordionCheckElement {
-            id: ftpEnabledAccordion
             title: qsTr("Running Stress Score")
             linkedBoolSetting: "tile_rss_enabled"
             settings: settings
