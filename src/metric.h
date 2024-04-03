@@ -52,7 +52,6 @@ class metric {
     static double calculateWeightLoss(double kcal);
     static double calculateVO2Max(QList<SessionLine> *session);
     static double calculateKCalfromHR(double HR_AVG, double elapsed);
-    double calculateNormalized();
 
     static double powerPeak(QList<SessionLine> *session, int seconds);
     
