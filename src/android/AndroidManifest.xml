@@ -78,6 +78,7 @@
 				<service
 				    android:name=".ForegroundService"
 					 android:enabled="true"
+					 android:foregroundServiceType="connectedDevice"
 					 android:exported="true"></service>
                 <service
                     android:name=".WearableMessageListenerService"
@@ -115,6 +116,7 @@
 <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="33" />
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
