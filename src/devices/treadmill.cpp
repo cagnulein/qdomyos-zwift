@@ -474,3 +474,56 @@ double treadmill::runningStressScore() {
     double part2 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100));
     return (part1 + part2) / 2;
 }
+
+void treadmill::changePower(int32_t power) {
+
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        return;
+    }
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    QSettings settings;
+    /*
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double deltaDown = wattsMetric().value() - ((double)power);
+    double deltaUp = ((double)power) - wattsMetric().value();
+    qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
+                    QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
+    if (!ergModeSupported && force_resistance &&
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
+        changeResistance(r); // resistance start from 1
+    }*/
+
+    double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double lowSpeed = 0.0; // minimum possible speed
+    double highSpeed = 30.0; // some maximum speed that is reasonably not exceeded
+    double tolerance = 0.1; // acceptable error in watts to stop the search
+    int maxIterations = 300; // maximum number of iterations to prevent infinite loops
+
+    for (int i = 0; i < maxIterations; i++) {
+        double midSpeed = (lowSpeed + highSpeed) / 2;
+        double calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+
+        if (std::abs(calculatedWatts - power) <= tolerance) {
+            changeSpeed(midSpeed);
+            return;
+        }
+
+        if (calculatedWatts < power) {
+            lowSpeed = midSpeed;
+        } else {
+            highSpeed = midSpeed;
+        }
+    }
+
+    changeSpeed((lowSpeed + highSpeed) / 2); // Return the best estimate
+}
+
+metric treadmill::lastRequestedPower() { return RequestedPower; }
