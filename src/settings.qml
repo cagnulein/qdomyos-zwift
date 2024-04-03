@@ -928,7 +928,8 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.52
             property real ftp_run: 200.0
-
+            property bool tile_rss_enabled: false
+            property int  tile_rss_order: 53
         }
 
         function paddingZeros(text, limit) {

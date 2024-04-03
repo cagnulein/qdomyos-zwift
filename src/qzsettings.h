@@ -2049,6 +2049,12 @@ class QZSettings {
     static const QString ftp_run;
     static constexpr float default_ftp_run = 200.0;
 
+    static const QString tile_rss_enabled;
+    static constexpr bool default_tile_rss_enabled = false;
+
+    static const QString tile_rss_order;
+    static constexpr int default_tile_rss_order = 53;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

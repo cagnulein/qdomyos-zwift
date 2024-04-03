@@ -191,6 +191,8 @@ ScrollView {
         property int  tile_step_count_order: 51
         property bool tile_erg_mode_enabled: false
         property int  tile_erg_mode_order: 52
+        property bool tile_rss_enabled: false
+        property int  tile_rss_order: 53        
     }
 
 
@@ -2283,6 +2285,36 @@ ScrollView {
                 }
             }
         }
+
+        AccordionCheckElement {
+            id: ftpEnabledAccordion
+            title: qsTr("Running Stress Score")
+            linkedBoolSetting: "tile_rss_enabled"
+            settings: settings
+            accordionContent: RowLayout {
+                spacing: 10
+                Label {
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: rssOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_rss_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = rssOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: {settings.tile_rss_order = rssOrderTextField.displayText; toast.show("Setting saved!"); }
+                }
+            }
+        }        
 
         AccordionCheckElement {
             id: presetResistance1EnabledAccordion
