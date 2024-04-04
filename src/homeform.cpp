@@ -6329,6 +6329,10 @@ void homeform::sendMail() {
                    QStringLiteral("\n");
     textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(metric::calculateVO2Max(&Session), 'f', 0) +
                    QStringLiteral("\n");
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::BLUETOOTH_TYPE::TREADMILL) {
+        textMessage += QStringLiteral("Running Stress Score: ") + QString::number(((treadmill*)bluetoothManager->device())->runningStressScore(), 'f', 0) +
+                       QStringLiteral("\n");
+    }
     double peak = metric::powerPeak(&Session, 5);
     double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     textMessage += QStringLiteral("5 Seconds Power: ") + QString::number(peak, 'f', 0) +
