@@ -468,7 +468,7 @@ QTime treadmill::lastRequestedPace() {
 double treadmill::runningStressScore() {
     QSettings settings;
     double sec = this->elapsed.value();
-    double NP = this->m_watt.calculateNormalized();
+    double NP = this->m_watt.average();
     double CP = settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
     double part1 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100) * 0.6139);
     double part2 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100));
