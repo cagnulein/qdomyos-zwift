@@ -30,7 +30,7 @@ public class ForegroundService extends Service {
 					 .setSmallIcon(R.drawable.icon)
 					 .setContentIntent(pendingIntent)
 					 .build();
-					startForeground(1, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+					startForeground(1, notification, android.permission.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 		  //do heavy work on a background thread
 		  //stopSelf();
 		  return START_NOT_STICKY;
