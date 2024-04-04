@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
-import android.content.pm.ServiceInfo;
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
 
 public class ForegroundService extends Service {
 	 public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -30,7 +30,7 @@ public class ForegroundService extends Service {
 					 .setSmallIcon(R.drawable.icon)
 					 .setContentIntent(pendingIntent)
 					 .build();
-					startForeground(1, notification, android.permission.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+					startForeground(1, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 		  //do heavy work on a background thread
 		  //stopSelf();
 		  return START_NOT_STICKY;
