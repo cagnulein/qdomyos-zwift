@@ -2055,6 +2055,9 @@ class QZSettings {
     static const QString tile_rss_order;
     static constexpr int default_tile_rss_order = 53;
 
+    static const QString treadmillDataPoints;
+    static const QString default_treadmillDataPoints;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.

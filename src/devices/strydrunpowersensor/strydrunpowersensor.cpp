@@ -462,6 +462,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     }
 
+    _ergTable.collectTreadmillData(Speed.value(), watts(), Inclination.value());
+
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }

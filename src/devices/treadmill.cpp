@@ -501,25 +501,50 @@ void treadmill::changePower(int32_t power) {
         changeResistance(r); // resistance start from 1
     }*/
 
+    QString data = settings.value(QZSettings::treadmillDataPoints, QZSettings::default_treadmillDataPoints).toString();
+    bool ergTable = data.length() && settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                             .toString()
+                                             .startsWith(QStringLiteral("Disabled")) == false;
+
     double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double lowSpeed = 0.0; // minimum possible speed
     double highSpeed = 30.0; // some maximum speed that is reasonably not exceeded
-    double tolerance = 0.1; // acceptable error in watts to stop the search
-    int maxIterations = 300; // maximum number of iterations to prevent infinite loops
+    const double tolerance = 3; // acceptable error in watts to stop the search
+    const int maxIterations = 300; // maximum number of iterations to prevent infinite loops
+    int i = 0;
 
-    for (int i = 0; i < maxIterations; i++) {
-        double midSpeed = (lowSpeed + highSpeed) / 2;
-        double calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+    for (i = 1; i < maxIterations; i++) {
+        double midSpeed = ((double)i / 10.0);
+        double calculatedWatts;
+        if(ergTable) {
+            calculatedWatts = _ergTable.estimateWattage(midSpeed, currentInclination().value());
+        } else {
+            calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+        }
 
         if (std::abs(calculatedWatts - power) <= tolerance) {
             changeSpeed(midSpeed);
             return;
         }
+    }
 
-        if (calculatedWatts < power) {
-            lowSpeed = midSpeed;
-        } else {
-            highSpeed = midSpeed;
+    if(ergTable && i == maxIterations) {
+        lowSpeed = 0.0; // minimum possible speed
+        highSpeed = 30.0; // some maximum speed that is reasonably not exceeded
+        for (i = 0; i < maxIterations; i++) {
+            double midSpeed = (lowSpeed + highSpeed) / 2;
+            double calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+
+            if (std::abs(calculatedWatts - power) <= tolerance) {
+                changeSpeed(midSpeed);
+                return;
+            }
+
+            if (calculatedWatts < power) {
+                lowSpeed = midSpeed;
+            } else {
+                highSpeed = midSpeed;
+            }
         }
     }
 

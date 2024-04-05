@@ -2,6 +2,7 @@
 #define TREADMILL_H
 #include "devices/bluetoothdevice.h"
 #include <QObject>
+#include "treadmillErgTable.h"
 
 class treadmill : public bluetoothdevice {
     Q_OBJECT
@@ -80,6 +81,7 @@ class treadmill : public bluetoothdevice {
     bool instantaneousStrideLengthCMAvailableFromDevice = false;
     metric RequestedPower;
     int16_t requestPower = -1;
+    treadmillErgTable _ergTable;
 
   private:
     bool simulateInclinationWithSpeed();

@@ -732,8 +732,10 @@ const QString QZSettings::nordictrack_GX4_5_bike = QStringLiteral("nordictrack_G
 const QString QZSettings::ftp_run = QStringLiteral("ftp_run");
 const QString QZSettings::tile_rss_enabled = QStringLiteral("tile_rss_enabled");
 const QString QZSettings::tile_rss_order = QStringLiteral("tile_rss_order");
+const QString QZSettings::treadmillDataPoints = QStringLiteral("treadmillDataPoints");
+const QString QZSettings::default_treadmillDataPoints = QStringLiteral("");
 
-const uint32_t allSettingsCount = 618;
+const uint32_t allSettingsCount = 619;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1357,7 +1359,8 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike},
     {QZSettings::ftp_run, QZSettings::default_ftp_run},
     {QZSettings::tile_rss_enabled, QZSettings::default_tile_rss_enabled},
-    {QZSettings::tile_rss_order, QZSettings::default_tile_rss_order},    
+    {QZSettings::tile_rss_order, QZSettings::default_tile_rss_order},
+    {QZSettings::treadmillDataPoints, QZSettings::default_treadmillDataPoints},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
