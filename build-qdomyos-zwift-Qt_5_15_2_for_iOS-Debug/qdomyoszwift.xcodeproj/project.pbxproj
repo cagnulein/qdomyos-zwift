@@ -441,6 +441,7 @@
 		87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BE6FDD272D2A3E00C35795 /* moc_horizongr7bike.cpp */; };
 		87BF116D298E28CA00B5B6E7 /* pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */; };
 		87BF116F298E28EC00B5B6E7 /* moc_pelotonbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */; };
+		87C424262BC1294000503687 /* moc_treadmillErgTable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */; };
 		87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481F926DFA7C3006211AD /* eliterizer.cpp */; };
 		87C481FC26DFA7D1006211AD /* moc_eliterizer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C481FB26DFA7D1006211AD /* moc_eliterizer.cpp */; };
 		87C5F0B526285E5F0067A1B5 /* mimemessage.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F09726285E5A0067A1B5 /* mimemessage.cpp */; };
@@ -1349,6 +1350,7 @@
 		87BF116B298E28CA00B5B6E7 /* pelotonbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pelotonbike.h; path = ../src/devices/pelotonbike/pelotonbike.h; sourceTree = "<group>"; };
 		87BF116C298E28CA00B5B6E7 /* pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pelotonbike.cpp; path = ../src/devices/pelotonbike/pelotonbike.cpp; sourceTree = "<group>"; };
 		87BF116E298E28EC00B5B6E7 /* moc_pelotonbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pelotonbike.cpp; sourceTree = "<group>"; };
+		87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_treadmillErgTable.cpp; sourceTree = "<group>"; };
 		87C481F826DFA7C3006211AD /* eliterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eliterizer.h; path = ../src/devices/eliterizer/eliterizer.h; sourceTree = "<group>"; };
 		87C481F926DFA7C3006211AD /* eliterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = eliterizer.cpp; path = ../src/devices/eliterizer/eliterizer.cpp; sourceTree = "<group>"; };
 		87C481FB26DFA7D1006211AD /* moc_eliterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_eliterizer.cpp; sourceTree = "<group>"; };
@@ -1874,6 +1876,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87C424252BC1294000503687 /* moc_treadmillErgTable.cpp */,
 				874823FD2B935ADA006F3CA1 /* moc_ergtable.cpp */,
 				87E1CA7C2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp */,
 				87A0D7532A3A4547005147F2 /* moc_fakerower.cpp */,
@@ -3404,6 +3407,7 @@
 				8718CBA4263063BD004BF4EE /* templateinfosenderbuilder.cpp in Compile Sources */,
 				87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */,
 				87182A09276BBAF600141463 /* virtualrower.cpp in Compile Sources */,
+				87C424262BC1294000503687 /* moc_treadmillErgTable.cpp in Compile Sources */,
 				873824ED27E647A9004F1B46 /* resolver.cpp in Compile Sources */,
 				878531652711A3E1004B153D /* activiotreadmill.cpp in Compile Sources */,
 				87DAE16926E9FF5000B0527E /* moc_shuaa5treadmill.cpp in Compile Sources */,
