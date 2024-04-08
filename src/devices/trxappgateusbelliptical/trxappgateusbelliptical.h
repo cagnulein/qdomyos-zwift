@@ -38,6 +38,7 @@ class trxappgateusbelliptical : public elliptical {
     trxappgateusbelliptical(bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
                    double bikeResistanceGain = 1.0);
     bool connected() override;
+    bool inclinationAvailableByHardware() override;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

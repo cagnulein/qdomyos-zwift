@@ -723,8 +723,19 @@ const QString QZSettings::tile_erg_mode_enabled = QStringLiteral("tile_erg_mode_
 const QString QZSettings::tile_erg_mode_order = QStringLiteral("tile_erg_mode_order");
 const QString QZSettings::toorx_srx_3500 = QStringLiteral("toorx_srx_3500");
 const QString QZSettings::inclination_delay_seconds = QStringLiteral("inclination_delay_seconds");
+const QString QZSettings::ergDataPoints = QStringLiteral("ergDataPoints");
+const QString QZSettings::default_ergDataPoints = QStringLiteral("");
+const QString QZSettings::proform_carbon_tl = QStringLiteral("proform_carbon_tl");
+const QString QZSettings::proform_proshox2 = QStringLiteral("proform_proshox2");
+const QString QZSettings::proform_tdf_10_0 = QStringLiteral("proform_tdf_10_0");
+const QString QZSettings::nordictrack_GX4_5_bike = QStringLiteral("nordictrack_GX4_5_bike");
+const QString QZSettings::ftp_run = QStringLiteral("ftp_run");
+const QString QZSettings::tile_rss_enabled = QStringLiteral("tile_rss_enabled");
+const QString QZSettings::tile_rss_order = QStringLiteral("tile_rss_order");
+const QString QZSettings::treadmillDataPoints = QStringLiteral("treadmillDataPoints");
+const QString QZSettings::default_treadmillDataPoints = QStringLiteral("");
 
-const uint32_t allSettingsCount = 610;
+const uint32_t allSettingsCount = 619;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1341,6 +1352,15 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::tile_erg_mode_order, QZSettings::default_tile_erg_mode_order},
     {QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500},
     {QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds},
+    {QZSettings::ergDataPoints, QZSettings::default_ergDataPoints},
+    {QZSettings::proform_carbon_tl, QZSettings::default_proform_carbon_tl},
+    {QZSettings::proform_proshox2, QZSettings::default_proform_proshox2},
+    {QZSettings::proform_tdf_10_0, QZSettings::default_proform_tdf_10_0},
+    {QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike},
+    {QZSettings::ftp_run, QZSettings::default_ftp_run},
+    {QZSettings::tile_rss_enabled, QZSettings::default_tile_rss_enabled},
+    {QZSettings::tile_rss_order, QZSettings::default_tile_rss_order},
+    {QZSettings::treadmillDataPoints, QZSettings::default_treadmillDataPoints},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
