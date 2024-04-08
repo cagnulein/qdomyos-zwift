@@ -108,6 +108,8 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" longitude = %1").arg(longitude);
     rv += QStringLiteral(" altitude = %1").arg(altitude);
     rv += QStringLiteral(" azimuth = %1").arg(azimuth);
+    rv += QStringLiteral(" rampElapsed = %1").arg(rampElapsed.toString());
+    rv += QStringLiteral(" rampDuration = %1").arg(rampDuration.toString());
     return rv;
 }
 
@@ -1336,11 +1338,11 @@ trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString 
         return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
     } else {
 
-        return new trainprogram(loadXML(filename), b);
+        return new trainprogram(loadXML(filename, b->device()->deviceType()), b);
     }
 }
 
-QList<trainrow> trainprogram::loadXML(const QString &filename) {
+QList<trainrow> trainprogram::loadXML(const QString &filename, bluetoothdevice::BLUETOOTH_TYPE device_type) {
 
     QList<trainrow> list;
     QFile input(filename);
@@ -1351,6 +1353,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
         stream.readNext();
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
+        bool ramp = false;
         if (!atts.isEmpty()) {
             if (atts.hasAttribute(QStringLiteral("duration"))) {
                 row.duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
@@ -1441,9 +1444,118 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("forcespeed"))) {
                 row.forcespeed = atts.value(QStringLiteral("forcespeed")).toInt() ? true : false;
             }
+            if (atts.hasAttribute(QStringLiteral("powerzone"))) {
+                QSettings settings;
+                if(device_type == bluetoothdevice::TREADMILL) {
+                    row.power = atts.value(QStringLiteral("powerzone")).toDouble() * settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+                } else {
+                    row.power = atts.value(QStringLiteral("powerzone")).toDouble() * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                }
+            }
+            if (atts.hasAttribute(QStringLiteral("speedfrom")) && atts.hasAttribute(QStringLiteral("speedto")) && atts.hasAttribute(QStringLiteral("duration"))) {
+                double speedFrom = atts.value(QStringLiteral("speedfrom")).toDouble();
+                double speedTo = atts.value(QStringLiteral("speedto")).toDouble();
+                QTime duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+                int durationS = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+                int speedDelta = (fabs(speedTo - speedFrom) / 0.1);    // 0.1 min step for speed
+                int durationStep;
+                double speedStep;
+                int spareSeconds;
+                if(speedDelta <= durationS) {
+                    durationStep = durationS / speedDelta;
+                    speedStep = 0.1;
+                    spareSeconds = durationS % speedDelta;
+                } else {
+                    durationStep = 1;
+                    speedStep = fabs(speedTo - speedFrom) / (durationS - 1);
+                    speedDelta = durationS - 1;
+                    spareSeconds = 0;
+                }
+                int spareSum = 0;
+                for (int i = 0; i <= speedDelta; i++) {
+                    trainrow rowI(row);
+                    int spare = 0;
+                    if (spareSeconds)
+                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                    spareSum += spare;
+                    if (i == speedDelta && spareSum < spareSeconds) {
+                        spare += (spareSeconds - spareSum) - durationStep;
+                        spareSum = spareSeconds;
+                    }
+                    rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.forcespeed = 1;
+                    if (speedFrom < speedTo) {
+                        rowI.speed = speedFrom + (speedStep * i);
+                    } else {
+                        rowI.speed = speedFrom - (speedStep * i);
+                    }
+                    qDebug() << "TrainRow" << rowI.toString();
+                    list.append(rowI);
+                }
+                ramp = true;
+            }
+            if (atts.hasAttribute(QStringLiteral("powerzonefrom")) && atts.hasAttribute(QStringLiteral("powerzoneto")) && atts.hasAttribute(QStringLiteral("duration"))) {
+                QSettings settings;
+                double speedFrom = atts.value(QStringLiteral("powerzonefrom")).toDouble();
+                double speedTo = atts.value(QStringLiteral("powerzoneto")).toDouble();
+                QTime duration = QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+                int durationS = duration.hour() * 3600 + duration.minute() * 60 + duration.second();
+                int speedDelta = (fabs(speedTo - speedFrom) / 0.01);    // 0.01 min step for speed
+                int durationStep;
+                double speedStep;
+                int spareSeconds;
+                if(speedDelta == 0)
+                    speedDelta = 1;
+                if(speedDelta <= durationS) {
+                    durationStep = durationS / speedDelta;
+                    speedStep = 0.01;
+                    spareSeconds = durationS % speedDelta;
+                } else {
+                    durationStep = 1;
+                    speedStep = fabs(speedTo - speedFrom) / (durationS - 1);
+                    speedDelta = durationS - 1;
+                    spareSeconds = 0;
+                }
+                int spareSum = 0;
+                for (int i = 0; i <= speedDelta; i++) {
+                    trainrow rowI(row);
+                    int spare = 0;
+                    if (spareSeconds)
+                        spare = (i % spareSeconds == 0 && i > 0) ? 1 : 0;
+                    spareSum += spare;
+                    if (i == speedDelta && spareSum < spareSeconds) {
+                        spare += (spareSeconds - spareSum) - durationStep;
+                        spareSum = spareSeconds;
+                    }
+                    rowI.duration = QTime(0, 0, 0, 0).addSecs(durationStep + spare);
+                    rowI.rampElapsed = QTime(0, 0, 0, 0).addSecs((durationStep * i) + spareSum);
+                    rowI.rampDuration = QTime(0, 0, 0, 0).addSecs(durationS - (durationStep * i) - spareSum);
+                    rowI.forcespeed = 1;
+                    if (speedFrom < speedTo) {
+                        if(device_type == bluetoothdevice::TREADMILL) {
+                            rowI.power = (speedFrom + (speedStep * i)) * settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+                        } else {
+                            rowI.power = (speedFrom + (speedStep * i)) * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                        }
+                    } else {
+                        if(device_type == bluetoothdevice::TREADMILL) {
+                            rowI.power = (speedFrom - (speedStep * i)) * settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+                        } else {
+                            rowI.power = (speedFrom - (speedStep * i)) * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
+                        }
+                    }
+                    qDebug() << "TrainRow" << rowI.toString();
+                    list.append(rowI);
+                }
+                ramp = true;
+            }
 
-            list.append(row);
-            qDebug() << row.toString();
+            if(!ramp) {
+                list.append(row);
+                qDebug() << row.toString();
+            }
         }
     }
     return list;
