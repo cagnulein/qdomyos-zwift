@@ -130,6 +130,13 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     qDebug() << "modbus Connected!";
 
+    connect(modbusDevice, &QModbusClient::stateChanged, [=](QModbusDevice::State state) {
+        qDebug() << "Modbus state changed:" << state;
+    });
+
+    connect(modbusDevice, &QModbusClient::errorOccurred, [=](QModbusDevice::Error error) {
+        qDebug() << "Modbus error occurred:" << error;
+    });
 
     pinMode(OUTPUT_START, OUTPUT);
     pinMode(OUTPUT_STOP, OUTPUT);
@@ -155,25 +162,31 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     Speed = 0.8;
 
-    // Supponendo che vuoi leggere i holding registers partendo dall'indirizzo 0, con una quantità di 10.
-    int startAddress = 0;
-    int numberOfRegisters = 113;
-    QModbusDataUnit readRequest(QModbusDataUnit::HoldingRegisters, startAddress, numberOfRegisters);
+    for(int startAddress = 0; startAddress< 114; startAddress++) {
+        const int numberOfRegisters = 1;
+        QModbusDataUnit readRequest(QModbusDataUnit::HoldingRegisters, startAddress, numberOfRegisters);
 
-    if (auto *reply = modbusDevice->sendReadRequest(readRequest, 1)) {
-        if (!reply->isFinished()) {
-            connect(reply, &QModbusReply::finished, this, &gpiotreadmill::handleReadResponse);
+        if (auto *reply = modbusDevice->sendReadRequest(readRequest, 1)) {
+            if (!reply->isFinished()) {
+                connect(reply, &QModbusReply::finished, this, &gpiotreadmill::handleReadResponse);
+            } else {
+                delete reply;
+            }
         } else {
-            delete reply; // La risposta è già arrivata e può essere eliminata.
+            if(reply) {
+                qDebug() << "error" << reply->errorString();
+                delete reply;
+            } else {
+                qDebug() << "error on read request";
+            }
         }
-    } else {
-        // Errore nell'invio della richiesta.
     }
 }
 
 void gpiotreadmill::handleReadResponse() {
     auto reply = qobject_cast<QModbusReply *>(sender());
     if (!reply) {
+        qDebug() << "handleReadResponse no pointer";
         return;
     }
 
