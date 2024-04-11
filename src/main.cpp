@@ -235,13 +235,6 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
-    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug).toBool();
-#if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
-#else
-    if (logdebug == false)
-#endif
-        return;
 
     // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
@@ -266,8 +259,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         abort();
     }
 
-    if (logs == true || logdebug == true) {
-
         QString path = homeform::getWritableAppDir();
 
         // Linux log files are generated on binary location
@@ -277,7 +268,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         QTextStream ts(&outFile);
         ts << txt;
         fprintf(stderr, "%s", txt.toLocal8Bit().constData());
-    }
+
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
@@ -317,83 +308,82 @@ int main(int argc, char *argv[]) {
 #endif
 
     QByteArray buffer;
-    buffer.append(0x44);
-    buffer.append(0x48);
-    buffer.append(0x4a);
-    buffer.append(0x76);
-    buffer.append(0x44);
-    buffer.append(0x48);
-    buffer.append(0x68);
-    buffer.append(0x67);
-    buffer.append(0x39);
-    buffer.append(0x32);
+    buffer.append(0x36);
+    buffer.append(0x6d);
+    buffer.append(0x4b);
+    buffer.append(0x58);
+    buffer.append(0x5a);
+    buffer.append(0x57);
+    buffer.append(0x46);
+    buffer.append(0x31);
+    buffer.append(0x49);
+    buffer.append(0x47);
     buffer.append(0x2f);
     buffer.append(0x58);
     buffer.append(0x44);
     buffer.append(0x6d);
-    buffer.append(0x2f);
-    buffer.append(0x75);
-    buffer.append(0x64);
-    buffer.append(0x46);
-    buffer.append(0x4e);
-    buffer.append(0x4d);
-    buffer.append(0x36);
-    buffer.append(0x57);
-    buffer.append(0x2f);
-    buffer.append(0x6b);
-    buffer.append(0x49);
-    
+    buffer.append(0x4b);
+    buffer.append(0x58);
     buffer.append(0x77);
-    buffer.append(0x34);
-    buffer.append(0x4d);
-    buffer.append(0x4c);
-    buffer.append(0x6a);
-    buffer.append(0x69);
-    buffer.append(0x67);
-    buffer.append(0x55);
-    buffer.append(0x6e);
-    buffer.append(0x2f);
-    buffer.append(0x75);
-    buffer.append(0x62);
-    buffer.append(0x6d);
-    buffer.append(0x6c);
-    
-    buffer.append(0x75);
-    buffer.append(0x36);
-    buffer.append(0x79);
-    buffer.append(0x52);
-    buffer.append(0x76);
-    buffer.append(0x64);
-    buffer.append(0x47);
-    buffer.append(0x46);
-    buffer.append(0x73);
-    buffer.append(0x2f);
-    buffer.append(0x47);
-    buffer.append(0x6c);
-    buffer.append(0x42);
-    buffer.append(0x36);
-    buffer.append(0x56);
-    buffer.append(0x69);
-    buffer.append(0x41);
-    buffer.append(0x4e);
-    buffer.append(0x6a);
-    buffer.append(0x69);
+    buffer.append(0x39);
+    buffer.append(0x3d);
     buffer.append(0x3d);
     buffer.append(0x0d);
-    
+
     qDebug() << buffer;
-    
+
+    QByteArray buffer2;
+    buffer2.append(0x36);
+    buffer2.append(0x41);
+    buffer2.append(0x2f);
+    buffer2.append(0x31);
+    buffer2.append(0x63);
+    buffer2.append(0x41);
+    buffer2.append(0x52);
+    buffer2.append(0x75);
+    buffer2.append(0x49);
+    buffer2.append(0x77);
+    buffer2.append(0x68);
+    buffer2.append(0x4e);
+    buffer2.append(0x0d);
+
+    QByteArray buffer3;
+    buffer3.append(0x44);
+    buffer3.append(0x41);
+    buffer3.append(0x2f);
+    buffer3.append(0x58);
+    buffer3.append(0x64);
+    buffer3.append(0x6d);
+    buffer3.append(0x2f);
+    buffer3.append(0x58);
+    buffer3.append(0x44);
+    buffer3.append(0x58);
+    buffer3.append(0x62);
+    buffer3.append(0x4d);
+    buffer3.append(0x77);
+    buffer3.append(0x39);
+    buffer3.append(0x3d);
+    buffer3.append(0x3d);
+    buffer3.append(0x0d);
+
+
+    qInstallMessageHandler(myMessageOutput);
+
+    qDebug() << "test";
+
     const QByteArray PLAINTEXT_TABLE =
         QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
     
     for(int i = 0; i < PLAINTEXT_TABLE.length(); i++) {
         for(int l = 0; l < PLAINTEXT_TABLE.length(); l++) {
-            if(i == l) continue;
+            //if(i == l) continue;
             for(int k = 0; k < PLAINTEXT_TABLE.length(); k++) {
-                if(i == k || l == k) continue;
+                //if(i == k || l == k) continue;
                 for(int p = 0; p < PLAINTEXT_TABLE.length(); p++) {
-                    if(i == p || l == p || k == p) continue;
+                    //if(i == p || l == p || k == p) continue;
                     QByteArray decrypted;
+                    QByteArray decrypted2;
+                    QByteArray decrypted3;
                     QByteArray ENCRYPT_TABLE_v2 =
                     QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
                     
@@ -415,22 +405,45 @@ int main(int argc, char *argv[]) {
                         idx = ENCRYPT_TABLE_v2.indexOf(ch);
                         decrypted.append(PLAINTEXT_TABLE[idx]);
                     }
+
+                    for (int j = 0; j < buffer2.length(); j++) {
+                        char ch = buffer2.at(j);
+                        if (ch == '\x0d') {
+                            continue;
+                        }
+                        int idx;
+                        QSettings settings;
+                        idx = ENCRYPT_TABLE_v2.indexOf(ch);
+                        decrypted2.append(PLAINTEXT_TABLE[idx]);
+                    }
+
+                    for (int j = 0; j < buffer3.length(); j++) {
+                        char ch = buffer3.at(j);
+                        if (ch == '\x0d') {
+                            continue;
+                        }
+                        int idx;
+                        QSettings settings;
+                        idx = ENCRYPT_TABLE_v2.indexOf(ch);
+                        decrypted3.append(PLAINTEXT_TABLE[idx]);
+                    }
                     QString aa = QString(QByteArray::fromBase64(decrypted));
-                    
-                    qDebug() << i << l << k << p << ENCRYPT_TABLE_v2 << decrypted << aa;
-                    
-                    if(aa.contains("CurrentSpeed 10.8 "))
-                        qDebug() << aa;
-                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("ZaCw4FGHIJqLhN+P9RMTU/WcY6ObDdefgEijklmnopQrsBuvVxXz1yA2t5078KS3=").toUtf8())
-                        qDebug() << a;
-                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("0aCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5Z78KS3=").toUtf8())
-                        qDebug() << a;
-                    else if(ENCRYPT_TABLE_v2 == QStringLiteral("ZaCw4FGHIJqLhN9P+RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KS3=").toUtf8())
-                        qDebug() << a;
+                    QString aa2 = QString(QByteArray::fromBase64(decrypted2));
+                    QString aa3 = QString(QByteArray::fromBase64(decrypted3));
+
+                    /*if(aa3.contains("servers 0"))
+                        qDebug() << i << l << k << p << ENCRYPT_TABLE_v2 << decrypted << aa << aa2 << aa3;*/
+                    if(aa.contains("format error") && aa2.contains("get_dn 3") && aa3.contains("servers 0")) {
+                        qDebug() << i << l << k << p << ENCRYPT_TABLE_v2 << decrypted << aa << aa2 << aa3;
+                    }
                 }
             }
         }
     }
+
+    qDebug() << "end";
+
+    exit(1);
     
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
@@ -485,7 +498,6 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
         if (!s.contains(QStringLiteral("password")) && !s.contains("user_email")) {
