@@ -501,7 +501,7 @@ void kingsmithr2treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
         if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-X21C"))) {
             qDebug() << "KS-NACH-X21C workaround!";
             KS_NACH_X21C = true;
-        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C")) || device.name().toUpper().startsWith(QStringLiteral("KS-NACH-MXG"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NGCH-G1C"))) {
             qDebug() << "KS-NGCH-G1C workaround!";
             KS_NGCH_G1C = true;
         } else if (device.name().toUpper().startsWith(QStringLiteral("KS-NACH-MXG"))) {
