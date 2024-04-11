@@ -59,7 +59,9 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+        if(KS_NACH_MXG)
+            encrypted.append(ENCRYPT_TABLE_v7[idx]);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
@@ -69,8 +71,6 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
             encrypted.append(ENCRYPT_TABLE_v5[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad).toBool())
             encrypted.append(ENCRYPT_TABLE_v6[idx]);
-        else if(KS_NACH_MXG)
-            encrypted.append(ENCRYPT_TABLE_v7[idx]);
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
     }
@@ -265,7 +265,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
+        if(KS_NACH_MXG)
+            idx = ENCRYPT_TABLE_v7.indexOf(ch);
+        else if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);
@@ -275,8 +277,6 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
             idx = ENCRYPT_TABLE_v5.indexOf(ch);
         else if (settings.value(QZSettings::kingsmith_encrypt_g1_walking_pad, QZSettings::default_kingsmith_encrypt_g1_walking_pad).toBool())
             idx = ENCRYPT_TABLE_v6.indexOf(ch);
-        else if(KS_NACH_MXG)
-            idx = ENCRYPT_TABLE_v7.indexOf(ch);
         else
             idx = ENCRYPT_TABLE.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
