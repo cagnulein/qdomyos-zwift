@@ -459,7 +459,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
         }
     } else {
         QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + QStringLiteral("training/") +
-                                                    fileXml + QStringLiteral(".xml"));
+                                                        fileXml + QStringLiteral(".xml"), (device ? device->deviceType() : bluetoothdevice::BIKE ));
         for (auto &row : lst) {
             QJsonObject item;
             TRAINPROGRAM_FIELD_TO_STRING();

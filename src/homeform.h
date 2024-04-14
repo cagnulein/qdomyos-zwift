@@ -622,6 +622,7 @@ class homeform : public QObject {
     DataObject *pace_last500m;
     DataObject *stepCount;
     DataObject *ergMode;
+    DataObject *rss;
 
   private:
     static homeform *m_singleton;

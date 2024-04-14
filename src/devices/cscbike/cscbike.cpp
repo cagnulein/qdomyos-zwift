@@ -139,7 +139,7 @@ void cscbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QDateTime now = QDateTime::currentDateTime();
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     // QString heartRateBeltName = //unused QString
@@ -152,8 +152,6 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     uint8_t battery = 0;
 
     charNotified = true;
-
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
         battery = newValue.at(0);
@@ -305,10 +303,11 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
+    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
+    QBluetoothUuid Battery(QBluetoothUuid::BatteryService);
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
 #ifdef Q_OS_WINDOWS
-        QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
         qDebug() << "windows workaround, check only CyclingSpeedAndCadence ftms service"
                  << (s->serviceUuid() == CyclingSpeedAndCadence);
         if (s->serviceUuid() == CyclingSpeedAndCadence)
@@ -323,14 +322,18 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
-    QBluetoothUuid CyclingSpeedAndCadence(QBluetoothUuid::CyclingSpeedAndCadence);
-
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
 
             if(s->serviceUuid() == CyclingSpeedAndCadence) {
                 qDebug() << "CyclingSpeedAndCadence found";
                 cadenceService = s;
+            }
+
+            if(s->serviceUuid() != CyclingSpeedAndCadence && s->serviceUuid() != Battery) {
+                //  No data from sensors and avatar won’t move in Zwift (even when data showed on first try) (Issue #2178)
+                qDebug() << "avoid unwaned service";
+                continue;
             }
 
             // establish hook into notifications
