@@ -365,10 +365,11 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
         settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
-        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
-        settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
+        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);        
     }
 #endif
+
+    settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
