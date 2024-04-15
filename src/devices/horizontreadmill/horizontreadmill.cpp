@@ -876,6 +876,12 @@ void horizontreadmill::update() {
         }
         if (requestInclination != -100) {
             requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+
+            // this treadmill doesn't send the incline, so i'm forcing it manually
+            if(schwinn_810_treadmill) {
+                Inclination = requestInclination;
+            }
+
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < minInclination)
                 requestInclination = minInclination;
@@ -2066,6 +2072,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_tt8_treadmill = true;
             minInclination = -6.0;
             qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
+            schwinn_810_treadmill = true;
+            qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
