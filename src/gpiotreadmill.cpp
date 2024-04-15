@@ -229,15 +229,20 @@ void gpiotreadmill::changeInclinationRequested(double grade, double percentage) 
 
 void gpiotreadmill::forceSpeed(double requestSpeed) {
     qDebug() << QStringLiteral("gpiotreadmill.cpp: request set speed ") + QString::number(Speed.value()) + QStringLiteral(" to ") + QString::number(requestSpeed);
-    if (speedThread->isRunning())
-    {
-        speedThread->requestInterruption();
-        speedThread->quit();
-        speedThread->wait();
 
+    const int server_address = 1;
+    QModbusDataUnit writeUnit(QModbusDataUnit::HoldingRegisters, 0x2001, 1);
+    writeUnit.setValue(0, (requestSpeed * 100));
+    if(modbusDevice) {
+        QModbusReply* r = nullptr;
+        int retry = 0;
+        do {
+            qDebug() << "modbus sending retry" << retry++;
+            r = modbusDevice->sendWriteRequest(writeUnit, server_address);
+        } while(r == nullptr);
     }
-    speedThread->setRequestValue(requestSpeed);
-    speedThread->start();
+    else
+        qDebug() << "modbusDevice nullptr!";
 
     Speed = requestSpeed; /* we are on the way to the requested speed */
 }
@@ -375,18 +380,42 @@ void gpiotreadmill::update() {
 
                 lastSpeed = 0.5;
             }
-            digitalWrite(OUTPUT_START, 1);
-            QThread::msleep(GPIO_KEEP_MS);
-            digitalWrite(OUTPUT_START, 0);
+            
+            const int server_address = 1;
+            QModbusDataUnit writeUnit(QModbusDataUnit::HoldingRegisters, 0x2000, 1);
+            writeUnit.setValue(0, 2);
+            if(modbusDevice) {
+                QModbusReply* r = nullptr;
+                int retry = 0;
+                do {
+                    qDebug() << "modbus sending retry" << retry++;
+                    r = modbusDevice->sendWriteRequest(writeUnit, server_address);
+                } while(r == nullptr);
+            }
+            else
+                qDebug() << "modbusDevice nullptr!";
+
             requestStart = -1;
             Speed = 0.8;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             qDebug() << QStringLiteral("stopping...");
-            digitalWrite(OUTPUT_STOP, 1);
-            QThread::msleep(GPIO_KEEP_MS);
-            digitalWrite(OUTPUT_STOP, 0);
+
+            const int server_address = 1;
+            QModbusDataUnit writeUnit(QModbusDataUnit::HoldingRegisters, 0x2000, 1);
+            writeUnit.setValue(0, 1);
+            if(modbusDevice) {
+                QModbusReply* r = nullptr;
+                int retry = 0;
+                do {
+                    qDebug() << "modbus sending retry" << retry++;
+                    r = modbusDevice->sendWriteRequest(writeUnit, server_address);
+                } while(r == nullptr);
+            }
+            else
+                qDebug() << "modbusDevice nullptr!";
+
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
