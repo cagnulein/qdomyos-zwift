@@ -55,6 +55,7 @@ public class ChannelService extends Service {
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.v(TAG, "onServiceConnected");
             // Must pass in the received IBinder object to correctly construct an AntService object
             mAntRadioService = new AntService(service);
 
@@ -69,6 +70,8 @@ public class ChannelService extends Service {
                 // radio by attempting to acquire a channel.
                 boolean legacyInterfaceInUse = mAntChannelProvider.isLegacyInterfaceInUse();
 
+                Log.v(TAG, "onServiceConnected mChannelAvailable=" + mChannelAvailable + " legacyInterfaceInUse=" + legacyInterfaceInUse);
+
                 // If there are channels OR legacy interface in use, allow adding channels
                 if (mChannelAvailable || legacyInterfaceInUse) {
                     mAllowAddChannel = true;
@@ -77,7 +80,11 @@ public class ChannelService extends Service {
                     mAllowAddChannel = false;
                 }
 
-
+                try {
+                    openAllChannels();
+                } catch (ChannelNotAvailableException exception) {
+                    Log.e(TAG, "Channel not available!!");
+                }
             } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -130,6 +137,7 @@ public class ChannelService extends Service {
 
         int getHeart() {
             if (null != heartChannelController) {
+                Log.v(TAG, "getHeart");
                 return heartChannelController.heart;
             }
             return 0;
@@ -144,13 +152,13 @@ public class ChannelService extends Service {
     }
 
     public void openAllChannels() throws ChannelNotAvailableException {
-        if (Ant.heartRequest)
+        if (Ant.heartRequest && heartChannelController == null)
             heartChannelController = new HeartChannelController(acquireChannel());
 
         if (Ant.speedRequest) {
-            if(Ant.treadmill) {
+            if(Ant.treadmill && sdmChannelController == null) {
                 sdmChannelController = new SDMChannelController(acquireChannel());
-            } else {
+            } else if(powerChannelController == null) {
                 powerChannelController = new PowerChannelController(acquireChannel());
                 speedChannelController = new SpeedChannelController(acquireChannel());
             }
