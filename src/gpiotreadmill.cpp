@@ -162,7 +162,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     Speed = 0.8;
 
-    for(int startAddress = 0; startAddress< 114; startAddress++) {
+    /*for(int startAddress = 0; startAddress< 114; startAddress++) {
         const int numberOfRegisters = 1;
         QModbusDataUnit readRequest(QModbusDataUnit::HoldingRegisters, startAddress, numberOfRegisters);
 
@@ -180,7 +180,7 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
                 qDebug() << "error on read request";
             }
         }
-    }
+    }*/
 }
 
 void gpiotreadmill::handleReadResponse() {
@@ -232,7 +232,7 @@ void gpiotreadmill::forceSpeed(double requestSpeed) {
 
     const int server_address = 1;
     QModbusDataUnit writeUnit(QModbusDataUnit::HoldingRegisters, 0x2001, 1);
-    writeUnit.setValue(0, (requestSpeed * 100));
+    writeUnit.setValue(0, (requestSpeed * 100 / 0.352918));
     if(modbusDevice) {
         QModbusReply* r = nullptr;
         int retry = 0;
@@ -396,7 +396,7 @@ void gpiotreadmill::update() {
                 qDebug() << "modbusDevice nullptr!";
 
             requestStart = -1;
-            Speed = 0.8;
+            forceSpeed(0.8);
             emit tapeStarted();
         }
         if (requestStop != -1) {
