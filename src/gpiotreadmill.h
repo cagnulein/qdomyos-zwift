@@ -107,7 +107,7 @@ class gpiotreadmill : public treadmill {
     const uint16_t GPIO_KEEP_MS = 50;
     //const uint16_t GPIO_REBOUND_MS = 200;
     
-    const double SPEED_STEP = 0.1;
+    const double SPEED_STEP = 1.60934 / 10.0;
     const double INCLINATION_STEP = 1.0;
 
     void forceSpeed(double requestSpeed);
