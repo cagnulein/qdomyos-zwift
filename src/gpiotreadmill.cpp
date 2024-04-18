@@ -363,3 +363,4 @@ void *gpiotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void gpiotreadmill::searchingStop() { searchStopped = true; }
 double gpiotreadmill::minStepSpeed() { return 1.60934 / 10.0; }
+double gpiotreadmill::minStepInclination() { return 1; }

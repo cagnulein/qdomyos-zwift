@@ -79,6 +79,7 @@ class gpiotreadmill : public treadmill {
     static QModbusClient *modbusDevice;
     
     double minStepSpeed();
+    double minStepInclination() override;
 
   private:
     bool noConsole = false;
