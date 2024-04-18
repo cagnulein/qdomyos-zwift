@@ -329,7 +329,6 @@ void gpiotreadmill::update() {
             QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(OUTPUT_START, 0);
             requestStart = -1;
-            Speed = 0.8;
             emit tapeStarted();
         }
         if (requestStop != -1) {
@@ -363,4 +362,4 @@ void *gpiotreadmill::VirtualTreadMill() { return virtualTreadMill; }
 void *gpiotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void gpiotreadmill::searchingStop() { searchStopped = true; }
-double gpiotreadmill::minStepSpeed() { return 0.1; }
+double gpiotreadmill::minStepSpeed() { return 1.60934 / 10.0; }
