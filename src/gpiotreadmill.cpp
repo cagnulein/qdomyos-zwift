@@ -232,7 +232,10 @@ void gpiotreadmill::forceSpeed(double requestSpeed) {
 
     const int server_address = 1;
     QModbusDataUnit writeUnit(QModbusDataUnit::HoldingRegisters, 0x2001, 1);
-    writeUnit.setValue(0, (requestSpeed * 100 / 0.352918));
+    uint16_t v = (requestSpeed * 100 / 0.352918);
+    if(v > 6000)
+        v = 6000;
+    writeUnit.setValue(0, v);
     if(modbusDevice) {
         QModbusReply* r = nullptr;
         int retry = 0;
@@ -396,7 +399,7 @@ void gpiotreadmill::update() {
                 qDebug() << "modbusDevice nullptr!";
 
             requestStart = -1;
-            forceSpeed(0.8);
+            forceSpeed(5.0);
             emit tapeStarted();
         }
         if (requestStop != -1) {
