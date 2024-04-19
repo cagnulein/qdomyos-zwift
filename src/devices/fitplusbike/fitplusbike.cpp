@@ -982,17 +982,17 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
 }
 
 uint16_t fitplusbike::wattsFromResistance(double resistance) {
+    QSettings settings;
+    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
     (double)(currentResistance().value())) ); else return (uint16_t)((3.59 * exp(0.0217 *
-    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
+    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/    
 
-    const double Epsilon = 4.94065645841247E-324;
-
-    if (merach_MRK) {
-        return _ergTable.estimateWattage(Cadence.value(), resistance);
-    } else {
+    if(virtufit_etappe) {
+        const double Epsilon = 4.94065645841247E-324;
         // VirtuFit Etappe 2.0i Spinbike ERG Table #1526
         const int wattTableFirstDimension = 25;
         const int wattTableSecondDimension = 11;
@@ -1038,6 +1038,8 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
         double watt_base = watts_of_level[watt_setp];
         return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
                watt_base;
+    } else {
+        return _ergTable.estimateWattage(Cadence.value(), resistance);
     }
 }
 
