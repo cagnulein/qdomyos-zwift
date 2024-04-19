@@ -484,7 +484,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                                   (uint16_t)((uint8_t)newValue.at(index)))) / 10.0;
             emit resistanceRead(Resistance.value());
             m_pelotonResistance = Resistance.value();
             index += 2;
