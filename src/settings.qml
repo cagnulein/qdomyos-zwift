@@ -923,6 +923,14 @@ import QtQuick.Dialogs 1.0
             property bool proform_carbon_tl: false
             property bool proform_proshox2: false            
 
+            // from version 2.16.51
+            property bool nordictrack_GX4_5_bike: false            
+
+            // from version 2.16.52
+            property real ftp_run: 200.0
+            property bool tile_rss_enabled: false
+            property int  tile_rss_order: 53
+            property string treadmillDataPoints: ""
         }
 
         function paddingZeros(text, limit) {
@@ -1146,6 +1154,42 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Critical Power Run value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: ftpRunTextField
+                            text: settings.ftp_run
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ftp_run = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -3062,6 +3106,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("NordicTrack GX 4.5")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_GX4_5_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
+                    }
+                    
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
@@ -7430,7 +7488,7 @@ import QtQuick.Dialogs 1.0
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -7468,7 +7526,7 @@ import QtQuick.Dialogs 1.0
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -8344,7 +8402,7 @@ import QtQuick.Dialogs 1.0
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 

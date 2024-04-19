@@ -31,7 +31,7 @@ class peloton : public QObject {
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
 
-    enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2 };
+    enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2, no_metrics = 3 };
 
     _PELOTON_API currentApi() { return current_api; }
 
