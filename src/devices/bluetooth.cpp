@@ -1721,7 +1721,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (b.name().toUpper().startsWith(QStringLiteral("EW-BK")) && !sportsTechBike && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
-                sportsTechBike = new sportstechbike(noWriteResistance, noHeartService);
+                sportsTechBike = new sportstechbike(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                    bikeResistanceGain);
                 // stateFileRead();
                 emit deviceConnected(b);
                 connect(sportsTechBike, &bluetoothdevice::connectedAndDiscovered, this,
