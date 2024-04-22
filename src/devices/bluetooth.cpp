@@ -631,6 +631,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
 #if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+                /*
             } else if (gpio_treadmill && !gpioTreadmill) {
                 discoveryAgent->stop();
                 gpioTreadmill = new gpiotreadmill(pollDeviceTime, noConsole, noHeartService, 0.8, 0);
@@ -646,6 +647,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(gpioTreadmill);
+*/
 #endif
             } else if (fakedevice_elliptical && !fakeElliptical) {
                 this->stopDiscovery();
@@ -1850,7 +1852,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 pafersTreadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(pafersTreadmill);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && !gpioTreadmill && filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T")) && !bowflexT216Treadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 bowflexT216Treadmill = new bowflext216treadmill(this->pollDeviceTime, noConsole, noHeartService);
