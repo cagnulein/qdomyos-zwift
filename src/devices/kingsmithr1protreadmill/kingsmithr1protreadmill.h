@@ -51,6 +51,7 @@ class kingsmithr1protreadmill : public treadmill {
 
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetTargetSpeedFromPacket(const QByteArray &packet);
+    double GetStepsFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
@@ -66,8 +67,10 @@ class kingsmithr1protreadmill : public treadmill {
     bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
+    double lastStepCount = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
+    QDateTime lastTimeStepCountChanged;
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
