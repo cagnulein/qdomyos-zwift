@@ -40,14 +40,14 @@ void bowflext216treadmill::digitalWrite(int pin, int state) {
 
     qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
 }
-
+/*
 void pinMode(int pin, int state) {
     qDebug() << QStringLiteral("init pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
 }
 
 int wiringPiSetup() {
         return 0;
-}
+}*/
 #endif
 using namespace std::chrono_literals;
 
@@ -55,8 +55,8 @@ using namespace std::chrono_literals;
 modbusWorkerThread::modbusWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
     name{name}, currentValue{currentValue}, pinUp{pinUp}, pinDown{pinDown}, step{step}, semaphore{semaphore}
 {
-    pinMode(pinUp, OUTPUT);
-    pinMode(pinDown, OUTPUT);
+    //pinMode(pinUp, OUTPUT);
+    //pinMode(pinDown, OUTPUT);
     bowflext216treadmill::digitalWrite(pinUp, 0);
     bowflext216treadmill::digitalWrite(pinDown, 0);
 }
@@ -120,10 +120,10 @@ bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConso
     if (forceInitInclination > 0)
         lastInclination = forceInitInclination;
 
-    if (wiringPiSetup() == -1) {
+    /*if (wiringPiSetup() == -1) {
         qDebug() << QStringLiteral("wiringPiSetup ERROR!");
         exit(1);
-    }
+    }*/
 
     modbusDevice = new QModbusRtuSerialMaster(this);
     modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
@@ -148,8 +148,8 @@ bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConso
 
     qDebug() << "modbus Connected!";
 
-    pinMode(OUTPUT_START, OUTPUT);
-    pinMode(OUTPUT_STOP, OUTPUT);
+    //pinMode(OUTPUT_START, OUTPUT);
+    //pinMode(OUTPUT_STOP, OUTPUT);
     digitalWrite(OUTPUT_START, 0);
     digitalWrite(OUTPUT_STOP, 0);
 
