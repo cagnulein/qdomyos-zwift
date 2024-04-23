@@ -72,6 +72,7 @@ class kingsmithr1protreadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     QDateTime lastTimeStepCountChanged;
     bool firstCharacteristicChanged = true;
+    metric cadenceRaw;
 
     QTimer *refresh;
 
