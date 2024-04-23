@@ -348,8 +348,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     else {
         double sc = GetStepsFromPacket(value);
         StepCount = sc;
-        if(sc < StepCount.value()) {
-            double c = (StepCount.value() - sc) / (lastTimeStepCountChanged.msecsTo(QDateTime::currentDateTime()) / 60000);
+        if(lastStepCount < StepCount.value()) {
+            double c = (StepCount.value() - lastStepCount) / (lastTimeStepCountChanged.msecsTo(QDateTime::currentDateTime()) / 60000);
             if(c < 255)
                 Cadence = c;
             lastTimeStepCountChanged = QDateTime::currentDateTime();
