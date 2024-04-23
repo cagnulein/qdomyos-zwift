@@ -36,10 +36,10 @@
 
 #include "treadmill.h"
 
-class gpioWorkerThread : public QThread
+class modbusWorkerThread : public QThread
 {
     public:
-        explicit gpioWorkerThread(QObject *parent, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0, QSemaphore *semaphore = nullptr);
+        explicit modbusWorkerThread(QObject *parent, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0, QSemaphore *semaphore = nullptr);
         void run();
         void setRequestValue(double request);
     private:
@@ -87,8 +87,8 @@ class bowflext216treadmill : public treadmill {
     const double SPEED_STEP = 1.60934 / 10.0;
     const double INCLINATION_STEP = 1.0;
 
-    gpioWorkerThread* speedThread;
-    gpioWorkerThread* inclineThread;
+    modbusWorkerThread* speedThread;
+    modbusWorkerThread* inclineThread;
     QSemaphore *semaphore; // my treadmill don't like it if the buttons will be pressed simultanly
 
 

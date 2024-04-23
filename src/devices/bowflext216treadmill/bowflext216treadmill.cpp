@@ -52,7 +52,7 @@ int wiringPiSetup() {
 using namespace std::chrono_literals;
 
 
-gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
+modbusWorkerThread::modbusWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
     name{name}, currentValue{currentValue}, pinUp{pinUp}, pinDown{pinDown}, step{step}, semaphore{semaphore}
 {
     pinMode(pinUp, OUTPUT);
@@ -61,12 +61,12 @@ gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp,
     bowflext216treadmill::digitalWrite(pinDown, 0);
 }
 
-void gpioWorkerThread::setRequestValue(double request)
+void modbusWorkerThread::setRequestValue(double request)
 {
     this->requestValue = request;
 }
 
-void gpioWorkerThread::run() {
+void modbusWorkerThread::run() {
     if (requestValue > currentValue) {
         while (requestValue > currentValue) {
             qDebug() << QStringLiteral("increasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
@@ -154,8 +154,8 @@ bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConso
     digitalWrite(OUTPUT_STOP, 0);
 
     semaphore = new QSemaphore(1);
-    speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
-    inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
+    speedThread = new modbusWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
+    inclineThread = new modbusWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
 
     refresh = new QTimer(this);
     initDone = false;
