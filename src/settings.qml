@@ -914,7 +914,7 @@ import QtQuick.Dialogs 1.0
             property int  tile_erg_mode_order: 52
 
             // from version 2.16.45
-            property bool toorx_srx_3500: false
+            property bool toorx_srx_3500: false  
             property real inclination_delay_seconds: 0.0
 
             // from version 2.16.47
@@ -934,6 +934,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.54
             property bool nordictrack_s20i_treadmill: false
+            property bool stryd_speed_instead_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -8373,6 +8374,33 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("Divide the cadence sent to Strava by 2.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Use speed from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_speed_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_speed_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: 9
