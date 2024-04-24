@@ -337,7 +337,7 @@ jobs:
   # This workflow contains a single job called "build"
   linux-x86-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -507,7 +507,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -651,7 +651,7 @@ jobs:
 
   ios-build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: write
 
@@ -1013,7 +1013,7 @@ jobs:
 
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:

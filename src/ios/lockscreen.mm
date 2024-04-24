@@ -31,6 +31,8 @@ static ios_eliteariafan* ios_eliteAriaFan = nil;
 
 static zwift_protobuf_layer* zwiftProtobufLayer = nil;
 
+static NSString* profile_selected;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -43,10 +45,7 @@ void lockscreen::request()
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
-    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
-    if (@available(iOS 17, *)) {
-        _adb = [[AdbClient alloc] initWithVerbose:YES];
-    }
+    _adb = [[AdbClient alloc] initWithVerbose:YES];
 }
 
 long lockscreen::heartRate()
@@ -270,6 +269,18 @@ double lockscreen::getVolume()
 
 void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
+}
+
+void lockscreen::nslog(const char* log) {
+    NSLog([[NSString alloc] initWithUTF8String:log]);
+}
+
+void lockscreen::set_action_profile(const char* profile) {
+    profile_selected = [[NSString alloc] initWithUTF8String:profile];
+}
+
+const char* lockscreen::get_action_profile() {
+    return [profile_selected UTF8String];
 }
 
 void lockscreen::adb_connect(const char*  IP) {

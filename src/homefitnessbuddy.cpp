@@ -132,6 +132,8 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
         }
     }
 
+    qDebug() << "classes found" << found;
+
     if (found == 1) {
         for (const QJsonValue &r : qAsConst(lessons)) {
             QDate d =
@@ -179,6 +181,10 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
                 mgr->get(request);
             }
         }
+    } else {        
+        // in case of no results, I'm emitting this anyway in order to show the peloton popup for evaluating the peloton class name on strava
+        trainrows.clear();
+        emit workoutStarted(&trainrows);
     }
 }
 

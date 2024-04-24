@@ -270,7 +270,7 @@ void focustreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
 }
 
 double focustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    double convertedData = ((double)((uint8_t)packet.at(10))) * 10.0;
+    double convertedData = ((double)((uint8_t)packet.at(10))) / 10.0;
 
     return convertedData;
 }

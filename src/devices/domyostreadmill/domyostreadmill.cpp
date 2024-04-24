@@ -320,14 +320,15 @@ void domyostreadmill::update() {
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
+        double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
         if (incompletePackets == false) {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
                     double inc = Inclination.value();
-                    if (requestInclination != -100) {
-
+                    if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+                        lastInclinationChanged = QDateTime::currentDateTime();
                         // only 0.5 steps ara available
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
@@ -337,7 +338,8 @@ void domyostreadmill::update() {
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -100) {
+            if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+                lastInclinationChanged = QDateTime::currentDateTime();
                 if (requestInclination < 0)
                     requestInclination = 0;
                 // only 0.5 steps ara available

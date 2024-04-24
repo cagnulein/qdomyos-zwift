@@ -26,6 +26,7 @@
 #include <QTime>
 
 #include "devices/bike.h"
+#include "ergtable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"

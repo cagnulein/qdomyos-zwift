@@ -225,7 +225,17 @@ void wahookickrsnapbike::update() {
             requestResistance = -1;
         }
 
-        if (requestResistance != -1) {
+        if (KICKR_BIKE) {
+            if(requestInclination != -100) {
+                debug("writing inclination request " + QString::number(requestInclination));
+                inclinationChanged(requestInclination, requestInclination);
+                Inclination = requestInclination; // the bike is not sending back the inclination?
+                requestInclination = -100;
+            } else if (lastGearValue != gears()) {
+                inclinationChanged(lastGrade, lastGrade);
+            }
+            lastGearValue = gears();
+        } else if (requestResistance != -1 && KICKR_BIKE == false) {
             if (requestResistance > 100) {
                 requestResistance = 100;
             } else if (requestResistance == 0) {
@@ -735,6 +745,9 @@ void wahookickrsnapbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith("WAHOO KICKR")) {
             WAHOO_KICKR = true;
             qDebug() << "WAHOO KICKR workaround activated";
+        } else if(device.name().toUpper().startsWith("KICKR BIKE")) {
+            KICKR_BIKE = true;
+            qDebug() << "KICKR BIKE workaround activated";
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
@@ -807,4 +820,8 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     uint8_t b[20];
     memcpy(b, a.constData(), a.length());
     writeCharacteristic(b, a.length(), "setSimGrade", false, true);
+}
+
+bool wahookickrsnapbike::inclinationAvailableByHardware() {
+    return KICKR_BIKE;
 }
