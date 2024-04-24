@@ -484,7 +484,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                   (uint16_t)((uint8_t)newValue.at(index))));
+                                   (uint16_t)((uint8_t)newValue.at(index)))) / 10.0;
             emit resistanceRead(Resistance.value());
             m_pelotonResistance = Resistance.value();
             index += 2;
@@ -982,52 +982,17 @@ void fitplusbike::controllerStateChanged(QLowEnergyController::ControllerState s
 }
 
 uint16_t fitplusbike::wattsFromResistance(double resistance) {
+    QSettings settings;
+    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
+
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 *
     (double)(currentResistance().value())) ); else return (uint16_t)((3.59 * exp(0.0217 *
-    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
+    (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/    
 
-    const double Epsilon = 4.94065645841247E-324;
-
-    if (merach_MRK) {
-        const int wattTableFirstDimension = 17;
-        const int wattTableSecondDimension = 11;
-        double wattTable[wattTableFirstDimension][wattTableSecondDimension] = {
-            {Epsilon, 14.3, 28.6, 42.9, 57.2, 71.5, 85.8, 100.1, 114.4, 128.7, 143.0}, 
-            {Epsilon, 14.3, 28.6, 42.9, 57.2, 71.5, 85.8, 100.1, 114.4, 128.7, 143.0}, 
-            {Epsilon, 16.4, 32.8, 49.2, 65.6, 82.0, 98.4, 114.8, 131.2, 147.6, 164.0}, 
-            {Epsilon, 18.7, 37.4, 56.1, 74.8, 93.5, 112.2, 130.9, 149.6, 168.3, 187.0}, 
-            {Epsilon, 21.0, 42.0, 63.0, 84.0, 105.0, 126.0, 147.0, 168.0, 189.0, 210.0}, 
-            {Epsilon, 23.2, 46.4, 69.6, 92.8, 116.0, 139.2, 162.4, 185.6, 208.8, 232.0}, 
-            {Epsilon, 25.3, 50.6, 75.9, 101.2, 126.5, 151.8, 177.1, 202.4, 227.7, 253.0}, 
-            {Epsilon, 27.6, 55.2, 82.8, 110.4, 138.0, 165.6, 193.2, 220.8, 248.4, 276.0}, 
-            {Epsilon, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0, 210.0, 240.0, 270.0, 300.0}, 
-            {Epsilon, 31.9, 63.8, 95.7, 127.6, 159.5, 191.4, 223.3, 255.2, 287.1, 319.0}, 
-            {Epsilon, 34.2, 68.4, 102.6, 136.8, 171.0, 205.2, 239.4, 273.6, 307.8, 342.0}, 
-            {Epsilon, 36.5, 73.0, 109.5, 146.0, 182.5, 219.0, 255.5, 292.0, 328.5, 365.0}, 
-            {Epsilon, 38.5, 77.0, 115.5, 154.0, 192.5, 231.0, 269.5, 308.0, 346.5, 385.0}, 
-            {Epsilon, 40.8, 81.6, 122.4, 163.2, 204.0, 244.8, 285.6, 326.4, 367.2, 408.0}, 
-            {Epsilon, 43.1, 86.2, 129.3, 172.4, 215.5, 258.6, 301.7, 344.8, 387.9, 431.0}, 
-            {Epsilon, 45.1, 90.2, 135.3, 180.4, 225.5, 270.6, 315.7, 360.8, 405.9, 451.0}, 
-            {Epsilon, 47.2, 94.4, 141.6, 188.8, 236.0, 283.2, 330.4, 377.6, 424.8, 472.0}};
-
-        int level = resistance;
-        if (level < 0) {
-            level = 0;
-        }
-        if (level >= wattTableFirstDimension) {
-            level = wattTableFirstDimension - 1;
-        }
-        double *watts_of_level = wattTable[level];
-        int watt_setp = (Cadence.value() / 10.0);
-        if (watt_setp >= 10) {
-            return (((double)Cadence.value()) / 100.0) * watts_of_level[wattTableSecondDimension - 1];
-        }
-        double watt_base = watts_of_level[watt_setp];
-        return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
-               watt_base;
-    } else {
+    if(virtufit_etappe) {
+        const double Epsilon = 4.94065645841247E-324;
         // VirtuFit Etappe 2.0i Spinbike ERG Table #1526
         const int wattTableFirstDimension = 25;
         const int wattTableSecondDimension = 11;
@@ -1073,6 +1038,8 @@ uint16_t fitplusbike::wattsFromResistance(double resistance) {
         double watt_base = watts_of_level[watt_setp];
         return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double)(((int)(Cadence.value())) % 10))) +
                watt_base;
+    } else {
+        return _ergTable.estimateWattage(Cadence.value(), resistance);
     }
 }
 

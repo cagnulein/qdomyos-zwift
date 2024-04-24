@@ -1,6 +1,5 @@
 #include "ypooelliptical.h"
 #include "devices/ftmsbike/ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
