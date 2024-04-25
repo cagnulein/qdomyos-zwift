@@ -41,6 +41,7 @@ class ypooelliptical : public elliptical {
                    double bikeResistanceGain = 1.0);
     bool connected() override;
     double minStepInclination() override;
+    bool inclinationSeparatedFromResistance() override;
 
   private:
     void writeCharacteristic(QLowEnergyCharacteristic* characteristic, QLowEnergyService *service, uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,

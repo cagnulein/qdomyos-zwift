@@ -175,3 +175,4 @@ metric elliptical::pelotonResistance() { return m_pelotonResistance; }
 metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
 metric elliptical::lastRequestedResistance() { return RequestedResistance; }
 bool elliptical::inclinationAvailableByHardware() { return true; }
+bool elliptical::inclinationSeparatedFromResistance() { return false; }

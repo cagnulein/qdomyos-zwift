@@ -805,3 +805,10 @@ void ypooelliptical::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 double ypooelliptical::minStepInclination() { return 1.0; }
+bool ypooelliptical::inclinationSeparatedFromResistance() {
+    if(E35) {
+        return true;
+    } else {
+        return false;
+    }
+}
