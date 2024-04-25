@@ -158,6 +158,8 @@ void ypooelliptical::update() {
         if (requestResistance != -1) {
             if (requestResistance > max_resistance) {
                 requestResistance = max_resistance;
+            } else if(requestResistance < 1) {
+                requestResistance = 1;
             }
 
             if (requestResistance != currentResistance().value()) {
