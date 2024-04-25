@@ -337,6 +337,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;
         }
 
+        if(index + 1 >= lastPacket.length()) {
+            qDebug() << "packet malformed" << index << lastPacket.length();
+            return;
+        }
+        
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
