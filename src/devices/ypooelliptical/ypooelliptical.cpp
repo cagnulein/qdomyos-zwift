@@ -172,6 +172,9 @@ void ypooelliptical::update() {
             requestResistance = -1;
         }
         if (requestInclination != -100) {
+            if(requestInclination < 0) {
+                requestInclination = 0;
+            }
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
                 forceInclination(requestInclination);
