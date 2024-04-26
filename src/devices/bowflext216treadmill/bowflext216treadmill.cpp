@@ -66,6 +66,11 @@ void modbusWorkerThread::setRequestValue(double request)
     this->requestValue = request;
 }
 
+void modbusWorkerThread::setCurrentValue(double current)
+{
+    this->currentValue = current;
+}
+
 void modbusWorkerThread::run() {
     if (requestValue > currentValue) {
         while (requestValue > currentValue) {
@@ -185,6 +190,7 @@ void bowflext216treadmill::forceSpeed(double requestSpeed) {
         speedThread->wait();
 
     }
+    speedThread->setCurrentValue(currentSpeed().value());
     speedThread->setRequestValue(requestSpeed);
     speedThread->start();
 
@@ -201,6 +207,7 @@ void bowflext216treadmill::forceIncline(double requestIncline) {
         inclineThread->wait();
 
     }
+    inclineThread->setCurrentValue(currentInclination().value());
     inclineThread->setRequestValue(requestIncline);
     inclineThread->start();
 
@@ -382,7 +389,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
 

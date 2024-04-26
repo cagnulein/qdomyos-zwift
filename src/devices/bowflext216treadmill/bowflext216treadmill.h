@@ -42,6 +42,7 @@ class modbusWorkerThread : public QThread
         explicit modbusWorkerThread(QObject *parent, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0, QSemaphore *semaphore = nullptr);
         void run();
         void setRequestValue(double request);
+        void setCurrentValue(double current);
     private:
         QString name;
         double requestValue;
