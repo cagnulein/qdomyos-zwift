@@ -48,6 +48,8 @@ public :
     QString ftmsAccessoryName = nullptr;
     QString ftms_bike = nullptr;
 
+    bool trixter_xdream_v1_bike = false;
+
     bool pafers_treadmill_bh_iboxster_plus = false;
 
     bool iconcept_elliptical = false;
