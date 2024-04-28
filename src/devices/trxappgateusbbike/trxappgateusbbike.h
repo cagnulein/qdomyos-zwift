@@ -61,8 +61,6 @@ class trxappgateusbbike : public bike {
 
     QTimer *refresh;
 
-    ergTable _ergTable;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

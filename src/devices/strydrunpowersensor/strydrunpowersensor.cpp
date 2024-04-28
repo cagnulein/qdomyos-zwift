@@ -327,6 +327,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        emit speedChanged(speed);
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
             instantaneousStrideLengthCMAvailableFromDevice = true;
@@ -461,6 +462,8 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 #endif
     }
+
+    _ergTable.collectTreadmillData(Speed.value(), watts(), Inclination.value());
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

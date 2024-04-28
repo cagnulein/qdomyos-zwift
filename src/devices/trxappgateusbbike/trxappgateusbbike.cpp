@@ -369,8 +369,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     Resistance = resistance;
     emit resistanceRead(Resistance.value());
 
-    _ergTable.collectData(Cadence.value(), watt, Resistance.value());
-
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));

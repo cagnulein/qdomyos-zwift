@@ -31,7 +31,8 @@ void elliptical::update_metrics(bool watt_calc, const double watts) {
     }
 
     METS = calculateMETS();
-    elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    if (currentInclination().value() > 0)
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
@@ -174,3 +175,4 @@ metric elliptical::pelotonResistance() { return m_pelotonResistance; }
 metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
 metric elliptical::lastRequestedResistance() { return RequestedResistance; }
 bool elliptical::inclinationAvailableByHardware() { return true; }
+bool elliptical::inclinationSeparatedFromResistance() { return false; }

@@ -875,6 +875,13 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
+            requestInclination = treadmillInclinationOverrideReverse(requestInclination);
+
+            // this treadmill doesn't send the incline, so i'm forcing it manually
+            if(schwinn_810_treadmill) {
+                Inclination = requestInclination;
+            }
+
             qDebug() << "requestInclination=" << requestInclination;
             if (requestInclination < minInclination)
                 requestInclination = minInclination;
@@ -1152,7 +1159,7 @@ void horizontreadmill::forceIncline(double requestIncline) {
         settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if(tunturi_t60_treadmill)
-        Inclination = requestIncline;
+        Inclination = treadmillInclinationOverride(requestIncline);
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1351,13 +1358,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        Speed = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                  100.0) *
-                1.60934; // miles/h
+                1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)lastPacketComplete.at(30)) / 10.0;
+        Inclination = treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
@@ -1379,12 +1386,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
-        Speed =
-            (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
-            1.60934; // miles/h
+        parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
+                       1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)((uint8_t)newValue.at(63)) / 10.0;
+        Inclination = treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
         if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
@@ -1406,7 +1412,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
                newValue.at(0) == 0x55) {
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0;
+        parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
@@ -1470,9 +1476,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 2;
 
         if (!Flags.moreData) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                    100.0);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1504,13 +1510,13 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         if (Flags.inclination) {
             if(!tunturi_t60_treadmill)
-                Inclination = (double)(
+                Inclination = treadmillInclinationOverride((double)(
                                   (int16_t)(
                                       ((int16_t)(int8_t)newValue.at(index + 1) << 8) |
                                       (uint8_t)newValue.at(index)
                                       )
                                   ) /
-                              10.0;
+                              10.0);
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -1619,9 +1625,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 3;
 
         if (!Flags.moreData && newValue.length() > index + 1) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                       100.0);
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             index += 2;
         }
@@ -2061,6 +2067,13 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             sole_f89_treadmill = true;
             minInclination = -5.0;
             qDebug() << QStringLiteral("SOLE F89 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TT8"))) {
+            sole_tt8_treadmill = true;
+            minInclination = -6.0;
+            qDebug() << QStringLiteral("SOLE TT8 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
+            schwinn_810_treadmill = true;
+            qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -2778,7 +2791,7 @@ void horizontreadmill::testProfileCRC() {
 double horizontreadmill::minStepInclination() {
     QSettings settings;
     bool toorx_ftms_treadmill = settings.value(QZSettings::toorx_ftms_treadmill, QZSettings::default_toorx_ftms_treadmill).toBool();
-    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill)
+    if (kettler_treadmill || trx3500_treadmill || toorx_ftms_treadmill || sole_tt8_treadmill)
         return 1.0;
     else
         return 0.5;

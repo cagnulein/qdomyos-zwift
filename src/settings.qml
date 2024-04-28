@@ -914,7 +914,7 @@ import QtQuick.Dialogs 1.0
             property int  tile_erg_mode_order: 52
 
             // from version 2.16.45
-            property bool toorx_srx_3500: false
+            property bool toorx_srx_3500: false  
             property real inclination_delay_seconds: 0.0
 
             // from version 2.16.47
@@ -1157,6 +1157,42 @@ import QtQuick.Dialogs 1.0
 
                     Label {
                         text: qsTr("If you train to specific output (or watts) levels, for example in Peloton Power Zone classes,and have taken an FTP test (Functional Threshold Power), enter your FTP here. This number is used to calculate your Power Zones (Zones 1 to 7 for Peloton and 1 to 6 for Zwift).")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Critical Power Run value:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: ftpRunTextField
+                            text: settings.ftp_run
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ftp_run = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.ftp_run = ftpRunTextField.text; toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("If you train to specific output (or watts) levels, for example with Stryd,and have taken an CP test (Critical Power Test), enter your CP here. This number is used to calculate your RSS.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
@@ -3253,6 +3289,20 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_gx_2_7 = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("NordicTrack GX 4.5")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_GX4_5_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrack_GX4_5_bike = checked; window.settings_restart_to_apply = true; }
+                    }
+                    
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
@@ -5948,7 +5998,7 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
-                                "Proform Carbon TL", "Proform Proshox 2"
+                                "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5982,6 +6032,7 @@ import QtQuick.Dialogs 1.0
                                 settings.nordictrack_treadmill_x14i = false;
                                 settings.proform_carbon_tl = false;
                                 settings.proform_proshox2 = false;
+                                settings.nordictrack_s20i_treadmill = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -6012,6 +6063,7 @@ import QtQuick.Dialogs 1.0
                                     case 24: settings.nordictrack_treadmill_x14i = true; break;
                                     case 25: settings.proform_carbon_tl = true; break;
                                     case 26: settings.proform_proshox2 = true; break;
+                                    case 27: settings.nordictrack_s20i_treadmill = true; break;
                                 }
                             }
 
@@ -6043,7 +6095,8 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_705_cst ? 23 :
                                                     settings.nordictrack_treadmill_x14i ? 24 :
                                                     settings.proform_carbon_tl ? 25 :
-                                                    settings.proform_proshox2 ? 26 : -1;
+                                                    settings.proform_proshox2 ? 26 :
+                                                    settings.nordictrack_s20i_treadmill ? 27 :-1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -7621,7 +7674,7 @@ import QtQuick.Dialogs 1.0
                             id: okwattOffsetButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_offset = wattOffsetTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_offset = wattOffsetTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -7659,7 +7712,7 @@ import QtQuick.Dialogs 1.0
                             id: okWattGainButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: { settings.watt_gain = wattGainTextField.text; ergDataPoints = ""; toast.show("Setting saved!"); }
+                            onClicked: { settings.watt_gain = wattGainTextField.text; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; toast.show("Setting saved!"); }
                         }
                     }
 
@@ -8511,6 +8564,33 @@ import QtQuick.Dialogs 1.0
                                 color: Material.color(Material.Lime)
                             }
 
+                            SwitchDelegate {
+                                text: qsTr("Use speed from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_speed_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_speed_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
                             Label {
                                 id: labelPowerSensorName
                                 text: qsTr("Power Sensor:")
@@ -8535,7 +8615,7 @@ import QtQuick.Dialogs 1.0
                                     id: okPowerSensorNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
+                                    onClicked: { settings.power_sensor_name = powerSensorNameTextField.displayText; settings.treadmillDataPoints = ""; settings.ergDataPoints = ""; window.settings_restart_to_apply = true; toast.show("Setting saved!"); }
                                 }
                             }
 

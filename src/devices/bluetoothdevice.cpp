@@ -181,6 +181,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
+    if(deviceType() == bluetoothdevice::BIKE)
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
+
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
@@ -256,8 +259,10 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #endif
 #ifdef Q_OS_ANDROID
+    if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
         qDebug() << "WearOS Companion Heart:" << Heart.value();
+    }
 #endif
     }
 }
