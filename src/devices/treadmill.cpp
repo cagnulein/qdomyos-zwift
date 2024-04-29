@@ -234,9 +234,9 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
         }
     }
     if (Inclination < treadmillInclinationOverride(0))
-        return 0;
+        return treadmillInclinationOverride(0);
     else
-        return 15;
+        return treadmillInclinationOverride(15);
 }
 
 double treadmill::treadmillInclinationOverride(double Inclination) {
