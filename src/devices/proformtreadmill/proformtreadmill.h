@@ -93,6 +93,7 @@ class proformtreadmill : public treadmill {
     bool proform_treadmill_705_cst = false;
     bool proform_carbon_tl = false;
     bool proform_proshox2 = false;
+    bool proform_595i_proshox2 = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
