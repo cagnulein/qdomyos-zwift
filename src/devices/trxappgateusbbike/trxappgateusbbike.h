@@ -110,6 +110,7 @@ class trxappgateusbbike : public bike {
         ENERFIT_SPX_9500_2 = 21,
         REEBOK = 22,
         REEBOK_2 = 23,
+        BIKZU = 24,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
