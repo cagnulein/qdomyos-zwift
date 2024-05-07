@@ -49,14 +49,14 @@ const data = {
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y< 5 ? window.chartColors.gold :
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y < 7 ? window.chartColors.orange :
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y < 9 ? window.chartColors.darkorange :
-                                                                        ctx.p1.parsed.y - ctx.p0.parsed.y < 1 ? window.chartColors.orangered :
+                                                                        ctx.p1.parsed.y - ctx.p0.parsed.y < 10 ? window.chartColors.orangered :
                                                                         window.chartColors.red,
                     backgroundColor: ctx => ctx.p1.parsed.y - ctx.p0.parsed.y < 0 ? window.chartColors.green:
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y < 3 ? window.chartColors.limegreen :
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y< 5 ? window.chartColors.gold :
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y < 7 ? window.chartColors.orange :
                                                                         ctx.p1.parsed.y - ctx.p0.parsed.y < 9 ? window.chartColors.darkorange :
-                                                                        ctx.p1.parsed.y - ctx.p0.parsed.y < 1 ? window.chartColors.orangered :
+                                                                        ctx.p1.parsed.y - ctx.p0.parsed.y < 10 ? window.chartColors.orangered :
                                                                         window.chartColors.red,
                 }
   }]

@@ -65,6 +65,7 @@ void MainWindow::update() {
         double target_cadence = 0;
         double target_watt = 0;
         double target_resistance = 0;
+        double stepCount = 0;
 
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 2));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart().value()));
@@ -86,6 +87,7 @@ void MainWindow::update() {
             strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
             groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
             verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
+            stepCount = ((treadmill *)bluetoothManager->device())->currentStepCount().value();
             watts = ((treadmill *)bluetoothManager->device())->watts(ui->weight->text().toFloat());
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
             ui->pace->setText(
@@ -178,7 +180,8 @@ void MainWindow::update() {
                           (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
                       false, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                      bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation,
+                      bluetoothManager->device()->currentCordinate(), strideLength, groundContact,
+                      verticalOscillation, stepCount,
                       target_cadence, target_watt, target_resistance // TODO add lap
         );
 
@@ -359,14 +362,14 @@ void MainWindow::loadTrainProgram(const QString &fileName) {
 
                 delete trainProgram;
             }
-            trainProgram = trainprogram::load(fileName, bluetoothManager);
+            trainProgram = trainprogram::load(fileName, bluetoothManager, fileName.right(3).toUpper());
         } else if (fileName.endsWith(QStringLiteral("gpx"))) {
             if (trainProgram) {
                 delete trainProgram;
             }
             gpx g;
             QList<trainrow> list;
-            auto g_list = g.open(fileName);
+            auto g_list = g.open(fileName, bluetoothManager->device() ? bluetoothManager->device()->deviceType() : bluetoothdevice::BIKE);
             list.reserve(g_list.count() + 1);
             for (const auto &p : qAsConst(g_list)) {
                 trainrow r;
@@ -461,7 +464,7 @@ void MainWindow::on_reset_clicked() {
 void MainWindow::on_stop_clicked() {
     if (bluetoothManager->device()) {
 
-        bluetoothManager->device()->stop();
+        bluetoothManager->device()->stop(false);
     }
 }
 

@@ -36,12 +36,14 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16) -> Bool
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16, currentInclination: UInt16, currentDistance: UInt64) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
         peripheralManager.CurrentResistance = currentResistance
         peripheralManager.CurrentWatt = currentWatt
+        peripheralManager.CurrentInclination = currentInclination
+        peripheralManager.CurrentDistance = currentDistance
 
         return peripheralManager.connected;
     }
@@ -68,6 +70,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    public var CurrentInclination: UInt16! = 0
+    public var CurrentDistance: UInt64! = 0
     public var lastCurrentSlope: UInt64! = 0;
     
     public var serviceToggle: UInt8 = 0
@@ -230,12 +234,19 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-            if(requests.first!.value?.first == 0x11)
+          if(requests.first!.value?.first == 0x11)
           {
                    var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
                 
                 self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
+          }
+          else if(requests.first!.value?.first == 0x03)
+          {
+              var high : Int16 = ((Int16)(requests.first!.value![2])) << 8;
+              self.CurrentSlope = ((Double)((Int16)(requests.first!.value![1]) + high)) * 10.0;
+                
+              self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
           }
             else if(requests.first!.value?.first == 0x05)
           {
@@ -305,14 +316,15 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
 
     func calculateTreadmillData() -> Data {
-        let flags0:UInt8 = 0x08
+        let flags0:UInt8 = 0x0C
         let flags1:UInt8 = 0x01
       
         var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
-                                      // TODO: add the incline from C++
-                                      0x00, 0x00, 0x00, 0x00,
+                                      (UInt8)(self.CurrentDistance & 0xFF), (UInt8)((self.CurrentDistance >> 8) & 0xFF), (UInt8)((self.CurrentDistance >> 16) & 0xFF),
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
+                                      (UInt8)(self.CurrentInclination & 0xFF), (UInt8)((self.CurrentInclination >> 8) & 0xFF),
                                       self.heartRate]
-      let treadmillDataData = Data(bytes: &treadmillData, count: 10)
+      let treadmillDataData = Data(bytes: &treadmillData, count: 13)
       return treadmillDataData
     }
 

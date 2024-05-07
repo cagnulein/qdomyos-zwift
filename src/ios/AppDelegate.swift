@@ -17,9 +17,21 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
+    let SwiftDebug = swiftDebug()
         
     @objc public func request()
     {
+        SwiftDebug.qtDebug("swift debug test")
+        if #available(iOS 13.0, *) {
+            Client.client.start()
+        } else {
+            // Fallback on earlier versions
+        }
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
+        }
+        Server.server?.start()
+	
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
         
@@ -38,7 +50,7 @@ var pedometer = CMPedometer()
     {
         return WatchKitConnection.currentHeartRate;
     }
-
+    
     @objc public func stepCadence() -> Int
     {
         return WatchKitConnection.stepCadence;
@@ -46,12 +58,76 @@ var pedometer = CMPedometer()
     
     @objc public func setDistance(distance: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
         WatchKitConnection.distance = distance;
+        Server.server?.send(createString(sender: sender))
     }
     
     @objc public func setKcal(kcal: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
         WatchKitConnection.kcal = kcal;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setCadence(cadence: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.cadence = cadence;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setSpeed(speed: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.speed = speed;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    @objc public func setPower(power: Double) -> Void
+    {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        WatchKitConnection.power = power;
+        Server.server?.send(createString(sender: sender))
+    }
+    
+    func createString(sender: String) -> String {
+        return "SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(WatchKitConnection.kcal)#BCAD=\(WatchKitConnection.cadence)#SPD=\(WatchKitConnection.speed)#PWR=\(WatchKitConnection.power)#CAD=\(WatchKitConnection.stepCadence)#ODO=\(WatchKitConnection.distance)#";
+    }
+    
+    @objc func updateHeartRate() {
+        var sender: String
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            sender = "PAD"
+        } else {
+            sender = "PHONE"
+        }
+        Server.server?.send(createString(sender: sender))
     }
 }
 /*

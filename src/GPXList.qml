@@ -11,6 +11,7 @@ import QtLocation 5.6
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_open_other_folder(url name)
     signal trainprogram_preview(url name)
     FileDialog {
         id: fileDialogTrainProgram
@@ -18,7 +19,11 @@ ColumnLayout {
         folder: shortcuts.home
         onAccepted: {
             console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-            trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            if(OS_VERSION === "Android") {
+                trainprogram_open_other_folder(fileDialogTrainProgram.fileUrl)
+            } else {
+                trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            }
             fileDialogTrainProgram.close()
         }
         onRejected: {
@@ -61,6 +66,12 @@ ColumnLayout {
                     id: filterField
                     onTextChanged: updateFilter()
                 }
+                Button {
+                     anchors.left: mainRect.right
+                     anchors.leftMargin: 5
+                     text: "←"
+                     onClicked: folderModel.folder = folderModel.parentFolder
+                }
             }
 
             ListView {
@@ -78,6 +89,8 @@ ColumnLayout {
                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
                     showDotAndDotDot: false
                     showDirs: true
+                    sortField: "Name"
+                    showDirsFirst: true
                 }
                 model: folderModel
                 delegate: Component {
@@ -96,7 +109,7 @@ ColumnLayout {
                             clip: true
                             Text {
                                 id: fileTextBox
-                                color: Material.color(Material.Grey)
+                                color: (!folderModel.isFolder(index)?Material.color(Material.Grey):Material.color(Material.Orange))
                                 font.pixelSize: Qt.application.font.pixelSize * 1.6
                                 text: fileName.substring(0, fileName.length-4)
                                 NumberAnimation on x {
@@ -124,9 +137,11 @@ ColumnLayout {
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                                    if (fileUrl) {
+                                    if (fileUrl && !folderModel.isFolder(list.currentIndex)) {
                                         trainprogram_open_clicked(fileUrl);
                                         popup.open()
+                                    } else {
+                                        folderModel.folder = fileURL
                                     }
                                 }
                                 else {

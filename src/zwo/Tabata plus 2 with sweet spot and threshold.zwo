@@ -2,7 +2,7 @@
 <workout_file>
     <author>Jonathan Colledge</author>
     <name> Tabata plus 2 with sweet spot and threshold</name>
-    <description>Because the recovery is very short, even with the short intervals, Tabata training (+2) should hit your VO2max training zone. Tabata intervals work initially on your anaerobic exercise capacity, but over a 4 minute duration with only short rest periods, it can be expected that aerobic capacity is trained (as Tabata originally demonstrated using only a single set 5 times a week for 5 weeks). Including Tabata in a workout isn’t how it was originally tested, but is useful. I’ve added 2 intervals to make this 5 minutes so it definitely hits VO2max work. The rest of this work out focusses on sweet spot and threshold riding. 
+    <description>Because the recovery is very short, even with the short intervals, Tabata training (+2) should hit your VO2max training zone. Tabata intervals work initially on your anaerobic exercise capacity, but over a 4 minute duration with only short rest periods, it can be expected that aerobic capacity is trained (as Tabata originally demonstrated using only a single set 5 times a week for 5 weeks). Including Tabata in a workout isn’t how it was originally tested, but is useful. I’ve added 2 intervals to make this 5 minutes so it definitely hits VO2max work. The rest of this work out focuses on sweet spot and threshold riding.
 
 References:
 
@@ -14,7 +14,7 @@ References:
         <tag name="Tabata"/>
         <tag name="JonathanC"/>
         <tag name="VO2max"/>
-        <tag name="Sweet"/>		
+        <tag name="Sweet"/>
     </tags>
     <workout>
         <SteadyState Duration="60.0" PowerLow="0.600" PowerHigh="0.600"/>

@@ -1,7 +1,7 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
-#include "bluetoothdevice.h"
 #include "fit_profile.hpp"
+#include "devices/bluetoothdevice.h"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
@@ -27,6 +27,20 @@ class TemplateInfoSenderBuilder : public QObject {
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
+    void lap();
+    void floatingClose();
+    void pelotonOffset_Plus();
+    void pelotonOffset_Minus();
+    void gears_Plus();
+    void gears_Minus();
+    int pelotonOffset();
+    bool pelotonAskStart();
+    void peloton_start_workout();
+    void peloton_abort_workout();
+    void Start();
+    void Pause();
+    void Stop();
+    void autoResistance();
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -46,7 +60,6 @@ class TemplateInfoSenderBuilder : public QObject {
     TemplateInfoSenderBuilder(QObject *parent);
     void load(const QString &idInfo, const QStringList &folders);
     static QHash<QString, TemplateInfoSenderBuilder *> instanceMap;
-    QSettings settings;
     QHash<QString, TemplateInfoSender *> templateInfoMap;
     TemplateInfoSender *newTemplate(const QString &id, const QString &tp, const QString &dataTempl);
     QHash<QString, QString> templateFilesList;
@@ -59,8 +72,19 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetPelotonImage(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onLap(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonOffsetPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonOffsetMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsPlus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGearsMinus(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonStartWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onPelotonAbortWorkout(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onFloatingClose(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onAutoresistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
     void onGetPreviewSessionArray(TemplateInfoSender *tempSender);

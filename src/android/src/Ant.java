@@ -35,11 +35,13 @@ public class Ant {
  static boolean speedRequest = false;
  static boolean heartRequest = false;
  static boolean garminKey = false;
+ static boolean treadmill = false;
 
- public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey) {
+ public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest, boolean GarminKey, boolean Treadmill) {
 	 Log.v(TAG, "antStart");
 	 speedRequest = SpeedRequest;
 	 heartRequest = HeartRequest;
+	 treadmill = Treadmill;
 	 garminKey = GarminKey;
 
 	 activity = a;

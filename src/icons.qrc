@@ -30,5 +30,8 @@
         <file>icons/lock.png</file>
         <file>icons/unlock.png</file>
         <file>icons/maps-icon-16.png</file>
+        <file>icons/video.png</file>
+        <file>icons/mini-display.png</file>
+        <file>icons/btn_strava_connectwith_orange.png</file>
     </qresource>
 </RCC>
