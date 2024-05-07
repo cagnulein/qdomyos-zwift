@@ -101,7 +101,7 @@ ColumnLayout {
                                 }
                             }
                         }
-                        /*MouseArea {
+                        MouseArea {
                             anchors.fill: parent
                             z: 100
                             onClicked: {
@@ -119,7 +119,7 @@ ColumnLayout {
                                     list.currentIndex = index
                                 }
                             }
-                        }*/
+                        }
                     }
                 }
                 highlight: Rectangle {
@@ -148,6 +148,13 @@ ColumnLayout {
 
                 }
             }
+        }
+    }
+
+    Connections {
+        target: homeform
+        onPreviewFitFile: {
+            console.log("Ricevuto il risultato: " + result);
         }
     }
 }

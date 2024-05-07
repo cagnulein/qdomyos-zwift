@@ -677,7 +677,7 @@ class Listener : public fit::FileIdMesgListener,
 
 void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
     std::fstream file;
-    file.open(filename.toStdString(), std::ios::in);
+    file.open(filename.toStdString(), std::ios::in | std::ios::binary);
 
     if (!file.is_open()) {
 
