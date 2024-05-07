@@ -173,7 +173,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     ftpSessionField.AddValue(settings.value(QStringLiteral("ftp"), 200.0).toDouble());
 
     fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
-    activityTitleField.SetSTRINGValue(title.toStdWString());
+    activityTitleField.SetSTRINGValue(workoutName.toStdWString());
 
     fit::SessionMesg sessionMesg;
     sessionMesg.AddDeveloperField(activityTitleField);
@@ -323,7 +323,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
 
-    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
     SessionLine sl;
     if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
         double distanceOld = -1.0;
@@ -676,7 +675,7 @@ class Listener : public fit::FileIdMesgListener,
     }
 };
 
-void qfit::open(const QString &filename, QList<SessionLine> *output) {
+void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
     std::fstream file;
     file.open(filename.toStdString(), std::ios::in);
 

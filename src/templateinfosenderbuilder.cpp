@@ -1183,6 +1183,7 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
     buildContext(true);
     QJSValue glob = engine->globalObject();
     QJSValue obj;
+    QSettings settings;
     obj = glob.property(QStringLiteral("workout"));
     foreach (SessionLine s, *session) {
         QTime el = QTime::fromMSecsSinceStartOfDay(s.elapsedTime * 1000);
@@ -1237,7 +1238,7 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *sessio
         obj.setProperty(QStringLiteral("altitude"), s.coordinate.altitude());
         obj.setProperty(
             QStringLiteral("nickName"),
-            (nickName = settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString()).isEmpty()
+            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()).isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
         if (sport == FIT_SPORT_CYCLING) {

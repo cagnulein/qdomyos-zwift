@@ -941,7 +941,7 @@ void homeform::backup() {
 
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
-        qfit::save(filename, Session, dev->deviceType(), activityName(false),
+        qfit::save(filename, Session, dev->deviceType(),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType, dev->bluetoothDevice.name());
 
@@ -5694,7 +5694,7 @@ void homeform::fitfile_preview_clicked(const QUrl &fileName) {
         QList<SessionLine> a;
         FIT_SPORT sport;
         qfit::open(file.fileName(), &a, &sport);
-        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&a, sport);
+        this->innerTemplateManager->previewSessionOnChart(&a, sport);
     }
 }
 
@@ -5836,34 +5836,6 @@ void homeform::strava_refreshtoken() {
 
     setToastRequested("Strava Login OK!");
     emit toastRequestedChanged(toastRequested());
-}
-
-QString homeform::activityName(bool strava_suffix) {
-    QSettings settings;
-    QString activityName =
-        strava_suffix
-            ? QStringLiteral(" ") + settings.value(QStringLiteral("strava_suffix"), QStringLiteral("#QZ")).toString()
-            : "";
-    if (!stravaPelotonActivityName.isEmpty()) {
-        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName + activityName;
-        if (pelotonHandler && settings.value(QStringLiteral("peloton_description_link"), true).toBool())
-            activityDescription =
-                QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
-                pelotonHandler->current_ride_id;
-    } else if (!stravaWorkoutName.isEmpty()) {
-        activityName = stravaWorkoutName;
-    } else {
-        if (bluetoothManager && bluetoothManager->device()) {
-            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                activityName = QStringLiteral("Run") + activityName;
-            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-                activityName = QStringLiteral("Row") + activityName;
-            } else {
-                activityName = QStringLiteral("Ride") + activityName;
-            }
-        }
-    }
-    return activityName;
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -6313,7 +6285,10 @@ void homeform::sendMail() {
                                           settings.value(QZSettings::user_email, QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
-        title += activityName(false);
+        if (!stravaPelotonActivityName.isEmpty()) {
+            title +=
+                QStringLiteral(" ") + stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
+        }
         message.setSubject(title);
     } else {
         message.setSubject(QStringLiteral("Test"));
