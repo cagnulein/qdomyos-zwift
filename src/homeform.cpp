@@ -559,7 +559,19 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
             QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
-    }    
+    }
+
+    QDirIterator itFit(getWritableAppDir(),  QStringList() << ".fit");
+    QDir().mkdir(getWritableAppDir() + "fit");
+    while (itFit.hasNext()) {
+        qDebug() << itFit.filePath() << itFit.fileName() << itFit.filePath().replace(itFit.path(), "");
+        if (!QFile(getWritableAppDir() + itFit.next().replace(itFit.path(), "")).exists() && !itFit.fileName().contains("backup")) {
+            if(QFile::copy(itFit.filePath(), getWritableAppDir() + "fit/" + itFit.filePath().replace(itFit.path(), "")))
+                QFile::remove(itFit.filePath());
+        }
+    }
+
+
 #ifdef Q_OS_ANDROID
     // Android 14 restrics access to /Android/data folder
     bool android_documents_folder = settings.value(QZSettings::android_documents_folder, QZSettings::default_android_documents_folder).toBool();
@@ -5579,7 +5591,7 @@ void homeform::fit_save_clicked() {
     QString path = getWritableAppDir();
     bluetoothdevice *dev = bluetoothManager->device();
     if (dev) {
-        QString filename = path +
+        QString filename = path + "fit/" +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
 

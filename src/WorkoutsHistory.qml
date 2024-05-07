@@ -6,7 +6,6 @@ import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
 import QtCharts 2.2
 import Qt.labs.settings 1.0
-import QtWebView 1.1
 
 ColumnLayout {
     signal fitfile_preview(url name)
@@ -40,7 +39,8 @@ ColumnLayout {
                            filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
                         filter+="*"
                         print(filter)
-                        folderModel.nameFilters = [filter + ".fit"]
+                        var excludeBackup = "*backup*";
+                        folderModel.nameFilters = [filter + ".fit", "!" + excludeBackup];
                     }
                     id: filterField
                     onTextChanged: updateFilter()
@@ -59,9 +59,9 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.fit"]
-                    folder: "file://" + rootItem.getWritableAppDir()
+                    folder: "file:///" + rootItem.getWritableAppDir().replace(/\\/g, "/") + "/fit"
                     showDotAndDotDot: false
-                    showDirs: true
+                    showDirs: false
                 }
                 model: folderModel
                 delegate: Component {
@@ -101,12 +101,12 @@ ColumnLayout {
                                 }
                             }
                         }
-                        MouseArea {
+                        /*MouseArea {
                             anchors.fill: parent
                             z: 100
                             onClicked: {
                                 console.log('onclicked ' + index+ " count "+list.count);
-                                if (index == list.currentIndex) {
+                                if (index === list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
                                         trainprogram_open_clicked(fileUrl);
@@ -119,7 +119,7 @@ ColumnLayout {
                                     list.currentIndex = index
                                 }
                             }
-                        }
+                        }*/
                     }
                 }
                 highlight: Rectangle {
@@ -147,40 +147,6 @@ ColumnLayout {
                 Component.onCompleted: {
 
                 }
-            }
-        }
-
-        ScrollView {
-            anchors.top: parent.top
-            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-            //contentHeight: map.height
-            Layout.preferredHeight: parent.height
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumWidth: 100
-            Layout.preferredWidth: 200
-
-            Row {
-                id: row
-                anchors.fill: parent
-
-                Settings {
-                    id: settings
-                }
-                WebView {
-                    height: parent.height
-                    width: parent.width
-                    id: webView
-                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/previewchart/chart.htm"
-                    visible: true
-                    onLoadingChanged: {
-                        if (loadRequest.errorString) {
-                            console.error(loadRequest.errorString);
-                            console.error("port " + settings.value("template_inner_QZWS_port"));
-                        }
-                    }
-                }
-
             }
         }
     }
