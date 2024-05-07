@@ -5707,7 +5707,7 @@ void homeform::fitfile_preview_clicked(const QUrl &fileName) {
         FIT_SPORT sport;
         qfit::open(file.fileName(), &a, &sport);
         this->innerTemplateManager->previewSessionOnChart(&a, sport);
-        emit previewFitFile(fileName.toLocalFile(), a.last().elapsedTime);
+        emit previewFitFile(fileName.toLocalFile(), QTime(0,0,0,0).addSecs(a.last().elapsedTime).toString());
     }
 }
 

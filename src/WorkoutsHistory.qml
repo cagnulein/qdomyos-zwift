@@ -67,6 +67,7 @@ ColumnLayout {
                 delegate: Component {
                     Rectangle {
                         property alias textColor: fileTextBox.color
+                        property string summary: ""
                         width: parent.width
                         height: 40
                         color: Material.backgroundColor
@@ -82,7 +83,7 @@ ColumnLayout {
                                 id: fileTextBox
                                 color: Material.color(Material.Grey)
                                 font.pixelSize: Qt.application.font.pixelSize * 1.6
-                                text: fileName.substring(0, fileName.length-4)
+                                text: summary || fileName.substring(0, fileName.length-4)
                                 NumberAnimation on x {
                                     Component.onCompleted: {
                                         if(fileName.length > 30) {
@@ -98,6 +99,16 @@ ColumnLayout {
                                   text: fileTextBox.text
                                   color: Material.color(Material.Grey)
                                   font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                }
+                            }
+                            Text {
+                                id: resultTextBox
+                                color: Material.color(Material.Grey)
+                                font.pixelSize: Qt.application.font.pixelSize * 1.2
+                                text: summary
+                                anchors {
+                                    top: fileTextBox.bottom
+                                    left: fileTextBox.left
                                 }
                             }
                         }
@@ -141,7 +152,7 @@ ColumnLayout {
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                         fitfile_preview(fileUrl)
-                        webView.reload();
+                        //webView.reload();
                     }
                 }
                 Component.onCompleted: {
@@ -152,9 +163,17 @@ ColumnLayout {
     }
 
     Connections {
-        target: homeform
+        target: rootItem
         onPreviewFitFile: {
             console.log("Ricevuto il risultato: " + result);
+            for (var i = 0; i < list.count; i++) {
+                var item = list.itemAt(i);
+                if (item && item.fileName === filename) {
+                    // Update the result property of the item
+                    item.summary = result;
+                    break;
+                }
+            }
         }
     }
 }
