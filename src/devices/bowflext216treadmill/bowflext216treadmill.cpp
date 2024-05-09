@@ -319,19 +319,19 @@ void bowflext216treadmill::update() {
         }
 
         if (requestStart != -1) {
-            uint8_t start[] = {0x07, 0x06, 0xcf, 0x00, 0x1f, 0x05, 0x00};
-            emit debug(QStringLiteral("starting..."));
-            if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
-            }
-            writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+            bowflext216treadmill::digitalWrite(OUTPUT_START, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            bowflext216treadmill::digitalWrite(OUTPUT_START, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1 || requestPause != -1) {
-            uint8_t stop[] = {0x0a, 0x08, 0x7a, 0x00, 0x19, 0x28, 0x01, 0x32, 0x00, 0x00};
-            emit debug(QStringLiteral("stopping..."));
-            writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+            bowflext216treadmill::digitalWrite(OUTPUT_STOP, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            bowflext216treadmill::digitalWrite(OUTPUT_STOP, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
             requestStop = -1;
             requestPause = -1;
         }
