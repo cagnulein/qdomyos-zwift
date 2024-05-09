@@ -914,7 +914,7 @@ import QtQuick.Dialogs 1.0
             property int  tile_erg_mode_order: 52
 
             // from version 2.16.45
-            property bool toorx_srx_3500: false
+            property bool toorx_srx_3500: false  
             property real inclination_delay_seconds: 0.0
 
             // from version 2.16.47
@@ -931,6 +931,11 @@ import QtQuick.Dialogs 1.0
             property bool tile_rss_enabled: false
             property int  tile_rss_order: 53
             property string treadmillDataPoints: ""
+
+            // from version 2.16.54
+            property bool nordictrack_s20i_treadmill: false
+            property bool stryd_speed_instead_treadmill: false
+            property bool proform_595i_proshox2: false
         }
 
         function paddingZeros(text, limit) {
@@ -5815,7 +5820,7 @@ import QtQuick.Dialogs 1.0
                                 "Nordictrack S20", "Nordictrack S30", "Proform 1800i",
                                 "Proform/NordicTrack z1300i", "Proform SE", "Proform Cadence LT",
                                 "Proform 8.0", "Proform 9.0", "Proform 705 CST", "Nordictrack x14i", 
-                                "Proform Carbon TL", "Proform Proshox 2"
+                                "Proform Carbon TL", "Proform Proshox 2", "Nordictrack S20i", "Proform 595i"
                             ]
 
                             onCurrentIndexChanged: {
@@ -5849,6 +5854,8 @@ import QtQuick.Dialogs 1.0
                                 settings.nordictrack_treadmill_x14i = false;
                                 settings.proform_carbon_tl = false;
                                 settings.proform_proshox2 = false;
+                                settings.nordictrack_s20i_treadmill = false;
+                                settings.proform_595i_proshox2 = false;
 
                                 // Imposta il setting corrispondente al modello selezionato
                                 switch (currentIndex) {
@@ -5879,6 +5886,8 @@ import QtQuick.Dialogs 1.0
                                     case 24: settings.nordictrack_treadmill_x14i = true; break;
                                     case 25: settings.proform_carbon_tl = true; break;
                                     case 26: settings.proform_proshox2 = true; break;
+                                    case 27: settings.nordictrack_s20i_treadmill = true; break;
+                                    case 28: settings.proform_595i_proshox2 = true; break;
                                 }
                             }
 
@@ -5910,7 +5919,9 @@ import QtQuick.Dialogs 1.0
                                                     settings.proform_treadmill_705_cst ? 23 :
                                                     settings.nordictrack_treadmill_x14i ? 24 :
                                                     settings.proform_carbon_tl ? 25 :
-                                                    settings.proform_proshox2 ? 26 : -1;
+                                                    settings.proform_proshox2 ? 26 :
+                                                    settings.nordictrack_s20i_treadmill ? 27 :
+                                                    settings.proform_595i_proshox2 ? 28 : -1;
 
                                 console.log("treadmillModelComboBox " + "Component.onCompleted " + selectedModel);
 
@@ -8367,6 +8378,33 @@ import QtQuick.Dialogs 1.0
 
                             Label {
                                 text: qsTr("Divide the cadence sent to Strava by 2.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }
+
+                            SwitchDelegate {
+                                text: qsTr("Use speed from the power sensor")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_speed_instead_treadmill
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_speed_instead_treadmill = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ and you want to use the speed from the stryd instead of the speed of the treadmill, enable this. Default: disabled.")
                                 font.bold: true
                                 font.italic: true
                                 font.pixelSize: 9

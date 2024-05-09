@@ -355,7 +355,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double speed = GetSpeedFromPacket(value);
     double kcal;
     if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
-        kcal = GetKcalFromPacket(newValue);
+        kcal = GetKcalFromPacket(value);
     else {
         if (watts())
             kcal =

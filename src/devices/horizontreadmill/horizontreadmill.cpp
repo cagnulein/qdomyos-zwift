@@ -1358,10 +1358,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
         lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
-        Speed = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
+        parseSpeed((((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                  100.0) *
-                1.60934; // miles/h
+                1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Inclination = treadmillInclinationOverride((double)((uint8_t)lastPacketComplete.at(30)) / 10.0);
@@ -1386,9 +1386,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
-        Speed =
-            (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
-            1.60934; // miles/h
+        parseSpeed((((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
+                       1.60934); // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Inclination = treadmillInclinationOverride((double)((uint8_t)newValue.at(63)) / 10.0);
@@ -1413,7 +1412,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         distanceEval = true;
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
                newValue.at(0) == 0x55) {
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0;
+        parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
@@ -1477,9 +1476,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 2;
 
         if (!Flags.moreData) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                    100.0);
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
@@ -1626,9 +1625,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 3;
 
         if (!Flags.moreData && newValue.length() > index + 1) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+            parseSpeed(((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                       100.0);
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
             index += 2;
         }

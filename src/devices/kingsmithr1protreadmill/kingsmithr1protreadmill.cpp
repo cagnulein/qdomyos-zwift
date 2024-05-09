@@ -299,6 +299,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
             lastTargetSpeed = -1;
         }
     } else {
+        Cadence = 0;
         lastStop = 0;
         targetSpeed = 0;
         lastTargetSpeed = GetTargetSpeedFromPacket(value);
@@ -348,17 +349,15 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     else {
         double sc = GetStepsFromPacket(value);
         StepCount = sc;
-        if(sc < StepCount.value()) {
-            double c = (StepCount.value() - sc) / (lastTimeStepCountChanged.msecsTo(QDateTime::currentDateTime()) / 60000);
+        if(lastStepCount < StepCount.value()) {
+            double c = (StepCount.value() - lastStepCount) / (lastTimeStepCountChanged.msecsTo(QDateTime::currentDateTime()) / 60000.0);
             if(c < 255)
-                Cadence = c;
+                cadenceRaw = c;
+            Cadence = cadenceRaw.average5s();
             lastTimeStepCountChanged = QDateTime::currentDateTime();
-        } else {
-            Cadence = 0;
         }
         lastStepCount = sc;
-    }
-
+    }    
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));

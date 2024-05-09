@@ -700,7 +700,10 @@ void trainprogram::scheduler() {
                                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || 
                                         (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && ((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware())) {
                                         bluetoothManager->device()->changeInclination(grade, grade);
-                                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                                    }
+                                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+                                            (!((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware() ||
+                                             ((elliptical*)bluetoothManager->device())->inclinationSeparatedFromResistance())) {
                                         QSettings settings;
                                         double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
                                         double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();

@@ -61,8 +61,6 @@ class trxappgateusbbike : public bike {
 
     QTimer *refresh;
 
-    ergTable _ergTable;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -112,6 +110,7 @@ class trxappgateusbbike : public bike {
         ENERFIT_SPX_9500_2 = 21,
         REEBOK = 22,
         REEBOK_2 = 23,
+        BIKZU = 24,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
