@@ -51,7 +51,7 @@ public:
 public slots:
     void updateTokenData() {
         if (haveValidRefreshToken()) {
-            QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
+            QUrl url("https://192.168.1.3/auth/realms/zwift/tokens/access/codes");
             QUrlQuery query;
             query.addQueryItem("refresh_token", refresh_token);
             query.addQueryItem("grant_type", "refresh_token");
