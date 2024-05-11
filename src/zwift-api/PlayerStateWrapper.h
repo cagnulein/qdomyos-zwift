@@ -54,7 +54,7 @@ public:
 
 private:
     QNetworkAccessManager manager;
-    const QString BASE_URL = "https://us-or-rly101.zwift.com";
+    const QString BASE_URL = "https://192.168.1.3";
     const QString getAccessToken;
 };
 
