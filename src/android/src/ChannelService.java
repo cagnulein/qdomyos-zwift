@@ -131,7 +131,7 @@ public class ChannelService extends Service {
             }
         }
 
-        void setInclination(int inclination) {
+        void setInclination(float inclination) {
             if (null != ftmsChannelController) {
                 ftmsChannelController.inclination = inclination;
             }
