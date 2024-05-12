@@ -209,13 +209,13 @@ public class FTMSChannelController {
                        double speedM_s = speed / 3.6;
                        long deltaTime = (realtimeMillis - lastTime);
                        lastTime = realtimeMillis;
-                       elapsed = elapsed + ((byte)1);
+                       elapsed = (byte)(elapsed + ((byte)1));
                        int speed_0_001 = (int)(speedM_s * 1000.0);
                        int incline_0_01 = (int)(inclination * 100.0);
 
                        // this 
                        if(elapsed % 4 == 0)
-                            distance = distance + ((byte)((speed / 3.6)));
+                            distance = (byte)(distance + ((byte)((speed / 3.6))));
 
                        byte[] payload = new byte[8];
 
