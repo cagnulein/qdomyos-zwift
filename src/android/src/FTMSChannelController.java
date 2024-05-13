@@ -247,7 +247,7 @@ public class FTMSChannelController {
                            payload[6] = (byte) 0;
                            payload[7] = (byte) 0 | (3 << 4); //bits
                        }
-                       page = page + 1
+                       page = page + 1;
                        if(page > 3)
                             page = 0;
 
@@ -321,7 +321,7 @@ public class FTMSChannelController {
                                 payload[6] = (byte) 0;
                                 payload[7] = (byte) 0 | (3 << 4); //bits
                             }
-                            page = page + 1
+                            page = page + 1;
                             if(page > 3)
                                  page = 0;
 
