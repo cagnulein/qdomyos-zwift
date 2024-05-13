@@ -228,7 +228,7 @@ public class FTMSChannelController {
                            payload[4] = (byte) (speed_0_001 & 0xFF);
                            payload[5] = (byte) ((speed_0_001 >> 8) & 0xFF);
                            payload[6] = (byte) 0; // heart
-                           payload[7] = (byte) 3 | (2 << 4); //bits
+                           payload[7] = (byte) 3 | (3 << 4); //bits
                        } else {
                            page = 0;
                            payload[0] = (byte) 0x11;
@@ -238,7 +238,7 @@ public class FTMSChannelController {
                            payload[4] = (byte) (incline_0_01 & 0xFF);
                            payload[5] = (byte) ((incline_0_01 >> 8) & 0xFF);
                            payload[6] = (byte) resistance;
-                           payload[7] = (byte) 0 | (2 << 4); //bits
+                           payload[7] = (byte) 0 | (3 << 4); //bits
                        }
 
 
@@ -294,7 +294,7 @@ public class FTMSChannelController {
                                 payload[4] = (byte) (speed_0_001 & 0xFF);
                                 payload[5] = (byte) ((speed_0_001 >> 8) & 0xFF);
                                 payload[6] = (byte) 0; // heart
-                                payload[7] = (byte) 3 | (2 << 4); //bits
+                                payload[7] = (byte) 3 | (3 << 4); //bits
                             } else {
                                 page = 0;
                                 payload[0] = (byte) 0x11;
@@ -304,7 +304,7 @@ public class FTMSChannelController {
                                 payload[4] = (byte) (incline_0_01 & 0xFF);
                                 payload[5] = (byte) ((incline_0_01 >> 8) & 0xFF);
                                 payload[6] = (byte) resistance;
-                                payload[7] = (byte) 0 | (2 << 4); //bits
+                                payload[7] = (byte) 0 | (3 << 4); //bits
                             }
 
                             if (mIsOpen) {
