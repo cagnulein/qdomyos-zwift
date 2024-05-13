@@ -219,8 +219,7 @@ public class FTMSChannelController {
 
                        byte[] payload = new byte[8];
 
-                       if(page == 0) {
-                           page = 1;
+                       if(page == 0 || page == 1) {
                            payload[0] = (byte) 0x10;
                            payload[1] = (byte) 19; //treadmill
                            payload[2] = (byte) elapsed;
@@ -229,8 +228,7 @@ public class FTMSChannelController {
                            payload[5] = (byte) ((speed_0_001 >> 8) & 0xFF);
                            payload[6] = (byte) 0; // heart
                            payload[7] = (byte) 3 | (3 << 4); //bits
-                       } else {
-                           page = 0;
+                       } else if (page == 2) {
                            payload[0] = (byte) 0x11;
                            payload[1] = (byte) 0xFF;
                            payload[2] = (byte) 0xFF;
@@ -239,9 +237,19 @@ public class FTMSChannelController {
                            payload[5] = (byte) ((incline_0_01 >> 8) & 0xFF);
                            payload[6] = (byte) resistance;
                            payload[7] = (byte) 0 | (3 << 4); //bits
+                       } else {
+                           payload[0] = (byte) 0x13;
+                           payload[1] = (byte) 0xFF;
+                           payload[2] = (byte) 0xFF;
+                           payload[3] = (byte) 0xFF;
+                           payload[4] = (byte) cadence;
+                           payload[5] = (byte) 0;
+                           payload[6] = (byte) 0;
+                           payload[7] = (byte) 0 | (3 << 4); //bits
                        }
-
-
+                       page = page + 1
+                       if(page > 3)
+                            page = 0;
 
                        if (mIsOpen) {
                            try {
@@ -285,8 +293,7 @@ public class FTMSChannelController {
 
                             byte[] payload = new byte[8];
 
-                            if(page == 0) {
-                                page = 1;
+                            if(page == 0 || page == 1) {
                                 payload[0] = (byte) 0x10;
                                 payload[1] = (byte) 19; //treadmill
                                 payload[2] = (byte) elapsed;
@@ -295,8 +302,7 @@ public class FTMSChannelController {
                                 payload[5] = (byte) ((speed_0_001 >> 8) & 0xFF);
                                 payload[6] = (byte) 0; // heart
                                 payload[7] = (byte) 3 | (3 << 4); //bits
-                            } else {
-                                page = 0;
+                            } else if (page == 2) {
                                 payload[0] = (byte) 0x11;
                                 payload[1] = (byte) 0xFF;
                                 payload[2] = (byte) 0xFF;
@@ -305,7 +311,19 @@ public class FTMSChannelController {
                                 payload[5] = (byte) ((incline_0_01 >> 8) & 0xFF);
                                 payload[6] = (byte) resistance;
                                 payload[7] = (byte) 0 | (3 << 4); //bits
+                            } else {
+                                payload[0] = (byte) 0x13;
+                                payload[1] = (byte) 0xFF;
+                                payload[2] = (byte) 0xFF;
+                                payload[3] = (byte) 0xFF;
+                                payload[4] = (byte) cadence;
+                                payload[5] = (byte) 0;
+                                payload[6] = (byte) 0;
+                                payload[7] = (byte) 0 | (3 << 4); //bits
                             }
+                            page = page + 1
+                            if(page > 3)
+                                 page = 0;
 
                             if (mIsOpen) {
                                 try {
