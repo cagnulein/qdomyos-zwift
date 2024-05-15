@@ -64,7 +64,7 @@ public slots:
                 handleTokenResponse(reply);
             });
         } else {
-            QUrl url("https://secure.zwift.com/auth/realms/zwift/tokens/access/codes");
+            QUrl url("https://192.168.1.3/auth/realms/zwift/tokens/access/codes");
             QUrlQuery postData;
             postData.addQueryItem("username", QUrl::toPercentEncoding(username));
             postData.addQueryItem("password", password);
