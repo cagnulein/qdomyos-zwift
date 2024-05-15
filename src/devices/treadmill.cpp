@@ -233,7 +233,11 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
             return ((double)i) / 2.0;
         }
     }
-    if (Inclination < treadmillInclinationOverride(0))
+
+    // if the inclination is negative, since the table consider only positive values, I return the actual value
+    if(Inclination < 0)
+        return Inclination;
+    else if (Inclination < treadmillInclinationOverride(0))
         return treadmillInclinationOverride(0);
     else
         return treadmillInclinationOverride(15);
