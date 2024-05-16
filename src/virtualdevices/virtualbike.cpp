@@ -29,6 +29,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
+    bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
+
+    if(virtual_device_tacx)
+        power = true;
 
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
@@ -85,6 +89,11 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                 else if (power) {
 
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+
+                    if(virtual_device_tacx) {
+                        services << (QBluetoothUuid(QStringLiteral("6E40FEC1-B5A3-F393-E0A9-E50E24DCCA9E")));
+                    }
+
                 } else {
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
                 }
