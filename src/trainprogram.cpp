@@ -29,7 +29,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->description = *description;
     if (tags)
         this->tags = *tags;
-    
+
     if(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0) {
         zwift_auth_token = new AuthToken(settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString(), settings.value(QZSettings::zwift_password, QZSettings::default_zwift_password).toString());
         zwift_auth_token->getAccessToken();
@@ -602,8 +602,8 @@ void trainprogram::scheduler() {
         bluetoothManager->device()->isPaused()) {
         
         if(bluetoothManager->device() && (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
-           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token &&
-           zwift_auth_token->access_token.length() > 0) {
+           settings.value(QZSettings::zwift_username, QZSettings::default_zwift_username).toString().length() > 0 && zwift_auth_token /*&&
+           zwift_auth_token->access_token.length() > 0*/) {
             if(!zwift_world) {
                 zwift_world = new World(1, zwift_auth_token->getAccessToken());
                 qDebug() << "creating zwift api world";
@@ -615,6 +615,8 @@ void trainprogram::scheduler() {
                     h = new lockscreen();
 #endif
 #endif
+                zwift_player_id = 1; // on zoffline is always 1
+
                 if(zwift_player_id == -1) {
                     QString id = zwift_world->player_id();
                     QJsonParseError parseError;
