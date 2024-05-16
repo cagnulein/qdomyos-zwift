@@ -615,7 +615,7 @@ void trainprogram::scheduler() {
                     h = new lockscreen();
 #endif
 #endif
-                zwift_player_id = 1; // on zoffline is always 1
+                zwift_player_id = 2; // on zoffline is always 2
 
                 if(zwift_player_id == -1) {
                     QString id = zwift_world->player_id();
