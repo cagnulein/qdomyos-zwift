@@ -36,6 +36,21 @@
 
 #include "treadmill.h"
 
+class modbusWorkerThreadStartStop : public QThread
+{
+  public:
+    explicit modbusWorkerThreadStartStop(QObject *parent, QString name = "", uint8_t pin = 0, QSemaphore *semaphore = nullptr);
+    void run();
+    void toggle();
+  private:
+    bool _toggle = false;
+    QString name;
+    uint8_t pin;
+    const uint16_t GPIO_KEEP_MS = 1;
+    const uint16_t GPIO_REBOUND_MS = 175;
+    QSemaphore *semaphore;
+};
+
 class modbusWorkerThread : public QThread
 {
     public:
@@ -90,6 +105,8 @@ class bowflext216treadmill : public treadmill {
 
     modbusWorkerThread* speedThread;
     modbusWorkerThread* inclineThread;
+    modbusWorkerThreadStartStop* startThread;
+    modbusWorkerThreadStartStop* stopThread;
     QSemaphore *semaphore; // my treadmill don't like it if the buttons will be pressed simultanly
 
 

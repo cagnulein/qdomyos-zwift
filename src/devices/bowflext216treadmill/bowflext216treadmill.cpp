@@ -51,6 +51,31 @@ int wiringPiSetup() {
 #endif
 using namespace std::chrono_literals;
 
+modbusWorkerThreadStartStop::modbusWorkerThreadStartStop(QObject *parent, QString name, uint8_t pin, QSemaphore *semaphore): QThread(parent),
+                                                                                                                              name{name}, pin{pin}, semaphore{semaphore}
+{
+    bowflext216treadmill::digitalWrite(pin, 0);
+}
+
+
+void modbusWorkerThreadStartStop::toggle()
+{
+    this->_toggle = true;
+}
+
+void modbusWorkerThreadStartStop::run() {
+    if(_toggle) {
+        _toggle = false;
+        semaphore->acquire();
+        bowflext216treadmill::digitalWrite(pin, 1);
+        QThread::msleep(GPIO_KEEP_MS);
+        bowflext216treadmill::digitalWrite(pin, 0);
+        QThread::msleep(GPIO_REBOUND_MS);
+        semaphore->release();
+    }
+    QThread::msleep(50);
+}
+
 
 modbusWorkerThread::modbusWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
     name{name}, currentValue{currentValue}, pinUp{pinUp}, pinDown{pinDown}, step{step}, semaphore{semaphore}
@@ -155,12 +180,15 @@ bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConso
 
     //pinMode(OUTPUT_START, OUTPUT);
     //pinMode(OUTPUT_STOP, OUTPUT);
-    digitalWrite(OUTPUT_START, 0);
-    digitalWrite(OUTPUT_STOP, 0);
+    //digitalWrite(OUTPUT_START, 0);
+    //digitalWrite(OUTPUT_STOP, 0);
 
     semaphore = new QSemaphore(1);
     speedThread = new modbusWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
     inclineThread = new modbusWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
+    startThread = new modbusWorkerThreadStartStop(this, "start", OUTPUT_START, semaphore);
+    stopThread = new modbusWorkerThreadStartStop(this, "stop", OUTPUT_STOP, semaphore);
+
 
     refresh = new QTimer(this);
     initDone = false;
@@ -319,19 +347,13 @@ void bowflext216treadmill::update() {
         }
 
         if (requestStart != -1) {
-            bowflext216treadmill::digitalWrite(OUTPUT_START, 1);
-            QThread::msleep(GPIO_KEEP_MS);
-            bowflext216treadmill::digitalWrite(OUTPUT_START, 0);
-            QThread::msleep(GPIO_REBOUND_MS);
+            startThread->toggle();
 
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1 || requestPause != -1) {
-            bowflext216treadmill::digitalWrite(OUTPUT_STOP, 1);
-            QThread::msleep(GPIO_KEEP_MS);
-            bowflext216treadmill::digitalWrite(OUTPUT_STOP, 0);
-            QThread::msleep(GPIO_REBOUND_MS);
+            stopThread->toggle();
             requestStop = -1;
             requestPause = -1;
         }
