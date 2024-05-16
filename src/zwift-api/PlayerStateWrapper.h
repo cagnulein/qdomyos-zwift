@@ -19,7 +19,7 @@ public:
     QString json(const QString& url) {
         QNetworkRequest request(QUrl(BASE_URL + url));
         request.setRawHeader("Accept", "application/json");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
+        //request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
 
         QNetworkReply* reply = manager.get(request);
         QEventLoop loop;
@@ -37,7 +37,7 @@ public:
     QByteArray protobuf(const QString& url) {
         QNetworkRequest request(QUrl(BASE_URL + url));
         request.setRawHeader("Accept", "application/x-protobuf-lite");
-        request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
+        //request.setRawHeader("Authorization", "Bearer " + getAccessToken.toUtf8());
 
         QNetworkReply* reply = manager.get(request);
         QEventLoop loop;
