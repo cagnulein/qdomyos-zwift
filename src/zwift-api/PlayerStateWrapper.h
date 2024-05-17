@@ -10,7 +10,7 @@
 #include <QEventLoop>
 #include <QDebug>
 #include <QFile>
-#include "homeform.h"
+#include "../homeform.h"
 
 class ZwiftRequest: public QObject {
     Q_OBJECT
