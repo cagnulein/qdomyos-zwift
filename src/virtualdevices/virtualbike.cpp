@@ -58,7 +58,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if ((ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only) || garmin_bluetooth_compatibility) {
+    if ((ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !virtual_device_tacx) || garmin_bluetooth_compatibility) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
@@ -72,7 +72,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
-        if (!echelon && !ifit) {
+        if(virtual_device_tacx) {
+            advertisingData.setLocalName(QStringLiteral("TACX SMART BIKE"));
+        } else if (!echelon && !ifit) {
             advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
@@ -87,12 +89,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
                 else if (power) {
-
-                    services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
-
                     if(virtual_device_tacx) {
                         services << (QBluetoothUuid(QStringLiteral("6E40FEC1-B5A3-F393-E0A9-E50E24DCCA9E")));
                     }
+
+                    services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+
 
                 } else {
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
