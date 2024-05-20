@@ -91,6 +91,12 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
             emit onWatt(watt);
         if (hrmFound)
             emit onHRM(hrm);
+#ifdef Q_OS_WINDOWS        
+        if(adbCommandPending.length() != 0) {
+            runAdbCommand(adbCommandPending);
+            adbCommandPending = "";
+        }
+#endif                                
     });
     QObject::connect(process, &QProcess::readyReadStandardError, [process, this]() {
         auto output = process->readAllStandardError();
