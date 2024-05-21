@@ -352,6 +352,7 @@ void bluetooth::setLastBluetoothDevice(const QBluetoothDeviceInfo &b) {
 #endif
 }
 
+// this doesn't work on Windows. So be careful!
 bool bluetooth::deviceHasService(const QBluetoothDeviceInfo &device, QBluetoothUuid service) {
     foreach(QBluetoothUuid s, device.serviceUuids()) {
         if(s == service) {
