@@ -993,6 +993,8 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool proform_bike_225_csx = settings.value(QZSettings::proform_bike_225_csx, QZSettings::default_proform_bike_225_csx).toBool();
     bool nordictrack_GX4_5_bike =
         settings.value(QZSettings::nordictrack_GX4_5_bike, QZSettings::default_nordictrack_GX4_5_bike).toBool();
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -1036,7 +1038,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((uint8_t)newValue.at(2));
+                Cadence = (((uint8_t)newValue.at(2)) * cadence_gain) + cadence_offset;
             }
         }
     } else if (proform_bike_PFEVEX71316_1) {
@@ -1073,7 +1075,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((uint8_t)newValue.at(18));
+                Cadence = (((uint8_t)newValue.at(18)) * cadence_gain) + cadence_offset;
             }
         }
     } else {
@@ -1447,7 +1449,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
-                Cadence = ((uint8_t)newValue.at(18));
+                Cadence = (((uint8_t)newValue.at(18)) * cadence_gain) + cadence_offset;
             }
 
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
