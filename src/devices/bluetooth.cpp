@@ -1179,7 +1179,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("F65")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("F63")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("ST90")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("ST90")) && !deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("TRX7.5")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("F85")) && sole_inclination)) &&
@@ -1264,6 +1264,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("NOBLEPRO CONNECT")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("TT8")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("ST90")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("XT485"))  && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
                         b.name().toUpper().startsWith(QStringLiteral("MOBVOI TM")) ||                        // FTMS
                             b.name().toUpper().startsWith(QStringLiteral("LB600")) ||                        // FTMS
