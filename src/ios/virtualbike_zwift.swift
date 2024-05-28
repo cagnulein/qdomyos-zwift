@@ -11,9 +11,9 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 @objc public class virtualbike_zwift: NSObject {
     private var peripheralManager: BLEPeripheralManagerZwift!
     
-    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
+    @objc public init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, tacx: Bool) {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility)
+        peripheralManager = BLEPeripheralManagerZwift(disable_hr: disable_hr, garmin_bluetooth_compatibility: garmin_bluetooth_compatibility, tacx: tacx)
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -62,6 +62,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var garmin_bluetooth_compatibility: Bool = false
+    private var tacx: Bool = false
     private var disable_hr: Bool = false
   private var peripheralManager: CBPeripheralManager!
 
@@ -109,9 +110,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
-  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
+  init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, tacx: Bool) {
     super.init()
     self.disable_hr = disable_hr
+    self.tacx = tacx
     self.garmin_bluetooth_compatibility = garmin_bluetooth_compatibility
 
     peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
@@ -268,6 +270,10 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       if(garmin_bluetooth_compatibility) {
           let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                                 CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID]] as [String : Any]
+          peripheralManager.startAdvertising(advertisementData)
+      } else if(tacx) {
+          let advertisementData = [CBAdvertisementDataLocalNameKey: "Tacx Neo 17867",
+                                CBAdvertisementDataServiceUUIDsKey: [PowerServiceUUID, CSCServiceUUID]] as [String : Any]
           peripheralManager.startAdvertising(advertisementData)
       } else if(disable_hr) {
           // useful in order to hide HR from Garmin devices
