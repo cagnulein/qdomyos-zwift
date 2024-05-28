@@ -89,13 +89,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
                 else if (power) {
-                    if(virtual_device_tacx) {
-                        services << (QBluetoothUuid(QStringLiteral("6E40FEC1-B5A3-F393-E0A9-E50E24DCCA9E")));
-                    }
-
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
 
-
+                    if(virtual_device_tacx) {
+                        services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
+                        services << (QBluetoothUuid(QStringLiteral("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e")));
+                    }
                 } else {
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
                 }
