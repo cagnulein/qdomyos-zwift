@@ -101,7 +101,7 @@ uint16_t ftmsbike::wattsFromResistance(double resistance) {
         double y = 1.46193548 * Cadence.value() + 0.0000887836638 * Cadence.value() * resistance + 0.000625 * resistance * resistance + 0.0580645161 * Cadence.value() + 0.00292986091 * resistance + 6.48448135542904;
         return y;
     }
-    return 1;
+    return _ergTable.estimateWattage(Cadence.value(), resistance);
 }
 
 resistance_t ftmsbike::resistanceFromPowerRequest(uint16_t power) {

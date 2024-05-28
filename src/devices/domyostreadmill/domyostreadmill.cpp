@@ -105,12 +105,7 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
     }
     writeBuffer = new QByteArray((const char *)data, data_len);
 
-    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer,
-                                                             QLowEnergyService::WriteWithoutResponse);
-    } else {
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
-    }
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, *writeBuffer);
 
     if (!disable_log) {
         qDebug() << QStringLiteral(" >> ") + writeBuffer->toHex(' ')
@@ -832,8 +827,12 @@ void domyostreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        emit debug(QStringLiteral("error on find Service"));
+    }    
 }
 
 void domyostreadmill::errorService(QLowEnergyService::ServiceError err) {
