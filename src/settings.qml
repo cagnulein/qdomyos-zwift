@@ -939,6 +939,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.55
             property bool proform_treadmill_8_7: false
+
+            // from version 2.16.56
+            property bool proform_bike_325_csx: false
         }
 
         function paddingZeros(text, limit) {
@@ -3182,6 +3185,19 @@ import QtQuick.Dialogs 1.0
                         Layout.fillWidth: true
                         onClicked: { settings.proform_bike_225_csx = checked; window.settings_restart_to_apply = true; }
                     }
+                    SwitchDelegate {
+                        text: qsTr("Proform 325 CSX / Healthrider H30X")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_bike_325_csx
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.proform_bike_325_csx = checked; window.settings_restart_to_apply = true; }
+                    }                    
                     SwitchDelegate {
                         text: qsTr("Proform SB")
                         spacing: 0

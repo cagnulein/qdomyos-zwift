@@ -2069,6 +2069,9 @@ class QZSettings {
     static const QString proform_treadmill_8_7;
     static constexpr bool default_proform_treadmill_8_7 = false;
 
+    static const QString proform_bike_325_csx;
+    static constexpr bool default_proform_bike_325_csx = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
