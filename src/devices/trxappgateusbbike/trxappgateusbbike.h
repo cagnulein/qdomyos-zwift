@@ -114,6 +114,10 @@ class trxappgateusbbike : public bike {
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
+    // SmartSpin2k
+    metric ResistanceFromFTMSAccessory;
+    uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
+
   signals:
     void disconnected();
     void debug(QString string);
@@ -121,6 +125,7 @@ class trxappgateusbbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

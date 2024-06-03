@@ -370,8 +370,12 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         resistance = m_pelotonResistance.value();
     }
 
-    Resistance = resistance;
-    emit resistanceRead(Resistance.value());
+    if (ResistanceFromFTMSAccessoryLastTime == 0) {
+        Resistance = resistance;
+        emit resistanceRead(Resistance.value());
+    } else {
+        Resistance = ResistanceFromFTMSAccessory.value();
+    }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
@@ -1224,4 +1228,10 @@ resistance_t trxappgateusbbike::resistanceFromPowerRequest(uint16_t power) {
     } /*else {
         return power / 10;
     }*/
+}
+
+void trxappgateusbbike::resistanceFromFTMSAccessory(resistance_t res) {
+    ResistanceFromFTMSAccessory = res;
+    ResistanceFromFTMSAccessoryLastTime = QDateTime::currentMSecsSinceEpoch();
+    qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }
