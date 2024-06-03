@@ -294,8 +294,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
   }
   
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {      
     if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
+        SwiftDebug.qtDebug("virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.value))
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
         }
