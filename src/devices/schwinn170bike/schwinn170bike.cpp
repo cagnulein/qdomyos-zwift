@@ -143,7 +143,7 @@ void schwinn170bike::characteristicChanged(const QLowEnergyCharacteristic &chara
             double current = ((double)(((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))));
             if (current != lastCadenceValue) {
                 QDateTime now = QDateTime::currentDateTime();
-                double c = ((current - lastCadenceValue) / (now.msecsTo(lastCadenceChanged))) * 60000.0;
+                double c = ((current - lastCadenceValue) / fabs(now.msecsTo(lastCadenceChanged))) * 60000.0;
                 lastCadenceValue = current;
                 lastCadenceChanged = now;
                 if (c < 255) {
