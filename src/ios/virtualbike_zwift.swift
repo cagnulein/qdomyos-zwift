@@ -107,6 +107,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
+    
+  let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
   init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool) {
