@@ -524,7 +524,9 @@ void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
 }
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
+#ifdef Q_OS_WIN32
     logcatAdbThread->stop = true;
+#endif
 }
 
 int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclination) {
