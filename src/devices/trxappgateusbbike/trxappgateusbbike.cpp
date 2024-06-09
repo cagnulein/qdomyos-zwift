@@ -277,7 +277,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
             if (watt)
                 kcal =
-                    KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                    KCal.value() + ((((0.048 * ((double)watt) + 1.19) *
                                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                      200.0) /
                                     (60000.0 / ((double)lastTimeCharChanged.msecsTo(
