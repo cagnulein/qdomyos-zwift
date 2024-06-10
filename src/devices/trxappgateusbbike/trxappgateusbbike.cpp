@@ -223,51 +223,44 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double cadence = GetCadenceFromPacket(newValue);
     double speed = 0.0;
     double resistance = 0.0;
-    double kcal = 0.0;
     double watt = 0.0;
+    QTime now = QTime::currentTime();
     if (bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
         watt = GetWattFromPacketFytter(newValue);
         if (watt)
-            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
                                      settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                     200.0) /
                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                  now)))); //(( (0.048* Output in watts +1.19) *
                                                                             // body weight in kg * 3.5) / 200 ) / 60
-        else
-            kcal = KCal.value();
     } else if (bike_type == TUNTURI || bike_type == TUNTURI_2) {
         speed = cadence * 0.37407407407407407407407407407407;
         resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
         if (watt)
-            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+            KCal += ((((0.048 * ((double)watts()) + 1.19) *
                                      settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                     200.0) /
                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                  now)))); //(( (0.048* Output in watts +1.19) *
                                                                             // body weight in kg * 3.5) / 200 ) / 60
-        else
-            kcal = KCal.value();
     } else if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
         if (!settings.value(QZSettings::kcal_ignore_builtin, QZSettings::default_kcal_ignore_builtin).toBool())
-            kcal = GetKcalFromPacket(newValue);
+            KCal = GetKcalFromPacket(newValue);
         else {
             if (watt)
-                kcal =
-                    KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
                                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                      200.0) /
                                     (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                   QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body
+                                                   now)))); //(( (0.048* Output in watts +1.19) * body
                                                                              // weight in kg * 3.5) / 200 ) / 60
-            else
-                kcal = KCal.value();
         }
     } else {
 
@@ -276,15 +269,12 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             watt = wattFromHR(true);
 
             if (watt)
-                kcal =
-                    KCal.value() + ((((0.048 * ((double)watt) + 1.19) *
+                KCal += ((((0.048 * ((double)watt) + 1.19) *
                                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                                      200.0) /
                                     (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                   QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                   now)))); //(( (0.048* Output in watts +1.19) *
                                                                              // body weight in kg * 3.5) / 200 ) / 60
-            else
-                kcal = KCal.value();
         }
     }
 
@@ -336,9 +326,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
     }
     if (!firstCharChanged) {
-        Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
+        Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(now))));
     }
-    KCal = kcal;
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -380,7 +369,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
     emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
                QString::number(GetElapsedFromPacket(newValue)));
@@ -388,7 +377,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current resistance: ") + QString::number(resistance));
 
-    lastTimeCharChanged = QTime::currentTime();
+    lastTimeCharChanged = now;
     firstCharChanged = false;
 }
 
