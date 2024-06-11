@@ -320,14 +320,21 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let flags0:UInt8 = 0x2C
         let flags1:UInt8 = 0x03
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var rower: [UInt8] = [flags0, flags1,  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)(self.StrokesCount & 0xFF), (UInt8)((self.StrokesCount >> 8) & 0xFF), (UInt8)(self.Distance & 0xFF), (UInt8)((self.Distance >> 8) & 0xFF), (UInt8)((self.Distance >> 16) & 0xFF), (UInt8)(self.Pace & 0xFF), (UInt8)((self.Pace >> 8) & 0xFF), (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), self.heartRate, 0x00]
+        let rower: [UInt8] = [0xff, 0x0a, 0x34, 0x19, 0x00, 0x00, 0xbd, 0x00, 0xc6, 0x00, 0x33, 0x00, 0x2c, 0x00, 0x6d, 0x00, 0x00, 0x0a, 0x00]
       let rowerData = Data(bytes: &rower, count: 19)
       return rowerData
     }
   
+    func calculateRower1() -> Data {
+        let rower: [UInt8] = [0x00, 0x01, 0x2c, 0x04, 0x00, 0x01, 0x00, 0xdd, 0x01, 0xff]
+      let rowerData = Data(bytes: &rower, count: 10)
+      return rowerData
+    }
+
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
     let rowerData = self.calculateRower()
+    let rowerData1 = self.calculateRower1()
     let cadenceData = self.calculateCadence()
     
     if(self.serviceToggle == 2)
@@ -347,6 +354,7 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     else
     {
         let ok = self.peripheralManager.updateValue(rowerData, for: self.rowerCharacteristic, onSubscribedCentrals: nil)
+        ok = self.peripheralManager.updateValue(rowerData1, for: self.rowerCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = self.serviceToggle + 1
         }
