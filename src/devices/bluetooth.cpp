@@ -1155,7 +1155,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ASSAULT TREADMILL ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("WDWAY")) && b.name().length() == 8) || // WdWay179
-                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && !gem_module_inclination && !deviceHasService(b, QBluetoothUuid((quint16)0x1814)))) &&
                        !trueTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1234,7 +1234,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1814)))) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11 &&
                          !toorx_bike) ||                                            // FTMS
