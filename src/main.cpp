@@ -66,6 +66,7 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
+bool gpiotreadmill = true;
 bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
@@ -132,6 +133,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-gpiotreadmill"))
+            gpiotreadmill = true;
         if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
             reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
@@ -380,19 +383,21 @@ int main(int argc, char *argv[]) {
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
-        settings.setValue(QZSettings::miles_unit, miles);
-        settings.setValue(QZSettings::bluetooth_no_reconnection, bluetooth_no_reconnection);
-        settings.setValue(QZSettings::bluetooth_relaxed, bluetooth_relaxed);
-        settings.setValue(QZSettings::bike_cadence_sensor, bike_cadence_sensor);
-        settings.setValue(QZSettings::bike_power_sensor, bike_power_sensor);
-        settings.setValue(QZSettings::battery_service, battery_service);
-        settings.setValue(QZSettings::service_changed, service_changed);
-        settings.setValue(QZSettings::bike_wheel_revs, bike_wheel_revs);
-        settings.setValue(QZSettings::run_cadence_sensor, run_cadence_sensor);
-        settings.setValue(QZSettings::nordictrack_10_treadmill, nordictrack_10_treadmill);
-        settings.setValue(QZSettings::reebok_fr30_treadmill, reebok_fr30_treadmill);
+        settings.setValue(QStringLiteral("miles_unit"), miles);
+        settings.setValue(QStringLiteral("bluetooth_no_reconnection"), bluetooth_no_reconnection);
+        settings.setValue(QStringLiteral("bluetooth_relaxed"), bluetooth_relaxed);
+        settings.setValue(QStringLiteral("bike_cadence_sensor"), bike_cadence_sensor);
+        settings.setValue(QStringLiteral("bike_power_sensor"), bike_power_sensor);
+        settings.setValue(QStringLiteral("battery_service"), battery_service);
+        settings.setValue(QStringLiteral("service_changed"), service_changed);
+        settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
+        settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
+        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);        
     }
 #endif
+
+    settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::volume_change_gears, QZSettings::default_volume_change_gears).toBool()) {

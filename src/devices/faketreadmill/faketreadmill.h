@@ -39,6 +39,7 @@ class faketreadmill : public treadmill {
   public:
     faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected() override;
+    double minStepSpeed();
 
   private:
     QTimer *refresh;
