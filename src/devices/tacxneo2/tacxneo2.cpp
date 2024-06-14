@@ -192,6 +192,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     qDebug() << QStringLiteral(" << char ") << characteristic.uuid();
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    uint8_t heart = 0;
+    bool disable_hr_frommachinery =
+        settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B)) {
         lastPacket = newValue;
@@ -305,8 +308,9 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     } else if (characteristic.uuid() == QBluetoothUuid::HeartRateMeasurement) {
-        if (newValue.length() > 1) {
+        if (newValue.length() > 1 && !disable_hr_frommachinery) {
             Heart = newValue[1];
+            heart = Heart.value();
         }
 
         emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
@@ -324,7 +328,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         debug("Current Heart: " + QString::number(Heart.value()));
     }
 #endif
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && (heart == 0 || disable_hr_frommachinery)) {
         update_hr_from_external();
     }
 
