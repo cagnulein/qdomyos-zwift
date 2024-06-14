@@ -25,20 +25,91 @@
 #include <QDateTime>
 #include <QObject>
 
+#include <QThread>
+#include <QSemaphore>
+
+#include <QtSerialBus/QModbusClient>
+#include <QtSerialBus/QModbusDataUnit>
+#include <QtSerialBus/QModbusReply>
+#include <QtSerialBus/QModbusRtuSerialMaster>
+#include <QtSerialPort/QSerialPort>
+
 #include "treadmill.h"
+
+class modbusWorkerThreadStartStop : public QThread
+{
+  public:
+    explicit modbusWorkerThreadStartStop(QObject *parent, QString name = "", uint8_t pin = 0, QSemaphore *semaphore = nullptr);
+    void run();
+    void toggle();
+  private:
+    bool _toggle = false;
+    QString name;
+    uint8_t pin;
+    const uint16_t GPIO_KEEP_MS = 1;
+    const uint16_t GPIO_REBOUND_MS = 175;
+    QSemaphore *semaphore;
+};
+
+class modbusWorkerThread : public QThread
+{
+    public:
+        explicit modbusWorkerThread(QObject *parent, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0, QSemaphore *semaphore = nullptr);
+        void run();
+        void setRequestValue(double request);
+        void setCurrentValue(double current);
+    private:
+        QString name;
+        double requestValue;
+        double currentValue;
+        uint8_t pinUp;
+        uint8_t pinDown;
+        double step;
+        const uint16_t GPIO_KEEP_MS = 1;
+        const uint16_t GPIO_REBOUND_MS = 175;
+        QSemaphore *semaphore;
+};
 
 class bowflext216treadmill : public treadmill {
     Q_OBJECT
   public:
     bowflext216treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    ~bowflext216treadmill();
     bool connected() override;
+    double minStepSpeed() override;
     double minStepInclination() override;
     bool autoPauseWhenSpeedIsZero() override;
     bool autoStartWhenSpeedIsGreaterThenZero() override;
     bool canHandleSpeedChange() override { return false; }
     bool canHandleInclineChange() override { return false; }
+
+    static void digitalWrite(int pin, int state);
+    static QModbusReply *lastRequest;
+    static QModbusClient *modbusDevice;
+
   private:
+
+    const uint8_t OUTPUT_SPEED_UP = 0;
+    const uint8_t OUTPUT_SPEED_DOWN = 1;
+    const uint8_t OUTPUT_INCLINE_UP = 2;
+    const uint8_t OUTPUT_INCLINE_DOWN = 3;
+    const uint8_t OUTPUT_START = 4;
+    const uint8_t OUTPUT_STOP = 5;
+
+    const uint16_t GPIO_KEEP_MS = 50;
+    const uint16_t GPIO_REBOUND_MS = 200;
+    
+    const double SPEED_STEP = 1.60934 / 10.0;
+    const double INCLINATION_STEP = 1.0;
+
+    modbusWorkerThread* speedThread;
+    modbusWorkerThread* inclineThread;
+    modbusWorkerThreadStartStop* startThread;
+    modbusWorkerThreadStartStop* stopThread;
+    QSemaphore *semaphore; // my treadmill don't like it if the buttons will be pressed simultanly
+
+
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);

@@ -16,6 +16,122 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
+//#define Q_OS_RASPI 0
+#ifdef Q_OS_RASPI
+#include <wiringPi.h>
+#else
+#define OUTPUT 1
+QModbusReply *bowflext216treadmill::lastRequest;
+QModbusClient *bowflext216treadmill::modbusDevice = nullptr;
+void bowflext216treadmill::digitalWrite(int pin, int state) {
+    const int server_address = 255;
+    QModbusDataUnit writeUnit(QModbusDataUnit::Coils, pin, 1);
+    writeUnit.setValue(0, state);  
+    if(modbusDevice) {
+        QModbusReply* r = nullptr;
+        int retry = 0;
+        do {
+            qDebug() << "modbus sending retry" << retry++;
+            r = modbusDevice->sendWriteRequest(writeUnit, server_address);
+        } while(r == nullptr);
+    }
+    else
+        qDebug() << "modbusDevice nullptr!";
+
+    qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
+}
+/*
+void pinMode(int pin, int state) {
+    qDebug() << QStringLiteral("init pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
+}
+
+int wiringPiSetup() {
+        return 0;
+}*/
+#endif
+using namespace std::chrono_literals;
+
+modbusWorkerThreadStartStop::modbusWorkerThreadStartStop(QObject *parent, QString name, uint8_t pin, QSemaphore *semaphore): QThread(parent),
+                                                                                                                              name{name}, pin{pin}, semaphore{semaphore}
+{
+    bowflext216treadmill::digitalWrite(pin, 0);
+}
+
+
+void modbusWorkerThreadStartStop::toggle()
+{
+    this->_toggle = true;
+}
+
+void modbusWorkerThreadStartStop::run() {
+    if(_toggle) {
+        _toggle = false;
+        semaphore->acquire();
+        bowflext216treadmill::digitalWrite(pin, 1);
+        QThread::msleep(GPIO_KEEP_MS);
+        bowflext216treadmill::digitalWrite(pin, 0);
+        QThread::msleep(GPIO_REBOUND_MS);
+        semaphore->release();
+    }
+    QThread::msleep(50);
+}
+
+
+modbusWorkerThread::modbusWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
+    name{name}, currentValue{currentValue}, pinUp{pinUp}, pinDown{pinDown}, step{step}, semaphore{semaphore}
+{
+    //pinMode(pinUp, OUTPUT);
+    //pinMode(pinDown, OUTPUT);
+    bowflext216treadmill::digitalWrite(pinUp, 0);
+    bowflext216treadmill::digitalWrite(pinDown, 0);
+}
+
+void modbusWorkerThread::setRequestValue(double request)
+{
+    this->requestValue = request;
+}
+
+void modbusWorkerThread::setCurrentValue(double current)
+{
+    this->currentValue = current;
+}
+
+void modbusWorkerThread::run() {
+    if (requestValue > currentValue) {
+        while (requestValue > currentValue) {
+            qDebug() << QStringLiteral("increasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
+            semaphore->acquire();
+            bowflext216treadmill::digitalWrite(pinUp, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            bowflext216treadmill::digitalWrite(pinUp, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            semaphore->release();
+            currentValue += step;
+            if(QThread::currentThread()->isInterruptionRequested()) {
+                qDebug() << "Interrupting set " + name;
+                return;
+            }
+        }
+    } else {
+        while (requestValue < currentValue) {
+            qDebug() << QStringLiteral("decreasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
+            semaphore->acquire();
+            bowflext216treadmill::digitalWrite(pinDown, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            bowflext216treadmill::digitalWrite(pinDown, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            semaphore->release();
+            currentValue -= step;
+            if(QThread::currentThread()->isInterruptionRequested()) {
+                qDebug() << "Interrupting set " + name;
+                return;
+            }
+        }
+    }
+    QThread::msleep(50);
+}
+
+
 bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                            double forceInitSpeed, double forceInitInclination) {
 
@@ -34,10 +150,96 @@ bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConso
     if (forceInitInclination > 0)
         lastInclination = forceInitInclination;
 
+    /*if (wiringPiSetup() == -1) {
+        qDebug() << QStringLiteral("wiringPiSetup ERROR!");
+        exit(1);
+    }*/
+
+    modbusDevice = new QModbusRtuSerialMaster(this);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
+        "COM4");
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialParityParameter,
+        QSerialPort::Parity::NoParity);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
+        QSerialPort::Baud9600);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
+        QSerialPort::Data8);
+    modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
+        QSerialPort::StopBits::OneStop);
+
+    modbusDevice->setTimeout(50);
+    modbusDevice->setNumberOfRetries(3);
+
+    qDebug() << "modbus Connecting...";
+
+    while (!modbusDevice->connectDevice()) {
+        qDebug() << "modbus Connetion Error. Retrying...";
+    }
+
+    qDebug() << "modbus Connected!";
+
+    //pinMode(OUTPUT_START, OUTPUT);
+    //pinMode(OUTPUT_STOP, OUTPUT);
+    //digitalWrite(OUTPUT_START, 0);
+    //digitalWrite(OUTPUT_STOP, 0);
+
+    semaphore = new QSemaphore(1);
+    speedThread = new modbusWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
+    inclineThread = new modbusWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
+    startThread = new modbusWorkerThreadStartStop(this, "start", OUTPUT_START, semaphore);
+    stopThread = new modbusWorkerThreadStartStop(this, "stop", OUTPUT_STOP, semaphore);
+
+
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &bowflext216treadmill::update);
     refresh->start(500ms);
+}
+
+bowflext216treadmill::~bowflext216treadmill() {
+    speedThread->requestInterruption();
+    speedThread->quit();
+    speedThread->wait();
+    delete speedThread;
+    inclineThread->requestInterruption();
+    inclineThread->quit();
+    inclineThread->wait();
+    delete inclineThread;
+    delete semaphore;
+    modbusDevice->disconnectDevice();
+}
+
+void bowflext216treadmill::forceSpeed(double requestSpeed) {
+    qDebug() << QStringLiteral("gpiotreadmill.cpp: request set speed ") + QString::number(Speed.value()) + QStringLiteral(" to ") + QString::number(requestSpeed);
+    if (speedThread->isRunning())
+    {
+        speedThread->requestInterruption();
+        speedThread->quit();
+        speedThread->wait();
+
+    }
+    speedThread->setCurrentValue(currentSpeed().value());
+    speedThread->setRequestValue(requestSpeed);
+    speedThread->start();
+
+    Speed = requestSpeed; /* we are on the way to the requested speed */
+}
+
+void bowflext216treadmill::forceIncline(double requestIncline) {
+    qDebug() << QStringLiteral("gpiotreadmill.cpp: request set Incline ") + QString::number(Inclination.value()) + QStringLiteral(" to ") + QString::number(requestIncline);
+
+    if (inclineThread->isRunning())
+    {
+        inclineThread->requestInterruption();
+        inclineThread->quit();
+        inclineThread->wait();
+
+    }
+    inclineThread->setCurrentValue(currentInclination().value());
+    inclineThread->setRequestValue(requestIncline);
+    inclineThread->start();
+
+    Inclination = requestIncline; /* we are on the way to the requested incline */
 }
 
 void bowflext216treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -76,11 +278,8 @@ void bowflext216treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, 
 
 void bowflext216treadmill::updateDisplay(uint16_t elapsed) {}
 
-void bowflext216treadmill::forceIncline(double requestIncline) {}
-
+double bowflext216treadmill::minStepSpeed() { return 1.60934 / 10.0; }
 double bowflext216treadmill::minStepInclination() { return 1.0; }
-
-void bowflext216treadmill::forceSpeed(double requestSpeed) {}
 
 void bowflext216treadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -148,19 +347,13 @@ void bowflext216treadmill::update() {
         }
 
         if (requestStart != -1) {
-            uint8_t start[] = {0x07, 0x06, 0xcf, 0x00, 0x1f, 0x05, 0x00};
-            emit debug(QStringLiteral("starting..."));
-            if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
-            }
-            writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+            startThread->toggle();
+
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1 || requestPause != -1) {
-            uint8_t stop[] = {0x0a, 0x08, 0x7a, 0x00, 0x19, 0x28, 0x01, 0x32, 0x00, 0x00};
-            emit debug(QStringLiteral("stopping..."));
-            writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+            stopThread->toggle();
             requestStop = -1;
             requestPause = -1;
         }
@@ -218,7 +411,7 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
 

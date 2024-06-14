@@ -110,6 +110,7 @@ void bluetooth::finished() {
     QString nordictrack_2950_ip =
         settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
+    bool gpio_treadmill = settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
@@ -118,7 +119,7 @@ void bluetooth::finished() {
     bool fakedevice_treadmill =
         settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     // wifi devices on windows
-    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill) {
+    if (!nordictrack_2950_ip.isEmpty() || !tdf_10_ip.isEmpty() || fake_bike || fakedevice_elliptical || fakedevice_rower || fakedevice_treadmill || gpio_treadmill) {
         // faking a bluetooth device
         qDebug() << "faking a bluetooth device for nordictrack_2950_ip";
         deviceDiscovered(QBluetoothDeviceInfo());
@@ -410,6 +411,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         powerSensorName.startsWith(QStringLiteral("Disabled")) || power_as_bike || power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
+    bool gpio_treadmill = settings.value(QStringLiteral("gpio_treadmill"), false).toBool();
     bool fake_bike =
         settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
     bool fakedevice_elliptical =
@@ -629,6 +631,25 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(fakeBike);
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+                /*
+            } else if (gpio_treadmill && !gpioTreadmill) {
+                discoveryAgent->stop();
+                gpioTreadmill = new gpiotreadmill(pollDeviceTime, noConsole, noHeartService, 0.8, 0);
+                emit deviceConnected(b);
+                connect(gpioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(gpioTreadmill, &gpiotreadmill::debug, this, &bluetooth::debug);
+                connect(gpioTreadmill, &gpiotreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(this, SIGNAL(searchingStop()), gpioTreadmill, SLOT(searchingStop())); //NOTE: Commented due
+                // to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                this->signalBluetoothDeviceConnected(gpioTreadmill);
+*/
+#endif
             } else if (fakedevice_elliptical && !fakeElliptical) {
                 this->stopDiscovery();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
@@ -2783,6 +2804,13 @@ void bluetooth::restart() {
         delete fakeBike;
         fakeBike = nullptr;
     }
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+    if (gpioTreadmill) {
+
+        delete gpioTreadmill;
+        gpioTreadmill = nullptr;
+    }
+#endif
     if (fakeElliptical) {
 
         delete fakeElliptical;
@@ -3192,6 +3220,10 @@ bluetoothdevice *bluetooth::device() {
         return powerTreadmill;
     } else if (fakeBike) {
         return fakeBike;
+#if defined(Q_OS_WIN) || (defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID))
+    } else if (gpioTreadmill) {
+        return gpioTreadmill;
+#endif
     } else if (fakeElliptical) {
         return fakeElliptical;
     } else if (fakeRower) {
