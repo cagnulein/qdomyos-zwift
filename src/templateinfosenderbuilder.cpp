@@ -236,6 +236,13 @@ void TemplateInfoSenderBuilder::clearSessionArray() {
     }
 }
 
+void TemplateInfoSenderBuilder::clearPreviewSessionArray() {
+    int len = previewSessionArray.count();
+    for (int i = 0; i < len; i++) {
+        previewSessionArray.removeAt(0);
+    }
+}
+
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = nullptr;
     clearSessionArray();
@@ -512,6 +519,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     QJsonObject main;
     main[QStringLiteral("content")] = activityDescription;
     main[QStringLiteral("msg")] = QStringLiteral("R_appendactivitydescription");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = previewSessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -879,6 +894,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
+                } else if (msg == QStringLiteral("getpreviewsessionarray")) {
+                    onGetPreviewSessionArray(sender);
+                    return;
                 }
                 if (msg == QStringLiteral("start")) {
                     onStart(sender);
@@ -1157,5 +1175,110 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
 void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) {
     if (state == bluetoothdevice::STARTED) {
         clearSessionArray();
+    }
+}
+
+void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport) {
+    clearPreviewSessionArray();
+    buildContext(true);
+    QJSValue glob = engine->globalObject();
+    QJSValue obj;
+    QSettings settings;
+    obj = glob.property(QStringLiteral("workout"));
+    foreach (SessionLine s, *session) {
+        QTime el = QTime::fromMSecsSinceStartOfDay(s.elapsedTime * 1000);
+        QString name;
+        QString nickName;
+        // bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+
+        metric dep;
+#ifdef Q_OS_IOS
+        // obj.setProperty("deviceId", device->bluetoothDevice.deviceUuid().toString());
+#else
+        // obj.setProperty(QStringLiteral("deviceId"), device->bluetoothDevice.address().toString());
+#endif
+        // obj.setProperty(QStringLiteral("deviceName"),
+        //                (name = device->bluetoothDevice.name()).isEmpty() ? QString(QStringLiteral("N/A")) : name);
+        // obj.setProperty(QStringLiteral("deviceRSSI"), device->bluetoothDevice.rssi());
+        // obj.setProperty(QStringLiteral("deviceType"), (int)device->deviceType());
+        // obj.setProperty(QStringLiteral("deviceConnected"), (bool)device->connected());
+        // obj.setProperty(QStringLiteral("devicePaused"), (bool)device->isPaused());
+        obj.setProperty(QStringLiteral("elapsed_s"), el.second());
+        obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
+        obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
+        el = device->currentPace();
+        obj.setProperty(QStringLiteral("pace_s"), el.second());
+        obj.setProperty(QStringLiteral("pace_m"), el.minute());
+        obj.setProperty(QStringLiteral("pace_h"), el.hour());
+        el = device->movingTime();
+        obj.setProperty(QStringLiteral("moving_s"), el.second());
+        obj.setProperty(QStringLiteral("moving_m"), el.minute());
+        obj.setProperty(QStringLiteral("moving_h"), el.hour());
+        obj.setProperty(QStringLiteral("speed"), s.speed);
+        // obj.setProperty(QStringLiteral("speed_avg"), dep.average());
+        obj.setProperty(QStringLiteral("calories"), s.calories);
+        obj.setProperty(QStringLiteral("distance"), s.distance);
+        obj.setProperty(QStringLiteral("heart"), s.heart);
+        // obj.setProperty(QStringLiteral("heart_avg"), dep.average());
+        // obj.setProperty(QStringLiteral("heart_max"), dep.max());
+        // obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
+        obj.setProperty(QStringLiteral("elevation"), s.elevationGain);
+        // obj.setProperty(QStringLiteral("difficult"), device->difficult());
+        obj.setProperty(QStringLiteral("watts"), s.watt);
+        // obj.setProperty(QStringLiteral("watts_avg"), dep.average());
+        // obj.setProperty(QStringLiteral("watts_max"), dep.max());
+        // obj.setProperty(QStringLiteral("kgwatts"), (dep = device->wattKg()).value());
+        // obj.setProperty(QStringLiteral("kgwatts_avg"), dep.average());
+        // obj.setProperty(QStringLiteral("kgwatts_max"), dep.max());
+        // obj.setProperty(QStringLiteral("workoutName"), workoutName);
+        // obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
+        // obj.setProperty(QStringLiteral("instructorName"), instructorName);
+        obj.setProperty(QStringLiteral("latitude"), s.coordinate.latitude());
+        obj.setProperty(QStringLiteral("longitude"), s.coordinate.longitude());
+        obj.setProperty(QStringLiteral("altitude"), s.coordinate.altitude());
+        obj.setProperty(
+            QStringLiteral("nickName"),
+            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()).isEmpty()
+                ? QString(QStringLiteral("N/A"))
+                : nickName);
+        if (sport == FIT_SPORT_CYCLING) {
+            // obj.setProperty(QStringLiteral("peloton_resistance"),
+            //              (dep = ((bike *)device)->pelotonResistance()).value());
+            // obj.setProperty(QStringLiteral("peloton_req_resistance"),
+            //               (dep = ((bike *)device)->lastRequestedPelotonResistance()).value());
+            // obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence"), s.cadence);
+            // obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("resistance"), s.resistance);
+            // obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            // obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
+            // obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
+            // obj.setProperty(QStringLiteral("req_power"), (dep = ((bike *)device)->lastRequestedPower()).value());
+            // obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
+            // obj.setProperty(QStringLiteral("req_resistance"),
+            //                (dep = ((bike *)device)->lastRequestedResistance()).value());
+        } else if (sport == FIT_SPORT_ROWING) {
+            // obj.setProperty(QStringLiteral("peloton_resistance"),
+            //               (dep = ((rower *)device)->pelotonResistance()).value());
+            // obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence"), s.cadence);
+            // obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("resistance"), s.resistance);
+            // obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            // obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
+            // obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
+            obj.setProperty(QStringLiteral("strokescount"), s.totalStrokes);
+            obj.setProperty(QStringLiteral("strokeslength"), s.avgStrokesLength);
+        } else if (sport == FIT_SPORT_RUNNING || sport == FIT_SPORT_WALKING) {
+            obj.setProperty(QStringLiteral("inclination"), s.inclination);
+            // obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+            obj.setProperty(QStringLiteral("stridelength"), s.instantaneousStrideLengthCM);
+            obj.setProperty(QStringLiteral("groundcontact"), s.groundContactMS);
+            obj.setProperty(QStringLiteral("verticaloscillation"), s.verticalOscillationMM);
+        } else if (sport == FIT_SUB_SPORT_ELLIPTICAL) {
+            obj.setProperty(QStringLiteral("inclination"), s.inclination);
+            // obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+        }
+        previewSessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
     }
 }
