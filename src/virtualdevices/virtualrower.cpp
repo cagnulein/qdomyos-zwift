@@ -9,6 +9,8 @@
 #include <chrono>
 
 #ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
 
