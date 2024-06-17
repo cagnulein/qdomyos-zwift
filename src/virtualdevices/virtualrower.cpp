@@ -8,6 +8,10 @@
 #include <QtMath>
 #include <chrono>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniObject>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHeartService) {
