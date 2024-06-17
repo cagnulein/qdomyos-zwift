@@ -213,10 +213,8 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return
     }
     
-    var serviceData: [UInt8] = [0x01, 0x10 , 0x00]
     let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID],
-                              CBAdvertisementDataServiceDataKey: [[FitnessMachineServiceUuid: serviceData]]] as [String : Any]
+                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, CSCServiceUUID]] as [String : Any]
     
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
