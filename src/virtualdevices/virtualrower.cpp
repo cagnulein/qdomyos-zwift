@@ -383,8 +383,6 @@ void virtualrower::rowerProvider() {
 
     if (!heart_only) {
 
-        value = QByteArray::fromHex("ff0a34190000bd00c60033002c006d00000a00");
-        /*
         value.append((char)0x2C);
         value.append((char)0x03);
 
@@ -411,7 +409,7 @@ void virtualrower::rowerProvider() {
 
         value.append(char(Rower->currentHeart().value())); // Actual value.
         value.append((char)0);                             // Bkool FTMS protocol HRM offset 1280 fix
-*/
+
         if (!serviceFIT) {
             qDebug() << QStringLiteral("serviceFIT not available");
 
@@ -431,10 +429,6 @@ void virtualrower::rowerProvider() {
             return;
         }
         writeCharacteristic(serviceFIT, characteristic, value);
-
-        QByteArray value1 = QByteArray::fromHex("00012c04000100dd01ff");
-        
-        writeCharacteristic(serviceFIT, characteristic, value1);        
     }
     // characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
