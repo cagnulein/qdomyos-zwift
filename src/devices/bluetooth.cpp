@@ -1857,6 +1857,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 bowflexT216Treadmill->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(bowflexT216Treadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("CROSSROPE")) && !crossRope && filter) {
+                this->setLastBluetoothDevice(b);
+                this->stopDiscovery();
+                crossRope = new crossrope(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(crossRope, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(crossRope, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(crossRope, &crossrope::debug, this, &bluetooth::debug);
+                // connect(crossRope, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(crossRope, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                crossRope->deviceDiscovered(b);
+                this->signalBluetoothDeviceConnected(crossRope);
             } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2944,6 +2959,11 @@ void bluetooth::restart() {
         delete eslinkerTreadmill;
         eslinkerTreadmill = nullptr;
     }
+    if (crossRope) {
+
+        delete crossRope;
+        crossRope = nullptr;
+    }
     if (bowflexTreadmill) {
 
         delete bowflexTreadmill;
@@ -3266,6 +3286,8 @@ bluetoothdevice *bluetooth::device() {
         return proformRower;
     } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
+    } else if (crossRope) {
+        return crossRope;
     } else if (bowflexTreadmill) {
         return bowflexTreadmill;
     } else if (bowflexT216Treadmill) {

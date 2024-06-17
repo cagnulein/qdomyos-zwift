@@ -96,6 +96,7 @@ class horizontreadmill : public treadmill {
     bool sole_f85_treadmill = false;
     bool sole_f89_treadmill = false;
     bool schwinn_810_treadmill = false;
+    bool technogymrun = false;
 
     void testProfileCRC();
     void updateProfileCRC();
