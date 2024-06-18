@@ -72,6 +72,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     double min_alt = 99999;
     double speed_acc = 0;
     int speed_count = 0;
+    int lap_index = 0;
     double speed_avg = 0;
     for (int i = firstRealIndex; i < session.length(); i++) {
         if (session.at(i).coordinate.isValid()) {
@@ -126,6 +127,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
         qDebug() << "overriding FIT sport " << overrideSport;
     } else if (type == bluetoothdevice::TREADMILL) {
+        if(session.last().stepCount > 0)
+            sessionMesg.SetTotalStrides(session.last().stepCount);
 
         if (speed_avg == 0 || speed_avg > 6.5)
             sessionMesg.SetSport(FIT_SPORT_RUNNING);
@@ -234,8 +237,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetStartTime(date.GetTimeStamp() + firstRealIndex);
     lapMesg.SetTimestamp(date.GetTimeStamp() + firstRealIndex);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
+    lapMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
-    lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
     lapMesg.SetTotalElapsedTime(0);
     lapMesg.SetTotalTimerTime(0);
     if (overrideSport != FIT_SPORT_INVALID) {
@@ -322,7 +325,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             lapMesg.SetTotalDistance((sl.distance - lastLapOdometer) * 1000.0); // meters
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lastLapTimer);
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lastLapTimer);
-            lapMesg.SetEventType(FIT_EVENT_LAP);
+            lapMesg.SetEvent(FIT_EVENT_LAP);
+            lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
+            lapMesg.SetMessageIndex(lap_index++);
+            lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_DISTANCE);
             lastLapTimer = sl.elapsedTime;
             lastLapOdometer = sl.distance;
 
@@ -340,6 +346,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetTotalTimerTime(session.last().elapsedTime - lastLapTimer);
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
+    lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_SESSION_END);
+    lapMesg.SetMessageIndex(lap_index++);
     encode.Write(lapMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);

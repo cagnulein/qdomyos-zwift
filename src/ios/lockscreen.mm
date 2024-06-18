@@ -31,6 +31,10 @@ static AdbClient *_adb = 0;
 static ios_eliteariafan* ios_eliteAriaFan = nil;
 static ios_echelonconnectsport* ios_echelonConnectSport = nil;
 
+static zwift_protobuf_layer* zwiftProtobufLayer = nil;
+
+static NSString* profile_selected;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -39,13 +43,11 @@ void lockscreen::request()
 {
     h = [[healthkit alloc] init];
     [h request];
+    zwiftProtobufLayer = [[zwift_protobuf_layer alloc] init];
     if (@available(iOS 13, *)) {
         Garmin = [[GarminConnect alloc] init];
     }
-    // just to be sure, I built the library for iOS17 only but theorically we can use any iOS version
-    if (@available(iOS 17, *)) {
-        _adb = [[AdbClient alloc] initWithVerbose:YES];
-    }
+    _adb = [[AdbClient alloc] initWithVerbose:YES];
 }
 
 long lockscreen::heartRate()
@@ -101,9 +103,9 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift_ios(bool disable_hr)
+void lockscreen::virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility)
 {
-    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr: disable_hr];
+    _virtualbike_zwift = [[virtualbike_zwift alloc] initWithDisable_hr:disable_hr garmin_bluetooth_compatibility:garmin_bluetooth_compatibility];
 }
 
 void lockscreen::virtualrower_ios()
@@ -271,6 +273,18 @@ void lockscreen::debug(const char* debugstring) {
     qDebug() << debugstring;
 }
 
+void lockscreen::nslog(const char* log) {
+    NSLog([[NSString alloc] initWithUTF8String:log]);
+}
+
+void lockscreen::set_action_profile(const char* profile) {
+    profile_selected = [[NSString alloc] initWithUTF8String:profile];
+}
+
+const char* lockscreen::get_action_profile() {
+    return [profile_selected UTF8String];
+}
+
 void lockscreen::adb_connect(const char*  IP) {
     if(_adb == 0) return;
     
@@ -310,5 +324,24 @@ void lockscreen::echelonConnectSport_WriteCharacteristic(unsigned char* qdata, u
     if(ios_echelonConnectSport) {
         [ios_echelonConnectSport writeCharacteristc:qdata length:length ];
     }
+void lockscreen::zwift_api_decodemessage_player(const char* data, int len) {
+    NSData *d = [NSData dataWithBytes:data length:len];
+    [zwiftProtobufLayer getPlayerStateWithValue:d];
+}
+
+float lockscreen::zwift_api_getaltitude() {
+    return [zwiftProtobufLayer getAltitude];
+}
+
+int lockscreen::zwift_api_getdistance() {
+    return [zwiftProtobufLayer getDistance];
+}
+
+float lockscreen::zwift_api_getlatitude() {
+    return [zwiftProtobufLayer getLatitude];
+}
+
+float lockscreen::zwift_api_getlongitude() {
+    return [zwiftProtobufLayer getLongitude];
 }
 #endif

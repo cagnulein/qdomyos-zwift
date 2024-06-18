@@ -1,9 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "nordictrackifitadbtreadmill.h"
 
-class NordicTrackIFitADBTreadmillTestData : public BluetoothDeviceTestData {
+#include "Devices/Treadmill/treadmilltestdata.h"
+
+#include "devices/nordictrackifitadbtreadmill/nordictrackifitadbtreadmill.h"
+
+
+class NordicTrackIFitADBTreadmillTestData : public TreadmillTestData {
 protected:
     bool configureSettings(DeviceDiscoveryInfo& info, bool enable) const override {
         if(enable)
@@ -14,7 +17,7 @@ protected:
         return true;
     }
 public:
-    NordicTrackIFitADBTreadmillTestData() : BluetoothDeviceTestData("Nordictrack IFit ADB Treadmill") {
+    NordicTrackIFitADBTreadmillTestData() : TreadmillTestData("Nordictrack IFit ADB Treadmill") {
         // Allow any name because it's not a bluetooth device
         this->addDeviceName("", comparison::StartsWithIgnoreCase);
     }

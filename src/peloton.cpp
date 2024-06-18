@@ -263,10 +263,11 @@ void peloton::hfb_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::pzp_trainrows(QList<trainrow> *list) {
@@ -276,10 +277,11 @@ void peloton::pzp_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::startEngine() {
@@ -427,17 +429,16 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
 
     QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
     qDebug() << QStringLiteral("air_time ") + air_time;
-    QString workout_name = current_workout_name;
     if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
             .toString()
             .contains(QStringLiteral("Before"))) {
-        workout_name = air_time + QStringLiteral(" ") + workout_name;
+        current_workout_name = air_time + QStringLiteral(" ") + current_workout_name;
     } else if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
                    .toString()
                    .contains(QStringLiteral("After"))) {
-        workout_name = workout_name + QStringLiteral(" ") + air_time;
+        current_workout_name = current_workout_name + QStringLiteral(" ") + air_time;
     }
-    emit workoutChanged(workout_name, current_instructor_name);
+    emit workoutChanged(current_workout_name, current_instructor_name);
 
     /*
     if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {
@@ -445,6 +446,16 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
         getPerformance(current_workout_id);
     } else*/
     { getRide(current_ride_id); }
+}
+
+void peloton::downloadImage() {
+    if (current_image_downloaded) {
+        delete current_image_downloaded;
+        current_image_downloaded = 0;
+    }
+    if (!current_image_url.isEmpty()) {
+        current_image_downloaded = new fileDownloader(current_image_url);
+    }
 }
 
 void peloton::workout_onfinish(QNetworkReply *reply) {
@@ -460,14 +471,6 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
     current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
     current_image_url = ride[QStringLiteral("image_url")].toString();
-
-    if (current_image_downloaded) {
-        delete current_image_downloaded;
-        current_image_downloaded = 0;
-    }
-    if (!current_image_url.isEmpty()) {
-        current_image_downloaded = new fileDownloader(current_image_url);
-    }
 
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
     qDebug() << QStringLiteral("original_air_time") << time;

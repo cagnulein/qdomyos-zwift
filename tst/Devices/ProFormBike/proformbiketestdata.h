@@ -1,12 +1,15 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
-#include "proformbike.h"
 
-class ProFormBikeTestData : public BluetoothDeviceTestData {
+#include "Devices/Bike/biketestdata.h"
+
+#include "devices/proformbike/proformbike.h"
+
+
+class ProFormBikeTestData : public BikeTestData {
 
 public:
-    ProFormBikeTestData() : BluetoothDeviceTestData("ProForm Bike") {
+    ProFormBikeTestData() : BikeTestData("ProForm Bike") {
         this->addDeviceName("I_EB", comparison::StartsWith);
         this->addDeviceName("I_SB", comparison::StartsWith);
     }

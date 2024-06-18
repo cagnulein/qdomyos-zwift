@@ -18,7 +18,7 @@ class lockscreen {
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
 
-    void virtualbike_zwift_ios(bool disable_hr);
+    void virtualbike_zwift_ios(bool disable_hr, bool garmin_bluetooth_compatibility);
     double virtualbike_getCurrentSlope();
     double virtualbike_getCurrentCRR();
     double virtualbike_getCurrentCW();
@@ -59,6 +59,7 @@ class lockscreen {
     
     // debug
     static void debug(const char* debugstring);
+    static void nslog(const char* log);
     
     //adb
     void adb_connect(const char* IP);
@@ -71,6 +72,18 @@ class lockscreen {
     // Echelon Connect Sport
     void echelonConnectSport(const char*  Name, void* deviceClass);
     void echelonConnectSport_WriteCharacteristic(unsigned char* qdata, unsigned char length);
+    
+    // Zwift API
+    void zwift_api_decodemessage_player(const char* data, int len);
+    float zwift_api_getaltitude();
+    int zwift_api_getdistance();
+    float zwift_api_getlatitude();
+    float zwift_api_getlongitude();
+    
+    // quick actions    
+    static void set_action_profile(const char* profile);
+    static const char* get_action_profile();
+
 };
 
 #endif // LOCKSCREEN_H

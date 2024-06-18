@@ -31,7 +31,7 @@ class peloton : public QObject {
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
 
-    enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2 };
+    enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2, no_metrics = 3 };
 
     _PELOTON_API currentApi() { return current_api; }
 
@@ -45,6 +45,7 @@ class peloton : public QObject {
     QString current_ride_id = QLatin1String("");
     QString current_image_url = QLatin1String("");
     fileDownloader *current_image_downloaded = nullptr;
+    void downloadImage();
     QDateTime current_original_air_time;
     int current_pedaling_duration = 0;
 

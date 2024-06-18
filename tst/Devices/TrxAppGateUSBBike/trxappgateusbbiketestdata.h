@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Devices/bluetoothdevicetestdata.h"
+#include "Devices/Bike/biketestdata.h"
 #include "Devices/TrxAppGateUSBTreadmill/trxappgateusbtreadmilltestdata.h"
-#include "trxappgateusbbike.h"
+#include "devices/trxappgateusbbike/trxappgateusbbike.h"
 
-class TrxAppGateUSBBikeTestData : public BluetoothDeviceTestData {
+class TrxAppGateUSBBikeTestData : public BikeTestData {
 protected:
-    TrxAppGateUSBBikeTestData(std::string testName) : BluetoothDeviceTestData(testName) {
+    TrxAppGateUSBBikeTestData(std::string testName) : BikeTestData(testName) {
 
     }
 
@@ -38,6 +38,7 @@ protected:
 public:
     TrxAppGateUSBBike1TestData() : TrxAppGateUSBBikeTestData("Toorx AppGate USB Bike")  {
         this->addDeviceName("TUN ", comparison::StartsWithIgnoreCase);
+        this->addDeviceName("PASYOU-", comparison::StartsWithIgnoreCase);
     }
 
 };
