@@ -30,6 +30,7 @@ import java.util.List;
 
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseData;
+import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.os.ParcelUuid;
 import java.util.UUID;
