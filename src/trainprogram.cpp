@@ -931,11 +931,11 @@ void trainprogram::scheduler() {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
         
-        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine >= currentStep) {
             break;
         }
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
     }
@@ -955,7 +955,7 @@ void trainprogram::scheduler() {
                  << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
-            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
+            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
@@ -966,6 +966,8 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                calculatedLine = currentStep;
 
                 rows[currentStep].started = QDateTime::currentDateTime();
 
