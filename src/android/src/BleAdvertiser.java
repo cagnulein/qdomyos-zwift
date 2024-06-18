@@ -56,8 +56,20 @@ public class BleAdvertiser {
                     .build();
 
             if (advertiser != null) {
-                advertiser.startAdvertising(settings, advertiseData, null);
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
             }
         }
     }
+
+    private static AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
+        @Override
+        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+          Log.d("BleAdvertiser", "Advertising started successfully");
+        }
+
+        @Override
+        public void onStartFailure(int errorCode) {
+          Log.e("BleAdvertiser", "Advertising failed with error code: " + errorCode);
+        }
+    };
 }
