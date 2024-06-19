@@ -145,14 +145,16 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     double steps = (double)(uint16_t)((newValue.at(1) << 8) | ((uint8_t)newValue.at(2)));
     if(steps != StepCount.value()) {
+        Speed = Speed.value() + 1;
         CadenceRaw = (steps - StepCount.value()) / fabs(StepCount.valueChanged().msecsTo(now)) * 60000.0;
         Cadence = CadenceRaw.average20s();
         StepCount = steps;
     } else if(abs(Cadence.lastChanged().secsTo(now)) > 2) {
         CadenceRaw = 0;
         Cadence = 0;
+        Speed = 0;
     }
-    Speed = (newValue.at(5) << 8) | ((uint8_t)newValue.at(6));
+
     if (watts(weight))
         KCal +=
             ((((0.048 * ((double)watts(weight)) + 1.19) *
