@@ -133,6 +133,8 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
+    QDateTime now = QDateTime::currentDateTime();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
@@ -143,10 +145,22 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     double steps = (double)(uint16_t)((newValue.at(1) << 8) | ((uint8_t)newValue.at(2)));
     if(steps != StepCount.value()) {
-        Cadence = (steps - StepCount.value()) / fabs(StepCount.valueChanged().msecsTo(QDateTime::currentDateTime())) * 60000.0;
+        CadenceRaw = (steps - StepCount.value()) / fabs(StepCount.valueChanged().msecsTo(now)) * 60000.0;
+        Cadence = CadenceRaw.average20s();
         StepCount = steps;
+    } else if(abs(Cadence.lastChanged().secsTo(now)) > 2) {
+        CadenceRaw = 0;
+        Cadence = 0;
     }
     Speed = (newValue.at(5) << 8) | ((uint8_t)newValue.at(6));
+    if (watts(weight))
+        KCal +=
+            ((((0.048 * ((double)watts(weight)) + 1.19) *
+               weight * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                            now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                     //* 3.5) / 200 ) / 60
 
 
 #ifdef Q_OS_ANDROID
@@ -306,3 +320,12 @@ bool crossrope::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
+uint16_t crossrope::watts(double weight) {
+    QSettings settings;
+    double power_per_kg = 1.5;
+    double cadence_efficiency = 0.1;
+
+           // Power calculation
+    double power = (power_per_kg * weight) + (cadence_efficiency * Cadence.value());
+    return power;
+}

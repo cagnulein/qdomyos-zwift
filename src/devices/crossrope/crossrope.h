@@ -38,6 +38,7 @@ class crossrope : public treadmill {
     bool canHandleInclineChange() override { return false; }
 
   private:
+    uint16_t watts(double weight) override;
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -63,6 +64,8 @@ class crossrope : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    metric CadenceRaw;
 
   Q_SIGNALS:
     void disconnected();
