@@ -176,7 +176,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         }
 
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertising",
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
                                                   "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
 #else
         leController->startAdvertising(pars, advertisingData, advertisingData);
@@ -315,7 +315,13 @@ void virtualrower::reconnect() {
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingRower",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
 }
 
 void virtualrower::rowerProvider() {
