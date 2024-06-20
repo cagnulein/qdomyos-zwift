@@ -53,7 +53,6 @@ public class BleAdvertiser {
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
-                    .setDeviceName("QZ")
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
                     .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_ROWER)
                     .build();
@@ -77,7 +76,6 @@ public class BleAdvertiser {
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
-                    .setDeviceName("QZ")
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
                     .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_TREADMILL)
                     .build();
