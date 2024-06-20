@@ -86,6 +86,7 @@ class csaferowerThread : public QThread {
     void onHeart(double hr);
     void onCalories(double calories);
     void onDistance(double distance);
+    void onWorkoutState(uint8_t state);
 
   private:
     // Utility and BG Thread functions
@@ -131,6 +132,8 @@ class csaferower : public rower {
 
     uint16_t watts() override;
 
+    bool isWorkout();
+
     bool initDone = false;
     bool initRequest = false;
 
@@ -140,6 +143,8 @@ class csaferower : public rower {
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
+
+    uint8_t workoutState = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -158,6 +163,7 @@ class csaferower : public rower {
     void onHeart(double hr);
     void onCalories(double calories);
     void onDistance(double distance);
+    void onWorkoutState(uint8_t state);
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

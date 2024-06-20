@@ -49,9 +49,9 @@ csafe::csafe() {
     cmds["CSAFE_PM_GET_STROKESTATE"] = QList<int>() << 0xBF << QList<int>() << 0x1A;
     cmds["CSAFE_PM_GET_WORKTIME"] = QList<int>() << 0xA0 << QList<int>() << 0x1A;
     cmds["CSAFE_PM_GET_WORKDISTANCE"] = QList<int>() << 0xA3 << QList<int>() << 0x1A;
-    cmds["CSAFE_PM_GET_ERRORVALUE"] = QList<int>() << 0xC9 << QList<int>() << 0x1A;
-    cmds["CSAFE_PM_GET_WORKOUTSTATE"] = QList<int>() << 0x8D << QList<int>() << 0x1A;
-    cmds["CSAFE_PM_GET_WORKOUTINTERVALCOUNT"] = QList<int>() << 0x9F << QList<int>() << 0x1A;
+    cmds["CSAFE_PM_GET_ERRORVALUE"] = QList<int>() << 0xC9 << QList<int>() << 0x1A;*/
+    cmds["CSAFE_PM_GET_WORKOUTSTATE"] = populateCmd(0x8D, QList<int>(), 0x1A);
+    /*cmds["CSAFE_PM_GET_WORKOUTINTERVALCOUNT"] = QList<int>() << 0x9F << QList<int>() << 0x1A;
     cmds["CSAFE_PM_GET_INTERVALTYPE"] = QList<int>() << 0x8E << QList<int>() << 0x1A;
     cmds["CSAFE_PM_GET_RESTTIME"] = QList<int>() << 0xCF << QList<int>() << 0x1A;
 
