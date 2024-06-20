@@ -37,9 +37,10 @@ import java.util.UUID;
 
 public class BleAdvertiser {
     private static final UUID SERVICE_UUID = UUID.fromString("00001826-0000-1000-8000-00805f9b34fb");
-    private static final byte[] SERVICE_DATA = {0x01, 0x10, 0x00};
+    private static final byte[] SERVICE_DATA_ROWER = {0x01, 0x10, 0x00};
+    private static final byte[] SERVICE_DATA_TREADMILL = {0x01, 0x01, 0x00};
 
-    public static void startAdvertising(Context context) {
+    public static void startAdvertisingRower(Context context) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
             android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
@@ -53,7 +54,30 @@ public class BleAdvertiser {
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
-                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA)
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_ROWER)
+                    .build();
+
+            if (advertiser != null) {
+                advertiser.startAdvertising(settings, advertiseData, advertiseCallback);
+            }
+        }
+    }
+
+    public static void startAdvertisingTreadmill(Context context) {
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            android.bluetooth.le.BluetoothLeAdvertiser advertiser = bluetoothManager.getAdapter().getBluetoothLeAdvertiser();
+
+            AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                    .setConnectable(true)
+                    .build();
+
+            AdvertiseData advertiseData = new AdvertiseData.Builder()
+                    .setIncludeDeviceName(true)
+                    .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_TREADMILL)
                     .build();
 
             if (advertiser != null) {
