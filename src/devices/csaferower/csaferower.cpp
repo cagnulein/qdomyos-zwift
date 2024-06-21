@@ -23,15 +23,21 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
 
 void csaferower::onPower(double power) {
     qDebug() << "Current Power received:" << power;
-    m_watt = power;
+    if(distanceIsChanging)
+        m_watt = power;
 
     double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
-    Speed = (60.0 / (double)(pace)) * 30.0;
+    if(distanceIsChanging)
+        Speed = (60.0 / (double)(pace)) * 30.0;
 
     qDebug() << "Current Speed calculated:" << Speed.value() << pace;
 }
 
-void csaferower::onCadence(double cadence) { qDebug() << "Current Cadence received:" << cadence; }
+void csaferower::onCadence(double cadence) {
+    qDebug() << "Current Cadence received:" << cadence;
+    if(distanceIsChanging)
+        Cadence = cadence;
+}
 
 void csaferower::onHeart(double hr) {
     qDebug() << "Current Heart received:" << hr;
@@ -62,7 +68,20 @@ void csaferower::onCalories(double calories) {
     KCal = calories;
 }
 
-void csaferower::onDistance(double distance) { qDebug() << "Current Distance received:" << distance / 1000.0; }
+void csaferower::onDistance(double distance) {
+    qDebug() << "Current Distance received:" << distance / 1000.0;
+
+    if(distance != distanceReceived.value()) {
+        distanceIsChanging = true;
+        distanceReceived = distance;
+    } else if(abs(distanceReceived.lastChanged().secsTo(QDateTime::currentDateTime())) > 2) {
+        distanceIsChanging = false;
+        m_watt = 0;
+        Cadence = 0;
+        Speed = 0;
+    }
+
+}
 
 csaferowerThread::csaferowerThread() {}
 
