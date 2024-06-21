@@ -76,7 +76,7 @@ void crossrope::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
 void crossrope::updateDisplay(uint16_t elapsed) {}
 
 void crossrope::update() {
-    if (m_control->state() == QLowEnergyController::UnconnectedState) {
+    if (m_control == nullptr || m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
