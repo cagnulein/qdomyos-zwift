@@ -18,33 +18,20 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(t, &csaferowerThread::onHeart, this, &csaferower::onHeart);
     connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
     connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
-    connect(t, &csaferowerThread::onWorkoutState, this, &csaferower::onWorkoutState);
     t->start();
 }
 
 void csaferower::onPower(double power) {
     qDebug() << "Current Power received:" << power;
-    if(isWorkout())
-        m_watt = power;
-    else
-        m_watt = 0;
+    m_watt = power;
 
     double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
-    if(isWorkout())
-        Speed = (60.0 / (double)(pace)) * 30.0;
-    else
-        Speed = 0;
+    Speed = (60.0 / (double)(pace)) * 30.0;
 
     qDebug() << "Current Speed calculated:" << Speed.value() << pace;
 }
 
-void csaferower::onCadence(double cadence) {
-    qDebug() << "Current Cadence received:" << cadence;
-    if(isWorkout())
-        Cadence = cadence;
-    else
-        Cadence = 0;
-}
+void csaferower::onCadence(double cadence) { qDebug() << "Current Cadence received:" << cadence; }
 
 void csaferower::onHeart(double hr) {
     qDebug() << "Current Heart received:" << hr;
@@ -77,30 +64,6 @@ void csaferower::onCalories(double calories) {
 
 void csaferower::onDistance(double distance) { qDebug() << "Current Distance received:" << distance / 1000.0; }
 
-bool csaferower::isWorkout() {
-    /*
-        WAITING_TO_BEGIN((byte) 0x00),
-        WORKOUT_ROW((byte) 0x01),
-        COUNTDOWN_PAUSE((byte) 0x02),
-        INTERVAL_REST((byte) 0x03),
-        WORK_TIME_INTERVAL((byte) 0x04),
-        REST_INTERVAL_END_TO_WORK_TIME_INTERVAL_BEGIN((byte) 0x06),
-        REST_INTERVAL_END_TO_WORK_DISTANCE_INTERVAL_BEGIN((byte) 0x07),
-        WORK_TIME_INTERVAL_END_TO_REST_INTERVAL_BEGIN((byte) 0x08),
-        WORK_DISTANCE_INTERVAL_END_TO_REST_INTERVAL_BEGIN((byte) 0x09),
-        WORKOUT_END((byte) 0x0A),
-        WORKOUT_TERMINATE((byte) 0x0B),
-        WORKOUT_LOGGED((byte) 0x0C),
-        WORKOUT_REARM((byte) 0x0D),
-    */
-    return !(workoutState == 0x0a || workoutState == 0x0b);
-}
-
-void csaferower::onWorkoutState(uint8_t state) {
-    qDebug() << "Current Workout state received:" << state;
-    workoutState = state;
-}
-
 csaferowerThread::csaferowerThread() {}
 
 void csaferowerThread::run() {
@@ -112,7 +75,6 @@ void csaferowerThread::run() {
     csafe *aa = new csafe();
     while (1) {
         QStringList command;
-        command << "CSAFE_PM_GET_WORKOUTSTATE";
         command << "CSAFE_PM_GET_WORKTIME";
         command << "CSAFE_PM_GET_WORKDISTANCE";
         command << "CSAFE_GETCADENCE_CMD";
@@ -146,9 +108,7 @@ void csaferowerThread::run() {
         if (f["CSAFE_PM_GET_WORKDISTANCE"].isValid()) {
             emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
         }
-        if (f["CSAFE_PM_GET_WORKOUTSTATE"].isValid()) {
-            emit onWorkoutState(f["CSAFE_PM_GET_WORKOUTSTATE"].value<QVariantList>()[0].toDouble());
-        }
+
         memset(rx, 0x00, sizeof(rx));
         QThread::msleep(50);
     }
