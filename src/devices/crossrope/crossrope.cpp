@@ -28,12 +28,6 @@ crossrope::crossrope(uint32_t pollDeviceTime, bool noConsole, bool noHeartServic
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
 
-    if (forceInitSpeed > 0)
-        lastSpeed = forceInitSpeed;
-
-    if (forceInitInclination > 0)
-        lastInclination = forceInitInclination;
-
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &crossrope::update);
@@ -88,11 +82,11 @@ void crossrope::update() {
     }
 
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
-             << gattWriteCharacteristic.isValid() << initDone << requestSpeed << requestInclination;
+             << gattWriteCharacteristic.isValid() << initDone;
 
     if (initRequest) {
         initRequest = false;
-        btinit((lastSpeed > 0 ? true : false));
+        btinit((false));
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
@@ -107,11 +101,7 @@ void crossrope::update() {
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-            if (lastSpeed == 0.0) {
-                lastSpeed = 0.5;
-            }
             requestStart = -1;
-            emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -144,14 +134,18 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         return;
 
     double steps = (double)(uint16_t)((newValue.at(1) << 8) | ((uint8_t)newValue.at(2)));
-    if(steps != StepCount.value()) {
-        Speed = Speed.value() + 1;
-        CadenceRaw = (steps - StepCount.value()) / fabs(StepCount.valueChanged().msecsTo(now)) * 60000.0;
+    if(steps != JumpsCount.value()) {
+        JumpsSequence = JumpsSequence.value() + 1;
+        CadenceRaw = (steps - JumpsSequence.value()) / fabs(JumpsSequence.valueChanged().msecsTo(now)) * 60000.0;
         Cadence = CadenceRaw.average20s();
-        StepCount = steps;
+        JumpsCount = steps;
+        Speed = Cadence.value() * 0.15; // (speed emulated)
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastTimeCharacteristicChanged.msecsTo(now)));
     } else if(abs(Cadence.lastChanged().secsTo(now)) > 2) {
         CadenceRaw = 0;
         Cadence = 0;
+        JumpsSequence = 0;
         Speed = 0;
     }
 
@@ -176,7 +170,7 @@ void crossrope::characteristicChanged(const QLowEnergyCharacteristic &characteri
         }
     }
     emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    emit debug(QStringLiteral("Current Step Count: ") + QString::number(StepCount.value()));
+    emit debug(QStringLiteral("Current Jumps Count: ") + QString::number(JumpsCount.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     // debug("Current Distance: " + QString::number(distance));
 

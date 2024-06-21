@@ -26,16 +26,14 @@
 #include <QDateTime>
 #include <QObject>
 
-#include "treadmill.h"
+#include "jumprope.h"
 
-class crossrope : public treadmill {
+class crossrope : public jumprope {
     Q_OBJECT
   public:
     crossrope(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    bool canHandleSpeedChange() override { return false; }
-    bool canHandleInclineChange() override { return false; }
 
   private:
     uint16_t watts(double weight) override;

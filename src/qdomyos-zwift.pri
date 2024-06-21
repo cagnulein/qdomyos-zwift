@@ -74,6 +74,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 SOURCES += \
     $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/devices/jumprope.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
@@ -290,6 +291,7 @@ INCLUDEPATH += fit-sdk/ devices/
 HEADERS += \
     $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
+    $$PWD/devices/jumprope.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
     $$PWD/treadmillErgTable.h \
