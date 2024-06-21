@@ -4329,8 +4329,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 0.55, 'f', 0);
             ftpZone = 1;
             ftpZone += (ftpPerc / 56);
-            if (ftpZone >= 2) { // double precision could cause unwanted approximation
-                ftpZone = 1.9999;
+            if (ftpZone >= 1.95) { // double precision could cause unwanted approximation
+                ftpZone = 1.9;
             }
             ftp->setValueFontColor(QStringLiteral("white"));
             watt->setValueFontColor(QStringLiteral("white"));
@@ -4340,8 +4340,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
             ftpZone += ((ftpPerc - 56) / 20);
-            if (ftpZone >= 3) { // double precision could cause unwanted approximation
-                ftpZone = 2.9999;
+            if (ftpZone >= 2.95) { // double precision could cause unwanted approximation
+                ftpZone = 2.9;
             }
             ftp->setValueFontColor(QStringLiteral("limegreen"));
             watt->setValueFontColor(QStringLiteral("limegreen"));
@@ -4351,8 +4351,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
             ftpZone += ((ftpPerc - 76) / 15);
-            if (ftpZone >= 4) { // double precision could cause unwanted approximation
-                ftpZone = 3.9999;
+            if (ftpZone >= 3.95) { // double precision could cause unwanted approximation
+                ftpZone = 3.9;
             }
             ftp->setValueFontColor(QStringLiteral("gold"));
             watt->setValueFontColor(QStringLiteral("gold"));
@@ -4362,8 +4362,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
             ftpZone += ((ftpPerc - 91) / 15);
-            if (ftpZone >= 5) { // double precision could cause unwanted approximation
-                ftpZone = 4.9999;
+            if (ftpZone >= 4.95) { // double precision could cause unwanted approximation
+                ftpZone = 4.9;
             }
             ftp->setValueFontColor(QStringLiteral("orange"));
             watt->setValueFontColor(QStringLiteral("orange"));
@@ -4373,8 +4373,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
             ftpZone += ((ftpPerc - 106) / 15);
-            if (ftpZone >= 6) { // double precision could cause unwanted approximation
-                ftpZone = 5.9999;
+            if (ftpZone >= 5.95) { // double precision could cause unwanted approximation
+                ftpZone = 5.9;
             }
             ftp->setValueFontColor(QStringLiteral("darkorange"));
             watt->setValueFontColor(QStringLiteral("darkorange"));
@@ -4384,8 +4384,8 @@ void homeform::update() {
             ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
             ftpZone += ((ftpPerc - 121) / 30);
-            if (ftpZone >= 7) { // double precision could cause unwanted approximation
-                ftpZone = 6.9999;
+            if (ftpZone >= 6.95) { // double precision could cause unwanted approximation
+                ftpZone = 6.9;
             }
             ftp->setValueFontColor(QStringLiteral("orangered"));
             watt->setValueFontColor(QStringLiteral("orangered"));
