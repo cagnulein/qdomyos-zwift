@@ -855,7 +855,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 this->signalBluetoothDeviceConnected(domyosBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("FAL-SPORTS")) ||
+                       (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) && iconsole_elliptical)) &&
                        !trxappgateusbElliptical && ftms_bike.contains(QZSettings::default_ftms_bike) && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1439,6 +1440,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("BIKE-")) ||
                         (b.name().toUpper().startsWith("SPAX-BK-")) ||
                         (b.name().toUpper().startsWith("YSV1")) ||
+                        (b.name().toUpper().startsWith("WATTBIKE")) ||
                         (b.name().toUpper().startsWith("ZYCLEZBIKE")) ||
                         (b.name().toUpper().startsWith("RAVE WHITE")) ||
                         (b.name().toUpper().startsWith("DOMYOS-BIKING-")) ||
@@ -1994,7 +1996,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ADIDAS "))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
-                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill &&
+                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && !toorx_ftms && !toorx_ftms_treadmill && !iconsole_elliptical &&
                        filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -2021,7 +2023,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           b.name().toUpper().contains(QStringLiteral("CR011R")) ||
                           b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
                          (toorx_bike))) &&
-                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter) {
+                       !trxappgateusb && !toorx_ftms && !toorx_ftms_treadmill && !trxappgateusbBike && filter && !iconsole_elliptical) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trxappgateusbBike =
