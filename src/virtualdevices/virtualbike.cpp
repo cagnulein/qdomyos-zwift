@@ -7,6 +7,12 @@
 #include <QtMath>
 #include <chrono>
 
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
