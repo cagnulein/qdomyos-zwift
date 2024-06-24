@@ -811,6 +811,10 @@ ApplicationWindow {
                 keyMediaPrevious();
             else if (event.key === Qt.Key_MediaNext)
                 keyMediaNext();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_Z)
+                volumeDown();
+            else if (OS_VERSION === "Other" && event.key === Qt.Key_X)
+                volumeUp();
 
             event.accepted = settings.volume_change_gears;
         }
