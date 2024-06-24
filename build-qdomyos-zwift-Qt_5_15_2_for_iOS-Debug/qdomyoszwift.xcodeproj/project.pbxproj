@@ -254,6 +254,8 @@
 		873CD23027EF8EF5000131BC /* iosinapppurchasetransaction.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873CD22727EF8E4B000131BC /* iosinapppurchasetransaction.mm */; };
 		873D388B29B0D745006A2611 /* ConnectIQ.xcframework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; };
 		873D388C29B0D745006A2611 /* ConnectIQ.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 873D388A29B0D744006A2611 /* ConnectIQ.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		873D3C4A2C296B0100770CB9 /* moc_jumprope.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873D3C492C296B0100770CB9 /* moc_jumprope.cpp */; };
+		873D3C4D2C296B3800770CB9 /* jumprope.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873D3C4B2C296B3700770CB9 /* jumprope.cpp */; };
 		873F022F274BE471002D0349 /* mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F022D274BE471002D0349 /* mcfbike.cpp */; };
 		873F0231274BE47D002D0349 /* moc_mcfbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873F0230274BE47D002D0349 /* moc_mcfbike.cpp */; };
 		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
@@ -1062,6 +1064,9 @@
 		873CD22A27EF8E4B000131BC /* iosinapppurchasetransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iosinapppurchasetransaction.h; path = ../src/purchasing/ios/iosinapppurchasetransaction.h; sourceTree = "<group>"; };
 		873CD22E27EF8EC1000131BC /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		873D388A29B0D744006A2611 /* ConnectIQ.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ConnectIQ.xcframework; path = ../src/ConnectIQ/iOS/ConnectIQ.xcframework; sourceTree = "<group>"; };
+		873D3C492C296B0100770CB9 /* moc_jumprope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_jumprope.cpp; sourceTree = "<group>"; };
+		873D3C4B2C296B3700770CB9 /* jumprope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jumprope.cpp; path = ../src/devices/jumprope.cpp; sourceTree = "<group>"; };
+		873D3C4C2C296B3700770CB9 /* jumprope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jumprope.h; path = ../src/devices/jumprope.h; sourceTree = "<group>"; };
 		873F022D274BE471002D0349 /* mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mcfbike.cpp; path = ../src/devices/mcfbike/mcfbike.cpp; sourceTree = "<group>"; };
 		873F022E274BE471002D0349 /* mcfbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mcfbike.h; path = ../src/devices/mcfbike/mcfbike.h; sourceTree = "<group>"; };
 		873F0230274BE47D002D0349 /* moc_mcfbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mcfbike.cpp; sourceTree = "<group>"; };
@@ -2053,6 +2058,9 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				873D3C4B2C296B3700770CB9 /* jumprope.cpp */,
+				873D3C4C2C296B3700770CB9 /* jumprope.h */,
+				873D3C492C296B0100770CB9 /* moc_jumprope.cpp */,
 				87C4E5BA2C1C1D0900D0750E /* crossrope.cpp */,
 				87C4E5B92C1C1D0900D0750E /* crossrope.h */,
 				874823FF2B935AE6006F3CA1 /* ergtable.h */,
@@ -3329,6 +3337,7 @@
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
 				87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */,
 				DA1DC0B761BD7A3004BCF43D /* fit_date_time.cpp in Compile Sources */,
+				873D3C4D2C296B3800770CB9 /* jumprope.cpp in Compile Sources */,
 				87E1CA7D2B8DF04900E3C414 /* moc_trxappgateusbelliptical.cpp in Compile Sources */,
 				87A3BC232656429600D302E3 /* echelonrower.cpp in Compile Sources */,
 				87DAE16526E9FF3A00B0527E /* solef80treadmill.cpp in Compile Sources */,
@@ -3433,6 +3442,7 @@
 				6DC5D7C695B8763F9E2E029F /* fit_profile.cpp in Compile Sources */,
 				8710706C29C48AEA0094D0F3 /* handleurl.cpp in Compile Sources */,
 				87C5F0B726285E5F0067A1B5 /* mimecontentformatter.cpp in Compile Sources */,
+				873D3C4A2C296B0100770CB9 /* moc_jumprope.cpp in Compile Sources */,
 				23191C28CB29474279752FD3 /* fit_protocol_validator.cpp in Compile Sources */,
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
 				87F527BE28EEB5AA00A9F8D5 /* qzsettings.cpp in Compile Sources */,
