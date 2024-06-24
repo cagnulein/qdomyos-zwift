@@ -320,6 +320,197 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         }
 
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+
+        union flags {
+            struct {
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t instantCadence : 1;
+                uint16_t avgCadence : 1;
+                uint16_t totDistance : 1;
+                uint16_t resistanceLvl : 1;
+                uint16_t instantPower : 1;
+                uint16_t avgPower : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolic : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
+            } else {
+                Speed = metric::calculateSpeedFromPower(
+                    watts(), Inclination.value(), Speed.value(),
+                    fabs(now.msecsTo(Speed.lastChanged()) / 1000.0), this->speedLimit());
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.instantCadence) {
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)))) /
+                          2.0;
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        }
+
+        if (Flags.avgCadence) {
+            double avgCadence;
+            avgCadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index)))) /
+                         2.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+        }
+
+        if (Flags.totDistance) {
+
+            /*
+             * the distance sent from the most trainers is a total distance, so it's useless for QZ
+             *
+            Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                                  (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint32_t)((uint8_t)newValue.at(index)))) /
+                       1000.0;*/
+            index += 3;
+        }
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        if (Flags.resistanceLvl) {
+            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            emit resistanceRead(Resistance.value());
+            index += 2;
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+            resistance_received = true;
+        }
+        double ac = 0.01243107769;
+        double bc = 1.145964912;
+        double cc = -23.50977444;
+
+        double ar = 0.1469553975;
+        double br = -5.841344538;
+        double cr = 97.62165482;
+
+        if (Cadence.value() && m_watt.value()) {
+            m_pelotonResistance =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+            if (!resistance_received) {
+                Resistance = m_pelotonResistance;
+                emit resistanceRead(Resistance.value());
+                emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+            }
+        }
+
+
+        if (Flags.instantPower) {
+            // power table from an user
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                           .toString()
+                           .startsWith(QStringLiteral("Disabled")))
+                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }
+
+        if (Flags.avgPower && newValue.length() > index + 1) {
+            double avgPower;
+            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+        }
+
+        if (Flags.expEnergy && newValue.length() > index + 1) {
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+
+                   // energy per hour
+            index += 2;
+
+                   // energy per minute
+            index += 1;
+        } else {
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                       // kg * 3.5) / 200 ) / 60
+        }
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+#ifdef Q_OS_ANDROID
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+                Heart = ((double)(((uint8_t)newValue.at(index))));
+                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else {
+                Flags.heartRate = false;
+            }
+            heart = Flags.heartRate;
+        }
+
+        if (Flags.metabolic) {
+            // todo
+        }
+
+        if (Flags.elapsedTime) {
+            // todo
+        }
+
+        if (Flags.remainingTime) {
+            // todo
+        }
     }
 
 #ifdef Q_OS_ANDROID
