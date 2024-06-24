@@ -2071,6 +2071,9 @@ class QZSettings {
 
     static const QString virtual_device_tacx;
     static constexpr bool default_virtual_device_tacx = false;
+    
+    static const QString proform_bike_325_csx;
+    static constexpr bool default_proform_bike_325_csx = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

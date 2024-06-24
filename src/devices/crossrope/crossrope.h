@@ -1,5 +1,6 @@
-#ifndef TACXNEO2_H
-#define TACXNEO2_H
+#ifndef CROSSROPE_H
+#define CROSSROPE_H
+
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -24,67 +25,51 @@
 
 #include <QDateTime>
 #include <QObject>
-#include <QString>
 
-#include "devices/bike.h"
+#include "jumprope.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class tacxneo2 : public bike {
+class crossrope : public jumprope {
     Q_OBJECT
   public:
-    tacxneo2(bool noWriteResistance, bool noHeartService);
-    void changePower(int32_t power) override;
+    crossrope(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
   private:
+    uint16_t watts(double weight) override;
+    void updateDisplay(uint16_t elapsed);
+    void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    void forceInclination(double inclination);
-    uint16_t watts() override;
-    double bikeResistanceToPeloton(double resistance);
+    bool noConsole = false;
+    bool noHeartService = false;
+    uint32_t pollDeviceTime = 200;
+    uint8_t sec1Update = 0;
+    uint8_t firstInit = 0;
+    QByteArray lastPacket;
+    QDateTime lastTimeCharacteristicChanged;
+    bool firstCharacteristicChanged = true;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
 
-    const int max_resistance = 100;
-
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyCharacteristic gattWriteCharCustomId;
-    QLowEnergyService *gattPowerService = nullptr;
-    QLowEnergyService *gattCustomService;
-    // QLowEnergyCharacteristic gattNotify1Characteristic;
-
-    uint8_t sec1Update = 0;
-    QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    QDateTime lastGoodCadence = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
 
-    bool noWriteResistance = false;
-    bool noHeartService = false;
+    metric CadenceRaw;
 
-    uint16_t oldLastCrankEventTime = 0;
-    uint16_t oldCrankRevs = 0;
-    uint16_t CrankRevsRead = 0;
-
-    double lastGearValue = -1;
-    bool resistance_received = false;
-
-#ifdef Q_OS_IOS
-    lockscreen *h = 0;
-#endif
-
-  signals:
+  Q_SIGNALS:
     void disconnected();
     void debug(QString string);
+    void speedChanged(double speed);
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -94,8 +79,6 @@ class tacxneo2 : public bike {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
@@ -104,8 +87,6 @@ class tacxneo2 : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
-
-    void powerPacketReceived(const QByteArray &b);
 };
 
-#endif // TACXNEO2_H
+#endif // CROSSROPE_H

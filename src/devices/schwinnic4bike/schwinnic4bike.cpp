@@ -334,19 +334,23 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         resistance = res;
     }
 
-    if (qFabs(resistance - Resistance.value()) >=
-        (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
-            .toInt()) {
-        Resistance = resistance;
-        m_pelotonResistance = res;
-    } else {
-        // to calculate correctly the averages
-        Resistance = Resistance.value();
-        m_pelotonResistance = m_pelotonResistance.value();
+    if(ResistanceFromFTMSAccessory.value() == 0) {
+        if (qFabs(resistance - Resistance.value()) >=
+            (double)settings.value(QZSettings::schwinn_resistance_smooth, QZSettings::default_schwinn_resistance_smooth)
+                .toInt()) {
+            Resistance = resistance;
+            m_pelotonResistance = res;
+        } else {
+            // to calculate correctly the averages
+            Resistance = Resistance.value();
+            m_pelotonResistance = m_pelotonResistance.value();
 
-        qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
+            qDebug() << QStringLiteral("resistance not updated cause to schwinn_resistance_smooth setting");
+        }
+        emit resistanceRead(Resistance.value());
+    } else {
+        Resistance = ResistanceFromFTMSAccessory.value();
     }
-    emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = now;
 

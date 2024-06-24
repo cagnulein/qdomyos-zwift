@@ -1908,7 +1908,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
-                       || s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence)
+                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
                     QByteArray descriptor;
@@ -2079,6 +2079,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("SCHWINN 810"))) {
             schwinn_810_treadmill = true;
             qDebug() << QStringLiteral("Schwinn 810 TREADMILL workaround ON!");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
+            technogymrun = true;
+            qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {

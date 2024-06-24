@@ -739,8 +739,9 @@ const QString QZSettings::nordictrack_s20i_treadmill = QStringLiteral("nordictra
 const QString QZSettings::proform_595i_proshox2 = QStringLiteral("proform_595i_proshox2");
 const QString QZSettings::proform_treadmill_8_7 = QStringLiteral("proform_treadmill_8_7");
 const QString QZSettings::virtual_device_tacx = QStringLiteral("virtual_device_tacx");
+const QString QZSettings::proform_bike_325_csx = QStringLiteral("proform_bike_325_csx");
 
-const uint32_t allSettingsCount = 624;
+const uint32_t allSettingsCount = 625;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1371,6 +1372,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_595i_proshox2, QZSettings::default_proform_595i_proshox2},
     {QZSettings::proform_treadmill_8_7, QZSettings::default_proform_treadmill_8_7},
     {QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx},
+    {QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

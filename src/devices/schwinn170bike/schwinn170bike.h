@@ -60,6 +60,9 @@ class schwinn170bike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    
+    double lastCadenceValue = 0;
+    QDateTime lastCadenceChanged = QDateTime::currentDateTime();
 
     bool initDone = false;
     bool initRequest = false;

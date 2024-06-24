@@ -108,6 +108,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
+    
+  let SwiftDebug = swiftDebug()
   //var delegate: BLEPeripheralManagerDelegate?
 
   init(disable_hr: Bool, garmin_bluetooth_compatibility: Bool, tacx: Bool) {
@@ -300,8 +302,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
   }
   
-    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {      
     if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
+        SwiftDebug.qtDebug("virtualbike_zwift didReceiveWrite: " + String(describing: requests.first!.value))
         if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
             LastFTMSMessageReceived = requests.first!.value
         }

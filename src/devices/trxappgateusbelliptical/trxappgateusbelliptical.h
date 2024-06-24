@@ -75,6 +75,13 @@ class trxappgateusbelliptical : public elliptical {
     uint8_t counterPoll = 0;
     bool searchStopped = false;
 
+    typedef enum TYPE {
+        ELLIPTICAL_GENERIC = 0,
+        DCT2000I = 1,
+    } TYPE;
+    TYPE elliptical_type = ELLIPTICAL_GENERIC;
+
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
