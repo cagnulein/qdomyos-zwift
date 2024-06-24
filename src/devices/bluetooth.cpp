@@ -1439,6 +1439,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("BIKE-")) ||
                         (b.name().toUpper().startsWith("SPAX-BK-")) ||
                         (b.name().toUpper().startsWith("YSV1")) ||
+                        (b.name().toUpper().startsWith("WATTBIKE")) ||
                         (b.name().toUpper().startsWith("ZYCLEZBIKE")) ||
                         (b.name().toUpper().startsWith("RAVE WHITE")) ||
                         (b.name().toUpper().startsWith("DOMYOS-BIKING-")) ||
