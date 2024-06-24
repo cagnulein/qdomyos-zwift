@@ -65,6 +65,7 @@ csafe::csafe() {
     cmds["CSAFE_PM_GET_WORKDISTANCE"] = populateCmd(0xa3, QList<int>(), 0x1a);
 
     cmds["CSAFE_GETCALORIES_CMD"] = populateCmd(0xa3, QList<int>());
+    cmds["CSAFE_GETPACE_CMD"] = populateCmd(0xa6, QList<int>());
     cmds["CSAFE_GETCADENCE_CMD"] = populateCmd(0xa7, QList<int>());
     cmds["CSAFE_GETHRCUR_CMD"] = populateCmd(0xb0, QList<int>());
     cmds["CSAFE_GETPOWER_CMD"] = populateCmd(0xb4, QList<int>());

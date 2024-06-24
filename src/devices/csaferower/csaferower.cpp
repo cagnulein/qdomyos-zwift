@@ -18,19 +18,23 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(t, &csaferowerThread::onHeart, this, &csaferower::onHeart);
     connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
     connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
+    connect(t, &csaferowerThread::onPace, this, &csaferower::onPace);
     t->start();
 }
+
+void csaferower::onPace(double pace) {
+    qDebug() << "Current Pace received:" << pace;
+    if(distanceIsChanging)
+        Speed = (60.0 / (double)(pace)) * 30.0;
+
+    qDebug() << "Current Speed calculated:" << Speed.value() << pace;
+}
+
 
 void csaferower::onPower(double power) {
     qDebug() << "Current Power received:" << power;
     if(distanceIsChanging)
         m_watt = power;
-
-    double pace = (pow((2.8 / power), (1. / 3))) * 1000; // pace to m/km put *500 instead to have a m/500m
-    if(distanceIsChanging)
-        Speed = (60.0 / (double)(pace)) * 30.0;
-
-    qDebug() << "Current Speed calculated:" << Speed.value() << pace;
 }
 
 void csaferower::onCadence(double cadence) {
@@ -100,6 +104,7 @@ void csaferowerThread::run() {
         command << "CSAFE_GETPOWER_CMD";
         command << "CSAFE_GETCALORIES_CMD";
         command << "CSAFE_GETHRCUR_CMD";
+        command << "CSAFE_GETPACE_CMD";
         QByteArray ret = aa->write(command);
 
         qDebug() << " >> " << ret.toHex(' ');
@@ -114,6 +119,9 @@ void csaferowerThread::run() {
         QVariantMap f = aa->read(v);
         if (f["CSAFE_GETCADENCE_CMD"].isValid()) {
             emit onCadence(f["CSAFE_GETCADENCE_CMD"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETPACE_CMD"].isValid()) {
+            emit onCadence(f["CSAFE_GETPACE_CMD"].value<QVariantList>()[0].toDouble());
         }
         if (f["CSAFE_GETPOWER_CMD"].isValid()) {
             emit onPower(f["CSAFE_GETPOWER_CMD"].value<QVariantList>()[0].toDouble());
