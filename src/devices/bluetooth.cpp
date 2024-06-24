@@ -1446,6 +1446,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
+                        (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || 
                         (b.name().toUpper().startsWith("ZUMO")) || (b.name().toUpper().startsWith("XS08-")) ||
                         (b.name().toUpper().startsWith("B94")) || (b.name().toUpper().startsWith("STAGES BIKE")) ||
                         (b.name().toUpper().startsWith("SUITO")) || (b.name().toUpper().startsWith("D2RIDE")) ||
@@ -2081,7 +2082,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 skandikaWiriBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(skandikaWiriBike);
             } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
-                        (b.name().toUpper().startsWith("R-Q") && b.name().length() > 6) ||
+                        (b.name().toUpper().startsWith("R-Q") && b.name().length() > 6 && !power_as_bike) ||
                         (b.name().toUpper().startsWith("SCH130")) || // not a renpho bike an FTMS one
                         ((b.name().startsWith(QStringLiteral("TOORX"))) && toorx_ftms && !toorx_ftms_treadmill)) &&
                        !renphoBike && !snodeBike && !fitPlusBike && filter) {
