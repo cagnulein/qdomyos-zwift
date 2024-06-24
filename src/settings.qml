@@ -942,6 +942,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.56
             property bool proform_bike_325_csx: false
+
+            // from version 2.16.58
+            property string strava_upload_mode: "Always"
         }
 
         function paddingZeros(text, limit) {
@@ -7728,7 +7731,7 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         color: Material.color(Material.Lime)
-                    }
+                    }                   
 
                     Label {
                         id: stravaLabel
@@ -7736,6 +7739,31 @@ import QtQuick.Dialogs 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            text: qsTr("Strava Upload:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: stravaUploadMode
+                            model: [ "Always", "Request", "Disabled" ]
+                            displayText: settings.strava_upload_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + stravaUploadMode.currentIndex)
+                                displayText = stravaUploadMode.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.strava_upload_mode = stravaUploadMode.displayText; toast.show("Setting saved!"); }
+                        }
                     }
 
                     RowLayout {
