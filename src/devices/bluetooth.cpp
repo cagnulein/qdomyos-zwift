@@ -804,6 +804,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 this->signalBluetoothDeviceConnected(powerBike);
             } else if ((((power_as_treadmill && b.name().startsWith(powerSensorName))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (deviceHasService(b, QBluetoothUuid((quint16)0x1814)))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("S10")) && deviceHasService(b, QBluetoothUuid((quint16)0x1814))) ||
                         b.name().toUpper().startsWith(QStringLiteral("ZWIFT RUNPOD"))) &&
                        !powerTreadmill && filter) {
@@ -1234,7 +1235,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1814)))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("TREADMILL")) && (gem_module_inclination || deviceHasService(b, QBluetoothUuid((quint16)0x1826)))) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) || // FTMS
                         (b.name().toUpper().startsWith(QStringLiteral("DK")) && b.name().length() >= 11 &&
                          !toorx_bike) ||                                            // FTMS

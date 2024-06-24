@@ -1908,7 +1908,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
                     // if it's a FTMS treadmill and has FTMS and/or RSC service too
                     ((((gattFTMSService && s->serviceUuid() == gattFTMSService->serviceUuid())
-                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence && !technogymrun))
+                       || (s->serviceUuid() == QBluetoothUuid::RunningSpeedAndCadence))
                       && !gattCustomService) ||
                      (gattCustomService && s->serviceUuid() == gattCustomService->serviceUuid()))) {
                     QByteArray descriptor;
