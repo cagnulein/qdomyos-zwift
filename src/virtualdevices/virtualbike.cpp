@@ -446,7 +446,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -996,9 +1001,15 @@ void virtualbike::reconnect() {
         serviceHR = leController->addService(serviceDataHR);
 #endif
 
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
 }
 
 void virtualbike::bikeProvider() {
