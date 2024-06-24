@@ -42,6 +42,7 @@ ApplicationWindow {
     signal keyMediaNext()
     signal floatingOpen()
     signal openFloatingWindowBrowser();
+    signal strava_upload_file_prepare();
 
     property bool lockTiles: false
     property bool settings_restart_to_apply: false
@@ -392,6 +393,15 @@ ApplicationWindow {
         onYesClicked: Qt.callLater(Qt.quit)
         onNoClicked: this.visible = false;
         visible: false
+    }
+
+    MessageDialog {
+        text: "Strava"
+        informativeText: "Do you want to upload the workout to Strava?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {strava_upload_file_prepare(); rootItem.stravaUploadRequested = false;}
+        onNoClicked: {rootItem.stravaUploadRequested = false;}
+        visible: rootItem.stravaUploadRequested
     }
 
     header: ToolBar {
