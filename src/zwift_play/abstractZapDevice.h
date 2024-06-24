@@ -74,6 +74,12 @@ public:
                     } else {
                         emit minus();
                     }
+                } else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
+                    if(zapType == LEFT) {
+                        emit plus();
+                    } else {
+                        emit minus();
+                    }
                 }
                 break;
         }
