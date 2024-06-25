@@ -121,7 +121,7 @@ void csaferowerThread::run() {
             emit onCadence(f["CSAFE_GETCADENCE_CMD"].value<QVariantList>()[0].toDouble());
         }
         if (f["CSAFE_GETPACE_CMD"].isValid()) {
-            emit onCadence(f["CSAFE_GETPACE_CMD"].value<QVariantList>()[0].toDouble());
+            emit onPace(f["CSAFE_GETPACE_CMD"].value<QVariantList>()[0].toDouble());
         }
         if (f["CSAFE_GETPOWER_CMD"].isValid()) {
             emit onPower(f["CSAFE_GETPOWER_CMD"].value<QVariantList>()[0].toDouble());
