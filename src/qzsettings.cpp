@@ -743,7 +743,7 @@ const QString QZSettings::proform_bike_325_csx = QStringLiteral("proform_bike_32
 const QString QZSettings::strava_upload_mode = QStringLiteral("strava_upload_mode");
 const QString QZSettings::default_strava_upload_mode = QStringLiteral("Always");
 
-const uint32_t allSettingsCount = 625;
+const uint32_t allSettingsCount = 626;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
