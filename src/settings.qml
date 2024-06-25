@@ -938,13 +938,14 @@ import QtQuick.Dialogs 1.0
             property bool proform_595i_proshox2: false
 
             // from version 2.16.55
-            property bool proform_treadmill_8_7: false
+            property bool proform_treadmill_8_7: false            
 
             // from version 2.16.56
-            property bool proform_bike_325_csx: false
+            property bool proform_bike_325_csx: false            
 
             // from version 2.16.58
             property string strava_upload_mode: "Always"
+            property bool virtual_device_tacx: false
         }
 
         function paddingZeros(text, limit) {
@@ -9707,6 +9708,33 @@ import QtQuick.Dialogs 1.0
 
                                     Label {
                                         text: qsTr("Enables a virtual bluetooth bridge to the iFit App. This setting requires that at least one device be Android. For example, this setting does NOT work with QZ on iOS and iFit to iOS, but DOES work with QZ on iOS and iFit to Android. On Android remember to rename your device into I_EL into the android settings and reboot your device.")
+                                        font.bold: true
+                                        font.italic: true
+                                        font.pixelSize: 9
+                                        textFormat: Text.PlainText
+                                        wrapMode: Text.WordWrap
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        color: Material.color(Material.Lime)
+                                    }
+
+                                    SwitchDelegate {
+                                        text: qsTr("Virtual Tacx")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_tacx
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: { settings.virtual_device_tacx = checked; window.settings_restart_to_apply = true; }
+                                    }
+
+                                    Label {
+                                        text: qsTr("Enables a virtual bluetooth bridge to the Tacx App.")
                                         font.bold: true
                                         font.italic: true
                                         font.pixelSize: 9

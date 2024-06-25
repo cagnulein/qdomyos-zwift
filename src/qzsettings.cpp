@@ -738,11 +738,12 @@ const QString QZSettings::default_treadmillDataPoints = QStringLiteral("");
 const QString QZSettings::nordictrack_s20i_treadmill = QStringLiteral("nordictrack_s20i_treadmill");
 const QString QZSettings::proform_595i_proshox2 = QStringLiteral("proform_595i_proshox2");
 const QString QZSettings::proform_treadmill_8_7 = QStringLiteral("proform_treadmill_8_7");
+const QString QZSettings::virtual_device_tacx = QStringLiteral("virtual_device_tacx");
 const QString QZSettings::proform_bike_325_csx = QStringLiteral("proform_bike_325_csx");
 const QString QZSettings::strava_upload_mode = QStringLiteral("strava_upload_mode");
 const QString QZSettings::default_strava_upload_mode = QStringLiteral("Always");
 
-const uint32_t allSettingsCount = 625;
+const uint32_t allSettingsCount = 626;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1372,6 +1373,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::nordictrack_s20i_treadmill, QZSettings::default_nordictrack_s20i_treadmill},
     {QZSettings::proform_595i_proshox2, QZSettings::default_proform_595i_proshox2},
     {QZSettings::proform_treadmill_8_7, QZSettings::default_proform_treadmill_8_7},
+    {QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx},
     {QZSettings::proform_bike_325_csx, QZSettings::default_proform_bike_325_csx},
     {QZSettings::strava_upload_mode, QZSettings::default_strava_upload_mode},
 };

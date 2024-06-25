@@ -7,6 +7,12 @@
 #include <QtMath>
 #include <chrono>
 
+#ifdef Q_OS_ANDROID
+#include "androidactivityresultreceiver.h"
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
+
 using namespace std::chrono_literals;
 
 virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
@@ -29,6 +35,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
     bool garmin_bluetooth_compatibility = settings.value(QZSettings::garmin_bluetooth_compatibility, QZSettings::default_garmin_bluetooth_compatibility).toBool();
+    bool virtual_device_tacx = settings.value(QZSettings::virtual_device_tacx, QZSettings::default_virtual_device_tacx).toBool();
+
+    if(virtual_device_tacx)
+        power = true;
 
     if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
@@ -54,12 +64,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround =
         settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
-    if ((ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only) || garmin_bluetooth_compatibility) {
+    if ((ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !virtual_device_tacx) || garmin_bluetooth_compatibility || virtual_device_tacx) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
         h->virtualbike_zwift_ios(
-            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility);
+            settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service).toBool(), garmin_bluetooth_compatibility, virtual_device_tacx);
     } else
 
 #endif
@@ -68,7 +78,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
-        if (!echelon && !ifit) {
+        if(virtual_device_tacx) {
+            advertisingData.setLocalName(QStringLiteral("TACX SMART BIKE"));
+        } else if (!echelon && !ifit) {
             advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
@@ -83,8 +95,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     services << ((QBluetoothUuid::ServiceClassUuid)0x1826);
                 } // FitnessMachineServiceUuid
                 else if (power) {
-
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+
+                    if(virtual_device_tacx) {
+                        services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
+                        services << (QBluetoothUuid(QStringLiteral("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e")));
+                    }
                 } else {
                     services << (QBluetoothUuid::ServiceClassUuid::CyclingSpeedAndCadence);
                 }
@@ -92,8 +108,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             if (!this->noHeartService || heart_only) {
                 services << QBluetoothUuid::HeartRate;
             }
-
-            services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
@@ -438,7 +452,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             pars.setInterval(100, 100);
         }
 
+#ifdef Q_OS_ANDROID
+        QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
+                                                  "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
         leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
 
         //! [Start Advertising]
     }
@@ -988,9 +1007,15 @@ void virtualbike::reconnect() {
         serviceHR = leController->addService(serviceDataHR);
 #endif
 
+#ifdef Q_OS_ANDROID
+    QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/BleAdvertiser", "startAdvertisingBike",
+                                              "(Landroid/content/Context;)V", QtAndroid::androidContext().object());
+#else
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
     leController->startAdvertising(pars, advertisingData, advertisingData);
+#endif
+
 }
 
 void virtualbike::bikeProvider() {
