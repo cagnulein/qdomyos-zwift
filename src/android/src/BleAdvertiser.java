@@ -101,6 +101,9 @@ public class BleAdvertiser {
             AdvertiseData advertiseData = new AdvertiseData.Builder()
                     .setIncludeDeviceName(true)
                     .addServiceUuid(new ParcelUuid(SERVICE_UUID))
+                    .addServiceUuid(new ParcelUuid(UUID.fromString("00001818-0000-1000-8000-00805F9B34FB"))) // UUID 16 bit
+                    .addServiceUuid(new ParcelUuid(UUID.fromString("00001816-0000-1000-8000-00805F9B34FB"))) // UUID 16 bit
+                    .addServiceUuid(new ParcelUuid(UUID.fromString("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e"))) // UUID 128 bit
                     .addServiceData(new ParcelUuid(SERVICE_UUID), SERVICE_DATA_BIKE)
                     .build();
 
