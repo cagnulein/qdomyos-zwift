@@ -517,6 +517,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
     QObject::connect(stack, SIGNAL(floatingOpen()), this, SLOT(floatingOpen()));
     QObject::connect(stack, SIGNAL(openFloatingWindowBrowser()), this, SLOT(openFloatingWindowBrowser()));
+    QObject::connect(stack, SIGNAL(strava_upload_file_prepare()), this, SLOT(strava_upload_file_prepare()));
 
     qDebug() << "homeform constructor events linked";
 
@@ -5927,13 +5928,23 @@ void homeform::fit_save_clicked() {
                  .toString()
                  .isEmpty()) {
 
-            QFile f(filename);
-            f.open(QFile::OpenModeFlag::ReadOnly);
-            QByteArray fitfile = f.readAll();
-            strava_upload_file(fitfile, filename);
-            f.close();
+            QString mode = settings.value(QZSettings::strava_upload_mode, QZSettings::default_strava_upload_mode).toString();
+            if(mode.startsWith("Always")) { // always
+                strava_upload_file_prepare();
+            } else if(mode.startsWith("Request")) {
+                setStravaUploadRequested(true);
+                emit stravaUploadRequestedChanged(true);
+            }
         }
     }
+}
+
+void homeform::strava_upload_file_prepare() {
+    QFile f(lastFitFileSaved);
+    f.open(QFile::OpenModeFlag::ReadOnly);
+    QByteArray fitfile = f.readAll();
+    strava_upload_file(fitfile, lastFitFileSaved);
+    f.close();
 }
 
 void homeform::gpx_open_clicked(const QUrl &fileName) {
