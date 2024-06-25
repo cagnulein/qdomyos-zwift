@@ -73,6 +73,9 @@ class renphobike : public bike {
 
     metric wattFromBike;
 
+    volatile int notificationSubscribed = 0;
+    bool doubleNotifyRequest = false;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
