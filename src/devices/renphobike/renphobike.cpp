@@ -403,8 +403,6 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << "all services discovered!";
 
-    notificationSubscribed = 0;
-
     foreach (QLowEnergyService *s, gattCommunicationChannelService) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
@@ -448,8 +446,6 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
-
-                    notificationSubscribed++;
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
                            QLowEnergyCharacteristic::Indicate) {
                     QByteArray descriptor;
@@ -464,11 +460,9 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
                                  << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
-
-                    notificationSubscribed++;
-                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read && doubleNotifyRequest == false) {
-                    s->readCharacteristic(c);
-                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                    // s->readCharacteristic(c);
+                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
@@ -602,19 +596,8 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
 void renphobike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
-    if (notificationSubscribed)
-        notificationSubscribed--;
-
-    if (!notificationSubscribed) {
-        if(!doubleNotifyRequest) {
-            // kinomap does this to be sure to get indoor bike data from this bike
-            stateChanged(QLowEnergyService::ServiceDiscovered);
-            doubleNotifyRequest = true;
-        } else {
-            initRequest = true;
-            emit connectedAndDiscovered();
-        }
-    }
+    initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void renphobike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -654,8 +637,6 @@ void renphobike::serviceScanDone(void) {
             gattCommunicationChannelService.last()->discoverDetails();
         }
     }
-
-    doubleNotifyRequest = false;
 }
 
 void renphobike::errorService(QLowEnergyService::ServiceError err) {
