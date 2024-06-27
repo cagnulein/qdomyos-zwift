@@ -24,8 +24,10 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
 
 void csaferower::onPace(double pace) {
     qDebug() << "Current Pace received:" << pace;
-    if(distanceIsChanging)
-        Speed = (60.0 / (double)(pace)) * 30.0;
+    if(distanceIsChanging && pace > 0)
+        Speed = (60.0 / (double)(pace)) * 60.0;
+    else
+        Speed = 0;
 
     qDebug() << "Current Speed calculated:" << Speed.value() << pace;
 }
