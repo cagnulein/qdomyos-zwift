@@ -19,6 +19,7 @@ csaferower::csaferower(bool noWriteResistance, bool noHeartService, bool noVirtu
     connect(t, &csaferowerThread::onCalories, this, &csaferower::onCalories);
     connect(t, &csaferowerThread::onDistance, this, &csaferower::onDistance);
     connect(t, &csaferowerThread::onPace, this, &csaferower::onPace);
+    connect(t, &csaferowerThread::onStatus, this, &csaferower::onStatus);
     t->start();
 }
 
@@ -89,6 +90,10 @@ void csaferower::onDistance(double distance) {
 
 }
 
+void csaferower::onStatus(uint16_t status) {
+    qDebug() << "Current Status received:" << status;
+}
+
 csaferowerThread::csaferowerThread() {}
 
 void csaferowerThread::run() {
@@ -136,6 +141,9 @@ void csaferowerThread::run() {
         }
         if (f["CSAFE_PM_GET_WORKDISTANCE"].isValid()) {
             emit onDistance(f["CSAFE_PM_GET_WORKDISTANCE"].value<QVariantList>()[0].toDouble());
+        }
+        if (f["CSAFE_GETSTATUS_CMD"].isValid()) {
+            emit onStatus(f["CSAFE_GETSTATUS_CMD"].value<QVariantList>()[0].toUInt());
         }
 
         memset(rx, 0x00, sizeof(rx));

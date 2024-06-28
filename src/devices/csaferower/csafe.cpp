@@ -69,6 +69,7 @@ csafe::csafe() {
     cmds["CSAFE_GETCADENCE_CMD"] = populateCmd(0xa7, QList<int>());
     cmds["CSAFE_GETHRCUR_CMD"] = populateCmd(0xb0, QList<int>());
     cmds["CSAFE_GETPOWER_CMD"] = populateCmd(0xb4, QList<int>());
+    cmds["CSAFE_GETSTATUS_CMD"] = populateCmd(0x80, QList<int>());
 
     // Response Data to Short Commands
     resp[0x80] = qMakePair(QString("CSAFE_GETSTATUS_CMD"), QList<int>() << 0);
