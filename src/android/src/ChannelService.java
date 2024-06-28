@@ -51,6 +51,8 @@ public class ChannelService extends Service {
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
     SDMChannelController sdmChannelController = null;
+    RDChannelController rdChannelController = null;
+    FTMSChannelController ftmsChannelController = null;
 
     private ServiceConnection mAntRadioServiceConnection = new ServiceConnection() {
         @Override
@@ -115,6 +117,24 @@ public class ChannelService extends Service {
             if (null != sdmChannelController) {
                 sdmChannelController.speed = speed;
             }
+            if (null != rdChannelController) {
+                rdChannelController.speed = speed;
+            }
+            if (null != ftmsChannelController) {
+                ftmsChannelController.speed = speed;
+            }
+        }
+
+        void setResistance(int resistance) {
+            if (null != ftmsChannelController) {
+                ftmsChannelController.resistance = resistance;
+            }
+        }
+
+        void setInclination(float inclination) {
+            if (null != ftmsChannelController) {
+                ftmsChannelController.inclination = inclination;
+            }
         }
 
         void setPower(int power) {
@@ -132,6 +152,12 @@ public class ChannelService extends Service {
             }
             if (null != sdmChannelController) {
                 sdmChannelController.cadence = cadence;
+            }
+            if (null != rdChannelController) {
+                rdChannelController.cadence = cadence;
+            }
+            if (null != ftmsChannelController) {
+                ftmsChannelController.cadence = cadence;
             }
         }
 
@@ -158,6 +184,9 @@ public class ChannelService extends Service {
         if (Ant.speedRequest) {
             if(Ant.treadmill && sdmChannelController == null) {
                 sdmChannelController = new SDMChannelController(acquireChannel());
+                //powerChannelController = new PowerChannelController(acquireChannel());
+                //rdChannelController = new RDChannelController(acquireChannel());
+                ftmsChannelController = new FTMSChannelController(acquireChannel());
             } else if(powerChannelController == null) {
                 powerChannelController = new PowerChannelController(acquireChannel());
                 speedChannelController = new SpeedChannelController(acquireChannel());
@@ -174,10 +203,17 @@ public class ChannelService extends Service {
             speedChannelController.close();
         if (sdmChannelController != null)
             sdmChannelController.close();
+        if (rdChannelController != null)
+            rdChannelController.close();
+        if (ftmsChannelController != null)
+            ftmsChannelController.close();
+
         heartChannelController = null;
         powerChannelController = null;
         speedChannelController = null;
         sdmChannelController = null;
+        rdChannelController = null;
+        ftmsChannelController = null;
     }
 
     AntChannel acquireChannel() throws ChannelNotAvailableException {
