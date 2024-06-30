@@ -18,6 +18,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
 
+    m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noHeartService = noHeartService;
 
     if (forceInitSpeed > 0) {
