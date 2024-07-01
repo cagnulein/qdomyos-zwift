@@ -6828,6 +6828,7 @@ void homeform::sendMail() {
         lastTrainProgramFileSaved = "";
     }
 
+    QString filenameJPG = QStringLiteral("");
     if (pelotonHandler && pelotonHandler->current_image_downloaded &&
         !pelotonHandler->current_image_downloaded->downloadedData().isEmpty()) {
 
@@ -6835,7 +6836,7 @@ void homeform::sendMail() {
         QString filename = path +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral("_peloton_image.png");
-        QString filenameJPG =
+        filenameJPG =
             path + QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
             QStringLiteral("_peloton_image.jpg");
         QFile file(filename);
@@ -6848,8 +6849,7 @@ void homeform::sendMail() {
         writer.setFormat("jpg");
         writer.setQuality(30);
         writer.write(image);
-        QFile::remove(filename);
-        QFile::remove(filenameJPG);
+        QFile::remove(filename);        
 
         // Create a MimeInlineFile object for each image
         MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filenameJPG)));
@@ -6897,7 +6897,9 @@ void homeform::sendMail() {
     }
     smtp.quit();
 
-    // delete image variable TODO
+    // delete image variable
+    if(!filenameJPG.isEmpty())
+        QFile::remove(filenameJPG);
 }
 
 #if defined(Q_OS_ANDROID)
