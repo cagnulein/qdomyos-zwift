@@ -163,7 +163,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     settings.setValue(sKey + QStringLiteral("enabled"), true);
     settings.setValue(sKey + QStringLiteral("type"), TEMPLATE_TYPE_WEBSERVER);
+#ifndef Q_OS_WIN    
+    // static port on windows to simplify the setup #2144
     settings.setValue(sKey + QStringLiteral("port"), 0);
+#endif
+
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
