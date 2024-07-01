@@ -112,6 +112,7 @@ void csaferowerThread::run() {
         command << "CSAFE_GETCALORIES_CMD";
         command << "CSAFE_GETHRCUR_CMD";
         command << "CSAFE_GETPACE_CMD";
+        command << "CSAFE_GETSTATUS_CMD";
         QByteArray ret = aa->write(command);
 
         qDebug() << " >> " << ret.toHex(' ');
