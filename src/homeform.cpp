@@ -6849,6 +6849,7 @@ void homeform::sendMail() {
         writer.setQuality(30);
         writer.write(image);
         QFile::remove(filename);
+        QFile::remove(filenameJPG);
 
         // Create a MimeInlineFile object for each image
         MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filenameJPG)));
