@@ -89,7 +89,7 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
-    if (virtufit_etappe || merach_MRK) {
+    if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
@@ -558,7 +558,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (Flags.remainingTime) {
             // todo
         }
-    } else if (virtufit_etappe || merach_MRK || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
+    } else if (virtufit_etappe || merach_MRK || H9110_OSAKA || (sportstech_sx600 && !gattCommunicationChannelServiceFTMS)) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
 
