@@ -238,9 +238,12 @@ void proformtreadmill::update() {
                     requestStart = -1;
                     emit tapeStarted();
                 }
-                if (requestStop != -1) {
+                if (requestStop != -1 || requestPause != -1) {
+                    forceSpeed(0);
+
                     emit debug(QStringLiteral("stopping..."));
                     requestStop = -1;
+                    requestPause = -1;
                 }
                 break;
             }
