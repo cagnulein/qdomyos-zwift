@@ -162,6 +162,30 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
         } else if (requestResistance == 24) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x18, 0x0e, 0x57, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 25) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x19, 0x00, 0x58, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 26) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1a, 0x00, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 27) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1b, 0x00, 0x5a, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 28) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1c, 0x00, 0x5d, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 29) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1d, 0x00, 0x5c, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 30) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1e, 0x00, 0x5f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 31) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x1f, 0x00, 0x5e, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 32) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x20, 0x00, 0x61, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         }
     } else if (sportstech_sx600) {
         if (requestResistance == 1) {
