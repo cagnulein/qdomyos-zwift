@@ -307,7 +307,7 @@ void fitplusbike::update() {
         bool sportstech_sx600 =
             settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
 
-        if (virtufit_etappe || merach_MRK || sportstech_sx600) {
+        if (virtufit_etappe || merach_MRK || sportstech_sx600 || H9110_OSAKA) {
 
         } else {
             m_watt = wattFromHR(false);
