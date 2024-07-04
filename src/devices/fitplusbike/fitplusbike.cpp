@@ -692,6 +692,21 @@ void fitplusbike::btinit() {
     if (merach_MRK) {
         uint8_t initData1[] = {0xaa, 0x01, 0x00, 0x01, 0x55};
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else if (H9110_OSAKA) {
+        uint8_t initData1[] = {0x02, 0xab, 0x3b, 0x30, 0x2a, 0x0d, 0x60, 0x01, 0x14, 0x11, 0xe3, 0x03};
+        uint8_t initData2[] = {0x02, 0x43, 0x01, 0x42, 0x03};
+        uint8_t initData3[] = {0x02, 0x42, 0x42, 0x03};
+        uint8_t initData4[] = {0x02, 0x44, 0x01, 0x45, 0x03};
+        uint8_t initData5[] = {0x02, 0x44, 0x02, 0x46, 0x03};
+        uint8_t initData6[] = {0x02, 0x41, 0x02, 0x43, 0x03};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
     } else if (virtufit_etappe) {
         uint8_t initData1[] = {0x02, 0x42, 0x42, 0x03};
         uint8_t initData2[] = {0x02, 0x41, 0x02, 0x43, 0x03};
@@ -921,6 +936,9 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().startsWith(QStringLiteral("MRK-"))) {
             qDebug() << QStringLiteral("merach_MRK workaround enabled!");
             merach_MRK = true;
+        } else if (device.name().toUpper().startsWith("H9110 OSAKA")) {
+            qDebug() << QStringLiteral("H9110 OSAKA workaround enabled!");
+            H9110_OSAKA = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
