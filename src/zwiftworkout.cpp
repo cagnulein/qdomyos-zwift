@@ -226,9 +226,10 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 row.speed = ((60.0 / speed) * 60.0) * Power;
             }
             Power = 1;
+        } else {
+            row.power = Power * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         }
 
-        row.power = Power * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         if (!durationAsDistance(sportType, durationType))
             row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
         else
