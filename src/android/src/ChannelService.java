@@ -259,7 +259,7 @@ public class ChannelService extends Service {
         if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
 
         // Start listing for channel available intents
-        registerReceiver(mChannelProviderStateChangedReceiver, new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED));
+        registerReceiver(mChannelProviderStateChangedReceiver, new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED), Context.RECEIVER_NOT_EXPORTED);
 
         // Creating the intent and calling context.bindService() is handled by
         // the static bindService() method in AntService
