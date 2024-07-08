@@ -841,7 +841,7 @@
           $('.heart-value').html("<b>" + hr.toFixed(0) + "</b>");
           $('.heart-avg').html(hr_lapavg.toFixed(0));
           $('.heart-max').html(hr_lapmax.toFixed(0));
-          if (tile_target_power_enabled && target_power > 0)
+          if (tile_target_power_enabled && target_power > 0) {
               $('.watt-value').html(
                 "<span class='current-watt'><b>" + watt.toFixed(0) + "</b></span>" +
                 "/" +
