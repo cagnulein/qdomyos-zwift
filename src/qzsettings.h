@@ -2075,6 +2075,9 @@ class QZSettings {
     static const QString strava_upload_mode;
     static const QString default_strava_upload_mode;
 
+    static const QString proform_treadmill_705_cst_V78_239;
+    static constexpr bool default_proform_treadmill_705_cst_V78_239 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
