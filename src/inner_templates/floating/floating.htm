@@ -125,7 +125,7 @@
       <td style="text-align: left">POWER</td>
       <td><small>AVG</small></td>
       <td class="watt-avg">0</td>
-      <td class="watt-value values"><b>0</b></td>
+      <td class="watt-value values"><span class='current-watt'><b>0</b></span><span class='watt-separator'></span><span class='target-watt'></span></td>
       <td><small>MAX</small></td>
       <td class="watt-max">0</td>
     </tr>
@@ -134,7 +134,7 @@
       <td style="text-align: left">P.ZONE</td>
       <td><small>AVG</small></td>
       <td class="powerzone-avg">0.0</td>
-      <td class="powerzone-value values"><b>0.0</b></td>
+      <td class="powerzone-value values"><span class='powerzone-current-value'><b>0.0</b></span><span class='powerzone-separator'></span><span class='powerzone-target-value'></span></td>
       <td><small>MAX</small></td>
       <td class="powerzone-max">0.0</td>
     </tr>
@@ -791,7 +791,7 @@
               $('.powerzone-current-value').css('color', msg.content[key]);
             } else if (key === 'target_power_zone_color') {
                 $('.powerzone-target-value').css('color', msg.content[key]);
-                $('.target-watt').css('color', msg.content[key]);
+                //$('.target-watt').css('color', msg.content[key]); // target watt on the main ui doesn't have a color
             } else if (key === 'peloton_ask_start' && !peloton_ask_already_running && (msg.content[key] === true || msg.content[key] === 'true')) {
               peloton_ask_already_running = true;
               document.getElementById("overlay").hidden = false;
@@ -842,13 +842,14 @@
           $('.heart-avg').html(hr_lapavg.toFixed(0));
           $('.heart-max').html(hr_lapmax.toFixed(0));
           if (tile_target_power_enabled && target_power > 0) {
-              $('.watt-value').html(
-                "<span class='current-watt'><b>" + watt.toFixed(0) + "</b></span>" +
-                "/" +
-                "<span class='target-watt'><b>" + target_power.toFixed(0) + "</b></span>"
+              $('.current-watt').html("<b>" + watt.toFixed(0) + "</b>");
+              $('.watt-separator').html("/");
+              $('.target-watt').html("<b>" + target_power.toFixed(0) + "</b>");
             );
           } else {
-              $('.watt-value').html("<span class='current-watt'><b>" + watt.toFixed(0) + "</b></span>");
+              $('.current-watt').html("<b>" + watt.toFixed(0) + "</b>");
+              $('.watt-separator').html("");
+              $('.target-watt').html("");
           }
           $('.watt-avg').html(watt_lapavg.toFixed(0));
           $('.watt-max').html(watt_lapmax.toFixed(0));
@@ -899,12 +900,15 @@
           $('.calories-value').html("<b>" + calories.toFixed(0) + "</b>");
           $('.jouls-value').html("<b>" + jouls.toFixed(1) + "</b>");
           $('.pelotonoffset-value').html(peloton_offset.toFixed(0));
-          if (tile_target_zone_enabled && target_power_zone > 0)
-            $('.powerzone-value').html("<span class='powerzone-current-value'><b>" + powerzone.toFixed(1) + "</b></span>" +
-            "/" +
-            "<span class='powerzone-target-value'><b>" + target_power_zone.toFixed(1) + "</b></span>");
-          else
-            $('.powerzone-value').html("<span class='powerzone-current-value'><b>" + powerzone.toFixed(1) + "</b></span>")
+          if (tile_target_zone_enabled && target_power_zone > 0) {
+            $('.powerzone-current-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+            $('.powerzone-separator').html("/");
+            $('.powerzone-target-value').html("<b>" + target_power_zone.toFixed(1) + "</b>");
+          } else {
+            $('.powerzone-current-value').html("<b>" + powerzone.toFixed(1) + "</b>");
+            $('.powerzone-separator').html("");
+            $('.powerzone-target-value').html("");
+          }
           $('.powerzone-avg').html(powerzone_lapavg.toFixed(1));
           $('.powerzone-max').html(powerzone_lapmax.toFixed(1));
         }
