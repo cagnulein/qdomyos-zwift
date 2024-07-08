@@ -263,7 +263,7 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
         } else if (requestResistance == 25) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x19, 0x00, 0x58, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
-        } else if (requestResistance == 27) {
+        } else if (requestResistance == 26) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x1a, 0x00, 0x59, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 27) {
@@ -597,7 +597,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     // and the last target resistance is different from the current one or there is no any pending last
                     // requested resistance
                     ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0) ||
-                     lastRawRequestedResistanceValue == -1) &&
+                     (lastRawRequestedResistanceValue == -1 && requestResistance == -1)) &&
                     // and the difference between the 2 resistances are less than 6
                     qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
 
