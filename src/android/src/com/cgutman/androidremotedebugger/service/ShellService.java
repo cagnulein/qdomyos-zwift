@@ -25,6 +25,9 @@ import android.os.PowerManager.WakeLock;
 import androidx.core.app.NotificationCompat;
 
 public class ShellService extends Service implements DeviceConnectionListener {
+
+        private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+        private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
 	
 	private ShellServiceBinder binder = new ShellServiceBinder();
 	private ShellListener listener = new ShellListener(this);
@@ -98,10 +101,11 @@ public class ShellService extends Service implements DeviceConnectionListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (foregroundId == 0) {
+                        int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 			// If we're not already running in the foreground, use a placeholder
 			// notification until a real connection is established. After connection
 			// establishment, the real notification will replace this one.
-			startForeground(FOREGROUND_PLACEHOLDER_ID, createForegroundPlaceholderNotification());
+                        startForeground(FOREGROUND_PLACEHOLDER_ID, createForegroundPlaceholderNotification(), serviceType);
 		}
 
 		// Don't restart if we've been killed. We will have already lost our connections
@@ -220,7 +224,7 @@ public class ShellService extends Service implements DeviceConnectionListener {
 				 * and start it as foreground */
 				foregroundId = getConnectedNotificationId(newConn);
 				nm.cancel(foregroundId);
-				startForeground(foregroundId, createConnectionNotification(newConn, true));
+                                startForeground(foregroundId, createConnectionNotification(newConn, true));
 			}
 		}
 		else {

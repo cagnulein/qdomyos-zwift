@@ -56,6 +56,9 @@ public class ScreenCaptureService extends Service {
 
     private static int IMAGES_PRODUCED;
 
+    private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+    private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
+
     private MediaProjection mMediaProjection;
     private String mStoreDir;
     private ImageReader mImageReader;
@@ -296,7 +299,8 @@ public class ScreenCaptureService extends Service {
         if (isStartCommand(intent)) {
             // create notification
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
-            startForeground(notification.first, notification.second);
+            int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+            startForeground(notification.first, notification.second, serviceType);
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);
