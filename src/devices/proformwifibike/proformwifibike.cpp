@@ -500,6 +500,16 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
             incline = incline - gears();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    } else if (!values[QStringLiteral("Incline")].isUndefined()) {
+        bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
+        double incline = values[QStringLiteral("Incline")].toString().toDouble();
+        // if the bike has the inclination, QZ is using it to change the resistance when it's not in ERG mode.
+        // so I would like to keep the real inclination value instead of showing to the user the modified inclination + gears.
+        // this is very helpful when you're following a GPX for example
+        if(inclinationAvailableByHardware() && !erg_mode)
+            incline = incline - gears();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
 
     if (!values[QStringLiteral("Target Watts")].isUndefined()) {
