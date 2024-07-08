@@ -73,7 +73,10 @@ void stagesbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(false, watts());
+        QSettings settings;
+        bool power_as_bike =
+            settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+        update_metrics(false, watts(), !power_as_bike);
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {

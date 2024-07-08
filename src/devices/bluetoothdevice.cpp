@@ -169,7 +169,7 @@ void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEV
 }
 
 // keiser m3i has a separate management of this, so please check it
-void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
+void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -181,14 +181,14 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     bool power_as_treadmill =
         settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
-    if(deviceType() == bluetoothdevice::BIKE)
-        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
-
     if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
+
+    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {

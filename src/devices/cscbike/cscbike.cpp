@@ -87,7 +87,9 @@ void cscbike::update() {
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-        update_metrics(true, watts());
+        bool cadence_sensor_as_bike =
+            settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike).toBool();
+        update_metrics(true, watts(), !cadence_sensor_as_bike);
 
         if(lastGoodCadence.secsTo(QDateTime::currentDateTime()) > 5 && !charNotified) {
             readMethod = true;
