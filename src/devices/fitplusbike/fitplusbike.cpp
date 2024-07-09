@@ -590,13 +590,13 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             resistance_t res = newValue.at(5);
             if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
                 qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears()
-                         << lastRawRequestedResistanceValue << lastRequestedResistance().value();
+                         << lastRawRequestedResistanceValue << lastRequestedResistance().value() << requestResistance;
                 if (
                      // if the resistance is different from the previous one
                     res != qRound(Resistance.value()) &&
                     // and the last target resistance is different from the current one or there is no any pending last
                     // requested resistance
-                    ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0) ||
+                    ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0 && requestResistance == -1) ||
                      (lastRawRequestedResistanceValue == -1 && requestResistance == -1)) &&
                     // and the difference between the 2 resistances are less than 6
                     qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
