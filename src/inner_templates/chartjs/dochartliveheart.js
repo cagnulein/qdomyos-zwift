@@ -336,10 +336,10 @@ function process_arr_heart(arr) {
 
     heartChart = new Chart(ctx, config);
 
-    refresh();
+    refresh_heart();
 }
 
-function refresh() {
+function refresh_heart() {
     el = new MainWSQueueElement({
         msg: null
     }, function(msg) {
@@ -348,19 +348,19 @@ function refresh() {
         }
         return null;
     }, 2000, 1);
-    el.enqueue().then(process_workout).catch(function(err) {
+    el.enqueue().then(process_workout_heart).catch(function(err) {
         console.error('Error is ' + err);
-        refresh();
+        refresh_heart();
     });    
 }
 
-function process_workout(arr) {    
+function process_workout_heart(arr) {    
     heartChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.heart});
     heartChart.update();
-    refresh();
+    refresh_heart();
 }
 
-function dochart_init() {
+function dochartheart_init() {
     onSettingsOK = true;
     keys_arr = ['ftp', 'miles_unit', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
     let el = new MainWSQueueElement({
@@ -442,7 +442,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init(); return;
+    dochartheart_init(); return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);
