@@ -231,10 +231,6 @@ function process_arr(arr) {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
             plugins: {
-                title:{
-                    display:true,
-                    text:'Watt'
-                },
                 /*
                 title:{
                     display:true,
@@ -355,13 +351,13 @@ function process_arr(arr) {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? 'power z1' :
+                            value === ftpZones[0] ? 'power z2' :
+                            value === ftpZones[1] ? 'power z3' :
+                            value === ftpZones[2] ? 'power z4' :
+                            value === ftpZones[3] ? 'power z5' :
+                            value === ftpZones[4] ? 'power z6' :
+                            value === ftpZones[5] ? 'power z7' : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',

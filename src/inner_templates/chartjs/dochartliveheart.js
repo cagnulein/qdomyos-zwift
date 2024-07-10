@@ -224,10 +224,6 @@ function process_arr_heart(arr) {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
             plugins: {
-                title:{
-                    display:true,
-                    text:'Heart Rate'
-                },
                 tooltips: {
                     mode: 'index',
                     intersect: false,
@@ -241,7 +237,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: 0,
                             yMax: heartZones[0],
                             backgroundColor: window.chartColors.lightsteelbluet,
@@ -250,7 +246,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: heartZones[0],
                             yMax: heartZones[1],
                             backgroundColor: window.chartColors.greent,
@@ -259,7 +255,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: heartZones[1],
                             yMax: heartZones[2],
                             backgroundColor: window.chartColors.yellowt,
@@ -268,7 +264,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: heartZones[2],
                             yMax: heartZones[3],
                             backgroundColor: window.chartColors.oranget,
@@ -277,7 +273,7 @@ function process_arr_heart(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            xMax: maxEl,
+                            //xMax: maxEl,
                             yMin: heartZones[3],
                             yMax: maxHeartRate,
                             backgroundColor: window.chartColors.redt,
@@ -306,24 +302,20 @@ function process_arr_heart(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
-                    max: maxEl,
+                    //max: maxEl,
                 },
                 y: {
                     display: true,
-                    title: {
-                        display: false,
-                        text: 'Heart rate'
-                    },
                     min: 50,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? 'zone 1' :
-                            value === heartZones[0] ? 'zone 2' :
-                            value === heartZones[1] ? 'zone 3' :
-                            value === heartZones[2] ? 'zone 4' :
-                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
+                            value === heartZones[0] * 0.8 ? 'heart z1' :
+                            value === heartZones[0] ? 'heart z2' :
+                            value === heartZones[1] ? 'heart z3' :
+                            value === heartZones[2] ? 'heart z4' :
+                            value === heartZones[3] ? 'heart z5' : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
