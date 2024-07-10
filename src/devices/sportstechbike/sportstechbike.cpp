@@ -158,7 +158,6 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
     }
-    FanSpeed = 0;
 
     if (!firstCharChanged) {
         Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
