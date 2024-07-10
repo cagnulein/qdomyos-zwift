@@ -948,6 +948,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.59
             property bool proform_treadmill_705_cst_V78_239: false
+
+            // from version 2.16.62
+            property bool stryd_add_inclination_gain: false
         }
 
         function paddingZeros(text, limit) {
@@ -8472,6 +8475,33 @@ import QtQuick.Dialogs 1.0
                                 Layout.fillWidth: true
                                 color: Material.color(Material.Lime)
                             }
+
+                            SwitchDelegate {
+                                text: qsTr("Add inclination gain factor to the power")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.stryd_add_inclination_gain
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.stryd_add_inclination_gain = checked
+                            }
+
+                            Label {
+                                text: qsTr("If you have a bluetooth treadmill and also a Stryd device connected to QZ, by default Stryd can't get the inclination from the treadmill. Enabling this and QZ will add a inclination gain to the power read from the Stryd. Default: disabled.")
+                                font.bold: true
+                                font.italic: true
+                                font.pixelSize: 9
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                color: Material.color(Material.Lime)
+                            }                            
 
                             Label {
                                 id: labelPowerSensorName

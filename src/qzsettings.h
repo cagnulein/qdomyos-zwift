@@ -2078,6 +2078,9 @@ class QZSettings {
     static const QString proform_treadmill_705_cst_V78_239;
     static constexpr bool default_proform_treadmill_705_cst_V78_239 = false;
 
+    static const QString stryd_add_inclination_gain;
+    static constexpr bool default_stryd_add_inclination_gain = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
