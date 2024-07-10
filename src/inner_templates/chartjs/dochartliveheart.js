@@ -355,7 +355,9 @@ function refresh_heart() {
 }
 
 function process_workout_heart(arr) {    
-    heartChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.heart});
+    let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
+    heartChart.data.datasets[0].data.push({x: elapsed, y: arr.heart});
+    heartChart.options.scales.x.max = elapsed;
     heartChart.update();
     refresh_heart();
 }
