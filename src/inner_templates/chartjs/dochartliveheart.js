@@ -32,28 +32,11 @@ var ftpZones = [];
 var maxHeartRate = 190;
 var heartZones = [];
 var miles = 1;
-var powerChart = null;
+var heartChart = null;
 
-function process_trainprogram(arr) {
-    let powerWorkout = false;
-    let elapsed = 0;
-
-    for (let el of arr.list) {
-        // if the power is ok or it was a power zone workout but this segment is a freeride tag...
-        if(el.power != -1 || powerWorkout) {
-            powerWorkout = true;
-            for (i=0; i<el.duration_s; i++) {
-                powerChart.data.datasets[1].data.push({x: elapsed++, y: el.power});                                            
-            }
-        }
-    }
-    powerChart.options.scales.x.max = elapsed;
-    powerChart.update();
-}
-
-function process_arr(arr) {    
-    let ctx = document.getElementById('canvas').getContext('2d');
-    let div = document.getElementById('divcanvas');
+function process_arr_heart(arr) {    
+    let ctx = document.getElementById('canvasheart').getContext('2d');
+    let div = document.getElementById('divcanvasheart');
 
     let reqpower = [];
     let reqcadence = [];
@@ -190,41 +173,51 @@ function process_arr(arr) {
       }
     };
 
-    let config = {
+    config = {
         type: 'line',
         plugins: [backgroundFill],
         data: {
             datasets: [{
-                label: 'Watts',
+                label: 'Heart',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
-                cubicInterpolationMode: 'monotone',
-                data: watts,
+                //cubicInterpolationMode: 'monotone',
+                data: heart,
                 fill: false,
                 pointRadius: 0,
                 borderWidth: 2,
                 segment: {
-                   borderColor: ctx => ctx.p0.parsed.y < ftpZones[0] && ctx.p1.parsed.y < ftpZones[0] ? window.chartColors.grey :
-                                                                       ctx.p0.parsed.y < ftpZones[1] && ctx.p1.parsed.y < ftpZones[1] ? window.chartColors.limegreen :
-                                                                       ctx.p0.parsed.y < ftpZones[2] && ctx.p1.parsed.y < ftpZones[2] ? window.chartColors.gold :
-                                                                       ctx.p0.parsed.y < ftpZones[3] && ctx.p1.parsed.y < ftpZones[3] ? window.chartColors.orange :
-                                                                       ctx.p0.parsed.y < ftpZones[4] && ctx.p1.parsed.y < ftpZones[4] ? window.chartColors.darkorange :
-                                                                       ctx.p0.parsed.y < ftpZones[5] && ctx.p1.parsed.y < ftpZones[5] ? window.chartColors.orangered :
+                   borderColor: ctx => ctx.p0.parsed.y < heartZones[0] && ctx.p1.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
+                                                                       ctx.p0.parsed.y < heartZones[1] && ctx.p1.parsed.y < heartZones[1] ? window.chartColors.green :
+                                                                       ctx.p0.parsed.y < heartZones[2] && ctx.p1.parsed.y < heartZones[2] ? window.chartColors.yellow :
+                                                                       ctx.p0.parsed.y < heartZones[3] && ctx.p1.parsed.y < heartZones[3] ? window.chartColors.orange :
                                                                        window.chartColors.red,
                 }
-            }, {
-                label: 'Req. Watts',
-                backgroundColor: window.chartColors.black,
-                borderColor: window.chartColors.black,
-                //cubicInterpolationMode: 'monotone',
-                data: reqpower,
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 2,
-            },
-            ]
+            }]
         },
-        options: {           
+        options: {
+            animation: {
+              onComplete: function() {
+                  if(saveScreenshot[1])
+                      return;
+                  saveScreenshot[1] = true;
+                  let el = new MainWSQueueElement({
+                      msg: 'savechart',
+                      content: {
+                          name: 'heart',
+                          image: heartChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_savechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
             responsive: true,
             aspectRatio: div.width / div.height,
             grid: {
@@ -233,18 +226,8 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Watt'
+                    text:'Heart Rate'
                 },
-                /*
-                title:{
-                    display:true,
-                    backgroundColor: "#1d2330",
-                    padding: {
-                        top: 2,
-                        bottom: 2
-                    },
-                    text:'Watt'
-                },*/
                 tooltips: {
                     mode: 'index',
                     intersect: false,
@@ -258,67 +241,49 @@ function process_arr(arr) {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            //xMax: maxEl,
+                            xMax: maxEl,
                             yMin: 0,
-                            yMax: ftpZones[0],
-                            backgroundColor: "#d6d6d620"
+                            yMax: heartZones[0],
+                            backgroundColor: window.chartColors.lightsteelbluet,
                             },
                             box2: {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[0],
-                            yMax: ftpZones[1],
-                            backgroundColor: window.chartColors.limegreent,
+                            xMax: maxEl,
+                            yMin: heartZones[0],
+                            yMax: heartZones[1],
+                            backgroundColor: window.chartColors.greent,
                             },
                             box3: {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[1],
-                            yMax: ftpZones[2],
-                            backgroundColor: window.chartColors.goldt,
+                            xMax: maxEl,
+                            yMin: heartZones[1],
+                            yMax: heartZones[2],
+                            backgroundColor: window.chartColors.yellowt,
                             },
                             box4: {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[2],
-                            yMax: ftpZones[3],
+                            xMax: maxEl,
+                            yMin: heartZones[2],
+                            yMax: heartZones[3],
                             backgroundColor: window.chartColors.oranget,
                             },
                             box5: {
                             // Indicates the type of annotation
                             type: 'box',
                             xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[3],
-                            yMax: ftpZones[4],
-                            backgroundColor: window.chartColors.darkoranget,
-                            },
-                            box6: {
-                            // Indicates the type of annotation
-                            type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[4],
-                            yMax: ftpZones[5],
-                            backgroundColor: window.chartColors.orangeredt,
-                            },
-                            box7: {
-                            // Indicates the type of annotation
-                            type: 'box',
-                            xMin: 0,
-                            //xMax: maxEl,
-                            yMin: ftpZones[5],
-                            yMax: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
+                            xMax: maxEl,
+                            yMin: heartZones[3],
+                            yMax: maxHeartRate,
                             backgroundColor: window.chartColors.redt,
                             },
-                        }
-                      }
+                    }
+                },
             },
             hover: {
                 mode: 'nearest',
@@ -341,27 +306,24 @@ function process_arr(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
-                    //max: maxEl,
+                    max: maxEl,
                 },
                 y: {
                     display: true,
                     title: {
                         display: false,
-                        text: 'Watt'
+                        text: 'Heart rate'
                     },
-                    min: 0,
-                    max: (watts_max > ftpZones[4] + 10 ? watts_max + 10 : ftpZones[4] + 10),
+                    min: 50,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? 'zone 1' :
-                            value === ftpZones[0] ? 'zone 2' :
-                            value === ftpZones[1] ? 'zone 3' :
-                            value === ftpZones[2] ? 'zone 4' :
-                            value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' :
-                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
+                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
+                            value === heartZones[0] * 0.8 ? 'zone 1' :
+                            value === heartZones[0] ? 'zone 2' :
+                            value === heartZones[1] ? 'zone 3' :
+                            value === heartZones[2] ? 'zone 4' :
+                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
                         color: 'black',
                         padding: -50,
                         align: 'end',
@@ -370,8 +332,9 @@ function process_arr(arr) {
                 }
             }
         }
-    };    
-    powerChart = new Chart(ctx, config);
+    };
+
+    heartChart = new Chart(ctx, config);
 
     refresh();
 }
@@ -392,8 +355,8 @@ function refresh() {
 }
 
 function process_workout(arr) {    
-    powerChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.watts});
-    powerChart.update();
+    heartChart.data.datasets[0].data.push({x: arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600), y: arr.heart});
+    heartChart.update();
     refresh();
 }
 
@@ -472,19 +435,7 @@ function dochart_init() {
         }
         return null;
     }, 15000, 3);
-    el.enqueue().then(process_arr).catch(function(err) {
-        console.error('Error is ' + err);
-    });
-
-    el = new MainWSQueueElement({
-        msg: 'gettrainingprogram'
-    }, function(msg) {
-        if (msg.msg === 'R_gettrainingprogram') {
-            return msg.content;
-        }
-        return null;
-    }, 15000, 3);
-    el.enqueue().then(process_trainprogram).catch(function(err) {
+    el.enqueue().then(process_arr_heart).catch(function(err) {
         console.error('Error is ' + err);
     });
 }
@@ -527,7 +478,7 @@ $(window).on('load', function () {
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5, 'peloton_resistance': 10, 'peloton_req_resistance': 15},
            {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Robin Arzon", 'watts_avg': 200, 'watts_max' : 351, 'heart_avg': 120, 'heart_max' : 150, 'jouls': 138000, 'calories': 950, 'distance': 11, 'cadence_avg': 65, 'peloton_resistance_avg': 22, 'deviceType': 1},
             ]
-    process_arr(arr);
+    process_arr_heart(arr);
 });
 
 $(document).ready(function () {
