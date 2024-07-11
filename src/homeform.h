@@ -4,7 +4,7 @@
 #include "PathController.h"
 #include "bluetooth.h"
 #include "fit_profile.hpp"
-#include "GoogleFit.h""
+#include "GoogleFit.h"
 #include "gpx.h"
 #include "peloton.h"
 #include "qmdnsengine/browser.h"
