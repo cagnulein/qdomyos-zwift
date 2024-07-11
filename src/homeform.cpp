@@ -6167,6 +6167,14 @@ void homeform::strava_refreshtoken() {
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
 
+    GoogleFitUploader::WorkoutDataPoint p;
+    p.cadence = 100;
+    p.distance = 10;
+    p.heartRate = 100;
+    p.speed = 10;
+    p.timestamp = QDateTime::currentSecsSinceEpoch();
+    p.watts = 100;
+    googleFit.uploadWorkout(QVector<GoogleFitUploader::WorkoutDataPoint>({p}));
     strava_refreshtoken();
 
     QSettings settings;

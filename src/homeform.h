@@ -4,6 +4,7 @@
 #include "PathController.h"
 #include "bluetooth.h"
 #include "fit_profile.hpp"
+#include "GoogleFit.h""
 #include "gpx.h"
 #include "peloton.h"
 #include "qmdnsengine/browser.h"
@@ -659,6 +660,7 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
+    GoogleFitUploader googleFit;
 
     bool paused = false;
     bool stopped = false;
