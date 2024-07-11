@@ -317,7 +317,7 @@ function process_arr_heart(arr) {
                             value === heartZones[2] ? 'heart z4' :
                             value === heartZones[3] ? 'heart z5' : undefined : undefined,
                         color: 'black',
-                        padding: -50,
+                        padding: -70,
                         align: 'end',
                         z: 1,
                     }

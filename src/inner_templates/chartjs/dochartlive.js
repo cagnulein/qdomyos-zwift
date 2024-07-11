@@ -359,7 +359,7 @@ function process_arr(arr) {
                             value === ftpZones[4] ? 'power z6' :
                             value === ftpZones[5] ? 'power z7' : undefined : undefined,
                         color: 'black',
-                        padding: -50,
+                        padding: -70,
                         align: 'end',
                         z: 1,
                     }
