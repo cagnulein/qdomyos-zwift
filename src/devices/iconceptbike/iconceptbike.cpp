@@ -74,8 +74,7 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
              service.serviceName().startsWith(QStringLiteral("Serial Port"))) &&
             // android 13 workaround
             service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb")) &&
-            (!i_Nexor || service.serviceUuid() == QBluetoothUuid(QStringLiteral("00000000-deca-fade-deca-deafdecacaff")))
-            ) {
+            socket == nullptr) {
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
