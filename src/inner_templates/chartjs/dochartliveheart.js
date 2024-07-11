@@ -306,7 +306,8 @@ function process_arr_heart(arr) {
                 },
                 y: {
                     display: true,
-                    min: 50,
+                    suggestedMin: 50,
+                    suggestedMax: 200,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -317,7 +318,7 @@ function process_arr_heart(arr) {
                             value === heartZones[2] ? 'heart z4' :
                             value === heartZones[3] ? 'heart z5' : undefined : undefined,
                         color: 'black',
-                        padding: -50,
+                        padding: -70,
                         align: 'end',
                         z: 1,
                     }
