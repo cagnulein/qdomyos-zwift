@@ -951,6 +951,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.62
             property bool stryd_add_inclination_gain: false
+            property bool toorx_bike_srx_500: false
         }
 
         function paddingZeros(text, limit) {
@@ -6965,7 +6966,22 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.bh_spada_2_watt = checked; window.settings_restart_to_apply = true; }
+                    }                    
+
+                    SwitchDelegate {
+                        text: qsTr("Toorx SRX 500")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_bike_srx_500
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.toorx_bike_srx_500 = checked; window.settings_restart_to_apply = true; }
                     }
+
 
                     SwitchDelegate {
                         text: qsTr("Toorx SRX 3500")

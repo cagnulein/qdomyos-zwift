@@ -2081,6 +2081,9 @@ class QZSettings {
     static const QString stryd_add_inclination_gain;
     static constexpr bool default_stryd_add_inclination_gain = false;
 
+    static const QString toorx_bike_srx_500;
+    static constexpr bool default_toorx_bike_srx_500 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
