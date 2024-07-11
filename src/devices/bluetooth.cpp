@@ -383,6 +383,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QZSettings::enerfit_SPX_9500, QZSettings::default_enerfit_SPX_9500).toBool() ||
                        settings.value(QZSettings::toorx_srx_3500, QZSettings::default_toorx_srx_3500).toBool() ||
                        settings.value(QZSettings::hop_sport_hs_090h_bike, QZSettings::default_hop_sport_hs_090h_bike).toBool() ||
+                       settings.value(QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500).toBool() ||
                        settings.value(QZSettings::hertz_xr_770, QZSettings::default_hertz_xr_770).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QZSettings::snode_bike, QZSettings::default_snode_bike).toBool();
@@ -1443,6 +1444,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("BIKE-")) ||
                         (b.name().toUpper().startsWith("SPAX-BK-")) ||
                         (b.name().toUpper().startsWith("YSV1")) ||
+                        (b.name().toUpper().startsWith("VOLT") && b.name().length() == 4) ||
                         (b.name().toUpper().startsWith("CECOTEC")) ||       // Cecotec DrumFit Indoor 10000 MagnoMotor Connected #2420
                         (b.name().toUpper().startsWith("WATTBIKE")) ||
                         (b.name().toUpper().startsWith("ZYCLEZBIKE")) ||
@@ -1451,6 +1453,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("DOMYOS-BIKING-")) ||
                         (b.name().toUpper().startsWith("F") && b.name().toUpper().endsWith("ARROW")) || // FI9110 Arrow, https://www.fitnessdigital.it/bicicletta-smart-bike-ion-fitness-arrow-connect/p/10022863/ IO Fitness Arrow
                         (b.name().toUpper().startsWith("ICSE") && b.name().length() == 4) ||
+                        (b.name().toUpper().startsWith("FLX") && b.name().length() == 10) ||
                         (b.name().toUpper().startsWith("CSRB") && b.name().length() == 11) ||
                         (b.name().toUpper().startsWith("DU30-")) ||                          // BodyTone du30
                         (b.name().toUpper().startsWith("GLT") && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) ||
@@ -1930,7 +1933,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 mcfBike->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(mcfBike);
-            } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY")) || 
+            } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH-TR-"))) && !toorx && filter) {
                 this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
@@ -1941,7 +1945,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(toorx, &toorxtreadmill::debug, this, &bluetooth::debug);
                 toorx->deviceDiscovered(b);
                 this->signalBluetoothDeviceConnected(toorx);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT")) ||
+            } else if (((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT")) && !b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT TREAD"))) ||
                         b.name().toUpper().startsWith(QStringLiteral("BH-"))) && !iConceptBike &&
                        !iconcept_elliptical && filter) {
                 this->setLastBluetoothDevice(b);

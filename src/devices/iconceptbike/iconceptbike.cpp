@@ -73,7 +73,9 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
         if ((service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
              service.serviceName().startsWith(QStringLiteral("Serial Port"))) &&
             // android 13 workaround
-            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb"))) {
+            service.serviceUuid() == QBluetoothUuid(QStringLiteral("00001101-0000-1000-8000-00805f9b34fb")) &&
+            (!i_Nexor || service.serviceUuid() == QBluetoothUuid(QStringLiteral("00000000-deca-fade-deca-deafdecacaff")))
+            ) {
             emit debug(QStringLiteral("Serial port service found"));
             // discoveryAgent->stop(); // could lead to a crash?
 
@@ -85,6 +87,8 @@ void iconceptbike::serviceDiscovered(const QBluetoothServiceInfo &service) {
             connect(socket, &QBluetoothSocket::disconnected, this, &iconceptbike::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                     &iconceptbike::onSocketErrorOccurred);
+        } else {
+            qDebug () << QStringLiteral("service ignored!");
         }
     }
 }
