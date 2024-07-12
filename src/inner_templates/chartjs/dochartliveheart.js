@@ -34,6 +34,26 @@ var heartZones = [];
 var miles = 1;
 var heartChart = null;
 
+function process_trainprogram_heart(arr) {
+    let powerWorkout = false;
+    let elapsed = 0;
+
+    for (let el of arr.list) {
+        // if the power is ok or it was a power zone workout but this segment is a freeride tag...
+        if(el.power !== -1 || powerWorkout) {
+            powerWorkout = true;
+            for (i=0; i<el.duration_s; i++) {
+                elapsed++;
+            }
+        }
+    }
+
+    if(elapsed > 0) {
+        heartChart.options.scales.x.max = elapsed;
+        heartChart.update();
+    }
+}
+
 function process_arr_heart(arr) {    
     let ctx = document.getElementById('canvasheart').getContext('2d');
     let div = document.getElementById('divcanvasheart');
@@ -350,7 +370,8 @@ function refresh_heart() {
 function process_workout_heart(arr) {    
     let elapsed = arr.elapsed_s + (arr.elapsed_m * 60) + (arr.elapsed_h * 3600);
     heartChart.data.datasets[0].data.push({x: elapsed, y: arr.heart});
-    heartChart.options.scales.x.max = elapsed;
+    if(elapsed > heartChart.options.scales.x.max)
+        heartChart.options.scales.x.max = elapsed;
     heartChart.update();
     refresh_heart();
 }
@@ -431,6 +452,18 @@ function dochartheart_init() {
         return null;
     }, 15000, 3);
     el.enqueue().then(process_arr_heart).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+
+    el = new MainWSQueueElement({
+        msg: 'gettrainingprogram'
+    }, function(msg) {
+        if (msg.msg === 'R_gettrainingprogram') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_trainprogram_heart).catch(function(err) {
         console.error('Error is ' + err);
     });
 }
