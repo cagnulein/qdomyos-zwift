@@ -408,8 +408,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 requestInclination = -100;
             }
 
-            double r = requestInclination + difficult() + gears(); // the inclination here is like the resistance for the other bikes
-            QByteArray message = (QString::number(r).toLocal8Bit()) + ";";
+            double r = currentResistance().value() + difficult() + gears(); // the inclination here is like the resistance for the other bikes
+            QByteArray message = (QString::number(requestInclination).toLocal8Bit()) + ";" + QString::number(r).toLocal8Bit();
             requestInclination = -100;
             int ret = socket->writeDatagram(message, message.size(), sender, 8003);
             qDebug() << QString::number(ret) + " >> " + message;
