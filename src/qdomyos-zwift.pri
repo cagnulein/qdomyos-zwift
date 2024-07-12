@@ -736,7 +736,7 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
-    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
     $$PWD/android/src/BleAdvertiser.java \
@@ -848,4 +848,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.62
+VERSION = 2.16.63
