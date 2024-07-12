@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
+import android.content.pm.ServiceInfo;
+import android.util.Log;
 
 public class ForegroundService extends Service {
 	 public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -32,8 +34,18 @@ public class ForegroundService extends Service {
 					 .setSmallIcon(R.drawable.icon)
 					 .setContentIntent(pendingIntent)
 					 .build();
-                                         int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
-                                        startForeground(1, notification, serviceType);
+
+                                        try {
+                                             int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                                startForeground(1, notification, serviceType);
+                                             } else {
+                                                startForeground(1, notification);
+                                             }
+                                         } catch (Exception e) {
+                                             Log.e("ForegroundService", "Failed to start foreground service", e);
+                                             return START_NOT_STICKY;
+                                         }
 		  //do heavy work on a background thread
 		  //stopSelf();
 		  return START_NOT_STICKY;
