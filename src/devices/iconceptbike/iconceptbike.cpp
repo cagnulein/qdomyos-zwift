@@ -262,7 +262,9 @@ void iconceptbike::readSocket() {
             bool bh_spada_2_watt =
                 settings.value(QZSettings::bh_spada_2_watt, QZSettings::default_bh_spada_2_watt).toBool();
             elapsed = GetElapsedTimeFromPacket(line);
-            Distance = GetDistanceFromPacket(line);
+            //Distance = GetDistanceFromPacket(line);
+            QDateTime now = QDateTime::currentDateTime();
+            Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
             KCal = GetCaloriesFromPacket(line);
             if (bh_spada_2_watt) {
                 m_watt = GetWattFromPacket(line);
@@ -280,7 +282,7 @@ void iconceptbike::readSocket() {
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
-                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                              now)))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                                 //* 3.5) / 200 ) / 60
             } else {
                 Speed = GetSpeedFromPacket(line);
@@ -293,7 +295,7 @@ void iconceptbike::readSocket() {
                 LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
             }
 
-            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+            lastRefreshCharacteristicChanged = now;
 
 #ifdef Q_OS_ANDROID
             if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
