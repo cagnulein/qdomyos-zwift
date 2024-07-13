@@ -634,6 +634,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
