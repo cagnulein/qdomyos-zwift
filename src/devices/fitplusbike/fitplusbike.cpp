@@ -89,6 +89,7 @@ void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     bool sportstech_sx600 = settings.value(QZSettings::sportstech_sx600, QZSettings::default_sportstech_sx600).toBool();
+    requestResistanceCompleted = false;
     if (virtufit_etappe || merach_MRK || H9110_OSAKA) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
@@ -590,14 +591,14 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             resistance_t res = newValue.at(5);
             if (settings.value(QZSettings::gears_from_bike, QZSettings::default_gears_from_bike).toBool()) {
                 qDebug() << QStringLiteral("gears_from_bike") << res << Resistance.value() << gears()
-                         << lastRawRequestedResistanceValue << lastRequestedResistance().value() << requestResistance;
+                         << lastRawRequestedResistanceValue << lastRequestedResistance().value() << requestResistance << requestResistanceCompleted;
                 if (
                      // if the resistance is different from the previous one
                     res != qRound(Resistance.value()) &&
                     // and the last target resistance is different from the current one or there is no any pending last
                     // requested resistance
-                    ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0 && requestResistance == -1) ||
-                     (lastRawRequestedResistanceValue == -1 && requestResistance == -1)) &&
+                    ((lastRequestedResistance().value() != res && lastRequestedResistance().value() != 0 && requestResistance == -1 && requestResistanceCompleted) ||
+                     (lastRawRequestedResistanceValue == -1 && requestResistance == -1 && requestResistanceCompleted)) &&
                     // and the difference between the 2 resistances are less than 6
                     qRound(Resistance.value()) > 1 && qAbs(res - qRound(Resistance.value())) < 6) {
 
@@ -608,6 +609,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     setGears(g);
                 }
             }
+            requestResistanceCompleted = true;
             Resistance = res;
             emit resistanceRead(Resistance.value());
             if (merach_MRK || sportstech_sx600) {
