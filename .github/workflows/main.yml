@@ -944,7 +944,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
   
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install
+        run: .\vcpkg\vcpkg install --x-verbose --install-root "${{ runner.workspace }}/vcpkg_installed"
         working-directory: ${{ runner.workspace }}
 
   
@@ -1153,7 +1153,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
   
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install
+        run: .\vcpkg\vcpkg install --x-verbose --install-root "${{ runner.workspace }}/vcpkg_installed"
         working-directory: ${{ runner.workspace }}
 
 
