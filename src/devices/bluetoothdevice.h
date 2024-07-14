@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "metric.h"
 #include "qzsettings.h"
+#include "ergtable.h"
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
@@ -340,6 +341,18 @@ class bluetoothdevice : public QObject {
      */
     metric currentHeartZone() { return HeartZone; }
 
+    /*
+    * @brief maxHeartZone Gets the maximum number of heart zones.
+    */
+    uint8_t maxHeartZone() { return maxhrzone; }
+
+    /**
+     * @brief secondsForHeartZone Gets the number of seconds in the current heart zone.
+     * 
+     * @param zone The heart zone.
+     */
+    uint32_t secondsForHeartZone(uint8_t zone);
+
     /**
      * @brief currentPowerZone Gets a metric object to get or set the current power zome. Units: depends on
      * implementation.
@@ -372,7 +385,7 @@ class bluetoothdevice : public QObject {
      * This is equivalent to currentHeartZone().setvalue(hz)
      * @param hz The heart zone. Unit: depends on implementation.
      */
-    void setHeartZone(double hz) { HeartZone = hz; }
+    void setHeartZone(double hz);
 
     /**
      * @brief setPowerZone Set the current power zone.
@@ -388,7 +401,7 @@ class bluetoothdevice : public QObject {
      */
     void setTargetPowerZone(double pz) { TargetPowerZone = pz; }
 
-    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
+    enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL, JUMPROPE };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     /**
@@ -641,6 +654,17 @@ class bluetoothdevice : public QObject {
      */
     metric TargetPowerZone;
 
+    /**
+     * @brief _ergTable The current erg table
+     */
+    ergTable _ergTable;
+
+    /**
+     * @brief Collect the number of seconds in each zone for the current heart rate
+     */
+    static const uint8_t maxhrzone = 5;
+    metric hrZonesSeconds[maxhrzone];
+
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
 
     /**
@@ -668,7 +692,7 @@ class bluetoothdevice : public QObject {
      * @param watt_calc ??
      * @param watts ?. Unit: watts
      */
-    void update_metrics(bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts, const bool from_accessory = false);
 
     /**
      * @brief update_hr_from_external Updates heart rate from Garmin Companion App or Apple Watch

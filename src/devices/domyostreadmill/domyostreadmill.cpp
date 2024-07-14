@@ -320,14 +320,15 @@ void domyostreadmill::update() {
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
+        double inclination_delay_seconds = settings.value(QZSettings::inclination_delay_seconds, QZSettings::default_inclination_delay_seconds).toDouble();
         if (incompletePackets == false) {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
                     double inc = Inclination.value();
-                    if (requestInclination != -100) {
-
+                    if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+                        lastInclinationChanged = QDateTime::currentDateTime();
                         // only 0.5 steps ara available
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
@@ -337,7 +338,8 @@ void domyostreadmill::update() {
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -100) {
+            if (requestInclination != -100 && lastInclinationChanged.secsTo(QDateTime::currentDateTime()) > inclination_delay_seconds) {
+                lastInclinationChanged = QDateTime::currentDateTime();
                 if (requestInclination < 0)
                     requestInclination = 0;
                 // only 0.5 steps ara available
@@ -735,7 +737,7 @@ double domyostreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 
 double domyostreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data;
 
     if (convertedData > 10000) {
@@ -825,8 +827,12 @@ void domyostreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        emit debug(QStringLiteral("error on find Service"));
+    }    
 }
 
 void domyostreadmill::errorService(QLowEnergyService::ServiceError err) {

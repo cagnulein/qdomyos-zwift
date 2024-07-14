@@ -11,9 +11,15 @@ treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) {
     QSettings settings;
+    bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
     m_lastRawSpeedRequested = speed;
     speed /= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain).toDouble();
     speed -= settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset).toDouble();    
+    if(stryd_speed_instead_treadmill && Speed.value() > 0) {
+        double delta = (Speed.value() - rawSpeed.value());
+        qDebug() << "stryd_speed_instead_treadmill so override speed by " << delta;
+        speed -= delta;
+    }
     qDebug() << "changeSpeed" << speed << autoResistanceEnable << m_difficult << m_difficult_offset << m_lastRawSpeedRequested;
     RequestedSpeed = (speed * m_difficult) + m_difficult_offset;
     if (autoResistanceEnable)
@@ -95,7 +101,8 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     }
 
     METS = calculateMETS();
-    elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+    if (currentInclination().value() > 0)
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
@@ -128,6 +135,7 @@ void treadmill::clearStats() {
     moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
+    rawSpeed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
     Distance1s.clear(true);
@@ -140,6 +148,9 @@ void treadmill::clearStats() {
     Cadence.clear(false);
 
     Inclination.clear(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].clear(false);
+    }    
 }
 
 void treadmill::setPaused(bool p) {
@@ -148,6 +159,7 @@ void treadmill::setPaused(bool p) {
     moving.setPaused(p);
     elapsed.setPaused(p);
     Speed.setPaused(p);
+    rawSpeed.setPaused(p);
     KCal.setPaused(p);
     Distance.setPaused(p);
     Distance1s.setPaused(p);
@@ -158,6 +170,9 @@ void treadmill::setPaused(bool p) {
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
     Cadence.setPaused(p);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setPaused(p);
+    }    
 }
 
 void treadmill::setLap() {
@@ -165,6 +180,7 @@ void treadmill::setLap() {
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
+    rawSpeed.setLap(false);
     KCal.setLap(true);
     Distance.setLap(true);
     Distance1s.setLap(true);
@@ -176,6 +192,9 @@ void treadmill::setLap() {
     Cadence.setLap(false);
 
     Inclination.setLap(false);
+    for(int i=0; i<maxHeartZone(); i++) {
+        hrZonesSeconds[i].setLap(false);
+    }
 }
 
 void treadmill::setLastSpeed(double speed) { lastSpeed = speed; }
@@ -190,12 +209,21 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) {
+void treadmill::powerSensor(uint16_t power) { 
+    double vwatts = 0;
     if(power > 0) {
         powerReceivedFromPowerSensor = true;
         qDebug() << "powerReceivedFromPowerSensor" << powerReceivedFromPowerSensor << power;
+        QSettings settings;
+        if(currentInclination().value() != 0 && settings.value(QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain).toBool()) {
+            QSettings settings;
+            double w = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+            // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+            vwatts = ((9.8 * w) * (currentInclination().value() / 100.0));
+            qDebug() << QStringLiteral("overrding power read from the sensor of ") << power << QStringLiteral("with ") << vwatts << QStringLiteral(" for the treadmill inclination");
+        }
     }
-    m_watt.setValue(power, false); 
+    m_watt.setValue(power + vwatts, false); 
 }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
 void treadmill::instantaneousStrideLengthSensor(double length) { InstantaneousStrideLengthCM.setValue(length); }
@@ -214,10 +242,14 @@ double treadmill::treadmillInclinationOverrideReverse(double Inclination) {
             return ((double)i) / 2.0;
         }
     }
-    if (Inclination < treadmillInclinationOverride(0))
-        return 0;
+
+    // if the inclination is negative, since the table consider only positive values, I return the actual value
+    if(Inclination < 0)
+        return Inclination;
+    else if (Inclination < treadmillInclinationOverride(0))
+        return treadmillInclinationOverride(0);
     else
-        return 15;
+        return treadmillInclinationOverride(15);
 }
 
 double treadmill::treadmillInclinationOverride(double Inclination) {
@@ -452,3 +484,106 @@ QTime treadmill::lastRequestedPace() {
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
+
+void treadmill::parseSpeed(double speed) {
+    QSettings settings;
+    bool stryd_speed_instead_treadmill = settings.value(QZSettings::stryd_speed_instead_treadmill, QZSettings::default_stryd_speed_instead_treadmill).toBool();
+    if(!stryd_speed_instead_treadmill) {
+        Speed = speed;
+    } else {
+        qDebug() << "speed from the treadmill is discarded since we are using the one from the power sensor";
+    }
+    rawSpeed = speed;
+}
+
+/*
+ * Running Stress Score
+ */
+double treadmill::runningStressScore() {
+    QSettings settings;
+    double sec = this->elapsed.value();
+    double NP = this->m_watt.average();
+    double CP = settings.value(QZSettings::ftp_run, QZSettings::default_ftp_run).toDouble();
+    double part1 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100) * 0.6139);
+    double part2 = ((((sec) * NP * (NP / CP)) / (CP * 3600) * 100));
+    return (part1 + part2) / 2;
+}
+
+void treadmill::changePower(int32_t power) {
+
+    RequestedPower = power; // in order to paint in any case the request power on the charts
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral("changePower ignored because auto resistance is disabled");
+        return;
+    }
+
+    requestPower = power; // used by some bikes that have ERG mode builtin
+    QSettings settings;
+    /*
+    double erg_filter_upper =
+        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
+    double erg_filter_lower =
+        settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
+    double deltaDown = wattsMetric().value() - ((double)power);
+    double deltaUp = ((double)power) - wattsMetric().value();
+    qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
+                    QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
+    if (!ergModeSupported && force_resistance &&
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
+        changeResistance(r); // resistance start from 1
+    }*/
+
+    QString data = settings.value(QZSettings::treadmillDataPoints, QZSettings::default_treadmillDataPoints).toString();
+    bool ergTable = data.length() && settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
+                                             .toString()
+                                             .startsWith(QStringLiteral("Disabled")) == false;
+
+    double weightKg = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double lowSpeed = 0.0; // minimum possible speed
+    double highSpeed = 30.0; // some maximum speed that is reasonably not exceeded
+    const double tolerance = 3; // acceptable error in watts to stop the search
+    const int maxIterations = 300; // maximum number of iterations to prevent infinite loops
+    int i = 0;
+
+    for (i = 1; i < maxIterations; i++) {
+        double midSpeed = ((double)i / 10.0);
+        double calculatedWatts;
+        if(ergTable) {
+            calculatedWatts = _ergTable.estimateWattage(midSpeed, currentInclination().value());
+        } else {
+            calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+        }
+
+        if (std::abs(calculatedWatts - power) <= tolerance) {
+            changeSpeed(midSpeed);
+            return;
+        }
+    }
+
+    if(ergTable && i == maxIterations) {
+        lowSpeed = 0.0; // minimum possible speed
+        highSpeed = 30.0; // some maximum speed that is reasonably not exceeded
+        for (i = 0; i < maxIterations; i++) {
+            double midSpeed = (lowSpeed + highSpeed) / 2;
+            double calculatedWatts = wattsCalc(weightKg, midSpeed, currentInclination().value());
+
+            if (std::abs(calculatedWatts - power) <= tolerance) {
+                changeSpeed(midSpeed);
+                return;
+            }
+
+            if (calculatedWatts < power) {
+                lowSpeed = midSpeed;
+            } else {
+                highSpeed = midSpeed;
+            }
+        }
+    }
+
+    changeSpeed((lowSpeed + highSpeed) / 2); // Return the best estimate
+}
+
+metric treadmill::lastRequestedPower() { return RequestedPower; }
+

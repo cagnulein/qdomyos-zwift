@@ -263,10 +263,11 @@ void peloton::hfb_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::pzp_trainrows(QList<trainrow> *list) {
@@ -276,10 +277,11 @@ void peloton::pzp_trainrows(QList<trainrow> *list) {
 
         trainrows.append(r);
     }
-    if (!trainrows.isEmpty()) {
-
-        emit workoutStarted(current_workout_name, current_instructor_name);
+    if (trainrows.isEmpty()) {
+        current_api = no_metrics;
     }
+
+    emit workoutStarted(current_workout_name, current_instructor_name);
 }
 
 void peloton::startEngine() {
@@ -427,17 +429,16 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
 
     QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
     qDebug() << QStringLiteral("air_time ") + air_time;
-    QString workout_name = current_workout_name;
     if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
             .toString()
             .contains(QStringLiteral("Before"))) {
-        workout_name = air_time + QStringLiteral(" ") + workout_name;
+        current_workout_name = air_time + QStringLiteral(" ") + current_workout_name;
     } else if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
                    .toString()
                    .contains(QStringLiteral("After"))) {
-        workout_name = workout_name + QStringLiteral(" ") + air_time;
+        current_workout_name = current_workout_name + QStringLiteral(" ") + air_time;
     }
-    emit workoutChanged(workout_name, current_instructor_name);
+    emit workoutChanged(current_workout_name, current_instructor_name);
 
     /*
     if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {

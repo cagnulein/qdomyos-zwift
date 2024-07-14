@@ -26,6 +26,7 @@
 #include <QTime>
 
 #include "devices/bike.h"
+#include "ergtable.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -109,8 +110,14 @@ class trxappgateusbbike : public bike {
         ENERFIT_SPX_9500_2 = 21,
         REEBOK = 22,
         REEBOK_2 = 23,
+        BIKZU = 24,
+        TOORX_SRX_500 = 25,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
+
+    // SmartSpin2k
+    metric ResistanceFromFTMSAccessory;
+    uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
 
   signals:
     void disconnected();
@@ -119,6 +126,7 @@ class trxappgateusbbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceFromFTMSAccessory(resistance_t res) override;
 
   private slots:
 

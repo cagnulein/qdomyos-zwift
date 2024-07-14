@@ -43,8 +43,8 @@ QML_IMPORT_PATH =
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
-win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc
+win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x64 -llibssl-1_1-x64 -L$$PWD/../windows_openssl
+win32:QMAKE_LFLAGS_RELEASE += -static-libstdc++ -static-libgcc -llibcrypto-1_1-x64 -llibssl-1_1-x64 -L$$PWD/../windows_openssl
 
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
@@ -77,7 +77,9 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/devices/jumprope.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
 QTelnet.cpp \
 devices/bkoolbike/bkoolbike.cpp \
@@ -296,8 +298,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
+    $$PWD/devices/jumprope.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
+    $$PWD/ergtable.h \
+    $$PWD/treadmillErgTable.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
 devices/csaferower/csafe.h \
@@ -739,9 +745,10 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
-    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
+    $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
@@ -750,6 +757,7 @@ DISTFILES += \
     $$PWD/android/src/MediaProjection.java \
     $$PWD/android/src/NotificationUtils.java \
     $$PWD/android/src/ScreenCaptureService.java \
+    $$PWD/android/src/Shortcuts.java \
     $$PWD/android/src/WearableController.java \
     $$PWD/android/src/WearableMessageListenerService.java \
     $$PWD/android/src/ZapClickLayer.java \
@@ -849,4 +857,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.46
+VERSION = 2.16.64

@@ -173,6 +173,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool stopRequested READ stopRequested NOTIFY stopRequestedChanged WRITE setStopRequestedChanged)
     Q_PROPERTY(bool startRequested READ startRequested NOTIFY startRequestedChanged WRITE setStartRequestedChanged)
     Q_PROPERTY(QString toastRequested READ toastRequested NOTIFY toastRequestedChanged WRITE setToastRequested)
+    Q_PROPERTY(bool stravaUploadRequested READ stravaUploadRequested NOTIFY stravaUploadRequestedChanged WRITE setStravaUploadRequested)
 
     // workout preview
     Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
@@ -396,6 +397,7 @@ class homeform : public QObject {
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
     QString pelotonProvider() { return m_pelotonProvider; }
     QString toastRequested() { return m_toastRequested; }
+    bool stravaUploadRequested() { return m_stravaUploadRequested; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
@@ -449,6 +451,9 @@ class homeform : public QObject {
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setToastRequested(QString value) { m_toastRequested = value; }
+    void setStravaUploadRequested(bool value) {
+        m_stravaUploadRequested = value;
+    }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
     int preview_workout_points();
@@ -622,6 +627,7 @@ class homeform : public QObject {
     DataObject *pace_last500m;
     DataObject *stepCount;
     DataObject *ergMode;
+    DataObject *rss;
 
   private:
     static homeform *m_singleton;
@@ -662,6 +668,7 @@ class homeform : public QObject {
     bool m_pelotonAskStart = false;
     QString m_pelotonProvider = "";
     QString m_toastRequested = "";
+    bool m_stravaUploadRequested = false;
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     int m_zwiftLoginState = -1;
@@ -809,6 +816,7 @@ class homeform : public QObject {
     void bluetoothDeviceConnected(bluetoothdevice *b);
     void bluetoothDeviceDisconnected();
     void onToastRequested(QString message);
+    void strava_upload_file_prepare();
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS)) || (defined(Q_OS_ANDROID) && defined(LICENSE))
     void licenseReply(QNetworkReply *reply);
@@ -836,6 +844,7 @@ class homeform : public QObject {
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void toastRequestedChanged(QString value);
+    void stravaUploadRequestedChanged(bool value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoIconVisibleChanged(bool value);

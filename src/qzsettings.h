@@ -2028,8 +2028,61 @@ class QZSettings {
     static const QString toorx_srx_3500;
     static constexpr bool default_toorx_srx_3500 = false;
 
+    static const QString stryd_speed_instead_treadmill;
+    static constexpr bool default_stryd_speed_instead_treadmill = false;
     static const QString inclination_delay_seconds;
     static constexpr float default_inclination_delay_seconds = 0.0;
+
+    static const QString ergDataPoints;
+    static const QString default_ergDataPoints;
+
+    static const QString proform_carbon_tl;
+    static constexpr bool default_proform_carbon_tl = false;    
+
+    static const QString proform_proshox2;
+    static constexpr bool default_proform_proshox2 = false;    
+
+    static const QString proform_tdf_10_0;
+    static constexpr bool default_proform_tdf_10_0 = false;
+
+    static const QString nordictrack_GX4_5_bike;
+    static constexpr bool default_nordictrack_GX4_5_bike = false;
+
+    static const QString ftp_run;
+    static constexpr float default_ftp_run = 200.0;
+
+    static const QString tile_rss_enabled;
+    static constexpr bool default_tile_rss_enabled = false;
+
+    static const QString tile_rss_order;
+    static constexpr int default_tile_rss_order = 53;
+
+    static const QString treadmillDataPoints;
+    static const QString default_treadmillDataPoints;
+
+    static const QString nordictrack_s20i_treadmill;
+    static constexpr bool default_nordictrack_s20i_treadmill = false;
+
+    static const QString proform_595i_proshox2;
+    static constexpr bool default_proform_595i_proshox2 = false;
+
+    static const QString proform_treadmill_8_7;
+    static constexpr bool default_proform_treadmill_8_7 = false;
+
+    static const QString proform_bike_325_csx;
+    static constexpr bool default_proform_bike_325_csx = false;
+
+    static const QString strava_upload_mode;
+    static const QString default_strava_upload_mode;
+
+    static const QString proform_treadmill_705_cst_V78_239;
+    static constexpr bool default_proform_treadmill_705_cst_V78_239 = false;
+
+    static const QString stryd_add_inclination_gain;
+    static constexpr bool default_stryd_add_inclination_gain = false;
+
+    static const QString toorx_bike_srx_500;
+    static constexpr bool default_toorx_bike_srx_500 = false;
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.

@@ -33,6 +33,7 @@
 #include "devices/csaferower/csaferower.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
+#include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
@@ -163,6 +164,7 @@ class bluetooth : public QObject, public SignalHandler {
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
+    crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS

@@ -89,10 +89,14 @@ class horizontreadmill : public treadmill {
 
     bool mobvoi_treadmill = false;
     bool kettler_treadmill = false;
+    bool sole_tt8_treadmill = false;
     bool anplus_treadmill = false;
     bool tunturi_t60_treadmill = false;
     bool trx3500_treadmill = false;
     bool sole_f85_treadmill = false;
+    bool sole_f89_treadmill = false;
+    bool schwinn_810_treadmill = false;
+    bool technogymrun = false;
 
     void testProfileCRC();
     void updateProfileCRC();

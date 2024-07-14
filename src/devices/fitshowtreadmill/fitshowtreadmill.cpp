@@ -18,6 +18,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
 
+    m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noHeartService = noHeartService;
 
     if (forceInitSpeed > 0) {
@@ -434,7 +436,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 double speed = array[2] / 10.0;
-                double incline = array[3];
+                double incline = (int8_t)array[3];
                 uint16_t seconds_elapsed = anyrun ? array[4] * 60 + array[5] : array[4] | array[5] << 8;
                 double distance = (anyrun ? (array[7] | array[6] << 8) : (array[6] | array[7] << 8)) / 10.0;
                 double kcal = anyrun ? (array[9] | array[8] << 8) : (array[8] | array[9] << 8);
@@ -521,11 +523,11 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 else
 #endif
                 {
-                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled")) && 
-                        (heart == 0 || disable_hr_frommachinery)) {
-                        update_hr_from_external();
-                    } else {
-                        Heart = heart;
+                    if (settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString().startsWith(QStringLiteral("Disabled"))) {
+                        if (heart == 0 || disable_hr_frommachinery)
+                            update_hr_from_external();
+                        else 
+                            Heart = heart;
                     }
                 }
 

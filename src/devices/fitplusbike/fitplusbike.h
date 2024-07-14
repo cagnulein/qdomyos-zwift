@@ -68,6 +68,7 @@ class fitplusbike : public bike {
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     resistance_t lastResistanceBeforeDisconnection = -1;
+    bool requestResistanceCompleted = true;
 
     bool initDone = false;
     bool initRequest = false;
@@ -76,6 +77,7 @@ class fitplusbike : public bike {
     bool noHeartService = false;
 
     bool merach_MRK = false;
+    bool H9110_OSAKA = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
