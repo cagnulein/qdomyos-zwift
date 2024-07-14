@@ -902,14 +902,51 @@ jobs:
       - name: Clone vcpkg
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-      
+  
       - name: Bootstrap vcpkg
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-      
-      - name: Install dependencies
-        run: .\vcpkg\vcpkg install protobuf@3.21.12 protobuf-c abseil
+  
+      - name: Create vcpkg-configuration.json
+        run: |
+          $vcpkgConfig = @{
+            "default-registry" = @{
+              "kind" = "git"
+              "repository" = "https://github.com/Microsoft/vcpkg"
+              "baseline" = "d21e70ba80bc7c046034adbe3257bec3780e27ba"
+            }
+            "registries" = @(
+              @{
+                "kind" = "artifact"
+                "location" = "https://github.com/Microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip"
+                "name" = "microsoft"
+              }
+            )
+          }
+          $vcpkgConfig | ConvertTo-Json -Depth 5 | Out-File vcpkg-configuration.json
         working-directory: ${{ runner.workspace }}
+  
+      - name: Create vcpkg.json
+        run: |
+          $vcpkgManifest = @{
+            "name" = "your-project-name"
+            "version-string" = "0.1.0"
+            "dependencies" = @(
+              @{
+                "name" = "protobuf"
+                "version>=" = "3.21.12"
+              },
+              "protobuf-c",
+              "abseil"
+            )
+          }
+          $vcpkgManifest | ConvertTo-Json -Depth 5 | Out-File vcpkg.json
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install
+        working-directory: ${{ runner.workspace }}
+
   
       - name: Build
         run: |
@@ -1074,14 +1111,51 @@ jobs:
       - name: Clone vcpkg
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-
+  
       - name: Bootstrap vcpkg
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-
-      - name: Install dependencies
-        run: .\vcpkg\vcpkg install protobuf@3.21.12 protobuf-c abseil
+  
+      - name: Create vcpkg-configuration.json
+        run: |
+          $vcpkgConfig = @{
+            "default-registry" = @{
+              "kind" = "git"
+              "repository" = "https://github.com/Microsoft/vcpkg"
+              "baseline" = "d21e70ba80bc7c046034adbe3257bec3780e27ba"
+            }
+            "registries" = @(
+              @{
+                "kind" = "artifact"
+                "location" = "https://github.com/Microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip"
+                "name" = "microsoft"
+              }
+            )
+          }
+          $vcpkgConfig | ConvertTo-Json -Depth 5 | Out-File vcpkg-configuration.json
         working-directory: ${{ runner.workspace }}
+  
+      - name: Create vcpkg.json
+        run: |
+          $vcpkgManifest = @{
+            "name" = "your-project-name"
+            "version-string" = "0.1.0"
+            "dependencies" = @(
+              @{
+                "name" = "protobuf"
+                "version>=" = "3.21.12"
+              },
+              "protobuf-c",
+              "abseil"
+            )
+          }
+          $vcpkgManifest | ConvertTo-Json -Depth 5 | Out-File vcpkg.json
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install
+        working-directory: ${{ runner.workspace }}
+
 
       - name: Build
         run: |
