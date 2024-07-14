@@ -747,6 +747,10 @@ class homeform : public QObject {
     QHostAddress iphone_address;
 #endif
 
+    // OSC
+    size_t OSC_makePacket(void* buffer, size_t size);
+    QUdpSocket* OSC_sendSocket = new QUdpSocket(this);
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);

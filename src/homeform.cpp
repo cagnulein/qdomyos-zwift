@@ -39,6 +39,8 @@
 #include <QUrlQuery>
 #include <chrono>
 
+#include <oscpp/client.hpp>
+
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -683,6 +685,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 #endif
+
+    bool result = OSC_sendSocket->bind(QHostAddress::AnyIPv4, 9000);
+    qDebug() << "OSC socket" << result;
 
     bluetoothManager->homeformLoaded = true;
 }
@@ -5674,6 +5679,11 @@ void homeform::update() {
             
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
 
+            // OSC
+            char osc_buffer[1000];
+            int osc_len = OSC_makePacket(osc_buffer, sizeof(osc_buffer));
+            OSC_sendSocket->write(osc_buffer, osc_len);
+
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
                 watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
@@ -7177,4 +7187,21 @@ void homeform::videoSeekPosition(int ms) {
     auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
     auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
     videoPlaybackHalfPlayer->setPosition(ms);
+}
+
+size_t homeform::OSC_makePacket(void* buffer, size_t size)
+{
+    // Construct a packet
+    OSCPP::Client::Packet packet(buffer, size);
+    packet
+        // Open a bundle with a timetag
+        .openBundle(1234ULL)
+            // Add a message with two arguments and an array with 6 elements;
+            // for efficiency this needs to be known in advance.
+            .openMessage("/QZ/Resistance", 1)
+            .int32(bluetoothManager->device()->currentResistance().value())
+            // Every `open` needs a corresponding `close`
+            .closeMessage()
+        .closeBundle();
+    return packet.size();
 }

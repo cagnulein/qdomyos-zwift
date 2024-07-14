@@ -294,6 +294,15 @@ HEADERS += \
     $$PWD/devices/jumprope.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/ergtable.h \
+    $$PWD/oscpp/client.hpp \
+    $$PWD/oscpp/detail/endian.hpp \
+    $$PWD/oscpp/detail/host.hpp \
+    $$PWD/oscpp/detail/stream.hpp \
+    $$PWD/oscpp/error.hpp \
+    $$PWD/oscpp/print.hpp \
+    $$PWD/oscpp/server.hpp \
+    $$PWD/oscpp/types.hpp \
+    $$PWD/oscpp/util.hpp \
     $$PWD/treadmillErgTable.h \
 QTelnet.h \
 devices/bkoolbike/bkoolbike.h \
