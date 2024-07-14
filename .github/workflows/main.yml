@@ -943,9 +943,21 @@ jobs:
           $vcpkgManifest | ConvertTo-Json -Depth 5 | Out-File vcpkg.json
         working-directory: ${{ runner.workspace }}
   
+      - name: Set vcpkg environment variables
+        run: |
+          echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
+      
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install --x-verbose --install-root "${{ runner.workspace }}/vcpkg_installed"
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg list
         working-directory: ${{ runner.workspace }}
+      
+      - name: Show installation directory
+        run: |
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
+        shell: pwsh
 
   
       - name: Build
@@ -1152,10 +1164,21 @@ jobs:
           $vcpkgManifest | ConvertTo-Json -Depth 5 | Out-File vcpkg.json
         working-directory: ${{ runner.workspace }}
   
+      - name: Set vcpkg environment variables
+        run: |
+          echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
+      
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install --x-verbose --install-root "${{ runner.workspace }}/vcpkg_installed"
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg list
         working-directory: ${{ runner.workspace }}
-
+      
+      - name: Show installation directory
+        run: |
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
+        shell: pwsh
 
       - name: Build
         run: |
