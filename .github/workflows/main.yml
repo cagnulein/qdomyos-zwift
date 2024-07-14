@@ -946,7 +946,7 @@ jobs:
       - name: Set vcpkg environment variables
         run: |
           echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
-          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg\installed" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
@@ -956,7 +956,7 @@ jobs:
       
       - name: Show installation directory
         run: |
-          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg\installed" -Recurse
         shell: pwsh
 
   
@@ -1167,7 +1167,7 @@ jobs:
       - name: Set vcpkg environment variables
         run: |
           echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
-          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg\installed" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
@@ -1177,7 +1177,7 @@ jobs:
       
       - name: Show installation directory
         run: |
-          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg\installed" -Recurse
         shell: pwsh
 
       - name: Build
