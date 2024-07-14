@@ -913,7 +913,7 @@ jobs:
             "default-registry" = @{
               "kind" = "git"
               "repository" = "https://github.com/Microsoft/vcpkg"
-              "baseline" = "d21e70ba80bc7c046034adbe3257bec3780e27ba"
+              "baseline" = "90542a476c8ef3288039e2443a775e48db279173"
             }
             "registries" = @(
               @{
@@ -1122,7 +1122,7 @@ jobs:
             "default-registry" = @{
               "kind" = "git"
               "repository" = "https://github.com/Microsoft/vcpkg"
-              "baseline" = "d21e70ba80bc7c046034adbe3257bec3780e27ba"
+              "baseline" = "90542a476c8ef3288039e2443a775e48db279173"
             }
             "registries" = @(
               @{
