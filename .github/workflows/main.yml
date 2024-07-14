@@ -908,7 +908,7 @@ jobs:
         working-directory: ${{ runner.workspace }}
       
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        run: .\vcpkg\vcpkg install protobuf@3.21.12 protobuf-c abseil
         working-directory: ${{ runner.workspace }}
   
       - name: Build
