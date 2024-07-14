@@ -950,7 +950,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg install
           .\vcpkg\vcpkg list
         working-directory: ${{ runner.workspace }}
       
@@ -1171,7 +1171,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+          .\vcpkg\vcpkg install
           .\vcpkg\vcpkg list
         working-directory: ${{ runner.workspace }}
       
