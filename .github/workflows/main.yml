@@ -946,7 +946,7 @@ jobs:
       - name: Set vcpkg environment variables
         run: |
           echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
-          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg\installed" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
@@ -956,15 +956,15 @@ jobs:
       
       - name: Show installation directory
         run: |
-          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg\installed" -Recurse
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
         shell: pwsh
 
   
       - name: Build
         run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake            
             nmake
             cd src/debug
@@ -978,7 +978,7 @@ jobs:
             cp ../../windows/*.py .
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             mkdir python
             Copy-Item -Path C:\hostedtoolcache\windows\Python\3.7.9\x64 -Destination python -Recurse
@@ -990,9 +990,9 @@ jobs:
             
       - name: Build without python
         run: |          
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose      
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination src/ -Verbose      
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             qmake           
             nmake
             cd src/debug
@@ -1007,7 +1007,7 @@ jobs:
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -1167,7 +1167,7 @@ jobs:
       - name: Set vcpkg environment variables
         run: |
           echo "VCPKG_DEFAULT_TRIPLET=x64-windows" >> $GITHUB_ENV
-          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg\installed" >> $GITHUB_ENV
+          echo "VCPKG_DEFAULT_BINARY_CACHE=D:\a\qdomyos-zwift\vcpkg_installed" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
@@ -1177,14 +1177,14 @@ jobs:
       
       - name: Show installation directory
         run: |
-          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg\installed" -Recurse
+          Get-ChildItem -Path "D:\a\qdomyos-zwift\vcpkg_installed" -Recurse
         shell: pwsh
 
       - name: Build
         run: |
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
             cd ..
@@ -1203,7 +1203,7 @@ jobs:
             cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
-            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg_installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
