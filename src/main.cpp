@@ -627,6 +627,8 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_MACOS
         unlockScreen();
 #endif
+    } else {
+        bl.homeformLoaded = true;
     }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
