@@ -263,7 +263,7 @@ public class ChannelService extends Service {
             this,
             mChannelProviderStateChangedReceiver,
             new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED),
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_EXPORTED
         );
 
         // Creating the intent and calling context.bindService() is handled by
