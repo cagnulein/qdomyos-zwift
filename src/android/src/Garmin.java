@@ -28,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -152,11 +153,12 @@ public class Garmin {
                 synchronized (receiverToWrapper) {
                     receiverToWrapper.put(receiver, wrappedRecv);
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    return super.registerReceiver(wrappedRecv, filter, Context.RECEIVER_NOT_EXPORTED);
-                } else {
-                    return super.registerReceiver(wrappedRecv, filter);
-                }                    
+                return ContextCompat.registerReceiver(
+                    super.getBaseContext(),
+                    wrappedRecv,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
             }
 
             @Override
