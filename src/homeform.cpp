@@ -686,9 +686,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 #endif
 
-    bool result = OSC_sendSocket->bind(QHostAddress::AnyIPv4, 9000);
-    qDebug() << "OSC socket" << result;
-
     bluetoothManager->homeformLoaded = true;
 }
 
@@ -5682,7 +5679,8 @@ void homeform::update() {
             // OSC
             char osc_buffer[1000];
             int osc_len = OSC_makePacket(osc_buffer, sizeof(osc_buffer));
-            OSC_sendSocket->write(osc_buffer, osc_len);
+            int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress("192.168.214.51"), 9000);
+            qDebug() << "OSC >> " << osc_ret_len << QByteArray::fromRawData(osc_buffer, osc_len).toHex(' ');
 
             SessionLine s(
                 bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->currentDistance1s().value(),
