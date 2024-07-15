@@ -260,7 +260,7 @@ public class ChannelService extends Service {
         if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
 
         ContextCompat.registerReceiver(
-            getApplicationContext(),
+            this,
             mChannelProviderStateChangedReceiver,
             new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED
