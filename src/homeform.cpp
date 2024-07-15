@@ -7198,7 +7198,171 @@ size_t homeform::OSC_makePacket(void* buffer, size_t size)
             // for efficiency this needs to be known in advance.
             .openMessage("/QZ/Resistance", 1)
             .int32(bluetoothManager->device()->currentResistance().value())
-            // Every `open` needs a corresponding `close`
+            .closeMessage()
+
+            .openMessage("/QZ/Heart", 1)
+            .int32(bluetoothManager->device()->currentHeart().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Speed", 1)
+            .float32(bluetoothManager->device()->currentSpeed().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Pace", 1)
+            .string(bluetoothManager->device()->currentPace().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/Inclination", 1)
+            .float32(bluetoothManager->device()->currentInclination().value())
+            .closeMessage()
+
+            .openMessage("/QZ/AveragePace", 1)
+            .string(bluetoothManager->device()->averagePace().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/MaxPace", 1)
+            .string(bluetoothManager->device()->maxPace().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/Odometer", 1)
+            .float32(bluetoothManager->device()->odometer())
+            .closeMessage()
+
+            .openMessage("/QZ/OdometerFromStartup", 1)
+            .float32(bluetoothManager->device()->odometerFromStartup())
+            .closeMessage()
+
+            .openMessage("/QZ/Distance", 1)
+            .float32(bluetoothManager->device()->currentDistance().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Distance1s", 1)
+            .float32(bluetoothManager->device()->currentDistance1s().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Calories", 1)
+            .float32(bluetoothManager->device()->calories().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Joules", 1)
+            .float32(bluetoothManager->device()->jouls().value())
+            .closeMessage()
+
+            .openMessage("/QZ/FanSpeed", 1)
+            .int32(bluetoothManager->device()->fanSpeed())
+            .closeMessage()
+
+            .openMessage("/QZ/ElapsedTime", 1)
+            .string(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/MovingTime", 1)
+            .string(bluetoothManager->device()->movingTime().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/LapElapsedTime", 1)
+            .string(bluetoothManager->device()->lapElapsedTime().toString(QStringLiteral("m:ss")).toLatin1())
+            .closeMessage()
+
+            .openMessage("/QZ/Connected", 1)
+            .int32(bluetoothManager->device()->connected())
+            .closeMessage()
+
+            .openMessage("/QZ/Resistance", 1)
+            .int32(bluetoothManager->device()->currentResistance().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Cadence", 1)
+            .float32(bluetoothManager->device()->currentCadence().value())
+            .closeMessage()
+
+            .openMessage("/QZ/CrankRevolutions", 1)
+            .float32(bluetoothManager->device()->currentCrankRevolutions())
+            .closeMessage()
+
+            .openMessage("/QZ/Coordinate", 2)
+            .float32(bluetoothManager->device()->currentCordinate().latitude())
+            .float32(bluetoothManager->device()->currentCordinate().longitude())
+            .closeMessage()
+
+            .openMessage("/QZ/Azimuth", 1)
+            .float32(bluetoothManager->device()->currentAzimuth())
+            .closeMessage()
+
+            .openMessage("/QZ/AverageAzimuthNext300m", 1)
+            .float32(bluetoothManager->device()->averageAzimuthNext300m())
+            .closeMessage()
+
+            .openMessage("/QZ/LastCrankEventTime", 1)
+            .int32(bluetoothManager->device()->lastCrankEventTime())
+            .closeMessage()
+
+            .openMessage("/QZ/Watts", 1)
+            .int32(bluetoothManager->device()->wattsMetric().value())
+            .closeMessage()
+
+            .openMessage("/QZ/ElevationGain", 1)
+            .float32(bluetoothManager->device()->elevationGain().value())
+            .closeMessage()
+
+            .openMessage("/QZ/Paused", 1)
+            .int32(bluetoothManager->device()->isPaused())
+            .closeMessage()
+
+            .openMessage("/QZ/AutoResistance", 1)
+            .int32(bluetoothManager->device()->autoResistance())
+            .closeMessage()
+
+            .openMessage("/QZ/Difficulty", 1)
+            .float32(bluetoothManager->device()->difficult())
+            .closeMessage()
+
+            .openMessage("/QZ/InclinationDifficulty", 1)
+            .float32(bluetoothManager->device()->inclinationDifficult())
+            .closeMessage()
+
+            .openMessage("/QZ/DifficultyOffset", 1)
+            .float32(bluetoothManager->device()->difficultOffset())
+            .closeMessage()
+
+            .openMessage("/QZ/InclinationDifficultyOffset", 1)
+            .float32(bluetoothManager->device()->inclinationDifficultOffset())
+            .closeMessage()
+
+            .openMessage("/QZ/WeightLoss", 1)
+            .float32(bluetoothManager->device()->weightLoss())
+            .closeMessage()
+
+            .openMessage("/QZ/WattKg", 1)
+            .float32(bluetoothManager->device()->wattKg().value())
+            .closeMessage()
+
+            .openMessage("/QZ/METS", 1)
+            .float32(bluetoothManager->device()->currentMETS().value())
+            .closeMessage()
+
+            .openMessage("/QZ/HeartZone", 1)
+            .int32(bluetoothManager->device()->currentHeartZone().value())
+            .closeMessage()
+
+            .openMessage("/QZ/MaxHeartZone", 1)
+            .int32(bluetoothManager->device()->maxHeartZone())
+            .closeMessage()
+
+            .openMessage("/QZ/PowerZone", 1)
+            .int32(bluetoothManager->device()->currentPowerZone().value())
+            .closeMessage()
+
+            .openMessage("/QZ/TargetPowerZone", 1)
+            .int32(bluetoothManager->device()->targetPowerZone().value())
+            .closeMessage()
+
+            .openMessage("/QZ/DeviceType", 1)
+            .int32(bluetoothManager->device()->deviceType())
+            .closeMessage()
+
+            .openMessage("/QZ/MaxResistance", 1)
+            .int32(bluetoothManager->device()->maxResistance())
             .closeMessage()
         .closeBundle();
     return packet.size();
