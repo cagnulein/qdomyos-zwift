@@ -658,7 +658,7 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
-#elif !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#elif defined Q_CC_MSVC
                         PlayerState state;
                         float alt = 0;
                         float distance = 0;
