@@ -159,8 +159,9 @@ void fitshowtreadmill::update() {
     }
 
     if (initRequest) {
-        initRequest = false;
-        btinit(true);
+        QSettings settings;
+        initRequest = false;        
+        btinit(settings.value(QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill).toBool());
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {

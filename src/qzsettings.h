@@ -2084,6 +2084,9 @@ class QZSettings {
     static const QString toorx_bike_srx_500;
     static constexpr bool default_toorx_bike_srx_500 = false;
 
+    static const QString atletica_lightspeed_treadmill;
+    static constexpr bool default_atletica_lightspeed_treadmill = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
