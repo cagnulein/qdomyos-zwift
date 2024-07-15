@@ -227,13 +227,17 @@ public class Garmin {
                         if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                             //MessageHandler.getInstance().handleMessageFromWatchUsingCIQ(message, status, context);
                             Log.d(TAG, "onMessageReceived, status: " + status.toString() + message.get(0));
-                            String var[] = message.toArray()[0].toString().split(",");
-                            HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
-                            if(var.length > 1) {
-                                FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                            try {
+                                String var[] = message.toArray()[0].toString().split(",");
+                                HR = Integer.parseInt(var[0].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                if(var.length > 1) {
+                                    FootCad = Integer.parseInt(var[1].replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\{", "").replaceAll("\\}", "").replaceAll(" ", "").split("=")[1]);
+                                }
+                                Log.d(TAG, "HR " + HR);
+                                Log.d(TAG, "FootCad " + FootCad);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Processing error", e);
                             }
-                            Log.d(TAG, "HR " + HR);
-                            Log.d(TAG, "FootCad " + FootCad);
                         } else {
                             Log.d(TAG, "onMessageReceived error, status: " + status.toString());
                         }
