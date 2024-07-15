@@ -628,6 +628,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
