@@ -627,9 +627,12 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_MACOS
         unlockScreen();
 #endif
-    } else {
+    }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
         bl.homeformLoaded = true;
     }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
