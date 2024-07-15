@@ -13,7 +13,7 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
 #endif
 #include "localipaddress.h"
