@@ -88,69 +88,9 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview mingw-w64-x86_64-protobuf mingw-w64-x86_64-abseil-cpp mingw-w64-x86_64-zlib
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5-webview
           msystem: mingw64
           release: false
-
-      - name: Print MSYS2 Installation Path
-        run: echo $MSYSTEM_PREFIX
-        shell: msys2 {0}         
-        
-      - name: List Protocol Buffers Lib Files
-        run: ls $MINGW_PREFIX/lib/
-        shell: msys2 {0}        
-
-      - name: List Protocol Buffers Lib Files
-        run: ls $MINGW_PREFIX/lib/libproto*.*
-        shell: msys2 {0}        
-
-      - name: List Protocol Buffers Bin Files
-        run: ls $MINGW_PREFIX/bin/
-        shell: msys2 {0}                      
-
-      - name: Copy Protobuf Headers to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/include/google" "${GITHUB_WORKSPACE}/src/google/"
-        shell: msys2 {0}          
-
-      - name: Copy Abseil Headers to a Repo Subfolder
-        run: cp -rv "$MINGW_PREFIX/include/absl" "${GITHUB_WORKSPACE}/src/absl/"
-        shell: msys2 {0}          
-
-      - name: Compile Zwift Protopuf
-        run: protoc  --proto_path="${GITHUB_WORKSPACE}/src/zwift-api/" --cpp_out="${GITHUB_WORKSPACE}/src/zwift-api/" zwift_messages.proto 
-        shell: msys2 {0}          
-
-      - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libproto* "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}        
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_message.dll.a "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_check_op.dll.a "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_base.dll.a "${GITHUB_WORKSPACE}/src/"
-        shell: msys2 {0}        
-
-      - name: Copy Protobuf Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libproto* "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}        
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_base.dll.a "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}                        
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_message.dll.a "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/lib/libabsl_log_internal_check_op.dll.a "${GITHUB_WORKSPACE}/"
-        shell: msys2 {0}        
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
@@ -194,7 +134,7 @@ jobs:
           cd ..  
 
       - name: Build
-        run: |            
+        run: |
             qmake
             make -j8
             cd src/debug
@@ -206,7 +146,6 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
-            cp "C:/mingw64/bin/zlib1.dll" .               
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../windows/*.py .
@@ -223,7 +162,6 @@ jobs:
             
       - name: Build without python
         run: |
-            ls src/google/
             qmake
             make -j8
             cd src/debug
@@ -235,7 +173,6 @@ jobs:
             cp "C:/mingw64/bin/libwinpthread-1.dll" .
             cp "C:/mingw64/bin/libgcc_s_seh-1.dll" .
             cp "C:/mingw64/bin/libstdc++-6.dll" .
-            cp "C:/mingw64/bin/zlib1.dll" .            
             cp ../../../icons/iOS/iTunesArtwork@2x.png .
             cp ../../AppxManifest.xml .
             cp ../../../windows_openssl/*.* .
@@ -245,14 +182,6 @@ jobs:
             cd appx
             #../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz          
         if: matrix.config.python == false
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/bin/libabsl_*.* "${GITHUB_WORKSPACE}/src/debug/output/"
-        shell: msys2 {0}
-
-      - name: Copy Abseil Binaries to a Repo Subfolder
-        run: cp -v $MINGW_PREFIX/bin/libproto*.* "${GITHUB_WORKSPACE}/src/debug/output/"
-        shell: msys2 {0}
 
       - name: patching qt for bluetooth
         run: cp qt-patches/windows/5.15.2/binary/mingw64/*.* ${{ github.workspace }}/src/debug/output/
@@ -477,7 +406,7 @@ jobs:
           path: "src/qthttpserver"
 
       - name: Install packages required to run QZ inside workflow
-        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev cmake protobuf-compiler libprotobuf-dev libabsl-dev
+        run: sudo apt update -y && sudo apt-get install -y qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -491,10 +420,6 @@ jobs:
       - name: download 3rd party files for qthttpserver
         run: |
             cp qHttpServerBin/5.15.2/headers/* src/qthttpserver/src/3rdparty/http-parser/
-
-      - name: compile zwift protobuf
-        run: |
-            protoc --proto_path=src/zwift-api/ --cpp_out=src/zwift-api/ zwift_messages.proto
 
       - name: Build qthttpserver
         run: |
