@@ -152,7 +152,11 @@ public class Garmin {
                 synchronized (receiverToWrapper) {
                     receiverToWrapper.put(receiver, wrappedRecv);
                 }
-                return super.registerReceiver(wrappedRecv, filter, Context.RECEIVER_NOT_EXPORTED);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return super.registerReceiver(wrappedRecv, filter, Context.RECEIVER_NOT_EXPORTED);
+                } else {
+                    return super.registerReceiver(wrappedRecv, filter);
+                }                    
             }
 
             @Override

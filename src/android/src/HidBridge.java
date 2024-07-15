@@ -88,7 +88,10 @@ public class HidBridge {
                 int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
                 PendingIntent mPermissionIntent = PendingIntent.getBroadcast(_context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 		IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-                _context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                	_context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+				else
+					_context.registerReceiver(mUsbReceiver, filter);
  
 		_usbManager.requestPermission(_usbDevice, mPermissionIntent);
 		Log("Found the device");
