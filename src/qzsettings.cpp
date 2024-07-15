@@ -744,8 +744,9 @@ const QString QZSettings::default_strava_upload_mode = QStringLiteral("Always");
 const QString QZSettings::proform_treadmill_705_cst_V78_239 = QStringLiteral("proform_treadmill_705_cst_V78_239");
 const QString QZSettings::stryd_add_inclination_gain = QStringLiteral("stryd_add_inclination_gain");
 const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_500");
+const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
 
-const uint32_t allSettingsCount = 628;
+const uint32_t allSettingsCount = 629;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1380,6 +1381,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::proform_treadmill_705_cst_V78_239, QZSettings::default_proform_treadmill_705_cst_V78_239},
     {QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain},
     {QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500},
+    {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

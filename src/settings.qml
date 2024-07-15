@@ -952,6 +952,9 @@ import QtQuick.Dialogs 1.0
             // from version 2.16.62
             property bool stryd_add_inclination_gain: false
             property bool toorx_bike_srx_500: false
+
+            // from version 2.16.66
+            property bool atletica_lightspeed_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -6572,6 +6575,19 @@ import QtQuick.Dialogs 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: { settings.fitshow_anyrun = checked; window.settings_restart_to_apply = true; }
+                        }
+                        SwitchDelegate {
+                            text: qsTr("Atletica Lightspeed")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.atletica_lightspeed_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: { settings.atletica_lightspeed_treadmill = checked; window.settings_restart_to_apply = true; }
                         }
                         SwitchDelegate {
                             id: fitshowTruetimerDelegate
