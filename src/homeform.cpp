@@ -5677,7 +5677,7 @@ void homeform::update() {
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
 
             // OSC
-            char osc_buffer[1000];
+            char osc_buffer[3000];
             int osc_len = OSC_makePacket(osc_buffer, sizeof(osc_buffer));
             int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress("192.168.214.51"), 9000);
             qDebug() << "OSC >> " << osc_ret_len << QByteArray::fromRawData(osc_buffer, osc_len).toHex(' ');
