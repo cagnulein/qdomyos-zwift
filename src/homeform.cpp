@@ -39,8 +39,6 @@
 #include <QUrlQuery>
 #include <chrono>
 
-#include <oscpp/client.hpp>
-
 homeform *homeform::m_singleton = 0;
 using namespace std::chrono_literals;
 
@@ -685,6 +683,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/Shortcuts", "createShortcutsForFiles",
                                                 "(Ljava/lang/String;Landroid/content/Context;)V", javaPath.object<jstring>(), QtAndroid::androidContext().object());
 #endif
+
+    // OSC
+    OSC_recvSocket->bind(9001);
 
     bluetoothManager->homeformLoaded = true;
 }
@@ -5677,9 +5678,13 @@ void homeform::update() {
             qDebug() << "Current Distance 1s:" << bluetoothManager->device()->currentDistance1s().value() << bluetoothManager->device()->currentSpeed().value();
 
             // OSC
+            QByteArray osc_read = OSC_recvSocket->readAll();
+            if(!osc_read.isEmpty()) {
+                OSC_handlePacket(OSCPP::Server::Packet(osc_read.data(), osc_read.length()));
+            }
             char osc_buffer[3000];
             int osc_len = OSC_makePacket(osc_buffer, sizeof(osc_buffer));
-            int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress("192.168.214.51"), 9000);
+            int osc_ret_len = OSC_sendSocket->writeDatagram(osc_buffer, osc_len, QHostAddress("192.168.0.242"), 9000);
             qDebug() << "OSC >> " << osc_ret_len << QByteArray::fromRawData(osc_buffer, osc_len).toHex(' ');
 
             SessionLine s(
@@ -7366,4 +7371,40 @@ size_t homeform::OSC_makePacket(void* buffer, size_t size)
             .closeMessage()
         .closeBundle();
     return packet.size();
+}
+
+void homeform::OSC_handlePacket(const OSCPP::Server::Packet& packet)
+{
+    if (packet.isBundle()) {
+        // Convert to bundle
+        OSCPP::Server::Bundle bundle(packet);
+
+               // Print the time
+        std::cout << "#bundle " << bundle.time() << std::endl;
+
+               // Get packet stream
+        OSCPP::Server::PacketStream packets(bundle.packets());
+
+               // Iterate over all the packets and call handlePacket recursively.
+               // Cuidado: Might lead to stack overflow!
+        while (!packets.atEnd()) {
+            OSC_handlePacket(packets.next());
+        }
+    } else {
+        // Convert to message
+        OSCPP::Server::Message msg(packet);
+
+               // Get argument stream
+        OSCPP::Server::ArgStream args(msg.args());
+
+        if (msg == "/QZ/Resistance") {
+            const float value = args.int32();
+            qDebug() << "OSC" << value;
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                ((bike*)bluetoothManager->device())->changeResistance(value);
+        } else {
+            // Simply print unknown messages
+            std::cout << "Unknown message: " << msg << std::endl;
+        }
+    }
 }

@@ -24,6 +24,13 @@
 #include <QQuickItemGrabResult>
 #include <QTextToSpeech>
 
+// OSC
+#include <oscpp/client.hpp>
+#include <oscpp/server.hpp>
+#include <oscpp/print.hpp>
+#include <iostream>
+
+
 #if __has_include("secret.h")
 #include "secret.h"
 #else
@@ -749,7 +756,9 @@ class homeform : public QObject {
 
     // OSC
     size_t OSC_makePacket(void* buffer, size_t size);
+    void OSC_handlePacket(const OSCPP::Server::Packet& packet);
     QUdpSocket* OSC_sendSocket = new QUdpSocket(this);
+    QUdpSocket* OSC_recvSocket = new QUdpSocket(this);
 
   public slots:
     void aboutToQuit();
