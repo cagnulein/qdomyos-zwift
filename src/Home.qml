@@ -101,7 +101,10 @@ HomeForm{
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
-    Component.onCompleted: { console.log("completed"); }
+    Component.onCompleted: {
+        console.log("completed");
+        stackView.push("Wizard.qml")
+    }
 
         GridView {
             anchors.horizontalCenter: parent.horizontalCenter

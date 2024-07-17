@@ -108,5 +108,6 @@
         <file>ChartFooterInnerJS.qml</file>
         <file>ChartFooterInnerNoJS.qml</file>
         <file>inner_templates/chartjs/dochartliveheart.js</file>
+        <file>Wizard.qml</file>
     </qresource>
 </RCC>
