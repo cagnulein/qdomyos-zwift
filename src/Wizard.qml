@@ -11,6 +11,17 @@ Page {
 
     Settings {
         id: settings
+        property string peloton_username: "username"
+        property string peloton_password: "password"
+        property string peloton_difficulty: "lower"
+        property int bike_resistance_offset: 4
+        property string zwift_username: ""
+        property string zwift_password: ""
+        property bool speed_power_based: false
+        property bool zwift_api_autoinclination: true
+        property bool zwift_click: false
+        property bool zwift_play: false
+        property double gears_gain: 1.0
     }
 
     StackView {
@@ -125,7 +136,11 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("I'm fine, thanks.")
-                    onClicked: Qt.quit()
+                    onClicked: {
+                        while (stackView.depth > 0) {
+                                   stackView.pop();
+                               }
+                    }
                 }
             }
         }
@@ -725,7 +740,11 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Close")
-                    onClicked: stackView.pop();
+                    onClicked: {
+                        while (stackView.depth > 0) {
+                                   stackView.pop();
+                               }
+                    }
                 }
             }
         }
