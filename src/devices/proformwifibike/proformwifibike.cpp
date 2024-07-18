@@ -218,9 +218,14 @@ void proformwifibike::forceResistance(double requestResistance) {
     }
 
     double inc = qRound(requestResistance / 0.5) * 0.5;
-    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
-    if (!inclinationAvailableByHardware())
+    QString send;
+    if (inclinationAvailableByHardware()) {
+        if(max_incline_supported > 0 && inc > max_incline_supported)
+            inc = max_incline_supported;
+        send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(inc) + "\"}}";
+    } else {
         send = "{\"type\":\"set\",\"values\":{\"Resistance\":\"" + QString::number(requestResistance) + "\"}}";
+    }
 
     qDebug() << "forceResistance" << send;
     websocket.sendTextMessage(send);
