@@ -22,10 +22,11 @@ Page {
         property bool zwift_click: false
         property bool zwift_play: false
         property double gears_gain: 1.0
+        property bool tile_gears_enabled: false
     }
 
     StackView {
-        id: stackView
+        id: stackViewLocal
         anchors.fill: parent
 
         initialItem: welcomeComponent
@@ -85,7 +86,7 @@ Page {
                     font.pixelSize: 20
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
-                    width: stackView.width * 0.8
+                    width: stackViewLocal.width * 0.8
                     horizontalAlignment: Text.AlignHCenter
                     color: "white"
                 }
@@ -93,7 +94,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Start")
-                    onClicked: stackView.push(step1Component)
+                    onClicked: stackViewLocal.push(step1Component)
                 }
             }
         }
@@ -120,7 +121,7 @@ Page {
                     text: qsTr("First-time setup")
                     onClicked: {
                         selectedOptions.step1 = "First-time setup"
-                        stackView.push(step2Component)
+                        stackViewLocal.push(step2Component)
                     }
                 }
 
@@ -129,7 +130,7 @@ Page {
                     text: qsTr("Help with a specific feature")
                     onClicked: {
                         selectedOptions.step1 = "Help with a specific feature"
-                        stackView.push(step2HelpComponent)
+                        stackViewLocal.push(step2HelpComponent)
                     }
                 }
 
@@ -137,9 +138,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("I'm fine, thanks.")
                     onClicked: {
-                        while (stackView.depth > 0) {
-                                   stackView.pop();
-                               }
+                            stackView.pop();
                     }
                 }
             }
@@ -169,7 +168,7 @@ Page {
                         text: qsTr(modelData)
                         onClicked: {
                             selectedOptions.step2 = modelData
-                            stackView.push(step3Component)
+                            stackViewLocal.push(step3Component)
                         }
                     }
                 }
@@ -177,7 +176,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -207,9 +206,9 @@ Page {
                         onClicked: {
                             selectedOptions.step3 = modelData
                             if (modelData === "Peloton") {
-                                stackView.push(pelotonLoginComponent)
+                                stackViewLocal.push(pelotonLoginComponent)
                             } else {
-                                stackView.push(zwiftComponent)
+                                stackViewLocal.push(zwiftComponent)
                             }
                         }
                     }
@@ -218,7 +217,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -251,7 +250,7 @@ Page {
                 TextField {
                     id: pelotonUsernameTextField
                     text: settings.peloton_username
-                    horizontalAlignment: Text.AlignRight
+                    horizontalAlignment: Text.AlignHCenter
                     Layout.alignment: Qt.AlignHCenter
                     Layout.fillHeight: false
                     onAccepted: settings.peloton_username = text
@@ -269,7 +268,7 @@ Page {
                 TextField {
                     id: pelotonPasswordTextField
                     text: settings.peloton_password
-                    horizontalAlignment: Text.AlignRight
+                    horizontalAlignment: Text.AlignHCenter
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignHCenter
                     inputMethodHints: Qt.ImhHiddenText
@@ -309,14 +308,14 @@ Page {
                         settings.peloton_difficulty = pelotonDifficultyTextField.displayText;
                         // Here you would typically handle the login process
                         // For now, we'll just move to the next step
-                        stackView.push(finalStepComponent)
+                        stackViewLocal.push(finalStepComponent)
                     }
                 }
 
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -363,14 +362,14 @@ Page {
                     onClicked: {
                         settings.bike_resistance_offset = spinBoxResistanceOffset.value;
                         settings.speed_power_based = true;
-                        stackView.push(finalStepComponent);
+                        stackViewLocal.push(finalStepComponent);
                     }
                 }
 
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -405,13 +404,13 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
 
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Finish")
-                    onClicked: stackView.push(finalStepComponent)
+                    onClicked: stackViewLocal.push(finalStepComponent)
                 }
             }
         }
@@ -446,15 +445,15 @@ Page {
                         onClicked: {
                             selectedOptions.step2Help = modelData
                             if(modelData === "Auto-incline with treadmill and Zwift")
-                                stackView.push(zwiftAutoInclination)
+                                stackViewLocal.push(zwiftAutoInclination)
                             else if(modelData === "Auto-resistance with Peloton")
-                                stackView.push(pelotonLoginComponent)
+                                stackViewLocal.push(pelotonLoginComponent)
                             else if(modelData === "Zwift Click or Zwift Play")
-                                stackView.push(zwiftPlayClick)
+                                stackViewLocal.push(zwiftPlayClick)
                             else if(modelData === "Virtual Shifting")
-                                stackView.push(virtualShifting)
+                                stackViewLocal.push(virtualShifting)
                             else
-                                stackView.push(step3HelpComponent)
+                                stackViewLocal.push(step3HelpComponent)
                         }
                     }
                 }
@@ -462,7 +461,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -495,7 +494,7 @@ Page {
                 TextField {
                     id: zwiftUsernameTextField
                     text: settings.zwift_username
-                    horizontalAlignment: Text.AlignRight
+                    horizontalAlignment: Text.AlignHCenter
                     Layout.alignment: Qt.AlignHCenter
                     Layout.fillHeight: false
                     onAccepted: settings.zwift_username = text
@@ -513,7 +512,7 @@ Page {
                 TextField {
                     id: zwiftPasswordTextField
                     text: settings.zwift_password
-                    horizontalAlignment: Text.AlignRight
+                    horizontalAlignment: Text.AlignHCenter
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignHCenter
                     inputMethodHints: Qt.ImhHiddenText
@@ -531,14 +530,14 @@ Page {
                         settings.zwift_api_autoinclination = true;
                         // Here you would typically handle the login process
                         // For now, we'll just move to the next step
-                        stackView.push(finalStepComponent);
+                        stackViewLocal.push(finalStepComponent);
                     }
                 }
 
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
             }
         }
@@ -605,7 +604,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
 
                 WizardButton {
@@ -614,7 +613,7 @@ Page {
                     onClicked: {
                         settings.tile_gears_enabled = true;
                         settings.gears_gain = 0.5;
-                        stackView.push(finalStepComponent);
+                        stackViewLocal.push(finalStepComponent);
                     }
                 }
             }
@@ -649,7 +648,7 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
 
                 WizardButton {
@@ -658,7 +657,7 @@ Page {
                     onClicked: {
                         settings.tile_gears_enabled = true;
                         settings.gears_gain = 1;
-                        stackView.push(finalStepComponent);
+                        stackViewLocal.push(finalStepComponent);
                     }
                 }
             }
@@ -693,13 +692,13 @@ Page {
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Back")
-                    onClicked: stackView.pop()
+                    onClicked: stackViewLocal.pop()
                 }
 
                 WizardButton {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Finish")
-                    onClicked: stackView.push(finalStepComponent)
+                    onClicked: stackViewLocal.push(finalStepComponent)
                 }
             }
         }
@@ -741,9 +740,7 @@ Page {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Close")
                     onClicked: {
-                        while (stackView.depth > 0) {
-                                   stackView.pop();
-                               }
+                        stackView.pop();
                     }
                 }
             }
