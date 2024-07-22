@@ -17,7 +17,7 @@
 
 using namespace std::chrono_literals;
 
-nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+nordictrackelliptical::nordictrackelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                              double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

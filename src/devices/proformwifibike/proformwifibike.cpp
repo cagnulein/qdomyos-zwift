@@ -14,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                  double bikeResistanceGain) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);

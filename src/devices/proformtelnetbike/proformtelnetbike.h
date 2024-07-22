@@ -45,7 +45,7 @@
 class proformtelnetbike : public bike {
     Q_OBJECT
   public:
-    proformtelnetbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    proformtelnetbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                     double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
@@ -72,7 +72,7 @@ class proformtelnetbike : public bike {
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     uint8_t sec1Update = 0;

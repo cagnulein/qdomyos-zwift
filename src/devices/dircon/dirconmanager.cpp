@@ -143,7 +143,7 @@ QString DirconManager::getMacAddress() {
 
 #define DM_CHAR_NOTIF_BUILD_OP(UUID, P1, P2, P3) notif##UUID = new CharacteristicNotifier##UUID(P1, this);
 
-DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset, double bikeResistanceGain,
+DirconManager::DirconManager(bluetoothdevice *Bike, int8_t bikeResistanceOffset, double bikeResistanceGain,
                              QObject *parent)
     : QObject(parent) {
     QSettings settings;

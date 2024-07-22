@@ -18,7 +18,7 @@ bluetooth::bluetooth(const discoveryoptions &options)
                 options.bikeResistanceGain, options.startDiscovery) {}
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
-                     uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
+                     uint32_t pollDeviceTime, bool noConsole, bool testResistance, int8_t bikeResistanceOffset,
                      double bikeResistanceGain, bool startDiscovery) {
     QSettings settings;
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));

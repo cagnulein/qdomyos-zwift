@@ -34,7 +34,7 @@ class DirconManager : public QObject {
     static QString getMacAddress();
 
   public:
-    explicit DirconManager(bluetoothdevice *t, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+    explicit DirconManager(bluetoothdevice *t, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                            QObject *parent = nullptr);
   private slots:
     void bikeProvider();

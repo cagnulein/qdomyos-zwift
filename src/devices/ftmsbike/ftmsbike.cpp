@@ -21,7 +21,7 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 
 using namespace std::chrono_literals;
 
-ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);

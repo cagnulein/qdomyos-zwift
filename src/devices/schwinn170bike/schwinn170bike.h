@@ -38,7 +38,7 @@
 class schwinn170bike : public bike {
     Q_OBJECT
   public:
-    schwinn170bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    schwinn170bike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                    double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool ergManagedBySS2K() override { return true; }
@@ -71,7 +71,7 @@ class schwinn170bike : public bike {
     bool noHeartService = false;
 
     const resistance_t max_resistance = 100;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     metric ResistanceFromFTMSAccessory;

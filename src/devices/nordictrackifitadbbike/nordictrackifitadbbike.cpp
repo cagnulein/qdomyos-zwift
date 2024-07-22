@@ -109,7 +109,7 @@ void nordictrackifitadbbikeLogcatAdbThread::runAdbTailCommand(QString command) {
 }
 
 nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHeartService,
-                                               uint8_t bikeResistanceOffset, double bikeResistanceGain) {
+                                               int8_t bikeResistanceOffset, double bikeResistanceGain) {
     QSettings settings;
     bool nordictrack_ifit_adb_remote =
         settings.value(QZSettings::nordictrack_ifit_adb_remote, QZSettings::default_nordictrack_ifit_adb_remote)

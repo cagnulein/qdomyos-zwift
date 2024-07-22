@@ -3,7 +3,7 @@
 #include "characteristicwriteprocessor.h"
 #include <QSettings>
 
-CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistanceGain, uint8_t bikeResistanceOffset,
+CharacteristicWriteProcessor::CharacteristicWriteProcessor(double bikeResistanceGain, int8_t bikeResistanceOffset,
                                                            bluetoothdevice *bike, QObject *parent)
     : QObject(parent), bikeResistanceOffset(bikeResistanceOffset), bikeResistanceGain(bikeResistanceGain), Bike(bike) {}
 
