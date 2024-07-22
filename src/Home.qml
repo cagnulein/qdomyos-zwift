@@ -287,6 +287,7 @@ HomeForm {
         property real maxHeight: parent.height * 3 / 4
         anchors.bottom: parent.bottom
         clip: true
+        visible: rootItem.chartFooterVisible || rootItem.videoVisible
 
         Rectangle {
             id: dragHandle
