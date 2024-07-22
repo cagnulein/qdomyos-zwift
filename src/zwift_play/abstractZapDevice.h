@@ -64,8 +64,8 @@ public:
                     }
                 }
                 break;
-            case 0x07:
-                if(bytes.length() > 3 && bytes[bytes.length() - 5] == 0x40 && (
+            case 0x07: // zwift play
+                if(bytes.length() > 5 && bytes[bytes.length() - 5] == 0x40 && (
                         (((uint8_t)bytes[bytes.length() - 4]) == 0xc7 && zapType == RIGHT) ||
                         (((uint8_t)bytes[bytes.length() - 4]) == 0xc8 && zapType == LEFT)
                     ) && bytes[bytes.length() - 3] == 0x01) {
@@ -82,6 +82,25 @@ public:
                     }
                 }
                 break;
+            case 0x23: // zwift ride
+                if(bytes.length() > 12 &&
+                        ((((uint8_t)bytes[12]) == 0xc7 && zapType == RIGHT) ||
+                        (((uint8_t)bytes[12]) == 0xc8 && zapType == LEFT))
+                    ) {
+                    if(zapType == LEFT) {
+                        emit plus();
+                    } else {
+                        emit minus();
+                    }
+                }/* else if(bytes.length() > 14 && bytes[11] == 0x30 && bytes[12] == 0x00) {
+                    if(zapType == LEFT) {
+                        emit plus();
+                    } else {
+                        emit minus();
+                    }
+                }*/
+                break;
+
         }
         return 1;
 #endif
