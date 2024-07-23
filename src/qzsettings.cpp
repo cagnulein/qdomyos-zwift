@@ -745,8 +745,9 @@ const QString QZSettings::proform_treadmill_705_cst_V78_239 = QStringLiteral("pr
 const QString QZSettings::stryd_add_inclination_gain = QStringLiteral("stryd_add_inclination_gain");
 const QString QZSettings::toorx_bike_srx_500 = QStringLiteral("toorx_bike_srx_500");
 const QString QZSettings::atletica_lightspeed_treadmill = QStringLiteral("atletica_lightspeed_treadmill");
+const QString QZSettings::peloton_treadmill_level = QStringLiteral("peloton_treadmill_level");
 
-const uint32_t allSettingsCount = 629;
+const uint32_t allSettingsCount = 630;
 
 QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles},
@@ -1382,6 +1383,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::stryd_add_inclination_gain, QZSettings::default_stryd_add_inclination_gain},
     {QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500},
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
+    {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {

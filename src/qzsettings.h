@@ -2087,6 +2087,9 @@ class QZSettings {
     static const QString atletica_lightspeed_treadmill;
     static constexpr bool default_atletica_lightspeed_treadmill = false;
 
+    static const QString peloton_treadmill_level;
+    static constexpr int default_peloton_treadmill_level = 1;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
