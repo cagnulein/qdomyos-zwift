@@ -401,9 +401,10 @@ Page {
                         text: qsTr("What resistance level feels like a flat road on your bike?")
                         font.pixelSize: 20
                         wrapMode: Text.WordWrap
-                        width: parent.width * 0.8
+                        width: stackViewLocal.width * 0.8
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
+                        Layout.fillWidth: true
                     }
 
                     SpinBox {
