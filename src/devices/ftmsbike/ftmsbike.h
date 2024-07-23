@@ -92,10 +92,12 @@ class ftmsbike : public bike {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QByteArray lastPacketFromFTMS;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    double lastGearValue = -1;
     int max_resistance = 100;
 
     bool initDone = false;

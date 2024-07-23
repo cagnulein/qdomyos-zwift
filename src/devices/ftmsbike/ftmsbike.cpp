@@ -176,6 +176,8 @@ void ftmsbike::update() {
             forceResistance(currentResistance().value());
         }
 
+        auto virtualBike = this->VirtualBike();
+
         if (requestResistance != -1) {
             if (requestResistance > 100) {
                 requestResistance = 100;
@@ -187,8 +189,7 @@ void ftmsbike::update() {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
-                // FTMS bike. This condition handles the peloton requests
-                auto virtualBike = this->VirtualBike();
+                // FTMS bike. This condition handles the peloton requests                
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
@@ -196,7 +197,13 @@ void ftmsbike::update() {
                 }
             }
             requestResistance = -1;
+        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
+            qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP";
+            ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
+
+        lastGearValue = gears();
+
         if (requestPower != -1) {
             qDebug() << QStringLiteral("writing power") << requestPower;
             init();
@@ -815,6 +822,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     QByteArray b = newValue;
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+        lastPacketFromFTMS = newValue;
 
         // handling gears
         if (b.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
