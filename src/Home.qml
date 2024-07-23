@@ -103,7 +103,8 @@ HomeForm{
 
     Component.onCompleted: {
         console.log("completed");
-        stackView.push("Wizard.qml")
+        if(rootItem.firstRun())
+            stackView.push("Wizard.qml")
     }
 
         GridView {
