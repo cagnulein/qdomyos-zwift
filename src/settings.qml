@@ -955,6 +955,9 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.66
             property bool atletica_lightspeed_treadmill: false
+
+            // from version 2.16.68
+            property int peloton_treadmill_level: 1
         }
 
         function paddingZeros(text, limit) {
@@ -4127,6 +4130,44 @@ import QtQuick.Dialogs 1.0
                     RowLayout {
                         spacing: 10
                         Label {
+                            text: qsTr("Treadmill Level:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonTreadmillLevelTextField
+                            model: [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" ]
+                            displayText: settings.peloton_rower_level
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonTreadmillLevelTextField.currentIndex)
+                                displayText = pelotonTreadmillLevelTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: { settings.peloton_treadmill_level = parseInt(pelotonTreadmillLevelTextField.displayText); toast.show("Setting saved!"); }
+                        }
+                    }
+
+                    Label {
+                        text: qsTr("Difficulty level for peloton treadmill classes. 1 is easy 10 is hard.")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 9
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        color: Material.color(Material.Lime)
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
                             text: qsTr("Rower Level:")
                             Layout.fillWidth: true
                         }
@@ -4150,7 +4191,7 @@ import QtQuick.Dialogs 1.0
                     }
 
                     Label {
-                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 6 is hard.")
+                        text: qsTr("Difficulty level for peloton rower classes. 1 is easy 10 is hard.")
                         font.bold: true
                         font.italic: true
                         font.pixelSize: 9
