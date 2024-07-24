@@ -1352,7 +1352,11 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+#ifdef Q_OS_ANDROID
+            || filename.toUpper().contains(".ZWO")
+#endif
+            ) {
 
         QString description = "";
         QString tags = "";
