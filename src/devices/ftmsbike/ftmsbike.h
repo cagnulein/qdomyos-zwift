@@ -113,6 +113,7 @@ class ftmsbike : public bike {
 
     bool DU30_bike = false;
     bool ICSE = false;
+    bool DOMYOS = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
