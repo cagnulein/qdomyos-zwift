@@ -197,7 +197,8 @@ void ftmsbike::update() {
                 }
             }
             requestResistance = -1;
-        } else if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
+        }
+        if((virtualBike && virtualBike->ftmsDeviceConnected()) && lastGearValue != gears() && lastRawRequestedInclinationValue != -100 && lastPacketFromFTMS.length() >= 7) {
             qDebug() << "injecting fake ftms frame in order to send the new gear value ASAP";
             ftmsCharacteristicChanged(QLowEnergyCharacteristic(), lastPacketFromFTMS);
         }
