@@ -1265,6 +1265,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("EW-EP-")) ||                          // Miweba MC700 ellipital Trainer #2419
                         b.name().toUpper().startsWith(QStringLiteral("TF04-")) ||                           // Sport Synology Z5 Treadmill #2415
                         b.name().toUpper().startsWith(QStringLiteral("FIT-")) ||                            // FIT-1596
+                        b.name().toUpper().startsWith(QStringLiteral("LJJ-")) ||                            // LJJ-02351A
                         b.name().toUpper().startsWith(QStringLiteral("WLT-EP-")) ||                             // Flow elliptical
                         (b.name().toUpper().startsWith("SCHWINN 810")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("FIT-")) && deviceHasService(b, QBluetoothUuid((quint16)0x1826))) || // sports tech f37s treadmill #2412
