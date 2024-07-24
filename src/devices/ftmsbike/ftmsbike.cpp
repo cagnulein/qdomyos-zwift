@@ -707,7 +707,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool()) {
+            if (settings.value(QZSettings::hammer_racer_s, QZSettings::default_hammer_racer_s).toBool() || ICSE) {
                 QBluetoothUuid ftmsService((quint16)0x1826);
                 if (s->serviceUuid() != ftmsService) {
                     qDebug() << QStringLiteral("hammer racer bike wants to be subscribed only to FTMS service in order "
@@ -921,6 +921,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             qDebug() << QStringLiteral("DU30 found");
             max_resistance = 32;
             DU30_bike = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
+            qDebug() << QStringLiteral("ICSE found");
+            ICSE = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
