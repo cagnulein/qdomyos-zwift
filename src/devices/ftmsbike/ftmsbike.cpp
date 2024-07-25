@@ -387,6 +387,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                                    (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
             emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        } else if(DOMYOS) {
+            // doesn't send power at all and the resistance either
+            m_watt = wattFromHR(true);
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
         }
 
         if (Flags.avgPower && newValue.length() > index + 1) {
@@ -924,6 +928,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if ((bluetoothDevice.name().toUpper().startsWith("ICSE") && bluetoothDevice.name().length() == 4)) {
             qDebug() << QStringLiteral("ICSE found");
             ICSE = true;
+        } else if ((bluetoothDevice.name().toUpper().startsWith("DOMYOS"))) {
+            qDebug() << QStringLiteral("DOMYOS found");
+            DOMYOS = true;
         }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
