@@ -1385,7 +1385,7 @@ QVariant allSettings[allSettingsCount][2] = {
     {QZSettings::toorx_bike_srx_500, QZSettings::default_toorx_bike_srx_500},
     {QZSettings::atletica_lightspeed_treadmill, QZSettings::default_atletica_lightspeed_treadmill},
     {QZSettings::peloton_treadmill_level, QZSettings::default_peloton_treadmill_level},
-    {QZSettings::nordictrackadbbike_resistance, QZSettigs::default_nordictrackadbbike_resistance},
+    {QZSettings::nordictrackadbbike_resistance, QZSettings::default_nordictrackadbbike_resistance},
 };
 
 void QZSettings::qDebugAllSettings(bool showDefaults) {
