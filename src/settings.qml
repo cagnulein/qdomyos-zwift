@@ -958,6 +958,7 @@ import QtQuick.Dialogs 1.0
 
             // from version 2.16.68
             property int peloton_treadmill_level: 1
+            property bool nordictrackadbbike_resistance: false
         }
 
         function paddingZeros(text, limit) {
@@ -3312,6 +3313,19 @@ import QtQuick.Dialogs 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: { settings.nordictrack_ifit_adb_remote = checked; window.settings_restart_to_apply = true; }
+                    }
+                    SwitchDelegate {
+                        text: qsTr("Use Resistance instead of Inc.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrackadbbike_resistance
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: { settings.nordictrackadbbike_resistance = checked; }
                     }
                 }
 

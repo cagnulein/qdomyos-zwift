@@ -2090,6 +2090,9 @@ class QZSettings {
     static const QString peloton_treadmill_level;
     static constexpr int default_peloton_treadmill_level = 1;
 
+    static const QString nordictrackadbbike_resistance;
+    static constexpr bool default_nordictrackadbbike_resistance = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
