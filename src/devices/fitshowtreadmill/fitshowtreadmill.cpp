@@ -3,6 +3,7 @@
 #include "keepawakehelper.h"
 #endif
 #include "virtualdevices/virtualtreadmill.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -297,6 +298,12 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     if ((gatt == nobleproconnect && serviceId.isNull()) || servRepr == 0xfff0 || (servRepr == 0xffe0 && serviceId.isNull())) {
         qDebug() << "adding" << gatt.toString() << "as the default service";
         serviceId = gatt; // NOTE: clazy-rule-of-tow
+    }
+    if(gatt == QBluetoothUuid((quint16)0x1826)) {
+        QSettings settings;
+        settings.setValue(QZSettings::ftms_treadmill, bluetoothDevice.name());
+        qDebug() << "forcing FTMS treadmill since it has FTMS";
+        homeform::singleton()->setToastRequested("FTMS treadmill found, restart the app to apply the change");
     }
 }
 
