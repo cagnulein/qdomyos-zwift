@@ -2229,6 +2229,9 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         } else if (device.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) { // Technogym Run
             technogymrun = true;
             qDebug() << QStringLiteral("Technogym Run TREADMILL workaround ON!");
+        } else if(device.name().toUpper().startsWith(QStringLiteral("SW"))) {
+            qDebug() << QStringLiteral("SW TREADMILL workaround ON!");
+            disableAutoPause = true;
         }
 
         if (device.name().toUpper().startsWith(QStringLiteral("TRX3500"))) {
@@ -2327,6 +2330,8 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crc
 }
 
 bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    if(disableAutoPause == true)
+        return false;
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
