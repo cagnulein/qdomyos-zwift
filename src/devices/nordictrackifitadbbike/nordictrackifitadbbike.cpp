@@ -300,7 +300,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         // only resistance
         if(proform_studio_NTEX71021 || nordictrackadbbike_resistance) {
             if (nordictrack_ifit_adb_remote) {
-                if (requestResistance != -100) {
+                if (requestResistance != -1) {
                     if (requestResistance != currentResistance().value()) {                        
                         int x1 = 950;
                         int y2 = (int)(493 - (13.57 * (requestResistance - 1)));
