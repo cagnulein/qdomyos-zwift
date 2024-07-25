@@ -3978,15 +3978,15 @@ void homeform::update() {
                     nextRows->setValue(QStringLiteral("HR") + QString::number(next.HRmin) + QStringLiteral("-") +
                                        QString::number(next.HRmax) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
-                else if (next.speed != -1 && next.inclination != -1)
-                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed) + QStringLiteral("I") +
-                                       QString::number(next.inclination) + QStringLiteral(" ") +
+                else if (next.speed != -1 && next.inclination != -200)
+                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral("I") +
+                                       QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.speed != -1)
-                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed) + QStringLiteral(" ") +
+                    nextRows->setValue(QStringLiteral("S") + QString::number(next.speed, 'f' , 1) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.inclination != -200)
-                    nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination) + QStringLiteral(" ") +
+                    nextRows->setValue(QStringLiteral("I") + QString::number(next.inclination, 'f' , 1) + QStringLiteral(" ") +
                                        next.duration.toString(QStringLiteral("mm:ss")));
                 else if (next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
