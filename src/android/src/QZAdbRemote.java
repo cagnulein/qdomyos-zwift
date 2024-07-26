@@ -156,6 +156,8 @@ public class QZAdbRemote implements DeviceConnectionListener {
 		  _address = ip;
 		  _context = context;
 
+                  Log.d(LOG_TAG, "createConnection " + ip);
+
 		  /* If we have old RSA keys, just use them */
 		  AdbCrypto crypto = AdbUtils.readCryptoConfig(_context.getFilesDir());
 		  if (crypto == null)
@@ -183,6 +185,7 @@ public class QZAdbRemote implements DeviceConnectionListener {
 			}
 
 		  if (binder == null) {
+                           Log.d(LOG_TAG, "createConnection, binder is null ");
 			   service = new Intent(_context, ShellService.class);
                            service.putExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
 
@@ -191,12 +194,16 @@ public class QZAdbRemote implements DeviceConnectionListener {
 				_context.bindService(service, QZAdbRemote.getInstance().serviceConn, Service.BIND_AUTO_CREATE);
 
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        Log.d(LOG_TAG, "createConnection, new API");
                                          _context.startForegroundService(service);
 					}
 				else {
+                                        Log.d(LOG_TAG, "createConnection, legacy API");
 					 _context.startService(service);
 					}
-			}
+                        } else {
+                            Log.d(LOG_TAG, "createConnection, binder is not null ");
+                        }
 	 }
 
     static public void sendCommand(String command) {
