@@ -153,10 +153,12 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 
     if (nordictrack_ifit_adb_remote) {
 #ifdef Q_OS_ANDROID
+        qDebug() << "connecting to adb...";
         QAndroidJniObject IP = QAndroidJniObject::fromString(ip).object<jstring>();
         QAndroidJniObject::callStaticMethod<void>("org/cagnulen/qdomyoszwift/QZAdbRemote", "createConnection",
                                                   "(Ljava/lang/String;Landroid/content/Context;)V",
                                                   IP.object<jstring>(), QtAndroid::androidContext().object());
+        qDebug() << "should be connected to adb";
 #elif defined Q_OS_IOS
 #ifndef IO_UNDER_QT
         h->adb_connect(ip.toStdString().c_str());
