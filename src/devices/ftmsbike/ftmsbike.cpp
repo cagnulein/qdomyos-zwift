@@ -1,4 +1,5 @@
 #include "ftmsbike.h"
+#include "homeform.h"
 #include "virtualdevices/virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -251,6 +252,16 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         Resistance = (double)(newValue.at(5));
         emit resistanceRead(Resistance.value());
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        return;
+    }
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) { // Battery Service
+        if(newValue.length() > 0) {
+            uint8_t b = (uint8_t)newValue.at(0);
+            if(b != battery_level)
+                homeform::singleton()->setToastRequested(QStringLiteral("Battery Level ") + QString::number(b) + " %");
+            battery_level = b;
+        }
         return;
     }
 

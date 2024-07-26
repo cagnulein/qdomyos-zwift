@@ -115,6 +115,8 @@ class ftmsbike : public bike {
     bool ICSE = false;
     bool DOMYOS = false;
 
+    uint8_t battery_level = 0;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
