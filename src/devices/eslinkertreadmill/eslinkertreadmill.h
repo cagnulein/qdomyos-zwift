@@ -69,6 +69,9 @@ class eslinkertreadmill : public treadmill {
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
     QTimer *refresh;
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
