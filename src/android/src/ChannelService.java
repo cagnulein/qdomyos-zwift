@@ -36,6 +36,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -258,8 +260,12 @@ public class ChannelService extends Service {
     private void doBindAntRadioService() {
         if (BuildConfig.DEBUG) Log.v(TAG, "doBindAntRadioService");
 
-        // Start listing for channel available intents
-        registerReceiver(mChannelProviderStateChangedReceiver, new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED));
+        ContextCompat.registerReceiver(
+            this,
+            mChannelProviderStateChangedReceiver,
+            new IntentFilter(AntChannelProvider.ACTION_CHANNEL_PROVIDER_STATE_CHANGED),
+            ContextCompat.RECEIVER_EXPORTED
+        );
 
         // Creating the intent and calling context.bindService() is handled by
         // the static bindService() method in AntService

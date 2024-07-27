@@ -43,6 +43,8 @@ import android.graphics.Rect;
 import android.graphics.Point;
 
 import androidx.core.util.Pair;
+import android.util.Log;
+import android.os.Build;
 
 public class ScreenCaptureService extends Service {
 
@@ -55,6 +57,9 @@ public class ScreenCaptureService extends Service {
     private static final String SCREENCAP_NAME = "screencap";
 
     private static int IMAGES_PRODUCED;
+
+    private static final String EXTRA_FOREGROUND_SERVICE_TYPE = "FOREGROUND_SERVICE_TYPE";
+    private static final int FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE = 0x10;
 
     private MediaProjection mMediaProjection;
     private String mStoreDir;
@@ -296,7 +301,18 @@ public class ScreenCaptureService extends Service {
         if (isStartCommand(intent)) {
             // create notification
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
-            startForeground(notification.first, notification.second);
+
+            try {
+                int serviceType = intent.getIntExtra(EXTRA_FOREGROUND_SERVICE_TYPE, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(notification.first, notification.second, serviceType);
+                } else {
+                    startForeground(notification.first, notification.second);
+                }
+            } catch (Exception e) {
+                Log.e("ForegroundService", "Failed to start foreground service", e);
+                return START_NOT_STICKY;
+            }
             // start projection
             int resultCode = intent.getIntExtra(RESULT_CODE, Activity.RESULT_CANCELED);
             Intent data = intent.getParcelableExtra(DATA);

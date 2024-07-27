@@ -30,6 +30,9 @@ CONFIG += qmltypes
 #win32: CONFIG += webengine
 #unix:!android: CONFIG += webengine
 
+win32:DEFINES += _ITERATOR_DEBUG_LEVEL=0
+win32:!mingw:LIBS += -llibprotobuf -llibprotoc -labseil_dll -llibprotobuf-lite -L$$PWD
+
 QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
 QML_IMPORT_MAJOR_VERSION = 1
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -72,7 +75,9 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD NOMINMAX
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    $$PWD/devices/crossrope/crossrope.cpp \
     $$PWD/devices/focustreadmill/focustreadmill.cpp \
+    $$PWD/devices/jumprope.cpp \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.cpp \
     $$PWD/devices/trixterxdreamv1bike/qserialdatasource.cpp \
     $$PWD/devices/trixterxdreamv1bike/serialdatasource.cpp \
@@ -285,6 +290,11 @@ zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
+#zwift api
+msvc {
+    SOURCES += zwift-api/zwift_messages.pb.cc
+}
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -293,7 +303,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/ devices/
 
 HEADERS += \
+    $$PWD/devices/crossrope/crossrope.h \
     $$PWD/devices/focustreadmill/focustreadmill.h \
+    $$PWD/devices/jumprope.h \
     $$PWD/devices/trxappgateusbelliptical/trxappgateusbelliptical.h \
     $$PWD/devices/trixterxdreamv1bike/qserialdatasource.h \
     $$PWD/devices/trixterxdreamv1bike/serialdatasource.h \
@@ -744,9 +756,10 @@ RESOURCES += \
 
 DISTFILES += \
     $$PWD/android/libs/android_antlib_4-16-0.aar \
-    $$PWD/android/libs/connectiq-mobile-sdk-android-1.5.aar \
+    $$PWD/android/libs/ciq-companion-app-sdk-2.0.3.aar \
     $$PWD/android/libs/zaplibrary-debug.aar \
     $$PWD/android/res/xml/device_filter.xml \
+    $$PWD/android/src/BleAdvertiser.java \
    $$PWD/android/src/CSafeRowerUSBHID.java \
     $$PWD/android/src/ContentHelper.java \
     $$PWD/android/src/Garmin.java \
@@ -855,4 +868,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.16.52
+VERSION = 2.16.66

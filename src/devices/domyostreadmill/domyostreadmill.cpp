@@ -827,8 +827,12 @@ void domyostreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &domyostreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        emit debug(QStringLiteral("error on find Service"));
+    }    
 }
 
 void domyostreadmill::errorService(QLowEnergyService::ServiceError err) {

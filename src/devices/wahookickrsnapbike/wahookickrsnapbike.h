@@ -36,7 +36,7 @@
 class wahookickrsnapbike : public bike {
     Q_OBJECT
   public:
-    wahookickrsnapbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    wahookickrsnapbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                        double bikeResistanceGain);
     resistance_t pelotonToBikeResistance(int pelotonResistance) override;
     bool connected() override;
@@ -90,7 +90,7 @@ class wahookickrsnapbike : public bike {
     QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
     bool initDone = false;

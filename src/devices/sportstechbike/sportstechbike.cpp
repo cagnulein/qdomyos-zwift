@@ -14,7 +14,7 @@
 
 using namespace std::chrono_literals;
 
-sportstechbike::sportstechbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+sportstechbike::sportstechbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -158,7 +158,6 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
         }
     }
-    FanSpeed = 0;
 
     if (!firstCharChanged) {
         Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
