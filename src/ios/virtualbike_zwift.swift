@@ -513,20 +513,27 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
     static var angle: Float32 = 10
     static var angleCount: Int = 0
+    static var angleToogle: Bool = false
     
   @objc func updateSubscribers() {
     if(self.serviceToggle == 4)
     {
         BLEPeripheralManagerZwift.angleCount = BLEPeripheralManagerZwift.angleCount + 1
-        if(BLEPeripheralManagerZwift.angleCount > 5) {
+        if(BLEPeripheralManagerZwift.angleCount > 10) {
             BLEPeripheralManagerZwift.angleCount = 0
-            if(BLEPeripheralManagerZwift.angle < 0) {
+            if(BLEPeripheralManagerZwift.angleToogle) {
                 BLEPeripheralManagerZwift.angle = 30
+                BLEPeripheralManagerZwift.angleToogle = false
             } else {
                 BLEPeripheralManagerZwift.angle = -30;
+                BLEPeripheralManagerZwift.angleToogle = true
             }
         } else {
-            BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle + 3.3;
+            if(!BLEPeripheralManagerZwift.angleToogle) {
+                BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle - 3.3;
+            } else {
+                BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle + 3.3;
+            }
         }
         print("Angle \(BLEPeripheralManagerZwift.angle)")
         let sterzoData = Data(bytes: float32ToUInt8Array(BLEPeripheralManagerZwift.angle), count: 4)
