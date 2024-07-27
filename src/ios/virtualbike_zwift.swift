@@ -511,17 +511,23 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       return indoorBikeData
     }
   
-    static var angle: Float32 = 0
+    static var angle: Float32 = 10
+    static var angleCount: Int = 0
     
   @objc func updateSubscribers() {
     if(self.serviceToggle == 4)
     {
-      
-        /*if(BLEPeripheralManagerZwift.angle < 45) {
-            BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle + 1;
-        } else {*/
-            BLEPeripheralManagerZwift.angle = -45;
-        //}
+        BLEPeripheralManagerZwift.angleCount = BLEPeripheralManagerZwift.angleCount + 1
+        if(BLEPeripheralManagerZwift.angleCount > 5) {
+            BLEPeripheralManagerZwift.angleCount = 0
+            if(BLEPeripheralManagerZwift.angle < 0) {
+                BLEPeripheralManagerZwift.angle = 30
+            } else {
+                BLEPeripheralManagerZwift.angle = -30;
+            }
+        } else {
+            BLEPeripheralManagerZwift.angle = BLEPeripheralManagerZwift.angle + 3.3;
+        }
         print("Angle \(BLEPeripheralManagerZwift.angle)")
         let sterzoData = Data(bytes: float32ToUInt8Array(BLEPeripheralManagerZwift.angle), count: 4)
         let ok = self.peripheralManager.updateValue(sterzoData, for: self.SterzoNotifyCharacteristic, onSubscribedCentrals: nil)
