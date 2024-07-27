@@ -226,7 +226,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
                     speed = getDouble(aValues.last());
-                    Speed = speed;
+                    parseSpeed(speed);
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
@@ -425,7 +425,7 @@ void nordictrackifitadbtreadmill::onWatt(double watt) {
 
 void nordictrackifitadbtreadmill::onSpeedInclination(double speed, double inclination) {
 
-    Speed = speed;
+    parseSpeed(speed);
     Inclination = inclination;
 
     QSettings settings;
@@ -509,22 +509,24 @@ bool nordictrackifitadbtreadmill::connected() { return true; }
 void nordictrackifitadbtreadmill::stopLogcatAdbThread() {
     qDebug() << "stopLogcatAdbThread()";
     
+#ifdef Q_OS_WIN32
     initiateThreadStop();
     logcatAdbThread->quit();
     logcatAdbThread->terminate();
     
-#ifdef Q_OS_WIN32
     QProcess process;
     QString command = "/c wmic process where name='adb.exe' delete";
     process.start("cmd.exe", QStringList(command.split(' ')));
     process.waitForFinished(-1); // will wait forever until finished
-#endif
     
     logcatAdbThread->wait();
+#endif
 }
 
 void nordictrackifitadbtreadmill::initiateThreadStop() {
+#ifdef Q_OS_WIN32
     logcatAdbThread->stop = true;
+#endif
 }
 
 int nordictrackifitadbtreadmill::x14i_inclination_lookuptable(double reqInclination) {

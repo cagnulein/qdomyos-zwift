@@ -6,7 +6,7 @@
 #include <QtMath>
 
 CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeResistanceGain,
-                                                                   uint8_t bikeResistanceOffset, bluetoothdevice *bike,
+                                                                   int8_t bikeResistanceOffset, bluetoothdevice *bike,
                                                                    CharacteristicNotifier2AD9 *notifier,
                                                                    QObject *parent)
     : CharacteristicWriteProcessor(bikeResistanceGain, bikeResistanceOffset, bike, parent), notifier(notifier) {}

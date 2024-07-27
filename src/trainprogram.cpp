@@ -13,7 +13,7 @@
 #include "windows_zwift_incline_paddleocr_thread.h"
 #include "windows_zwift_workout_paddleocr_thread.h"
 #endif
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
 #endif
 #include "localipaddress.h"
@@ -634,6 +634,7 @@ void trainprogram::scheduler() {
                     if(zwift_counter++ >= (timeout - 1)) {
                         zwift_counter = 0;
                         QByteArray bb = zwift_world->playerStatus(zwift_player_id);
+                        qDebug() << " ZWIFT API PROTOBUF << " + bb.toHex(' ');
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                         h->zwift_api_decodemessage_player(bb.data(), bb.length());
@@ -657,7 +658,7 @@ void trainprogram::scheduler() {
 
                         float alt = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getAltitude", "()F");
                         float distance = QAndroidJniObject::callStaticMethod<float>("org/cagnulen/qdomyoszwift/ZwiftAPI", "getDistance", "()F");
-#elif !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#elif defined Q_CC_MSVC
                         PlayerState state;
                         float alt = 0;
                         float distance = 0;
@@ -700,7 +701,10 @@ void trainprogram::scheduler() {
                                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL || 
                                         (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && ((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware())) {
                                         bluetoothManager->device()->changeInclination(grade, grade);
-                                    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL && !((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware()) {
+                                    }
+                                    if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+                                            (!((elliptical*)bluetoothManager->device())->inclinationAvailableByHardware() ||
+                                             ((elliptical*)bluetoothManager->device())->inclinationSeparatedFromResistance())) {
                                         QSettings settings;
                                         double bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
                                         double bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
@@ -943,11 +947,11 @@ void trainprogram::scheduler() {
 
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
         
-        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine > currentStep) {
+        if (calculateDistanceForRow(calculatedLine) > 0 && calculatedLine >= currentStep) {
             break;
         }
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks) && calculatedLine >= currentStep) {
             break;
         }
     }
@@ -967,7 +971,7 @@ void trainprogram::scheduler() {
                  << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
-            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
+            if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(calculatedLine) > 0) {
 
                 if(rows.at(currentStep).distance != -1)
                     lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
@@ -978,6 +982,8 @@ void trainprogram::scheduler() {
                     currentStep = calculatedLine;
                 else
                     currentStep++;
+
+                calculatedLine = currentStep;
 
                 rows[currentStep].started = QDateTime::currentDateTime();
 
@@ -1346,14 +1352,21 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
 void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b, QString Extension) {
-    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))) {
+    if (!Extension.toUpper().compare(QStringLiteral("ZWO"))
+#ifdef Q_OS_ANDROID
+            || filename.toUpper().contains(".ZWO")
+#endif
+            ) {
 
         QString description = "";
         QString tags = "";
         return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
     } else {
 
-        return new trainprogram(loadXML(filename, b->device()->deviceType()), b);
+        bluetoothdevice::BLUETOOTH_TYPE dtype = bluetoothdevice::BLUETOOTH_TYPE::BIKE;
+        if(b && b->device())
+            dtype = b->device()->deviceType();
+        return new trainprogram(loadXML(filename, dtype), b);
     }
 }
 

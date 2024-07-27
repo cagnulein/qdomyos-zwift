@@ -42,7 +42,7 @@
 class proformwifitreadmill : public treadmill {
     Q_OBJECT
   public:
-    proformwifitreadmill(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+    proformwifitreadmill(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                          double bikeResistanceGain);
     bool connected() override;
     virtual bool canStartStop() override { return false; }
@@ -63,7 +63,7 @@ class proformwifitreadmill : public treadmill {
 
     QTimer *refresh;
     uint8_t counterPoll = 0;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     double max_incline_supported = 15;
     double min_incline_supported = 0;

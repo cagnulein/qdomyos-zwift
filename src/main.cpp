@@ -71,7 +71,7 @@ bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
-uint8_t bikeResistanceOffset = 4;
+int8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
 QString logfilename = QStringLiteral("debug-") +
                       QDateTime::currentDateTime()
@@ -633,6 +633,11 @@ int main(int argc, char *argv[]) {
         unlockScreen();
 #endif
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else {
+        bl.homeformLoaded = true;
+    }
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {

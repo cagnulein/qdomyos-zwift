@@ -1,6 +1,5 @@
 #include "ypooelliptical.h"
 #include "devices/ftmsbike/ftmsbike.h"
-#include "ios/lockscreen.h"
 #include "virtualdevices/virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -17,7 +16,7 @@
 
 using namespace std::chrono_literals;
 
-ypooelliptical::ypooelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+ypooelliptical::ypooelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -159,6 +158,8 @@ void ypooelliptical::update() {
         if (requestResistance != -1) {
             if (requestResistance > max_resistance) {
                 requestResistance = max_resistance;
+            } else if(requestResistance < 1) {
+                requestResistance = 1;
             }
 
             if (requestResistance != currentResistance().value()) {
@@ -171,6 +172,9 @@ void ypooelliptical::update() {
             requestResistance = -1;
         }
         if (requestInclination != -100) {
+            if(requestInclination < 1) {
+                requestInclination = 1; // E35 min value
+            }
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
                 forceInclination(requestInclination);
@@ -338,6 +342,11 @@ void ypooelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             index += 2;
         }
 
+        if(index + 1 >= lastPacket.length()) {
+            qDebug() << "packet malformed" << index << lastPacket.length();
+            return;
+        }
+        
         if (Flags.resistanceLvl) {
             Resistance = ((double)(((uint16_t)((uint8_t)lastPacket.at(index + 1)) << 8) |
                                    (uint16_t)((uint8_t)lastPacket.at(index))));
@@ -801,3 +810,10 @@ void ypooelliptical::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 double ypooelliptical::minStepInclination() { return 1.0; }
+bool ypooelliptical::inclinationSeparatedFromResistance() {
+    if(E35) {
+        return true;
+    } else {
+        return false;
+    }
+}

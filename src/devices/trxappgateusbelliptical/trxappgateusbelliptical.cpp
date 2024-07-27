@@ -15,7 +15,7 @@
 
 using namespace std::chrono_literals;
 
-trxappgateusbelliptical::trxappgateusbelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+trxappgateusbelliptical::trxappgateusbelliptical(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset,
                                                  double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -56,10 +56,17 @@ void trxappgateusbelliptical::writeCharacteristic(uint8_t *data, uint8_t data_le
 }
 
 void trxappgateusbelliptical::forceResistance(resistance_t requestResistance) {
-    uint8_t noOpData1[] = {0xf0, 0xa6, 0x35, 0x01, 0x02, 0xce};
-    noOpData1[4] = requestResistance + 1;
-    noOpData1[5] = noOpData1[4] + 0xcc;
-    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("writingResistance"));
+    if (elliptical_type == TYPE::DCT2000I) {
+        uint8_t noOpData1[] = {0xf0, 0xa6, 0x01, 0x01, 0x03, 0x9b};
+        noOpData1[4] = requestResistance + 1;
+        noOpData1[5] = noOpData1[4] + 0x98;
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("writingResistance"));
+    } else {
+        uint8_t noOpData1[] = {0xf0, 0xa6, 0x35, 0x01, 0x02, 0xce};
+        noOpData1[4] = requestResistance + 1;
+        noOpData1[5] = noOpData1[4] + 0xcc;
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("writingResistance"));
+    }
 }
 
 void trxappgateusbelliptical::update() {
@@ -88,8 +95,13 @@ void trxappgateusbelliptical::update() {
                 }
                 requestResistance = -1;
             } else {
-                uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                if (elliptical_type == TYPE::DCT2000I) {
+                    uint8_t noOpData1[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                } else {
+                    uint8_t noOpData1[] = {0xf0, 0xa2, 0x35, 0x01, 0xc8};
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                }
             }
         }
 
@@ -204,7 +216,28 @@ void trxappgateusbelliptical::characteristicChanged(const QLowEnergyCharacterist
 
 void trxappgateusbelliptical::btinit() {
 
-    {
+    if (elliptical_type == TYPE::DCT2000I) {
+        uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
+        uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        uint8_t initData3[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
+        uint8_t initData4[] = {0xf0, 0xa3, 0x01, 0x01, 0x01, 0x96};
+        uint8_t initData5[] = {0xf0, 0xa4, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa0};
+        uint8_t initData6[] = {0xf0, 0xa5, 0x01, 0x01, 0x02, 0x99};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+    } else {
         uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x00, 0x91};
         uint8_t initData2[] = {0xf0, 0xa0, 0x35, 0x01, 0xc6};
         uint8_t initData3[] = {0xf0, 0xa1, 0x35, 0x01, 0xc7};
@@ -240,8 +273,23 @@ void trxappgateusbelliptical::stateChanged(QLowEnergyService::ServiceState state
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
 
+        QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");
+        QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
+        QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
+
+        if (elliptical_type == TYPE::DCT2000I) {
+            uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
+            uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
+            uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
+        }
+
+        QBluetoothUuid _gattWriteCharacteristicId(uuidWrite);
+        QBluetoothUuid _gattNotify1CharacteristicId(uuidNotify1);
+        QBluetoothUuid _gattNotify2CharacteristicId(uuidNotify2);
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
@@ -308,9 +356,23 @@ void trxappgateusbelliptical::characteristicWritten(const QLowEnergyCharacterist
 void trxappgateusbelliptical::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
+    QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
+    QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
+    QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
 
+    if (elliptical_type == TYPE::DCT2000I) {
+        uuid = uuid2;
+    }
+
+    QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if (gattCommunicationChannelService == nullptr) {
+        qDebug() << QStringLiteral("invalid service") << uuid;
+
+        return;
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &trxappgateusbelliptical::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
@@ -329,7 +391,11 @@ void trxappgateusbelliptical::error(QLowEnergyController::Error err) {
 
 void trxappgateusbelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
-    // if (device.name().startsWith(QStringLiteral("I_TL")))
+    if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) {
+        elliptical_type = DCT2000I;
+        qDebug() << "DCT2000I workaround activacted!";
+    }
+
     {
         bluetoothDevice = device;
 

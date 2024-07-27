@@ -355,7 +355,7 @@ jobs:
   # This workflow contains a single job called "build"
   linux-x86-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -525,7 +525,7 @@ jobs:
   # This workflow contains a single job called "build"
   android-build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -669,7 +669,7 @@ jobs:
 
   ios-build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: write
 
@@ -845,13 +845,14 @@ jobs:
       - name: Clone vcpkg
         run: git clone https://github.com/microsoft/vcpkg.git
         working-directory: ${{ runner.workspace }}
-      
+  
       - name: Bootstrap vcpkg
         run: .\vcpkg\bootstrap-vcpkg.bat
         working-directory: ${{ runner.workspace }}
-      
+        
       - name: Install dependencies
-        run: .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
         working-directory: ${{ runner.workspace }}
   
       - name: Build
@@ -971,16 +972,6 @@ jobs:
       - name: Install CMake
         uses: lukka/get-cmake@latest
   
-      - name: Download protobuf
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-25.1.zip" -OutFile "protobuf.zip"
-          Expand-Archive protobuf.zip -DestinationPath "protobuf"
-          cd protobuf/protobuf-25.1
-          Invoke-WebRequest -Uri "https://github.com/abseil/abseil-cpp/archive/refs/tags/20230802.1.zip" -OutFile "abseil-cpp.zip"
-          Expand-Archive  abseil-cpp.zip -DestinationPath "abseil-temp"
-          cp abseil-temp/abseil-cpp-20230802.1/* third_party/abseil-cpp/                    
-          cmake -Dprotobuf_BUILD_TESTS=OFF CMakeLists.txt
-  
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -1024,8 +1015,24 @@ jobs:
           echo "${{ secrets.cesiumkey }}" >> inner_templates/googlemaps/cesium-key.js
           cd ..                    
 
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg.git
+        working-directory: ${{ runner.workspace }}
+  
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
+        working-directory: ${{ runner.workspace }}
+        
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install protobuf protobuf-c abseil
+        working-directory: ${{ runner.workspace }}
+
       - name: Build
         run: |
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination . -Verbose
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\lib\*.* -Destination src/ -Verbose           
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\include\* -Destination src/ -Recurse -Verbose
             cd src
             echo "#define AISERVER" >> aiserver.h
             cd ..
@@ -1044,6 +1051,7 @@ jobs:
             cp ../../windows/zwift-workout-ai-server.py zwift-workout.py
             cp ../../windows/*.bat .
             cp ../../../windows_openssl/*.* .
+            Copy-Item -Path ${{ runner.workspace }}\vcpkg\installed\x64-windows\bin\*.* -Destination . -Verbose
             mkdir adb
             cp ../../adb/* adb/
             cd ..
@@ -1064,7 +1072,7 @@ jobs:
 
   upload_to_release:
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04 
     if: github.event_name == 'schedule'
     needs: [linux-x86-build, window-msvc2019-build, ios-build, window-build, android-build]  # Specify the job dependencies
     steps:

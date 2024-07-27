@@ -169,7 +169,7 @@ void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, VIRTUAL_DEV
 }
 
 // keiser m3i has a separate management of this, so please check it
-void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
+void bluetoothdevice::update_metrics(bool watt_calc, const double watts, const bool from_accessory) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -186,6 +186,9 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
+
+    if(deviceType() == bluetoothdevice::BIKE && !from_accessory)  // append only if it's coming from the bike, not from the power sensor
+        _ergTable.collectData(Cadence.value(), m_watt.value(), Resistance.value());
 
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, true).toBool()) {
@@ -256,8 +259,10 @@ void bluetoothdevice::update_hr_from_external() {
 #endif
 #endif
 #ifdef Q_OS_ANDROID
+    if (!settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = QAndroidJniObject::callStaticMethod<jint>("org/cagnulen/qdomyoszwift/WearableController", "getHeart", "()I");
         qDebug() << "WearOS Companion Heart:" << Heart.value();
+    }
 #endif
     }
 }

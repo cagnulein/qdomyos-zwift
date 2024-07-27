@@ -15,7 +15,7 @@
 #include "zwift-api/PlayerStateWrapper.h"
 #include "zwift-api/zwift_client_auth.h"
 
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#ifdef Q_CC_MSVC
 #include "zwift-api/zwift_messages.pb.h"
 #endif
 

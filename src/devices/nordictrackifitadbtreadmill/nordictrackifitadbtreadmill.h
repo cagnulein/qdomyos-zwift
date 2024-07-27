@@ -87,7 +87,9 @@ class nordictrackifitadbtreadmill : public treadmill {
     QUdpSocket *socket = nullptr;
     QHostAddress lastSender;
 
+#ifdef Q_OS_WIN32
     nordictrackifitadbtreadmillLogcatAdbThread *logcatAdbThread = nullptr;
+#endif
 
     int x14i_inclination_lookuptable(double reqInclination);
 

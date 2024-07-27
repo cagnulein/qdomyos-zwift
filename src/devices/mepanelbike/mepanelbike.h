@@ -36,7 +36,7 @@
 class mepanelbike : public bike {
     Q_OBJECT
   public:
-    mepanelbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    mepanelbike(bool noWriteResistance, bool noHeartService, int8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected() override;
 
   private:
@@ -55,7 +55,7 @@ class mepanelbike : public bike {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;

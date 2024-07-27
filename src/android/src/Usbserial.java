@@ -13,6 +13,7 @@ import android.app.Service;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
 import com.hoho.android.usbserial.driver.Ch34xSerialDriver;
@@ -68,7 +69,12 @@ public class Usbserial {
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
             PendingIntent permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent("org.cagnulen.qdomyoszwift.USB_PERMISSION"), flags);
             IntentFilter filter = new IntentFilter("org.cagnulen.qdomyoszwift.USB_PERMISSION");
-            context.registerReceiver(usbReceiver, filter);
+            ContextCompat.registerReceiver(
+                    context,
+                    usbReceiver,
+                    filter,
+                    ContextCompat.RECEIVER_EXPORTED
+                );
             manager.requestPermission(driver.getDevice(), permissionIntent);
             for(int i=0; i<5000; i++) {
                 if(granted[0] != null) break;

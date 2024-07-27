@@ -33,6 +33,7 @@
 #include "devices/csaferower/csaferower.h"
 #endif
 #include "devices/concept2skierg/concept2skierg.h"
+#include "devices/crossrope/crossrope.h"
 #include "devices/cscbike/cscbike.h"
 #include "devices/domyosbike/domyosbike.h"
 #include "devices/domyoselliptical/domyoselliptical.h"
@@ -147,7 +148,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetooth(const discoveryoptions &options);
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
-                       bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
+                       bool testResistance = false, int8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0,
                        bool startDiscovery = true);
     ~bluetooth();
     bluetoothdevice *device();
@@ -166,6 +167,7 @@ class bluetooth : public QObject, public SignalHandler {
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     bowflext216treadmill *bowflexT216Treadmill = nullptr;
+    crossrope *crossRope = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     focustreadmill *focusTreadmill = nullptr;
 #ifndef Q_OS_IOS
@@ -278,7 +280,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool noConsole = false;
     bool logs = true;
     uint32_t pollDeviceTime = 200;
-    uint8_t bikeResistanceOffset = 4;
+    int8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 
